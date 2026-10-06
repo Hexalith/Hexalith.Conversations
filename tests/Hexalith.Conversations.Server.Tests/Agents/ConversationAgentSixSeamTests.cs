@@ -17,6 +17,10 @@ using Hexalith.EventStore.Contracts.Commands;
 using Hexalith.EventStore.Contracts.Queries;
 using Hexalith.EventStore.Contracts.Projections;
 using Hexalith.Conversations.Server.Projections;
+using Hexalith.Conversations.Server.Queries;
+using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.Conversations.Contracts.Projections;
+using Microsoft.AspNetCore.Builder;
 using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.EventStore.DomainService;
 using Microsoft.Extensions.DependencyInjection;
@@ -295,23 +299,33 @@ public sealed class ConversationAgentSixSeamTests
     {
         var f = new F();
         var state = await f.CurrentStateAsync();
-        var services = new ServiceCollection();
+        var builder = WebApplication.CreateBuilder();
+        builder.AddEventStoreDomainService(typeof(ConversationsAssemblyMarker).Assembly, typeof(ServerAssemblyMarker).Assembly);
+        var services = builder.Services;
         services.AddSingleton<IConversationCommandSourceVerifier>(f);
         services.AddSingleton<IConversationAgentAuthority>(f);
         services.AddSingleton<IConversationDeletionApprovalVerifier>(f);
         services.AddSingleton<IConversationDeletionReceiptVerifier>(f);
         services.AddSingleton<IConversationTenantCatalogue>(f);
         services.AddSingleton<Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader>(f);
-        services.AddConversationAgentServices();
-        services.AddKeyedSingleton<IAsyncDomainProcessor, ConversationAggregate>("conversations");
-        services.AddScoped<IDomainQueryHandler, ConversationAgentReadQueryHandler>();
-        await using var provider = services.BuildServiceProvider();
-        using var scope = provider.CreateScope();
+        services.AddConversationTenantAccess();
+        services.AddConversationQueries(options => options.MaxOffset = 100_000);
+        await using var app = builder.Build();
+        using var scope = app.Services.CreateScope();
+        scope.ServiceProvider.GetRequiredKeyedService<IDomainProcessor>("conversation").ShouldBeOfType<ConversationAggregate>();
         var result = await DomainServiceRequestRouter.ProcessAsync(scope.ServiceProvider, new(f.Envelope(f.Membership), state), cancellationToken: TestContext.Current.CancellationToken);
         result.Events.Count.ShouldBe(1);
         f.Reads.ShouldBe(1);
         // Only setup read; admission never re-enters source transport.
-        var query = new QueryEnvelope(F.Tenant.Value, "conversations", F.Conversation.Value, "conversation-agent-read",
+        var forged = f.Envelope(f.Membership, "human") with
+        {
+            CommandType = typeof(AddAgentParticipant).AssemblyQualifiedName!
+        };
+        var refused = await DomainServiceRequestRouter.ProcessAsync(scope.ServiceProvider, new(forged, state),
+            cancellationToken: TestContext.Current.CancellationToken);
+        refused.IsRejection.ShouldBeTrue();
+        f.Reads.ShouldBe(1);
+        var query = new QueryEnvelope(F.Tenant.Value, "conversation", F.Conversation.Value, "conversation-agent-read",
             JsonSerializer.SerializeToUtf8Bytes(new ConversationAgentReadQuery(F.Tenant, F.Conversation, ParticipantStateOnly: true), F.Options), "correlation", "agents-service");
         var queried = await DomainQueryDispatcher.ExecuteAsync(scope.ServiceProvider, query, TestContext.Current.CancellationToken);
         queried.Success.ShouldBeTrue();
@@ -447,6 +461,11 @@ public sealed class ConversationAgentSixSeamTests
         deleted.Detail.FileReferences.ShouldBeEmpty();
         deleted.Detail.Label.ShouldBeNull();
         deleted.Summary.Freshness.LastAppliedEventPosition.ShouldBe(f.PersistedEvents.Count);
+        var publicRead = new ConversationProjectionReadService(new LegacyLocalReadAccess(), new LegacyLocalReadStore(deleted));
+        var hidden = await publicRead.ReadDetailAsync(F.Tenant, "human", F.Tenant, F.Conversation, TestContext.Current.CancellationToken);
+        hidden.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        hidden.Projection.ShouldBeNull();
+        hidden.IsAvailableForTrustBearingActions.ShouldBeFalse();
     }
 
     private static ConversationProjectedReadModels Project(F fixture)
@@ -456,6 +475,45 @@ public sealed class ConversationAgentSixSeamTests
             F.At.AddMinutes(index), "correlation")).ToArray();
         var events = ConversationProjectionEventDecoder.Decode(envelopes);
         return new ConversationProjectionMaterializer().Project(F.Tenant, F.Conversation, events, F.At.AddHours(1), TimeSpan.FromDays(1));
+    }
+
+
+
+
+
+    /// <summary>Caller cancellation completes each new boundary even when the injected provider never completes.</summary>
+    [Fact]
+    public async Task NeverCompletingProvidersRespectCallerCancellation()
+    {
+        var authority = new F { PendingAuthority = Pending<ConversationAgentAuthorization>() };
+        await VerifyCancellationAsync(token => authority.Queries.ReadAsync("agents-service", new(F.Tenant, F.Conversation), token));
+        var source = new F { PendingSourceRead = Pending<Hexalith.EventStore.Contracts.Streams.AuthoritativeStreamReadResult>() };
+        await VerifyCancellationAsync(token => source.Queries.ReadAsync("agents-service", new(F.Tenant, F.Conversation), token));
+        var catalogue = new F { PendingCatalogue = Pending<ConversationTenantCatalogueResult>() };
+        await VerifyCancellationAsync(token => catalogue.Queries.CountAsync("agents-service", new(F.Tenant, F.At.AddDays(-1), F.At.AddDays(1)), token));
+        var proof = new F { PendingCommandProof = Pending<Hexalith.EventStore.Contracts.Streams.AuthoritativeStreamReadResult>() };
+        var current = await proof.CurrentStateAsync();
+        await VerifyCancellationAsync(token => proof.Admission.EvaluateAsync(new(new(proof.Envelope(proof.Membership), current)), token));
+        var approval = new F { PendingApproval = Pending<ConversationAgentsOutcome>() };
+        var approvalCommand = new ApproveConversationDeletion(new(approval.CommandMetadata(F.Human), F.Conversation,
+            "independent-approval", 1, F.At.AddMinutes(1), F.DeletionAudit(1, F.At.AddMinutes(1))), "approval-event");
+        await VerifyCancellationAsync(token => approval.Admission.EvaluateAsync(new(new(approval.Envelope(approvalCommand, "human"), null)), token));
+        var receipt = new F { PendingReceipt = Pending<ConversationAgentsOutcome>() };
+        var delivery = new RecordConversationDeletionDelivery(new(receipt.CommandMetadata(F.Human), F.Conversation,
+            new("signal", F.Tenant, F.Conversation, "tenant-alpha:conversation:conversation-alpha", 2, "independent-approval"),
+            ConversationDeletionDeliveryAction.Attempt, "attempt", "target", 0), "delivery-event");
+        await VerifyCancellationAsync(token => receipt.Admission.EvaluateAsync(new(new(receipt.Envelope(delivery, "source-worker"), null)), token));
+    }
+
+    private static Task<T> Pending<T>() => new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously).Task;
+
+    private static async Task VerifyCancellationAsync(Func<CancellationToken, Task> operation)
+    {
+        using var cancellation = new CancellationTokenSource();
+        Task pending = operation(cancellation.Token);
+        cancellation.Cancel();
+        // Test watchdog only; production boundaries use the caller token with no timeout profile.
+        await Should.ThrowAsync<OperationCanceledException>(() => pending.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken));
     }
 
 }

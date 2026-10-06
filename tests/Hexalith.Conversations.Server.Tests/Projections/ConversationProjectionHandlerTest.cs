@@ -51,24 +51,29 @@ public sealed class ConversationProjectionHandlerTest
     }
 
     /// <summary>
-    /// The shared registry must expose exactly the legacy public event map: 13 entries keyed by simple type name.
+    /// The shared registry preserves all thirteen legacy public events and explicitly includes the five restricted source events.
     /// </summary>
     [Fact]
-    public void PublicEventRegistryShouldExposeTheLegacyThirteenEventNames()
+    public void PublicEventRegistryShouldPreserveLegacyAndRestrictedEventNames()
     {
         ConversationProjectionHandler.PublicEventTypeEntries.Keys.Order(StringComparer.Ordinal).ShouldBe(
             new[]
             {
+                "AgentParticipantRemoved",
                 "ConversationArchived",
                 "ConversationClosed",
                 "ConversationContentMarkedSensitive",
                 "ConversationCreated",
+                "ConversationDeletionApproved",
+                "ConversationDeletionDeliveryRecorded",
                 "ConversationLifecycleChanged",
                 "ConversationMetadataUpdated",
                 "ConversationProjectChanged",
                 "FileReferenceAttached",
                 "MessageAppended",
                 "MessageContentRedacted",
+                "MessageDeleted",
+                "MessageEdited",
                 "ParticipantAdded",
                 "RetentionPolicyReplaced",
                 "RetentionPolicySet",
@@ -172,7 +177,10 @@ public sealed class ConversationProjectionHandlerTest
     {
         ProjectionEventDto unknown = new(
             "SomeForeignDomainEvent",
-            JsonSerializer.SerializeToUtf8Bytes(new { ignored = true }, Options),
+            JsonSerializer.SerializeToUtf8Bytes(new
+            {
+                ignored = true
+            }, Options),
             "json",
             2,
             Started.AddSeconds(2),

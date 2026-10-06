@@ -39,59 +39,11 @@ function Assert-Hash([string]$Path, [string]$Expected) {
     }
 }
 
-# Live preflight is complete before any test or service call. This proposal does not mint acceptance.
+# Full live execution cannot be enabled by caller-authored acceptance/provider metadata.
+# C4 publication discovery, ordered backfill/pump, worker binding and independent receiver lookup
+# are not installed. LiveManifest is reserved for a future complete owner implementation.
 if ($Mode -eq 'Live') {
-    if (-not $LiveManifest -or -not (Test-Path -LiteralPath $LiveManifest)) {
-        throw 'Live gate closed: missing full owner acceptance, exact targets/commands and configured authenticated authority/Party/source-attestation/catalogue/approval/receiver providers. Local fixtures cannot qualify EXT-CONV-AI-1.'
-    }
-    $manifest = Get-Content -LiteralPath $LiveManifest -Raw | ConvertFrom-Json -AsHashtable
-    foreach ($field in @('AcceptedStatus', 'TargetCommit', 'TargetIntegrationDate', 'FullSixSeamContractVersion', 'WindowSemanticsAccepted',
-        'VerifierSha256', 'AcceptanceEvidencePath', 'AcceptanceEvidenceSha256', 'Prerequisites', 'Providers', 'Lanes')) {
-        if (-not $manifest.ContainsKey($field)) { throw "Live gate closed: missing accepted $field." }
-    }
-    $acceptedDate = [DateTime]::MinValue
-    if ($manifest.AcceptedStatus -notin @('Committed', 'Available') -or $manifest.FullSixSeamContractVersion -ne 1 -or
-        $manifest.WindowSemanticsAccepted -ne $true -or $manifest.TargetCommit -notmatch '^[a-fA-F0-9]{40}$' -or
-        -not [DateTime]::TryParse($manifest.TargetIntegrationDate, [ref]$acceptedDate)) {
-        throw 'Live gate closed: the complete target/date/window/contract is not accepted.'
-    }
-    Assert-Hash $PSCommandPath $manifest.VerifierSha256
-    Assert-Hash $manifest.AcceptanceEvidencePath $manifest.AcceptanceEvidenceSha256
-    $actualCommit = (& git -C $repository rev-parse HEAD).Trim()
-    if ($LASTEXITCODE -ne 0 -or $actualCommit -ne $manifest.TargetCommit -or (& git -C $repository status --porcelain)) {
-        throw 'Live gate closed: checkout differs from the accepted immutable full target.'
-    }
-    foreach ($id in @('EXT-PARTIES-1')) {
-        if (-not $manifest.Prerequisites.ContainsKey($id) -or $manifest.Prerequisites[$id].AcceptedStatus -ne 'Available' -or
-            -not $manifest.Prerequisites[$id].Target -or -not $manifest.Prerequisites[$id].VerificationCommand) {
-            throw "Live gate closed: prerequisite $id has no Available exact accepted target/command."
-        }
-    }
-    foreach ($name in @('CurrentAuthority', 'ImmutableOrganizationParty', 'AuthenticatedCommandSourceAttestation', 'CompleteTenantCatalogue',
-        'IndependentDeletionApproval', 'AuthenticatedReceiver', 'ExactSourceAndReceiverTarget')) {
-        if (-not $manifest.Providers.ContainsKey($name)) { throw "Live gate closed: missing production provider $name." }
-        $provider = $manifest.Providers[$name]
-        if ($provider.Configured -ne $true -or -not $provider.TypeName -or $provider.TypeName -match 'Unavailable|Fixture|Mock|Fake|NoOp|Deferred|InMemory') {
-            throw "Live gate closed: $name is missing or substituted."
-        }
-        Assert-Hash $provider.AssemblyPath $provider.AssemblySha256
-    }
-    foreach ($name in $requiredLanes) {
-        if (-not $manifest.Lanes.ContainsKey($name)) { throw "Live gate closed: missing required $name command." }
-        $lane = $manifest.Lanes[$name]
-        if (-not $lane.Class -or $lane.Class -match 'LocalFixture|ConversationAgentSixSeamTests|ConversationAgentClientTests' -or
-            $lane.TargetCommit -ne $manifest.TargetCommit) { throw "Live gate closed: $name is not accepted exact-target live evidence." }
-        Assert-Hash $lane.AssemblyPath $lane.AssemblySha256
-    }
-    New-Item -ItemType Directory -Path $ArtifactsPath -Force | Out-Null
-    foreach ($name in $requiredLanes) {
-        $lane = $manifest.Lanes[$name]
-        $xml = Join-Path $ArtifactsPath "live-$name.xml"
-        Invoke-Checked @($lane.AssemblyPath, '-class', $lane.Class, '-result-xml', $xml) (Join-Path $ArtifactsPath "live-$name.log")
-        $null = Read-PassingTests $xml $lane.Class
-    }
-    Write-Output 'Live six-seam compatibility commands passed against the accepted full target. Register acceptance is a separate owner action.'
-    exit 0
+    throw 'Live gate closed before any calls: the installed implementation is partial. Automatic C4 publication discovery, ordered backfill/pump, worker binding and independent authenticated receiver acknowledgement lookup are absent, as are production SDK source attestation/compare-append and the accepted catalogue/approval bindings. No manifest can override missing code. Execution requires complete installed behavior and actual Available owner records, or an explicitly accepted all-owner qualification cohort.'
 }
 
 New-Item -ItemType Directory -Path $ArtifactsPath -Force | Out-Null
@@ -144,6 +96,8 @@ $evidence = @{ Mode = 'Local'; EvidenceKind = 'SerializedLocalSimulation'; LiveR
     SourceRevision = (& git -C $repository rev-parse HEAD).Trim(); Lanes = $lanes;
     RemainingGates = @('Owner full target/date/command acceptance', 'Real current authority and immutable Party',
         'Authenticated SDK complete command-source attestation and actor compare/append', 'Complete authenticated tenant catalogue and accepted window',
-        'Independent deletion approval', 'Authenticated receiver and accepted exact target', 'Live storage/restart/replica/race evidence') }
+        'Independent deletion approval with authentic policy/source-bound logical-deletion audit evidence',
+        'Publication discovery, ordered source backfill and automatic worker/pump binding',
+        'Authenticated receiver, independent remote receipt lookup and accepted exact target', 'Live storage/restart/replica/race evidence') }
 $evidence | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $ArtifactsPath 'local-evidence.json') -Encoding utf8
 Write-Output 'Local verification passed. This is not live readiness or dependency availability.'

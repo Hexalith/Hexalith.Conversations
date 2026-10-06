@@ -15,7 +15,7 @@ namespace Hexalith.Conversations.Server.Agents;
 public sealed class ConversationAgentReadQueryHandler(ConversationAgentQueryService service) : IDomainQueryHandler
 {
     /// <inheritdoc />
-    public string Domain => "conversations";
+    public string Domain => "conversation";
     /// <inheritdoc />
     public string QueryType => "conversation-agent-read";
     /// <inheritdoc />

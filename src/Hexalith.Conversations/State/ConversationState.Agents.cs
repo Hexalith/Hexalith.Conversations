@@ -174,7 +174,7 @@ public sealed partial class ConversationState
     /// <param name="conversation">Exact Conversation.</param>
     /// <returns>The immutable stream address.</returns>
     public static string AgentSourceStream(TenantId tenant, ConversationId conversation)
-        => $"{tenant.Value}:conversations:{conversation.Value}";
+        => $"{tenant.Value}:conversation:{conversation.Value}";
 
     /// <summary>Checks exact acknowledgement identity; authentication is a separate admission requirement.</summary>
     /// <param name="signal">Original publication.</param>

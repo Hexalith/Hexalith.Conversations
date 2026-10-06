@@ -149,9 +149,9 @@ public sealed class ConversationProjectionDurableEventCoverageTest
             new MessageEditedDomainEvent(Metadata(ConversationEventType.MessageEdited), new("agent-message"), "edited-local-text", actor),
             new MessageDeletedDomainEvent(Metadata(ConversationEventType.MessageDeleted), new("agent-message")),
             new ConversationDeletionApprovedDomainEvent(Metadata(ConversationEventType.ConversationDeletionApproved),
-                new("signal", tenantId, conversationId, "tenant-durable-001:conversations:conversation-durable-001", 8, "approval"), evidence),
+                new("signal", tenantId, conversationId, "tenant-durable-001:conversation:conversation-durable-001", 8, "approval"), evidence),
             new ConversationDeletionDeliveryRecordedDomainEvent(Metadata(ConversationEventType.ConversationDeletionDeliveryRecorded),
-                new("signal", tenantId, conversationId, "tenant-durable-001:conversations:conversation-durable-001", 8, "approval"),
+                new("signal", tenantId, conversationId, "tenant-durable-001:conversation:conversation-durable-001", 8, "approval"),
                 Contracts.Agents.ConversationDeletionDeliveryAction.Attempt, "attempt", "target", 0),
         ];
 

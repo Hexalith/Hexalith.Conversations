@@ -17,7 +17,7 @@ internal static class ConversationAgentContractSamples
     private static readonly DateTimeOffset At = new(2026, 10, 6, 10, 0, 0, TimeSpan.Zero);
     private static readonly AgentMessageProvenance Provenance = new("opaque-agent-call", true, false);
     private static readonly ConversationDeletionSignal Signal = new("signal-opaque", ContractSamples.Tenant,
-        ContractSamples.Conversation, "tenant-001:conversations:conversation-001", 4, "independent-approval");
+        ContractSamples.Conversation, "tenant-001:conversation:conversation-001", 4, "independent-approval");
     private static readonly ConversationDeletionAcknowledgement Receipt = new("signal-opaque", 4, 7, "receiver-target", "opaque-authenticated-evidence");
 
     /// <summary>Gets additive fixtures while preserving every pre-existing golden wire expectation.</summary>

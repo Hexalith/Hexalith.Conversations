@@ -36,7 +36,7 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
     {
         cancellationToken.ThrowIfCancellationRequested();
         CommandEnvelope envelope = context.Command;
-        if (envelope.Domain != "conversations")
+        if (envelope.Domain != "conversation")
         {
             return DomainServiceAdmissionResult.Accepted();
         }
@@ -63,7 +63,7 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
             if (command is null)
             {
                 var general = await authority.AuthorizeAsync(envelope.UserId, new TenantId(envelope.TenantId),
-                    new ConversationId(envelope.AggregateId), "GeneralCommand", cancellationToken).ConfigureAwait(false);
+                    new ConversationId(envelope.AggregateId), "GeneralCommand", cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
                 return ConversationAgentQueryService.CheckAuthority(general, envelope.UserId, new TenantId(envelope.TenantId), false)
                     == ConversationAgentsOutcome.Available && !general.OrganizationIdentityConfirmed && general.PartyId is not null
@@ -91,17 +91,17 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
             ConversationAgentsOutcome outcome;
             if (command is ApproveConversationDeletion approval)
             {
-                outcome = await approvals.VerifyAsync(envelope, approval.PublicCommand, cancellationToken).ConfigureAwait(false);
+                outcome = await approvals.VerifyAsync(envelope, approval.PublicCommand, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
             }
             else if (command is RecordConversationDeletionDelivery delivery)
             {
-                outcome = await receipts.VerifyAsync(envelope, delivery.PublicCommand, cancellationToken).ConfigureAwait(false);
+                outcome = await receipts.VerifyAsync(envelope, delivery.PublicCommand, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
             }
             else
             {
-                admitted = await authority.AuthorizeAsync(envelope.UserId, metadata.TenantId, conversation, operation, cancellationToken).ConfigureAwait(false);
+                admitted = await authority.AuthorizeAsync(envelope.UserId, metadata.TenantId, conversation, operation, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
                 outcome = ConversationAgentQueryService.CheckAuthority(admitted, envelope.UserId, metadata.TenantId, service);
                 if (outcome == ConversationAgentsOutcome.Available && (admitted.PartyId != metadata.ActorPartyId
@@ -135,7 +135,7 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
             {
                 return Reject(outcome);
             }
-            var sourceProof = await commandSources.VerifyAsync(context.Request, cancellationToken).ConfigureAwait(false);
+            var sourceProof = await commandSources.VerifyAsync(context.Request, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
             var source = sourceProof.IsAuthoritative
                 ? ConversationAgentSourceReader.ReplaySource(sourceProof.Stream, envelope.AggregateIdentity) : null;
@@ -145,7 +145,7 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
             }
             if (!independent)
             {
-                var current = await authority.AuthorizeAsync(envelope.UserId, metadata.TenantId, conversation, operation, cancellationToken).ConfigureAwait(false);
+                var current = await authority.AuthorizeAsync(envelope.UserId, metadata.TenantId, conversation, operation, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
                 outcome = ConversationAgentQueryService.CheckAuthority(current, envelope.UserId, metadata.TenantId, service);
                 if (outcome != ConversationAgentsOutcome.Available)
@@ -159,7 +159,7 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
             }
             else if (command is ApproveConversationDeletion currentApproval)
             {
-                outcome = await approvals.VerifyAsync(envelope, currentApproval.PublicCommand, cancellationToken).ConfigureAwait(false);
+                outcome = await approvals.VerifyAsync(envelope, currentApproval.PublicCommand, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
                 if (outcome != ConversationAgentsOutcome.Available)
                 {
@@ -168,7 +168,7 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
             }
             else if (command is RecordConversationDeletionDelivery delivery)
             {
-                outcome = await receipts.VerifyAsync(envelope, delivery.PublicCommand, cancellationToken).ConfigureAwait(false);
+                outcome = await receipts.VerifyAsync(envelope, delivery.PublicCommand, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
                 if (outcome != ConversationAgentsOutcome.Available)
                 {

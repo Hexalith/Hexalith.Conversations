@@ -39,7 +39,7 @@ namespace Hexalith.Conversations.Tests.Aggregates;
 /// </summary>
 public sealed class ConversationAggregateBaseClassDispatchTest
 {
-    private const string Domain = "conversations";
+    private const string Domain = "conversation";
 
     // Command-time dispatch deserializes the payload with default System.Text.Json options
     // (EventStoreAggregate.DispatchCommandAsync calls JsonSerializer.Deserialize(payload, type)

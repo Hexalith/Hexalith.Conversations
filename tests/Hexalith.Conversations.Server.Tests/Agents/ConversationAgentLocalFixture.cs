@@ -76,6 +76,36 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
         get;
         set;
     }
+    /// <summary>Gets or sets an injected never-completing local authority task for caller-cancellation proof.</summary>
+    public Task<ConversationAgentAuthorization>? PendingAuthority
+    {
+        get; set;
+    }
+    /// <summary>Gets or sets an injected never-completing local sourceread task for caller-cancellation proof.</summary>
+    public Task<AuthoritativeStreamReadResult>? PendingSourceRead
+    {
+        get; set;
+    }
+    /// <summary>Gets or sets an injected never-completing local commandproof task for caller-cancellation proof.</summary>
+    public Task<AuthoritativeStreamReadResult>? PendingCommandProof
+    {
+        get; set;
+    }
+    /// <summary>Gets or sets an injected never-completing local catalogue task for caller-cancellation proof.</summary>
+    public Task<ConversationTenantCatalogueResult>? PendingCatalogue
+    {
+        get; set;
+    }
+    /// <summary>Gets or sets an injected never-completing local approval task for caller-cancellation proof.</summary>
+    public Task<ConversationAgentsOutcome>? PendingApproval
+    {
+        get; set;
+    }
+    /// <summary>Gets or sets an injected never-completing local receipt task for caller-cancellation proof.</summary>
+    public Task<ConversationAgentsOutcome>? PendingReceipt
+    {
+        get; set;
+    }
     /// <summary>Whether local authority is denied.</summary>
     public bool Deny
     {
@@ -173,6 +203,10 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
             throw new IOException("Local unavailable authority.");
         }
         AuthorityCalls++;
+        if (PendingAuthority is not null)
+        {
+            return PendingAuthority;
+        }
         bool deny = Deny || tenantId != Tenant || (conversationId is not null && conversationId != Conversation)
             || (RevokeAfterRead && Reads > 0) || (operation == "GeneralCommand" && authenticatedPrincipalId == "agents-service")
             || (operation == "DeletionSource" && authenticatedPrincipalId != "source-worker")
@@ -193,18 +227,22 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
     /// <inheritdoc />
     public Task<ConversationAgentsOutcome> VerifyAsync(CommandEnvelope envelope, ApproveConversationDeletionCommand command,
         CancellationToken cancellationToken = default)
-        => Task.FromResult(envelope.UserId == "human" && command.ApprovalReference == "independent-approval"
+        => PendingApproval ?? Task.FromResult(envelope.UserId == "human" && command.ApprovalReference == "independent-approval"
             && command.Metadata.ActorPartyId == Human && command.AuditEvidence == DeletionAudit(command.SourceRevision, command.OperationTimestamp)
             ? ApprovalOutcome : ConversationAgentsOutcome.Denied);
 
     /// <inheritdoc />
     public Task<ConversationAgentsOutcome> VerifyAsync(CommandEnvelope envelope, RecordConversationDeletionDeliveryCommand command,
         CancellationToken cancellationToken = default)
-        => Task.FromResult(envelope.UserId == "source-worker" ? ReceiptOutcome : ConversationAgentsOutcome.Denied);
+        => PendingReceipt ?? Task.FromResult(envelope.UserId == "source-worker" ? ReceiptOutcome : ConversationAgentsOutcome.Denied);
 
     /// <inheritdoc />
     public Task<ConversationTenantCatalogueResult> ReadAsync(ConversationActiveCountQuery query, CancellationToken cancellationToken = default)
     {
+        if (PendingCatalogue is not null)
+        {
+            return PendingCatalogue;
+        }
         AfterCatalogue?.Invoke();
         return Task.FromResult(Catalogue);
     }
@@ -212,6 +250,10 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
     /// <inheritdoc />
     public Task<AuthoritativeStreamReadResult> VerifyAsync(DomainServiceRequest request, CancellationToken cancellationToken = default)
     {
+        if (PendingCommandProof is not null)
+        {
+            return PendingCommandProof;
+        }
         var source = BuildSource(request.Command.AggregateIdentity);
         AfterCommandProof?.Invoke();
         return Task.FromResult(source);
@@ -221,6 +263,10 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
     public Task<AuthoritativeStreamReadResult> ReadAsync(AggregateIdentity identity, CancellationToken cancellationToken = default)
     {
         Reads++;
+        if (PendingSourceRead is not null)
+        {
+            return PendingSourceRead;
+        }
         var source = BuildSource(identity);
         AfterRead?.Invoke();
         return Task.FromResult(source);
@@ -238,15 +284,15 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
     /// <summary>Builds the complete SDK prefix for local transport simulation.</summary>
     public async Task<DomainServiceCurrentState> CurrentStateAsync()
     {
-        var source = (await ReadAsync(new AggregateIdentity(Tenant.Value, "conversations", Conversation.Value))).Stream!;
+        var source = (await ReadAsync(new AggregateIdentity(Tenant.Value, "conversation", Conversation.Value))).Stream!;
         var events = source.Events.Select(e => new EventEnvelope(new EventMetadata(e.MessageId, Conversation.Value, "Conversation",
-            Tenant.Value, "conversations", e.SequenceNumber, 0, e.Timestamp, "correlation-1", "causation-1", "human", "local-fixture",
+            Tenant.Value, "conversation", e.SequenceNumber, 0, e.Timestamp, "correlation-1", "causation-1", "human", "local-fixture",
             e.EventTypeName, 1, "json"), e.Payload, null)).ToArray();
         return new(null, events, 0, source.Head);
     }
 
     /// <summary>Builds the authenticated local SDK envelope.</summary>
     public CommandEnvelope Envelope<T>(T command, string principal = "agents-service")
-        => new("command-1", Tenant.Value, "conversations", Conversation.Value, typeof(T).Name,
+        => new("command-1", Tenant.Value, "conversation", Conversation.Value, typeof(T).Name,
             JsonSerializer.SerializeToUtf8Bytes(command, Options), "correlation-1", null, principal, null);
 }

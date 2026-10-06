@@ -126,7 +126,7 @@ public sealed class ConversationAgentClientTests
         using var http = new HttpClient(fixture) { BaseAddress = new("https://local.invalid/") };
         var client = new ConversationClient(http);
         var query = new ConversationDeletionSourceQuery(Tenant, Conversation, 4, "signal");
-        var signal = new ConversationDeletionSignal("signal", Tenant, Conversation, "tenant-alpha:conversations:conversation-alpha", 4, "independent-approval");
+        var signal = new ConversationDeletionSignal("signal", Tenant, Conversation, "tenant-alpha:conversation:conversation-alpha", 4, "independent-approval");
         var valid = new ConversationDeletionSourceResult(ConversationAgentsOutcome.Available, signal);
         foreach (var wrong in new[] { valid with { Signal = signal with { TenantId = new("foreign") } },
             valid with { Signal = signal with { SourceRevision = 5 } }, valid with { Signal = signal with { SourceContractVersion = 2 } },

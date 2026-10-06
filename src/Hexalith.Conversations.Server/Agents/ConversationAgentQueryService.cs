@@ -33,7 +33,7 @@ public sealed class ConversationAgentQueryService(IConversationAgentAuthority au
         {
             return Hidden(query, outcome);
         }
-        var read = await sources.ReadAsync(query.TenantId, query.ConversationId, cancellationToken).ConfigureAwait(false);
+        var read = await sources.ReadAsync(query.TenantId, query.ConversationId, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
         var current = await AuthorizeSafelyAsync(principal, query.TenantId, query.ConversationId, "AgentRead", cancellationToken).ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
@@ -141,7 +141,7 @@ public sealed class ConversationAgentQueryService(IConversationAgentAuthority au
         {
             return new(outcome);
         }
-        var read = await sources.ReadAsync(query.TenantId, query.ConversationId, cancellationToken).ConfigureAwait(false);
+        var read = await sources.ReadAsync(query.TenantId, query.ConversationId, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
         var current = await AuthorizeSafelyAsync(principal, query.TenantId, query.ConversationId, "DeletionSource", cancellationToken).ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
@@ -191,7 +191,7 @@ public sealed class ConversationAgentQueryService(IConversationAgentAuthority au
     {
         try
         {
-            return await authority.AuthorizeAsync(principal, tenant, conversation, operation, cancellationToken).ConfigureAwait(false);
+            return await authority.AuthorizeAsync(principal, tenant, conversation, operation, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
         }
         catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {
@@ -204,7 +204,7 @@ public sealed class ConversationAgentQueryService(IConversationAgentAuthority au
     {
         try
         {
-            return await catalogue.ReadAsync(query, cancellationToken).ConfigureAwait(false);
+            return await catalogue.ReadAsync(query, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
         }
         catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {

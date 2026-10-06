@@ -37,7 +37,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 2026-10-06
+last_updated: 10-06-2026 14:28
 # V14 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-18-v14 and conversations-architecture-2026-08-18-v14 are candidate-bound by v9-authority-bundle-v1.json. GLOBAL IMPLEMENTATION HOLD remains ACTIVE; IR-0 was not run, A2 and A3 are done, A4-A6 remain open, and all successor stories including Epic 16 remain backlog.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
 project: Conversations
@@ -94,7 +94,7 @@ development_status:
   epic-8: in-progress
   8-1-generate-the-versioned-ux-disposition-contract: done
   8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator: done
-  epic-8-retrospective: optional
+  epic-8-retrospective: done
   epic-9: backlog
   9-1-freeze-the-conformance-assertion-inventory-tier-decisions-digest-and-approvals: backlog
   9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution: backlog
@@ -319,3 +319,15 @@ action_items:
     owner: "Dev workflow / Reviewer"
     status: open
     ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
+  - id: "epic-8-retro-item-38-client-public-surface-snapshot"
+    epic: 8
+    action: "After the authorized Agents Client work is committed and reviewed, add a current exported-Client API snapshot to the active CI lane, retain the exclusion-list guard, and prove an unapproved export change fails it."
+    owner: "Client developer / Quality"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-8-retro-2026-10-06.md"
+  - id: "epic-8-retro-item-39-successor-gate-compatibility"
+    epic: 8
+    action: "Resolve the six recorded successor-gate compatibility questions against actual outputs at their first applicable gate runs: theory TRX names, explicit Python verdicts and full summaries, build output discovery and rebuild ordering (9.2/11.2), and allowed retrospective status closures. Retain concrete probe evidence and route genuine defects through the normal dev loop."
+    owner: "Dev workflow / Successor story implementers"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-8-retro-2026-10-06.md"

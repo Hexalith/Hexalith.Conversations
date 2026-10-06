@@ -33,10 +33,10 @@ public sealed class ConversationAgentSourceReader(IAuthoritativeEventStreamReade
         ConversationId conversation, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var identity = new AggregateIdentity(tenant.Value, "conversations", conversation.Value);
+        var identity = new AggregateIdentity(tenant.Value, "conversation", conversation.Value);
         try
         {
-            AuthoritativeStreamReadResult result = await streams.ReadAsync(identity, cancellationToken).ConfigureAwait(false);
+            AuthoritativeStreamReadResult result = await streams.ReadAsync(identity, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
             return result is { IsAuthoritative: true } ? ReplaySource(result.Stream, identity) : null;
         }
@@ -55,7 +55,7 @@ public sealed class ConversationAgentSourceReader(IAuthoritativeEventStreamReade
     {
         var tenant = new TenantId(identity.TenantId);
         var conversation = new ConversationId(identity.AggregateId);
-        if (sourceInput is not { } source || source.Identity != identity || identity.Domain != "conversations"
+        if (sourceInput is not { } source || source.Identity != identity || identity.Domain != "conversation"
             || source.Events is null || source.Head != source.Events.Count
             || source.Head < 0 || source.ObservedAt == default || string.IsNullOrWhiteSpace(source.ObservationId))
         {

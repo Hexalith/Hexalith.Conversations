@@ -411,7 +411,7 @@ public sealed class ConversationClient : IConversationClient
             return new(ConversationAgentsOutcome.Invalid);
         }
         var command = new SubmitCommandRequest(IntentId(metadata, conversation, commandType), metadata.TenantId.Value,
-            "conversations", conversation.Value, commandType, JsonSerializer.SerializeToElement(intent, JsonOptions),
+            "conversation", conversation.Value, commandType, JsonSerializer.SerializeToElement(intent, JsonOptions),
             metadata.CorrelationId, IdempotencyKey: metadata.IdempotencyKey);
         try
         {
@@ -461,7 +461,7 @@ public sealed class ConversationClient : IConversationClient
         string queryType, TRequest payload, TResult unavailable, CancellationToken cancellationToken) where TResult : class
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var query = new SubmitQueryRequest(tenant.Value, "conversations", aggregate, queryType,
+        var query = new SubmitQueryRequest(tenant.Value, "conversation", aggregate, queryType,
             Payload: JsonSerializer.SerializeToElement(payload, JsonOptions))
         {
             Freshness = new(RequireFresh: true)
@@ -571,7 +571,7 @@ public sealed class ConversationClient : IConversationClient
                     || signal.SourceContractVersion != 1 || signal.TenantId != request.TenantId || signal.ConversationId != request.ConversationId
                     || signal.SourceRevision <= 0 || string.IsNullOrWhiteSpace(signal.ConversationDeletionSignalId)
                     || string.IsNullOrWhiteSpace(signal.ApprovalReference)
-                    || signal.SourceStream != $"{request.TenantId.Value}:conversations:{request.ConversationId.Value}"
+                    || signal.SourceStream != $"{request.TenantId.Value}:conversation:{request.ConversationId.Value}"
                     || request.SourceRevision is not null && request.SourceRevision != signal.SourceRevision
                     || request.SignalId is not null && request.SignalId != signal.ConversationDeletionSignalId)
                 {
