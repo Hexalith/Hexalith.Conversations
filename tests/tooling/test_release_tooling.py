@@ -547,9 +547,11 @@ class ReleaseToolingTests(unittest.TestCase):
         for excluded_method in (
             "PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently",
             "PreservationTraceabilityManifestValidationTest.CurrentControlsAndTierPrerequisiteShouldStayTruthful",
+            "PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap",
             "SmC2BaselineReconstructionValidationTest.BaselineShouldRecordAnAuditableReconstructionMethod",
         ):
             self.assertEqual(1, ci.count(excluded_method))
+        self.assertNotIn("UxPreservationDispositionValidationTest", ci)
 
         global_json = json.loads((ROOT / "global.json").read_text(encoding="utf-8"))
         self.assertEqual("Microsoft.Testing.Platform", global_json["test"]["runner"])
