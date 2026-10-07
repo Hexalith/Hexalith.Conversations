@@ -2811,6 +2811,45 @@ V2_8_2_FAULT_LANES = {
     "AC-8.2-09": ["row-activated", "historical-owner", "nonexistent-owner"],
     "AC-8.2-10": list(V2_8_2_REQUIRED_FAULTS),
 }
+V2_9_1_CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/9.1.json"
+V2_9_1_GENERATOR_PATH = "_bmad/scripts/generate_conformance_tiering.py"
+V2_9_1_DECISION_PATH = "docs/release-evidence/conformance-oracle-tiering-decision-v2.json"
+V2_9_1_APPROVALS_PATH = "docs/release-evidence/conformance-oracle-tiering-approvals-v2.json"
+V2_9_1_OUTPUT_PATHS = (
+    "docs/release-evidence/conformance-oracle-tiering-disposition-v2.schema.json",
+    "docs/release-evidence/conformance-oracle-tiering-disposition-v2.json",
+    "docs/release-evidence/conformance-oracle-tiering-disposition-v2.md",
+)
+V2_9_1_RECEIPT_PATH = "artifacts/v9/9.1/pre-split/receipt.json"
+V2_9_1_FAULT_RESULT_PATH = "artifacts/v9/9.1/faults.xml"
+V2_9_1_FAULT_COMMAND = (
+    "python3 -m pytest -q _bmad/scripts/tests/test_conformance_tiering.py -k tiering_faults "
+    "--junitxml=artifacts/v9/9.1/faults.xml"
+)
+V2_9_1_FAULT_PROPERTY = "story91ObservedFault"
+V2_9_1_FAULT_CLASSNAME = "_bmad.scripts.tests.test_conformance_tiering"
+V2_9_1_REQUIRED_FAULTS = {
+    "assertion-missing": "CONFORMANCE_ASSERTION_MISSING",
+    "assertion-duplicate": "CONFORMANCE_ASSERTION_DUPLICATE",
+    "assertion-renamed": "CONFORMANCE_ASSERTION_RENAMED",
+    "strength-weakened": "ASSERTION_STRENGTH_WEAKENED",
+    "tier-unassigned": "TIER_UNASSIGNED",
+    "tier-reason-missing": "TIER_REASON_MISSING",
+    "approval-missing": "TIER_APPROVAL_MISSING",
+    "denominator-drift": "FR20_DENOMINATOR_DRIFT",
+    "public-widened": "PUBLIC_CONTRACT_WIDENED",
+    "v1-mutated": "V1_ARTIFACT_DRIFT",
+}
+# The exact byte streams the Story 9.1 fault fixtures hash before, during, and after each mutation;
+# `_bmad/scripts/tests/test_conformance_tiering.py` uses the same ordered set.
+V2_9_1_FAULT_FIXTURE_PATHS = tuple(sorted((
+    *V2_9_1_OUTPUT_PATHS,
+    V2_9_1_APPROVALS_PATH,
+    "tests/Hexalith.Conversations.Conformance.Tests/TenantIsolationConformanceSuiteTest.cs",
+    "src/Hexalith.Conversations.Contracts/Conformance/TieringFaultProbeWidening.cs",
+    "docs/release-evidence/release-baseline-v1.md",
+)))
+V2_9_1_BINDING_RULE = "SC-9.1 is HEAD^{commit} at final-record generation"
 V2_HISTORY_FIXTURE_PATH = "_bmad/scripts/fixtures/story-7.4-history-v1.json"
 V2_HISTORY_OUTPUT_PATH = "artifacts/v9/7.4/AC-7.4-01.json"
 V2_HISTORY_ANCHORS = (
@@ -2985,6 +3024,26 @@ V2_CALLER_FACT_OPTIONS = frozenset(
 # codes describe an environment that cannot support a trustworthy record;
 # everything else is a proven `FAIL`.
 V2_CODES = {
+    "CONFORMANCE_ASSERTION_MISSING": "FAIL",
+    "CONFORMANCE_ASSERTION_DUPLICATE": "FAIL",
+    "CONFORMANCE_ASSERTION_RENAMED": "FAIL",
+    "CONFORMANCE_ASSERTION_UNKNOWN": "FAIL",
+    "CONFORMANCE_ASSERTION_SOURCE_DRIFT": "FAIL",
+    "CONFORMANCE_DISCOVERY_UNSUPPORTED": "FAIL",
+    "ASSERTION_STRENGTH_WEAKENED": "FAIL",
+    "TIER_UNASSIGNED": "FAIL",
+    "TIER_REASON_MISSING": "FAIL",
+    "TIER_APPROVAL_MISSING": "FAIL",
+    "FR20_DENOMINATOR_DRIFT": "FAIL",
+    "PUBLIC_CONTRACT_WIDENED": "FAIL",
+    "V1_ARTIFACT_DRIFT": "FAIL",
+    "TIERING_AUTHORITY_INVALID": "FAIL",
+    "TIERING_PRE_SPLIT_RESULT_INVALID": "FAIL",
+    "TIERING_SCHEMA_INVALID": "FAIL",
+    "TIERING_RENDER_DRIFT": "FAIL",
+    "TIERING_PRE_SPLIT_RESULT_MISSING": "BLOCKED",
+    "TIERING_CAPTURE_FAILED": "BLOCKED",
+    "TIERING_ENVIRONMENT_UNAVAILABLE": "BLOCKED",
     "UX_DECISION_MISSING": "FAIL",
     "UX_DECISION_DUPLICATE": "FAIL",
     "UX_DECISION_UNKNOWN": "FAIL",
@@ -4330,9 +4389,39 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
         lines.extend(f"| Source | {code(row['path'])} | {code(row['sha256'])} |" for row in ux["sources"])
         lines.extend(f"| {code(role)} | {code(row['path'])} | {code(row['sha256'])} |"
                      for role, row in ux["outputs"].items())
+    if "conformanceTiering" in record:
+        tiering = record["conformanceTiering"]
+        pre_split = tiering["preSplitResult"]
+        lines.extend(["", "## Story 9.1 conformance tiering", "",
+                      f"- Candidate: {code(tiering['sourceRevisionId'])}",
+                      f"- Candidate rule: {markdown_table_text(tiering['bindingRule'])}",
+                      f"- Story 7.4 record SHA-256: {code(tiering['predecessorRecord']['sha256'])}",
+                      f"- Story 7.4 candidate: {code(tiering['predecessorCandidate'])}",
+                      f"- Inventory SHA-256: {code(tiering['inventorySha256'])}",
+                      f"- Pre-split freeze commit: {code(pre_split['sourceCommit'])}",
+                      f"- Pre-split methods / executed cases: {code(pre_split['discoveredMethods'])} / "
+                      f"{code(pre_split['executedTestCases'])}",
+                      f"- Assertions: {code(tiering['assertionCount'])}; validation additions: "
+                      f"{code(tiering['validationAdditionCount'])}; portable: {code(tiering['tierCounts']['portable'])}; "
+                      f"module-internal: {code(tiering['tierCounts']['moduleInternal'])}",
+                      f"- Assertion inventory SHA-256: {code(tiering['assertionInventorySha256'])}",
+                      f"- Strength inventory SHA-256: {code(tiering['strengthInventorySha256'])}",
+                      f"- Approval: {code(tiering['approvals']['approvalId'])} by "
+                      f"{markdown_table_text(tiering['approvals']['approver'])}; membership "
+                      f"{code(tiering['approvals']['membershipSha256'])}",
+                      "", "| Binding | Path | SHA-256 |", "| --- | --- | --- |",
+                      f"| Contract | {code(tiering['contract']['path'])} | {code(tiering['contract']['sha256'])} |",
+                      f"| Decision | {code(tiering['decision']['path'])} | {code(tiering['decision']['sha256'])} |",
+                      f"| Pre-split result | {code(pre_split['path'])} | {code(pre_split['sha256'])} |",
+                      f"| Pre-split receipt | {code(pre_split['receipt']['path'])} | {code(pre_split['receipt']['sha256'])} |",
+                      f"| Approvals | {code(tiering['approvals']['path'])} | {code(tiering['approvals']['sha256'])} |",
+                      f"| Fault evidence | {code(tiering['faultEvidence']['path'])} | {code(tiering['faultEvidence']['sha256'])} |",
+                      f"| Test assembly | {code(tiering['testAssembly']['path'])} | {code(tiering['testAssembly']['sha256'])} |"])
+        lines.extend(f"| {code(role)} | {code(row['path'])} | {code(row['sha256'])} |"
+                     for role, row in tiering["disposition"].items())
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
-    if faults and record["storyId"] in ("7.4", "8.2"):
+    if faults and record["storyId"] in ("7.4", "8.2", "9.1"):
         lines.extend(["| Fault | Expected blocker | Observed exit | Observed blockers | Before SHA-256 | After SHA-256 |",
                       "| --- | --- | --- | --- | --- | --- |"])
         lines.extend("| " + " | ".join(code(value) for value in (
@@ -4546,6 +4635,18 @@ def v2_self_ledger(scenario_id: str, story_id: str | None = None) -> list[dict[s
             "generator::story-7.4-predecessor-pair-verified",
             "generator::five-exact-xunit-selectors-passed",
             "generator::candidate-build-and-production-scope-bound",
+        )
+    if story_id == "9.1":
+        subjects += (
+            "generator::tiering-disposition-reproduced-and-verified-read-only",
+            "generator::story-7.4-predecessor-pair-verified",
+            "generator::retained-pre-split-capture-receipt-bound",
+            "generator::assertion-and-strength-inventories-bound",
+            "generator::quality-owner-approval-digest-bound",
+            "generator::all-ten-tiering-fault-categories-measured",
+            "generator::all-ten-fixtures-restored-byte-identically",
+            "generator::seven-exact-xunit-selectors-passed",
+            "generator::candidate-stamped-nonempty-results",
         )
     if story_id == "8.2":
         subjects += (
@@ -6524,6 +6625,239 @@ def v2_8_2_positive(repository: Path, candidate: str, scenario: dict[str, Any]) 
         raise V2Stop([v2_finding("TEST_NOT_RUN", "AC-8.2-01", "the TRX must execute all six preservation facts exactly once")], "8.2")
 
 
+def v2_tiering_command(tokens: list[str], scenario_id: str) -> dict[str, str] | None:
+    """Recognize Story 9.1's exact frozen disposition-generator command."""
+    expected = ["python3", V2_9_1_GENERATOR_PATH, "--repository", ".", "--contract", V2_9_1_CONTRACT_PATH,
+                "--decision", V2_9_1_DECISION_PATH, "--output-schema", V2_9_1_OUTPUT_PATHS[0],
+                "--output-json", V2_9_1_OUTPUT_PATHS[1], "--output-markdown", V2_9_1_OUTPUT_PATHS[2]]
+    if scenario_id == "AC-9.1-01" and tokens == expected:
+        return {"kind": "tiering-bundle", "output": V2_9_1_OUTPUT_PATHS[1]}
+    return None
+
+
+def v2_9_1_tiering_module() -> Any:
+    """Load the tooling's own tiering generator; the evaluated candidate cannot redefine it."""
+    path = Path(__file__).with_name("generate_conformance_tiering.py")
+    specification = importlib_util.spec_from_file_location("story91_conformance_tiering", path)
+    if specification is None or specification.loader is None:
+        raise V2Stop([v2_finding("TIERING_ENVIRONMENT_UNAVAILABLE", str(path),
+                                 "the conformance tiering generator is unavailable")], "9.1")
+    module = importlib_util.module_from_spec(specification)
+    sys.modules[specification.name] = module  # dataclasses resolve postponed annotations here
+    specification.loader.exec_module(module)
+    return module
+
+
+def v2_9_1_scenario_from_results(repository: Path, candidate: str, scenario: dict[str, Any]
+                                 ) -> tuple[dict[str, Any], str, list[dict[str, str]]]:
+    """Execute the exact AC-9.1-01 command and require it to reproduce the committed bundle."""
+    scenario_id = scenario["id"]
+    record: dict[str, Any] = {"scenarioId": scenario_id, "command": scenario["command"],
+                              "exitCode": 1, "result": "FAIL", "blockers": []}
+    findings: list[dict[str, str]] = []
+    try:
+        run = subprocess.run(shlex.split(scenario["command"]), cwd=repository, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, timeout=600, check=False)
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        findings.append(v2_finding("TEST_RESULTS_FAILED", scenario_id, "the exact disposition command did not complete"))
+    else:
+        if run.returncode != 0:
+            reported = re.findall(r"^(?:FAIL|BLOCKED): ([A-Z][A-Z0-9_]*):", decode(run.stderr), re.M)
+            findings.extend(v2_finding(code, scenario_id, "the exact disposition command reported this blocker")
+                            for code in dict.fromkeys(reported) if code in V2_CODES)
+            findings.append(v2_finding("TEST_RESULTS_FAILED", scenario_id,
+                                       f"the exact disposition command exited {run.returncode}"))
+        for path in V2_9_1_OUTPUT_PATHS:
+            committed = v2_committed_blob(repository, candidate, path)
+            installed = repository / path
+            if (committed is None or not installed.is_file() or installed.is_symlink()
+                    or installed.read_bytes() != committed):
+                findings.append(v2_finding("TIERING_RENDER_DRIFT", path,
+                                           "the exact command did not reproduce the committed output"))
+    if findings:
+        record["blockers"] = sorted({item["code"] for item in findings})
+        return record, "failed", findings
+    subjects = ("schema::closed-v2", "inventory::pre-split-identities-once", "strength::canonical-triple-digests",
+                "tiers::exact-public-replacement-or-internal-type", "approvals::quality-owner-digest",
+                "denominator::fr20-membership-unchanged", "public::freeze-surface-unchanged",
+                "supersession::v1-protected-and-linked", "markdown::digest", "predecessor::7.4")
+    record.update({"exitCode": 0, "result": "PASS",
+                   "resultFile": {"path": V2_9_1_OUTPUT_PATHS[1],
+                                  "sha256": v2_sha256(v2_committed_blob(repository, candidate, V2_9_1_OUTPUT_PATHS[1]))},
+                   "outputFiles": [{"path": path, "sha256": v2_sha256(v2_committed_blob(repository, candidate, path))}
+                                   for path in V2_9_1_OUTPUT_PATHS],
+                   "assertionLedger": [{"id": f"{scenario_id}#{ordinal:04d}", "subject": subject, "state": "PASS"}
+                                       for ordinal, subject in enumerate(subjects, 1)]})
+    return record, "passed", []
+
+
+def v2_9_1_receipt(repository: Path, relative: str) -> tuple[bytes, int]:
+    """Read one contained regular retained receipt without following a symlink."""
+    try:
+        lexical = repository / safe_relative_path(relative)
+        resolved = lexical.resolve(strict=True)
+        if (resolved != lexical or not resolved.is_relative_to(repository) or not resolved.is_file()
+                or any(parent.is_symlink() for parent in [lexical, *lexical.parents]
+                       if parent.is_relative_to(repository))):
+            raise ValueError("receipt must be a contained regular file")
+        return read_file_snapshot(resolved)
+    except (FileNotFoundError, OSError):
+        raise V2Stop([v2_finding("TEST_RESULTS_MISSING", relative, "the retained receipt is missing or unreadable")],
+                     "9.1") from None
+    except (GateError, ValueError, RuntimeError):
+        raise V2Stop([v2_finding("INPUT_SCHEMA_INVALID", relative,
+                                 "the receipt path is outside the repository or names a symlink/non-file")], "9.1") from None
+
+
+def v2_9_1_facts(repository: Path, candidate: str, contract: dict[str, Any], validator: Any) -> dict[str, Any]:
+    """Bind Story 9.1 to its verified disposition, retained pre-split result, approvals, and build."""
+    def stop(code: str, subject: str, message: str = "Story 9.1 tiering binding failed") -> NoReturn:
+        raise V2Stop([v2_finding(code, subject, message)], "9.1")
+
+    def committed_input(path: str, code: str) -> bytes:
+        blob = v2_committed_blob(repository, candidate, path)
+        installed = repository / path
+        if blob is None or not installed.is_file() or installed.is_symlink() or installed.read_bytes() != blob:
+            stop(code, path)
+        return blob
+
+    for path in (V2_9_1_CONTRACT_PATH, V2_AUTHORITY_BUNDLE_PATH, V2_9_1_DECISION_PATH, V2_8_1_PREDECESSOR[1],
+                 V2_8_1_PREDECESSOR[2]):
+        committed_input(path, "AUTHORITY_BINDING_INVALID")
+    for path in (V2_9_1_GENERATOR_PATH, "_bmad/scripts/tests/test_conformance_tiering.py",
+                 "tests/Hexalith.Conversations.Conformance.Tests/ConformanceOracleTieringValidationTest.cs",
+                 "tests/Hexalith.Conversations.Conformance.Tests/ConformanceTieringIlReferenceReader.cs"):
+        committed_input(path, "TEST_RESULTS_STALE")
+    outputs = {role: {"path": path, "sha256": v2_sha256(committed_input(path, "TIERING_RENDER_DRIFT"))}
+               for role, path in zip(("schema", "json", "markdown"), V2_9_1_OUTPUT_PATHS)}
+    approvals_bytes = committed_input(V2_9_1_APPROVALS_PATH, "TIER_APPROVAL_MISSING")
+    predecessor_id, predecessor_path, predecessor_markdown = V2_8_1_PREDECESSOR
+    predecessor_digest = v2_verified_predecessor(repository, candidate, predecessor_id, predecessor_path,
+                                                 predecessor_markdown, validator)
+    if predecessor_digest is None:
+        stop("AUTHORITY_BINDING_INVALID", predecessor_path)
+    predecessor = v2_parse_json(v2_committed_blob(repository, candidate, predecessor_path))
+    predecessor_candidate = predecessor["candidate"]["commit"]
+    if (predecessor["summary"] != {"required": 6, "passed": 6, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0}
+            or try_resolve_commit(repository, predecessor_candidate) is None):
+        stop("AUTHORITY_BINDING_INVALID", "Story 7.4 predecessor")
+    tiering = v2_9_1_tiering_module()
+    receipt_bytes, _ = v2_9_1_receipt(repository, V2_9_1_RECEIPT_PATH)
+    try:
+        document = tiering.verify(repository)
+        pre_split = tiering.load_pre_split(repository)
+    except tiering.MultiError as error:
+        raise V2Stop([v2_finding(code if code in V2_CODES else "TEST_RESULTS_FAILED", "disposition", detail)
+                      for code, detail in error.items], "9.1") from None
+    except tiering.TieringError as error:
+        code = error.code if error.code in V2_CODES else "TEST_RESULTS_FAILED"
+        raise V2Stop([v2_finding(code, "disposition", str(error))], "9.1") from None
+    result = document["preSplitResult"]
+    if (pre_split.receipt_sha256 != v2_sha256(receipt_bytes)
+            or result["receipt"]["sha256"] != v2_sha256(receipt_bytes)):
+        stop("TEST_RESULTS_STALE", V2_9_1_RECEIPT_PATH, "the retained pre-split receipt differs from the disposition")
+    freeze = result["sourceCommit"]
+    if freeze == candidate or not is_ancestor(repository, freeze, candidate):
+        stop("BASELINE_NOT_TRUSTWORTHY", "freeze commit", "the pre-split freeze commit is not a strict ancestor")
+    approvals = v2_parse_json(approvals_bytes)
+    decision = approvals.get("decision") if isinstance(approvals, dict) else None
+    binding = document.get("approvals")
+    if (not isinstance(decision, dict) or decision.get("state") != "approved" or not isinstance(binding, dict)
+            or binding.get("sha256") != v2_sha256(approvals_bytes)
+            or decision.get("approvedMembershipSha256") != binding.get("membershipSha256")):
+        stop("TIER_APPROVAL_MISSING", V2_9_1_APPROVALS_PATH)
+    rows = [*document["assertions"], *document["validationAdditions"]]
+    binary, modified = v2_9_1_receipt(repository, V2_8_1_TEST_ASSEMBLY)
+    candidate_ns = int(decode(run_git(repository, "show", "-s", "--format=%ct", candidate).stdout).strip()) * 1_000_000_000
+    if modified < candidate_ns or dotnet_source_revisions(binary) != [candidate]:
+        stop("TEST_RESULTS_STALE", V2_8_1_TEST_ASSEMBLY, "the test assembly is not stamped by the candidate")
+    return {
+        "bindingRule": V2_9_1_BINDING_RULE,
+        "contract": {"path": V2_9_1_CONTRACT_PATH,
+                     "sha256": v2_sha256(v2_committed_blob(repository, candidate, V2_9_1_CONTRACT_PATH))},
+        "predecessorRecord": {"storyId": "7.4", "path": predecessor_path, "sha256": predecessor_digest},
+        "predecessorCandidate": predecessor_candidate,
+        "decision": {"path": V2_9_1_DECISION_PATH,
+                     "sha256": v2_sha256(v2_committed_blob(repository, candidate, V2_9_1_DECISION_PATH))},
+        "disposition": outputs,
+        "preSplitResult": {"path": result["result"]["path"], "sha256": result["result"]["sha256"],
+                           "receipt": {"path": V2_9_1_RECEIPT_PATH, "sha256": v2_sha256(receipt_bytes)},
+                           "sourceCommit": freeze, "discoveredMethods": result["counts"]["discoveredMethods"],
+                           "executedTestCases": result["counts"]["executedTestCases"]},
+        "assertionInventorySha256": v2_sha256(v2_render_json([row["id"] for row in rows])),
+        "strengthInventorySha256": v2_sha256(v2_render_json([[row["id"], row["strengthSha256"]] for row in rows])),
+        "assertionCount": len(document["assertions"]),
+        "validationAdditionCount": len(document["validationAdditions"]),
+        "tierCounts": {"portable": sum(1 for row in rows if row["tier"] == "portable"),
+                       "moduleInternal": sum(1 for row in rows if row["tier"] == "module-internal")},
+        "approvals": {"path": V2_9_1_APPROVALS_PATH, "sha256": v2_sha256(approvals_bytes),
+                      "approvalId": binding["approvalId"], "approver": binding["approver"],
+                      "membershipSha256": binding["membershipSha256"]},
+        "inventorySha256": contract["inventory"]["sha256"],
+        "faultEvidence": {"path": V2_9_1_FAULT_RESULT_PATH,
+                          "sha256": v2_sha256(v2_9_1_receipt(repository, V2_9_1_FAULT_RESULT_PATH)[0])},
+        "testAssembly": {"path": V2_8_1_TEST_ASSEMBLY, "sha256": v2_sha256(binary)},
+        "sourceRevisionId": candidate,
+    }
+
+
+def v2_9_1_fixture_digest(repository: Path, candidate: str) -> str:
+    """Derive the fault fixtures' ordered byte-stream hash from the candidate's committed blobs."""
+    streams = []
+    for path in V2_9_1_FAULT_FIXTURE_PATHS:
+        blob = v2_committed_blob(repository, candidate, path)
+        streams.append(path.encode() + b"\0" + (blob if blob is not None else b"\0absent") + b"\0")
+    return v2_sha256(b"".join(streams))
+
+
+def v2_9_1_faults(repository: Path, candidate: str, validator: Any) -> list[dict[str, Any]]:
+    """Consume the measured, candidate-bound, byte-restored Story 9.1 fault receipts."""
+    def stop(code: str, subject: str, message: str) -> NoReturn:
+        raise V2Stop([v2_finding(code, subject, message)], "9.1")
+
+    content, modified = v2_9_1_receipt(repository, V2_9_1_FAULT_RESULT_PATH)
+    candidate_ns = int(decode(run_git(repository, "show", "-s", "--format=%ct", candidate).stdout).strip()) * 1_000_000_000
+    if modified < candidate_ns:
+        stop("TEST_RESULTS_STALE", V2_9_1_FAULT_RESULT_PATH, "the fault receipt predates the candidate")
+    try:
+        parsed = v2_parse_junit(content)
+    except (ValueError, ElementTree.ParseError):
+        stop("INPUT_SCHEMA_INVALID", V2_9_1_FAULT_RESULT_PATH, "the fault receipt is malformed JUnit XML")
+    if (parsed["reported"] != {"tests": len(parsed["cases"]), "failures": 0, "errors": 0, "skipped": 0}
+            or not parsed["cases"] or any(case["failure"] or case["error"] or case["skipped"] for case in parsed["cases"])):
+        stop("TEST_RESULTS_FAILED", V2_9_1_FAULT_RESULT_PATH, "fault evidence is empty, failed, skipped, or inconsistent")
+    observed_validator = validator.evolve(schema={"$defs": validator.schema["$defs"], "$ref": "#/$defs/tieringObservedFault"})
+    fixture = v2_9_1_fixture_digest(repository, candidate)
+    rows = []
+    for case in parsed["cases"]:
+        metadata = [value for name, value in case["properties"] if name == V2_9_1_FAULT_PROPERTY]
+        try:
+            row = v2_parse_json(metadata[0].encode()) if len(metadata) == 1 else None
+            valid = isinstance(row, dict) and not v2_schema_errors(observed_validator, row)
+        except (ValueError, UnicodeError):
+            row, valid = None, False
+        if not valid:
+            if (isinstance(row, dict) and "restoredExitCode" in row
+                    and (row.get("restoredExitCode") != 0 or row.get("restoredBlockers") != [])):
+                stop("FIXTURE_NOT_RESTORED", V2_9_1_FAULT_RESULT_PATH, "a restored verification did not pass")
+            stop("FAULT_NOT_DETECTED", V2_9_1_FAULT_RESULT_PATH, "every executed case needs exactly one valid measured fault")
+        if case["classname"] != V2_9_1_FAULT_CLASSNAME or case["name"] != f"test_tiering_faults[{row['id']}]":
+            stop("FAULT_NOT_DETECTED", row["id"], "the fault metadata does not identify its executed testcase")
+        if row["candidateCommit"] != candidate:
+            stop("TEST_RESULTS_STALE", row["id"], "the fault evidence names another candidate")
+        if (row["expectedBlocker"] != V2_9_1_REQUIRED_FAULTS.get(row["id"])
+                or row["observedBlockers"] != [row["expectedBlocker"]] or row["observedExitCode"] != 1
+                or row["baselineExitCode"] != 0 or row["baselineBlockers"]):
+            stop("FAULT_NOT_DETECTED", row["id"], "the mutation did not measure baseline PASS and its sole blocker")
+        if (row["beforeSha256"] != fixture or row["afterSha256"] != fixture or row["mutatedSha256"] == fixture
+                or row["restoredExitCode"] != 0 or row["restoredBlockers"]):
+            stop("FIXTURE_NOT_RESTORED", row["id"], "the fixture bytes or restored PASS differ from the candidate")
+        rows.append(row)
+    if [row["id"] for row in rows] != list(V2_9_1_REQUIRED_FAULTS):
+        stop("FAULT_NOT_DETECTED", V2_9_1_FAULT_RESULT_PATH, "the ten ordered fault categories are not all measured once")
+    return rows
+
+
 def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> bytes:
     """Derive, validate, and atomically write the v2 pair; return the JSON bytes."""
     try:
@@ -6629,6 +6963,7 @@ def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> b
     pytest_scenarios: list[tuple[dict[str, Any], dict[str, str | None]]] = []
     acceptance_scenarios: list[tuple[dict[str, Any], dict[str, str]]] = []
     ux_scenarios: list[tuple[dict[str, Any], dict[str, str]]] = []
+    tiering_scenarios: list[dict[str, Any]] = []
     successor_scenarios: list[tuple[dict[str, Any], dict[str, Any]]] = []
     self_scenarios: list[dict[str, Any]] = []
     for position, scenario in enumerate(contract["scenarios"]):
@@ -6637,18 +6972,21 @@ def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> b
         except ValueError:
             tokens = []
         ux_command = v2_ux_command(tokens, scenario["id"]) if story_id == "8.1" else None
+        tiering_command = v2_tiering_command(tokens, scenario["id"]) if story_id == "9.1" else None
         pytest_command = v2_pytest_command(tokens)
         generator_command = None if pytest_command else v2_generator_command(tokens)
         successor_command = (
             v2_successor_command(tokens, contract_path)
             if int(story_id.split(".")[0]) >= 8 and pytest_command is None
-            and ux_command is None and generator_command is None else None
+            and ux_command is None and tiering_command is None and generator_command is None else None
         )
         acceptance_command = (
             None if pytest_command or generator_command else v2_acceptance_command(tokens)
         )
         if ux_command is not None:
             ux_scenarios.append((scenario, ux_command))
+        elif tiering_command is not None:
+            tiering_scenarios.append(scenario)
         elif generator_command is not None:
             permitted_early = v2_early_generator_permitted(
                 story_id, position, contract["scenarios"], contract_path,
@@ -6844,6 +7182,17 @@ def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> b
                 findings.extend(scenario_findings)
                 if "resultFile" in scenario_record:
                     parsed_results += 1
+    if story_id == "9.1" and not findings:
+        if [scenario["id"] for scenario in tiering_scenarios] != ["AC-9.1-01"]:
+            findings.append(v2_finding("SCENARIO_COMMAND_UNSUPPORTED", story_id,
+                                       "Story 9.1 requires its exact AC-9.1-01 disposition command"))
+        for scenario in tiering_scenarios:
+            scenario_record, category, scenario_findings = v2_9_1_scenario_from_results(repository, candidate, scenario)
+            scenario_records[scenario["id"]] = scenario_record
+            categories[scenario["id"]] = category
+            findings.extend(scenario_findings)
+            if "resultFile" in scenario_record:
+                parsed_results += 1
     for scenario, command in (successor_scenarios if not findings else ()):
         if findings:
             break
@@ -6859,7 +7208,8 @@ def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> b
     ledger_rows = sum(
         len(item.get("assertionLedger", [])) for item in scenario_records.values()
     )
-    if (pytest_scenarios or acceptance_scenarios or ux_scenarios or successor_scenarios) and parsed_results == 0:
+    if (pytest_scenarios or acceptance_scenarios or ux_scenarios or tiering_scenarios or successor_scenarios) \
+            and parsed_results == 0:
         findings.append(
             v2_finding(
                 "RECORD_NOT_DERIVED",
@@ -6943,6 +7293,9 @@ def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> b
         )
     if story_id == "8.1":
         record["uxDisposition"] = ux_facts
+    if story_id == "9.1":
+        record["conformanceTiering"] = v2_9_1_facts(repository, candidate, contract, validators["record"])
+        record["faultInjection"]["results"] = v2_9_1_faults(repository, candidate, validators["record"])
     if story_id == "8.2":
         v2_8_2_positive(repository, candidate, scenario_records["AC-8.2-01"])
         record["uxValidation"] = v2_8_2_facts(repository, candidate, contract, validators["record"])

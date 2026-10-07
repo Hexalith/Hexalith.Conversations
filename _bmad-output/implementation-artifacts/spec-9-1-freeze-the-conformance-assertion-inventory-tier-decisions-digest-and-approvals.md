@@ -2,7 +2,7 @@
 title: 'Freeze the conformance assertion inventory, tier decisions, digest, and approvals'
 type: 'feature'
 created: '2026-10-06'
-status: 'ready-for-dev'
+status: 'in-progress'
 baseline_commit: '602f6f52f283f72213826e44f6cd87de05d0d948'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -52,14 +52,14 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `_bmad/scripts/generate_conformance_tiering.py` — reconcile machine cases and assertion sites, derive strength/transitive bindings, propose tiers, and generate/verify deterministically. Unsupported discovery must fail.
-- [ ] `artifacts/v9/9.1/` — retain source/discovery, pre-split execution, assembly hashes, command/candidate receipts, and byte-restored fault observations. Freeze before adding validation cases; label those additions separately.
-- [ ] `docs/release-evidence/conformance-oracle-tiering-approvals-v2.json` — prepare digest-bound proposed membership for Quality review; record the actual owner decision only after approval. Keep historical suite approval distinct.
-- [ ] `docs/release-evidence/conformance-oracle-tiering-disposition-v2.{schema.json,json,md}` — generate required closed fields, complete rows, versioned denominator membership, and digest-bound supersession after approval; preserve decision/v1 bytes.
-- [ ] `tests/Hexalith.Conversations.Conformance.Tests/ConformanceOracleTieringValidationTest.cs` — implement the seven exact AC-9.1-02 through -08 methods with independent positive checks and safe read-only verification.
-- [ ] `_bmad/scripts/tests/test_conformance_tiering.py` — prove source/theory/helper completeness, deterministic output, all ten defect categories, and exact restoration through real CLI fixtures.
-- [ ] `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/story-final-record-v2.schema.json`, and `_bmad/scripts/tests/test_generate_story_record.py` — bind Story 9.1 measured facts, approvals, predecessor compatibility, outputs, fault evidence, and nonvacuous receipts; retain prior story behavior.
-- [ ] `docs/runbooks/story-final-record-generation.md` — document capture selection, approval, commands, blockers, and candidate retention.
+- [x] `_bmad/scripts/generate_conformance_tiering.py` — reconcile machine cases and assertion sites, derive strength/transitive bindings, propose tiers, and generate/verify deterministically. Unsupported discovery must fail.
+- [x] `artifacts/v9/9.1/` — retain source/discovery, pre-split execution, assembly hashes, command/candidate receipts, and byte-restored fault observations. Freeze before adding validation cases; label those additions separately.
+- [x] `docs/release-evidence/conformance-oracle-tiering-approvals-v2.json` — prepare digest-bound proposed membership for Quality review; record the actual owner decision only after approval. Keep historical suite approval distinct.
+- [x] `docs/release-evidence/conformance-oracle-tiering-disposition-v2.{schema.json,json,md}` — generate required closed fields, complete rows, versioned denominator membership, and digest-bound supersession after approval; preserve decision/v1 bytes.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ConformanceOracleTieringValidationTest.cs` — implement the seven exact AC-9.1-02 through -08 methods with independent positive checks and safe read-only verification.
+- [x] `_bmad/scripts/tests/test_conformance_tiering.py` — prove source/theory/helper completeness, deterministic output, all ten defect categories, and exact restoration through real CLI fixtures.
+- [x] `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/story-final-record-v2.schema.json`, and `_bmad/scripts/tests/test_generate_story_record.py` — bind Story 9.1 measured facts, approvals, predecessor compatibility, outputs, fault evidence, and nonvacuous receipts; retain prior story behavior.
+- [x] `docs/runbooks/story-final-record-generation.md` — document capture selection, approval, commands, blockers, and candidate retention.
 - [ ] `docs/release-evidence/story-9.1-final-record-v2.{json,md}` — generate and verify insertion; update this spec and `sprint-status.yaml` only after completion gates pass.
 
 **Acceptance Criteria:**
@@ -69,6 +69,16 @@ context:
 - Given passing current scenario and fault receipts, when AC-9.1-09 runs, then the derived final record binds all required facts and reports `9/9/0/0/0/0`.
 
 ## Implementation Notes
+
+**KEEP across review derivation:** the isolated pre-split capture at freeze commit `611a835af50d66ff1860c1497c16a19713cd5042`; the Quality-owner decision `QO-9.1-TIERING-2026-10-07` for membership digest `13c4e3ea0dffc562db0a6e0d7c7de62e9be766f35c431db16f6145984fe99c7d`; the source-closure strength definition; the IL lower-bound cross-check; and the unchanged decision and v1 bytes. Any change to a frozen test source, a validation addition, the pre-split result, or the decision changes the membership digest and needs a new owner decision.
+
+- **Freeze and capture.** `--capture-pre-split` cloned the freeze commit into `/var/tmp/hexalith-9.1-pre-split-5c2sa9e6` with the root submodules only, read the `ci / conformance` lane from that commit's `ci.yml`, and built Release with `CI=true` (`SourceRevisionId` equals the freeze commit). Discovery found 452 methods. The lane executed 415 cases (401 methods, two theories with 16 cases): 412 passed and 3 failed. The 3 failures are recorded, not claimed: `GovernanceAuditPairingSafetyNetConformanceTest.AggregateGovernanceCommandSurfaceShouldMatchTheAuditPairedInventory`, `PublicContractShapeSnapshotGenerationTest.CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting`, and `ReleaseBaselineValidationTest.BaselineReportedTypeCountShouldAgreeWithTheCommittedSnapshotAndLiveSurface`. GitHub CI at the same commit also failed `SuccessMetricReportAndAttestationValidationTest.SourceArtifactsShouldBindToSignedV1ContentAtItsDeclaredSourceIdentity`, because the snapshot generator rewrote the protected baseline earlier in that run order. The 51 CI-excluded methods keep their discovered identities with no pass claim. In the clone, the four generation methods rewrote only `public-contract-shape-baseline-v1.json`; the real working tree was not touched.
+- **Strength and bindings.** A deterministic C# source model derives each test's closure (declaration, declaring-class constructors, fields, and initialized properties, named members, and named or extension-providing project types, whole and transitive). The canonical triple is the bound first-party module assemblies, the SHA-256 behavior identity of the closure text, and the negative-site count. Unsupported constructs fail with `CONFORMANCE_DISCOVERY_UNSUPPORTED`. The C# `ConformanceTieringIlReferenceReader` independently walks the compiled IL; its Server-bound set equals the source-derived module-internal set (83 tests).
+- **Tiers.** Rows binding `Hexalith.Conversations.Server` are module-internal with their exact Server types and reason; all others are portable with an unchanged-assertion replacement at equal strength. No public re-expression was attempted, so no strength changed. Result: 376 portable and 83 module-internal (76 frozen rows in nine classes, plus the seven validation additions). Every frozen class is single-tier. The validation class anchors the Server assembly in a static field so the whole class stays module-internal, matching Story 9.2's selectors. The three reclassified suites keep their exact v1-floor membership and are module-internal. All 13 files of the residual coupling inventory close only over module-internal rows.
+- **AC-9.1-07 reading (accepted by the owner on 2026-10-07).** Story 9.1 compares the candidate's public project sources with the frozen pre-story surface. The earlier post-PC Agents growth of the public surface is recorded as `preExistingDrift` with `approvalClaimed: false`; it is not approved here.
+- **Approvals.** The proposal binds a per-row digest for every row and suite. The decision-v2 suite approval of 2026-07-28 stays separate as `historicalSuiteApproval` with `approvesRows: false`.
+- **Out of scope, pre-existing.** At the untouched `HEAD`, nine Story 8.2 tests in `test_generate_story_record.py` fail because root gitlinks moved after Story 8.2's scope start. The directory lane result is 804 passed and these 9 failed, the same with and without this story.
+- **Lifecycle bookkeeping.** The candidate restores `sprint-status.yaml`'s `last_updated` to `YYYY-MM-DD`, the form the retention checker parses, so the post-record status transition stays a lifecycle-only change.
 
 ## Spec Change Log
 

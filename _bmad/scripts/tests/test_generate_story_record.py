@@ -8348,5 +8348,206 @@ def test_v2_story_8_2_inserted_cli_rederives_receipts_and_all_record_bindings(tm
         assert result.returncode == 1 and json.loads(result.stdout)["blockers"] == ["RECORD_CONTENT_DRIFT"], result.stdout.decode()
 
 
+
+# --------------------------------------------------------------------------- Story 9.1
+
+STORY_9_1_CONTRACT = WORKSPACE / "_bmad-output/planning-artifacts/v9/story-contracts/9.1.json"
+
+
+def _story_9_1_blobs(path: str) -> bytes | None:
+    """Deterministic stand-in candidate blobs for the fault fixture paths; the widening probe is absent."""
+    return None if path.endswith("TieringFaultProbeWidening.cs") else f"blob:{path}".encode()
+
+
+def _story_9_1_fault_rows(module, candidate: str) -> list[dict]:
+    fixture = module.v2_9_1_fixture_digest(WORKSPACE, candidate)
+    return [{"id": identifier, "candidateCommit": candidate, "expectedBlocker": blocker,
+             "observedExitCode": 1, "observedBlockers": [blocker], "beforeSha256": fixture,
+             "mutatedSha256": module.v2_sha256(identifier.encode()), "afterSha256": fixture,
+             "baselineExitCode": 0, "baselineBlockers": [], "restoredExitCode": 0, "restoredBlockers": []}
+            for identifier, blocker in module.V2_9_1_REQUIRED_FAULTS.items()]
+
+
+def _story_9_1_write_faults(tmp_path: Path, module, rows: list[dict]) -> ElementTree.Element:
+    root = ElementTree.Element("testsuites")
+    suite = ElementTree.SubElement(root, "testsuite", tests=str(len(rows)), failures="0", errors="0", skipped="0")
+    for row in rows:
+        case = ElementTree.SubElement(suite, "testcase", classname=module.V2_9_1_FAULT_CLASSNAME,
+                                      name=f"test_tiering_faults[{row['id']}]")
+        properties = ElementTree.SubElement(case, "properties")
+        ElementTree.SubElement(properties, "property", name=module.V2_9_1_FAULT_PROPERTY, value=json.dumps(row))
+    target = tmp_path / module.V2_9_1_FAULT_RESULT_PATH
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(ElementTree.tostring(root))
+    return root
+
+
+def test_v2_story_9_1_classifies_its_exact_commands() -> None:
+    module = load_generator()
+    contract = json.loads(STORY_9_1_CONTRACT.read_bytes())
+    scenarios = contract["scenarios"]
+    first = shlex.split(scenarios[0]["command"])
+    assert module.v2_tiering_command(first, "AC-9.1-01") == {"kind": "tiering-bundle", "output": module.V2_9_1_OUTPUT_PATHS[1]}
+    assert module.v2_tiering_command(first, "AC-9.1-02") is None
+    assert module.v2_tiering_command([token for token in first if token != "--verify"] + ["--verify"], "AC-9.1-01") is None
+    assert module.v2_tiering_command(first[:-2], "AC-9.1-01") is None
+    for scenario in scenarios[1:8]:
+        route = module.v2_successor_command(shlex.split(scenario["command"]), str(STORY_9_1_CONTRACT.relative_to(WORKSPACE)))
+        assert route == {"kind": "xunit", "assembly": module.V2_8_1_TEST_ASSEMBLY,
+                         "output": f"artifacts/v9/9.1/{scenario['id']}.trx",
+                         "selector": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest."
+                                     + route["selector"].rsplit(".", 1)[1], "selectorKind": "-method"}
+    assert module.v2_generator_command(shlex.split(scenarios[8]["command"])) is not None
+    assert module.v2_retention_config(WORKSPACE, str(STORY_9_1_CONTRACT.relative_to(WORKSPACE)))[:3] == (
+        "9.1", "_bmad-output/implementation-artifacts/"
+               "spec-9-1-freeze-the-conformance-assertion-inventory-tier-decisions-digest-and-approvals.md",
+        "9-1-freeze-the-conformance-assertion-inventory-tier-decisions-digest-and-approvals")
+
+
+def test_v2_story_9_1_fault_matrix_is_exact_and_restored(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repository, _revision, path: _story_9_1_blobs(path))
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
+    rows = _story_9_1_fault_rows(module, candidate)
+    _story_9_1_write_faults(tmp_path, module, rows)
+    assert module.v2_9_1_faults(tmp_path, candidate, validators["record"]) == rows
+
+
+@pytest.mark.parametrize("mutation,blocker", [
+    ("property-missing", "FAULT_NOT_DETECTED"), ("exit", "FAULT_NOT_DETECTED"), ("blocker", "FAULT_NOT_DETECTED"),
+    ("extra-blocker", "FAULT_NOT_DETECTED"), ("baseline", "FAULT_NOT_DETECTED"),
+    ("candidate", "TEST_RESULTS_STALE"), ("after-hash", "FIXTURE_NOT_RESTORED"),
+    ("unchanged-mutation", "FIXTURE_NOT_RESTORED"), ("restored-exit", "FIXTURE_NOT_RESTORED"),
+    ("wrong-name", "FAULT_NOT_DETECTED"), ("wrong-classname", "FAULT_NOT_DETECTED"),
+    ("missing-case", "FAULT_NOT_DETECTED"), ("reordered", "FAULT_NOT_DETECTED"),
+    ("failed", "TEST_RESULTS_FAILED"), ("stale", "TEST_RESULTS_STALE"), ("absent", "TEST_RESULTS_MISSING"),
+])
+def test_v2_story_9_1_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, monkeypatch, mutation: str,
+                                                              blocker: str) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repository, _revision, path: _story_9_1_blobs(path))
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess(
+        [], 0, b"9999999999" if mutation == "stale" else b"0", b""))
+    rows = _story_9_1_fault_rows(module, candidate)
+    row = rows[0]
+    if mutation == "exit": row["observedExitCode"] = 0
+    elif mutation == "blocker": row["observedBlockers"] = ["TIER_UNASSIGNED"]
+    elif mutation == "extra-blocker": row["observedBlockers"].append("TIER_UNASSIGNED")
+    elif mutation == "baseline": row["baselineExitCode"] = 1
+    elif mutation == "candidate": row["candidateCommit"] = "b" * 40
+    elif mutation == "after-hash": row["afterSha256"] = "0" * 64
+    elif mutation == "unchanged-mutation": row["mutatedSha256"] = row["beforeSha256"]
+    elif mutation == "restored-exit": row["restoredExitCode"] = 1
+    elif mutation == "missing-case": rows.pop()
+    elif mutation == "reordered": rows[0], rows[1] = rows[1], rows[0]
+    root = _story_9_1_write_faults(tmp_path, module, rows)
+    suite = root.find("testsuite")
+    case = suite.find("testcase")
+    if mutation == "property-missing":
+        case.remove(case.find("properties"))
+    elif mutation == "wrong-name":
+        case.set("name", "test_unrelated")
+    elif mutation == "wrong-classname":
+        case.set("classname", "unrelated.tests")
+    elif mutation == "failed":
+        ElementTree.SubElement(case, "failure")
+        suite.set("failures", "1")
+    target = tmp_path / module.V2_9_1_FAULT_RESULT_PATH
+    target.write_bytes(ElementTree.tostring(root))
+    if mutation == "absent":
+        target.unlink()
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_9_1_faults(tmp_path, candidate, validators["record"])
+    assert [item["code"] for item in failure.value.findings] == [blocker]
+
+
+def _story_9_1_record(module) -> dict:
+    """Shape a schema-valid Story 9.1 record from the accepted Story 8.2 pair's generic parts."""
+    record = json.loads(_story_8_2_published_pair()[0])
+    contract = json.loads(STORY_9_1_CONTRACT.read_bytes())
+    candidate = record["candidate"]["commit"]
+    digest = "c" * 64
+    record.pop("uxValidation")
+    record["storyId"] = "9.1"
+    record["predecessors"] = ["7.4"]
+    record["inventory"] = dict(contract["inventory"])
+    record["rollback"] = dict(contract["rollback"])
+    record["scenarios"] = [{"scenarioId": scenario["id"], "command": scenario["command"], "exitCode": 0,
+                            "result": "PASS", "blockers": [],
+                            "assertionLedger": [{"id": f"{scenario['id']}#0001", "subject": "fixture", "state": "PASS"}]}
+                           for scenario in contract["scenarios"]]
+    record["summary"] = dict(contract["finalRecord"]["summary"])
+    record["outputs"] = {"json": {"path": contract["finalRecord"]["paths"][0], "sha256": digest},
+                         "markdown": {"path": contract["finalRecord"]["paths"][1], "sha256": digest}}
+    record["faultInjection"] = {"results": _story_9_1_fault_rows(module, candidate)}
+    binding = {"path": "docs/release-evidence/example.json", "sha256": digest}
+    record["conformanceTiering"] = {
+        "bindingRule": module.V2_9_1_BINDING_RULE, "contract": binding,
+        "predecessorRecord": {"storyId": "7.4", "path": "docs/release-evidence/story-7.4-final-record-v2.json",
+                              "sha256": digest},
+        "predecessorCandidate": candidate, "decision": binding,
+        "disposition": {"schema": binding, "json": binding, "markdown": binding},
+        "preSplitResult": {"path": "artifacts/v9/9.1/pre-split/conformance.trx", "sha256": digest,
+                           "receipt": binding, "sourceCommit": candidate, "discoveredMethods": 452,
+                           "executedTestCases": 415},
+        "assertionInventorySha256": digest, "strengthInventorySha256": digest, "assertionCount": 452,
+        "validationAdditionCount": 7, "tierCounts": {"portable": 382, "moduleInternal": 77},
+        "approvals": {"path": module.V2_9_1_APPROVALS_PATH, "sha256": digest, "approvalId": "APPROVAL-1",
+                      "approver": "Owner", "membershipSha256": digest},
+        "inventorySha256": contract["inventory"]["sha256"], "faultEvidence": binding, "testAssembly": binding,
+        "sourceRevisionId": candidate,
+    }
+    return record
+
+
+def test_v2_story_9_1_schema_requires_exclusive_tiering_binding_and_ordered_faults(monkeypatch) -> None:
+    module = load_generator()
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repository, _revision, path: _story_9_1_blobs(path))
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    record = _story_9_1_record(module)
+    final, json_bytes, markdown = module.v2_finalize(record)
+    validator.validate(final)
+    assert module.v2_verify_pair(json_bytes, markdown) == []
+    text = markdown.decode()
+    assert "## Story 9.1 conformance tiering" in text and "| `tier-unassigned` | `TIER_UNASSIGNED` | `1` |" in text
+    assert not validator.is_valid({key: value for key, value in final.items() if key != "conformanceTiering"})
+    for rows in (final["faultInjection"]["results"][:-1], list(reversed(final["faultInjection"]["results"]))):
+        changed = deepcopy(final)
+        changed["faultInjection"]["results"] = rows
+        assert not validator.is_valid(changed)
+    wrong = deepcopy(final)
+    wrong["faultInjection"]["results"][0]["expectedBlocker"] = "TIER_UNASSIGNED"
+    wrong["faultInjection"]["results"][0]["observedBlockers"] = ["TIER_UNASSIGNED"]
+    assert not validator.is_valid(wrong)
+    foreign = json.loads(_story_8_2_published_pair()[0])
+    foreign["conformanceTiering"] = final["conformanceTiering"]
+    assert not validator.is_valid(foreign)
+    validator.validate(json.loads(_story_8_2_published_pair()[0]))
+    validator.validate(json.loads(_story_8_1_published_pair()[0]))
+
+
+def test_v2_story_9_1_self_ledger_names_every_tiering_gate() -> None:
+    module = load_generator()
+    subjects = [row["subject"] for row in module.v2_self_ledger("AC-9.1-09", "9.1")]
+    assert subjects[:9] == [row["subject"] for row in module.v2_self_ledger("AC-9.1-09")]
+    assert "generator::all-ten-tiering-fault-categories-measured" in subjects
+    assert "generator::quality-owner-approval-digest-bound" in subjects
+    assert len(subjects) == 18
+
+
+def test_v2_story_9_1_fault_fixture_paths_match_the_measuring_suite() -> None:
+    module = load_generator()
+    suite = (WORKSPACE / "_bmad/scripts/tests/test_conformance_tiering.py").read_text(encoding="utf-8")
+    for path in module.V2_9_1_FAULT_FIXTURE_PATHS:
+        assert path in suite or path in module.V2_9_1_OUTPUT_PATHS or path == module.V2_9_1_APPROVALS_PATH
+    assert "story91ObservedFault" in suite and "def test_tiering_faults(" in suite
+    assert list(module.V2_9_1_REQUIRED_FAULTS.items()) == [
+        (key, value) for key, value in re.findall(r'^    "([a-z0-9-]+)": "([A-Z0-9_]+)",$',
+                                                   suite.split("FAULTS = {", 1)[1].split("}", 1)[0], re.M)]
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))

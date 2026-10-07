@@ -351,7 +351,10 @@
         "if": {
           "properties": {
             "storyId": {
-              "const": "7.4"
+              "enum": [
+                "7.4",
+                "9.1"
+              ]
             }
           }
         },
@@ -362,6 +365,35 @@
               "$ref": "#/$defs/faultInjection"
             }
           }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "storyId": {
+            "const": "9.1"
+          }
+        },
+        "required": [
+          "storyId"
+        ]
+      },
+      "then": {
+        "required": [
+          "conformanceTiering"
+        ],
+        "properties": {
+          "faultInjection": {
+            "$ref": "#/$defs/tieringFaultInjection"
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "conformanceTiering"
+          ]
         }
       }
     }
@@ -418,6 +450,9 @@
               },
               {
                 "$ref": "#/$defs/uxObservedFault"
+              },
+              {
+                "$ref": "#/$defs/tieringObservedFault"
               }
             ]
           },
@@ -451,6 +486,9 @@
     },
     "uxValidation": {
       "$ref": "#/$defs/uxValidation"
+    },
+    "conformanceTiering": {
+      "$ref": "#/$defs/conformanceTiering"
     }
   },
   "$defs": {
@@ -2433,6 +2471,626 @@
               ]
             }
           ]
+        }
+      }
+    },
+    "tieringObservedFault": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "candidateCommit",
+        "expectedBlocker",
+        "observedExitCode",
+        "observedBlockers",
+        "beforeSha256",
+        "mutatedSha256",
+        "afterSha256",
+        "baselineExitCode",
+        "baselineBlockers",
+        "restoredExitCode",
+        "restoredBlockers"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "assertion-missing",
+            "assertion-duplicate",
+            "assertion-renamed",
+            "strength-weakened",
+            "tier-unassigned",
+            "tier-reason-missing",
+            "approval-missing",
+            "denominator-drift",
+            "public-widened",
+            "v1-mutated"
+          ]
+        },
+        "candidateCommit": {
+          "$ref": "#/$defs/commit"
+        },
+        "expectedBlocker": {
+          "$ref": "#/$defs/blocker"
+        },
+        "observedExitCode": {
+          "const": 1
+        },
+        "observedBlockers": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/$defs/blocker"
+          }
+        },
+        "beforeSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "mutatedSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "afterSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "baselineExitCode": {
+          "const": 0
+        },
+        "baselineBlockers": {
+          "const": []
+        },
+        "restoredExitCode": {
+          "const": 0
+        },
+        "restoredBlockers": {
+          "const": []
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "assertion-missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "CONFORMANCE_ASSERTION_MISSING"
+              },
+              "observedBlockers": {
+                "const": [
+                  "CONFORMANCE_ASSERTION_MISSING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "assertion-duplicate"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "CONFORMANCE_ASSERTION_DUPLICATE"
+              },
+              "observedBlockers": {
+                "const": [
+                  "CONFORMANCE_ASSERTION_DUPLICATE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "assertion-renamed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "CONFORMANCE_ASSERTION_RENAMED"
+              },
+              "observedBlockers": {
+                "const": [
+                  "CONFORMANCE_ASSERTION_RENAMED"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "strength-weakened"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "ASSERTION_STRENGTH_WEAKENED"
+              },
+              "observedBlockers": {
+                "const": [
+                  "ASSERTION_STRENGTH_WEAKENED"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "tier-unassigned"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TIER_UNASSIGNED"
+              },
+              "observedBlockers": {
+                "const": [
+                  "TIER_UNASSIGNED"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "tier-reason-missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TIER_REASON_MISSING"
+              },
+              "observedBlockers": {
+                "const": [
+                  "TIER_REASON_MISSING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "approval-missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TIER_APPROVAL_MISSING"
+              },
+              "observedBlockers": {
+                "const": [
+                  "TIER_APPROVAL_MISSING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "denominator-drift"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "FR20_DENOMINATOR_DRIFT"
+              },
+              "observedBlockers": {
+                "const": [
+                  "FR20_DENOMINATOR_DRIFT"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "public-widened"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "PUBLIC_CONTRACT_WIDENED"
+              },
+              "observedBlockers": {
+                "const": [
+                  "PUBLIC_CONTRACT_WIDENED"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "v1-mutated"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "V1_ARTIFACT_DRIFT"
+              },
+              "observedBlockers": {
+                "const": [
+                  "V1_ARTIFACT_DRIFT"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "tieringFaultInjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "results"
+      ],
+      "properties": {
+        "results": {
+          "type": "array",
+          "minItems": 10,
+          "maxItems": 10,
+          "items": false,
+          "prefixItems": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/tieringObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "assertion-missing"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/tieringObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "assertion-duplicate"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/tieringObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "assertion-renamed"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/tieringObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "strength-weakened"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/tieringObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "tier-unassigned"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/tieringObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "tier-reason-missing"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/tieringObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "approval-missing"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/tieringObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "denominator-drift"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/tieringObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "public-widened"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/tieringObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "v1-mutated"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "conformanceTiering": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindingRule",
+        "contract",
+        "predecessorRecord",
+        "predecessorCandidate",
+        "decision",
+        "disposition",
+        "preSplitResult",
+        "assertionInventorySha256",
+        "strengthInventorySha256",
+        "assertionCount",
+        "validationAdditionCount",
+        "tierCounts",
+        "approvals",
+        "inventorySha256",
+        "faultEvidence",
+        "testAssembly",
+        "sourceRevisionId"
+      ],
+      "properties": {
+        "bindingRule": {
+          "const": "SC-9.1 is HEAD^{commit} at final-record generation"
+        },
+        "contract": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "predecessorRecord": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/predecessorRecord"
+            },
+            {
+              "properties": {
+                "storyId": {
+                  "const": "7.4"
+                }
+              }
+            }
+          ]
+        },
+        "predecessorCandidate": {
+          "$ref": "#/$defs/commit"
+        },
+        "decision": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "disposition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema",
+            "json",
+            "markdown"
+          ],
+          "properties": {
+            "schema": {
+              "$ref": "#/$defs/outputFile"
+            },
+            "json": {
+              "$ref": "#/$defs/outputFile"
+            },
+            "markdown": {
+              "$ref": "#/$defs/outputFile"
+            }
+          }
+        },
+        "preSplitResult": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256",
+            "receipt",
+            "sourceCommit",
+            "discoveredMethods",
+            "executedTestCases"
+          ],
+          "properties": {
+            "path": {
+              "$ref": "#/$defs/path"
+            },
+            "sha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "receipt": {
+              "$ref": "#/$defs/outputFile"
+            },
+            "sourceCommit": {
+              "$ref": "#/$defs/commit"
+            },
+            "discoveredMethods": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "executedTestCases": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "assertionInventorySha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "strengthInventorySha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "assertionCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "validationAdditionCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tierCounts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "portable",
+            "moduleInternal"
+          ],
+          "properties": {
+            "portable": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "moduleInternal": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "approvals": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256",
+            "approvalId",
+            "approver",
+            "membershipSha256"
+          ],
+          "properties": {
+            "path": {
+              "$ref": "#/$defs/path"
+            },
+            "sha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "approvalId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "approver": {
+              "type": "string",
+              "minLength": 1
+            },
+            "membershipSha256": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        },
+        "inventorySha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "faultEvidence": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "testAssembly": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "sourceRevisionId": {
+          "$ref": "#/$defs/commit"
         }
       }
     }

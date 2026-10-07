@@ -1357,3 +1357,157 @@ mount namespace, such as `unshare --mount --map-root-user`, instead of editing
 the receipt. Copy the archive in a format that keeps nanosecond times, such as
 `tar --format=pax`, or reapply each manifest `st_mtime_ns` after restoring it.
 NTFS and the default GNU tar format round these times.
+
+### Story 9.1 conformance tiering freeze, approval, and record
+
+Story 9.1 freezes every pre-split conformance test identity and its assertion
+closure, proposes a tier for each, and records the Quality owner's
+digest-bound decision before generating the v2 disposition and final record.
+It changes no production source, public API, dependency, or v1 evidence.
+`_bmad/scripts/generate_conformance_tiering.py` owns every step below.
+
+**1. Capture the pre-split result in isolation.** Choose the freeze commit
+before any Story 9.1 validation class exists. Then run:
+
+```bash
+python3 _bmad/scripts/generate_conformance_tiering.py --repository . \
+  --capture-pre-split --freeze-commit <freeze-sha>
+```
+
+The capture clones the repository at the freeze commit into a fresh
+`/var/tmp/hexalith-9.1-pre-split-*` directory. It initializes only the root
+submodules declared by `.gitmodules`, from the local module repositories, and
+never a nested submodule. It reads the current `ci / conformance` lane from that
+commit's `.github/workflows/ci.yml`, including the exact build command and
+every historical `-class-`/`-method-` exclusion. It builds Release with
+`CI=true` and the environment pins `-nr:false -p:UseSharedCompilation=false`,
+which do not change outputs. The built assembly must carry the freeze commit
+as its `SourceRevisionId`. The capture lists discovery with
+`-list full/json`, runs the lane with `-result-trx`, and records every tracked
+file the four evidence-generation methods rewrite in the clone. It writes only
+`artifacts/v9/9.1/pre-split/`: `receipt.json`, `discovery.json`,
+`conformance.trx`, the build/discovery/run logs, and copies of the test and
+module assemblies. The real working tree is not touched. A failing pre-split
+test is recorded as failed, never as passed. Excluded classes and methods keep
+their discovered identities with lane `excluded-historical-*` and no current
+pass claim.
+
+**2. Propose, review, and record the owner decision.** After every Story 9.1
+source file, including `ConformanceOracleTieringValidationTest.cs`, is final:
+
+```bash
+python3 _bmad/scripts/generate_conformance_tiering.py --repository . --propose-approvals
+```
+
+This writes `docs/release-evidence/conformance-oracle-tiering-approvals-v2.json`
+with `decision: null`, and a review rendering at
+`artifacts/v9/9.1/approval-proposal.md`. The proposal lists every pre-split
+row, every post-freeze validation addition, and the three reclassified suites.
+Each entry carries its tier, strength digest, and `rowSha256`, the SHA-256 of
+the row's canonical proposal fields. `membershipSha256` binds all row digests,
+the freeze commit, the pre-split result digest, and the contract and decision
+digests. Present the counts and that digest to the Quality owner. Record the
+decision only after the owner explicitly approves that exact digest:
+
+```bash
+python3 _bmad/scripts/generate_conformance_tiering.py --repository . --record-approval \
+  --approver <name> --approval-id <id> --approved-on <YYYY-MM-DD> \
+  --approved-membership-sha256 <digest> --approval-evidence "<where and how the owner approved>"
+```
+
+A different digest, an existing decision, or a missing field fails with
+`TIER_APPROVAL_MISSING`. Any later change to a frozen test source, a
+validation addition, the pre-split result, or the decision changes the
+membership digest. The bound approval then no longer verifies, so propose again
+and obtain a new decision. The decision-v2 FR-20 suite approval of 2026-07-28 is
+recorded separately as `historicalSuiteApproval` with `approvesRows: false`. It
+never substitutes for row approval.
+
+**3. Generate and verify the disposition.** Run `AC-9.1-01` verbatim. It needs
+the retained capture; without it the command exits `2` with
+`TIERING_PRE_SPLIT_RESULT_MISSING`. Read-only verification re-derives every fact
+and writes nothing:
+
+```bash
+python3 _bmad/scripts/generate_conformance_tiering.py --repository . --verify \
+  --output-schema docs/release-evidence/conformance-oracle-tiering-disposition-v2.schema.json \
+  --output-json docs/release-evidence/conformance-oracle-tiering-disposition-v2.json \
+  --output-markdown docs/release-evidence/conformance-oracle-tiering-disposition-v2.md
+```
+
+When the capture is absent, such as in CI, verification uses the facts embedded
+in the disposition. When it is present, it also checks the receipt and every
+retained file digest. Verification reports only the first failing blocker
+category, in this order: schema, identity, strength, source, tier, approval,
+denominator, public, v1, and render.
+
+| Story 9.1 blocker | Exit | Condition |
+| --- | --- | --- |
+| `CONFORMANCE_ASSERTION_MISSING` | `1` | A frozen identity is absent from the source or disposition. |
+| `CONFORMANCE_ASSERTION_DUPLICATE` | `1` | An identity appears more than once. |
+| `CONFORMANCE_ASSERTION_RENAMED` | `1` | A frozen identity is absent while an unlisted one appeared. |
+| `CONFORMANCE_ASSERTION_UNKNOWN` | `1` | An unlisted test exists outside the declared validation-addition file. |
+| `CONFORMANCE_DISCOVERY_UNSUPPORTED` | `1` | Source, discovery, and TRX identities disagree, or the source uses an unsupported construct. |
+| `ASSERTION_STRENGTH_WEAKENED` | `1` | The canonical triple of bound assemblies, behavior identity, and negative-case count, or its digest, differs. |
+| `CONFORMANCE_ASSERTION_SOURCE_DRIFT` | `1` | A closure source changed bytes without changing strength. |
+| `TIER_UNASSIGNED` | `1` | A row has no valid tier. |
+| `TIER_REASON_MISSING` | `1` | A row lacks a rationale, a module-internal row lacks exact Server types and a reason, or a portable row lacks an equal-strength replacement. |
+| `TIER_APPROVAL_MISSING` | `1` | A row, suite, or binding lacks the digest-bound owner decision, or a tier differs from the approved proposal. |
+| `FR20_DENOMINATOR_DRIFT` | `1` | A v1-floor or accumulated FR-20 identity, or a reclassified suite membership, changed. |
+| `PUBLIC_CONTRACT_WIDENED` | `1` | A public module project's sources differ from the freeze surface. |
+| `V1_ARTIFACT_DRIFT` | `1` | A protected v1 artifact, the decision, or a v1 tiering lineage artifact changed. |
+| `TIERING_SCHEMA_INVALID`, `TIERING_RENDER_DRIFT` | `1` | Bytes differ from the closed schema or the deterministic derivation and rendering. |
+| `TIERING_PRE_SPLIT_RESULT_INVALID` | `1` | The retained receipt, TRX, discovery, or assemblies changed or disagree. |
+| `TIERING_PRE_SPLIT_RESULT_MISSING` | `2` | Generation ran without the retained capture. |
+| `TIERING_CAPTURE_FAILED` | `2` | The isolated clone, root submodule initialization, Release build, or discovery failed during capture. |
+| `TIERING_ENVIRONMENT_UNAVAILABLE` | `2` | Git or the tooling helpers are unavailable, so no fact can be derived. |
+| `TIERING_AUTHORITY_INVALID` | `1` | The Story 9.1 contract, authority bundle, inventory, or Story 7.4 pair does not verify. |
+
+**4. Record the story.** Commit the candidate while the story stays
+`in-progress`, then rebuild the conformance project in Release so the assembly
+carries the candidate's `SourceRevisionId`:
+
+```bash
+dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj \
+  --configuration Release -warnaserror -nr:false -p:UseSharedCompilation=false
+```
+
+Do not pass `--no-restore` after a Debug build: Debug restores the project in
+source-reference mode, while Release restores Hexalith packages. Confirm that the
+assembly's informational version ends in `+<HEAD>` before running the selectors.
+Run `AC-9.1-01` through `AC-9.1-08` verbatim. Then capture the measured fault
+evidence at the same `HEAD`:
+
+```bash
+python3 -m pytest -q _bmad/scripts/tests/test_conformance_tiering.py -k tiering_faults \
+  --junitxml=artifacts/v9/9.1/faults.xml
+```
+
+Each of the ten fault testcases exports one `story91ObservedFault` property.
+The fixtures cover a missing, duplicated, renamed, and weakened assertion; an
+unassigned, unreasoned, and unapproved row; denominator drift; public widening;
+and a v1 mutation. Each runs the real `--verify` CLI in a disposable clone:
+baseline PASS, a single exact blocker with exit `1`, restoration in `finally`,
+and restored PASS. The fixture hash covers the bundle, the approvals file, the
+fault-target test source, the widening probe path, and the v1 file. The record
+generator recomputes that hash from the candidate's committed blobs, so
+fault evidence measured at another tree fails.
+
+Run `AC-9.1-09` twice and require identical bytes and `9/9/0/0/0/0`. The gate
+executes `AC-9.1-01` again and requires it to reproduce the three committed
+outputs. It checks each selected xUnit TRX through the successor route and
+verifies the disposition read-only. It requires the retained capture receipt
+the disposition binds, the approved membership digest, Story 7.4's verified
+pair, and a candidate-stamped assembly. It also requires the ordered, restored
+fault matrix. The record binds these in the Story 9.1-only
+`conformanceTiering` shape. Story 7.4's candidate is outside current ancestry,
+so the gate verifies its pair and digests without requiring ancestry. Commit
+only the JSON/Markdown pair, insert the Markdown verbatim into the spec, and
+run `--verify-inserted-record` before marking the story `done`.
+
+Archive the retained evidence under a key equal to
+`conformanceTiering.sourceRevisionId`: `artifacts/v9/9.1/` (the pre-split
+capture, the eight TRX files, and `faults.xml`), the Release test output
+directory, and a manifest of each file's path, SHA-256, and `st_mtime_ns`.
+The disposition stays verifiable without the capture. Story 9.2 needs the
+retained pre-split TRX for its monotonic-count proof.
