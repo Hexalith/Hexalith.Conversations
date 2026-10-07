@@ -12,6 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 from xml.sax.saxutils import quoteattr
 
 import pytest
@@ -630,12 +631,21 @@ def _synthetic_tier_result(repository: Path, tier: str, destination: Path) -> No
     binary.parent.mkdir(parents=True, exist_ok=True)
     # An explicit fixture marker prevents this file from being confused with an acceptance assembly.
     binary.write_bytes(b"SYNTHETIC-STORY92-NEGATIVE-FIXTURE-NOT-ACCEPTANCE-EVIDENCE")
-    results = "".join(f'<UnitTestResult testName={quoteattr(value)} outcome="Passed" />' for value in names)
+    identities = {item["testName"]: row["id"] for row in frozen["assertions"]
+                  if row["tier"] == tier and row["preSplitResultIdentity"]["lane"] == "executed"
+                  for item in row["preSplitResultIdentity"]["results"]}
+    identities.update({value: value for value in story92.CONTROL_IDS[tier]})
+    results = "".join(f'<UnitTestResult testId="fixture-{index:04}" testName={quoteattr(value)} outcome="Passed" />'
+                      for index, value in enumerate(names))
+    definitions = "".join('<UnitTest id="fixture-' + f'{index:04}' + '" name=' + quoteattr(value)
+                          + '><TestMethod codeBase=' + quoteattr(str(binary))
+                          + ' className=' + quoteattr(identities[value].rsplit('.', 1)[0])
+                          + ' name=' + quoteattr(identities[value].rsplit('.', 1)[1]) + '/></UnitTest>'
+                          for index, value in enumerate(names))
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(
         '<TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"><Results>' + results
-        + '</Results><TestDefinitions><UnitTest><TestMethod codeBase=' + quoteattr(str(binary))
-        + '/></UnitTest></TestDefinitions><ResultSummary><Counters '
+        + '</Results><TestDefinitions>' + definitions + '</TestDefinitions><ResultSummary><Counters '
         + f'total="{len(names)}" executed="{len(names)}" passed="{len(names)}" failed="0" notExecuted="0"'
         + '/></ResultSummary></TestRun>', encoding="utf-8")
 
@@ -678,7 +688,11 @@ def structural_execution_repository(tmp_path_factory: pytest.TempPathFactory) ->
 
 
 def _verify_story92(repository: Path) -> dict[str, Any]:
-    return story92.verify(repository, portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx")
+    assert repository.resolve() != ROOT.resolve()
+    # These private overrides apply only to the disposable negative fixture.
+    # Ordinary verification rejects both synthetic identities and marker-only binaries.
+    with patch.object(story92, "_genuine_approval_identity", return_value=True), patch.object(story92, "_execution_binary_is_managed", return_value=True):
+        return story92.verify(repository, portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx")
 
 
 def _story92_fault(repository: Path, fault_id: str) -> None:

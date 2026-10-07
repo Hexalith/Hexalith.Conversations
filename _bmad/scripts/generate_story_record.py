@@ -6981,6 +6981,45 @@ def v2_9_2_amendment(repository: Path, candidate: str, contract: dict[str, Any])
     return effective
 
 
+def v2_9_2_pair_history(repository: Path, revision: str, parent: str, delta: dict[str, str], validator: Any) -> bool:
+    """Recognize only independently verified Story 9.2 pair-only publication/retraction."""
+    paths = {"docs/release-evidence/story-9.2-final-record-v2.json", "docs/release-evidence/story-9.2-final-record-v2.md"}
+    if not paths.intersection(delta):
+        return False
+    def stop() -> NoReturn:
+        raise V2Stop([v2_finding("AUTHORITY_BINDING_INVALID", "candidate scope",
+                                 "Story 9.2 pair history must be a verified pair-only publication or retraction")], "9.2")
+    if set(delta) != paths or set(delta.values()) not in ({"A"}, {"M"}, {"D"}):
+        stop()
+    json_path, markdown_path = sorted(paths)
+    retained = parent if set(delta.values()) == {"D"} else revision
+    content = v2_committed_blob(repository, retained, json_path)
+    markdown = v2_committed_blob(repository, retained, markdown_path)
+    try:
+        record = v2_parse_json(content) if content is not None else None
+        if (not isinstance(record, dict) or markdown is None or record.get("storyId") != "9.2"
+                or v2_schema_errors(validator, record) or v2_verify_pair(content, markdown)
+                or record["outputs"]["json"]["path"] != json_path or record["outputs"]["markdown"]["path"] != markdown_path
+                or record["conformanceExecution"]["baselineCommit"] != V2_9_2_BASELINE
+                or record["conformanceExecution"]["sourceRevisionId"] != record["candidate"]["commit"]):
+            stop()
+        original = record["candidate"]["commit"]
+        if (not is_ancestor(repository, original, parent)
+                or record["candidate"]["gitlinks"] != [{"path": path, "commit": commit, "mode": "160000"}
+                                                        for path, commit in v2_raw_gitlinks(repository, original)]):
+            stop()
+        if set(delta.values()) == {"M"} and v2_retained_candidate(
+                repository, parent, json_path, markdown_path, validator, "9.2", V2_9_2_SPEC_PATH,
+                "9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution", True) != original:
+            stop()
+        if v2_retained_candidate(repository, retained, json_path, markdown_path, validator,
+                                 "9.2", V2_9_2_SPEC_PATH, "9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution", True) != original:
+            stop()
+    except (V2Stop, ValueError, TypeError, KeyError, UnicodeError, GateError):
+        stop()
+    return True
+
+
 def v2_9_2_environment(repository: Path, candidate: str, validator: Any) -> tuple[dict[str, Any], set[str]]:
     """Measure only the authorized environment and every owning promotion from root Git.
 
@@ -7046,7 +7085,12 @@ def v2_9_2_environment(repository: Path, candidate: str, validator: Any) -> tupl
         parents = decode(run_git(repository, "rev-list", "--parents", "-n", "1", revision).stdout).split()
         for parent in parents[1:]:
             records = raw_diff_records(repository, parent, revision)
-            touched.update(committed_path_status(repository, parent, revision))
+            delta = committed_path_status(repository, parent, revision)
+            pair_history = v2_9_2_pair_history(repository, revision, parent, delta, validator)
+            if pair_history and len(parents) != 2:
+                stop("Story 9.2 pair history requires an exact single parent")
+            if not pair_history:
+                touched.update(delta)
             changed = gitlink_rows(records)
             if changed:
                 if len(parents) != 2:

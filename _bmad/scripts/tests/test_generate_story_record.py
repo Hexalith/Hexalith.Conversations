@@ -9004,6 +9004,117 @@ def test_v2_story_9_2_environment_preserves_reverted_protected_path_history(tmp_
     assert module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0] == _story_9_2_environment_binding(module)
 
 
+def _story92_stage_record_pair(root: Path, module, candidate: str, *, invalid: bool = False, only_json: bool = False, refresh: bool = False):
+    record = _story_9_2_record(module, module.v2_9_2_verifier())
+    record["candidate"] = {"commit": candidate, "gitlinks": [{"path": path, "commit": commit, "mode": "160000"}
+                                                            for path, commit in module.v2_raw_gitlinks(root, candidate)]}
+    record["conformanceExecution"]["sourceRevisionId"] = candidate
+    for row in record["faultInjection"]["results"]: row["candidateCommit"] = candidate
+    if refresh:
+        record["scenarios"][0]["assertionLedger"][0]["subject"] = "refreshed disposable fixture evidence"
+    _, content, markdown = module.v2_finalize(record)
+    paths = ["docs/release-evidence/story-9.2-final-record-v2.json", "docs/release-evidence/story-9.2-final-record-v2.md"]
+    for path, data in zip(paths[:1] if only_json else paths, (content + b"\n" if invalid else content, markdown)):
+        target = root / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
+        _story_9_2_environment_stage(root, path)
+    return paths
+
+
+@pytest.mark.parametrize("mutation", [None, "mixed-publication", "single-publication", "invalid-pair", "mixed-retraction", "single-retraction", "source-before-retraction"])
+def test_v2_story_9_2_environment_validates_only_pair_publication_retraction_history(tmp_path: Path, mutation) -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    amendment, candidate = _story_9_2_environment_git_fixture(tmp_path, module)
+    index = tmp_path / ".git/index"
+    before_index, before_amendment = index.read_bytes(), amendment.read_bytes()
+    extra = "_bmad/scripts/generate_story_record.py"
+    paths = []
+    try:
+        paths = _story92_stage_record_pair(tmp_path, module, candidate, invalid=mutation == "invalid-pair", only_json=mutation == "single-publication")
+        if mutation == "mixed-publication":
+            path = tmp_path / extra; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"SYNTHETIC: mixed source mutation")
+            _story_9_2_environment_stage(tmp_path, extra)
+        publication = _story_9_2_environment_commit(tmp_path, candidate)
+        if mutation in ("mixed-publication", "single-publication", "invalid-pair"):
+            with pytest.raises(module.V2Stop) as error: module.v2_9_2_environment(tmp_path, publication, validators["record"])
+            assert error.value.findings[0]["code"] == "AUTHORITY_BINDING_INVALID"
+        else:
+            facts, touched = module.v2_9_2_environment(tmp_path, publication, validators["record"])
+            assert facts == _story_9_2_environment_binding(module) and not set(paths).intersection(touched)
+            parent = publication
+            if mutation == "source-before-retraction":
+                path = tmp_path / extra; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"SYNTHETIC: source before retraction")
+                _story_9_2_environment_stage(tmp_path, extra)
+                parent = _story_9_2_environment_commit(tmp_path, parent)
+            for path in paths[:1] if mutation == "single-retraction" else paths:
+                v2_git(tmp_path, "update-index", "--force-remove", path)
+            if mutation == "mixed-retraction":
+                path = tmp_path / extra; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"SYNTHETIC: mixed retraction")
+                _story_9_2_environment_stage(tmp_path, extra)
+            retraction = _story_9_2_environment_commit(tmp_path, parent)
+            if mutation:
+                with pytest.raises(module.V2Stop) as error: module.v2_9_2_environment(tmp_path, retraction, validators["record"])
+                assert error.value.findings[0]["code"] == "AUTHORITY_BINDING_INVALID"
+            else:
+                assert module.v2_9_2_environment(tmp_path, retraction, validators["record"])[0] == facts
+                # A replacement source candidate is legal only after retraction.
+                path = tmp_path / extra; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"SYNTHETIC: replacement candidate")
+                _story_9_2_environment_stage(tmp_path, extra)
+                replacement = _story_9_2_environment_commit(tmp_path, retraction)
+                _story92_stage_record_pair(tmp_path, module, replacement)
+                replacement_publication = _story_9_2_environment_commit(tmp_path, replacement)
+                assert module.v2_9_2_environment(tmp_path, replacement_publication, validators["record"])[0] == facts
+    finally:
+        index.write_bytes(before_index)
+        for path in [*paths, extra]: (tmp_path / path).unlink(missing_ok=True)
+    assert amendment.read_bytes() == before_amendment and index.read_bytes() == before_index
+    assert module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0] == _story_9_2_environment_binding(module)
+
+
+@pytest.mark.parametrize("replacement", [False, True], ids=["same-candidate-refresh", "replacement-without-retraction"])
+def test_v2_story_9_2_environment_pair_refresh_retains_parent_candidate(tmp_path: Path, replacement: bool) -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    amendment, candidate = _story_9_2_environment_git_fixture(tmp_path, module)
+    index = tmp_path / ".git/index"
+    before_index, before_amendment = index.read_bytes(), amendment.read_bytes()
+    extra = "_bmad/scripts/generate_story_record.py"
+    paths = []
+    try:
+        paths = _story92_stage_record_pair(tmp_path, module, candidate)
+        publication = _story_9_2_environment_commit(tmp_path, candidate)
+        parent, recorded_candidate = publication, candidate
+        if replacement:
+            source = tmp_path / extra; source.parent.mkdir(parents=True, exist_ok=True)
+            source.write_bytes(b"SYNTHETIC: source change without pair retraction")
+            _story_9_2_environment_stage(tmp_path, extra)
+            parent = recorded_candidate = _story_9_2_environment_commit(tmp_path, publication)
+        _story92_stage_record_pair(tmp_path, module, recorded_candidate, refresh=True)
+        refresh = _story_9_2_environment_commit(tmp_path, parent)
+        assert module.committed_path_status(tmp_path, parent, refresh) == {path: "M" for path in paths}
+        if replacement:
+            with pytest.raises(module.V2Stop) as error:
+                module.v2_9_2_environment(tmp_path, refresh, validators["record"])
+            assert error.value.findings[0]["code"] == "AUTHORITY_BINDING_INVALID"
+        else:
+            facts, touched = module.v2_9_2_environment(tmp_path, refresh, validators["record"])
+            assert facts == _story_9_2_environment_binding(module) and not set(paths).intersection(touched)
+    finally:
+        index.write_bytes(before_index)
+        for path in [*paths, extra]: (tmp_path / path).unlink(missing_ok=True)
+    assert amendment.read_bytes() == before_amendment and index.read_bytes() == before_index
+    assert module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0] == _story_9_2_environment_binding(module)
+
+
+def test_v2_story_9_2_environment_recognizes_archived_pair_only_retraction() -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    revision = "9c6ff6d3f5c1a3c5d1754c258cb5832b514ac495"
+    facts, touched = module.v2_9_2_environment(WORKSPACE, revision, validators["record"])
+    assert facts == _story_9_2_environment_binding(module)
+    assert not {"docs/release-evidence/story-9.2-final-record-v2.json", "docs/release-evidence/story-9.2-final-record-v2.md"}.intersection(touched)
+
+
 def test_v2_story_9_2_closed_schema_determinism_and_preserved_historical_pairs() -> None:
     module, verifier = _story_9_2_module()
     _, validators = module.v2_load_schemas()
@@ -9228,6 +9339,293 @@ def test_v2_story_9_2_pipeline_routes_amended_commands_and_derives_ten_passing_s
     assert [kind for scenario, kind in routed[:9]] == ["pytest", "build", "xunit", "build", "xunit", "xunit", "xunit", "xunit", "python"]
     assert result["scenarios"][1]["command"].endswith("-parallelMode none")
     assert "generator::genuine-quality-approval-binds-every-successor-and-public-drift" in [row["subject"] for row in result["scenarios"][-1]["assertionLedger"]]
+
+
+# Hermetic current verifier regressions belong in this collected Python lane.
+story92 = _story_9_2_module()[1]
+
+
+def _story92_write_json(path: Path, value) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def _story92_synthetic_result(root: Path, tier: str, destination: Path) -> None:
+    """Structurally valid, deterministic TRX in a disposable parser fixture."""
+    frozen = json.loads((root / story92.DISPOSITION).read_bytes())
+    identities = {item["testName"]: row["id"] for row in frozen["assertions"]
+                  if row["tier"] == tier and row["preSplitResultIdentity"]["lane"] == "executed"
+                  for item in row["preSplitResultIdentity"]["results"]}
+    identities.update({name: name for name in story92.CONTROL_IDS[tier]})
+    name = Path(story92.PROJECTS[tier]).stem
+    binary = root / Path(story92.PROJECTS[tier]).parent / "bin/Release/net10.0" / (name + ".dll")
+    binary.parent.mkdir(parents=True, exist_ok=True)
+    binary.write_bytes(b"SYNTHETIC-STORY92-NEGATIVE-FIXTURE-NOT-ACCEPTANCE-EVIDENCE")
+    document = ElementTree.Element("TestRun", xmlns=TRX_NAMESPACE)
+    results = ElementTree.SubElement(document, "Results")
+    definitions = ElementTree.SubElement(document, "TestDefinitions")
+    for index, (name, identity) in enumerate(sorted(identities.items())):
+        identifier = f"fixture-{index:04}"
+        ElementTree.SubElement(results, "UnitTestResult", testId=identifier, testName=name, outcome="Passed")
+        definition = ElementTree.SubElement(definitions, "UnitTest", id=identifier, name=name)
+        owner, method = identity.rsplit(".", 1)
+        ElementTree.SubElement(definition, "TestMethod", codeBase=str(binary), className=owner, name=method)
+    summary = ElementTree.SubElement(document, "ResultSummary")
+    ElementTree.SubElement(summary, "Counters", total=str(len(identities)), executed=str(len(identities)),
+                           passed=str(len(identities)), failed="0", notExecuted="0")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_bytes(ElementTree.tostring(document))
+
+
+def _story92_portable_model(root: Path):
+    """Python-only evaluated-model fixture with the approved normal surface unchanged."""
+    approved = json.loads((WORKSPACE / story92.MIGRATION).read_bytes())["proposal"]["portableSurface"]
+    graphs = {}
+    rows = approved["evaluatedProjects"]
+    packages = sorted({row["library"].partition("/")[0] for row in approved["transitiveCompileAssets"]
+                       if row["library"].partition("/")[0] not in {item["assembly"] for item in rows}})
+    for row in rows:
+        project = root / row["project"]
+        project.parent.mkdir(parents=True, exist_ok=True); project.write_text("<Project />")
+        graphs[row["project"]] = {"Properties": {"AssemblyName": row["assembly"], "IsPackable": "true"},
+                                  "Items": {"ProjectReference": [], "PackageReference": [{"Identity": name} for name in packages]}}
+    project = root / story92.PROJECTS["portable"]
+    project.parent.mkdir(parents=True, exist_ok=True); project.write_text("<Project />")
+    refs = [{"FullPath": str(root / row["project"]), "DefiningProjectFullPath": str(project)} for row in rows
+            if row["assembly"] in ("Hexalith.Conversations.Client", "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Testing")]
+    domain = next(row for row in rows if row["assembly"] == "Hexalith.Conversations")
+    graphs["src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj"]["Items"]["ProjectReference"] = [{"FullPath": str(root / domain["project"])}]
+    references = []
+    for name in approved["referencePathAssemblies"]:
+        path = root / "refs" / (name + ".dll")
+        path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"compile-model fixture")
+        references.append({"FullPath": str(path), "FusionName": name + ", Version=1.0.0.0, Culture=neutral"})
+    assets = {"targets": {}}
+    for row in approved["transitiveCompileAssets"]:
+        metadata = assets["targets"].setdefault(row["target"], {}).setdefault(row["library"],
+                   {"type": "project" if row["library"].partition("/")[0] in {item["assembly"] for item in rows} else "package", "compile": {}})
+        metadata["compile"][row["asset"]] = {}
+    assets_path = root / "project.assets.json"
+    _story92_write_json(assets_path, assets)
+    evaluated = {"portable": {"Properties": {"ProjectAssetsFile": str(assets_path)},
+                             "Items": {"ProjectReference": refs, "ReferencePath": references,
+                                       "PackageReference": [{"Identity": name} for name in packages]}}}
+    return approved, evaluated, graphs, assets_path, assets
+
+
+@pytest.mark.parametrize("mutation", [None, "unprefixed-nonpackable", "foreign-binary", "foreign-asset", "mismatched-package-asset"])
+def test_story92_portable_surface_guards_python_only(tmp_path: Path, monkeypatch, mutation) -> None:
+    approved, evaluated, graphs, assets_path, assets = _story92_portable_model(tmp_path)
+    if mutation == "unprefixed-nonpackable":
+        path = "src/RenamedInternal/RenamedInternal.csproj"
+        project = tmp_path / path; project.parent.mkdir(parents=True); project.write_text("<Project />")
+        graphs[path] = {"Properties": {"AssemblyName": "RenamedInternal", "IsPackable": "false"}, "Items": {"ProjectReference": []}}
+        graphs["src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj"]["Items"]["ProjectReference"].append({"FullPath": str(project)})
+    elif mutation == "foreign-binary":
+        reference = tmp_path / "refs/foreign.dll"; reference.write_bytes(b"fixture")
+        evaluated["portable"]["Items"]["ReferencePath"].append({"FullPath": str(reference), "FusionName": "Hexalith.Foreign.Server, Version=1.0.0.0"})
+    elif mutation == "foreign-asset":
+        assets["targets"]["net10.0"]["Hexalith.Foreign.Server/1.0.0"] = {"type": "package", "compile": {"lib/net10.0/Hexalith.Foreign.Server.dll": {}}}
+        _story92_write_json(assets_path, assets)
+    elif mutation == "mismatched-package-asset":
+        assets["targets"]["net10.0"]["Hexalith.EventStore.Contracts/3.115.0"]["compile"]["lib/net10.0/Hexalith.Foreign.Server.dll"] = {}
+        _story92_write_json(assets_path, assets)
+    monkeypatch.setattr(story92, "msbuild", lambda _root, project, *_args, **_kwargs: graphs[project])
+    if mutation:
+        with pytest.raises(story92.VerificationError) as error:
+            story92.portable_surface(tmp_path, evaluated)
+        assert error.value.code == "PORTABLE_TIER_NONPORTABLE_REFERENCE"
+    else:
+        assert story92.portable_surface(tmp_path, evaluated) == approved
+
+
+@pytest.mark.parametrize("mutation", [None, "echo", "comment", "assignment", "assignment-comment", "build-echo"])
+def test_story92_declarations_require_executable_ci_tiers(tmp_path: Path, mutation) -> None:
+    paths = ["Hexalith.Conversations.slnx", story92.AMENDMENT, story92.TIERING.CI_WORKFLOW_PATH, *story92.PROJECTS.values()]
+    for path in paths:
+        target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes((WORKSPACE / path).read_bytes())
+    for project in story92.RECORD.ElementTree.fromstring((WORKSPACE / "Hexalith.Conversations.slnx").read_bytes()).findall('.//Project'):
+        path = project.get("Path", "")
+        if path.startswith("tests/"):
+            target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes((WORKSPACE / path).read_bytes())
+    workflow = tmp_path / story92.TIERING.CI_WORKFLOW_PATH
+    before = workflow.read_bytes()
+    text = before.decode()
+    line = '          uv run --frozen --no-sync dotnet "$internal" -failSkips'
+    if mutation == "echo": text = text.replace(line, '          echo "$internal" -failSkips')
+    elif mutation == "comment": text = text.replace(line, "          # " + line.strip())
+    elif mutation == "assignment": text = text.replace('internal="tests/', 'internal="wrong/tests/')
+    elif mutation == "assignment-comment": text = text.replace('          internal="', '          # internal="')
+    elif mutation == "build-echo": text = text.replace("          dotnet build", "          echo dotnet build")
+    try:
+        workflow.write_text(text)
+        if mutation:
+            with pytest.raises(story92.VerificationError) as error:
+                story92.declarations(tmp_path)
+            assert error.value.code == "TIER_NOT_DECLARED"
+        else:
+            assert story92.declarations(tmp_path)["workflow"]["sha256"] == story92.TIERING.sha256_bytes(before)
+    finally:
+        workflow.write_bytes(before)
+    assert workflow.read_bytes() == before
+
+
+@pytest.mark.parametrize("path", [story92.DISPOSITION, story92.MIGRATION, story92.APPROVAL, story92.SNAPSHOT,
+                                 "artifacts/v9/9.2/portable.trx", "custom-input.trx", "tests/example.cs", "test/obj/project.assets.json"])
+def test_story92_outputs_cannot_overwrite_inputs(tmp_path: Path, path: str) -> None:
+    target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(b"protected bytes")
+    with pytest.raises(story92.VerificationError) as error:
+        story92.write_json(tmp_path, path, {"result": "PASS"}, result_inputs=("custom-input.trx",))
+    assert error.value.code == "OUTPUT_PATH_INVALID" and target.read_bytes() == b"protected bytes"
+
+
+def test_story92_output_aliases_and_explicit_migration_writer(tmp_path: Path) -> None:
+    approval = tmp_path / story92.APPROVAL; approval.parent.mkdir(parents=True); approval.write_bytes(b"approval")
+    alias = tmp_path / "alias.json"; alias.hardlink_to(approval)
+    with pytest.raises(story92.VerificationError): story92.write_json(tmp_path, "alias.json", {})
+    alias.unlink(); alias.symlink_to(approval)
+    with pytest.raises(story92.VerificationError): story92.write_json(tmp_path, "alias.json", {})
+    assert approval.read_bytes() == b"approval"
+    _story92_write_json(tmp_path / story92.MIGRATION, {"proposal": "unchanged"})
+    before = (tmp_path / story92.MIGRATION).read_bytes()
+    modified = (tmp_path / story92.MIGRATION).stat().st_mtime_ns
+    story92._write_migration_proposal(tmp_path, {"proposal": "unchanged"})
+    assert (tmp_path / story92.MIGRATION).read_bytes() == before and (tmp_path / story92.MIGRATION).stat().st_mtime_ns == modified
+    with pytest.raises(story92.VerificationError): story92._write_migration_proposal(tmp_path, {"proposal": "changed"})
+    story92.write_json(tmp_path, "artifacts/report.json", {"result": "PASS"})
+    assert json.loads((tmp_path / "artifacts/report.json").read_bytes()) == {"result": "PASS"}
+
+
+@pytest.mark.parametrize("field", ["approver", "approvalId"])
+def test_story92_ordinary_approval_rejects_synthetic_identities(tmp_path: Path, field: str) -> None:
+    derived = json.loads((WORKSPACE / story92.MIGRATION).read_bytes())
+    _story92_write_json(tmp_path / story92.MIGRATION, derived)
+    approval = json.loads((WORKSPACE / story92.APPROVAL).read_bytes())
+    approval[field] = "SYNTHETIC-FIXTURE" if field == "approver" else "SYNTHETIC-FIXTURE-NOT-AN-APPROVAL"
+    _story92_write_json(tmp_path / story92.APPROVAL, approval)
+    with pytest.raises(story92.VerificationError) as error: story92.approved_migration(tmp_path, derived)
+    assert error.value.code == "TIER_APPROVAL_MISSING"
+
+
+def _story92_execution_fixture(root: Path):
+    for path in [story92.DISPOSITION, *story92.PROJECTS.values()]:
+        target = root / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes((WORKSPACE / path).read_bytes())
+    for tier, result in (("portable", "portable"), ("module-internal", "internal")):
+        _story92_synthetic_result(root, tier, root / f"artifacts/v9/9.2/{result}.trx")
+    return json.loads((root / story92.DISPOSITION).read_bytes())
+
+
+@pytest.mark.parametrize("missing_internal", [False, True])
+def test_v2_story_9_2_facts_call_actual_verifier_with_both_tier_results(tmp_path: Path, monkeypatch, missing_internal: bool) -> None:
+    """Exercise the real caller/verifier/execution join without .NET or submodules."""
+    module, verifier = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    frozen = _story92_execution_fixture(tmp_path)
+    record = _story_9_2_record(module, verifier)
+    blobs = {}
+    paths = [module.V2_9_2_CONTRACT_PATH, module.V2_9_2_AMENDMENT_PATH, module.V2_9_2_SPEC_PATH,
+             module.V2_9_2_PREDECESSOR[1], module.V2_9_2_PREDECESSOR[2], verifier.MIGRATION, verifier.APPROVAL, verifier.DISPOSITION]
+    amendment = json.loads((WORKSPACE / verifier.AMENDMENT).read_bytes())
+    paths.append(amendment["preSplitMachineResult"]["path"])
+    for path in paths:
+        target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True)
+        blobs[path] = (WORKSPACE / path).read_bytes(); target.write_bytes(blobs[path])
+    for tier, result in (("portable", "portable"), ("module-internal", "internal")):
+        assembly = tmp_path / Path(verifier.PROJECTS[tier]).parent / "bin/Release/net10.0" / (Path(verifier.PROJECTS[tier]).stem + ".dll")
+        assembly.write_bytes(f"SYNTHETIC-FIXTURE 1.0.0+{candidate}".encode())
+        _story92_synthetic_result(tmp_path, tier, tmp_path / f"artifacts/v9/9.2/{result}.trx")
+        # The deterministic TRX builder writes its marker binary first. Stamp
+        # the disposable fixture before rewriting the same TRX bytes for freshness.
+        assembly.write_bytes(f"SYNTHETIC-FIXTURE 1.0.0+{candidate}".encode())
+        target = tmp_path / f"artifacts/v9/9.2/{result}.trx"; target.write_bytes(target.read_bytes())
+    declarations = {"solution": record["conformanceExecution"]["declarations"]["solution"],
+                    "workflow": record["conformanceExecution"]["declarations"]["workflow"],
+                    "completionInventory": {Path(path).stem: path for path in verifier.PROJECTS.values()}}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _root, _revision, path: blobs.get(path))
+    monkeypatch.setattr(module, "v2_9_2_verifier", lambda: verifier)
+    monkeypatch.setattr(module, "v2_9_2_source_digest", lambda *_: "2" * 64)
+    monkeypatch.setattr(module, "is_ancestor", lambda *_: True)
+    monkeypatch.setattr(module, "committed_path_status", lambda *_: {})
+    monkeypatch.setattr(module, "v2_9_2_environment", lambda *_: (_story_9_2_environment_binding(module), set()))
+    monkeypatch.setattr(verifier, "inputs", lambda *_: (frozen, amendment))
+    monkeypatch.setattr(verifier, "declarations", lambda *_: declarations)
+    monkeypatch.setattr(verifier, "derive_migration", lambda *_args, **_kwargs: json.loads(blobs[verifier.MIGRATION]))
+    monkeypatch.setattr(verifier, "_execution_binary_is_managed", lambda _: True)
+    report = verifier.verify(tmp_path, portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx")
+    assert report["result"] == "PASS", report
+    output = tmp_path / module.V2_9_2_RESULT_PATH; output.write_text(json.dumps(report))
+    fault = tmp_path / module.V2_9_2_FAULT_RESULT_PATH; fault.write_bytes(b"unrelated fixture fault receipt")
+    if missing_internal:
+        (tmp_path / "artifacts/v9/9.2/internal.trx").unlink()
+        with pytest.raises(module.V2Stop) as error:
+            module.v2_9_2_facts(tmp_path, candidate, json.loads(blobs[module.V2_9_2_CONTRACT_PATH]), validators["record"])
+        assert "artifacts/v9/9.2/internal.trx" in error.value.findings[0]["message"]
+    else:
+        facts = module.v2_9_2_facts(tmp_path, candidate, json.loads(blobs[module.V2_9_2_CONTRACT_PATH]), validators["record"])
+        assert facts["execution"]["tiers"]["module-internal"]["result"]["path"] == "artifacts/v9/9.2/internal.trx"
+        assert facts["execution"]["completePassingExecution"] and facts["execution"]["afterExecutedCases"] == 415
+
+
+def test_story92_ordinary_execution_rejects_marker_only_binaries(tmp_path: Path) -> None:
+    frozen = _story92_execution_fixture(tmp_path)
+    with pytest.raises(story92.VerificationError) as error:
+        story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")
+    assert error.value.code == "TIER_EXECUTION_INCOMPLETE" and "not a managed assembly" in str(error.value)
+
+
+@pytest.mark.parametrize("mutation", [None, "orphan", "duplicate-definition", "wrong-method", "wrong-class", "wrong-binary", "no-definition", "wrong-claimed-name"])
+def test_story92_execution_joins_tier_method_definitions(tmp_path: Path, monkeypatch, mutation) -> None:
+    frozen = _story92_execution_fixture(tmp_path)
+    path = tmp_path / "artifacts/v9/9.2/portable.trx"
+    before = path.read_bytes()
+    tree = story92.RECORD.ElementTree.fromstring(before)
+    result = tree.find('./{*}Results/{*}UnitTestResult')
+    definitions = tree.find('./{*}TestDefinitions')
+    definition = definitions[0]
+    method = definition.find('./{*}TestMethod')
+    if mutation == "orphan": result.set("testId", "orphan")
+    elif mutation == "duplicate-definition": definitions.append(deepcopy(definition))
+    elif mutation == "wrong-method": method.set("name", "InventedAssertion")
+    elif mutation == "wrong-class": method.set("className", "InventedClass")
+    elif mutation == "wrong-binary": method.set("codeBase", str(tmp_path / "wrong.dll"))
+    elif mutation == "no-definition": definitions.remove(definition)
+    elif mutation == "wrong-claimed-name": result.set("testName", "InventedClaim")
+    monkeypatch.setattr(story92, "_execution_binary_is_managed", lambda _: True)
+    try:
+        path.write_bytes(story92.RECORD.ElementTree.tostring(tree))
+        if mutation:
+            with pytest.raises(story92.VerificationError) as error:
+                story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")
+            assert error.value.code == "TIER_EXECUTION_INCOMPLETE"
+        else:
+            assert story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")["completePassingExecution"]
+    finally:
+        path.write_bytes(before)
+    assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize("location", ["bin/Release/net10.0", "obj/Release/net10.0"])
+def test_story92_unrecognized_generated_compile_input_is_not_dropped(tmp_path: Path, monkeypatch, location: str) -> None:
+    path = tmp_path / Path(story92.PROJECTS["portable"]).parent / location / "HiddenAssertion.cs"
+    path.parent.mkdir(parents=True); path.write_text("// <auto-generated/>\npublic class Hidden { [Fact] public void Test() {} }")
+    monkeypatch.setattr(story92.TIERING, "module_assemblies", lambda _: [])
+    monkeypatch.setattr(story92.TIERING, "WorkTree", lambda _: None)
+    evaluated = {"portable": {"Items": {"Compile": [{"FullPath": str(path)}]}}}
+    with pytest.raises(story92.VerificationError) as error:
+        story92.source_inventory(tmp_path, evaluated, {"assertions": [], "validationAdditions": []})
+    assert error.value.code == "ASSERTION_INVENTORY_DRIFT"
+
+
+def test_story92_only_known_generated_metadata_is_exempt(tmp_path: Path) -> None:
+    project = story92.PROJECTS["portable"]
+    path = tmp_path / Path(project).parent / "obj/Release/net10.0" / (Path(project).stem + ".AssemblyInfo.cs")
+    path.parent.mkdir(parents=True); path.write_text('// <auto-generated/>\n[assembly: System.Reflection.AssemblyCompany("Fixture")]')
+    assert story92._known_generated_metadata(tmp_path, project, path)
+    path.write_text('// <auto-generated/>\npublic class Hidden {}')
+    assert not story92._known_generated_metadata(tmp_path, project, path)
+    path.write_text('// <auto-generated/>\npublic class Hidden { [Fact] public void Test() { Assert.True(true); } }')
+    assert not story92._known_generated_metadata(tmp_path, project, path)
 
 
 if __name__ == "__main__":

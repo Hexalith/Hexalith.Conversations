@@ -1538,6 +1538,14 @@ case identities, and all three live controls. Controls cannot inflate the floor.
 Resolved MSBuild project packability, transitive compile assets, and assembly
 identity from `ReferencePath.FusionName` prove the portable dependency boundary;
 a renamed DLL cannot hide a Server reference.
+Every traversed repository project must be packable regardless of its assembly
+name. Hexalith compile binaries must belong to the evaluated shipped project or
+restored package surfaces. Evaluated generated Compile items may contain only
+the expected compiler metadata; custom generated assertions fail closed.
+Declaration checks require executable CI tier commands, rather than DLL names
+alone. Complete execution joins each result to its tier/method definition and
+requires managed binary evidence. Verification output cannot alias a result,
+source input, approval, migration, or protected historical artifact.
 
 Prepare the migration after all test/source/configuration changes are final:
 
@@ -1567,7 +1575,9 @@ That closed decision requires `schemaVersion` equal to
 
 Include every changed assertion in the proposal's order. The verifier rejects
 missing approval, an omitted row, or a different proposal/public-drift digest.
-Fixture decisions marked `SYNTHETIC-FIXTURE` cannot authorize the final record.
+Fixture decisions marked `SYNTHETIC-FIXTURE` fail ordinary approval validation
+and cannot authorize the final record. Disposable tests explicitly override
+their private approval and managed-binary checks when measuring other fault categories.
 Do not regenerate an approved proposal; a changed proposal needs versioned
 successor evidence and a new genuine decision.
 
@@ -1611,7 +1621,8 @@ TRX evidence. AC-09 exports one `story92ObservedFault` property per required
 fault, including the renamed-reference fault. Each measures baseline PASS,
 its sole exact blocker with exit 1, and restored PASS with identical before
 and after bytes. Fault fixtures use disposable synthetic approval, TRX, and
-assembly bytes. Their separate `sourceInputsSha256` binds the copied candidate
+assembly bytes with explicit private test overrides. Their separate
+`sourceInputsSha256` binds the copied candidate
 source/configuration inputs; their before/after fixture digest binds restoration.
 Neither fixture PASS nor fixture approval is accepted tier-execution evidence.
 The final-record generator recomputes the source digest from committed blobs
@@ -1660,6 +1671,10 @@ assembly stamps remain the original SC-9.2 even after record/lifecycle commits.
 A rebuild or rerun creates new evidence and requires the record-only
 retraction/replacement procedure. Rollback removes the split and migrated
 test/evidence changes together, retaining Story 9.1 and all protected v1 bytes.
+The full-history scope check recognizes only independently verified Story 9.2
+pair-only publication/retraction commits during replacement. A commit mixing
+pair changes with source, unrelated protected records, or additional gitlink
+promotions remains a blocker.
 
 After publication, use `--verify-inserted-record` to check retained evidence.
 Normal AC-10 generation executes the declared build/Python commands; at a
