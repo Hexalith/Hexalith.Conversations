@@ -1,11 +1,13 @@
 # Story 9.2 migration: Quality review packet
 
-**Decision pending.** This packet describes the concrete proposal prepared under the user’s “do recommended” approach decision. It records no Quality approval.
+**Decision pending.** This packet describes the concrete proposal prepared under the user’s “do recommended” approach decision and refreshed after the user requested “update to latest eventstore”. It records no Quality approval.
 
-- Proposal SHA-256: `f59dce5e7642c7ef588dcb0f3e4f7fe045598ee613c9638b3198a5e57f331eef`
+- Proposal SHA-256: `5ea111cbb12a196ba79231bccfeadf239109e50002a40ca0b942ea9568e79217`
 - Public-drift SHA-256: `3357725bc7ebc039baca0bf928718f03f2ae037dbd130e37704bd3315480d2d1`
 - Authoritative proposal: [conformance-oracle-tiering-migration-v3.json](conformance-oracle-tiering-migration-v3.json).
 - Working-tree baseline: `51aa06b856bcb0aaf22013153cfe02a51b046156`. Final acceptance requires a committed, approved candidate and fresh receipts.
+
+The shared catalog now selects the latest listed stable EventStore family, `3.115.0`. The update changes only `portableSurface` in the pending proposal; assertion rows, both strength inventories, and the public-drift digest remain identical. The previous pending proposal (`f59dce5e7642c7ef588dcb0f3e4f7fe045598ee613c9638b3198a5e57f331eef`) and review packet are retained under [the update receipts](../../artifacts/v9/9.2/eventstore-update/). No approved migration or historical evidence was rewritten.
 
 ## Recommended decision
 
@@ -66,15 +68,16 @@ Added type identities:
 
 | Check | Observed result |
 | --- | --- |
-| Both tier projects, Debug and Release | Builds pass with zero warnings/errors. |
+| Both tier projects, Release with EventStore 3.115.0 | Separate Release restores and builds pass with zero warnings/errors. |
 | Portable dependency boundary and declarations | AC02/05 pass; resolved identities, graph packability, compile assets, solution, and CI declarations are checked. |
 | Portable execution | 326/326 pass: 325 retained cases plus one live control. |
 | Internal execution | 91/92 pass: all 90 retained cases plus the declaration control pass; the inventory approval control reports `TIER_APPROVAL_MISSING`. |
 | Combined retained execution | All 415 retained cases pass across 401 active methods; zero skips/omissions. The earlier 415-case capture had 412 passes and three guard failures. |
 | Structural/execution faults | 22 pass; each reports its exact blocker and restores identical bytes. Synthetic fixture execution/approval is labeled and excluded from actual acceptance. |
 | Generator tooling | 62 focused Story 9.1/9.2 tests pass, including positive derivation, malformed/stale inputs, approval, schema, historical pairs, and inserted-record drift. |
+| Shared catalog and audit | Catalog, authority, and exception checks pass; 115 audit-generator scenarios pass. The deterministic audit validates 304 packages; all 145 other family decisions and 291 other package rows are unchanged. |
 
-These receipts are under `artifacts/v9/9.2/`. They are provisional working-tree measurements. No accepted Story 9.2 final record has been published; formal AC04/07/08/10 remain pending the Quality decision and candidate rerun.
+Fresh Release build and tier-execution receipts for EventStore `3.115.0` are under `artifacts/v9/9.2/eventstore-update/`; the earlier Debug, fault, and generator receipts remain under `artifacts/v9/9.2/`. The fresh verifier observes all 415 retained cases and three live controls, with only `TIER_APPROVAL_MISSING` failing. These are provisional working-tree measurements. No accepted Story 9.2 final record has been published; formal AC04/07/08/10 remain pending the Quality decision, compatible candidate scope, and candidate rerun.
 
 ## Exact changed-row bindings
 

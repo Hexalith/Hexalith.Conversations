@@ -529,12 +529,12 @@
         },
         {
           "target": "net10.0",
-          "library": "Hexalith.EventStore.Client/3.113.0",
+          "library": "Hexalith.EventStore.Client/3.115.0",
           "asset": "lib/net10.0/Hexalith.EventStore.Client.dll"
         },
         {
           "target": "net10.0",
-          "library": "Hexalith.EventStore.Contracts/3.113.0",
+          "library": "Hexalith.EventStore.Contracts/3.115.0",
           "asset": "lib/net10.0/Hexalith.EventStore.Contracts.dll"
         },
         {
@@ -26387,7 +26387,7 @@
     },
     "rollback": "Remove portable project and restore all migrated test/source/evidence changes as one unit; retain Story 9.1 and all immutable v1 evidence."
   },
-  "proposalSha256": "f59dce5e7642c7ef588dcb0f3e4f7fe045598ee613c9638b3198a5e57f331eef",
+  "proposalSha256": "5ea111cbb12a196ba79231bccfeadf239109e50002a40ca0b942ea9568e79217",
   "approvalRequired": {
     "role": "Quality owner",
     "path": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v3.json",

@@ -75,6 +75,8 @@ context:
 
 ## Spec Change Log
 
+- 2026-10-07: User requested "update to latest eventstore", authorizing the shared EventStore package update and its owning Builds changes despite the original dependency/submodule constraint. The original baseline and frozen intent remain preserved. This instruction supplies neither the Quality migration decision nor an amendment accepting the other candidate gitlink promotions.
+
 ## Review Triage Log
 
 ## Verification
@@ -93,3 +95,9 @@ Resumed verification (2026-10-07, current candidate `f962c5b1f81b995116c83f144c2
 - Quality decision: `conformance-oracle-tiering-migration-approval-v3.json` remains absent. The concrete proposal/public-drift/changed-row bindings in the [Quality packet](../../docs/release-evidence/conformance-oracle-tiering-migration-review-v3.md) still require an actual Quality-owner decision. No approval, accepted final record, AC10 `10/10/0/0/0/0` result, or completion transition is claimed.
 
 Fresh complete Release execution, compatible candidate scope, genuine Quality approval, deterministic final-pair generation/insertion verification, and lifecycle updates remain incomplete. The spec and sprint row stay `in-progress`.
+
+EventStore update verification (2026-10-07, root `54c8f7fb5b3557e29af3a7e7239c97362094fd89`, local Builds `af20682ac8fc420068a731ecb87cff84727a3d53`): the latest listed stable version shared by all 13 EventStore packages is `3.115.0`. The authoritative catalog pin was updated in local Builds commit `031b028d3f7b5b614585d4e7e61e6a1350da4096`; its targeted audit and shared-consumer regression fix are in the subsequent local Builds commit. Catalog, consumer authority, exception, whitespace, and root-submodule checks pass. All 115 audit-generator scenarios pass; the deterministic audit validates 304 packages and preserves all 145 other family decisions and 291 other package rows. No push was performed.
+
+- Both separate Release restores/builds pass with zero warnings/errors, resolving the missing stream API blocker. Fresh [portable](../../artifacts/v9/9.2/eventstore-update/portable.trx) execution passes 326/326; fresh [internal](../../artifacts/v9/9.2/eventstore-update/internal.trx) execution passes 91/92. The sole failing case is the Quality approval control. The [verifier](../../artifacts/v9/9.2/eventstore-update/tiering-verification.json) observes all 415 retained cases across 401 methods and all three live controls, with zero skips or omissions; it exits `1` with `TIER_APPROVAL_MISSING`.
+- The pending migration now reproduces at proposal `5ea111cbb12a196ba79231bccfeadf239109e50002a40ca0b942ea9568e79217`. Only its two EventStore `portableSurface` package versions and proposal digest change; all 14 successor row bindings, strength inventories, and public drift remain identical. The previous pending proposal/review packet and [environment comparison](../../artifacts/v9/9.2/eventstore-update/migration-environment-audit.json) are retained. The [Quality packet](../../docs/release-evidence/conformance-oracle-tiering-migration-review-v3.md) is refreshed for the actual dependency environment, with no approval claimed.
+- The current read-only [candidate probe](../../artifacts/v9/9.2/eventstore-update/candidate-scope-check.json) still exits `1` with `AUTHORITY_BINDING_INVALID` for the seven previously identified root gitlinks. Compatible candidate scope, genuine Quality approval, fresh committed-candidate acceptance, final-pair generation/insertion, and lifecycle updates remain pending. These measurements supersede the dependency build failure above; they do not establish complete Story 9.2 acceptance.
