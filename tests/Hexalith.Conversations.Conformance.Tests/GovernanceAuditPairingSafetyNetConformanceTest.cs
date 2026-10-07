@@ -5,6 +5,7 @@
 
 using Hexalith.Conversations.Aggregates;
 using Hexalith.Conversations.Commands;
+using Hexalith.Conversations.Contracts.Agents;
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
@@ -192,6 +193,7 @@ public sealed class GovernanceAuditPairingSafetyNetConformanceTest
                 typeof(SetConversationRetentionPolicy),
                 typeof(MarkConversationContentSensitive),
                 typeof(RedactMessageContent),
+                typeof(ApproveConversationDeletion),
             ],
             ignoreOrder: true);
         nonAuditCommands.ShouldBe(
@@ -199,6 +201,12 @@ public sealed class GovernanceAuditPairingSafetyNetConformanceTest
                 typeof(CreateConversation),
                 typeof(AddParticipant),
                 typeof(ReassignConversationProject),
+                typeof(AddAgentParticipant),
+                typeof(RemoveAgentParticipant),
+                typeof(AppendAgentMessage),
+                typeof(EditConversationMessageCommand),
+                typeof(DeleteConversationMessageCommand),
+                typeof(RecordConversationDeletionDelivery),
             ],
             ignoreOrder: true);
     }

@@ -1517,3 +1517,125 @@ capture, the eight TRX files, and `faults.xml`), the Release test output
 directory, and a manifest of each file's path, SHA-256, and `st_mtime_ns`.
 The disposition stays verifiable without the capture. Story 9.2 needs the
 retained pre-split TRX for its monotonic-count proof.
+
+### Story 9.2 structural tiers and complete execution
+
+Story 9.2 retains the immutable `9.2.json` contract and uses
+`_bmad-output/planning-artifacts/v9/story-9.2-execution-amendment-v1.json`
+for its effective commands. The final-record route accepts only the reviewed
+amendment SHA-256
+`921bf66838c6121ffd57421804192c108b02b5d0c71bd4063e3cb5664d399951`.
+It binds every frozen command and result semantic, uses the pinned runner's
+`-result-trx` and `-parallelMode none` options, and preserves the historical
+exclusions. Other stories keep their existing command parsing and record shapes.
+
+The frozen inventory has 452 definitions, including 401 active methods and
+51 historical exclusions. The retained pre-split TRX supplies the 415-case
+floor. Seven historical Story 9.1 controls remain compiled; three live Story
+9.2 controls execute separately. Acceptance requires both tiers to run nonzero
+passing coverage with no failures, skips, or omissions, exactly the 415 retained
+case identities, and all three live controls. Controls cannot inflate the floor.
+Resolved MSBuild project packability, transitive compile assets, and assembly
+identity from `ReferencePath.FusionName` prove the portable dependency boundary;
+a renamed DLL cannot hide a Server reference.
+
+Prepare the migration after all test/source/configuration changes are final:
+
+```bash
+python3 _bmad/scripts/verify_conformance_tiering.py --repository . --propose-migration
+```
+
+This produces `conformance-oracle-tiering-migration-v3.json` with a pending
+Quality verdict, retained before-strength hashes, successor hashes and row
+digests, declarations, dependency proof, public drift, and FR-20 membership.
+Present the concrete proposal and its review packet to the Quality owner.
+Approach approval does not approve unseen public drift or final row digests.
+Only an actual owner decision may create
+`docs/release-evidence/conformance-oracle-tiering-migration-approval-v3.json`.
+That closed decision requires `schemaVersion` equal to
+`hexalith.conversations.conformance-oracle-tiering-migration-approval.v3`,
+`status: approved`, `role: Quality owner`, nonempty `approver`, `approvalId`,
+`approvedOn` (ISO date), and `evidence`, plus this complete `binding`:
+
+```json
+{
+  "proposalSha256": "<exact proposalSha256>",
+  "changedAssertionRows": [["<assertion identity>", "<exact rowSha256>"]],
+  "publicDriftSha256": "<exact publicSurface.driftSha256>"
+}
+```
+
+Include every changed assertion in the proposal's order. The verifier rejects
+missing approval, an omitted row, or a different proposal/public-drift digest.
+Fixture decisions marked `SYNTHETIC-FIXTURE` cannot authorize the final record.
+Do not regenerate an approved proposal; a changed proposal needs versioned
+successor evidence and a new genuine decision.
+
+After approval, commit the complete implementation candidate while the story
+stays `in-progress`. Preserve its original `baseline_commit`
+`51aa06b856bcb0aaf22013153cfe02a51b046156`. The generator rejects production,
+dependency, submodule, protected historical-record, and unrelated changes
+between that baseline and the candidate. Restore/build each tier in Release
+package mode, with each assembly stamped by the full candidate commit. Debug
+source-reference restores must be followed by a Release restore before running
+the amended `--no-restore` builds.
+
+Run AC-9.2-01 through AC-9.2-09 from the amendment's `effectiveScenarios`, in
+order, at the same candidate. A rebuild after test execution invalidates the
+TRX evidence. AC-09 exports one `story92ObservedFault` property per required
+fault, including the renamed-reference fault. Each measures baseline PASS,
+its sole exact blocker with exit 1, and restored PASS with identical before
+and after bytes. Fault fixtures use disposable synthetic approval, TRX, and
+assembly bytes. Their separate `sourceInputsSha256` binds the copied candidate
+source/configuration inputs; their before/after fixture digest binds restoration.
+Neither fixture PASS nor fixture approval is accepted tier-execution evidence.
+The final-record generator recomputes the source digest from committed blobs
+and requires the ordered fault set exactly once, including candidate identity
+and unchanged source bytes during measurement.
+
+Run AC-9.2-10 twice and require identical output bytes and `10/10/0/0/0/0`:
+
+```bash
+python3 _bmad/scripts/generate_story_record.py --repository . \
+  --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json \
+  --format bundle \
+  --output-json docs/release-evidence/story-9.2-final-record-v2.json \
+  --output-markdown docs/release-evidence/story-9.2-final-record-v2.md
+```
+
+The Story 9.2-only closed `conformanceExecution` binding remeasures the verifier
+API and binds Story 9.1's accepted pair and candidate, frozen disposition,
+amendment, migration/approval, both project/assembly/result hashes,
+before/after identity and strength digests, case counts and controls,
+declaration/dependency/FR-20/public-drift digests, protected evidence, and
+candidate-bound fault receipts. The AC-08 JSON must equal fresh verification.
+The genuine migration and approval must be committed in the candidate.
+
+Commit only the generated JSON/Markdown pair, insert Markdown verbatim in the
+designated spec record region, then run:
+
+```bash
+python3 _bmad/scripts/generate_story_record.py --repository . \
+  --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json \
+  --verify-inserted-record \
+  _bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md
+```
+
+Inserted verification rederives all bindings and receipts without executing
+builds or Python scenario commands or writing record/results. The retained
+candidate machinery permits only the record pair and lifecycle changes after
+the candidate. Archive both complete Release tier output directories,
+`artifacts/v9/9.2/`, the retained pre-split TRX, the accepted pair, and a manifest
+with exact repository-relative paths, SHA-256 digests, and `st_mtime_ns` under
+the immutable `conformanceExecution.sourceRevisionId` key. Recover exact bytes
+and times at their original paths before read-only verification; retained
+assembly stamps remain the original SC-9.2 even after record/lifecycle commits.
+A rebuild or rerun creates new evidence and requires the record-only
+retraction/replacement procedure. Rollback removes the split and migrated
+test/evidence changes together, retaining Story 9.1 and all protected v1 bytes.
+
+After publication, use `--verify-inserted-record` to check retained evidence.
+Normal AC-10 generation executes the declared build/Python commands; at a
+later record or lifecycle `HEAD`, a build can stamp that later commit and
+invalidate the retained SC-9.2 results. Keep the original candidate-stamped
+assemblies and receipts for post-publication verification.

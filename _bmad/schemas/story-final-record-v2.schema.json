@@ -353,7 +353,8 @@
             "storyId": {
               "enum": [
                 "7.4",
-                "9.1"
+                "9.1",
+                "9.2"
               ]
             }
           }
@@ -393,6 +394,35 @@
         "not": {
           "required": [
             "conformanceTiering"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "storyId": {
+            "const": "9.2"
+          }
+        },
+        "required": [
+          "storyId"
+        ]
+      },
+      "then": {
+        "required": [
+          "conformanceExecution"
+        ],
+        "properties": {
+          "faultInjection": {
+            "$ref": "#/$defs/structuralFaultInjection"
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "conformanceExecution"
           ]
         }
       }
@@ -453,6 +483,9 @@
               },
               {
                 "$ref": "#/$defs/tieringObservedFault"
+              },
+              {
+                "$ref": "#/$defs/structuralObservedFault"
               }
             ]
           },
@@ -489,6 +522,9 @@
     },
     "conformanceTiering": {
       "$ref": "#/$defs/conformanceTiering"
+    },
+    "conformanceExecution": {
+      "$ref": "#/$defs/conformanceExecution"
     }
   },
   "$defs": {
@@ -3091,6 +3127,1193 @@
         },
         "sourceRevisionId": {
           "$ref": "#/$defs/commit"
+        }
+      }
+    },
+    "structuralObservedFault": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "candidateCommit",
+        "expectedBlocker",
+        "observedExitCode",
+        "observedBlockers",
+        "beforeSha256",
+        "mutatedSha256",
+        "afterSha256",
+        "baselineExitCode",
+        "baselineBlockers",
+        "restoredExitCode",
+        "restoredBlockers",
+        "sourceInputsSha256",
+        "syntheticExecutionAndApprovalFixture"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "nonportable-reference",
+            "transitive-nonportable-reference",
+            "resolved-nonportable-reference",
+            "renamed-nonportable-reference",
+            "assertion-deleted",
+            "assertion-duplicated",
+            "assertion-renamed",
+            "assertion-weakened",
+            "tier-missing",
+            "reason-missing",
+            "approval-missing",
+            "project-missing",
+            "declaration-missing",
+            "completion-declaration-missing",
+            "denominator-drift",
+            "public-widened",
+            "v1-mutated",
+            "predecessor-disposition-detached",
+            "execution-skipped",
+            "execution-not-run",
+            "execution-empty",
+            "execution-regressed"
+          ]
+        },
+        "candidateCommit": {
+          "$ref": "#/$defs/commit"
+        },
+        "expectedBlocker": {
+          "$ref": "#/$defs/blocker"
+        },
+        "observedExitCode": {
+          "const": 1
+        },
+        "observedBlockers": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/$defs/blocker"
+          }
+        },
+        "beforeSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "mutatedSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "afterSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "baselineExitCode": {
+          "const": 0
+        },
+        "baselineBlockers": {
+          "const": []
+        },
+        "restoredExitCode": {
+          "const": 0
+        },
+        "restoredBlockers": {
+          "const": []
+        },
+        "sourceInputsSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "syntheticExecutionAndApprovalFixture": {
+          "const": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "nonportable-reference"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "PORTABLE_TIER_NONPORTABLE_REFERENCE"
+              },
+              "observedBlockers": {
+                "const": [
+                  "PORTABLE_TIER_NONPORTABLE_REFERENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "transitive-nonportable-reference"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "PORTABLE_TIER_NONPORTABLE_REFERENCE"
+              },
+              "observedBlockers": {
+                "const": [
+                  "PORTABLE_TIER_NONPORTABLE_REFERENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "resolved-nonportable-reference"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "PORTABLE_TIER_NONPORTABLE_REFERENCE"
+              },
+              "observedBlockers": {
+                "const": [
+                  "PORTABLE_TIER_NONPORTABLE_REFERENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "renamed-nonportable-reference"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "PORTABLE_TIER_NONPORTABLE_REFERENCE"
+              },
+              "observedBlockers": {
+                "const": [
+                  "PORTABLE_TIER_NONPORTABLE_REFERENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "assertion-deleted"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "ASSERTION_INVENTORY_DRIFT"
+              },
+              "observedBlockers": {
+                "const": [
+                  "ASSERTION_INVENTORY_DRIFT"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "assertion-duplicated"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "ASSERTION_INVENTORY_DRIFT"
+              },
+              "observedBlockers": {
+                "const": [
+                  "ASSERTION_INVENTORY_DRIFT"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "assertion-renamed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "ASSERTION_INVENTORY_DRIFT"
+              },
+              "observedBlockers": {
+                "const": [
+                  "ASSERTION_INVENTORY_DRIFT"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "assertion-weakened"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "ASSERTION_STRENGTH_WEAKENED"
+              },
+              "observedBlockers": {
+                "const": [
+                  "ASSERTION_STRENGTH_WEAKENED"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "tier-missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TIER_UNASSIGNED"
+              },
+              "observedBlockers": {
+                "const": [
+                  "TIER_UNASSIGNED"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "reason-missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TIER_REASON_MISSING"
+              },
+              "observedBlockers": {
+                "const": [
+                  "TIER_REASON_MISSING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "approval-missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TIER_APPROVAL_MISSING"
+              },
+              "observedBlockers": {
+                "const": [
+                  "TIER_APPROVAL_MISSING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "project-missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TIER_PROJECT_MISSING"
+              },
+              "observedBlockers": {
+                "const": [
+                  "TIER_PROJECT_MISSING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "declaration-missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TIER_NOT_DECLARED"
+              },
+              "observedBlockers": {
+                "const": [
+                  "TIER_NOT_DECLARED"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "completion-declaration-missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TIER_NOT_DECLARED"
+              },
+              "observedBlockers": {
+                "const": [
+                  "TIER_NOT_DECLARED"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "denominator-drift"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "FR20_DENOMINATOR_DRIFT"
+              },
+              "observedBlockers": {
+                "const": [
+                  "FR20_DENOMINATOR_DRIFT"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "public-widened"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "PUBLIC_CONTRACT_WIDENED"
+              },
+              "observedBlockers": {
+                "const": [
+                  "PUBLIC_CONTRACT_WIDENED"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "v1-mutated"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "V1_ARTIFACT_DRIFT"
+              },
+              "observedBlockers": {
+                "const": [
+                  "V1_ARTIFACT_DRIFT"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "predecessor-disposition-detached"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "V1_ARTIFACT_DRIFT"
+              },
+              "observedBlockers": {
+                "const": [
+                  "V1_ARTIFACT_DRIFT"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "execution-skipped"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TIER_EXECUTION_INCOMPLETE"
+              },
+              "observedBlockers": {
+                "const": [
+                  "TIER_EXECUTION_INCOMPLETE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "execution-not-run"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TIER_EXECUTION_INCOMPLETE"
+              },
+              "observedBlockers": {
+                "const": [
+                  "TIER_EXECUTION_INCOMPLETE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "execution-empty"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "ASSERTION_LEDGER_EMPTY"
+              },
+              "observedBlockers": {
+                "const": [
+                  "ASSERTION_LEDGER_EMPTY"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "execution-regressed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "EXECUTED_COUNT_REGRESSION"
+              },
+              "observedBlockers": {
+                "const": [
+                  "EXECUTED_COUNT_REGRESSION"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "structuralFaultInjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "results"
+      ],
+      "properties": {
+        "results": {
+          "type": "array",
+          "minItems": 22,
+          "maxItems": 22,
+          "items": false,
+          "prefixItems": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "nonportable-reference"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "transitive-nonportable-reference"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "resolved-nonportable-reference"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "renamed-nonportable-reference"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "assertion-deleted"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "assertion-duplicated"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "assertion-renamed"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "assertion-weakened"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "tier-missing"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "reason-missing"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "approval-missing"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "project-missing"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "declaration-missing"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "completion-declaration-missing"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "denominator-drift"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "public-widened"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "v1-mutated"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "predecessor-disposition-detached"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "execution-skipped"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "execution-not-run"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "execution-empty"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/structuralObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "execution-regressed"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "conformanceExecutionTier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project",
+        "assembly",
+        "result",
+        "counts",
+        "activeFrozenMethods",
+        "activeFrozenCases",
+        "controlCases",
+        "failedControlCases",
+        "caseIdentitySha256"
+      ],
+      "properties": {
+        "project": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "assembly": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "result": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "counts": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/testCounts"
+            },
+            {
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "executed": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "passed": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "failed": {
+                  "const": 0
+                },
+                "skipped": {
+                  "const": 0
+                }
+              }
+            }
+          ]
+        },
+        "activeFrozenMethods": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "activeFrozenCases": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "controlCases": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "failedControlCases": {
+          "const": []
+        },
+        "caseIdentitySha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "conformanceExecution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindingRule",
+        "sourceRevisionId",
+        "baselineCommit",
+        "contract",
+        "executionAmendment",
+        "predecessorRecord",
+        "predecessorCandidate",
+        "beforeDisposition",
+        "preSplitResult",
+        "migration",
+        "proposalSha256",
+        "approval",
+        "inventories",
+        "inventorySha256",
+        "declarations",
+        "portableSurfaceSha256",
+        "fr20MembershipSha256",
+        "denominatorSuitesSha256",
+        "publicDriftSha256",
+        "changedAssertionRows",
+        "frozenDefinitions",
+        "historicalExclusions",
+        "historicalValidationControls",
+        "execution",
+        "protectedArtifacts",
+        "faultEvidence",
+        "faultSourceInputsSha256"
+      ],
+      "properties": {
+        "bindingRule": {
+          "const": "SC-9.2 is HEAD^{commit} at first final-record generation; retained evidence stays stamped by SC-9.2"
+        },
+        "sourceRevisionId": {
+          "$ref": "#/$defs/commit"
+        },
+        "baselineCommit": {
+          "const": "51aa06b856bcb0aaf22013153cfe02a51b046156"
+        },
+        "contract": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "executionAmendment": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "predecessorRecord": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/predecessorRecord"
+            },
+            {
+              "properties": {
+                "storyId": {
+                  "const": "9.1"
+                }
+              }
+            }
+          ]
+        },
+        "predecessorCandidate": {
+          "$ref": "#/$defs/commit"
+        },
+        "beforeDisposition": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "preSplitResult": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "migration": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "proposalSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "approval": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "inventories": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "beforeIdentitySha256",
+            "afterIdentitySha256",
+            "beforeStrengthInventorySha256",
+            "afterStrengthInventorySha256"
+          ],
+          "properties": {
+            "beforeIdentitySha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "afterIdentitySha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "beforeStrengthInventorySha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "afterStrengthInventorySha256": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        },
+        "inventorySha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "declarations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "solution",
+            "workflow",
+            "completionInventorySha256"
+          ],
+          "properties": {
+            "solution": {
+              "$ref": "#/$defs/outputFile"
+            },
+            "workflow": {
+              "$ref": "#/$defs/outputFile"
+            },
+            "completionInventorySha256": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        },
+        "portableSurfaceSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "fr20MembershipSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "denominatorSuitesSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "publicDriftSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "changedAssertionRows": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "frozenDefinitions": {
+          "const": 452
+        },
+        "historicalExclusions": {
+          "const": 51
+        },
+        "historicalValidationControls": {
+          "const": 7
+        },
+        "execution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tiers",
+            "beforeExecutedCases",
+            "afterExecutedCases",
+            "activeFrozenMethods",
+            "controlsExecuted",
+            "beforeCaseIdentitySha256",
+            "afterCaseIdentitySha256",
+            "failed",
+            "skipped",
+            "notRun",
+            "completePassingExecution"
+          ],
+          "properties": {
+            "tiers": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "portable",
+                "module-internal"
+              ],
+              "properties": {
+                "portable": {
+                  "$ref": "#/$defs/conformanceExecutionTier"
+                },
+                "module-internal": {
+                  "$ref": "#/$defs/conformanceExecutionTier"
+                }
+              }
+            },
+            "beforeExecutedCases": {
+              "const": 415
+            },
+            "afterExecutedCases": {
+              "const": 415
+            },
+            "activeFrozenMethods": {
+              "const": 401
+            },
+            "controlsExecuted": {
+              "const": 3
+            },
+            "beforeCaseIdentitySha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "afterCaseIdentitySha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "failed": {
+              "const": 0
+            },
+            "skipped": {
+              "const": 0
+            },
+            "notRun": {
+              "const": 0
+            },
+            "completePassingExecution": {
+              "const": true
+            }
+          }
+        },
+        "protectedArtifacts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/outputFile"
+          }
+        },
+        "faultEvidence": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "faultSourceInputsSha256": {
+          "$ref": "#/$defs/digest"
         }
       }
     }

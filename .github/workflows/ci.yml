@@ -155,6 +155,23 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Set up Python for live tier controls
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Install locked tier verification tooling
+        run: |
+          python -m pip install --disable-pip-version-check uv==0.11.16
+          uv sync --locked --python 3.11
+
+      - name: Build portable conformance project
+        run: >-
+          dotnet build
+          tests/Hexalith.Conversations.Conformance.Portable.Tests/Hexalith.Conversations.Conformance.Portable.Tests.csproj
+          --configuration Release
+          -warnaserror
+
       - name: Build conformance project
         run: >-
           dotnet build
@@ -167,11 +184,11 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p TestResults/conformance
-          assembly="tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll"
-          # These classes assert the retired authority and mandatory final-record policy,
-          # or compare the live tree with the Story 9.1 freeze (retired 2026-10-07).
-          # Keep them in Git for historical reproduction, outside current CI.
-          dotnet "$assembly" \
+          portable="tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll"
+          internal="tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll"
+          # Retain historical exclusions and all frozen definitions. The old Story 9.1
+          # controls inspect their original assembly; separate live controls cover both tiers.
+          uv run --frozen --no-sync dotnet "$portable" -failSkips \
             -class- "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest" \
             -class- "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest" \
             -class- "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest" \
@@ -185,15 +202,34 @@ jobs:
             -method- "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap" \
             -method- "Hexalith.Conversations.Conformance.Tests.SmC2BaselineReconstructionValidationTest.BaselineShouldRecordAnAuditableReconstructionMethod" \
             -parallelMode none \
-            -result-trx TestResults/conformance/conformance-results.trx \
+            -result-trx TestResults/conformance/portable.trx \
             -noLogo
+          uv run --frozen --no-sync dotnet "$internal" -failSkips \
+            -parallelMode none \
+            -result-trx TestResults/conformance/internal.trx \
+            -noLogo
+
+      - name: Verify complete monotonic tier execution
+        run: >-
+          uv run --frozen --no-sync python3 _bmad/scripts/verify_conformance_tiering.py
+          --repository .
+          --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json
+          --portable-result TestResults/conformance/portable.trx
+          --internal-result TestResults/conformance/internal.trx
+          --output TestResults/conformance/tiering.json
+
+      - name: Prove structural and execution faults
+        run: >-
+          uv run --frozen --no-sync python3 -m pytest -q
+          _bmad/scripts/tests/test_conformance_tiering.py -k structural_and_execution_faults
+          --junitxml=TestResults/conformance/faults.xml
 
       - name: Upload conformance evidence
         if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
           name: conformance-test-results
-          path: TestResults/conformance/*.trx
+          path: TestResults/conformance/*
           retention-days: 7
 
   tooling:

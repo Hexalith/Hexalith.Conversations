@@ -1,0 +1,86 @@
+---
+title: 'Story 9.2 portable conformance tiers'
+type: 'feature'
+created: '2026-10-07'
+status: 'in-progress'
+baseline_commit: '51aa06b856bcb0aaf22013153cfe02a51b046156'
+route: 'dispatch'
+review_loop_iteration: 0
+context:
+  - 'docs/runbooks/current-change-validation.md'
+  - '_bmad-output/implementation-artifacts/epic-9-context.md'
+  - '_bmad-output/planning-artifacts/v9/story-contracts/9.2.json'
+---
+
+<frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
+
+## Intent
+
+**Problem:** Portable assertions compile with Server; consumers lack a portable oracle and two-tier execution proof.
+
+**Approach:** Split compilation under Story 9.1, prove dependencies/assertion preservation, run both tiers, and derive the final record.
+
+## Boundaries & Constraints
+
+**Always:** Preserve identities, tiers, strength, FR-20 membership, and telemetry/status suites. Bind Story 9.1. Separate frozen definitions, executed cases, and controls. Require nonzero passing execution without skips/omissions. Departures need versioned evidence and genuine Quality approval.
+
+**Decisions (2026-10-07, user: "do recommended"):** Preserve the existing historical exclusions and all frozen definitions; compare active identities/cases against the 415-case floor, counting controls separately. Prepare additive current-surface evidence, explicit governance expectations, safe temporary snapshot output, and combined suite checks. Retain old strength hashes; derive and review successor hashes. Approach approval does not approve unseen public drift or final row digests.
+
+**Never:** Change production APIs, dependencies, submodules, v1 bytes, accepted records; waive coverage, weaken assertions, or invent approvals. Roll back the split together, retaining Story 9.1.
+
+## I/O & Edge-Case Matrix
+
+| Input / State | Required behavior | Blocker |
+|---|---|---|
+| Nonportable evaluated dependency | Reject resolved compile surface | `PORTABLE_TIER_NONPORTABLE_REFERENCE` |
+| Missing/renamed/duplicated or weakened assertion | Reject migration | `ASSERTION_INVENTORY_DRIFT`, `ASSERTION_STRENGTH_WEAKENED` |
+| Missing declaration, skipped/empty/regressed execution | Reject completion | `TIER_NOT_DECLARED`, `ASSERTION_LEDGER_EMPTY`, `EXECUTED_COUNT_REGRESSION` |
+
+</frozen-after-approval>
+
+## Code Map
+
+- `docs/release-evidence/conformance-oracle-tiering-disposition-v2.json` — 452 frozen methods: 376 portable/76 internal; seven portable validation additions. No recorded source/closure mixes tiers.
+- `artifacts/v9/9.1/pre-split/` — verified hashes: 401 executed methods, 415 cases, 412 passes, three failures, 51 exclusions.
+- `tests/Hexalith.Conversations.Conformance.Tests/` — link unchanged paths; retain collections. Seven historical controls inspect only their own assembly; add separate live controls.
+- `_bmad/scripts/generate_conformance_tiering.py` — reuse `ProjectModel` strength derivation; evaluate both compilation sets.
+- `_bmad/scripts/generate_story_record.py` — reuse successor parsing; `.slnx` supplies completion inventory.
+
+## Tasks & Acceptance
+
+**Execution:**
+- [x] `_bmad-output/planning-artifacts/v9/story-9.2-execution-amendment-v1.json` — bind decisions/effective scenarios; preserve frozen contract.
+- [x] `tests/Hexalith.Conversations.Conformance.Portable.Tests/Hexalith.Conversations.Conformance.Portable.Tests.csproj` and existing conformance `.csproj` — link approved files, remove duplicate compilation; preserve namespaces/helpers and permitted dependencies.
+- [x] `Hexalith.Conversations.slnx`, `.github/workflows/ci.yml` — declare/run both tiers, exclusions, and controls.
+- [x] `tests/Hexalith.Conversations.Conformance.Portable.Tests/PortableCompileSurfaceValidationTest.cs` — implement AC02 against evaluated packability, transitive assets, and `ReferencePath`.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/Story92/ConformanceOracleTieringValidationTest.cs` — implement exact AC04/05 selectors across both assemblies.
+- [x] `_bmad/scripts/verify_conformance_tiering.py` — verify identities/strengths, approvals, declarations, and execution.
+- [x] `docs/release-evidence/conformance-oracle-tiering-migration-v3.json`; existing conformance `GovernanceAuditPairingSafetyNetConformanceTest.cs`, `PublicContractShapeSnapshotGenerationTest.cs`, `ReleaseBaselineValidationTest.cs` — implement authorized successors/safe snapshot output with retained identities and before/after proof.
+- [x] `_bmad/scripts/tests/test_conformance_tiering.py` — add `structural_and_execution_faults`: nonportable reference, assertion deletion/duplication/rename/weakening, missing tier/project/declaration, skipped/not-run/empty execution, regression, and exact restoration.
+- [x] `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/story-final-record-v2.schema.json`, `_bmad/scripts/tests/test_generate_story_record.py` — bind tier hashes, predecessor, inventories/strengths, approvals, faults, and retention.
+- [ ] `docs/runbooks/story-final-record-generation.md`, `docs/release-evidence/story-9.2-final-record-v2.{json,md}` — document/generate/verify record and insertion; update spec/sprint status after passing gates.
+
+**Acceptance Criteria:**
+- Given approved scenarios, when AC01–05 run, then builds/dependencies, exact declarations, and migration proof pass.
+- Given tier results, when AC06–09 run, then complete passing execution preserves the floor, distinguishes additions, and detects/restores every fault.
+- Given compatible passing evidence, when AC10 runs, then the derived record binds all required facts and reports `10/10/0/0/0/0`.
+
+## Implementation Notes
+
+- 2026-10-07: User approved both recommended approaches with "do recommended". Implement all reversible work and prepare concrete digest-bound approval evidence; do not invent the later Quality-owner decision. Preserve the original baseline commit.
+- Structural implementation verified: both Debug/Release builds and AC02/05 pass; portable 326/326, internal 91/92 with only the approval control failing. All 415 retained cases pass; 21 fault fixtures and 11 source-model checks pass. Final acceptance remains pending.
+- Resolve the remaining verifier concern: use resolved assembly identity, rather than only DLL filename, to reject a renamed nonportable reference. Keep the final-record integration specific to the hash-bound execution amendment; preserve historical parsing, schemas, and accepted records. Derive current facts through the verifier APIs and bind all measured fault receipts to the candidate. Genuine approval and committed-candidate final publication remain pending; prepare/test all tooling without fabricating either.
+- Resolved assembly identity now uses MSBuild `FusionName`; the expanded 22-fault suite passes. Final-record integration and its 62 focused generator checks pass, including candidate/approval rejection, historical-pair compatibility, deterministic fixture derivation, and inserted-record drift. The publication/retention runbook is updated.
+- Concrete decision packet: `docs/release-evidence/conformance-oracle-tiering-migration-review-v3.md`. Proposal `f59dce5e7642c7ef588dcb0f3e4f7fe045598ee613c9638b3198a5e57f331eef` binds 14 changed rows and public drift digest `3357725bc7ebc039baca0bf928718f03f2ae037dbd130e37704bd3315480d2d1`. No Quality decision, final record, or completion status has been invented.
+
+## Spec Change Log
+
+## Review Triage Log
+
+## Verification
+
+Run effective Story 9.2 scenarios with receipts. Use individual Debug checks and separate Release acceptance. Rebuilds invalidate results. Verify determinism, insertion, frozen hashes, focused Python tooling, and `git diff --check`; unresolved questions/failures block completion.
+
+Working-tree verification (2026-10-07): both Debug/Release builds pass with zero warnings/errors; AC02/05 pass; AC06 passes 326/326; AC07 reports 91/92 with only `TIER_APPROVAL_MISSING`; all 415 retained cases pass without skips or omissions. AC04/08 remain blocked by the actual Quality decision. AC09 passes 22/22; focused Story 9.1/9.2 generator tests pass 62/62; source-model checks pass 11/11; whitespace checks pass. Receipts are under `artifacts/v9/9.2/`. Final AC10 and lifecycle updates await approval and a fresh committed-candidate run.
+
+Matrix audit: the four dependency fault variants cover nonportable references; deletion, duplication, rename, and weakening cover identity/strength failures; declaration removal, empty execution, skipped/not-run cases, and execution regression cover the final matrix row. Every covering fault executed, reported its exact blocker, and restored byte-identically in AC09.

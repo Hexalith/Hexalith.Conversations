@@ -8675,5 +8675,359 @@ def test_v2_story_9_1_facts_reject_unbound_inputs(tmp_path: Path, monkeypatch, f
         module.v2_9_1_facts(tmp_path, candidate, contract, validators["record"])
     assert [item["code"] for item in failure.value.findings] == [blocker]
 
+# --------------------------------------------------------------------------- Story 9.2
+
+def _story_9_2_module():
+    module = load_generator()
+    verifier = module.v2_9_2_verifier()
+    return module, verifier
+
+
+def _story_9_2_fault_rows(module, verifier, candidate: str) -> list[dict]:
+    """Synthetic parser fixtures; these do not claim actual tier execution or Quality approval."""
+    return [{"id": identifier, "candidateCommit": candidate, "expectedBlocker": blocker,
+             "observedExitCode": 1, "observedBlockers": [blocker], "beforeSha256": "1" * 64,
+             "mutatedSha256": module.v2_sha256(identifier.encode()), "afterSha256": "1" * 64,
+             "baselineExitCode": 0, "baselineBlockers": [], "restoredExitCode": 0, "restoredBlockers": [],
+             "sourceInputsSha256": "2" * 64, "syntheticExecutionAndApprovalFixture": True}
+            for identifier, blocker in verifier.FAULTS.items()]
+
+
+def _story_9_2_write_faults(root: Path, module, verifier, rows: list[dict]):
+    document = ElementTree.Element("testsuites")
+    suite = ElementTree.SubElement(document, "testsuite", tests=str(len(rows)), failures="0", errors="0", skipped="0")
+    for row in rows:
+        case = ElementTree.SubElement(suite, "testcase", classname=module.V2_9_1_FAULT_CLASSNAME,
+                                      name=f"test_structural_and_execution_faults[{row['id']}]")
+        properties = ElementTree.SubElement(case, "properties")
+        ElementTree.SubElement(properties, "property", name=verifier.FAULT_PROPERTY, value=json.dumps(row))
+    target = root / module.V2_9_2_FAULT_RESULT_PATH
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(ElementTree.tostring(document))
+    return document
+
+
+def test_v2_story_9_2_uses_only_the_hash_bound_execution_amendment(tmp_path: Path, monkeypatch) -> None:
+    module, _ = _story_9_2_module()
+    candidate = "a" * 40
+    contract_bytes = (WORKSPACE / module.V2_9_2_CONTRACT_PATH).read_bytes()
+    amendment_bytes = (WORKSPACE / module.V2_9_2_AMENDMENT_PATH).read_bytes()
+    path = tmp_path / module.V2_9_2_AMENDMENT_PATH
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(amendment_bytes)
+    blobs = {module.V2_9_2_CONTRACT_PATH: contract_bytes, module.V2_9_2_AMENDMENT_PATH: amendment_bytes}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
+    contract = json.loads(contract_bytes)
+    effective = module.v2_9_2_amendment(tmp_path, candidate, contract)
+    assert contract == json.loads(contract_bytes)
+    assert [row["command"] for row in effective["scenarios"]] == [row["command"] for row in json.loads(amendment_bytes)["effectiveScenarios"]]
+    for scenario in effective["scenarios"][:8]:
+        route = module.v2_9_2_command(shlex.split(scenario["command"]))
+        assert route is not None
+    # Generic and historical command parsing remains unchanged.
+    tokens = shlex.split(effective["scenarios"][1]["command"])
+    assert module.v2_successor_command(tokens, module.V2_9_1_CONTRACT_PATH) is None
+    assert module.v2_9_2_command(tokens + ["-unknown", "value"]) is None
+    assert module.v2_9_2_command(["all" if token == "none" else token for token in tokens]) is None
+    changed = json.loads(amendment_bytes)
+    changed["effectiveScenarios"][5]["command"] += " -method- RequiredAssertion"
+    path.write_text(json.dumps(changed))
+    blobs[module.V2_9_2_AMENDMENT_PATH] = path.read_bytes()
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_9_2_amendment(tmp_path, candidate, contract)
+    assert failure.value.findings[0]["code"] == "AUTHORITY_BINDING_INVALID"
+
+
+@pytest.mark.parametrize("mutation,blocker", [
+    (None, None), ("source-digest", "TEST_RESULTS_STALE"), ("candidate", "TEST_RESULTS_STALE"),
+    ("property-missing", "FAULT_NOT_DETECTED"), ("extra-property", "FAULT_NOT_DETECTED"),
+    ("exit", "FAULT_NOT_DETECTED"), ("extra-blocker", "FAULT_NOT_DETECTED"),
+    ("after-hash", "FIXTURE_NOT_RESTORED"), ("unchanged-mutation", "FIXTURE_NOT_RESTORED"),
+    ("restored-exit", "FIXTURE_NOT_RESTORED"), ("missing-case", "FAULT_NOT_DETECTED"),
+    ("reordered", "FAULT_NOT_DETECTED"), ("wrong-name", "FAULT_NOT_DETECTED"),
+    ("skipped", "TEST_RESULTS_FAILED"), ("failed", "TEST_RESULTS_FAILED"),
+    ("stale", "TEST_RESULTS_STALE"), ("absent", "TEST_RESULTS_MISSING"),
+])
+def test_v2_story_9_2_requires_measured_candidate_bound_restored_faults(tmp_path: Path, monkeypatch, mutation, blocker) -> None:
+    module, verifier = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"9999999999" if mutation == "stale" else b"0", b""))
+    monkeypatch.setattr(module, "v2_9_2_source_digest", lambda *_: "2" * 64)
+    rows = _story_9_2_fault_rows(module, verifier, candidate)
+    row = rows[0]
+    if mutation == "source-digest": row["sourceInputsSha256"] = "3" * 64
+    elif mutation == "candidate": row["candidateCommit"] = "b" * 40
+    elif mutation == "exit": row["observedExitCode"] = 0
+    elif mutation == "extra-blocker": row["observedBlockers"].append("TIER_UNASSIGNED")
+    elif mutation == "after-hash": row["afterSha256"] = "4" * 64
+    elif mutation == "unchanged-mutation": row["mutatedSha256"] = row["beforeSha256"]
+    elif mutation == "restored-exit": row["restoredExitCode"] = 1
+    elif mutation == "missing-case": rows.pop()
+    elif mutation == "reordered": rows[0], rows[1] = rows[1], rows[0]
+    document = _story_9_2_write_faults(tmp_path, module, verifier, rows)
+    suite = document.find("testsuite")
+    case = suite.find("testcase")
+    if mutation == "property-missing": case.remove(case.find("properties"))
+    elif mutation == "extra-property":
+        prop = case.find("properties/property")
+        ElementTree.SubElement(case.find("properties"), "property", name=prop.get("name"), value=prop.get("value"))
+    elif mutation == "wrong-name": case.set("name", "Unrelated")
+    elif mutation in ("skipped", "failed"):
+        ElementTree.SubElement(case, "skipped" if mutation == "skipped" else "failure")
+        suite.set("skipped" if mutation == "skipped" else "failures", "1")
+    path = tmp_path / module.V2_9_2_FAULT_RESULT_PATH
+    path.write_bytes(ElementTree.tostring(document))
+    if mutation == "absent": path.unlink()
+    if blocker:
+        with pytest.raises(module.V2Stop) as failure:
+            module.v2_9_2_faults(tmp_path, candidate, validators["record"], verifier)
+        assert failure.value.findings[0]["code"] == blocker
+    else:
+        assert module.v2_9_2_faults(tmp_path, candidate, validators["record"], verifier) == rows
+
+
+def _story_9_2_record(module, verifier) -> dict:
+    record = _story_9_1_record(module)
+    record.pop("conformanceTiering")
+    frozen = json.loads((WORKSPACE / module.V2_9_2_CONTRACT_PATH).read_bytes())
+    amendment = json.loads((WORKSPACE / module.V2_9_2_AMENDMENT_PATH).read_bytes())
+    candidate = record["candidate"]["commit"]
+    binding = {"path": "docs/release-evidence/fixture.json", "sha256": "c" * 64}
+    tier = {"project": binding, "assembly": binding, "result": binding,
+            "counts": {"total": 326, "executed": 326, "passed": 326, "failed": 0, "skipped": 0},
+            "activeFrozenMethods": 325, "activeFrozenCases": 325, "controlCases": 1,
+            "failedControlCases": [], "caseIdentitySha256": "c" * 64}
+    internal = deepcopy(tier)
+    internal.update(activeFrozenMethods=76, activeFrozenCases=90, controlCases=2,
+                    counts={"total": 92, "executed": 92, "passed": 92, "failed": 0, "skipped": 0})
+    facts = {"bindingRule": module.V2_9_2_BINDING_RULE, "sourceRevisionId": candidate,
+             "baselineCommit": module.V2_9_2_BASELINE, "contract": binding, "executionAmendment": binding,
+             "predecessorRecord": {"storyId": "9.1", **binding}, "predecessorCandidate": "a" * 40,
+             "beforeDisposition": binding, "preSplitResult": binding, "migration": binding,
+             "proposalSha256": "c" * 64, "approval": binding,
+             "inventories": {key: "c" * 64 for key in ("beforeIdentitySha256", "afterIdentitySha256",
+                 "beforeStrengthInventorySha256", "afterStrengthInventorySha256")}, "inventorySha256": frozen["inventory"]["sha256"],
+             "declarations": {"solution": binding, "workflow": binding, "completionInventorySha256": "c" * 64},
+             "portableSurfaceSha256": "c" * 64, "fr20MembershipSha256": "c" * 64, "denominatorSuitesSha256": "c" * 64,
+             "publicDriftSha256": "c" * 64, "changedAssertionRows": 14, "frozenDefinitions": 452,
+             "historicalExclusions": 51, "historicalValidationControls": 7,
+             "execution": {"tiers": {"portable": tier, "module-internal": internal}, "beforeExecutedCases": 415,
+                 "afterExecutedCases": 415, "activeFrozenMethods": 401, "controlsExecuted": 3,
+                 "beforeCaseIdentitySha256": "c" * 64, "afterCaseIdentitySha256": "c" * 64,
+                 "failed": 0, "skipped": 0, "notRun": 0, "completePassingExecution": True},
+             "protectedArtifacts": [binding], "faultEvidence": binding, "faultSourceInputsSha256": "2" * 64}
+    record.update(storyId="9.2", predecessors=["9.1"], inventory=frozen["inventory"], rollback=frozen["rollback"],
+                  conformanceExecution=facts, summary=frozen["finalRecord"]["summary"],
+                  faultInjection={"results": _story_9_2_fault_rows(module, verifier, candidate)})
+    record["scenarios"] = [{"scenarioId": row["id"], "command": row["command"], "exitCode": 0,
+                            "result": "PASS", "blockers": [], "assertionLedger": [{"id": row["id"] + "#0001", "subject": "fixture", "state": "PASS"}]}
+                           for row in amendment["effectiveScenarios"]]
+    record["outputs"] = {"json": {"path": frozen["finalRecord"]["paths"][0], "sha256": "c" * 64},
+                         "markdown": {"path": frozen["finalRecord"]["paths"][1], "sha256": "c" * 64}}
+    return record
+
+
+def test_v2_story_9_2_closed_schema_determinism_and_preserved_historical_pairs() -> None:
+    module, verifier = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    record = _story_9_2_record(module, verifier)
+    final, content, markdown = module.v2_finalize(record)
+    validators["record"].validate(final)
+    assert module.v2_finalize(record)[1:] == (content, markdown)
+    assert module.v2_verify_pair(content, markdown) == []
+    assert "## Story 9.2 conformance execution" in markdown.decode()
+    assert "415 / 415" in markdown.decode() and "synthetic approval" in markdown.decode()
+    for mutation in ("binding-missing", "foreign-binding", "fault-missing", "fault-reordered", "execution-skipped", "execution-empty", "floor-regressed", "extra-field"):
+        changed = deepcopy(final)
+        if mutation == "binding-missing": changed.pop("conformanceExecution")
+        elif mutation == "foreign-binding": changed["conformanceTiering"] = {}
+        elif mutation == "fault-missing": changed["faultInjection"]["results"].pop()
+        elif mutation == "fault-reordered": changed["faultInjection"]["results"].reverse()
+        elif mutation == "execution-skipped": changed["conformanceExecution"]["execution"]["skipped"] = 1
+        elif mutation == "execution-empty": changed["conformanceExecution"]["execution"]["tiers"]["portable"]["counts"]["executed"] = 0
+        elif mutation == "floor-regressed": changed["conformanceExecution"]["execution"]["afterExecutedCases"] = 414
+        elif mutation == "extra-field": changed["conformanceExecution"]["callerAuthored"] = True
+        assert not validators["record"].is_valid(changed), mutation
+    for story in ("7.1", "7.2", "7.3", "7.4", "8.1", "8.2", "9.1"):
+        prior = json.loads((WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.json").read_bytes())
+        validators["record"].validate(prior)
+        prior["conformanceExecution"] = final["conformanceExecution"]
+        assert not validators["record"].is_valid(prior)
+
+
+def test_v2_story_9_2_fault_source_digest_checks_candidate_input_bytes(tmp_path: Path, monkeypatch) -> None:
+    module, verifier = _story_9_2_module()
+    candidate = "a" * 40
+    path = "input.cs"
+    (tmp_path / path).write_bytes(b"retained source")
+    monkeypatch.setattr(verifier, "fault_source_paths", lambda _: [path])
+    monkeypatch.setattr(module, "v2_committed_blob", lambda *_: b"retained source")
+    digest = module.v2_9_2_source_digest(tmp_path, candidate, verifier)
+    assert digest == module.v2_sha256(verifier.TIERING.canonical_json([{"path": path, "sha256": module.v2_sha256(b"retained source")}]))
+    (tmp_path / path).write_bytes(b"modified source")
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_9_2_source_digest(tmp_path, candidate, verifier)
+    assert failure.value.findings[0]["code"] == "TEST_RESULTS_STALE"
+
+
+def test_v2_story_9_2_retained_scenario_reading_executes_no_build_or_python(tmp_path: Path, monkeypatch) -> None:
+    module, _ = _story_9_2_module()
+    candidate = "a" * 40
+    script = module.V2_9_2_VERIFIER_PATH
+    output = module.V2_9_2_RESULT_PATH
+    for relative, content in ((script, b"verifier"), (output, b'{"result":"PASS","exitCode":0,"blockers":[]}')):
+        target = tmp_path / relative; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(content)
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: b"verifier" if path == script else None)
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs: pytest.fail("read-only verification executed a build or Python command"))
+    scenario = {"id": "AC-9.2-08", "command": "python3 " + script}
+    command = {"kind": "python", "script": script, "options": {}, "outputs": [output]}
+    result, category, findings = module.v2_successor_scenario_from_results(tmp_path, scenario, command, candidate, 0, [], execute_commands=False)
+    assert category == "passed" and findings == [] and result["resultFile"]["path"] == output
+
+
+@pytest.mark.parametrize("fault,blocker", [
+    (None, None), ("approval-pending", "TIER_APPROVAL_MISSING"), ("approval-mismatch", "TIER_APPROVAL_MISSING"),
+    ("synthetic-approval", "TIER_APPROVAL_MISSING"),
+    ("foreign-assembly", "TEST_RESULTS_STALE"), ("report-drift", "TEST_RESULTS_STALE"),
+    ("approval-uncommitted", "TIER_APPROVAL_MISSING"), ("baseline-moved", "BASELINE_NOT_TRUSTWORTHY"),
+    ("production-changed", "AUTHORITY_BINDING_INVALID"), ("gitlink-changed", "AUTHORITY_BINDING_INVALID"),
+    ("predecessor-incompatible", "AUTHORITY_BINDING_INVALID"),
+])
+def test_v2_story_9_2_facts_rederive_api_results_and_reject_unbound_acceptance(tmp_path: Path, monkeypatch, fault, blocker) -> None:
+    """Exercise the binding gate with explicitly synthetic API/binary fixtures in a disposable directory."""
+    module, verifier = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    fixture_record = _story_9_2_record(module, verifier)
+    facts = fixture_record["conformanceExecution"]
+    blobs = {}
+    def write(path, content, committed=True):
+        target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(content)
+        if committed: blobs[path] = content
+    for path in (module.V2_9_2_CONTRACT_PATH, module.V2_9_2_AMENDMENT_PATH, module.V2_9_2_SPEC_PATH,
+                 module.V2_9_2_PREDECESSOR[1], module.V2_9_2_PREDECESSOR[2], verifier.MIGRATION, verifier.DISPOSITION):
+        write(path, (WORKSPACE / path).read_bytes())
+    if fault == "baseline-moved":
+        content = blobs[module.V2_9_2_SPEC_PATH].replace(module.V2_9_2_BASELINE.encode(), candidate.encode())
+        write(module.V2_9_2_SPEC_PATH, content)
+    # This is a parser/API fixture decision, never written into real release evidence.
+    write(verifier.APPROVAL, json.dumps({"approver": "SYNTHETIC-FIXTURE" if fault == "synthetic-approval" else "TEST-QUALITY-OWNER",
+                                      "approvalId": "DISPOSABLE-BINDING-TEST"}).encode(), committed=fault != "approval-uncommitted")
+    for project in verifier.PROJECTS.values():
+        path = str(Path(project).parent / "bin/Release/net10.0" / (Path(project).stem + ".dll"))
+        stamp = "b" * 40 if fault == "foreign-assembly" else candidate
+        write(path, f"SYNTHETIC-BINARY-FIXTURE 1.0.0+{stamp}".encode(), committed=False)
+    report = {"result": "PASS", "migration": verifier.bound(tmp_path, verifier.MIGRATION),
+              "proposalSha256": "c" * 64, "approval": verifier.bound(tmp_path, verifier.APPROVAL),
+              "inventories": facts["inventories"], "execution": facts["execution"],
+              "declarations": {"solution": facts["declarations"]["solution"], "workflow": facts["declarations"]["workflow"],
+                               "completionInventory": {"portable": verifier.PROJECTS["portable"], "internal": verifier.PROJECTS["module-internal"]}}}
+    write(module.V2_9_2_RESULT_PATH, json.dumps({**report, "proposalSha256": "d" * 64} if fault == "report-drift" else report).encode(), committed=False)
+    write(module.V2_9_2_FAULT_RESULT_PATH, b"faults", committed=False)
+    if fault in ("approval-pending", "approval-mismatch"):
+        report = {"result": "FAIL", "blockers": [{"code": "TIER_APPROVAL_MISSING", "message": "Quality decision absent or digest mismatched"}]}
+    frozen = json.loads((WORKSPACE / verifier.DISPOSITION).read_bytes())
+    amendment = json.loads((WORKSPACE / verifier.AMENDMENT).read_bytes())
+    retained = amendment["preSplitMachineResult"]["path"]
+    write(retained, (WORKSPACE / retained).read_bytes())
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
+    monkeypatch.setattr(module, "v2_9_2_verifier", lambda: verifier)
+    monkeypatch.setattr(module, "v2_9_2_source_digest", lambda *_: "2" * 64)
+    monkeypatch.setattr(module, "is_ancestor", lambda *_: fault != "predecessor-incompatible")
+    monkeypatch.setattr(module, "committed_path_status", lambda *_: {"src/ProductChange.cs": "M"} if fault == "production-changed" else {
+        "docs/release-evidence/conformance-oracle-tiering-migration-review-v3.md": "A"})
+    monkeypatch.setattr(module, "changed_gitlinks", lambda *_: ["references/Hexalith.Builds"] if fault == "gitlink-changed" else [])
+    monkeypatch.setattr(verifier, "verify", lambda *_args, **_kwargs: report)
+    monkeypatch.setattr(verifier, "inputs", lambda *_: (frozen, amendment))
+    contract = json.loads(blobs[module.V2_9_2_CONTRACT_PATH])
+    if blocker:
+        with pytest.raises(module.V2Stop) as failure:
+            module.v2_9_2_facts(tmp_path, candidate, contract, validators["record"])
+        assert failure.value.findings[0]["code"] == blocker
+    else:
+        measured = module.v2_9_2_facts(tmp_path, candidate, contract, validators["record"])
+        assert measured["execution"] == report["execution"]
+        assert measured["inventories"] == report["inventories"]
+        assert measured["faultSourceInputsSha256"] == "2" * 64
+        assert measured["predecessorRecord"]["sha256"] == module.v2_sha256(blobs[module.V2_9_2_PREDECESSOR[1]])
+        validators["record"].evolve(schema={"$defs": validators["record"].schema["$defs"], "$ref": "#/$defs/conformanceExecution"}).validate(measured)
+
+
+@pytest.mark.parametrize("drift", [False, True])
+def test_v2_story_9_2_inserted_verification_rederives_facts(tmp_path: Path, monkeypatch, drift: bool) -> None:
+    module, verifier = _story_9_2_module()
+    record = _story_9_2_record(module, verifier)
+    _, content, markdown = module.v2_finalize(record)
+    contract = (WORKSPACE / module.V2_9_2_CONTRACT_PATH).read_bytes()
+    blobs = {module.V2_9_2_CONTRACT_PATH: contract,
+             record["outputs"]["json"]["path"]: content, record["outputs"]["markdown"]["path"]: markdown}
+    spec = b"---\nstatus: in-progress\n---\n\n" + module.RECORD_BEGIN_MARKER.encode() + b"\n" + markdown + module.RECORD_END_MARKER.encode() + b"\n"
+    for path, data in {**blobs, module.V2_9_2_SPEC_PATH: spec}.items():
+        target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
+    monkeypatch.setattr(module, "validate_repository", lambda *_: tmp_path)
+    monkeypatch.setattr(module, "resolve_commit", lambda *_: record["candidate"]["commit"])
+    monkeypatch.setattr(module, "v2_retained_candidate", lambda *_: record["candidate"]["commit"])
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
+    monkeypatch.setattr(module, "worktree_path_status", lambda *_: {})
+    monkeypatch.setattr(module, "v2_working_spec_lifecycle_only_change", lambda *_args, **_kwargs: True)
+    calls = []
+    def rederive(options, *, verify_spec):
+        calls.append((options, verify_spec))
+        changed = deepcopy(record)
+        if drift: changed["conformanceExecution"]["inventories"]["afterStrengthInventorySha256"] = "d" * 64
+        return module.v2_finalize(changed)[1]
+    monkeypatch.setattr(module, "v2_generate", rederive)
+    options = {"--repository": str(tmp_path), "--contract": module.V2_9_2_CONTRACT_PATH,
+               module.V2_VERIFY_OPTION: module.V2_9_2_SPEC_PATH}
+    if drift:
+        with pytest.raises(module.V2Stop) as failure:
+            module.v2_verify_inserted(options)
+        assert failure.value.findings[0]["code"] == "RECORD_CONTENT_DRIFT"
+    else:
+        assert module.v2_verify_inserted(options) == content
+    assert len(calls) == 1 and calls[0][1] == module.V2_9_2_SPEC_PATH
+
+
+def test_v2_story_9_2_pipeline_routes_amended_commands_and_derives_ten_passing_scenarios(tmp_path: Path, monkeypatch) -> None:
+    """The orchestration fixture supplies synthetic measured adapters; no real acceptance is asserted."""
+    module, verifier = _story_9_2_module()
+    fixture = _story_9_2_record(module, verifier)
+    candidate = fixture["candidate"]["commit"]
+    amendment = tmp_path / module.V2_9_2_AMENDMENT_PATH
+    amendment.parent.mkdir(parents=True, exist_ok=True)
+    amendment.write_bytes((WORKSPACE / module.V2_9_2_AMENDMENT_PATH).read_bytes())
+    monkeypatch.setattr(module, "validate_repository", lambda *_: tmp_path)
+    monkeypatch.setattr(module, "resolve_commit", lambda *_: candidate)
+    monkeypatch.setattr(module, "v2_retention_config", lambda *_: None)
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: (WORKSPACE / path).read_bytes() if (WORKSPACE / path).is_file() else None)
+    monkeypatch.setattr(module, "v2_authority", lambda *_: fixture["authority"])
+    monkeypatch.setattr(module, "v2_gitlinks", lambda *_: fixture["candidate"]["gitlinks"])
+    monkeypatch.setattr(module, "worktree_path_status", lambda *_: {})
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
+    routed = []
+    def measured(_repo, scenario, command, *_args, **_kwargs):
+        routed.append((scenario["id"], command["kind"]))
+        row = next(deepcopy(row) for row in fixture["scenarios"] if row["scenarioId"] == scenario["id"])
+        row["resultFile"] = {"path": "artifacts/synthetic-result.json", "sha256": "c" * 64}
+        return row, "passed", []
+    monkeypatch.setattr(module, "v2_successor_scenario_from_results", measured)
+    monkeypatch.setattr(module, "v2_scenario_from_results", lambda _repo, scenario, *_args: measured(_repo, scenario, {"kind": "pytest"}))
+    monkeypatch.setattr(module, "v2_9_2_facts", lambda _repo, _candidate, contract, _validator: (
+        deepcopy(fixture["conformanceExecution"]) if contract["scenarios"][1]["command"].endswith("-trx artifacts/v9/9.2/AC-9.2-02.trx")
+        else pytest.fail("the fact adapter lost the frozen contract")))
+    monkeypatch.setattr(module, "v2_9_2_faults", lambda *_: deepcopy(fixture["faultInjection"]["results"]))
+    options = {"--repository": str(tmp_path), "--contract": module.V2_9_2_CONTRACT_PATH, "--format": "bundle",
+               "--output-json": fixture["outputs"]["json"]["path"], "--output-markdown": fixture["outputs"]["markdown"]["path"]}
+    first = module.v2_generate(options)
+    second = module.v2_generate(options)
+    assert first == second
+    result = json.loads(first)
+    assert result["summary"] == {"required": 10, "passed": 10, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0}
+    assert [kind for scenario, kind in routed[:9]] == ["pytest", "build", "xunit", "build", "xunit", "xunit", "xunit", "xunit", "python"]
+    assert result["scenarios"][1]["command"].endswith("-parallelMode none")
+    assert "generator::genuine-quality-approval-binds-every-successor-and-public-drift" in [row["subject"] for row in result["scenarios"][-1]["assertionLedger"]]
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))

@@ -97,13 +97,13 @@ public sealed class PublicContractShapeSnapshotGenerationTest
     public void CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting()
     {
         string root = FindRepositoryRoot();
-        string baselinePath = Path.Combine(root, "docs", "release-evidence", "public-contract-shape-baseline-v1.json");
+        string baselinePath = Path.Combine(root, "docs", "release-evidence", "public-contract-shape-story-9.2-v2.json");
         string committedBaseline = File.ReadAllText(baselinePath);
         string currentSnapshot = JsonSerializer.Serialize(BuildSnapshot(), SnapshotOptions);
 
         currentSnapshot.ShouldBe(
             committedBaseline,
-            "The full live public contract shape differs from the immutable Story 1.1 baseline. "
+            "The full live public contract shape differs from the additive Story 9.2 successor. "
             + "Review the member-level diff and obtain explicit approval instead of regenerating the baseline.");
     }
 
@@ -157,26 +157,27 @@ public sealed class PublicContractShapeSnapshotGenerationTest
     [Fact]
     public void GenerateAndSaveContractShapeSnapshotFile()
     {
-        // Generates the committed FR-20 / Story 5.1 baseline artifact at docs/release-evidence/ and
-        // re-reads + re-validates it in the same pass so the committed file always round-trips.
+        // Round-trip in a unique temporary file; immutable release evidence is never a test output.
         PublicContractShapeSnapshotV1 snapshot = BuildSnapshot();
         string json = JsonSerializer.Serialize(snapshot, SnapshotOptions);
 
-        string root = FindRepositoryRoot();
-        string dir = Path.Combine(root, "docs", "release-evidence");
-        string path = Path.Combine(dir, "public-contract-shape-baseline-v1.json");
+        string path = Path.Combine(Path.GetTempPath(), $"conversations-contract-shape-{Guid.NewGuid():N}.json");
+        try
+        {
+            File.WriteAllText(path, json);
+            string readBack = File.ReadAllText(path);
+            PublicContractShapeSnapshotV1? parsed = JsonSerializer.Deserialize<PublicContractShapeSnapshotV1>(readBack, SnapshotOptions);
+            parsed.ShouldNotBeNull();
+            parsed!.Types.Count.ShouldBe(snapshot.Types.Count);
+            parsed.Assembly.ShouldBe(ContractsAssemblyName);
 
-        Directory.CreateDirectory(dir);
-        File.WriteAllText(path, json);
-
-        string readBack = File.ReadAllText(path);
-        PublicContractShapeSnapshotV1? parsed = JsonSerializer.Deserialize<PublicContractShapeSnapshotV1>(readBack, SnapshotOptions);
-        parsed.ShouldNotBeNull();
-        parsed!.Types.Count.ShouldBe(snapshot.Types.Count);
-        parsed.Assembly.ShouldBe(ContractsAssemblyName);
-
-        // Determinism guard: re-serializing the round-tripped artifact reproduces the committed bytes exactly.
-        JsonSerializer.Serialize(parsed, SnapshotOptions).ShouldBe(json);
+            // The temporary round-trip must preserve every captured public member exactly.
+            JsonSerializer.Serialize(parsed, SnapshotOptions).ShouldBe(json);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
     }
 
     private static PublicContractShapeSnapshotV1 BuildSnapshot()

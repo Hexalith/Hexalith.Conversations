@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\Hexalith.Conversations.Client\Hexalith.Conversations.Client.csproj" />
+    <ProjectReference Include="..\..\src\Hexalith.Conversations.Testing\Hexalith.Conversations.Testing.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Shouldly" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ConformanceTierAssemblyInventory.cs" Link="ConformanceTierAssemblyInventory.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ReleaseEvidenceArtifactCollection.cs" Link="ReleaseEvidenceArtifactCollection.cs" />
+  </ItemGroup>
+  <!-- Approved Story 9.1 sources retain their paths, namespaces, and collection definitions. -->
+  <ItemGroup>
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/AdopterConformanceSuite.cs" Link="AdopterConformanceSuite.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/AdopterConformanceSuiteTest.cs" Link="AdopterConformanceSuiteTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs" Link="ArchitecturePlanningAuthorityValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/AtRiskTestRegisterGenerationTest.cs" Link="AtRiskTestRegisterGenerationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/BuyerAcceptanceConformanceFixtures.cs" Link="BuyerAcceptanceConformanceFixtures.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/BuyerAcceptanceConformanceSuite.cs" Link="BuyerAcceptanceConformanceSuite.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/BuyerAcceptanceConformanceSuiteTest.cs" Link="BuyerAcceptanceConformanceSuiteTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ClassificationChangeProcedureValidationTest.cs" Link="ClassificationChangeProcedureValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ConformanceManifestValidationTest.cs" Link="ConformanceManifestValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ConformanceOracleTieringValidationTest.cs" Link="ConformanceOracleTieringValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ConformanceTieringIlReferenceReader.cs" Link="ConformanceTieringIlReferenceReader.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs" Link="ConsumePromoteKeepInventoryValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ContractValidationConformanceSuite.cs" Link="ContractValidationConformanceSuite.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ContractValidationConformanceSuiteTest.cs" Link="ContractValidationConformanceSuiteTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/CoreFixtureContentSafetyTest.cs" Link="CoreFixtureContentSafetyTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/EventSchemaEvolutionConformanceSuite.cs" Link="EventSchemaEvolutionConformanceSuite.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/EventSchemaEvolutionConformanceSuiteTest.cs" Link="EventSchemaEvolutionConformanceSuiteTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/FinalConformanceContractDiffEvidenceValidationTest.cs" Link="FinalConformanceContractDiffEvidenceValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/GovernanceAuditPairingSafetyNetConformanceTest.cs" Link="GovernanceAuditPairingSafetyNetConformanceTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/IdempotencyConformanceSuite.cs" Link="IdempotencyConformanceSuite.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/IdempotencyConformanceSuiteTest.cs" Link="IdempotencyConformanceSuiteTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/NoInModuleSharedFakeDuplicateConformanceTest.cs" Link="NoInModuleSharedFakeDuplicateConformanceTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/OqTwoTargetInterpretationDecisionValidationTest.cs" Link="OqTwoTargetInterpretationDecisionValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/OracleBlindSpotAnalysisArtifactGenerationTest.cs" Link="OracleBlindSpotAnalysisArtifactGenerationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/PackageEnvironmentAuthorityV18ValidationTest.cs" Link="PackageEnvironmentAuthorityV18ValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs" Link="PlanningAuthorityV8ValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV9ValidationTest.cs" Link="PlanningAuthorityV9ValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/PlanningToolingEnvironmentAuthorityV15ValidationTest.cs" Link="PlanningToolingEnvironmentAuthorityV15ValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/PlanningToolingLifecycleAuthorityV16ValidationTest.cs" Link="PlanningToolingLifecycleAuthorityV16ValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/PlatformEvidenceSeparationConformanceSuite.cs" Link="PlatformEvidenceSeparationConformanceSuite.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/PlatformEvidenceSeparationConformanceSuiteTest.cs" Link="PlatformEvidenceSeparationConformanceSuiteTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/PreservationTraceabilityManifestValidationTest.cs" Link="PreservationTraceabilityManifestValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs" Link="ProjectionReadStorePopulationProofValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ProviderPortabilityConformanceSuite.cs" Link="ProviderPortabilityConformanceSuite.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ProviderPortabilityConformanceSuiteTest.cs" Link="ProviderPortabilityConformanceSuiteTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/PublicContractShapeSnapshotGenerationTest.cs" Link="PublicContractShapeSnapshotGenerationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/RedactionConformanceSuite.cs" Link="RedactionConformanceSuite.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/RedactionConformanceSuiteTest.cs" Link="RedactionConformanceSuiteTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ReleaseBaselineValidationTest.cs" Link="ReleaseBaselineValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ReleaseConformanceArtifactBuilder.cs" Link="ReleaseConformanceArtifactBuilder.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ReleaseConformanceArtifactGenerationTest.cs" Link="ReleaseConformanceArtifactGenerationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ReleaseScopeConformanceFixtures.cs" Link="ReleaseScopeConformanceFixtures.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ReleaseScopeConformanceSuite.cs" Link="ReleaseScopeConformanceSuite.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ReleaseScopeConformanceSuiteTest.cs" Link="ReleaseScopeConformanceSuiteTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/ReleaseWaiverValidationTest.cs" Link="ReleaseWaiverValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/RemovedTestJustificationLedgerReconciliationValidationTest.cs" Link="RemovedTestJustificationLedgerReconciliationValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/RepositoryEvidencePathResolver.cs" Link="RepositoryEvidencePathResolver.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/SecondAdopterConformanceFixtures.cs" Link="SecondAdopterConformanceFixtures.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/SecondAdopterConformanceSuite.cs" Link="SecondAdopterConformanceSuite.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/SecondAdopterConformanceSuiteTest.cs" Link="SecondAdopterConformanceSuiteTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs" Link="SmC2BaselineReconstructionValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs" Link="StoryFinalRecordGenerationValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs" Link="SuccessMetricReportAndAttestationValidationTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/TenantIsolationConformanceSuite.cs" Link="TenantIsolationConformanceSuite.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/TenantIsolationConformanceSuiteTest.cs" Link="TenantIsolationConformanceSuiteTest.cs" />
+    <Compile Include="../Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs" Link="UxPreservationDispositionValidationTest.cs" />
+  </ItemGroup>
+</Project>

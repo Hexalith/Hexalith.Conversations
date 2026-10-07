@@ -30,3 +30,6 @@ docs/release-evidence/**/*.json text eol=lf
 *.jpg binary
 *.pdf binary
 *.zip binary
+
+# Retain the original Story 9.1 machine-result bytes used by the Story 9.2 floor.
+docs/release-evidence/conformance-oracle-pre-split-story-9.2.trx -text whitespace=-blank-at-eol

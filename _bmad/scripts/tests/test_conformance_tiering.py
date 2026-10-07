@@ -603,3 +603,216 @@ def _measured_fault(repository: Path, fault_id: str) -> dict[str, Any]:
 def test_tiering_faults(tiering_repository: Path, fault_id: str, record_property: Any) -> None:
     """Each mandatory defect category yields its exact blocker through the real CLI and restores byte-identically."""
     record_property(FAULT_PROPERTY, json.dumps(_measured_fault(tiering_repository, fault_id), sort_keys=True))
+
+
+# --------------------------------------------------------------------------- live Story 9.2 faults
+
+live_spec = importlib.util.spec_from_file_location("story92_live_verifier", ROOT / "_bmad/scripts/verify_conformance_tiering.py")
+assert live_spec is not None and live_spec.loader is not None
+story92 = importlib.util.module_from_spec(live_spec)
+live_spec.loader.exec_module(story92)
+
+
+def _write_json(path: Path, value: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def _synthetic_tier_result(repository: Path, tier: str, destination: Path) -> None:
+    """Synthetic passing cases live only in the disposable negative-test fixture."""
+    frozen = json.loads((repository / story92.DISPOSITION).read_bytes())
+    names = sorted(item["testName"] for row in frozen["assertions"]
+                   if row["tier"] == tier and row["preSplitResultIdentity"]["lane"] == "executed"
+                   for item in row["preSplitResultIdentity"]["results"])
+    names += story92.CONTROL_IDS[tier]
+    name = Path(story92.PROJECTS[tier]).stem
+    binary = repository / Path(story92.PROJECTS[tier]).parent / "bin/Release/net10.0" / (name + ".dll")
+    binary.parent.mkdir(parents=True, exist_ok=True)
+    # An explicit fixture marker prevents this file from being confused with an acceptance assembly.
+    binary.write_bytes(b"SYNTHETIC-STORY92-NEGATIVE-FIXTURE-NOT-ACCEPTANCE-EVIDENCE")
+    results = "".join(f'<UnitTestResult testName={quoteattr(value)} outcome="Passed" />' for value in names)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(
+        '<TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"><Results>' + results
+        + '</Results><TestDefinitions><UnitTest><TestMethod codeBase=' + quoteattr(str(binary))
+        + '/></UnitTest></TestDefinitions><ResultSummary><Counters '
+        + f'total="{len(names)}" executed="{len(names)}" passed="{len(names)}" failed="0" notExecuted="0"'
+        + '/></ResultSummary></TestRun>', encoding="utf-8")
+
+
+@pytest.fixture(scope="module")
+def structural_execution_repository(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Use real MSBuild evaluation/source derivation, with explicitly synthetic execution/approval fixtures."""
+    repository = tmp_path_factory.mktemp("story-9-2-faults") / "conversations"
+    subprocess.run(["git", "clone", "--shared", "--quiet", str(ROOT), str(repository)], check=True, capture_output=True)
+    _mirror_working_tree(ROOT, repository)
+    # Copy ordinary centralized configuration without initializing any submodule.
+    props = repository / "references/Hexalith.Builds/Props"
+    props.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROOT / "references/Hexalith.Builds/Props/Directory.Packages.props", props)
+    # Resolve the same restored compile assets without dependency updates or rebuilding fixtures.
+    for project in [*story92.PROJECTS.values(), *(f"src/{row['name']}/{row['name']}.csproj"
+                      for row in json.loads((ROOT / story92.DISPOSITION).read_bytes())["moduleAssemblies"])]:
+        source = ROOT / Path(project).parent
+        target = repository / Path(project).parent
+        for folder in ("bin/Release", "obj"):
+            if (source / folder).is_dir():
+                shutil.copytree(source / folder, target / folder, dirs_exist_ok=True)
+        # NuGet's generated files embed the original restore root. Rebase their paths inside the disposable clone.
+        for path in (target / "obj").rglob("*"):
+            if path.is_file() and path.suffix in (".json", ".props", ".targets"):
+                path.write_bytes(path.read_bytes().replace(str(ROOT).encode(), str(repository).encode()))
+    proposal = story92.derive_migration(repository)
+    _write_json(repository / story92.MIGRATION, proposal)
+    approval = {"schemaVersion": "hexalith.conversations.conformance-oracle-tiering-migration-approval.v3",
+                "status": "approved", "role": "Quality owner", "approver": "SYNTHETIC-FIXTURE",
+                "approvalId": "SYNTHETIC-FIXTURE-NOT-AN-APPROVAL", "approvedOn": "2026-10-07",
+                "evidence": "Disposable negative-test fixture only; no repository or public drift approval.",
+                "binding": {"proposalSha256": proposal["proposalSha256"],
+                            "changedAssertionRows": [[row["id"], row["rowSha256"]] for row in proposal["proposal"]["changedAssertions"]],
+                            "publicDriftSha256": proposal["proposal"]["publicSurface"]["driftSha256"]}}
+    _write_json(repository / story92.APPROVAL, approval)
+    for tier, path in (("portable", "artifacts/v9/9.2/portable.trx"), ("module-internal", "artifacts/v9/9.2/internal.trx")):
+        _synthetic_tier_result(repository, tier, repository / path)
+    return repository
+
+
+def _verify_story92(repository: Path) -> dict[str, Any]:
+    return story92.verify(repository, portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx")
+
+
+def _story92_fault(repository: Path, fault_id: str) -> None:
+    source_path = repository / TARGET
+    source = source_path.read_text(encoding="utf-8")
+    migration_path = repository / story92.MIGRATION
+    migration = json.loads(migration_path.read_bytes())
+    if fault_id in ("assertion-deleted", "assertion-duplicated", "assertion-renamed", "assertion-weakened"):
+        assert source.count(TARGET_BLOCK) == 1
+        if fault_id == "assertion-deleted":
+            source = source.replace(TARGET_BLOCK, "")
+        elif fault_id == "assertion-duplicated":
+            source = source.replace(TARGET_BLOCK, TARGET_BLOCK + TARGET_BLOCK)
+        elif fault_id == "assertion-renamed":
+            source = source.replace(TARGET_METHOD, TARGET_METHOD + "Renamed")
+        else:
+            source = source.replace("        run.Checks.Count.ShouldBe(12);\n", "")
+        source_path.write_text(source, encoding="utf-8")
+    elif fault_id == "nonportable-reference":
+        path = repository / story92.PROJECTS["portable"]
+        path.write_text(path.read_text().replace('</Project>', '<ItemGroup><ProjectReference Include="../../src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj" Condition="\'$(Configuration)\' == \'Release\'" /></ItemGroup></Project>'))
+    elif fault_id == "transitive-nonportable-reference":
+        path = repository / "src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj"
+        path.write_text(path.read_text().replace('</Project>', '<ItemGroup><ProjectReference Include="../Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj" /></ItemGroup></Project>'))
+    elif fault_id in ("resolved-nonportable-reference", "renamed-nonportable-reference"):
+        path = repository / story92.PROJECTS["portable"]
+        hint = "../../src/Hexalith.Conversations.Server/bin/Release/net10.0/Hexalith.Conversations.Server.dll"
+        name = "Hexalith.Conversations.Server"
+        if fault_id == "renamed-nonportable-reference":
+            renamed = repository / "artifacts/v9/9.2/RenamedCompileReference.dll"
+            shutil.copy2(repository / "src/Hexalith.Conversations.Server/bin/Release/net10.0/Hexalith.Conversations.Server.dll", renamed)
+            hint = "../../artifacts/v9/9.2/RenamedCompileReference.dll"
+            name = "RenamedCompileReference"
+        path.write_text(path.read_text().replace('</Project>', f'<ItemGroup><Reference Include="{name}"><HintPath>{hint}</HintPath></Reference></ItemGroup></Project>'))
+    elif fault_id == "project-missing":
+        (repository / story92.PROJECTS["portable"]).unlink()
+    elif fault_id == "declaration-missing":
+        path = repository / "Hexalith.Conversations.slnx"
+        path.write_text(path.read_text().replace('    <Project Path="' + story92.PROJECTS["portable"] + '" />\n', ""))
+    elif fault_id == "completion-declaration-missing":
+        path = repository / story92.AMENDMENT
+        value = json.loads(path.read_bytes()); del value["projects"]["portable"]
+        _write_json(path, value)
+    elif fault_id == "approval-missing":
+        (repository / story92.APPROVAL).unlink()
+    elif fault_id == "tier-missing":
+        del migration["proposal"]["assertions"][0]["tier"]
+        _write_json(migration_path, migration)
+    elif fault_id == "reason-missing":
+        row = next(row for row in migration["proposal"]["assertions"] if row["tier"] == "module-internal")
+        del row["dispositionEvidence"]["internalTypeAndReason"]["reason"]
+        _write_json(migration_path, migration)
+    elif fault_id == "denominator-drift":
+        migration["proposal"]["fr20Membership"]["v1Floor"]["testCount"] -= 1
+        _write_json(migration_path, migration)
+    elif fault_id == "predecessor-disposition-detached":
+        path = repository / story92.DISPOSITION
+        value = json.loads(path.read_bytes()); value["assertions"][0]["rationale"] += " detached"
+        _write_json(path, value)
+        amendment_path = repository / story92.AMENDMENT
+        amendment = json.loads(amendment_path.read_bytes()); amendment["disposition"] = story92.bound(repository, story92.DISPOSITION)
+        _write_json(amendment_path, amendment)
+    elif fault_id == "public-widened":
+        (repository / WIDENING).write_text('namespace Hexalith.Conversations.Contracts.Conformance; public sealed record TieringFaultProbeWidening(string Value);')
+    elif fault_id == "v1-mutated":
+        path = repository / V1_FILE; path.write_bytes(path.read_bytes() + b"\n")
+    else:
+        path = repository / "artifacts/v9/9.2/portable.trx"
+        tree = module.RECORD.ElementTree.fromstring(path.read_bytes())
+        results = tree.find('./{*}Results'); counters = tree.find('./{*}ResultSummary/{*}Counters')
+        assert results is not None and counters is not None
+        if fault_id == "execution-empty":
+            results.clear()
+            for key in ("total", "executed", "passed", "failed", "notExecuted"): counters.set(key, "0")
+        elif fault_id == "execution-skipped":
+            results[0].set("outcome", "NotExecuted")
+            counters.set("notExecuted", "1")
+            for key in ("executed", "passed"): counters.set(key, str(int(counters.get(key, "0")) - 1))
+        elif fault_id == "execution-not-run":
+            results.remove(results[0]); counters.set("notExecuted", "1")
+            for key in ("executed", "passed"): counters.set(key, str(int(counters.get(key, "0")) - 1))
+        elif fault_id == "execution-regressed":
+            results.remove(results[0])
+            for key in ("total", "executed", "passed"): counters.set(key, str(int(counters.get(key, "0")) - 1))
+        else:
+            raise AssertionError(fault_id)
+        path.write_bytes(module.RECORD.ElementTree.tostring(tree))
+
+
+@pytest.mark.parametrize("fault_id", list(story92.FAULTS))
+def test_structural_and_execution_faults(structural_execution_repository: Path, fault_id: str, record_property: Any) -> None:
+    """Real evaluated/source verifier detects each defect and restores every mutated byte stream exactly."""
+    repository = structural_execution_repository
+    measured_candidate = _git(ROOT, "rev-parse", "--verify", "HEAD^{commit}").decode().strip()
+    paths = [TARGET, story92.MIGRATION, story92.APPROVAL, story92.DISPOSITION, story92.AMENDMENT,
+             story92.PROJECTS["portable"], "Hexalith.Conversations.slnx", WIDENING, V1_FILE,
+             "src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj",
+             "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx",
+             "artifacts/v9/9.2/RenamedCompileReference.dll"]
+    source_digest = story92.fault_source_digest(ROOT)
+    assert story92.fault_source_digest(repository) == source_digest
+    originals = {path: (repository / path).read_bytes() if (repository / path).is_file() else None for path in paths}
+
+    def digest() -> str:
+        return hashlib.sha256(b"".join(path.encode() + b"\0" + ((repository / path).read_bytes()
+                      if (repository / path).is_file() else b"\0absent") + b"\0" for path in sorted(paths))).hexdigest()
+
+    baseline = _verify_story92(repository)
+    assert baseline["result"] == "PASS", baseline
+    before = digest()
+    try:
+        _story92_fault(repository, fault_id)
+        mutated = digest()
+        assert mutated != before
+        observed = (story92.verify(repository, mode="surface") if fault_id == "transitive-nonportable-reference"
+                    else _verify_story92(repository))
+        assert observed["exitCode"] == 1 and [row["code"] for row in observed["blockers"]] == [story92.FAULTS[fault_id]], observed
+    finally:
+        for path, content in originals.items():
+            target = repository / path
+            if content is None:
+                target.unlink(missing_ok=True)
+            else:
+                target.write_bytes(content)
+    after = digest()
+    restored = _verify_story92(repository)
+    assert after == before and restored["result"] == "PASS", restored
+    assert _git(ROOT, "rev-parse", "--verify", "HEAD^{commit}").decode().strip() == measured_candidate
+    assert story92.fault_source_digest(ROOT) == source_digest
+    record_property(story92.FAULT_PROPERTY, json.dumps({"id": fault_id, "candidateCommit": measured_candidate,
+        "expectedBlocker": story92.FAULTS[fault_id], "observedExitCode": observed["exitCode"],
+        "observedBlockers": [row["code"] for row in observed["blockers"]],
+        "beforeSha256": before, "mutatedSha256": mutated, "afterSha256": after,
+        "baselineExitCode": baseline["exitCode"], "baselineBlockers": baseline["blockers"],
+        "restoredExitCode": restored["exitCode"], "restoredBlockers": restored["blockers"],
+        "sourceInputsSha256": source_digest,
+        "syntheticExecutionAndApprovalFixture": True}, sort_keys=True))

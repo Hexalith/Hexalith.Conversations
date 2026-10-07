@@ -1,0 +1,257 @@
+{
+  "schemaVersion": "hexalith.conversations.story-9.2-execution-amendment.v1",
+  "storyId": "9.2",
+  "status": "approach-approved-quality-review-pending",
+  "frozenContract": {
+    "path": "_bmad-output/planning-artifacts/v9/story-contracts/9.2.json",
+    "sha256": "50ed8c46184c7bae9fd236967efaf560cd439b5c7a41b26643a48a42df0d1dda"
+  },
+  "approachDecision": {
+    "date": "2026-10-07",
+    "actor": "user",
+    "statement": "do recommended",
+    "scope": "Retain historical exclusions and frozen definitions; compare active frozen identities/cases against 415, count controls separately; prepare additive current-surface evidence, explicit governance expectations, safe temporary snapshot output, and combined suite checks; retain old strengths and derive successor strengths for digest-bound review.",
+    "unseenPublicDriftApproved": false,
+    "finalRowDigestsApproved": false
+  },
+  "predecessor": {
+    "path": "docs/release-evidence/story-9.1-final-record-v2.json",
+    "sha256": "c9d8ef947f1a43a702039d9c1c7c9cb1922f974e6ba207cba8b751fca93bd592"
+  },
+  "disposition": {
+    "path": "docs/release-evidence/conformance-oracle-tiering-disposition-v2.json",
+    "sha256": "1203fa7b216d4f4314fcdd28bfd0d8021d1a303abe6d66afb1d49a373ad12273"
+  },
+  "projects": {
+    "portable": "tests/Hexalith.Conversations.Conformance.Portable.Tests/Hexalith.Conversations.Conformance.Portable.Tests.csproj",
+    "module-internal": "tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj"
+  },
+  "executionPolicy": {
+    "frozenDefinitions": 452,
+    "activeFrozenMethods": 401,
+    "frozenExecutedCaseFloor": 415,
+    "historicalFrozenExclusions": 51,
+    "historicalValidationControls": 7,
+    "exclusions": {
+      "classes": [
+        "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest",
+        "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest",
+        "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest",
+        "Hexalith.Conversations.Conformance.Tests.PlanningToolingEnvironmentAuthorityV15ValidationTest",
+        "Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest",
+        "Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest"
+      ],
+      "methods": [
+        "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently",
+        "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.CurrentControlsAndTierPrerequisiteShouldStayTruthful",
+        "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap",
+        "Hexalith.Conversations.Conformance.Tests.SmC2BaselineReconstructionValidationTest.BaselineShouldRecordAnAuditableReconstructionMethod"
+      ]
+    },
+    "historicalControlClass": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest",
+    "allActiveAssertionsRequired": true,
+    "controlsCountedSeparately": true,
+    "nonzeroPassingBothTiers": true,
+    "failedSkippedNotRunAllowed": 0,
+    "runnerAmendment": "Pinned xUnit v4.0.1 requires -result-trx; portable exclusions preserve the accepted historical CI lane. Old Story 9.1 controls remain compiled and excluded; separate Story 9.2 live controls verify both tiers."
+  },
+  "qualityApproval": {
+    "requiredRole": "Quality owner",
+    "requiredBinding": "migration proposalSha256 plus every changed assertion row digest and the additive public-surface drift digest",
+    "approvalPath": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v3.json",
+    "approval": null
+  },
+  "effectiveScenarios": [
+    {
+      "id": "AC-9.2-01",
+      "frozenCommand": "dotnet build tests/Hexalith.Conversations.Conformance.Portable.Tests/Hexalith.Conversations.Conformance.Portable.Tests.csproj --configuration Release --no-restore",
+      "command": "dotnet build tests/Hexalith.Conversations.Conformance.Portable.Tests/Hexalith.Conversations.Conformance.Portable.Tests.csproj --configuration Release --no-restore",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-9.2-02",
+      "frozenCommand": "dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Portable.Tests.PortableCompileSurfaceValidationTest.ResolvedSurfaceShouldContainNoNonPackableModuleReference -trx artifacts/v9/9.2/AC-9.2-02.trx",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Portable.Tests.PortableCompileSurfaceValidationTest.ResolvedSurfaceShouldContainNoNonPackableModuleReference -result-trx artifacts/v9/9.2/AC-9.2-02.trx -parallelMode none",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-9.2-03",
+      "frozenCommand": "dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release --no-restore",
+      "command": "dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release --no-restore",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-9.2-04",
+      "frozenCommand": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.PostSplitAssertionInventoryShouldEqualApprovedDisposition -trx artifacts/v9/9.2/AC-9.2-04.trx",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.PostSplitAssertionInventoryShouldEqualApprovedDisposition -result-trx artifacts/v9/9.2/AC-9.2-04.trx -parallelMode none",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-9.2-05",
+      "frozenCommand": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.BothTiersShouldBeDeclaredEverywhere -trx artifacts/v9/9.2/AC-9.2-05.trx",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.BothTiersShouldBeDeclaredEverywhere -result-trx artifacts/v9/9.2/AC-9.2-05.trx -parallelMode none",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-9.2-06",
+      "frozenCommand": "dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -trx artifacts/v9/9.2/portable.trx",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -result-trx artifacts/v9/9.2/portable.trx -parallelMode none -class- Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest -class- Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest -class- Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest -class- Hexalith.Conversations.Conformance.Tests.PlanningToolingEnvironmentAuthorityV15ValidationTest -class- Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest -class- Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest -class- Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest -class- Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest -method- Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently -method- Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.CurrentControlsAndTierPrerequisiteShouldStayTruthful -method- Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap -method- Hexalith.Conversations.Conformance.Tests.SmC2BaselineReconstructionValidationTest.BaselineShouldRecordAnAuditableReconstructionMethod",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-9.2-07",
+      "frozenCommand": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -trx artifacts/v9/9.2/internal.trx",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -result-trx artifacts/v9/9.2/internal.trx -parallelMode none",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-9.2-08",
+      "frozenCommand": "python3 _bmad/scripts/verify_conformance_tiering.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json --portable-result artifacts/v9/9.2/portable.trx --internal-result artifacts/v9/9.2/internal.trx --output artifacts/v9/9.2/AC-9.2-08.json",
+      "command": "python3 _bmad/scripts/verify_conformance_tiering.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json --portable-result artifacts/v9/9.2/portable.trx --internal-result artifacts/v9/9.2/internal.trx --output artifacts/v9/9.2/AC-9.2-08.json",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-9.2-09",
+      "frozenCommand": "python3 -m pytest -q _bmad/scripts/tests/test_conformance_tiering.py -k structural_and_execution_faults --junitxml=artifacts/v9/9.2/AC-9.2-09.xml",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_conformance_tiering.py -k structural_and_execution_faults --junitxml=artifacts/v9/9.2/AC-9.2-09.xml",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-9.2-10",
+      "frozenCommand": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json --format bundle --output-json docs/release-evidence/story-9.2-final-record-v2.json --output-markdown docs/release-evidence/story-9.2-final-record-v2.md",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json --format bundle --output-json docs/release-evidence/story-9.2-final-record-v2.json --output-markdown docs/release-evidence/story-9.2-final-record-v2.md",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    }
+  ],
+  "rollback": "Remove portable project and restore all migrated test/source/evidence changes as one unit; retain Story 9.1 and all immutable v1 evidence.",
+  "preSplitMachineResult": {
+    "path": "docs/release-evidence/conformance-oracle-pre-split-story-9.2.trx",
+    "sha256": "b2e23d8f5f3f57f95afbf331cbd535e9d670d4facfab3b43a3774930f06f9edd",
+    "originalPath": "artifacts/v9/9.1/pre-split/conformance.trx",
+    "role": "Byte-identical retained machine floor for CI; the accepted Story 9.1 disposition binds the original digest."
+  }
+}
