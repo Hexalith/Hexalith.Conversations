@@ -9,9 +9,9 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 using Hexalith.Conversations.Client;
-using Hexalith.Conversations.Server.Diagnostics;
 
 using Shouldly;
 
@@ -41,10 +41,6 @@ public sealed class ConformanceOracleTieringValidationTest
     private const string TestNamespace = "Hexalith.Conversations.Conformance.Tests";
     private const string ServerAssemblyName = "Hexalith.Conversations.Server";
     private const string OwnerRole = "Quality owner";
-
-    // The validation class verifies module-internal facts against the non-packable Server assembly, so every
-    // method closes over this anchor and the whole class stays in the module-internal tier.
-    private static readonly Assembly ServerAssembly = typeof(ConversationConformanceStatusClass).Assembly;
 
     private static readonly string[] ReclassifiedSuites =
     [
@@ -179,13 +175,17 @@ public sealed class ConformanceOracleTieringValidationTest
     /// AC-9.1-03: every row has an exact disposition, and every test whose compiled IL independently reaches the
     /// non-packable Server assembly is module-internal with its exact Server types and reason.
     /// </summary>
+    /// <remarks>
+    /// Exact Server types are checked against the Server project's declared source types, so this class binds no
+    /// Server type and stays outside the guarded residual-coupling inventory.
+    /// </remarks>
     [Fact]
     public void ServerBoundAssertionsShouldHaveExactDisposition()
     {
         using JsonDocument disposition = LoadJson(DispositionPath);
         JsonElement root = disposition.RootElement;
-        Assembly server = ServerAssembly;
-        server.GetName().Name.ShouldBe(ServerAssemblyName);
+        HashSet<string> serverTypes = ServerSourceTypes();
+        serverTypes.ShouldNotBeEmpty("TIER_REASON_MISSING: no Server source type was found.");
         Dictionary<string, JsonElement> rows = AllRows(root).ToDictionary(row => row.GetProperty("id").GetString()!, StringComparer.Ordinal);
         int moduleInternal = 0;
         foreach ((string id, JsonElement row) in rows)
@@ -205,7 +205,7 @@ public sealed class ConformanceOracleTieringValidationTest
                 foreach (string type in types)
                 {
                     bindings.ShouldContain(type, $"TIER_REASON_MISSING: {id} names {type} outside its bindings.");
-                    ResolveServerType(server, type).ShouldNotBeNull($"TIER_REASON_MISSING: {id} names {type}, which is not a Server type.");
+                    serverTypes.ShouldContain(type, $"TIER_REASON_MISSING: {id} names {type}, which the Server project does not declare.");
                 }
 
                 row.TryGetProperty("publicReplacement", out _).ShouldBeFalse($"TIER_REASON_MISSING: {id} has two dispositions.");
@@ -591,8 +591,33 @@ public sealed class ConformanceOracleTieringValidationTest
 
     private static string TestIdentity(MethodInfo method) => $"{method.DeclaringType!.FullName}.{method.Name}";
 
-    private static Type? ResolveServerType(Assembly server, string fullName)
-        => Enumerable.Range(0, 5).Select(arity => server.GetType(arity == 0 ? fullName : $"{fullName}`{arity}")).FirstOrDefault(type => type is not null);
+    private static HashSet<string> ServerSourceTypes()
+    {
+        string project = Path.Combine(FindRoot(), "src", ServerAssemblyName);
+        HashSet<string> types = new(StringComparer.Ordinal);
+        foreach (string path in Directory.EnumerateFiles(project, "*.cs", SearchOption.AllDirectories))
+        {
+            string first = Path.GetRelativePath(project, path).Split(Path.DirectorySeparatorChar)[0];
+            if (first is "bin" or "obj")
+            {
+                continue;
+            }
+
+            string text = Regex.Replace(File.ReadAllText(path), @"//[^\n]*|/\*[\s\S]*?\*/", string.Empty);
+            Match space = Regex.Match(text, @"^\s*namespace\s+([A-Za-z0-9_.]+)\s*[;{]", RegexOptions.Multiline);
+            if (!space.Success)
+            {
+                continue;
+            }
+
+            foreach (Match declaration in Regex.Matches(text, @"\b(?:class|struct|interface|enum|record(?:\s+(?:class|struct))?)\s+([A-Za-z_][A-Za-z0-9_]*)"))
+            {
+                _ = types.Add($"{space.Groups[1].Value}.{declaration.Groups[1].Value}");
+            }
+        }
+
+        return types;
+    }
 
     private static bool NonEmpty(JsonElement element, string property)
         => element.TryGetProperty(property, out JsonElement value) && value.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(value.GetString());

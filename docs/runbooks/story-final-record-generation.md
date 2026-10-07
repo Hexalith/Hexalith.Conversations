@@ -1392,6 +1392,12 @@ test is recorded as failed, never as passed. Excluded classes and methods keep
 their discovered identities with lane `excluded-historical-*` and no current
 pass claim.
 
+Before proposing, run the full current conformance lane in an isolated clone,
+not only the seven Story 9.1 selectors. A new top-level conformance file must not
+import a `Hexalith.Conversations.Server` namespace: the v1 residual-coupling
+guard in `RemovedTestJustificationLedgerReconciliationValidationTest` lists
+every such file and would fail.
+
 **2. Propose, review, and record the owner decision.** After every Story 9.1
 source file, including `ConformanceOracleTieringValidationTest.cs`, is final:
 

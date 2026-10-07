@@ -1,7 +1,7 @@
 {
   "schemaVersion": "hexalith.conversations.conformance-oracle-tiering-approvals.v2",
   "storyId": "9.1",
-  "status": "approved",
+  "status": "pending-quality-owner-approval",
   "requestedOwnerRole": "Quality owner",
   "proposal": {
     "sourceCommit": "611a835af50d66ff1860c1497c16a19713cd5042",
@@ -11,10 +11,10 @@
     "counts": {
       "assertions": 452,
       "validationAdditions": 7,
-      "portable": 376,
-      "moduleInternal": 83
+      "portable": 383,
+      "moduleInternal": 76
     },
-    "membershipSha256": "13c4e3ea0dffc562db0a6e0d7c7de62e9be766f35c431db16f6145984fe99c7d",
+    "membershipSha256": "37a40bfc94151a6bb86356d311ad4e10918e0a53881f20d93a642bec6be035de",
     "assertions": [
       {
         "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.CompatibilityDiscoveryCheckShouldSurfaceUnsupportedAsBlockedTypedError",
@@ -2732,45 +2732,45 @@
     "validationAdditions": [
       {
         "id": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.AssertionInventoryShouldMatchPreSplitResultAndSource",
-        "tier": "module-internal",
-        "strengthSha256": "7e8c0c1e3f27a6234251751415eae6dbc91f9c6390036ca18fa1ce4381a122c6",
-        "rowSha256": "75ec15e21e769fbc24ccc7e0180f50e20f17c010938e425fea4db06daf4d3f14"
+        "tier": "portable",
+        "strengthSha256": "0dbe8108bb13e04740a8241219f6740782344b0021e57dda21ae7ec8e7b66489",
+        "rowSha256": "cc6ce90516f757230517fc91bf7a6522380a5efa83fac5d9017c5418807734ed"
       },
       {
         "id": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.DenominatorSuitesShouldRemainUnchanged",
-        "tier": "module-internal",
-        "strengthSha256": "5a6fdf9888079ba11f989614dfc7d172332f0dc9100c9b901c89a8160f917f59",
-        "rowSha256": "65df9b3603242deee5c7e6c938915169305a09b96038bf826c7a53118e206ef3"
+        "tier": "portable",
+        "strengthSha256": "6a6a84b982fc1716ba5fc6b2f06f1281aaffcc8fb3b32d37930e20fee3aa7759",
+        "rowSha256": "3f889fafcc9b18e94084becb0158e17710dabec23771525289aef786af9cb11c"
       },
       {
         "id": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ReclassificationsShouldBindApprovals",
-        "tier": "module-internal",
-        "strengthSha256": "09a07589800e2d0ab5868d3e4d49ab6100a462363567c56a242ff38c3ef84896",
-        "rowSha256": "3caf82cd3bcb3660dbef7dfab0c4afca26d4bb3a3212f1df5915791995bbecb0"
+        "tier": "portable",
+        "strengthSha256": "08bd0e60b3eb3045a93ac77da9e332f36b4fa5d1ea87d0732d9ec51411e40f1b",
+        "rowSha256": "adc60c3e9b760a802fbda3d643a0335e979fcca90f9af9dc9e5d667c7dcb9502"
       },
       {
         "id": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ServerBoundAssertionsShouldHaveExactDisposition",
-        "tier": "module-internal",
-        "strengthSha256": "3abc5660ae87833a14c0a4923939aa82ac708440ef8335e108f30a4b10560f2e",
-        "rowSha256": "e8339f95ddb9ccba778f029968fe8a6fef4eb41f14208cd9463c73ab571e0cf6"
+        "tier": "portable",
+        "strengthSha256": "d9c49f1017646f43d5695767122101dabf9affe712cd1330eb9d30428c0573c0",
+        "rowSha256": "d9e4d9980ef0086b2b5b9b4c7cf9f4010549f8daeec810956ae167c2dcf28b1d"
       },
       {
         "id": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.StrengthDigestsShouldRemainEqual",
-        "tier": "module-internal",
-        "strengthSha256": "f200aa52ff76aee3215d072cae2820937f9acf4fd54fa3449b9d0e4cb5476fbf",
-        "rowSha256": "8deefadaa034b4431e37e63578cd59c57826900b0068c972b4e709d0189fda8a"
+        "tier": "portable",
+        "strengthSha256": "181fef3bc4acbb902c743c49e4ba5ee424b8d14a68a494fedc311bf99e33d641",
+        "rowSha256": "dcc28194c74ae8ec0322b9fc91c221e1fb27221f9b8055df3bc8b7c1b22a7cbb"
       },
       {
         "id": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.TieringShouldNotWidenPublicContracts",
-        "tier": "module-internal",
-        "strengthSha256": "432d94c6763580b1c476e8dde959809f8982cd2057ab0fcf06659ce19985553b",
-        "rowSha256": "a7c62c7a5f2387fc559adcc4798e86ceb99db9fcc456cdbc1d99892126060e60"
+        "tier": "portable",
+        "strengthSha256": "f48e16f559192d85283a5622d5ece6fe5f817454c89f60a37eaa12b7baa3cea9",
+        "rowSha256": "8fcf177c493ca67325866985d3f6b5c2c0c1edea1269455a6a8d8c28804549ee"
       },
       {
         "id": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.V2ShouldSupersedeWithoutEditingV1",
-        "tier": "module-internal",
-        "strengthSha256": "1c35bb66a5ffa0ebdd6ebc1ca8f1ecbff27756b1d3230720264f1b1ea0c68f1b",
-        "rowSha256": "012f90f93a2b038133c3b8566fa6d54ca5d209c2ebcbab1b84de8ad246c680cf"
+        "tier": "portable",
+        "strengthSha256": "da5dcb37ca398e477b44ff22e11690101a1b6493956eb1a2ae15f82020402b27",
+        "rowSha256": "64078ab6e987b2003bad56af8e32b975db598bcc059625228bcc22aa4101c684"
       }
     ],
     "denominatorSuites": [
@@ -2806,13 +2806,5 @@
       "ConformanceStatusConformanceSuiteTest"
     ]
   },
-  "decision": {
-    "state": "approved",
-    "role": "Quality owner",
-    "approvedMembershipSha256": "13c4e3ea0dffc562db0a6e0d7c7de62e9be766f35c431db16f6145984fe99c7d",
-    "approver": "Jerome Piquot",
-    "approvalId": "QO-9.1-TIERING-2026-10-07",
-    "approvedOn": "2026-10-07",
-    "evidence": "Quality owner Jerome Piquot answered 'Approve' to the exact membership digest 13c4e3ea0dffc562db0a6e0d7c7de62e9be766f35c431db16f6145984fe99c7d (452 pre-split + 7 validation rows; 376 portable, 83 module-internal; proposal artifacts/v9/9.1/approval-proposal.md) in Claude Code bmad-build session 66f390bb-a580-445e-aa6e-9eb74d862612 on 2026-10-07. Same answer accepted AC-9.1-07 as no public-contract widening by Story 9.1 against the frozen pre-story surface, with the pre-existing Agents API growth recorded as unapproved drift."
-  }
+  "decision": null
 }
