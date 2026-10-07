@@ -1,7 +1,7 @@
 {
   "schemaVersion": "hexalith.conversations.conformance-oracle-tiering-approvals.v2",
   "storyId": "9.1",
-  "status": "pending-quality-owner-approval",
+  "status": "approved",
   "requestedOwnerRole": "Quality owner",
   "proposal": {
     "sourceCommit": "611a835af50d66ff1860c1497c16a19713cd5042",
@@ -2806,5 +2806,13 @@
       "ConformanceStatusConformanceSuiteTest"
     ]
   },
-  "decision": null
+  "decision": {
+    "state": "approved",
+    "role": "Quality owner",
+    "approvedMembershipSha256": "37a40bfc94151a6bb86356d311ad4e10918e0a53881f20d93a642bec6be035de",
+    "approver": "Jerome Piquot",
+    "approvalId": "QO-9.1-TIERING-2026-10-07-R2",
+    "approvedOn": "2026-10-07",
+    "evidence": "Quality owner Jerome Piquot answered 'Approve' to the exact regenerated membership digest 37a40bfc94151a6bb86356d311ad4e10918e0a53881f20d93a642bec6be035de (452 pre-split + 7 validation rows; 383 portable, 76 module-internal; the 452 frozen rows and 3 suite rows unchanged from the superseded 13c4e3ea0dffc562db0a6e0d7c7de62e9be766f35c431db16f6145984fe99c7d decision QO-9.1-TIERING-2026-10-07; only the 7 validation rows moved to portable after fix 6d771df; proposal artifacts/v9/9.1/approval-proposal.md) in Claude Code bmad-build session 66f390bb-a580-445e-aa6e-9eb74d862612 on 2026-10-07. The AC-9.1-07 reading accepted under the superseded decision (no public-contract widening by Story 9.1 against the frozen pre-story surface; pre-existing Agents API growth recorded as unapproved drift) stands unchanged."
+  }
 }
