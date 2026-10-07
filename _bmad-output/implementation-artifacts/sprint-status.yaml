@@ -96,7 +96,7 @@ development_status:
   8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator: done
   epic-8-retrospective: done
   epic-9: in-progress
-  9-1-freeze-the-conformance-assertion-inventory-tier-decisions-digest-and-approvals: in-progress
+  9-1-freeze-the-conformance-assertion-inventory-tier-decisions-digest-and-approvals: done
   9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution: backlog
   epic-9-retrospective: optional
   epic-10: backlog
