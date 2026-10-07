@@ -47,12 +47,27 @@ if ($Mode -eq 'Live') {
 }
 
 New-Item -ItemType Directory -Path $ArtifactsPath -Force | Out-Null
+# Keep each execution's logs, XML and build graph separate from prior runs and sibling builds.
+$ArtifactsPath = Join-Path $ArtifactsPath ('run-' + [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssfffffffZ'))
+New-Item -ItemType Directory -Path $ArtifactsPath | Out-Null
+Write-Output "Execution evidence: $ArtifactsPath"
 $properties = @('-p:UseHexalithProjectReferences=true', '-p:NuGetAudit=false', '-p:MinVerVersionOverride=1.0.0')
 foreach ($pair in @(@('HexalithEventStoreRoot', 'eventstore'), @('HexalithCommonsRoot', 'commons'), @('HexalithTenantsRoot', 'tenants'))) {
     $source = Join-Path $workspace $pair[1]
     if (-not (Test-Path -LiteralPath $source)) { throw "Missing local source reference: $source" }
     $properties += "-p:$($pair[0])=$source"
 }
+# Tenants forwards its package pin as Version on EventStore project references. Resolve the
+# selected EventStore source's own version once and use it throughout this local graph, so
+# different central package observations cannot produce two versions in one output directory.
+$eventStoreProject = Join-Path $workspace 'eventstore/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj'
+$versionArguments = @('msbuild', $eventStoreProject, '-getProperty:HexalithEventStoreVersion', '-p:Configuration=Debug') + $properties
+$eventStoreVersion = (& dotnet @versionArguments 2> (Join-Path $ArtifactsPath 'eventstore-version.stderr.log') | Out-String).Trim()
+if ($LASTEXITCODE -ne 0 -or $eventStoreVersion -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') {
+    throw 'Cannot resolve the selected EventStore source version for a consistent local build graph.'
+}
+$eventStoreVersion | Set-Content -LiteralPath (Join-Path $ArtifactsPath 'eventstore-version.log')
+$properties += "-p:HexalithEventStoreVersion=$eventStoreVersion"
 $projects = @('Hexalith.Conversations.Contracts.Tests', 'Hexalith.Conversations.Tests', 'Hexalith.Conversations.Server.Tests', 'Hexalith.Conversations.Client.Tests')
 foreach ($name in $projects) {
     $project = Join-Path $repository "tests/$name/$name.csproj"

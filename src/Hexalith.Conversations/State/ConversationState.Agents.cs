@@ -150,6 +150,13 @@ public sealed partial class ConversationState
         {
             throw new InvalidOperationException("Delivery replay compare mismatch.");
         }
+        if (!Enum.IsDefined(e.Action) || string.IsNullOrWhiteSpace(e.DeliveryAttemptId) || string.IsNullOrWhiteSpace(e.TargetVersion)
+            || (e.Action != ConversationDeletionDeliveryAction.Acknowledge && e.Acknowledgement is not null)
+            || (e.Acknowledgement is not null && _deletionSource.Acknowledgement is not null
+                && e.Acknowledgement != _deletionSource.Acknowledgement))
+        {
+            throw new InvalidOperationException("Delivery replay acknowledgement transition mismatch.");
+        }
         if (e.Action == ConversationDeletionDeliveryAction.Acknowledge
             && !IsExactAcknowledgement(e.Signal, e.TargetVersion, e.Acknowledgement))
         {

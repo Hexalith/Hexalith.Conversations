@@ -281,6 +281,7 @@ public sealed partial class ConversationAggregate
             return AgentReject(ConversationAgentsOutcome.Invalid);
         }
         bool poison = request.Signal != current.Signal || request.Action == ConversationDeletionDeliveryAction.Quarantine
+            || (request.Action != ConversationDeletionDeliveryAction.Acknowledge && request.Acknowledgement is not null)
             || (request.Action == ConversationDeletionDeliveryAction.Acknowledge
                 && !ConversationState.IsExactAcknowledgement(current.Signal, request.TargetVersion, request.Acknowledgement));
         if (!poison && current.Acknowledgement is not null)

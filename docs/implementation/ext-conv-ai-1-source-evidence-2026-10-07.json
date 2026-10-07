@@ -1,0 +1,489 @@
+{
+  "EvidenceKind": "SerializedLocalSimulation",
+  "OverallLocalResult": "Blocked",
+  "LocalVerifierExitCode": 1,
+  "LiveReady": false,
+  "LiveNegativeExitCode": 1,
+  "LiveArtifactDirectoryAbsent": true,
+  "SpecBaseline": "9938aa8aa5cfc082de6be3d28eede22957b14a26",
+  "ObservedHead": "e5b0a1ea2e76452e8a5a73e672ed33893172bfce",
+  "ChangesUncommitted": true,
+  "AcceptedStatusChanged": false,
+  "DependencyAvailabilityChanged": false,
+  "SourceFiles": [
+    {
+      "Path": "eng/verify-ext-conv-ai-1.ps1",
+      "Sha256": "9751e10bee34fecaed266d565d98abf20175e8864ef16c2d49ecf06de9c5be59"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Aggregates/ConversationAggregate.Agents.cs",
+      "Sha256": "6b8019124caf8ea874db3f9d175b4e6f134b386daad0efd78a0efdec594ca23b"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/State/ConversationState.Agents.cs",
+      "Sha256": "08cccffd00e141281ea804520e0e03bf9bb3ffd329ef87241aaa54d9eb1d8d36"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationAgentSixSeamTests.cs",
+      "Sha256": "40a15f93ceed70af39e7bc2e18e7cba982ec4731dd3b833064939a3e5ff83f12"
+    },
+    {
+      "Path": "docs/implementation/ext-conv-ai-1-owner-implementation-2026-10-07.md",
+      "Sha256": "9dc28379c814a35b8e338bcd030c3cad8dac4f72edb05e9a8f824cf2773d9da5"
+    }
+  ],
+  "DependencyObservations": [
+    {
+      "Name": "eventstore",
+      "Root": "/home/administrator/projects/hexalith/eventstore",
+      "ObservedHead": "40c92e085d8a6463d469c1b340c410fec84a690f",
+      "Clean": false,
+      "WorkingTreeStatus": [
+        "M _bmad-output/implementation-artifacts/spec-6-6-event-versioning-and-upcasting-implementation.md",
+        " M _bmad-output/planning-artifacts/prds/prd-eventstore-2026-07-05/.memlog.md",
+        " M _bmad-output/planning-artifacts/prds/prd-eventstore-2026-07-05/validation-report.html",
+        " M _bmad-output/planning-artifacts/prds/prd-eventstore-2026-07-05/validation-report.md",
+        " M _bmad-output/planning-artifacts/ux-designs/ux-eventstore-2026-07-05/.memlog.md",
+        " M _bmad-output/planning-artifacts/ux-designs/ux-eventstore-2026-07-05/DESIGN.md",
+        " M _bmad-output/planning-artifacts/ux-designs/ux-eventstore-2026-07-05/EXPERIENCE.md",
+        " M _bmad-output/planning-artifacts/ux-designs/ux-eventstore-2026-07-05/index.md",
+        " M _bmad-output/planning-artifacts/ux.md",
+        " M references/Hexalith.Memories",
+        " M references/Hexalith.Platform",
+        " M samples/Hexalith.EventStore.Sample/Counter/CounterAggregate.cs",
+        " M samples/Hexalith.EventStore.Sample/Counter/State/CounterState.cs",
+        " M samples/Hexalith.EventStore.Sample/Greeting/GreetingAggregate.cs",
+        " M samples/Hexalith.EventStore.Sample/Greeting/State/GreetingState.cs",
+        " M samples/Hexalith.EventStore.Sample/Program.cs",
+        " M src/Hexalith.EventStore.Client/Aggregates/AggregateReplayer.cs",
+        " M src/Hexalith.EventStore.Client/Aggregates/EventStoreAggregate.cs",
+        " M src/Hexalith.EventStore.Client/Aggregates/LegacyReplayInput.cs",
+        " M src/Hexalith.EventStore.Client/Events/EventEvolutionManagedLoadObserver.cs",
+        " M src/Hexalith.EventStore.Client/Handlers/DomainProcessorBase.cs",
+        " M src/Hexalith.EventStore.Client/Handlers/DomainProcessorStateRehydrator.cs",
+        " M src/Hexalith.EventStore.Client/Handlers/LegacyCommandReplayInput.cs",
+        " M src/Hexalith.EventStore.Client/Hexalith.EventStore.Client.csproj",
+        " M src/Hexalith.EventStore.Client/Registration/EventStoreServiceCollectionExtensions.cs",
+        " M src/Hexalith.EventStore.DomainService/DomainServiceRequestRouter.cs",
+        " M tests/Hexalith.EventStore.Client.Tests/Events/EventEvolutionManagedLoadObserverTests.cs",
+        " M tests/Hexalith.EventStore.Client.Tests/Registration/AddEventStoreTests.cs",
+        " M tests/Hexalith.EventStore.DomainService.Tests/EventEvolutionLegacyIntakeTests.cs",
+        "?? _bmad-output/implementation-artifacts/evidence/story-6-6/replay-router-admission-2026-10-07/",
+        "?? _bmad-output/implementation-artifacts/evidence/story-6-6/source-candidates-2026-10-07/",
+        "?? _bmad-output/implementation-artifacts/evidence/story-6-6/verification-2026-10-07-replay-router-admission.md",
+        "?? _bmad-output/planning-artifacts/prds/prd-eventstore-2026-07-05/review-adversarial-general-validate-2026-10-07.md",
+        "?? _bmad-output/planning-artifacts/prds/prd-eventstore-2026-07-05/review-brownfield-truth-validate-2026-10-07.md",
+        "?? _bmad-output/planning-artifacts/prds/prd-eventstore-2026-07-05/review-platform-contract-validate-2026-10-07.md",
+        "?? _bmad-output/planning-artifacts/prds/prd-eventstore-2026-07-05/review-rubric-validate-2026-10-07.md",
+        "?? samples/Hexalith.EventStore.Sample/Greeting/GreetingEventSerialization.cs",
+        "?? scripts/fixtures/",
+        "?? scripts/prepare-event-evolution-candidates.py",
+        "?? scripts/verify-event-evolution-detached-snapshots.py",
+        "?? scripts/verify-event-evolution-process-managed-observation.py",
+        "?? scripts/verify-event-evolution-replay-routing.py",
+        "?? src/Hexalith.EventStore.Client/Aggregates/IAdmittedLegacyAggregateReplay.cs",
+        "?? src/Hexalith.EventStore.Client/Events/EventManagedAssemblyBindingComparer.cs",
+        "?? src/Hexalith.EventStore.Client/Handlers/DetachedStateCapture.cs",
+        "?? tests/Hexalith.EventStore.Client.Tests/Handlers/DetachedSnapshotAggregate.cs",
+        "?? tests/Hexalith.EventStore.Client.Tests/Handlers/DetachedSnapshotCommand.cs",
+        "?? tests/Hexalith.EventStore.Client.Tests/Handlers/DetachedSnapshotEvent.cs",
+        "?? tests/Hexalith.EventStore.Client.Tests/Handlers/DetachedSnapshotProbe.cs",
+        "?? tests/Hexalith.EventStore.Client.Tests/Handlers/DetachedSnapshotProcessor.cs",
+        "?? tests/Hexalith.EventStore.Client.Tests/Handlers/DetachedSnapshotState.cs",
+        "?? tests/Hexalith.EventStore.Client.Tests/Handlers/DetachedSnapshotTail.cs",
+        "?? tests/Hexalith.EventStore.Client.Tests/Handlers/DetachedStateCaptureTests.cs",
+        "?? tests/Hexalith.EventStore.DomainService.Tests/CustomAsyncReplayAggregate.cs",
+        "?? tests/Hexalith.EventStore.DomainService.Tests/CustomSyncReplayAggregate.cs",
+        "?? tests/Hexalith.EventStore.DomainService.Tests/LegacyAggregateReplayRoutingTests.cs",
+        "?? tests/Hexalith.EventStore.DomainService.Tests/ReplayAdmissionProbeCollection.cs",
+        "?? tests/Hexalith.EventStore.Sample.Tests/DetachedSnapshotTests.cs",
+        "?? tests/Hexalith.EventStore.Sample.Tests/Greeting/GreetingEventSerializationTests.cs"
+      ]
+    },
+    {
+      "Name": "commons",
+      "Root": "/home/administrator/projects/hexalith/commons",
+      "ObservedHead": "b8ad13c83c334b03d1465cfbd43de8b0a975b3ea",
+      "Clean": true,
+      "WorkingTreeStatus": []
+    },
+    {
+      "Name": "tenants",
+      "Root": "/home/administrator/projects/hexalith/tenants",
+      "ObservedHead": "f92bf34159c40b6f7fe12eb746565868422dc035",
+      "Clean": false,
+      "WorkingTreeStatus": [
+        "M references/Hexalith.EventStore"
+      ]
+    }
+  ],
+  "ResolvedEventStoreSourceVersion": "3.115.0",
+  "Commands": [
+    "set -e\npwsh -NoProfile -File eng/verify-ext-conv-ai-1.ps1 -Mode Local -ArtifactsPath /tmp/hexalith-agents54-conversations-artifacts",
+    "dotnet build /home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj -c Debug --artifacts-path /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z -m:1 -p:UseHexalithProjectReferences=true -p:NuGetAudit=false -p:MinVerVersionOverride=1.0.0 -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore -p:HexalithCommonsRoot=/home/administrator/projects/hexalith/commons -p:HexalithTenantsRoot=/home/administrator/projects/hexalith/tenants -p:HexalithEventStoreVersion=3.115.0",
+    "dotnet build /home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj -c Debug --artifacts-path /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z -m:1 -p:UseHexalithProjectReferences=true -p:NuGetAudit=false -p:MinVerVersionOverride=1.0.0 -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore -p:HexalithCommonsRoot=/home/administrator/projects/hexalith/commons -p:HexalithTenantsRoot=/home/administrator/projects/hexalith/tenants -p:HexalithEventStoreVersion=3.115.0",
+    "dotnet build /home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj -c Debug --artifacts-path /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z -m:1 -p:UseHexalithProjectReferences=true -p:NuGetAudit=false -p:MinVerVersionOverride=1.0.0 -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore -p:HexalithCommonsRoot=/home/administrator/projects/hexalith/commons -p:HexalithTenantsRoot=/home/administrator/projects/hexalith/tenants -p:HexalithEventStoreVersion=3.115.0",
+    "dotnet build /home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj -c Debug --artifacts-path /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z -m:1 -p:UseHexalithProjectReferences=true -p:NuGetAudit=false -p:MinVerVersionOverride=1.0.0 -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore -p:HexalithCommonsRoot=/home/administrator/projects/hexalith/commons -p:HexalithTenantsRoot=/home/administrator/projects/hexalith/tenants -p:HexalithEventStoreVersion=3.115.0",
+    "dotnet /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/bin/Hexalith.Conversations.Server.Tests/debug/Hexalith.Conversations.Server.Tests.dll -class Hexalith.Conversations.Server.Tests.Agents.ConversationAgentSixSeamTests -result-xml /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/local-six-seam.xml",
+    "dotnet /home/administrator/projects/hexalith/conversations/.artifacts/ext-conv-ai-1-tests/Hexalith.Conversations.Server.Tests/debug/run/Hexalith.Conversations.Server.Tests.dll -result-xml /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Server.Tests.xml",
+    "dotnet /home/administrator/projects/hexalith/conversations/.artifacts/ext-conv-ai-1-tests/Hexalith.Conversations.Client.Tests/debug/run-20261007T150019/Hexalith.Conversations.Client.Tests.dll -result-xml /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Client.Tests.xml",
+    "set -e\ndotnet build tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj -c Debug --artifacts-path /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z -m:1 -p:UseHexalithProjectReferences=true -p:NuGetAudit=false -p:MinVerVersionOverride=1.0.0 -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore -p:HexalithCommonsRoot=/home/administrator/projects/hexalith/commons -p:HexalithTenantsRoot=/home/administrator/projects/hexalith/tenants -p:HexalithEventStoreVersion=3.115.0 > /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/server-final-build.log 2>&1\ndotnet /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/bin/Hexalith.Conversations.Server.Tests/debug/Hexalith.Conversations.Server.Tests.dll -class Hexalith.Conversations.Server.Tests.Agents.ConversationAgentSixSeamTests -result-xml /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/final-six-seam.xml > /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/final-six-seam.log 2>&1",
+    "pwsh -NoProfile -File eng/verify-ext-conv-ai-1.ps1 -Mode Live -ArtifactsPath /tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/live-must-not-be-created"
+  ],
+  "ExecutedEvidence": [
+    {
+      "Xml": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/local-six-seam.xml",
+      "Sha256": "b21e12d27bf1b740242532d2c2f0be5f6f39fe168889a546fe24cd1b6942633e",
+      "Executed": 15,
+      "Counts": {
+        "Pass": 15,
+        "Fail": 0,
+        "Skip": 0
+      },
+      "Errors": 0,
+      "NotRun": 0,
+      "ExecutedClass": "Hexalith.Conversations.Server.Tests.Agents.ConversationAgentSixSeamTests",
+      "ExecutedMethods": [
+        {
+          "Method": "FacilitatorRosterAndCurrentEditedDeletedRedactedContent",
+          "Result": "Pass"
+        },
+        {
+          "Method": "NeverCompletingProvidersRespectCallerCancellation",
+          "Result": "Pass"
+        },
+        {
+          "Method": "AssemblyQualifiedRestrictedAliasesCannotUseGeneralHumanGrant",
+          "Result": "Pass"
+        },
+        {
+          "Method": "CurrentAdmissionAndSdkProcessQueryAreRunnableWithLocalFixture",
+          "Result": "Pass"
+        },
+        {
+          "Method": "LegacyProjectionFoldsRestrictedEventsWithoutRetainingDeletedContent",
+          "Result": "Pass"
+        },
+        {
+          "Method": "CompleteTenantActiveCountIncludesZeroAgentCallsAndMissingCatalogueIsUnavailable",
+          "Result": "Pass"
+        },
+        {
+          "Method": "ReceiptConflictCannotAdmitOrAdvanceCheckpoint",
+          "Result": "Pass"
+        },
+        {
+          "Method": "CancellationAfterIgnoringProviderCannotReturnValidResult",
+          "Result": "Pass"
+        },
+        {
+          "Method": "ApprovedDeletionPublicationDeliveryBackfillRolloverAndPoison",
+          "Result": "Pass"
+        },
+        {
+          "Method": "CrossTenantUnrelatedPartyAndRevokedAuthorityFailBeforeDisclosure",
+          "Result": "Pass"
+        },
+        {
+          "Method": "MembershipRetryRemovalAndSerializedReplay",
+          "Result": "Pass"
+        },
+        {
+          "Method": "UnexpectedAcknowledgementCannotPoisonAttemptOrReplaceAcceptedReceipt",
+          "Result": "Pass"
+        },
+        {
+          "Method": "UnauthenticatedApprovalReceiptSnapshotsAndMismatchedHeadFailClosed",
+          "Result": "Pass"
+        },
+        {
+          "Method": "MissingProductionProvidersAndPreCancelledCallsFailClosed",
+          "Result": "Pass"
+        },
+        {
+          "Method": "DeterministicPostingLostAcknowledgementAndConcurrentIntent",
+          "Result": "Pass"
+        }
+      ],
+      "Failures": []
+    },
+    {
+      "Xml": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/final-six-seam.xml",
+      "Sha256": "d27df383501dde933f02ce075d0061842eb3977f25d3c882ded7116b38d2233f",
+      "Executed": 15,
+      "Counts": {
+        "Pass": 15,
+        "Fail": 0,
+        "Skip": 0
+      },
+      "Errors": 0,
+      "NotRun": 0,
+      "ExecutedClass": "Hexalith.Conversations.Server.Tests.Agents.ConversationAgentSixSeamTests",
+      "ExecutedMethods": [
+        {
+          "Method": "FacilitatorRosterAndCurrentEditedDeletedRedactedContent",
+          "Result": "Pass"
+        },
+        {
+          "Method": "NeverCompletingProvidersRespectCallerCancellation",
+          "Result": "Pass"
+        },
+        {
+          "Method": "AssemblyQualifiedRestrictedAliasesCannotUseGeneralHumanGrant",
+          "Result": "Pass"
+        },
+        {
+          "Method": "CurrentAdmissionAndSdkProcessQueryAreRunnableWithLocalFixture",
+          "Result": "Pass"
+        },
+        {
+          "Method": "LegacyProjectionFoldsRestrictedEventsWithoutRetainingDeletedContent",
+          "Result": "Pass"
+        },
+        {
+          "Method": "CompleteTenantActiveCountIncludesZeroAgentCallsAndMissingCatalogueIsUnavailable",
+          "Result": "Pass"
+        },
+        {
+          "Method": "ReceiptConflictCannotAdmitOrAdvanceCheckpoint",
+          "Result": "Pass"
+        },
+        {
+          "Method": "CancellationAfterIgnoringProviderCannotReturnValidResult",
+          "Result": "Pass"
+        },
+        {
+          "Method": "ApprovedDeletionPublicationDeliveryBackfillRolloverAndPoison",
+          "Result": "Pass"
+        },
+        {
+          "Method": "CrossTenantUnrelatedPartyAndRevokedAuthorityFailBeforeDisclosure",
+          "Result": "Pass"
+        },
+        {
+          "Method": "MembershipRetryRemovalAndSerializedReplay",
+          "Result": "Pass"
+        },
+        {
+          "Method": "UnexpectedAcknowledgementCannotPoisonAttemptOrReplaceAcceptedReceipt",
+          "Result": "Pass"
+        },
+        {
+          "Method": "UnauthenticatedApprovalReceiptSnapshotsAndMismatchedHeadFailClosed",
+          "Result": "Pass"
+        },
+        {
+          "Method": "MissingProductionProvidersAndPreCancelledCallsFailClosed",
+          "Result": "Pass"
+        },
+        {
+          "Method": "DeterministicPostingLostAcknowledgementAndConcurrentIntent",
+          "Result": "Pass"
+        }
+      ],
+      "Failures": []
+    },
+    {
+      "Xml": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Contracts.Tests.xml",
+      "Sha256": "3b97acac06ab9b904f8e3f958c3eb63c6b086e0979bc481286d4d1cecb8dfd23",
+      "Executed": 618,
+      "Counts": {
+        "Pass": 618,
+        "Fail": 0,
+        "Skip": 0
+      },
+      "Errors": 0,
+      "NotRun": 0,
+      "Failures": []
+    },
+    {
+      "Xml": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Tests.xml",
+      "Sha256": "cf026ca80aeada15256da3390888ab05c58454e1229b18058f4357985c236175",
+      "Executed": 185,
+      "Counts": {
+        "Pass": 185,
+        "Fail": 0,
+        "Skip": 0
+      },
+      "Errors": 0,
+      "NotRun": 0,
+      "Failures": []
+    },
+    {
+      "Xml": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Server.Tests.xml",
+      "Sha256": "f690ec9c2f6f5d1f81812bccddc785cf378b7203efcc4f79f3a01d3ef707acb6",
+      "Executed": 699,
+      "Counts": {
+        "Pass": 698,
+        "Fail": 1,
+        "Skip": 0
+      },
+      "Errors": 0,
+      "NotRun": 0,
+      "Failures": [
+        {
+          "Class": "Hexalith.Conversations.Server.Tests.HostComposition.ConversationsDomainServiceHostCompositionTest",
+          "Method": "CanonicalDomainEndpointShouldResolve",
+          "Name": "Hexalith.Conversations.Server.Tests.HostComposition.ConversationsDomainServiceHostCompositionTest.CanonicalDomainEndpointShouldResolve(route: \\\"/\\\")",
+          "Message": "Shouldly.ShouldAssertException : MappedRoutes(app)\n    should contain\n\\\"/\\\"\n    but was actually\n[\\\"/health\\\", \\\"/alive\\\", \\\"/ready\\\", \\\"/process\\\", \\\"/replay-state\\\", \\\"/query\\\", \\\"/project\\\", \\\"/project/v2\\\", \\\"/project/v2/reconcile\\\", \\\"/project/rebuild/v1\\\", \\\"/project/rebuild/stage/v1\\\", \\\"/project/rebuild/commit/v1\\\", \\\"/project/rebuild/abort/v1\\\", \\\"/project/rebuild/verify/v1\\\", \\\"/project/rebuild/shared/v1\\\", \\\"/admin/operational-index-metadata\\\", \\\"/tenants/events\\\", \\\"/dapr/subscribe\\\"]"
+        }
+      ]
+    },
+    {
+      "Xml": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Client.Tests.xml",
+      "Sha256": "259cc92988e4a9804cb6f0f5d8c7ded369a09dd86cf1a0b6b0dea798e8b979a4",
+      "Executed": 39,
+      "Counts": {
+        "Pass": 39,
+        "Fail": 0,
+        "Skip": 0
+      },
+      "Errors": 0,
+      "NotRun": 0,
+      "Failures": []
+    }
+  ],
+  "Logs": [
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Contracts.Tests-build.log",
+      "Sha256": "6fdc0de6f0a662e628bbfc7db23da3a6c38e2d64a1a72b4f3a46e275f9376489"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Tests-build.log",
+      "Sha256": "72eb85f0638acf8e52b55970c787aec01a88ff383361f7d8026acaac338fa0c0"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Server.Tests-build.log",
+      "Sha256": "d1664a756e88c5c1af2ff8dc3503d67e12abae80a8d1231934db040fa9bc1688"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Client.Tests-build.log",
+      "Sha256": "2086a9e97edfc67efdf1a2907e3e624da213be580efb08a2ad6b61cf995c2d13"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/server-final-build.log",
+      "Sha256": "df45b45ed0d25ae50dc930fef52602c77ca74b56831c2972c638dd0907b05cf9"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/local-six-seam.log",
+      "Sha256": "115f6249ffa5e3188adf036d6ab13a7f9fae20f13f66eacbf0fa31d48da1aaad"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/final-six-seam.log",
+      "Sha256": "ae080a7aaf15f00db5ed62b959467151ba9cfec60da4186c9d35e620e4906488"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/live-negative.log",
+      "Sha256": "c0c023e500cc15240d026fd10d58e342b6b1773989ad26d457b6c43e9766e3ee"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/eventstore-version.log",
+      "Sha256": "4dab4ab7e2a63300cb86ca6f2c09c280cecb23a4e9e7f561faaa75f68630fdff"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/client-independent-staging.log",
+      "Sha256": "6a19e9b3df95466e9fecef020fbeec60280453a38db225f1772f59b6b5dc9f8e"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Contracts.Tests.log",
+      "Sha256": "f8415d56947f38120a068f86b9e3651d5d22aa9a4fc29fc2fdcc10cebffec2f4"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Tests.log",
+      "Sha256": "cca08186ce8784b3663892e50aa47e0cd3b32da6a190401fb70ae34325274847"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Server.Tests.log",
+      "Sha256": "e5b5d8a760c631ca65db6e2b9db614edd4f002f849994ffc80cab8d461327254"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/Hexalith.Conversations.Client.Tests.log",
+      "Sha256": "6b167c59f8f17a8b79b1dbf9bce81cdd18163902f903ad1fa22cae67903dc58a"
+    }
+  ],
+  "BuildOutputs": [
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/bin/Hexalith.Conversations.Contracts/debug/Hexalith.Conversations.Contracts.dll",
+      "Sha256": "6a31dcc5286bb4e8284c137afd4c10a20d61ef560050abbb8350968e35c78c0e",
+      "Use": "Built source-reference artifact"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/bin/Hexalith.Conversations/debug/Hexalith.Conversations.dll",
+      "Sha256": "56bfb62b7f09bbb5a53d6c98ddbf02a616f6238da27795434c61c28c659896ae",
+      "Use": "Built source-reference artifact"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/bin/Hexalith.Conversations.Server/debug/Hexalith.Conversations.Server.dll",
+      "Sha256": "dcf9893b60b37dfa81dd58e74381809bc74384454956c682d9001c4e054f667f",
+      "Use": "Built source-reference artifact"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/bin/Hexalith.Conversations.Client/debug/Hexalith.Conversations.Client.dll",
+      "Sha256": "4657e5bc982c5d807942eb97bba5d0e9da25f99bee359c795e60958c69feb396",
+      "Use": "Built source-reference artifact"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/bin/Hexalith.Conversations.Contracts.Tests/debug/Hexalith.Conversations.Contracts.Tests.dll",
+      "Sha256": "c92f553f6f8596e9f9dafa7c923707392509166c99434be7aad08ff0171cb3fe",
+      "Use": "Built source-reference artifact"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/bin/Hexalith.Conversations.Tests/debug/Hexalith.Conversations.Tests.dll",
+      "Sha256": "90a86c7971b2d26f2ecd1e526eb008f59da71877cce66892ff8fbaccb5d236b4",
+      "Use": "Built source-reference artifact"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/bin/Hexalith.Conversations.Server.Tests/debug/Hexalith.Conversations.Server.Tests.dll",
+      "Sha256": "9b287161caedcc23313348c6ae9e34dc6b3ff6d697cca415b44566c0dc3faab7",
+      "Use": "Final focused source build"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/bin/Hexalith.Conversations.Client.Tests/debug/Hexalith.Conversations.Client.Tests.dll",
+      "Sha256": "17a3c258152a61736315c297b3beb252e2fb2c611c3fce847ff7233f19a76330",
+      "Use": "Built source-reference artifact"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/bin/Hexalith.EventStore.Contracts/debug/Hexalith.EventStore.Contracts.dll",
+      "Sha256": "cbe530a4d48d35de9ce320124a4ec0ffd3149209cea955c19846717659ad6009",
+      "Use": "Built source-reference artifact"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/bin/Hexalith.EventStore.Client/debug/Hexalith.EventStore.Client.dll",
+      "Sha256": "94c96b7827e3a77e0f1d72668e19c0d61762afd1418ad87c910ce9f9867c52f0",
+      "Use": "Built source-reference artifact"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/run-20261007T1500191806094Z/bin/Hexalith.EventStore.DomainService/debug/Hexalith.EventStore.DomainService.dll",
+      "Sha256": "4be607c87ab3ecf0e747386afa6dfc5ad2a8886d3739c4e2e04ecb36abf826ad",
+      "Use": "Built source-reference artifact"
+    },
+    {
+      "Path": "/home/administrator/projects/hexalith/conversations/.artifacts/ext-conv-ai-1-tests/Hexalith.Conversations.Server.Tests/debug/run/Hexalith.Conversations.Server.Tests.dll",
+      "Sha256": "d08a6ca7d178095b64d231570addcdfba36693baf945cc310850a147cbc72b03",
+      "Use": "Earlier full Server assembly before additional membership assertions"
+    },
+    {
+      "Path": "/home/administrator/projects/hexalith/conversations/.artifacts/ext-conv-ai-1-tests/Hexalith.Conversations.Client.Tests/debug/run-20261007T150019/Hexalith.Conversations.Client.Tests.dll",
+      "Sha256": "17a3c258152a61736315c297b3beb252e2fb2c611c3fce847ff7233f19a76330",
+      "Use": "Independently executed Client assembly"
+    }
+  ],
+  "ExecutionBoundary": "Full assemblies ran after the domain acknowledgement fix. Final focused source build added membership type/concurrent-candidate assertions; broader assemblies were not repeated for those test-only assertions. Dependency HEADs are observations, including pre-existing dirty source, not immutable accepted targets.",
+  "InitialFailure": {
+    "Command": "pwsh -NoProfile -File eng/verify-ext-conv-ai-1.ps1 -Mode Local -ArtifactsPath /tmp/hexalith-agents54-conversations-artifacts",
+    "ExitCode": 1,
+    "Reason": "Source assemblies at 3.113.0.0 were copied into a graph requesting 3.115.0.0.",
+    "Log": "/tmp/hexalith-agents54-conversations-artifacts/local-six-seam.log",
+    "LogSha256": "04fc0bd8f829341d06bd5647e60359a32c3fed521a4214a19d2e4b01acae44a4"
+  },
+  "RemainingGates": [
+    "SDK required root / route compatibility",
+    "Real current authority and immutable Organization Party",
+    "Authenticated complete-prefix and actor compare/append authorization",
+    "Complete authenticated tenant catalogue and accepted window semantics",
+    "Independent source/policy-bound deletion approval",
+    "C4 publication discovery, ordered tenant backfill, automatic worker and real authenticated receiver/outcome lookup",
+    "Real storage/restart/outage/rollover/concurrent-writer evidence",
+    "Full accepted owner target/date/command and prerequisite qualification record"
+  ]
+}

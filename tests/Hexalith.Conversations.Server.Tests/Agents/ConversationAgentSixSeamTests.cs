@@ -41,6 +41,8 @@ public sealed class ConversationAgentSixSeamTests
         var state = await f.ReplayAsync();
         var first = ConversationAggregate.Handle(f.Membership, state);
         first.Events.Count.ShouldBe(1);
+        // Both concurrent candidates see the same prefix; only the compare winner is persisted.
+        ConversationAggregate.Handle(f.Membership, state).Events.Count.ShouldBe(1);
         f.Persist(first);
         var replayed = await f.ReplayAsync();
         replayed.Participants.Count.ShouldBe(1);
@@ -53,6 +55,14 @@ public sealed class ConversationAgentSixSeamTests
             }
         };
         ConversationAggregate.Handle(conflict, replayed).IsRejection.ShouldBeTrue();
+        var changedType = f.Membership with
+        {
+            PublicCommand = f.Membership.PublicCommand with
+            {
+                ParticipantType = ParticipantType.Human
+            }
+        };
+        ConversationAggregate.Handle(changedType, replayed).IsRejection.ShouldBeTrue();
         var remove = new RemoveAgentParticipant(new(f.CommandMetadata(), F.Conversation, F.Agent, F.At.AddMinutes(3)), "remove-event");
         f.Persist(ConversationAggregate.Handle(remove, replayed));
         var removed = await f.ReplayAsync();
@@ -265,6 +275,57 @@ public sealed class ConversationAgentSixSeamTests
         quarantined.DeletionSource.AcknowledgedSourceRevision.ShouldBe(4);
         quarantined.DeletionSource.Acknowledgement.ShouldBe(receipt);
         quarantined.DeletionSource.PoisonCode.ShouldBe("changed-acknowledgement");
+    }
+
+    /// <summary>Unexpected receipts quarantine attempts and cannot replace accepted evidence during replay.</summary>
+    [Fact]
+    public async Task UnexpectedAcknowledgementCannotPoisonAttemptOrReplaceAcceptedReceipt()
+    {
+        var f = new F();
+        var before = await f.ReplayAsync();
+        var approval = new ApproveConversationDeletion(new(f.CommandMetadata(F.Human, "approval"), F.Conversation,
+            "independent-approval", before.SourceRevision, F.At.AddMinutes(1), F.DeletionAudit(before.SourceRevision, F.At.AddMinutes(1))), "approval-event");
+        f.Persist(ConversationAggregate.Handle(approval, before));
+        var approved = await f.ReplayAsync();
+        var signal = approved.DeletionSource.Signal!;
+        var receipt = new ConversationDeletionAcknowledgement(signal.ConversationDeletionSignalId, signal.SourceRevision,
+            19, "target-1", "authenticated-local-receipt");
+        var attemptWithReceipt = new RecordConversationDeletionDelivery(new(f.CommandMetadata(F.Human, "attempt"),
+            F.Conversation, signal, ConversationDeletionDeliveryAction.Attempt, "attempt-1", "target-1", 0, receipt), "attempt-event");
+        (await f.Admission.EvaluateAsync(new(new(f.Envelope(attemptWithReceipt, "source-worker"), await f.CurrentStateAsync())),
+            TestContext.Current.CancellationToken)).IsRejected.ShouldBeFalse();
+        var quarantine = ConversationAggregate.Handle(attemptWithReceipt, approved);
+        quarantine.Events.Count.ShouldBe(1);
+        ((ConversationDeletionDeliveryRecordedDomainEvent)quarantine.Events.Single()).Acknowledgement.ShouldBeNull();
+        f.Persist(quarantine);
+        var poisoned = await f.Queries.DeletionSourceAsync("source-worker", new(F.Tenant, F.Conversation), TestContext.Current.CancellationToken);
+        poisoned.Outcome.ShouldBe(ConversationAgentsOutcome.Quarantined);
+        poisoned.AcknowledgedSourceRevision.ShouldBe(0);
+        poisoned.Acknowledgement.ShouldBeNull();
+
+        // A malformed retained event must not make an attempt look like a receipt lookup.
+        var malformedAttempt = new ConversationDeletionDeliveryRecordedDomainEvent(
+            f.Metadata(ConversationEventType.ConversationDeletionDeliveryRecorded, F.Human, F.At.AddMinutes(2)),
+            signal, ConversationDeletionDeliveryAction.Attempt, "attempt-1", "target-1", 0, receipt);
+        f.PersistedEvents[^1] = malformedAttempt;
+        (await f.Queries.DeletionSourceAsync("source-worker", new(F.Tenant, F.Conversation), TestContext.Current.CancellationToken))
+            .Outcome.ShouldBe(ConversationAgentsOutcome.Unavailable);
+
+        var acknowledgement = malformedAttempt with { Action = ConversationDeletionDeliveryAction.Acknowledge };
+        f.PersistedEvents[^1] = acknowledgement;
+        var accepted = await f.ReplayAsync();
+        accepted.DeletionSource.Acknowledgement.ShouldBe(receipt);
+        var changedReceipt = acknowledgement with
+        {
+            Metadata = f.Metadata(ConversationEventType.ConversationDeletionDeliveryRecorded, F.Human, F.At.AddMinutes(3)),
+            PreviousDeliveryRevision = 1,
+            Acknowledgement = receipt with { ProtectedDeletionRevision = 20 }
+        };
+        f.PersistedEvents.Add(changedReceipt);
+        var unavailable = await f.Queries.DeletionSourceAsync("source-worker", new(F.Tenant, F.Conversation), TestContext.Current.CancellationToken);
+        unavailable.Outcome.ShouldBe(ConversationAgentsOutcome.Unavailable);
+        unavailable.Acknowledgement.ShouldBeNull();
+        unavailable.AcknowledgedSourceRevision.ShouldBe(0);
     }
 
     /// <summary>Verifies unauthenticated approval receipt snapshots and mismatched head fail closed.</summary>
