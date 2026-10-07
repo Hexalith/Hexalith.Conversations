@@ -8549,5 +8549,131 @@ def test_v2_story_9_1_fault_fixture_paths_match_the_measuring_suite() -> None:
         (key, value) for key, value in re.findall(r'^    "([a-z0-9-]+)": "([A-Z0-9_]+)",$',
                                                    suite.split("FAULTS = {", 1)[1].split("}", 1)[0], re.M)]
 
+
+def test_v2_story_9_1_scenario_requires_exact_command_and_committed_bytes(tmp_path: Path, monkeypatch) -> None:
+    """AC-9.1-01 passes only when its exact command exits 0 and reproduces every committed output byte."""
+    module = load_generator()
+    candidate = "a" * 40
+    scenario = {"id": "AC-9.1-01", "command": "python3 exact-generator.py"}
+    contents = dict(zip(module.V2_9_1_OUTPUT_PATHS, (b"schema", b"json", b"markdown")))
+    for path, content in contents.items():
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repository, _revision, path: contents.get(path))
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs: subprocess.CompletedProcess(
+        [], 1, b"", b"FAIL: TIER_APPROVAL_MISSING: no owner decision\n"))
+    record, category, findings = module.v2_9_1_scenario_from_results(tmp_path, candidate, scenario)
+    assert category == "failed" and record["result"] == "FAIL" and record["exitCode"] == 1
+    assert record["blockers"] == ["TEST_RESULTS_FAILED", "TIER_APPROVAL_MISSING"]
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs: subprocess.CompletedProcess([], 0, b"PASS", b""))
+    record, category, findings = module.v2_9_1_scenario_from_results(tmp_path, candidate, scenario)
+    assert category == "passed" and record["result"] == "PASS" and record["exitCode"] == 0 and findings == []
+    assert record["resultFile"] == {"path": module.V2_9_1_OUTPUT_PATHS[1], "sha256": module.v2_sha256(b"json")}
+    assert [row["path"] for row in record["outputFiles"]] == list(module.V2_9_1_OUTPUT_PATHS)
+    assert len(record["assertionLedger"]) == 10
+    (tmp_path / module.V2_9_1_OUTPUT_PATHS[2]).write_bytes(b"changed")
+    record, category, findings = module.v2_9_1_scenario_from_results(tmp_path, candidate, scenario)
+    assert category == "failed" and record["blockers"] == ["TIERING_RENDER_DRIFT"]
+    assert "assertionLedger" not in record
+
+
+def _story_9_1_facts(tmp_path: Path, monkeypatch, fault: str | None = None) -> tuple:
+    """Run `v2_9_1_facts` over a patched candidate, tiering verifier, and retained receipts."""
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    candidate, freeze = "a" * 40, "f" * 40
+    blobs: dict[str, bytes] = {}
+
+    def write(path: str, content: bytes, committed: bool = True) -> bytes:
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+        if committed:
+            blobs[path] = content
+        return content
+
+    for path in (module.V2_9_1_CONTRACT_PATH, module.V2_AUTHORITY_BUNDLE_PATH, module.V2_9_1_DECISION_PATH,
+                 module.V2_8_1_PREDECESSOR[2], module.V2_9_1_GENERATOR_PATH,
+                 "_bmad/scripts/tests/test_conformance_tiering.py",
+                 "tests/Hexalith.Conversations.Conformance.Tests/ConformanceOracleTieringValidationTest.cs",
+                 "tests/Hexalith.Conversations.Conformance.Tests/ConformanceTieringIlReferenceReader.cs",
+                 *module.V2_9_1_OUTPUT_PATHS):
+        write(path, f"content:{path}".encode())
+    write(module.V2_8_1_PREDECESSOR[1], json.dumps({
+        "candidate": {"commit": "b" * 40},
+        "summary": {"required": 6, "passed": 6, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0}}).encode())
+    membership = "d" * 64
+    approvals = write(module.V2_9_1_APPROVALS_PATH, json.dumps({"decision": {
+        "state": "approved", "approvedMembershipSha256": membership}}).encode())
+    receipt = write(module.V2_9_1_RECEIPT_PATH, b"receipt", committed=False)
+    write(module.V2_9_1_FAULT_RESULT_PATH, b"<faults/>", committed=False)
+    stamp = "c" * 40 if fault == "foreign-stamp" else candidate
+    write(module.V2_8_1_TEST_ASSEMBLY, f"assembly 1.0.0+{stamp}".encode(), committed=False)
+    rows = [{"id": "Suite.First", "tier": "portable", "strengthSha256": "1" * 64},
+            {"id": "Suite.Second", "tier": "module-internal", "strengthSha256": "2" * 64}]
+    additions = [{"id": "Validation.Third", "tier": "portable", "strengthSha256": "3" * 64}]
+    document = {
+        "preSplitResult": {"receipt": {"sha256": module.v2_sha256(receipt)},
+                           "sourceCommit": candidate if fault == "freeze-is-candidate" else freeze,
+                           "result": {"path": "artifacts/v9/9.1/pre-split/conformance.trx", "sha256": "e" * 64},
+                           "counts": {"discoveredMethods": 2, "executedTestCases": 2}},
+        "approvals": {"sha256": module.v2_sha256(approvals), "approvalId": "QO-TEST", "approver": "Owner",
+                      "membershipSha256": "9" * 64 if fault == "approval-mismatch" else membership},
+        "assertions": rows, "validationAdditions": additions,
+    }
+
+    class Tiering:
+        class MultiError(Exception):
+            items: list = []
+
+        class TieringError(Exception):
+            code = "TEST_RESULTS_FAILED"
+
+        @staticmethod
+        def verify(_repository: Path) -> dict:
+            return document
+
+        @staticmethod
+        def load_pre_split(_repository: Path):
+            return type("PreSplit", (), {"receipt_sha256": module.v2_sha256(receipt)})()
+
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repository, _revision, path: blobs.get(path))
+    monkeypatch.setattr(module, "v2_verified_predecessor", lambda *_args: "7" * 64)
+    monkeypatch.setattr(module, "try_resolve_commit", lambda _repository, value: value)
+    monkeypatch.setattr(module, "is_ancestor", lambda *_args: True)
+    monkeypatch.setattr(module, "v2_9_1_tiering_module", lambda: Tiering)
+    monkeypatch.setattr(module, "run_git", lambda *_args, **_kwargs: subprocess.CompletedProcess(
+        [], 0, b"9999999999" if fault == "stale-assembly" else b"0", b""))
+    contract = {"inventory": {"sha256": "8" * 64}}
+    return module, validators, contract, candidate, rows, additions
+
+
+def test_v2_story_9_1_facts_bind_tiers_and_inventories_over_all_rows(tmp_path: Path, monkeypatch) -> None:
+    module, validators, contract, candidate, rows, additions = _story_9_1_facts(tmp_path, monkeypatch)
+    facts = module.v2_9_1_facts(tmp_path, candidate, contract, validators["record"])
+    everything = [*rows, *additions]
+    assert facts["tierCounts"] == {"portable": 2, "moduleInternal": 1}
+    assert (facts["assertionCount"], facts["validationAdditionCount"]) == (2, 1)
+    assert facts["assertionInventorySha256"] == module.v2_sha256(module.v2_render_json([row["id"] for row in everything]))
+    assert facts["strengthInventorySha256"] == module.v2_sha256(module.v2_render_json(
+        [[row["id"], row["strengthSha256"]] for row in everything]))
+    assert facts["sourceRevisionId"] == candidate and facts["approvals"]["approvalId"] == "QO-TEST"
+    validators["record"].evolve(schema={"$defs": validators["record"].schema["$defs"],
+                                        "$ref": "#/$defs/conformanceTiering"}).validate(facts)
+
+
+@pytest.mark.parametrize("fault,blocker", [
+    ("freeze-is-candidate", "BASELINE_NOT_TRUSTWORTHY"),
+    ("stale-assembly", "TEST_RESULTS_STALE"),
+    ("foreign-stamp", "TEST_RESULTS_STALE"),
+    ("approval-mismatch", "TIER_APPROVAL_MISSING"),
+])
+def test_v2_story_9_1_facts_reject_unbound_inputs(tmp_path: Path, monkeypatch, fault: str, blocker: str) -> None:
+    module, validators, contract, candidate, _, _ = _story_9_1_facts(tmp_path, monkeypatch, fault)
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_9_1_facts(tmp_path, candidate, contract, validators["record"])
+    assert [item["code"] for item in failure.value.findings] == [blocker]
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))

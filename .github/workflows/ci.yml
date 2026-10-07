@@ -168,7 +168,8 @@ jobs:
           set -euo pipefail
           mkdir -p TestResults/conformance
           assembly="tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll"
-          # These classes assert the retired authority and mandatory final-record policy.
+          # These classes assert the retired authority and mandatory final-record policy,
+          # or compare the live tree with the Story 9.1 freeze (retired 2026-10-07).
           # Keep them in Git for historical reproduction, outside current CI.
           dotnet "$assembly" \
             -class- "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest" \
@@ -178,6 +179,7 @@ jobs:
             -class- "Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest" \
             -class- "Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest" \
             -class- "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest" \
             -method- "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently" \
             -method- "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.CurrentControlsAndTierPrerequisiteShouldStayTruthful" \
             -method- "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap" \

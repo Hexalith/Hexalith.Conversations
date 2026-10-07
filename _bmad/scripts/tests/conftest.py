@@ -20,6 +20,7 @@ Directory collection leaves them out, so they are not reported as skipped tests.
 
 collect_ignore = [
     "test_check_lifecycle_gate_preflight.py",
+    "test_conformance_tiering.py",  # Story 9.1 freeze evidence, retired by owner decision 2026-10-07; still runs when named explicitly.
     "test_generate_preservation_traceability_manifest.py",
     "test_publish_story_7_1_committed_candidate_test_correction.py",
     "test_publish_story_7_1_entry_authority.py",

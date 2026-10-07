@@ -85,7 +85,7 @@ def _mirror_working_tree(source: Path, target: Path) -> None:
         if origin.is_file():
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(origin, destination)
-        elif destination.exists():
+        elif destination.is_symlink() or destination.is_file():
             destination.unlink()
 
 
@@ -334,8 +334,16 @@ def test_inventory_reconciles_source_discovery_results_and_helpers(tiering_repos
 
 
 def test_committed_bundle_is_the_deterministic_derivation(tiering_repository: Path) -> None:
-    first = module.generate(tiering_repository, module.CONTRACT_PATH, module.DECISION_PATH)
-    second = module.generate(tiering_repository, module.CONTRACT_PATH, module.DECISION_PATH)
+    committed = json.loads((tiering_repository / module.OUTPUT_PATHS[1]).read_bytes())
+
+    def rendered() -> tuple[bytes, bytes, bytes]:
+        derivation = module.derive(tiering_repository, module.CONTRACT_PATH, module.DECISION_PATH,
+                                   pre_split=_pre_split(tiering_repository, committed))
+        assert derivation.findings.items == []
+        return module.render(derivation.document)
+
+    first = rendered()
+    second = rendered()
     assert first == second
     assert first == tuple((tiering_repository / path).read_bytes() for path in module.OUTPUT_PATHS)
     document = json.loads(first[1])
@@ -373,6 +381,12 @@ def test_exact_generator_command_is_deterministic_from_a_capture(tiering_reposit
     _synthetic_capture(repository, document)
     assert _cli(repository, "--repository", ".", "--propose-approvals").returncode == 0
     digest = json.loads((repository / module.APPROVALS_PATH).read_bytes())["proposal"]["membershipSha256"]
+    wrong = _cli(repository, "--repository", ".", "--record-approval", "--approver", "Someone",
+                 "--approval-id", "WRONG", "--approved-on", "2026-10-06",
+                 "--approved-membership-sha256", "0" * 64, "--approval-evidence", "wrong digest")
+    assert wrong.returncode == 1
+    assert re.findall(r"^FAIL: ([A-Z_]+):", wrong.stderr, re.M) == ["TIER_APPROVAL_MISSING"]
+    assert json.loads((repository / module.APPROVALS_PATH).read_bytes())["decision"] is None
     assert _cli(repository, "--repository", ".", "--record-approval", "--approver", "SYNTHETIC-FIXTURE",
                 "--approval-id", "SYNTHETIC-FIXTURE-NOT-AN-APPROVAL", "--approved-on", "2026-10-06",
                 "--approved-membership-sha256", digest, "--approval-evidence", "disposable test clone only").returncode == 0
@@ -397,11 +411,6 @@ def test_generation_and_recording_require_the_genuine_digest(tiering_repository:
         document["status"] = "pending-quality-owner-approval"
         approvals.write_text(json.dumps(document, indent=2) + "\n")
         assert _verify(tiering_repository) == (1, ["TIER_APPROVAL_MISSING"])
-        wrong = _cli(tiering_repository, "--repository", ".", "--record-approval", "--approver", "Someone",
-                     "--approval-id", "WRONG", "--approved-on", "2026-10-06",
-                     "--approved-membership-sha256", "0" * 64, "--approval-evidence", "wrong digest")
-        assert wrong.returncode == 1 and "TIER_APPROVAL_MISSING" in wrong.stderr
-        assert json.loads(approvals.read_bytes())["decision"] is None
     finally:
         approvals.write_bytes(original)
     assert tuple((tiering_repository / path).read_bytes() for path in module.OUTPUT_PATHS) == outputs

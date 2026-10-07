@@ -48,12 +48,11 @@ import hashlib
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from importlib import util as importlib_util
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable, NamedTuple
@@ -1331,6 +1330,10 @@ def run_logged(command: list[str], cwd: Path, log: Path, environment: dict[str, 
 def capture(root: Path, freeze_revision: str, workdir: Path | None) -> dict[str, Any]:
     """Freeze the pre-split execution in an isolated clone; write only artifacts/v9/9.1/pre-split."""
     freeze = git(root, "rev-parse", "--verify", f"{freeze_revision}^{{commit}}").decode().strip()
+    output = root / CAPTURE_DIR
+    if output.exists():
+        raise TieringError("TIERING_CAPTURE_FAILED",
+                           f"a digest-bound capture already exists and is never replaced: {CAPTURE_DIR}")
     base = workdir or Path(tempfile.mkdtemp(prefix="hexalith-9.1-pre-split-",
                                             dir="/var/tmp" if Path("/var/tmp").is_dir() else None))
     clone = base / "conversations"
@@ -1360,9 +1363,6 @@ def capture(root: Path, freeze_revision: str, workdir: Path | None) -> dict[str,
         raise TieringError("TIERING_CAPTURE_FAILED", "the isolated clone is not clean after checkout")
     workflow = git(clone, "show", f"{freeze}:{CI_WORKFLOW_PATH}")
     lane = ci_lane(workflow)
-    output = root / CAPTURE_DIR
-    if output.exists():
-        shutil.rmtree(output)
     (output / "assemblies").mkdir(parents=True)
     pins = ["-nr:false", "-p:UseSharedCompilation=false"]
     build_command = [*lane["buildCommand"], *pins]
@@ -1376,7 +1376,7 @@ def capture(root: Path, freeze_revision: str, workdir: Path | None) -> dict[str,
     if RECORD.dotnet_source_revisions(binary) != [freeze]:
         raise TieringError("TIERING_CAPTURE_FAILED", "the built assembly is not stamped with the freeze commit")
     discovery_command = ["dotnet", TEST_ASSEMBLY, "-list", "full/json", "-noLogo", "-noColor"]
-    discovery_exit, discovery = run_logged(discovery_command, clone, output / "discovery.log")
+    discovery_exit, discovery = run_logged(discovery_command, clone, output / "discovery.log", {"CI": "true"})
     if discovery_exit != 0:
         raise TieringError("TIERING_CAPTURE_FAILED", f"test discovery exited {discovery_exit}")
     (output / "discovery.json").write_bytes(discovery)
@@ -1388,7 +1388,7 @@ def capture(root: Path, freeze_revision: str, workdir: Path | None) -> dict[str,
         run_command.extend(["-method-", item])
     run_command.extend(["-parallelMode", "none", "-result-trx", result_relative, "-noLogo"])
     (clone / "TestResults/conformance").mkdir(parents=True, exist_ok=True)
-    run_exit, _ = run_logged(run_command, clone, output / "run.log")
+    run_exit, _ = run_logged(run_command, clone, output / "run.log", {"CI": "true"})
     trx = (clone / result_relative).read_bytes()
     (output / "conformance.trx").write_bytes(trx)
     writes = []
@@ -2608,6 +2608,17 @@ def propose(root: Path, contract_path: str, decision_path: str) -> str:
     return derivation.membership_sha256
 
 
+def iso_date(value: str | None) -> bool:
+    """Whether a value is an ASCII YYYY-MM-DD calendar date."""
+    if not value or not value.isascii() or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        return False
+    try:
+        date.fromisoformat(value)
+    except ValueError:
+        return False
+    return True
+
+
 def record_approval(root: Path, contract_path: str, decision_path: str, arguments: argparse.Namespace) -> str:
     approvals = parse_json_bytes(read_file(root, APPROVALS_PATH), "TIER_APPROVAL_MISSING", "the approvals file")
     derivation = derive(root, contract_path, decision_path, require_approval=False)
@@ -2618,8 +2629,7 @@ def record_approval(root: Path, contract_path: str, decision_path: str, argument
         raise TieringError("TIER_APPROVAL_MISSING", "an owner decision is already recorded; propose again to replace it")
     values = {"approver": arguments.approver, "approvalId": arguments.approval_id,
               "approvedOn": arguments.approved_on, "evidence": arguments.approval_evidence}
-    if any(not value or not value.strip() for value in values.values()) or \
-            not re.fullmatch(r"\d{4}-\d{2}-\d{2}", arguments.approved_on or ""):
+    if any(not value or not value.strip() for value in values.values()) or not iso_date(arguments.approved_on):
         raise TieringError("TIER_APPROVAL_MISSING", "approver, approval id, ISO date, and evidence are required")
     approvals["status"] = "approved"
     approvals["decision"] = {"state": "approved", "role": OWNER_ROLE,
