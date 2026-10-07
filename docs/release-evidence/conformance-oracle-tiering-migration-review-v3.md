@@ -1,19 +1,19 @@
 # Story 9.2 migration: Quality review packet
 
-**Decision pending.** This packet describes the concrete proposal prepared under the user’s “do recommended” approach decision and refreshed after the user requested “update to latest eventstore”. It records no Quality approval.
+**Approved on 2026-10-07.** The user replied “I authorize and approve” to this concrete Quality packet and the independent candidate-scope packet. The [actual Quality decision](conformance-oracle-tiering-migration-approval-v3.json) records approver `user` and binds the proposal, all 14 successor rows, and public drift below. Fresh committed-candidate acceptance and final publication remain required.
 
 - Proposal SHA-256: `5ea111cbb12a196ba79231bccfeadf239109e50002a40ca0b942ea9568e79217`
 - Public-drift SHA-256: `3357725bc7ebc039baca0bf928718f03f2ae037dbd130e37704bd3315480d2d1`
 - Authoritative proposal: [conformance-oracle-tiering-migration-v3.json](conformance-oracle-tiering-migration-v3.json).
-- Working-tree baseline: `51aa06b856bcb0aaf22013153cfe02a51b046156`. Final acceptance requires a committed, approved candidate and fresh receipts.
+- Original story baseline: `51aa06b856bcb0aaf22013153cfe02a51b046156`. Final acceptance requires a compatible committed candidate, a genuine Quality decision, and fresh receipts.
 
-The shared catalog now selects the latest listed stable EventStore family, `3.115.0`. The update changes only `portableSurface` in the pending proposal; assertion rows, both strength inventories, and the public-drift digest remain identical. The previous pending proposal (`f59dce5e7642c7ef588dcb0f3e4f7fe045598ee613c9638b3198a5e57f331eef`) and review packet are retained under [the update receipts](../../artifacts/v9/9.2/eventstore-update/). No approved migration or historical evidence was rewritten.
+The shared catalog now selects EventStore family `3.115.0`. The update changed only `portableSurface` before approval; assertion rows, both strength inventories, and the public-drift digest remained identical. The previous pending proposal (`f59dce5e7642c7ef588dcb0f3e4f7fe045598ee613c9638b3198a5e57f331eef`) and review packet are retained under [the update receipts](../../artifacts/v9/9.2/eventstore-update/). No approved migration or historical evidence was rewritten.
 
-## Recommended decision
+## Approved decision
 
-Approve the 14 successor assertion rows and the exact pre-existing public-surface drift below. The split keeps the historical definitions and exclusions, preserves the 415 active case identities, and counts the three live controls separately. The current-surface guards continue to compare exact expectations; the snapshot round-trip uses a temporary file.
+The decision approves the 14 successor assertion rows and the exact pre-existing public-surface drift below. The split keeps the historical definitions and exclusions, preserves the 415 active case identities, and counts the three live controls separately. The current-surface guards continue to compare exact expectations; the snapshot round-trip uses a temporary file.
 
-The original strength hashes and signed evidence remain retained. Changed hashes are evidence of changed guard behavior; matching assertion counts alone does not establish equal semantic strength. The owner should assess the three guard changes below before approving their digests.
+The original strength hashes and signed evidence remain retained. Changed hashes are evidence of changed guard behavior; matching assertion counts alone does not establish equal semantic strength. The recorded decision covers the three guard changes and their exact successor digests below.
 
 ## Guard behavior to review
 
@@ -64,7 +64,7 @@ Added type identities:
 - `Hexalith.Conversations.Contracts.Events.MessageDeleted`
 - `Hexalith.Conversations.Contracts.Events.MessageEdited`
 
-## Measured verification
+## Pre-approval measured verification
 
 | Check | Observed result |
 | --- | --- |
@@ -77,11 +77,19 @@ Added type identities:
 | Generator tooling | 62 focused Story 9.1/9.2 tests pass, including positive derivation, malformed/stale inputs, approval, schema, historical pairs, and inserted-record drift. |
 | Shared catalog and audit | Catalog, authority, and exception checks pass; 115 audit-generator scenarios pass. The deterministic audit validates 304 packages; all 145 other family decisions and 291 other package rows are unchanged. |
 
-Fresh Release build and tier-execution receipts for EventStore `3.115.0` are under `artifacts/v9/9.2/eventstore-update/`; the earlier Debug, fault, and generator receipts remain under `artifacts/v9/9.2/`. The fresh verifier observes all 415 retained cases and three live controls, with only `TIER_APPROVAL_MISSING` failing. These are provisional working-tree measurements. No accepted Story 9.2 final record has been published; formal AC04/07/08/10 remain pending the Quality decision, compatible candidate scope, and candidate rerun.
+Release build and tier-execution receipts for EventStore `3.115.0` are under `artifacts/v9/9.2/eventstore-update/`; the earlier Debug, fault, and generator receipts remain under `artifacts/v9/9.2/`. That verifier observed all 415 retained cases and three live controls, with only `TIER_APPROVAL_MISSING` failing. These provisional measurements predate the actual decisions now recorded. No accepted Story 9.2 final record has been published; all effective acceptance scenarios must pass again at the committed implementation candidate.
+
+### Pre-approval committed checkout verification
+
+The 2026-10-07 verification at committed checkout `d54cba773290b555e1939e9d943ae84548e5eba3` reproduces the exact proposal and row bindings above. Both separate Debug and Release builds pass with zero warnings/errors; Debug and Release dependency/declaration controls pass. Both Release assemblies carry this full candidate identity. Fresh portable execution passes 326/326 and internal execution passes 91/92, with only the Quality inventory control failing. All 415 retained cases pass across 401 active methods; all three live controls execute; zero cases are skipped or omitted. The [current verifier receipt](../../artifacts/v9/9.2/current-candidate/AC-9.2-08.json) reports `TIER_APPROVAL_MISSING`.
+
+The 22 structural/execution faults pass with exact blockers and byte-identical restoration; their exported properties bind this candidate and the measured source digest. The focused Story 9.1/9.2 final-record tooling checks pass 62/62 and the source-model checks pass 11/11. A broader source-model selector also attempted historical Story 9.1 freeze generation against the split checkout: five tests fail with `CONFORMANCE_ASSERTION_UNKNOWN`. That retired reproduction lane and its [failed receipt](../../artifacts/v9/9.2/current-candidate/source-model-tests-broad.log) are preserved; current acceptance and historical expectations are unchanged. [Command receipts](../../artifacts/v9/9.2/current-candidate/verification-receipts.json) record the exact executed commands; only artifact destinations differ from the effective acceptance commands to retain earlier receipts.
+
+Before authorization, the final-record API independently rejected seven already landed root gitlink changes with `AUTHORITY_BINDING_INVALID`. The [scope decision packet](../../artifacts/v9/9.2/current-candidate/candidate-scope-review-v2.md) binds their exact before/after identities and five owning promotion commits. The user authorized its exact proposal `a5c12ba32a82338ce8bcb791f8b64355e5a820d7433145e0648d107441bc3d20`, now embedded unchanged in the [closed environment amendment](../../_bmad-output/planning-artifacts/v9/story-9.2-candidate-environment-amendment-v1.json). Story 9.2 validation hash-pins that amendment, preserves the original baseline, and measures the seven gitlinks plus every owning promotion commit/parent/diff. Every extra promotion, even if reverted, and every unrelated protected-path change remain forbidden. This environment authorization and the separately recorded Quality approval supply the two actual decisions; they do not claim fresh acceptance, a published final pair, or completion.
 
 ## Exact changed-row bindings
 
-Every identity below retains its original before-strength hash in the authoritative proposal. The decision must bind all row digests in this order.
+Every identity below retains its original before-strength hash in the authoritative proposal. The recorded decision binds all row digests in this order.
 
 | Assertion identity | Assertion sites before → after | Row SHA-256 |
 | --- | --- | --- |
@@ -100,8 +108,8 @@ Every identity below retains its original before-strength hash in the authoritat
 | `Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedSnapshotShouldExistAndDeclareItsAssemblyAndTypeCount` | 5 → 5 | `9a96174beab84496b95d7f0471371a713892bd4e740123e260b15562b680de8a` |
 | `Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedSnapshotTypeCountShouldMatchTheLiveExportedContractSurface` | 2 → 2 | `6fc850af46b626a9a1f9663504a3a991bf794fd7022249189f0569963cffca18` |
 
-## Recording an actual decision
+## Recorded decisions and remaining acceptance
 
-The Quality owner’s approval must name the proposal SHA-256 above and cover every changed row plus the public-drift SHA-256. Record the actual approver, date, decision ID, and evidence in the separate `conformance-oracle-tiering-migration-approval-v3.json` file using the runbook’s closed decision format. An approach decision or a synthetic test fixture does not authorize that record.
+The [Quality approval](conformance-oracle-tiering-migration-approval-v3.json) records the actual user decision in the runbook’s closed format and covers the proposal SHA-256 above, every changed row, and the public-drift SHA-256. The [environment authorization](../../_bmad-output/planning-artifacts/v9/story-9.2-candidate-environment-amendment-v1.json) independently accepts exactly the reviewed seven existing gitlinks and five owning promotions. Both retain the original baseline; neither waives the acceptance gates. Approach decisions and synthetic fixtures remain insufficient approval evidence.
 
 After approval: commit the implementation candidate, rerun its effective acceptance scenarios, generate the final pair twice, verify insertion, and complete the story lifecycle. Preserve the original baseline and all historical evidence.

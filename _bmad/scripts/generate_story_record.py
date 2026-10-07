@@ -2855,6 +2855,10 @@ V2_9_2_AMENDMENT_PATH = "_bmad-output/planning-artifacts/v9/story-9.2-execution-
 V2_9_2_AMENDMENT_SHA256 = "921bf66838c6121ffd57421804192c108b02b5d0c71bd4063e3cb5664d399951"
 V2_9_2_SPEC_PATH = "_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md"
 V2_9_2_BASELINE = "51aa06b856bcb0aaf22013153cfe02a51b046156"
+V2_9_2_ENVIRONMENT_PATH = "_bmad-output/planning-artifacts/v9/story-9.2-candidate-environment-amendment-v1.json"
+V2_9_2_ENVIRONMENT_SHA256 = "ae7175a058a5a2a9006d715a96481f25b9a748e1c918a32d111ab0b92c15607a"
+V2_9_2_ENVIRONMENT_PROPOSAL_SHA256 = "a5c12ba32a82338ce8bcb791f8b64355e5a820d7433145e0648d107441bc3d20"
+V2_9_2_ENVIRONMENT_CANDIDATE = "d54cba773290b555e1939e9d943ae84548e5eba3"
 V2_9_2_VERIFIER_PATH = "_bmad/scripts/verify_conformance_tiering.py"
 V2_9_2_RESULT_PATH = "artifacts/v9/9.2/AC-9.2-08.json"
 V2_9_2_FAULT_RESULT_PATH = "artifacts/v9/9.2/AC-9.2-09.xml"
@@ -4463,6 +4467,20 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
         lines.extend(f"| {code(name)} | {code(digest)} |" for name, digest in tiering['inventories'].items())
         lines.extend(["", "Fault fixtures use explicitly synthetic approval, execution, and assembly bytes. "
                       "Their measured blockers and restoration bind candidate source inputs; passing acceptance comes from the two tier results above."])
+        environment = tiering["candidateEnvironment"]
+        lines.extend(["", "### Authorized candidate environment", "",
+                      f"- Amendment SHA-256: {code(environment['amendment']['sha256'])}",
+                      f"- Authorized environment proposal SHA-256: {code(environment['proposalSha256'])}",
+                      f"- Original measured environment candidate: {code(environment['measuredCandidateCommit'])}",
+                      "", "| Root gitlink | Before commit | After commit | Before / after mode |",
+                      "| --- | --- | --- | --- |"])
+        lines.extend("| " + " | ".join(code(value) for value in (
+            row["path"], row["beforeCommit"], row["afterCommit"], row["beforeMode"] + " / " + row["afterMode"])) + " |"
+                     for row in environment["gitlinks"])
+        lines.extend(["", "| Owning promotion commit | Parent | Changed gitlinks |", "| --- | --- | --- |"])
+        lines.extend("| " + " | ".join(code(value) for value in (
+            row["commit"], row["parent"], ", ".join(link["path"] for link in row["changedGitlinks"]))) + " |"
+                     for row in environment["promotionCommits"])
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
     if faults and record["storyId"] in ("7.4", "8.2", "9.1", "9.2"):
@@ -6963,6 +6981,89 @@ def v2_9_2_amendment(repository: Path, candidate: str, contract: dict[str, Any])
     return effective
 
 
+def v2_9_2_environment(repository: Path, candidate: str, validator: Any) -> tuple[dict[str, Any], set[str]]:
+    """Measure only the authorized environment and every owning promotion from root Git.
+
+    The returned touched paths include intermediate commits, so reverting an
+    extra promotion or protected-path change cannot conceal it in the net diff.
+    No submodule is initialized, updated, or read.
+    """
+    def stop(message: str) -> NoReturn:
+        raise V2Stop([v2_finding("AUTHORITY_BINDING_INVALID", V2_9_2_ENVIRONMENT_PATH, message)], "9.2")
+
+    try:
+        content, _ = v2_9_2_receipt(repository, V2_9_2_ENVIRONMENT_PATH)
+        amendment = v2_parse_json(content)
+    except (V2Stop, ValueError, UnicodeError):
+        stop("the authorized candidate-environment amendment is missing or malformed")
+    if (v2_sha256(content) != V2_9_2_ENVIRONMENT_SHA256
+            or v2_committed_blob(repository, candidate, V2_9_2_ENVIRONMENT_PATH) != content):
+        stop("the committed candidate-environment amendment differs from the authorized digest")
+    if (set(amendment) != {"schemaVersion", "storyId", "status", "authorization", "proposal"}
+            or amendment["schemaVersion"] != "hexalith.conversations.story-9.2-candidate-environment-amendment.v1"
+            or amendment["storyId"] != "9.2" or amendment["status"] != "authorized"
+            or set(amendment["authorization"]) != {"actor", "authorizedOn", "statement", "evidence"}
+            or amendment["authorization"]["actor"] != "user"
+            or amendment["authorization"]["statement"] != "I authorize and approve"):
+        stop("the closed amendment must record the actual Story 9.2 authorization")
+    proposal = amendment["proposal"]
+    material = {key: value for key, value in proposal.items() if key != "proposalSha256"}
+    canonical = json.dumps(material, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    if (proposal["schemaVersion"] != "hexalith.conversations.story-9.2-candidate-environment-amendment-proposal.v1"
+            or proposal["storyId"] != "9.2" or proposal["baselineCommit"] != V2_9_2_BASELINE
+            or proposal["measuredCandidateCommit"] != V2_9_2_ENVIRONMENT_CANDIDATE
+            or proposal["proposalSha256"] != V2_9_2_ENVIRONMENT_PROPOSAL_SHA256
+            or v2_sha256(canonical) != V2_9_2_ENVIRONMENT_PROPOSAL_SHA256):
+        stop("the embedded proposal must reproduce the authorized digest and original baseline")
+    measured_candidate = proposal["measuredCandidateCommit"]
+    if (try_resolve_commit(repository, measured_candidate) != measured_candidate
+            or not is_ancestor(repository, V2_9_2_BASELINE, measured_candidate)
+            or not is_ancestor(repository, measured_candidate, candidate)):
+        stop("the measured environment must descend from the original baseline and precede SC-9.2")
+
+    def gitlink_rows(records: Sequence[tuple[str, str, str, str, str, str]]) -> list[dict[str, str]]:
+        return sorted(({"path": path, "beforeCommit": before, "afterCommit": after,
+                        "beforeMode": before_mode, "afterMode": after_mode, "status": status}
+                       for before_mode, after_mode, before, after, status, path in records
+                       if "160000" in (before_mode, after_mode)), key=lambda row: row["path"])
+
+    accepted = proposal["acceptedEnvironmentGitlinks"]
+    roots = root_submodule_paths(repository, V2_9_2_BASELINE)
+    if (roots != root_submodule_paths(repository, measured_candidate)
+            or roots != root_submodule_paths(repository, candidate)
+            or any(row["path"] not in roots or row["beforeMode"] != "160000"
+                   or row["afterMode"] != "160000" or row["status"] != "M" for row in accepted)):
+        stop("the amendment accepts only the exact existing mode-160000 root gitlinks")
+    for revision in (measured_candidate, candidate):
+        if (gitlink_rows(raw_diff_records(repository, V2_9_2_BASELINE, revision)) != accepted
+                or [path for path, _ in v2_raw_gitlinks(repository, revision)] != roots):
+            stop("the measured before/after root gitlinks differ from the authorized seven-row environment")
+
+    observed_promotions = []
+    touched: set[str] = set()
+    revisions = decode(run_git(repository, "rev-list", "--reverse", f"{V2_9_2_BASELINE}..{candidate}").stdout).split()
+    for revision in revisions:
+        parents = decode(run_git(repository, "rev-list", "--parents", "-n", "1", revision).stdout).split()
+        for parent in parents[1:]:
+            records = raw_diff_records(repository, parent, revision)
+            touched.update(committed_path_status(repository, parent, revision))
+            changed = gitlink_rows(records)
+            if changed:
+                if len(parents) != 2:
+                    stop("an environment promotion must have its exact single owning parent")
+                observed_promotions.append({"commit": revision, "parent": parent, "changedGitlinks": changed})
+    if observed_promotions != proposal["promotionCommits"]:
+        stop("the owning promotion commits, parents, or diffs differ; additional promotions require new authorization")
+    facts = {"amendment": {"path": V2_9_2_ENVIRONMENT_PATH, "sha256": v2_sha256(content)},
+             "proposalSha256": proposal["proposalSha256"], "measuredCandidateCommit": measured_candidate,
+             "gitlinks": gitlink_rows(raw_diff_records(repository, V2_9_2_BASELINE, candidate)),
+             "promotionCommits": observed_promotions}
+    environment_validator = validator.evolve(schema={"$defs": validator.schema["$defs"], "$ref": "#/$defs/candidateEnvironment"})
+    if v2_schema_errors(environment_validator, facts):
+        stop("the measured candidate-environment binding is not a closed valid record")
+    return facts, touched
+
+
 def v2_9_2_command(tokens: list[str]) -> dict[str, Any] | None:
     """Normalize only this amendment's xUnit v4 options for the existing successor reader."""
     if tokens[:1] != ["dotnet"] or len(tokens) < 2 or not tokens[1].endswith(".dll"):
@@ -7058,7 +7159,8 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
     baseline = frontmatter_scalar(parse_frontmatter(spec.decode("utf-8")), "baseline_commit") if spec else None
     if baseline != V2_9_2_BASELINE or not is_ancestor(repository, baseline, candidate):
         stop("BASELINE_NOT_TRUSTWORTHY", V2_9_2_SPEC_PATH, "the original Story 9.2 baseline must be preserved")
-    allowed = {V2_9_2_SPEC_PATH, V2_7_2_SPRINT_PATH, V2_9_2_AMENDMENT_PATH, V2_9_2_VERIFIER_PATH,
+    environment, touched = v2_9_2_environment(repository, candidate, validator)
+    allowed = {V2_9_2_SPEC_PATH, V2_7_2_SPRINT_PATH, V2_9_2_AMENDMENT_PATH, V2_9_2_ENVIRONMENT_PATH, V2_9_2_VERIFIER_PATH,
                V2_GENERATOR_PATH, "_bmad/scripts/tests/test_conformance_tiering.py", "_bmad/scripts/tests/test_generate_story_record.py",
                "_bmad/schemas/story-final-record-v2.schema.json", "docs/runbooks/story-final-record-generation.md",
                ".github/workflows/ci.yml", "Hexalith.Conversations.slnx", ".gitattributes", ".gitignore",
@@ -7067,10 +7169,11 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
                module.PROJECTS["module-internal"],
                "tests/Hexalith.Conversations.Conformance.Tests/ConformanceTierAssemblyInventory.cs",
                *(module.AUTHORIZED_SUCCESSOR_FILES)}
-    changed = set(committed_path_status(repository, baseline, candidate))
+    allowed.update(row["path"] for row in environment["gitlinks"])
+    changed = set(committed_path_status(repository, baseline, candidate)) | touched
     forbidden = sorted(path for path in changed if path not in allowed and not path.startswith((
         "tests/Hexalith.Conversations.Conformance.Portable.Tests/", "tests/Hexalith.Conversations.Conformance.Tests/Story92/")))
-    if forbidden or changed_gitlinks(repository, baseline, candidate):
+    if forbidden:
         stop("AUTHORITY_BINDING_INVALID", "candidate scope", "Story 9.2 changes protected paths: " + v2_path_summary(forbidden))
     # Both acceptance results must come from the original story candidate. Synthetic
     # fixture PASS never supplies these assemblies or the acceptance result.
@@ -7097,6 +7200,7 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
     protected = frozen["supersedes"]["v1Artifacts"] + frozen["supersedes"]["tieringLineage"] + [frozen["publicContract"]["reviewedClientBaseline"]]
     return {"bindingRule": V2_9_2_BINDING_RULE, "sourceRevisionId": candidate, "baselineCommit": baseline,
             "contract": module.bound(repository, V2_9_2_CONTRACT_PATH), "executionAmendment": module.bound(repository, V2_9_2_AMENDMENT_PATH),
+            "candidateEnvironment": environment,
             "predecessorRecord": {"storyId": "9.1", "path": predecessor_path, "sha256": predecessor_digest},
             "predecessorCandidate": prior_candidate, "beforeDisposition": module.bound(repository, module.DISPOSITION),
             "preSplitResult": module.bound(repository, amendment["preSplitMachineResult"]["path"]),

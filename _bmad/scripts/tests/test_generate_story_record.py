@@ -8803,6 +8803,7 @@ def _story_9_2_record(module, verifier) -> dict:
                     counts={"total": 92, "executed": 92, "passed": 92, "failed": 0, "skipped": 0})
     facts = {"bindingRule": module.V2_9_2_BINDING_RULE, "sourceRevisionId": candidate,
              "baselineCommit": module.V2_9_2_BASELINE, "contract": binding, "executionAmendment": binding,
+             "candidateEnvironment": _story_9_2_environment_binding(module),
              "predecessorRecord": {"storyId": "9.1", **binding}, "predecessorCandidate": "a" * 40,
              "beforeDisposition": binding, "preSplitResult": binding, "migration": binding,
              "proposalSha256": "c" * 64, "approval": binding,
@@ -8828,6 +8829,181 @@ def _story_9_2_record(module, verifier) -> dict:
     return record
 
 
+def _story_9_2_environment_binding(module) -> dict:
+    """Authorized environment material for parser fixtures, without an acceptance claim."""
+    proposal = json.loads((WORKSPACE / module.V2_9_2_ENVIRONMENT_PATH).read_bytes())["proposal"]
+    return {"amendment": {"path": module.V2_9_2_ENVIRONMENT_PATH, "sha256": module.V2_9_2_ENVIRONMENT_SHA256},
+            "proposalSha256": proposal["proposalSha256"], "measuredCandidateCommit": proposal["measuredCandidateCommit"],
+            "gitlinks": proposal["acceptedEnvironmentGitlinks"], "promotionCommits": proposal["promotionCommits"]}
+
+
+def _story_9_2_environment_git_fixture(root: Path, module):
+    """Read actual root history through shared objects; write only disposable Git objects.
+
+    The single commit message was validated with the owning pinned commitlint
+    CLI before introduction. No checkout or submodule operation is required.
+    """
+    root.mkdir(parents=True, exist_ok=True)
+    v2_git(root, "init", "-q")
+    objects = Path(v2_git(WORKSPACE, "rev-parse", "--git-path", "objects").stdout.strip())
+    if not objects.is_absolute():
+        objects = WORKSPACE / objects
+    info = root / ".git/objects/info"
+    info.mkdir(parents=True, exist_ok=True)
+    (info / "alternates").write_text(str(objects.resolve()) + "\n", encoding="utf-8")
+    v2_git(root, "read-tree", module.V2_9_2_ENVIRONMENT_CANDIDATE)
+    amendment = root / module.V2_9_2_ENVIRONMENT_PATH
+    amendment.parent.mkdir(parents=True, exist_ok=True)
+    amendment.write_bytes((WORKSPACE / module.V2_9_2_ENVIRONMENT_PATH).read_bytes())
+    _story_9_2_environment_stage(root, module.V2_9_2_ENVIRONMENT_PATH)
+    candidate = _story_9_2_environment_commit(root, module.V2_9_2_ENVIRONMENT_CANDIDATE)
+    return amendment, candidate
+
+
+def _story_9_2_environment_stage(root: Path, path: str):
+    blob = v2_git(root, "hash-object", "-w", path).stdout.strip()
+    v2_git(root, "update-index", "--add", "--cacheinfo", f"100644,{blob},{path}")
+
+
+def _story_9_2_environment_commit(root: Path, parent: str) -> str:
+    tree = v2_git(root, "write-tree").stdout.strip()
+    return v2_git(root, "commit-tree", tree, "-p", parent,
+                  "-m", "test: exercise story 9.2 environment bindings").stdout.strip()
+
+
+@pytest.mark.parametrize("mutation", [
+    None, "missing", "uncommitted", "malformed", "extra-field", "authorization", "story", "baseline", "candidate",
+    "proposal-digest", "missing-gitlink", "gitlink-before", "gitlink-after", "gitlink-mode", "gitlink-status",
+    "missing-promotion", "promotion-commit", "promotion-parent", "promotion-diff", "promotion-order",
+])
+def test_v2_story_9_2_environment_requires_exact_authorized_binding_and_restores_bytes(tmp_path: Path, mutation) -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    amendment, candidate = _story_9_2_environment_git_fixture(tmp_path, module)
+    before = amendment.read_bytes()
+    index = tmp_path / ".git/index"
+    before_index = index.read_bytes()
+    expected = _story_9_2_environment_binding(module)
+    baseline, touched = module.v2_9_2_environment(tmp_path, candidate, validators["record"])
+    assert baseline == expected and module.V2_9_2_ENVIRONMENT_PATH in touched
+    changed = json.loads(before)
+    proposal = changed["proposal"]
+    if mutation == "extra-field": changed["callerAuthored"] = True
+    elif mutation == "authorization": changed["authorization"]["statement"] = "not approved"
+    elif mutation == "story": changed["storyId"] = "9.1"
+    elif mutation == "baseline": proposal["baselineCommit"] = "b" * 40
+    elif mutation == "candidate": proposal["measuredCandidateCommit"] = "b" * 40
+    elif mutation == "proposal-digest": proposal["proposalSha256"] = "b" * 64
+    elif mutation == "missing-gitlink": proposal["acceptedEnvironmentGitlinks"].pop()
+    elif mutation == "gitlink-before": proposal["acceptedEnvironmentGitlinks"][0]["beforeCommit"] = "b" * 40
+    elif mutation == "gitlink-after": proposal["acceptedEnvironmentGitlinks"][0]["afterCommit"] = "b" * 40
+    elif mutation == "gitlink-mode": proposal["acceptedEnvironmentGitlinks"][0]["afterMode"] = "100644"
+    elif mutation == "gitlink-status": proposal["acceptedEnvironmentGitlinks"][0]["status"] = "A"
+    elif mutation == "missing-promotion": proposal["promotionCommits"].pop()
+    elif mutation == "promotion-commit": proposal["promotionCommits"][0]["commit"] = "b" * 40
+    elif mutation == "promotion-parent": proposal["promotionCommits"][0]["parent"] = "b" * 40
+    elif mutation == "promotion-diff": proposal["promotionCommits"][0]["changedGitlinks"].pop()
+    elif mutation == "promotion-order": proposal["promotionCommits"].reverse()
+    try:
+        if mutation == "missing": amendment.unlink()
+        elif mutation == "uncommitted":
+            v2_git(tmp_path, "update-index", "--force-remove", module.V2_9_2_ENVIRONMENT_PATH)
+            candidate = _story_9_2_environment_commit(tmp_path, candidate)
+        elif mutation:
+            amendment.write_bytes(b"not-json" if mutation == "malformed" else json.dumps(changed).encode())
+            _story_9_2_environment_stage(tmp_path, module.V2_9_2_ENVIRONMENT_PATH)
+            candidate = _story_9_2_environment_commit(tmp_path, candidate)
+        if mutation:
+            with pytest.raises(module.V2Stop) as failure:
+                module.v2_9_2_environment(tmp_path, candidate, validators["record"])
+            assert [row["code"] for row in failure.value.findings] == ["AUTHORITY_BINDING_INVALID"]
+        else:
+            assert module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0] == expected
+    finally:
+        amendment.write_bytes(before)
+        index.write_bytes(before_index)
+    assert amendment.read_bytes() == before and index.read_bytes() == before_index
+    restored_candidate = _story_9_2_environment_commit(tmp_path, module.V2_9_2_ENVIRONMENT_CANDIDATE)
+    assert module.v2_9_2_environment(tmp_path, restored_candidate, validators["record"])[0] == expected
+
+
+@pytest.mark.parametrize("mutation", [
+    "additional-promotion", "reverted-promotion", "undeclared-gitlink", "unapproved-root", "removed-gitlink", "blob-mode",
+])
+def test_v2_story_9_2_environment_rejects_actual_unapproved_git_history_and_restores_bytes(tmp_path: Path, mutation) -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    amendment, candidate = _story_9_2_environment_git_fixture(tmp_path, module)
+    index = tmp_path / ".git/index"
+    before_index, before_amendment = index.read_bytes(), amendment.read_bytes()
+    baseline = module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0]
+    path = "references/Hexalith.Builds"
+    if mutation == "undeclared-gitlink": path = "references/Hexalith.Unapproved"
+    elif mutation == "unapproved-root": path = "references/Hexalith.AI.Tools"
+    blob_fixture = tmp_path / "mode-fixture.txt"
+    try:
+        if mutation == "removed-gitlink": v2_git(tmp_path, "update-index", "--force-remove", path)
+        elif mutation == "blob-mode":
+            blob_fixture.write_bytes(b"SYNTHETIC-FIXTURE: not a gitlink\n")
+            blob = v2_git(tmp_path, "hash-object", "-w", str(blob_fixture)).stdout.strip()
+            v2_git(tmp_path, "update-index", "--cacheinfo", f"100644,{blob},{path}")
+        else:
+            v2_git(tmp_path, "update-index", "--add", "--cacheinfo", f"160000,{'b' * 40},{path}")
+        changed_candidate = _story_9_2_environment_commit(tmp_path, candidate)
+        if mutation == "reverted-promotion":
+            index.write_bytes(before_index)
+            changed_candidate = _story_9_2_environment_commit(tmp_path, changed_candidate)
+            assert module.changed_gitlinks(tmp_path, module.V2_9_2_BASELINE, changed_candidate) == sorted(row["path"] for row in baseline["gitlinks"])
+        with pytest.raises(module.V2Stop) as failure:
+            module.v2_9_2_environment(tmp_path, changed_candidate, validators["record"])
+        assert [row["code"] for row in failure.value.findings] == ["AUTHORITY_BINDING_INVALID"]
+    finally:
+        index.write_bytes(before_index)
+        if blob_fixture.exists(): blob_fixture.unlink()
+    assert amendment.read_bytes() == before_amendment and index.read_bytes() == before_index
+    assert module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0] == baseline
+
+
+def test_v2_story_9_2_environment_requires_measured_candidate_ancestry(tmp_path: Path) -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    amendment, candidate = _story_9_2_environment_git_fixture(tmp_path, module)
+    before, before_index = amendment.read_bytes(), (tmp_path / ".git/index").read_bytes()
+    sibling = _story_9_2_environment_commit(tmp_path, module.V2_9_2_BASELINE)
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_9_2_environment(tmp_path, sibling, validators["record"])
+    assert [row["code"] for row in failure.value.findings] == ["AUTHORITY_BINDING_INVALID"]
+    assert amendment.read_bytes() == before and (tmp_path / ".git/index").read_bytes() == before_index
+    assert module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0] == _story_9_2_environment_binding(module)
+
+
+@pytest.mark.parametrize("path", ["src/ProductChange.cs", "Directory.Packages.props", "docs/release-evidence/story-9.1-final-record-v2.json"])
+def test_v2_story_9_2_environment_preserves_reverted_protected_path_history(tmp_path: Path, path: str) -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    amendment, candidate = _story_9_2_environment_git_fixture(tmp_path, module)
+    index = tmp_path / ".git/index"
+    before_index, before_amendment = index.read_bytes(), amendment.read_bytes()
+    temporary = tmp_path / "mutation-fixture.txt"
+    try:
+        temporary.write_bytes(b"SYNTHETIC-FIXTURE: unauthorized protected-path mutation\n")
+        blob = v2_git(tmp_path, "hash-object", "-w", str(temporary)).stdout.strip()
+        v2_git(tmp_path, "update-index", "--add", "--cacheinfo", f"100644,{blob},{path}")
+        mutated = _story_9_2_environment_commit(tmp_path, candidate)
+        index.write_bytes(before_index)
+        reverted = _story_9_2_environment_commit(tmp_path, mutated)
+        assert module.committed_path_status(tmp_path, candidate, reverted) == {}
+        # Environment facts still match, but the owning scope gate receives the
+        # intermediate protected path and rejects it in the API tests below.
+        environment, touched = module.v2_9_2_environment(tmp_path, reverted, validators["record"])
+        assert environment == _story_9_2_environment_binding(module) and path in touched
+    finally:
+        index.write_bytes(before_index)
+        if temporary.exists(): temporary.unlink()
+    assert amendment.read_bytes() == before_amendment and index.read_bytes() == before_index
+    assert module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0] == _story_9_2_environment_binding(module)
+
+
 def test_v2_story_9_2_closed_schema_determinism_and_preserved_historical_pairs() -> None:
     module, verifier = _story_9_2_module()
     _, validators = module.v2_load_schemas()
@@ -8838,7 +9014,9 @@ def test_v2_story_9_2_closed_schema_determinism_and_preserved_historical_pairs()
     assert module.v2_verify_pair(content, markdown) == []
     assert "## Story 9.2 conformance execution" in markdown.decode()
     assert "415 / 415" in markdown.decode() and "synthetic approval" in markdown.decode()
-    for mutation in ("binding-missing", "foreign-binding", "fault-missing", "fault-reordered", "execution-skipped", "execution-empty", "floor-regressed", "extra-field"):
+    for mutation in ("binding-missing", "foreign-binding", "fault-missing", "fault-reordered", "execution-skipped", "execution-empty", "floor-regressed", "extra-field",
+                     "environment-missing", "environment-digest", "environment-proposal", "environment-candidate",
+                     "environment-gitlink-missing", "environment-promotion-missing", "environment-gitlink-mode", "environment-extra-field"):
         changed = deepcopy(final)
         if mutation == "binding-missing": changed.pop("conformanceExecution")
         elif mutation == "foreign-binding": changed["conformanceTiering"] = {}
@@ -8848,9 +9026,20 @@ def test_v2_story_9_2_closed_schema_determinism_and_preserved_historical_pairs()
         elif mutation == "execution-empty": changed["conformanceExecution"]["execution"]["tiers"]["portable"]["counts"]["executed"] = 0
         elif mutation == "floor-regressed": changed["conformanceExecution"]["execution"]["afterExecutedCases"] = 414
         elif mutation == "extra-field": changed["conformanceExecution"]["callerAuthored"] = True
+        elif mutation == "environment-missing": changed["conformanceExecution"].pop("candidateEnvironment")
+        elif mutation == "environment-digest": changed["conformanceExecution"]["candidateEnvironment"]["amendment"]["sha256"] = "d" * 64
+        elif mutation == "environment-proposal": changed["conformanceExecution"]["candidateEnvironment"]["proposalSha256"] = "d" * 64
+        elif mutation == "environment-candidate": changed["conformanceExecution"]["candidateEnvironment"]["measuredCandidateCommit"] = "d" * 40
+        elif mutation == "environment-gitlink-missing": changed["conformanceExecution"]["candidateEnvironment"]["gitlinks"].pop()
+        elif mutation == "environment-promotion-missing": changed["conformanceExecution"]["candidateEnvironment"]["promotionCommits"].pop()
+        elif mutation == "environment-gitlink-mode": changed["conformanceExecution"]["candidateEnvironment"]["gitlinks"][0]["afterMode"] = "100644"
+        elif mutation == "environment-extra-field": changed["conformanceExecution"]["candidateEnvironment"]["callerAuthored"] = True
         assert not validators["record"].is_valid(changed), mutation
     for story in ("7.1", "7.2", "7.3", "7.4", "8.1", "8.2", "9.1"):
-        prior = json.loads((WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.json").read_bytes())
+        prior_bytes = (WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.json").read_bytes()
+        prior_markdown = (WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.md").read_bytes()
+        assert module.v2_verify_pair(prior_bytes, prior_markdown) == [], story
+        prior = json.loads(prior_bytes)
         validators["record"].validate(prior)
         prior["conformanceExecution"] = final["conformanceExecution"]
         assert not validators["record"].is_valid(prior)
@@ -8892,6 +9081,9 @@ def test_v2_story_9_2_retained_scenario_reading_executes_no_build_or_python(tmp_
     ("foreign-assembly", "TEST_RESULTS_STALE"), ("report-drift", "TEST_RESULTS_STALE"),
     ("approval-uncommitted", "TIER_APPROVAL_MISSING"), ("baseline-moved", "BASELINE_NOT_TRUSTWORTHY"),
     ("production-changed", "AUTHORITY_BINDING_INVALID"), ("gitlink-changed", "AUTHORITY_BINDING_INVALID"),
+    ("dependency-changed", "AUTHORITY_BINDING_INVALID"), ("protected-record-changed", "AUTHORITY_BINDING_INVALID"),
+    ("production-restored", "AUTHORITY_BINDING_INVALID"), ("dependency-restored", "AUTHORITY_BINDING_INVALID"),
+    ("protected-record-restored", "AUTHORITY_BINDING_INVALID"),
     ("predecessor-incompatible", "AUTHORITY_BINDING_INVALID"),
 ])
 def test_v2_story_9_2_facts_rederive_api_results_and_reject_unbound_acceptance(tmp_path: Path, monkeypatch, fault, blocker) -> None:
@@ -8935,9 +9127,17 @@ def test_v2_story_9_2_facts_rederive_api_results_and_reject_unbound_acceptance(t
     monkeypatch.setattr(module, "v2_9_2_verifier", lambda: verifier)
     monkeypatch.setattr(module, "v2_9_2_source_digest", lambda *_: "2" * 64)
     monkeypatch.setattr(module, "is_ancestor", lambda *_: fault != "predecessor-incompatible")
-    monkeypatch.setattr(module, "committed_path_status", lambda *_: {"src/ProductChange.cs": "M"} if fault == "production-changed" else {
+    forbidden_path = {"production-changed": "src/ProductChange.cs", "dependency-changed": "Directory.Packages.props",
+                      "protected-record-changed": "docs/release-evidence/story-9.1-final-record-v2.json"}.get(fault)
+    monkeypatch.setattr(module, "committed_path_status", lambda *_: {forbidden_path: "M"} if forbidden_path else {
         "docs/release-evidence/conformance-oracle-tiering-migration-review-v3.md": "A"})
-    monkeypatch.setattr(module, "changed_gitlinks", lambda *_: ["references/Hexalith.Builds"] if fault == "gitlink-changed" else [])
+    def environment(*_):
+        if fault == "gitlink-changed":
+            raise module.V2Stop([module.v2_finding("AUTHORITY_BINDING_INVALID", "fixture", "extra promotion")], "9.2")
+        restored_path = {"production-restored": "src/RestoredProduct.cs", "dependency-restored": "Directory.Packages.props",
+                         "protected-record-restored": "docs/release-evidence/story-9.1-final-record-v2.json"}.get(fault)
+        return _story_9_2_environment_binding(module), {restored_path} if restored_path else set()
+    monkeypatch.setattr(module, "v2_9_2_environment", environment)
     monkeypatch.setattr(verifier, "verify", lambda *_args, **_kwargs: report)
     monkeypatch.setattr(verifier, "inputs", lambda *_: (frozen, amendment))
     contract = json.loads(blobs[module.V2_9_2_CONTRACT_PATH])
@@ -8950,6 +9150,7 @@ def test_v2_story_9_2_facts_rederive_api_results_and_reject_unbound_acceptance(t
         assert measured["execution"] == report["execution"]
         assert measured["inventories"] == report["inventories"]
         assert measured["faultSourceInputsSha256"] == "2" * 64
+        assert measured["candidateEnvironment"] == _story_9_2_environment_binding(module)
         assert measured["predecessorRecord"]["sha256"] == module.v2_sha256(blobs[module.V2_9_2_PREDECESSOR[1]])
         validators["record"].evolve(schema={"$defs": validators["record"].schema["$defs"], "$ref": "#/$defs/conformanceExecution"}).validate(measured)
 

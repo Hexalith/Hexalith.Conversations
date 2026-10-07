@@ -1574,11 +1574,36 @@ successor evidence and a new genuine decision.
 After approval, commit the complete implementation candidate while the story
 stays `in-progress`. Preserve its original `baseline_commit`
 `51aa06b856bcb0aaf22013153cfe02a51b046156`. The generator rejects production,
-dependency, submodule, protected historical-record, and unrelated changes
+dependency, unapproved submodule, protected historical-record, and unrelated changes
 between that baseline and the candidate. Restore/build each tier in Release
 package mode, with each assembly stamped by the full candidate commit. Debug
 source-reference restores must be followed by a Release restore before running
 the amended `--no-restore` builds.
+
+Candidate scope and Quality approval are independent gates. The
+[scope decision packet](../../artifacts/v9/9.2/current-candidate/candidate-scope-review-v2.md)
+measures the seven existing root gitlink promotions at
+`d54cba773290b555e1939e9d943ae84548e5eba3`. On 2026-10-07 the user replied
+“I authorize and approve” to the concrete scope and independent Quality packets.
+The [authorized candidate-environment amendment](../../_bmad-output/planning-artifacts/v9/story-9.2-candidate-environment-amendment-v1.json)
+embeds proposal `a5c12ba32a82338ce8bcb791f8b64355e5a820d7433145e0648d107441bc3d20`
+unchanged. The Story 9.2 validator requires its exact committed file SHA-256
+`ae7175a058a5a2a9006d715a96481f25b9a748e1c918a32d111ab0b92c15607a`,
+recomputes the embedded proposal digest, and proves original-baseline and
+measured-environment ancestry from root Git. It measures the exact seven
+before/after mode-`160000` gitlinks and all five owning promotion commits,
+parents, and diffs. Missing or altered bindings and every additional promotion
+report `AUTHORITY_BINDING_INVALID`, including a promotion later reverted.
+Full-history touched paths also retain the protected-path gate when a source,
+dependency, or protected-record change is later reverted. No submodule is read
+or updated by this validation. This accepts only the reviewed existing environment;
+the original baseline and all assertion, public API, protected-record, execution,
+and fault gates remain required. The separate
+[Quality decision](../release-evidence/conformance-oracle-tiering-migration-approval-v3.json)
+binds migration `5ea111cbb12a196ba79231bccfeadf239109e50002a40ca0b942ea9568e79217`,
+all 14 reviewed successor rows, and the public-drift digest. The actual actor is
+recorded as `user`. Preserve provisional receipts separately until these decisions
+and their implemented bindings are committed and fresh acceptance passes.
 
 Run AC-9.2-01 through AC-9.2-09 from the amendment's `effectiveScenarios`, in
 order, at the same candidate. A rebuild after test execution invalidates the
@@ -1605,7 +1630,9 @@ python3 _bmad/scripts/generate_story_record.py --repository . \
 
 The Story 9.2-only closed `conformanceExecution` binding remeasures the verifier
 API and binds Story 9.1's accepted pair and candidate, frozen disposition,
-amendment, migration/approval, both project/assembly/result hashes,
+execution amendment, authorized environment amendment/proposal, original measured
+environment candidate and remeasured gitlinks/promotion chain, migration/approval,
+both project/assembly/result hashes,
 before/after identity and strength digests, case counts and controls,
 declaration/dependency/FR-20/public-drift digests, protected evidence, and
 candidate-bound fault receipts. The AC-08 JSON must equal fresh verification.

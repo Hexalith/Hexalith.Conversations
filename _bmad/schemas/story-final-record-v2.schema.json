@@ -4093,6 +4093,7 @@
         "baselineCommit",
         "contract",
         "executionAmendment",
+        "candidateEnvironment",
         "predecessorRecord",
         "predecessorCandidate",
         "beforeDisposition",
@@ -4314,6 +4315,128 @@
         },
         "faultSourceInputsSha256": {
           "$ref": "#/$defs/digest"
+        },
+        "candidateEnvironment": {
+          "$ref": "#/$defs/candidateEnvironment"
+        }
+      }
+    },
+    "candidateEnvironmentGitlink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "beforeCommit",
+        "afterCommit",
+        "beforeMode",
+        "afterMode",
+        "status"
+      ],
+      "properties": {
+        "path": {
+          "enum": [
+            "references/Hexalith.Builds",
+            "references/Hexalith.EventStore",
+            "references/Hexalith.Folders",
+            "references/Hexalith.Memories",
+            "references/Hexalith.Parties",
+            "references/Hexalith.Projects",
+            "references/Hexalith.Tenants"
+          ]
+        },
+        "beforeCommit": {
+          "$ref": "#/$defs/commit"
+        },
+        "afterCommit": {
+          "$ref": "#/$defs/commit"
+        },
+        "beforeMode": {
+          "const": "160000"
+        },
+        "afterMode": {
+          "const": "160000"
+        },
+        "status": {
+          "const": "M"
+        }
+      }
+    },
+    "candidateEnvironmentPromotion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "parent",
+        "changedGitlinks"
+      ],
+      "properties": {
+        "commit": {
+          "$ref": "#/$defs/commit"
+        },
+        "parent": {
+          "$ref": "#/$defs/commit"
+        },
+        "changedGitlinks": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/candidateEnvironmentGitlink"
+          }
+        }
+      }
+    },
+    "candidateEnvironment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "amendment",
+        "proposalSha256",
+        "measuredCandidateCommit",
+        "gitlinks",
+        "promotionCommits"
+      ],
+      "properties": {
+        "amendment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "_bmad-output/planning-artifacts/v9/story-9.2-candidate-environment-amendment-v1.json"
+            },
+            "sha256": {
+              "const": "ae7175a058a5a2a9006d715a96481f25b9a748e1c918a32d111ab0b92c15607a"
+            }
+          }
+        },
+        "proposalSha256": {
+          "const": "a5c12ba32a82338ce8bcb791f8b64355e5a820d7433145e0648d107441bc3d20"
+        },
+        "measuredCandidateCommit": {
+          "const": "d54cba773290b555e1939e9d943ae84548e5eba3"
+        },
+        "gitlinks": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/candidateEnvironmentGitlink"
+          }
+        },
+        "promotionCommits": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/candidateEnvironmentPromotion"
+          }
         }
       }
     }
