@@ -1,0 +1,699 @@
+{
+  "schemaVersion": "hexalith.conversations.story-final-record.v2",
+  "storyId": "9.1",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
+  },
+  "candidate": {
+    "commit": "c655b94ac70a6784b98be1df9461e50798ccbb88",
+    "gitlinks": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "commit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "commit": "ba4ca78c3868a4757cb92d912a54c8a237871b54",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "commit": "116d26815eb81e35b3c161e1799e5ee12805fc0a",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "commit": "283b07a52c9c70e1c940164a7011ee8c3ad98b2d",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "commit": "381a32304ed9aa2ce4e5f8f1b0bfa4016e082b27",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "commit": "c561b3210f15206a90c39c82c58f2e5b1005cd60",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "commit": "0a63ff9d6d5075ac298dcb7266ddb7e82085880e",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "commit": "b3794a4dcbe2fff3e9ea5c420a3c4695e2d1a8ca",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "commit": "eda6ce4c8603dc2616732df5ade675eee082e23f",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "commit": "5a519cd73018067d9b444dd777034dc91f9bd4b2",
+        "mode": "160000"
+      }
+    ]
+  },
+  "predecessors": [
+    "7.4"
+  ],
+  "inventory": {
+    "id": "V9-9.1-ENTRY-v1",
+    "sha256": "31e18fed38706bbb44e5a8059ff3ea30f00400708902694af697954b889bcdf1"
+  },
+  "scenarios": [
+    {
+      "scenarioId": "AC-9.1-01",
+      "command": "python3 _bmad/scripts/generate_conformance_tiering.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.1.json --decision docs/release-evidence/conformance-oracle-tiering-decision-v2.json --output-schema docs/release-evidence/conformance-oracle-tiering-disposition-v2.schema.json --output-json docs/release-evidence/conformance-oracle-tiering-disposition-v2.json --output-markdown docs/release-evidence/conformance-oracle-tiering-disposition-v2.md",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "docs/release-evidence/conformance-oracle-tiering-disposition-v2.json",
+        "sha256": "7d1b3acc1e223d054de42e11fba0780cc38d37e1aeac1d009a3b9fe40ca7e0bd"
+      },
+      "outputFiles": [
+        {
+          "path": "docs/release-evidence/conformance-oracle-tiering-disposition-v2.schema.json",
+          "sha256": "c74af9cbd5a5224504105939e8aa608ae93a18803bc0d3ef19e818691e03a22a"
+        },
+        {
+          "path": "docs/release-evidence/conformance-oracle-tiering-disposition-v2.json",
+          "sha256": "7d1b3acc1e223d054de42e11fba0780cc38d37e1aeac1d009a3b9fe40ca7e0bd"
+        },
+        {
+          "path": "docs/release-evidence/conformance-oracle-tiering-disposition-v2.md",
+          "sha256": "9c97b98103f78ba4b229050f2abcfacad31f81e4f11b86a75ac9a3d485a2e7bd"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-9.1-01#0001",
+          "subject": "schema::closed-v2",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-01#0002",
+          "subject": "inventory::pre-split-identities-once",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-01#0003",
+          "subject": "strength::canonical-triple-digests",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-01#0004",
+          "subject": "tiers::exact-public-replacement-or-internal-type",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-01#0005",
+          "subject": "approvals::quality-owner-digest",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-01#0006",
+          "subject": "denominator::fr20-membership-unchanged",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-01#0007",
+          "subject": "public::freeze-surface-unchanged",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-01#0008",
+          "subject": "supersession::v1-protected-and-linked",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-01#0009",
+          "subject": "markdown::digest",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-01#0010",
+          "subject": "predecessor::7.4",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-9.1-02",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.AssertionInventoryShouldMatchPreSplitResultAndSource -trx artifacts/v9/9.1/AC-9.1-02.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/9.1/AC-9.1-02.trx",
+        "sha256": "5174c33de1a52dc2314da449d2b04103ff220dc7c3bc1c79af2140b6ce519325"
+      },
+      "outputFiles": [
+        {
+          "path": "artifacts/v9/9.1/AC-9.1-02.trx",
+          "sha256": "5174c33de1a52dc2314da449d2b04103ff220dc7c3bc1c79af2140b6ce519325"
+        },
+        {
+          "path": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll",
+          "sha256": "c2ad8d8044cf5eb9144181bc393a721dd8f35022804e9dd353a1edb6033f5789"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-9.1-02#0001",
+          "subject": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.AssertionInventoryShouldMatchPreSplitResultAndSource",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-9.1-03",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ServerBoundAssertionsShouldHaveExactDisposition -trx artifacts/v9/9.1/AC-9.1-03.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/9.1/AC-9.1-03.trx",
+        "sha256": "97c267cd681c953183c97ca2f6cb2160a51f4ba8c21c85555ad9ea987c5d0f45"
+      },
+      "outputFiles": [
+        {
+          "path": "artifacts/v9/9.1/AC-9.1-03.trx",
+          "sha256": "97c267cd681c953183c97ca2f6cb2160a51f4ba8c21c85555ad9ea987c5d0f45"
+        },
+        {
+          "path": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll",
+          "sha256": "c2ad8d8044cf5eb9144181bc393a721dd8f35022804e9dd353a1edb6033f5789"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-9.1-03#0001",
+          "subject": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ServerBoundAssertionsShouldHaveExactDisposition",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-9.1-04",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.StrengthDigestsShouldRemainEqual -trx artifacts/v9/9.1/AC-9.1-04.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/9.1/AC-9.1-04.trx",
+        "sha256": "87155a09b4a8666a9cb3da8d377c9c31185954746c39b7745fbeeed5558a0e6e"
+      },
+      "outputFiles": [
+        {
+          "path": "artifacts/v9/9.1/AC-9.1-04.trx",
+          "sha256": "87155a09b4a8666a9cb3da8d377c9c31185954746c39b7745fbeeed5558a0e6e"
+        },
+        {
+          "path": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll",
+          "sha256": "c2ad8d8044cf5eb9144181bc393a721dd8f35022804e9dd353a1edb6033f5789"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-9.1-04#0001",
+          "subject": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.StrengthDigestsShouldRemainEqual",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-9.1-05",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.DenominatorSuitesShouldRemainUnchanged -trx artifacts/v9/9.1/AC-9.1-05.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/9.1/AC-9.1-05.trx",
+        "sha256": "264a8db0d823392a3d0da6c9f6fa7b115c9396765b632a94af28b8c943617ea2"
+      },
+      "outputFiles": [
+        {
+          "path": "artifacts/v9/9.1/AC-9.1-05.trx",
+          "sha256": "264a8db0d823392a3d0da6c9f6fa7b115c9396765b632a94af28b8c943617ea2"
+        },
+        {
+          "path": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll",
+          "sha256": "c2ad8d8044cf5eb9144181bc393a721dd8f35022804e9dd353a1edb6033f5789"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-9.1-05#0001",
+          "subject": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.DenominatorSuitesShouldRemainUnchanged",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-9.1-06",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ReclassificationsShouldBindApprovals -trx artifacts/v9/9.1/AC-9.1-06.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/9.1/AC-9.1-06.trx",
+        "sha256": "94795247c50b4f16fc9df1fbaa810a0b59567f8602e6fa933dda1445824cdc90"
+      },
+      "outputFiles": [
+        {
+          "path": "artifacts/v9/9.1/AC-9.1-06.trx",
+          "sha256": "94795247c50b4f16fc9df1fbaa810a0b59567f8602e6fa933dda1445824cdc90"
+        },
+        {
+          "path": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll",
+          "sha256": "c2ad8d8044cf5eb9144181bc393a721dd8f35022804e9dd353a1edb6033f5789"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-9.1-06#0001",
+          "subject": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ReclassificationsShouldBindApprovals",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-9.1-07",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.TieringShouldNotWidenPublicContracts -trx artifacts/v9/9.1/AC-9.1-07.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/9.1/AC-9.1-07.trx",
+        "sha256": "0a4d8440644ba0530c6c3cb3f69985c2d78000f1fe8d68d3ab87143ff9a61b7e"
+      },
+      "outputFiles": [
+        {
+          "path": "artifacts/v9/9.1/AC-9.1-07.trx",
+          "sha256": "0a4d8440644ba0530c6c3cb3f69985c2d78000f1fe8d68d3ab87143ff9a61b7e"
+        },
+        {
+          "path": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll",
+          "sha256": "c2ad8d8044cf5eb9144181bc393a721dd8f35022804e9dd353a1edb6033f5789"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-9.1-07#0001",
+          "subject": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.TieringShouldNotWidenPublicContracts",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-9.1-08",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.V2ShouldSupersedeWithoutEditingV1 -trx artifacts/v9/9.1/AC-9.1-08.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/9.1/AC-9.1-08.trx",
+        "sha256": "42fadbca946afe9967223fcae6d25e9d392381c222859dff3fae17196382ba6c"
+      },
+      "outputFiles": [
+        {
+          "path": "artifacts/v9/9.1/AC-9.1-08.trx",
+          "sha256": "42fadbca946afe9967223fcae6d25e9d392381c222859dff3fae17196382ba6c"
+        },
+        {
+          "path": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll",
+          "sha256": "c2ad8d8044cf5eb9144181bc393a721dd8f35022804e9dd353a1edb6033f5789"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-9.1-08#0001",
+          "subject": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.V2ShouldSupersedeWithoutEditingV1",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-9.1-09",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.1.json --format bundle --output-json docs/release-evidence/story-9.1-final-record-v2.json --output-markdown docs/release-evidence/story-9.1-final-record-v2.md",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-9.1-09#0001",
+          "subject": "generator::contract-schema-and-identity",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0002",
+          "subject": "generator::authority-bundle-digest-recomputed",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0003",
+          "subject": "generator::raw-gitlinks-equal-root-gitmodules",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0004",
+          "subject": "generator::committed-candidate-worktree-clean",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0005",
+          "subject": "generator::predecessor-scenarios-pass-with-ledgers",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0006",
+          "subject": "generator::declared-output-paths",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0007",
+          "subject": "generator::record-schema-valid",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0008",
+          "subject": "generator::deterministic-rendering",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0009",
+          "subject": "generator::json-markdown-digest-cross-binding",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0010",
+          "subject": "generator::tiering-disposition-reproduced-and-verified-read-only",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0011",
+          "subject": "generator::story-7.4-predecessor-pair-verified",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0012",
+          "subject": "generator::retained-pre-split-capture-receipt-bound",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0013",
+          "subject": "generator::assertion-and-strength-inventories-bound",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0014",
+          "subject": "generator::quality-owner-approval-digest-bound",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0015",
+          "subject": "generator::all-ten-tiering-fault-categories-measured",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0016",
+          "subject": "generator::all-ten-fixtures-restored-byte-identically",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0017",
+          "subject": "generator::seven-exact-xunit-selectors-passed",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-9.1-09#0018",
+          "subject": "generator::candidate-stamped-nonempty-results",
+          "state": "PASS"
+        }
+      ]
+    }
+  ],
+  "faultInjection": {
+    "results": [
+      {
+        "afterSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "candidateCommit": "c655b94ac70a6784b98be1df9461e50798ccbb88",
+        "expectedBlocker": "CONFORMANCE_ASSERTION_MISSING",
+        "id": "assertion-missing",
+        "mutatedSha256": "a0bf4ce70673693887c39cad8c7fc471c83fa4b3925c67ca0278e87091a87dad",
+        "observedBlockers": [
+          "CONFORMANCE_ASSERTION_MISSING"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "candidateCommit": "c655b94ac70a6784b98be1df9461e50798ccbb88",
+        "expectedBlocker": "CONFORMANCE_ASSERTION_DUPLICATE",
+        "id": "assertion-duplicate",
+        "mutatedSha256": "3e787599b235084e205e40122ecaa86171aa141096a7b0e1ab8c1915850f8daf",
+        "observedBlockers": [
+          "CONFORMANCE_ASSERTION_DUPLICATE"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "candidateCommit": "c655b94ac70a6784b98be1df9461e50798ccbb88",
+        "expectedBlocker": "CONFORMANCE_ASSERTION_RENAMED",
+        "id": "assertion-renamed",
+        "mutatedSha256": "5a3acacb76d068a6b6e0491f3de78fd049c8b3db4343a6f51bbe67e8f84e4415",
+        "observedBlockers": [
+          "CONFORMANCE_ASSERTION_RENAMED"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "candidateCommit": "c655b94ac70a6784b98be1df9461e50798ccbb88",
+        "expectedBlocker": "ASSERTION_STRENGTH_WEAKENED",
+        "id": "strength-weakened",
+        "mutatedSha256": "d4e4f1f30024381bae1117e986d2819a977ae6071ba661064563a3f04a8bc025",
+        "observedBlockers": [
+          "ASSERTION_STRENGTH_WEAKENED"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "candidateCommit": "c655b94ac70a6784b98be1df9461e50798ccbb88",
+        "expectedBlocker": "TIER_UNASSIGNED",
+        "id": "tier-unassigned",
+        "mutatedSha256": "e3a0255cadf39c29f02ac81570eb586a2be3dad15d20b4bb2a80af5e8848439e",
+        "observedBlockers": [
+          "TIER_UNASSIGNED"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "candidateCommit": "c655b94ac70a6784b98be1df9461e50798ccbb88",
+        "expectedBlocker": "TIER_REASON_MISSING",
+        "id": "tier-reason-missing",
+        "mutatedSha256": "0d91ec522ed4bb3bace7cf97bc4433c59cab6be6d2369dec24f6ac39d6066006",
+        "observedBlockers": [
+          "TIER_REASON_MISSING"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "candidateCommit": "c655b94ac70a6784b98be1df9461e50798ccbb88",
+        "expectedBlocker": "TIER_APPROVAL_MISSING",
+        "id": "approval-missing",
+        "mutatedSha256": "a8515671d9da1d1f9f7222b9af91336e74107296610e31360bec2d6ff5b35278",
+        "observedBlockers": [
+          "TIER_APPROVAL_MISSING"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "candidateCommit": "c655b94ac70a6784b98be1df9461e50798ccbb88",
+        "expectedBlocker": "FR20_DENOMINATOR_DRIFT",
+        "id": "denominator-drift",
+        "mutatedSha256": "2e445049ca48184c71cf1277d23554814e4e9fbf27a65f2f71cee78c2c2bc61c",
+        "observedBlockers": [
+          "FR20_DENOMINATOR_DRIFT"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "candidateCommit": "c655b94ac70a6784b98be1df9461e50798ccbb88",
+        "expectedBlocker": "PUBLIC_CONTRACT_WIDENED",
+        "id": "public-widened",
+        "mutatedSha256": "232888909a42f01eef4ad05a751e93954e447f0e288d07f21c95580043a0b1ac",
+        "observedBlockers": [
+          "PUBLIC_CONTRACT_WIDENED"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "f59067958c173c5d04d032b550b07b2c4bae98e285378f9a1202e914acc66752",
+        "candidateCommit": "c655b94ac70a6784b98be1df9461e50798ccbb88",
+        "expectedBlocker": "V1_ARTIFACT_DRIFT",
+        "id": "v1-mutated",
+        "mutatedSha256": "9ce8a1a79653b53ccb858a2fc22f96cad449f58527c1155a2d61acdc2d68f967",
+        "observedBlockers": [
+          "V1_ARTIFACT_DRIFT"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      }
+    ]
+  },
+  "outputs": {
+    "json": {
+      "path": "docs/release-evidence/story-9.1-final-record-v2.json",
+      "sha256": "911e196207ebc3556f6105b071e6560d889559ce27ba23475e4ddb21e04ebdcc"
+    },
+    "markdown": {
+      "path": "docs/release-evidence/story-9.1-final-record-v2.md",
+      "sha256": "0e869d899ac4cab5a0f879e20cf3b20b5ca2b292e1a94fd4f614a676378e45fe"
+    }
+  },
+  "rollback": {
+    "boundary": "remove only Story 9.1 generator, new v2 disposition, fixtures/results, and final record; preserve v1 artifacts, public-contract baselines, existing tests, and Story 6.9 partial work."
+  },
+  "summary": {
+    "required": 9,
+    "passed": 9,
+    "failed": 0,
+    "blocked": 0,
+    "skipped": 0,
+    "notRun": 0
+  },
+  "renderedMarkdownSha256": "0e869d899ac4cab5a0f879e20cf3b20b5ca2b292e1a94fd4f614a676378e45fe",
+  "conformanceTiering": {
+    "bindingRule": "SC-9.1 is HEAD^{commit} at final-record generation",
+    "contract": {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/9.1.json",
+      "sha256": "7a395d8b868f6bd5313083c88fccd2ce04628b3da8bf3c62a00a2bcc40e705f8"
+    },
+    "predecessorRecord": {
+      "storyId": "7.4",
+      "path": "docs/release-evidence/story-7.4-final-record-v2.json",
+      "sha256": "1739a8daf93955fe31050b659151f1d45a8555ff58fe3a130b8a389c049d8290"
+    },
+    "predecessorCandidate": "ba1b47622ad8d72e0ea70f01e4e695e49413c1ee",
+    "decision": {
+      "path": "docs/release-evidence/conformance-oracle-tiering-decision-v2.json",
+      "sha256": "1fe609f0114d52622b01b5cbaa74df799c09690f33804921961cad7a725dbcd3"
+    },
+    "disposition": {
+      "schema": {
+        "path": "docs/release-evidence/conformance-oracle-tiering-disposition-v2.schema.json",
+        "sha256": "c74af9cbd5a5224504105939e8aa608ae93a18803bc0d3ef19e818691e03a22a"
+      },
+      "json": {
+        "path": "docs/release-evidence/conformance-oracle-tiering-disposition-v2.json",
+        "sha256": "7d1b3acc1e223d054de42e11fba0780cc38d37e1aeac1d009a3b9fe40ca7e0bd"
+      },
+      "markdown": {
+        "path": "docs/release-evidence/conformance-oracle-tiering-disposition-v2.md",
+        "sha256": "9c97b98103f78ba4b229050f2abcfacad31f81e4f11b86a75ac9a3d485a2e7bd"
+      }
+    },
+    "preSplitResult": {
+      "path": "artifacts/v9/9.1/pre-split/conformance.trx",
+      "sha256": "b2e23d8f5f3f57f95afbf331cbd535e9d670d4facfab3b43a3774930f06f9edd",
+      "receipt": {
+        "path": "artifacts/v9/9.1/pre-split/receipt.json",
+        "sha256": "b18e21126acea4c8b52e9b78a5b4579336ec7e3b8d2885992956b3c58240025d"
+      },
+      "sourceCommit": "611a835af50d66ff1860c1497c16a19713cd5042",
+      "discoveredMethods": 452,
+      "executedTestCases": 415
+    },
+    "assertionInventorySha256": "0dc9e3d73bcf571c288938c0a1757f7574be013f4607a3bfd41f2e6aaeb2e526",
+    "strengthInventorySha256": "15d9244b4fef1ca5f28766f05b6eefe820680234282462b7aa4793f94b4140fe",
+    "assertionCount": 452,
+    "validationAdditionCount": 7,
+    "tierCounts": {
+      "portable": 376,
+      "moduleInternal": 83
+    },
+    "approvals": {
+      "path": "docs/release-evidence/conformance-oracle-tiering-approvals-v2.json",
+      "sha256": "9259138a6edaa083dd5d1aea027274fe7e48b82154e0bce918c3608eae70e064",
+      "approvalId": "QO-9.1-TIERING-2026-10-07",
+      "approver": "Jerome Piquot",
+      "membershipSha256": "13c4e3ea0dffc562db0a6e0d7c7de62e9be766f35c431db16f6145984fe99c7d"
+    },
+    "inventorySha256": "31e18fed38706bbb44e5a8059ff3ea30f00400708902694af697954b889bcdf1",
+    "faultEvidence": {
+      "path": "artifacts/v9/9.1/faults.xml",
+      "sha256": "d26c8133b1c5e003a502ab6189c7a3baa32dfbc1683dc20ecd7823ba2cb0ac73"
+    },
+    "testAssembly": {
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll",
+      "sha256": "c2ad8d8044cf5eb9144181bc393a721dd8f35022804e9dd353a1edb6033f5789"
+    },
+    "sourceRevisionId": "c655b94ac70a6784b98be1df9461e50798ccbb88"
+  }
+}
