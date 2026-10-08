@@ -1,0 +1,169 @@
+{
+  "schemaVersion": "hexalith.conversations.package-refresh-environment.v1",
+  "baselineCommit": "8793d26306f91d2cfe00116dc0b8eec41ec8900f",
+  "candidateCommit": "680d31f6f577e77d0e2eb55af5eb7c9fb8e3d871",
+  "bindingKind": "committed-candidate",
+  "sourceBindings": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "mode": "100644",
+      "sha256": "a3e797dd1af943eb32cda4224e2aa82dc0b773c03dd8c9d27b2d0c3a9bf033a9"
+    },
+    {
+      "path": "Directory.Packages.props",
+      "mode": "100644",
+      "sha256": "ed0c1c2a11f3a0aa87ccf28a2e91cd6495533118c094a26b1b282a5fd747a1f1"
+    },
+    {
+      "path": "_bmad/schemas/package-refresh-environment-v1.schema.json",
+      "mode": "100644",
+      "sha256": "f6d2c5746318b52a177f1dede2445c5bb51077f1f892a303f6bc2d1348bf69b6"
+    },
+    {
+      "path": "_bmad/scripts/check_package_refresh_environment.py",
+      "mode": "100644",
+      "sha256": "5d3de9d8b6f0c29decf8a1c697cb7dffe35fe124841036a6974efc4b41fa3e9d"
+    },
+    {
+      "path": "_bmad/scripts/tests/test_check_package_refresh_environment.py",
+      "mode": "100644",
+      "sha256": "59d5d9b3a11bf0580278b232b4939bc26ef48567253d0ccca08575eb694025ab"
+    },
+    {
+      "path": "global.json",
+      "mode": "100644",
+      "sha256": "25b36d45123efa1d03786506dadad7546069f8563cddd4b509849b5c3631e9f5"
+    },
+    {
+      "path": "package-lock.json",
+      "mode": "100644",
+      "sha256": "928c2591dabfacc9ab7fc3d568e5cd79a72d726357363a48ddacc4c4e396f3b7"
+    },
+    {
+      "path": "package.json",
+      "mode": "100644",
+      "sha256": "f4daa6761aca55a451ed8d50c2f4f824cb72199322c50185fca2ff4ef8159123"
+    },
+    {
+      "path": "pyproject.toml",
+      "mode": "100644",
+      "sha256": "e7656f35531ca673b1e3bb68fabd878ca35ad3a7c24f2ff84cf809a3887ab724"
+    },
+    {
+      "path": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "mode": "100644",
+      "sha256": "11aedb0ea85809e27284405ffad0eaed519c42ad2344a570ad9abfc1f6af6cd0"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs",
+      "mode": "100644",
+      "sha256": "7541c65f3137b797a6ce52a620e965f901664d48db6f7ae142b5b94567b1451e"
+    },
+    {
+      "path": "uv.lock",
+      "mode": "100644",
+      "sha256": "23788fd096ff6158a4fd288cbe0f9a8dd29cc34e32f418e577a6e612ffa55ecb"
+    }
+  ],
+  "buildsCatalog": {
+    "path": "references/Hexalith.Builds",
+    "catalogPath": "Props/Directory.Packages.props",
+    "catalogSha256": "863a6db9f701dec49f4fc97a9abd31c6e7f1597b081b50218fefe7dd7ab7a69c",
+    "mode": "160000",
+    "recordedCommit": "a283481c69393dcba911db6a0edcb152167238cc",
+    "headCommit": "a283481c69393dcba911db6a0edcb152167238cc",
+    "clean": true,
+    "catalogCommitted": true,
+    "remoteAvailable": true
+  },
+  "packages": {
+    "npmDirect": {
+      "@commitlint/cli": "21.2.3",
+      "@commitlint/config-conventional": "21.2.3",
+      "@semantic-release/commit-analyzer": "13.0.1",
+      "@semantic-release/exec": "7.1.0",
+      "@semantic-release/github": "12.0.10",
+      "@semantic-release/release-notes-generator": "14.1.1",
+      "semantic-release": "25.0.9"
+    },
+    "pythonDirect": {
+      "jsonschema": "4.26.0",
+      "pytest": "9.1.1"
+    },
+    "pythonGraph": {
+      "attrs": "26.1.0",
+      "colorama": "0.4.6",
+      "hexalith-conversations-planning": "0.0.0",
+      "iniconfig": "2.3.1",
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "packaging": "26.3",
+      "pluggy": "1.6.0",
+      "pygments": "2.21.0",
+      "pytest": "9.1.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.9.1",
+      "typing-extensions": "4.16.0"
+    },
+    "catalogSelected": {
+      "HotChocolate": "16.6.8",
+      "Verify": "33.3.2",
+      "Verify.XunitV3": "33.3.2",
+      "Microsoft.Extensions.Http": "10.0.12",
+      "Microsoft.NET.Test.Sdk": "18.10.1",
+      "Microsoft.Extensions.Identity.Http": "10.0.9",
+      "Aspire.Hosting": "13.6.1",
+      "Aspire.Hosting.Testing": "13.6.1",
+      "CommunityToolkit.Aspire.Hosting.Dapr": "13.6.0-preview.1.261001-0243"
+    }
+  },
+  "toolchain": {
+    "dotnetSdk": "10.0.401",
+    "uv": "0.12.23",
+    "aspire": "13.6.1"
+  },
+  "immutableAuthorities": [
+    {
+      "path": "_bmad-output/planning-artifacts/v15-planning-tooling-environment-authority-v1.json",
+      "sha256": "bac4dc435bc200d2eb5b3601a794b20abe5afaa79dc51b79d4f9571a6f6a37ea"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v16-planning-tooling-lifecycle-authority-v1.json",
+      "sha256": "5b71e6fbf8851f790af92f0a0d056d7f7e04b3b9749c3a2f3f4ef5f87312d45a"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v18-package-environment-authority-v1.json",
+      "sha256": "24891d990b399fd9526f864c3e8be2b188db728a398f09d9129731d3169f1d94"
+    }
+  ],
+  "authorityEffect": {
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "result": "PASS",
+  "assertionLedger": [
+    {
+      "id": "REFRESH.DIRECT-LOCK-PARITY",
+      "state": "PASS"
+    },
+    {
+      "id": "REFRESH.TOOLCHAIN-ALIGNMENT",
+      "state": "PASS"
+    },
+    {
+      "id": "REFRESH.CATALOG-CHANNELS",
+      "state": "PASS"
+    },
+    {
+      "id": "REFRESH.IMMUTABLE-PREDECESSORS",
+      "state": "PASS"
+    },
+    {
+      "id": "REFRESH.EXACT-BYTE-INVENTORY",
+      "state": "PASS"
+    }
+  ],
+  "blockers": []
+}
