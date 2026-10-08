@@ -672,7 +672,7 @@ def structural_execution_repository(tmp_path_factory: pytest.TempPathFactory) ->
         for path in (target / "obj").rglob("*"):
             if path.is_file() and path.suffix in (".json", ".props", ".targets"):
                 path.write_bytes(path.read_bytes().replace(str(ROOT).encode(), str(repository).encode()))
-    proposal = story92.derive_migration(repository)
+    proposal = story92.derive_migration(repository, current_tree=True)
     _write_json(repository / story92.MIGRATION, proposal)
     approval = {"schemaVersion": "hexalith.conversations.conformance-oracle-tiering-migration-approval.v3",
                 "status": "approved", "role": "Quality owner", "approver": "SYNTHETIC-FIXTURE",
@@ -692,7 +692,7 @@ def _verify_story92(repository: Path) -> dict[str, Any]:
     # These private overrides apply only to the disposable negative fixture.
     # Ordinary verification rejects both synthetic identities and marker-only binaries.
     with patch.object(story92, "_genuine_approval_identity", return_value=True), patch.object(story92, "_execution_binary_is_managed", return_value=True):
-        return story92.verify(repository, portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx")
+        return story92.verify(repository, portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx", current_tree=True)
 
 
 def _story92_fault(repository: Path, fault_id: str) -> None:
@@ -830,3 +830,85 @@ def test_structural_and_execution_faults(structural_execution_repository: Path, 
         "restoredExitCode": restored["exitCode"], "restoredBlockers": restored["blockers"],
         "sourceInputsSha256": source_digest,
         "syntheticExecutionAndApprovalFixture": True}, sort_keys=True))
+
+
+@pytest.mark.parametrize("current_tree", [False, True])
+def test_current_tree_migration_allows_dependency_versions_only_in_live_mode(
+        structural_execution_repository: Path, current_tree: bool) -> None:
+    repository = structural_execution_repository
+    derived = json.loads((repository / story92.MIGRATION).read_bytes())
+    # A resolved version change is measured freshly and is not an assertion-strength change.
+    asset = next(row for row in derived["proposal"]["portableSurface"]["transitiveCompileAssets"]
+                 if row["library"].startswith("Hexalith.EventStore.Contracts/"))
+    asset["library"] = "Hexalith.EventStore.Contracts/3.117.2"
+    with patch.object(story92, "_genuine_approval_identity", return_value=True):
+        if current_tree:
+            assert story92.approved_migration(repository, derived, current_tree=True) == story92.bound(repository, story92.APPROVAL)
+        else:
+            with pytest.raises(story92.VerificationError) as failure:
+                story92.approved_migration(repository, derived)
+            assert failure.value.code == "ASSERTION_STRENGTH_WEAKENED"
+
+
+@pytest.mark.parametrize("mutation,blocker", [
+    ("successor-strength", "ASSERTION_STRENGTH_WEAKENED"),
+    ("approval-binding", "TIER_APPROVAL_MISSING"),
+    ("proposal-digest", "TIERING_INPUT_INVALID"),
+    ("control-strength", "ASSERTION_STRENGTH_WEAKENED"),
+    ("schema", "TIERING_INPUT_INVALID"),
+    ("status", "TIERING_INPUT_INVALID"),
+    ("approval-requirements", "TIERING_INPUT_INVALID"),
+])
+def test_current_tree_migration_keeps_exact_strength_and_approval_bindings(
+        structural_execution_repository: Path, mutation: str, blocker: str) -> None:
+    repository = structural_execution_repository
+    derived = json.loads((repository / story92.MIGRATION).read_bytes())
+    path = repository / (story92.APPROVAL if mutation == "approval-binding" else story92.MIGRATION)
+    original = path.read_bytes()
+    try:
+        if mutation == "successor-strength":
+            row = next(row for row in derived["proposal"]["assertions"]
+                       if row["sourcePath"] in story92.AUTHORIZED_SUCCESSOR_FILES)
+            row["strengthSha256"] = "0" * 64
+        elif mutation == "control-strength":
+            row = derived["proposal"]["liveControls"][0]
+            row["strengthSha256"] = "0" * 64
+            row["strengthMaterial"]["boundAssemblies"] = []
+        elif mutation in ("schema", "status", "approval-requirements"):
+            recorded = json.loads(original)
+            recorded[{"schema": "schemaVersion", "status": "status", "approval-requirements": "approvalRequired"}[mutation]] = "invalid"
+            _write_json(path, recorded)
+        elif mutation == "approval-binding":
+            approval = json.loads(original)
+            approval["binding"]["proposalSha256"] = "0" * 64
+            _write_json(path, approval)
+        else:
+            recorded = json.loads(original)
+            recorded["proposalSha256"] = "0" * 64
+            _write_json(path, recorded)
+        with patch.object(story92, "_genuine_approval_identity", return_value=True):
+            with pytest.raises(story92.VerificationError) as failure:
+                story92.approved_migration(repository, derived, current_tree=True)
+        assert failure.value.code == blocker
+    finally:
+        path.write_bytes(original)
+
+
+def test_current_tree_source_guard_preserves_historical_default() -> None:
+    with pytest.raises(story92.VerificationError) as failure:
+        story92.inputs(ROOT)
+    assert failure.value.code == "PUBLIC_CONTRACT_WIDENED"
+    assert story92.inputs(ROOT, current_tree=True)[0]["fr20Membership"]["v1Floor"]["testCount"] == 214
+
+
+def test_current_tree_declarations_require_regression_selection(monkeypatch: pytest.MonkeyPatch) -> None:
+    original_read = story92.read
+    def read_without_regressions(root: Path, path: str) -> bytes:
+        content = original_read(root, path)
+        return (content.replace(b'"structural_and_execution_faults or current_tree"', b'structural_and_execution_faults')
+                if path == story92.TIERING.CI_WORKFLOW_PATH else content)
+    monkeypatch.setattr(story92, "read", read_without_regressions)
+    assert story92.declarations(ROOT)
+    with pytest.raises(story92.VerificationError) as failure:
+        story92.declarations(ROOT, current_tree=True)
+    assert failure.value.code == "TIER_NOT_DECLARED"

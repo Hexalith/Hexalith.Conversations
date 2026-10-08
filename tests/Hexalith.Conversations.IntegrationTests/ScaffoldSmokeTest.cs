@@ -158,7 +158,8 @@ public sealed class ScaffoldSmokeTest
             root,
             "src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj",
             $"{commonsRoot}/src/libraries/Hexalith.Commons.Http/Hexalith.Commons.Http.csproj",
-            "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj");
+            "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
+            $"{eventStoreRoot}/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj");
         AssertProjectReferences(
             root,
             "src/Hexalith.Conversations/Hexalith.Conversations.csproj",

@@ -75,11 +75,23 @@ public static class ConversationsAppHostTopology
 
         IResourceBuilder<ProjectResource> conversationsServer = builder
             .AddProject<Projects.Hexalith_Conversations_Server>(ConversationsResourceName)
+            .WithEnvironment("DOTNET_ENVIRONMENT", builder.Environment.EnvironmentName)
             .WithHttpEndpoint();
         _ = conversationsServer.AddEventStoreDomainModule(eventStoreResources, ConversationsDaprAppId);
+        _ = eventStoreResources.EventStore.WithGeneratedEventStoreAppChannelToken();
+        _ = conversationsServer.WithGeneratedEventStoreAppChannelToken();
 
         if (security is not null)
         {
+            bool persistent = bool.TryParse(builder.Configuration[
+                HexalithEventStoreSecurityOptions.DefaultPersistentConfigurationKey]?.Trim(), out bool value) && value;
+            IResourceBuilder<ParameterResource> workloadSecret = builder.AddParameter(
+                "eventstore-workload-client-secret",
+                new GenerateParameterDefault { MinLength = 32, Lower = true, Upper = true, Numeric = true, Special = false },
+                secret: true,
+                persist: persistent);
+            _ = security.Keycloak.WithEnvironment("EVENTSTORE_WORKLOAD_CLIENT_SECRET", workloadSecret);
+            _ = eventStoreResources.EventStore.WithEventStoreWorkloadClientCredentials(EventStoreResourceName, workloadSecret);
             _ = eventStoreResources.EventStore.WithJwtBearerSecurity(security);
             _ = conversationsServer.WithJwtBearerSecurity(security);
         }

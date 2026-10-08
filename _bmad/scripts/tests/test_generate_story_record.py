@@ -8002,12 +8002,14 @@ def test_v2_story_8_2_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, mo
 
 
 def _story_8_2_binding_fixture(tmp_path: Path, monkeypatch):
-    """Use a root-only shared checkout and snapshot the current candidate input bytes."""
+    """Bind historical production scope to the accepted Story 8.2 candidate."""
     module = load_generator()
     repository = tmp_path / "story82"
-    subprocess.run(["git", "clone", "--shared", "--quiet", str(WORKSPACE), str(repository)],
+    subprocess.run(["git", "clone", "--shared", "--quiet", "--no-checkout", str(WORKSPACE), str(repository)],
                    check=True, env=fixture_git_environment(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    candidate = subprocess.check_output(["git", "-C", str(repository), "rev-parse", "HEAD"], text=True).strip()
+    candidate = json.loads(_story_8_2_published_pair()[0])["candidate"]["commit"]
+    subprocess.run(["git", "-C", str(repository), "checkout", "--quiet", "--detach", candidate],
+                   check=True, env=fixture_git_environment(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     paths = [module.V2_8_2_SPEC_PATH, "_bmad/scripts/generate_ux_preservation_disposition.py",
              "_bmad/scripts/tests/test_generate_ux_preservation_disposition.py",
              "tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs"]
@@ -9250,7 +9252,7 @@ def test_v2_story_9_2_facts_rederive_api_results_and_reject_unbound_acceptance(t
         return _story_9_2_environment_binding(module), {restored_path} if restored_path else set()
     monkeypatch.setattr(module, "v2_9_2_environment", environment)
     monkeypatch.setattr(verifier, "verify", lambda *_args, **_kwargs: report)
-    monkeypatch.setattr(verifier, "inputs", lambda *_: (frozen, amendment))
+    monkeypatch.setattr(verifier, "inputs", lambda *_args, **_kwargs: (frozen, amendment))
     contract = json.loads(blobs[module.V2_9_2_CONTRACT_PATH])
     if blocker:
         with pytest.raises(module.V2Stop) as failure:
@@ -9548,8 +9550,8 @@ def test_v2_story_9_2_facts_call_actual_verifier_with_both_tier_results(tmp_path
     monkeypatch.setattr(module, "is_ancestor", lambda *_: True)
     monkeypatch.setattr(module, "committed_path_status", lambda *_: {})
     monkeypatch.setattr(module, "v2_9_2_environment", lambda *_: (_story_9_2_environment_binding(module), set()))
-    monkeypatch.setattr(verifier, "inputs", lambda *_: (frozen, amendment))
-    monkeypatch.setattr(verifier, "declarations", lambda *_: declarations)
+    monkeypatch.setattr(verifier, "inputs", lambda *_args, **_kwargs: (frozen, amendment))
+    monkeypatch.setattr(verifier, "declarations", lambda *_args, **_kwargs: declarations)
     monkeypatch.setattr(verifier, "derive_migration", lambda *_args, **_kwargs: json.loads(blobs[verifier.MIGRATION]))
     monkeypatch.setattr(verifier, "_execution_binary_is_managed", lambda _: True)
     report = verifier.verify(tmp_path, portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx")

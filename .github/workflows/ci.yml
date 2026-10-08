@@ -214,6 +214,7 @@ jobs:
           uv run --frozen --no-sync python3 _bmad/scripts/verify_conformance_tiering.py
           --repository .
           --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json
+          --current-tree
           --portable-result TestResults/conformance/portable.trx
           --internal-result TestResults/conformance/internal.trx
           --output TestResults/conformance/tiering.json
@@ -221,7 +222,7 @@ jobs:
       - name: Prove structural and execution faults
         run: >-
           uv run --frozen --no-sync python3 -m pytest -q
-          _bmad/scripts/tests/test_conformance_tiering.py -k structural_and_execution_faults
+          _bmad/scripts/tests/test_conformance_tiering.py -k "structural_and_execution_faults or current_tree"
           --junitxml=TestResults/conformance/faults.xml
 
       - name: Upload conformance evidence

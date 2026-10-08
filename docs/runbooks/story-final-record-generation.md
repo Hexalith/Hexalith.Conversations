@@ -1520,6 +1520,29 @@ retained pre-split TRX for its monotonic-count proof.
 
 ### Story 9.2 structural tiers and complete execution
 
+Routine CI uses `--current-tree` to check the approved assertion identities, tiers,
+paths, exact successor strengths, FR-20 membership, live portability, and complete
+execution without regenerating historical migration evidence. Contracts sources
+remain frozen and reflection-tested. Domain implementation and resolved dependency
+versions may evolve; the retained proposal digest and exact Quality approval are
+still required. Historical final-record verification omits this flag and retains
+full source and migration equality. The flag cannot prepare a migration proposal.
+
+The verifier and final-record adapter report these stable blockers (exit `1`):
+
+| Code | Meaning |
+| --- | --- |
+| `PORTABLE_TIER_NONPORTABLE_REFERENCE` | A portable tier dependency crosses the shipped package boundary. |
+| `RESOLVED_COMPILE_SURFACE_INVALID` | The resolved compile graph cannot be established safely. |
+| `ASSERTION_INVENTORY_DRIFT` | Compiled assertion identities or source membership differ. |
+| `TIER_PROJECT_MISSING` | A required tier project is absent. |
+| `TIER_NOT_DECLARED` | Solution, CI, or completion declarations omit a tier. |
+| `TIER_EXECUTION_INCOMPLETE` | A tier result omits cases, controls, or managed binary evidence. |
+| `TIER_EXECUTION_FAILED` | A tier contains a failed case. |
+| `EXECUTED_COUNT_REGRESSION` | Execution falls below the retained case inventory or floor. |
+| `TIERING_INPUT_INVALID` | A bound tiering input is inconsistent or malformed. |
+| `TIERING_INPUT_MISSING` | A required tiering input is absent. |
+
 Story 9.2 retains the immutable `9.2.json` contract and uses
 `_bmad-output/planning-artifacts/v9/story-9.2-execution-amendment-v1.json`
 for its effective commands. The final-record route accepts only the reviewed

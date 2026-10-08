@@ -34,6 +34,7 @@ internal static class Story92TieringVerification
         start.ArgumentList.Add(".");
         start.ArgumentList.Add("--configuration");
         start.ArgumentList.Add(configuration);
+        start.ArgumentList.Add("--current-tree");
         start.ArgumentList.Add(mode);
         using Process process = Process.Start(start)!;
         Task<string> output = process.StandardOutput.ReadToEndAsync();

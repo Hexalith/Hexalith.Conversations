@@ -6,6 +6,8 @@ the actual compilation sets and resolved references. A separate migration propos
 retains every old strength and derives the successor; an absent digest-bound Quality
 decision is a blocker, never an implicit approval. Verification is read-only except
 for the explicitly requested output. --propose-migration writes review evidence.
+--current-tree checks routine CI against approved assertion semantics while allowing
+later domain implementation and resolved dependency versions to evolve.
 """
 
 from __future__ import annotations
@@ -243,7 +245,7 @@ def fault_source_digest(root: Path) -> str:
     return TIERING.sha256_bytes(TIERING.canonical_json([bound(root, path) for path in fault_source_paths(root)]))
 
 
-def declarations(root: Path) -> dict[str, Any]:
+def declarations(root: Path, *, current_tree: bool = False) -> dict[str, Any]:
     """Require exact projects once in solution, derived completion inventory, amendment, and CI."""
     for path in PROJECTS.values():
         require((root / path).is_file(), "TIER_PROJECT_MISSING", f"Tier project is missing: {path}")
@@ -289,14 +291,20 @@ def declarations(root: Path) -> dict[str, Any]:
                 expected += ["-method-", name]
         expected += ["-parallelMode", "none", "-result-trx", f"TestResults/conformance/{variable}.trx", "-noLogo"]
         require(commands.count(expected) == 1, "TIER_NOT_DECLARED", f"CI must invoke each exact tier once: {variable}")
-    require("verify_conformance_tiering.py" in workflow and "test_conformance_tiering.py -k structural_and_execution_faults" in workflow,
+    fault_command = shlex.split(run_body("Prove structural and execution faults"), comments=True)
+    selections = (("structural_and_execution_faults or current_tree",) if current_tree else
+                  ("structural_and_execution_faults", "structural_and_execution_faults or current_tree"))
+    require("verify_conformance_tiering.py" in workflow and len(fault_command) >= 11
+            and fault_command[:10] == ["uv", "run", "--frozen", "--no-sync", "python3", "-m", "pytest", "-q",
+                                      "_bmad/scripts/tests/test_conformance_tiering.py", "-k"]
+            and fault_command[10] in selections,
             "TIER_NOT_DECLARED", "CI must verify combined execution and measured faults.")
     return {"solution": bound(root, "Hexalith.Conversations.slnx"), "workflow": bound(root, TIERING.CI_WORKFLOW_PATH),
             "completionInventory": completion,
             "executionAmendment": bound(root, AMENDMENT)}
 
 
-def inputs(root: Path, contract_path: str = CONTRACT) -> tuple[dict[str, Any], dict[str, Any]]:
+def inputs(root: Path, contract_path: str = CONTRACT, *, current_tree: bool = False) -> tuple[dict[str, Any], dict[str, Any]]:
     require(contract_path == CONTRACT, "TIERING_INPUT_INVALID", "Use the immutable Story 9.2 contract.")
     amendment = document(root, AMENDMENT)
     require(amendment.get("frozenContract") == bound(root, CONTRACT), "TIERING_INPUT_INVALID", "The frozen contract binding changed.")
@@ -321,7 +329,14 @@ def inputs(root: Path, contract_path: str = CONTRACT) -> tuple[dict[str, Any], d
     protected = d["supersedes"]["v1Artifacts"] + d["supersedes"]["tieringLineage"] + [d["publicContract"]["reviewedClientBaseline"]]
     for row in protected:
         require(TIERING.sha256_bytes(read(root, row["path"])) == row["sha256"], "V1_ARTIFACT_DRIFT", f"Protected evidence changed: {row['path']}")
-    require(TIERING.surface(TIERING.WorkTree(root)) == d["publicContract"]["freezeSurface"]["projects"],
+    current_surface = TIERING.surface(TIERING.WorkTree(root))
+    frozen_surface = d["publicContract"]["freezeSurface"]["projects"]
+    if current_tree:
+        # Contracts remains source-bound as well as reflection-tested, so an unbuilt public
+        # addition cannot escape the measured fault lane. Domain implementation is free to evolve.
+        current_surface = [row for row in current_surface if row["path"] == "src/Hexalith.Conversations.Contracts"]
+        frozen_surface = [row for row in frozen_surface if row["path"] == "src/Hexalith.Conversations.Contracts"]
+    require(current_surface == frozen_surface,
             "PUBLIC_CONTRACT_WIDENED", "Public module sources differ from the retained Story 9.1 freeze.")
     require(d["fr20Membership"]["v1Floor"]["suiteCount"] == 14 and d["fr20Membership"]["v1Floor"]["testCount"] == 214,
             "FR20_DENOMINATOR_DRIFT", "The immutable FR-20 denominator changed.")
@@ -364,7 +379,7 @@ def _known_generated_metadata(root: Path, project: str, path: Path) -> bool:
             and not TIERING.assertion_sites(tokens, 0, len(tokens)))
 
 
-def source_inventory(root: Path, evaluated: dict[str, Any], frozen: dict[str, Any]) -> list[dict[str, Any]]:
+def source_inventory(root: Path, evaluated: dict[str, Any], frozen: dict[str, Any], *, current_tree: bool = False) -> list[dict[str, Any]]:
     """Derive identities, closures, assertion counts, and strengths separately per evaluated tier."""
     tree = TIERING.WorkTree(root)
     assemblies = TIERING.module_assemblies(tree)
@@ -387,7 +402,17 @@ def source_inventory(root: Path, evaluated: dict[str, Any], frozen: dict[str, An
                 paths.append(relative)
         require(len(paths) == len(set(paths)), "ASSERTION_INVENTORY_DRIFT", "Evaluated Compile contains duplicate source files.")
         try:
-            files = [TIERING.parse_source(path, read(root, path), strict=True) for path in paths]
+            files = []
+            for path in paths:
+                content = read(root, path)
+                if current_tree and path == "tests/Hexalith.Conversations.Conformance.Portable.Tests/Story92TieringVerification.cs":
+                    # Normalize only the one intentional mode-selection statement. Every other
+                    # control/helper token retains its exact approved behavior and assembly bindings.
+                    statement = b'        start.ArgumentList.Add("--current-tree");'
+                    require(content.count(statement) == 1, "ASSERTION_STRENGTH_WEAKENED",
+                            "Live controls must select current-tree verification exactly once.")
+                    content = content.replace(statement + (b"\r\n" if b"\r\n" in content else b"\n"), b"", 1)
+                files.append(TIERING.parse_source(path, content, strict=True))
             model = TIERING.ProjectModel(files, catalog, tuple(sorted(set(TIERING.using_items(read(root, TIERING.TESTS_PROPS)) + TIERING.using_items(read(root, project))))))
             tests = model.tests()
             for case in tests:
@@ -425,13 +450,14 @@ def source_inventory(root: Path, evaluated: dict[str, Any], frozen: dict[str, An
     return sorted(records, key=lambda row: row["id"])
 
 
-def derive_migration(root: Path, *, configuration: str = "Release", evaluated: dict[str, Any] | None = None) -> dict[str, Any]:
+def derive_migration(root: Path, *, configuration: str = "Release", evaluated: dict[str, Any] | None = None,
+                     current_tree: bool = False) -> dict[str, Any]:
     """Derive review material without claiming Quality approval."""
-    frozen, amendment = inputs(root)
-    declared = declarations(root)
+    frozen, amendment = inputs(root, current_tree=current_tree)
+    declared = declarations(root, current_tree=current_tree)
     evaluated = evaluated or evaluated_projects(root, configuration)
     surface = portable_surface(root, evaluated, configuration)
-    rows = source_inventory(root, evaluated, frozen)
+    rows = source_inventory(root, evaluated, frozen, current_tree=current_tree)
     baseline = document(root, TIERING.CONTRACTS_BASELINE_PATH)
     current = document(root, SNAPSHOT)
     old_types = {row["namespace"] + "." + row["name"]: row for row in baseline["types"]}
@@ -469,7 +495,8 @@ def _genuine_approval_identity(approval: dict[str, Any]) -> bool:
     return not any("SYNTHETIC-FIXTURE" in approval.get(field, "").upper() for field in ("approver", "approvalId"))
 
 
-def approved_migration(root: Path, derived: dict[str, Any], *, require_approval: bool = True) -> dict[str, Any] | None:
+def approved_migration(root: Path, derived: dict[str, Any], *, require_approval: bool = True,
+                       current_tree: bool = False) -> dict[str, Any] | None:
     recorded = document(root, MIGRATION)
     for row in recorded.get("proposal", {}).get("assertions", []):
         require(row.get("tier") in PROJECTS, "TIER_UNASSIGNED", "A migrated assertion lacks a tier.")
@@ -480,14 +507,39 @@ def approved_migration(root: Path, derived: dict[str, Any], *, require_approval:
     require(recorded.get("proposal", {}).get("fr20Membership") == derived["proposal"]["fr20Membership"]
             and recorded.get("proposal", {}).get("denominatorSuites") == derived["proposal"]["denominatorSuites"],
             "FR20_DENOMINATOR_DRIFT", "Migrated denominator membership differs from the frozen disposition.")
-    require(recorded == derived, "ASSERTION_STRENGTH_WEAKENED", "Recorded migration does not reproduce from the current evaluated sources.")
+    if current_tree:
+        require(set(recorded) == set(derived) and all(recorded[key] == derived[key] for key in recorded
+                if key not in ("proposal", "proposalSha256")), "TIERING_INPUT_INVALID",
+                "The retained migration envelope differs from its derived schema, status, or approval requirements.")
+        require(recorded.get("proposalSha256") == TIERING.sha256_bytes(TIERING.canonical_json(recorded["proposal"])),
+                "TIERING_INPUT_INVALID", "The retained proposal digest does not match its bytes.")
+        # Match semantics, not project/closure file digests or dependency version labels. Live
+        # MSBuild evaluation, source inventory, and execution still run for every invocation.
+        semantic_fields = ("id", "tier", "kind", "sourcePath", "strengthMaterial", "strengthSha256",
+                           "assertionSiteCount", "control", "beforeStrengthSha256", "beforeStrengthMaterial",
+                           "dispositionEvidence")
+        retained_rows = [{key: row[key] for key in semantic_fields} for row in recorded["proposal"]["assertions"]]
+        live_rows = [{key: row[key] for key in semantic_fields} for row in derived["proposal"]["assertions"]]
+        require(retained_rows == live_rows, "ASSERTION_STRENGTH_WEAKENED",
+                "Current assertions differ from the exact approved successor strengths and dispositions.")
+        for key in ("storyId", "contract", "executionAmendment", "predecessorRecord", "beforeDisposition",
+                    "publicSurface", "executionPolicy", "rollback", "beforeIdentitySha256", "afterIdentitySha256",
+                    "beforeStrengthInventorySha256", "afterStrengthInventorySha256"):
+            require(recorded["proposal"][key] == derived["proposal"][key], "TIERING_INPUT_INVALID",
+                    f"Current verification differs from retained migration semantics: {key}")
+        require([{key: row[key] for key in semantic_fields} for row in recorded["proposal"]["liveControls"]] ==
+                [{key: row[key] for key in semantic_fields} for row in derived["proposal"]["liveControls"]],
+                "ASSERTION_STRENGTH_WEAKENED", "Current tier controls differ from approved behavior and bindings.")
+    else:
+        require(recorded == derived, "ASSERTION_STRENGTH_WEAKENED", "Recorded migration does not reproduce from the current evaluated sources.")
     if not require_approval:
         return None
     require((root / APPROVAL).is_file(), "TIER_APPROVAL_MISSING", "Quality approval of the exact migration and public drift digest is pending.")
     approval = document(root, APPROVAL)
-    required = {"proposalSha256": derived["proposalSha256"],
-                "changedAssertionRows": [[row["id"], row["rowSha256"]] for row in derived["proposal"]["changedAssertions"]],
-                "publicDriftSha256": derived["proposal"]["publicSurface"]["driftSha256"]}
+    approved = recorded if current_tree else derived
+    required = {"proposalSha256": approved["proposalSha256"],
+                "changedAssertionRows": [[row["id"], row["rowSha256"]] for row in approved["proposal"]["changedAssertions"]],
+                "publicDriftSha256": approved["proposal"]["publicSurface"]["driftSha256"]}
     require(set(approval) == {"schemaVersion", "status", "role", "approver", "approvalId", "approvedOn", "evidence", "binding"}
             and approval.get("schemaVersion") == "hexalith.conversations.conformance-oracle-tiering-migration-approval.v3"
             and approval.get("status") == "approved" and approval.get("role") == "Quality owner"
@@ -648,26 +700,29 @@ def execution(root: Path, frozen: dict[str, Any], portable_result: str, internal
 
 def verify(root: Path, contract_path: str = CONTRACT, portable_result: str | None = None, internal_result: str | None = None,
            *, configuration: str = "Release", require_approval: bool = True, evaluated: dict[str, Any] | None = None,
-           mode: str = "complete") -> dict[str, Any]:
+           mode: str = "complete", current_tree: bool = False) -> dict[str, Any]:
     """Public read-only API for final-record integration and negative fixtures."""
     report: dict[str, Any] = {"schemaVersion": "hexalith.conversations.conformance-tier-execution.v1", "storyId": "9.2",
                               "result": "FAIL", "exitCode": 1, "blockers": []}
     try:
         if mode == "declarations":
-            report["declarations"] = declarations(root)
+            report["declarations"] = declarations(root, current_tree=current_tree)
         elif mode == "surface":
             evaluated = evaluated or {"portable": msbuild(root, PROJECTS["portable"], configuration, resolved=True)}
             report["portableSurface"] = portable_surface(root, evaluated, configuration)
         else:
-            frozen, _ = inputs(root, contract_path)
-            report["declarations"] = declarations(root)
+            frozen, _ = inputs(root, contract_path, current_tree=current_tree)
+            report["declarations"] = declarations(root, current_tree=current_tree)
             if mode == "complete" and portable_result and internal_result:
                 report["observedExecution"] = execution(root, frozen, portable_result, internal_result, configuration,
                                                         allow_control_failure=True)
-            derived = derive_migration(root, configuration=configuration, evaluated=evaluated)
-            approval = approved_migration(root, derived, require_approval=require_approval)
+            derived = derive_migration(root, configuration=configuration, evaluated=evaluated, current_tree=current_tree)
+            approval = approved_migration(root, derived, require_approval=require_approval, current_tree=current_tree)
             report["migration"] = bound(root, MIGRATION)
-            report["proposalSha256"] = derived["proposalSha256"]
+            report["proposalSha256"] = document(root, MIGRATION)["proposalSha256"] if current_tree else derived["proposalSha256"]
+            if current_tree:
+                report["currentTree"] = True
+                report["portableSurface"] = derived["proposal"]["portableSurface"]
             report["approval"] = approval
             report["inventories"] = {key: derived["proposal"][key] for key in
                                      ("beforeIdentitySha256", "afterIdentitySha256", "beforeStrengthInventorySha256", "afterStrengthInventorySha256")}
@@ -730,10 +785,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--configuration", choices=("Debug", "Release"), default="Release")
     parser.add_argument("--output")
     parser.add_argument("--propose-migration", action="store_true")
+    parser.add_argument("--current-tree", action="store_true", help="Verify routine CI without regenerating historical migration evidence.")
     parser.add_argument("--structure-only", action="store_true")
     parser.add_argument("--declarations-only", action="store_true")
     parser.add_argument("--surface-only", action="store_true")
     args = parser.parse_args(argv)
+    if args.current_tree and args.propose_migration:
+        parser.error("--current-tree cannot be combined with --propose-migration")
     root = args.repository.resolve()
     if args.propose_migration:
         try:
@@ -745,7 +803,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"FAIL: {error.code}: {error}", file=sys.stderr)
             return 1
     mode = "declarations" if args.declarations_only else "surface" if args.surface_only else "structure" if args.structure_only else "complete"
-    report = verify(root, args.contract, args.portable_result, args.internal_result, configuration=args.configuration, mode=mode)
+    report = verify(root, args.contract, args.portable_result, args.internal_result, configuration=args.configuration, mode=mode, current_tree=args.current_tree)
     if args.output:
         try:
             write_json(root, args.output, report, result_inputs=tuple(path for path in (args.contract, args.portable_result, args.internal_result) if path))

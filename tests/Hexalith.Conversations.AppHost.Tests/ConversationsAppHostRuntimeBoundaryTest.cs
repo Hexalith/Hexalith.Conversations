@@ -9,8 +9,6 @@ using Aspire.Hosting.Testing;
 
 using CommunityToolkit.Aspire.Hosting.Dapr;
 
-using Hexalith.Commons.UniqueIds;
-
 using Hexalith.Conversations.AppHost;
 using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Commands;
@@ -47,7 +45,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             && string.Equals(Environment.GetEnvironmentVariable("CI"), "true", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
-    /// Starts the real AppHost and submits a command through EventStore to the Conversations production host.
+    /// Starts the real AppHost and proves unavailable command authority fails closed across both production hosts.
     /// </summary>
     /// <remarks>
     /// Keycloak is disabled so the test isolates the EventStore/Conversations hosting boundary under review.
@@ -97,6 +95,8 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         ProjectResource eventStoreResource = builder.Resources.OfType<ProjectResource>().Single(resource =>
             string.Equals(resource.Name, ConversationsAppHostTopology.EventStoreResourceName, StringComparison.Ordinal));
         _ = builder.CreateResourceBuilder(eventStoreResource)
+            .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Testing")
+            .WithEnvironment("DOTNET_ENVIRONMENT", "Testing")
             .WithEnvironment("Authentication__JwtBearer__Authority", string.Empty)
             .WithEnvironment("Authentication__JwtBearer__Issuer", "hexalith-dev")
             .WithEnvironment(
@@ -107,7 +107,21 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
                 HexalithEventStoreSecurityOptions.DefaultAudience)
             .WithEnvironment("Authentication__JwtBearer__AllowedAlgorithms__0", "HS256")
             .WithEnvironment("Authentication__JwtBearer__SigningKey", signingKeyParameter)
-            .WithEnvironment("Authentication__JwtBearer__RequireHttpsMetadata", "false");
+            .WithEnvironment("Authentication__JwtBearer__RequireHttpsMetadata", "false")
+            .WithEnvironment("Authentication__JwtBearer__AllowInsecureSymmetricKey", "true")
+            .WithEnvironment("Authentication__WorkloadIssuer__Workload", ConversationsAppHostTopology.EventStoreResourceName);
+        ProjectResource conversationsResource = builder.Resources.OfType<ProjectResource>().Single(resource =>
+            string.Equals(resource.Name, ConversationsAppHostTopology.ConversationsResourceName, StringComparison.Ordinal));
+        _ = builder.CreateResourceBuilder(conversationsResource)
+            .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Testing")
+            .WithEnvironment("DOTNET_ENVIRONMENT", "Testing")
+            .WithEnvironment("Authentication__JwtBearer__Authority", string.Empty)
+            .WithEnvironment("Authentication__JwtBearer__Issuer", "hexalith-dev")
+            .WithEnvironment("Authentication__JwtBearer__Audience", ConversationsAppHostTopology.ConversationsDaprAppId)
+            .WithEnvironment("Authentication__JwtBearer__SigningKey", signingKeyParameter)
+            .WithEnvironment("Authentication__JwtBearer__AllowInsecureSymmetricKey", "true")
+            .WithEnvironment("Authentication__Workload__Audience", ConversationsAppHostTopology.ConversationsDaprAppId)
+            .WithEnvironment("Authentication__Workload__AllowedCallers__0", ConversationsAppHostTopology.EventStoreResourceName);
         ConfigureRuntimeBoundarySidecars(builder);
 
         IProjectMetadata gatewayMetadata = eventStoreResource.Annotations.OfType<IProjectMetadata>().Single();
@@ -220,67 +234,34 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             await Task.Delay(TimeSpan.FromSeconds(2), timeout.Token);
         }
 
-        if (submissionStatus != HttpStatusCode.Accepted)
+        if (submissionStatus != HttpStatusCode.UnprocessableEntity)
         {
             string resourceLogs = await ReadFailureLogsAsync(
                 application,
                 [correlationId, messageId, "error", "exception", "fail"],
                 timeout.Token);
             submissionStatus.ShouldBe(
-                HttpStatusCode.Accepted,
-                $"command submission was still not accepted after {attempts} attempt(s) across the "
+                HttpStatusCode.UnprocessableEntity,
+                $"command submission did not reach the expected authority rejection after {attempts} attempt(s) across the "
                 + $"120-second DAPR invocation-readiness window.{Environment.NewLine}{submissionBody}"
                 + $"{Environment.NewLine}{resourceLogs}");
         }
 
+        JsonElement problem = JsonSerializer.Deserialize<JsonElement>(submissionBody);
+        problem.GetProperty("rejectionType").GetString()
+            .ShouldBe("Hexalith.Conversations.Events.ConversationRejectedDomainEvent");
+        problem.GetProperty("tenantId").GetString().ShouldBe(tenantId);
+
+        // The retained production host has no independently authenticated command authority provider.
+        // Assert its intentional fail-closed behavior; the live gateway fixture separately proves admitted
+        // commands persist and project through the same production admission/dispatch components.
         JsonElement status = await PollUntilTerminalAsync(eventStore, messageId, timeout.Token);
-        status.GetProperty("status").GetString().ShouldBe("Completed");
+        status.GetProperty("status").GetString().ShouldBe("Rejected");
         status.GetProperty("aggregateId").GetString().ShouldBe(conversationId);
-        status.GetProperty("eventCount").GetInt32().ShouldBeGreaterThan(0);
-
-        // Command completion alone proves the write boundary, not the projection boundary: the projected
-        // read models must land in the REAL Redis state store through the cross-app eventstore -> conversation
-        // dispatch and become servable by the production query seam. The gateway's /api/v1/queries handler
-        // route cannot carry this proof today — the AppHost defines no DomainServiceOptions registration for
-        // the conversations domain, so handler-query routing to the module is structurally unresolvable — so
-        // the assertion targets the module's own production /query endpoint, the same seam DAPR service
-        // invocation reaches.
-        using HttpClient conversations = application.CreateHttpClient(
-            ConversationsAppHostTopology.ConversationsResourceName,
-            "http");
-
-        // The read side fails closed without a Tenants projection, and the AppHost composes no Tenants
-        // module. Feed the projection through the module's own production /tenants/events subscription
-        // endpoint — byte-for-byte the delivery the DAPR sidecar performs — so tenant admission is decided
-        // by the real event-fed projection, not by a substituted access service.
-        await SeedTenantAccessProjectionAsync(conversations, tenantId, timeout.Token);
-
-        JsonElement detailResult = await PollForProjectedReadModelAsync(
-            conversations,
-            tenantId,
-            conversationId,
-            timeout.Token);
-        string expectedConversationId = JsonSerializer.SerializeToElement(new ConversationId(conversationId)).GetString()!;
-        ReadIdentifier(detailResult.GetProperty("details").GetProperty("conversationId"))
-            .ShouldBe(expectedConversationId);
-
-        JsonElement listResult = await SubmitQueryAsync(
-            conversations,
-            tenantId,
-            conversationId,
-            "conversation-list",
-            timeout.Token);
-        listResult.GetProperty("freshnessState").GetString().ShouldBe("Current");
-        JsonElement row = listResult.GetProperty("conversations")
-            .EnumerateArray()
-            .ShouldHaveSingleItem();
-        ReadIdentifier(row.GetProperty("conversationId")).ShouldBe(expectedConversationId);
+        status.GetProperty("eventCount").GetInt32().ShouldBe(1, "only the durable rejection audit may be recorded");
+        status.GetProperty("rejectionEventType").GetString()
+            .ShouldBe("Hexalith.Conversations.Events.ConversationRejectedDomainEvent");
     }
-
-    private static string? ReadIdentifier(JsonElement identifier)
-        => identifier.ValueKind == JsonValueKind.String
-            ? identifier.GetString()
-            : identifier.GetProperty("value").GetString();
 
     /// <summary>
     /// The stable cutover identity this harness attests with.
@@ -454,130 +435,6 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             Encoding.UTF8.GetBytes(signingKey),
             Encoding.ASCII.GetBytes(unsignedToken));
         return $"{unsignedToken}.{Base64UrlEncode(signature)}";
-    }
-
-    private static async Task SeedTenantAccessProjectionAsync(
-        HttpClient conversations,
-        string tenantId,
-        CancellationToken cancellationToken)
-    {
-        DateTimeOffset now = DateTimeOffset.UtcNow;
-        string correlationId = Guid.NewGuid().ToString("N");
-        // The consumer's envelope validation requires ULID message ids, not GUIDs.
-        var tenantCreated = new
-        {
-            MessageId = UniqueIdHelper.GenerateSortableUniqueStringId(),
-            AggregateId = tenantId,
-            TenantId = tenantId,
-            EventTypeName = "Hexalith.Tenants.Contracts.Events.TenantCreated",
-            SequenceNumber = 1L,
-            Timestamp = now,
-            CorrelationId = correlationId,
-            SerializationFormat = "json",
-            Payload = JsonSerializer.SerializeToUtf8Bytes(new
-            {
-                TenantId = tenantId,
-                Name = "AppHost boundary tenant",
-                Description = (string?)null,
-                CreatedAt = now,
-            }),
-        };
-        var userAdded = new
-        {
-            MessageId = UniqueIdHelper.GenerateSortableUniqueStringId(),
-            AggregateId = tenantId,
-            TenantId = tenantId,
-            EventTypeName = "Hexalith.Tenants.Contracts.Events.UserAddedToTenant",
-            SequenceNumber = 2L,
-            Timestamp = now,
-            CorrelationId = correlationId,
-            SerializationFormat = "json",
-            Payload = JsonSerializer.SerializeToUtf8Bytes(new
-            {
-                TenantId = tenantId,
-                UserId = "apphost-boundary-actor",
-                Role = 3, // TenantRole.TenantReader
-            }),
-        };
-
-        foreach (object envelope in new[] { tenantCreated, userAdded })
-        {
-            using HttpResponseMessage delivery = await conversations.PostAsJsonAsync(
-                "/tenants/events",
-                envelope,
-                cancellationToken);
-            string deliveryBody = await delivery.Content.ReadAsStringAsync(cancellationToken);
-
-            // OK is necessary but NOT sufficient: MapProcessingResult returns Results.Ok() for
-            // SkippedUnknownEventType, SkippedNoHandlers, SkippedAggregateMismatch and FailedInvalidPayload,
-            // so a renamed event type, a drifted payload shape, or Role = 3 ceasing to mean TenantReader all
-            // pass this assertion. The effect is verified below so the failure names its own cause instead of
-            // surfacing minutes later as an unattributed projection-boundary timeout (pass-10 review).
-            delivery.StatusCode.ShouldBe(HttpStatusCode.OK, deliveryBody);
-        }
-    }
-
-    private static async Task<JsonElement> PollForProjectedReadModelAsync(
-        HttpClient conversations,
-        string tenantId,
-        string conversationId,
-        CancellationToken cancellationToken)
-    {
-        string? lastResult = null;
-        try
-        {
-            while (true)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                JsonElement result = await SubmitQueryAsync(
-                    conversations,
-                    tenantId,
-                    conversationId,
-                    "conversation-detail",
-                    cancellationToken);
-                lastResult = result.GetRawText();
-                if (result.TryGetProperty("details", out JsonElement details)
-                    && details.ValueKind == JsonValueKind.Object
-                    && result.TryGetProperty("freshnessState", out JsonElement freshness)
-                    && string.Equals(freshness.GetString(), "Current", StringComparison.Ordinal))
-                {
-                    return result;
-                }
-
-                await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken);
-            }
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw new TimeoutException(
-                $"The projected conversation read model never became queryable through the production query seam. Last result: {lastResult}");
-        }
-    }
-
-    private static async Task<JsonElement> SubmitQueryAsync(
-        HttpClient conversations,
-        string tenantId,
-        string conversationId,
-        string queryType,
-        CancellationToken cancellationToken)
-    {
-        var envelope = new
-        {
-            tenantId,
-            domain = "conversations",
-            aggregateId = conversationId,
-            queryType,
-            payload = Array.Empty<byte>(),
-            correlationId = Guid.NewGuid().ToString("N"),
-            userId = "apphost-boundary-actor",
-        };
-        using HttpResponseMessage response = await conversations.PostAsJsonAsync("/query", envelope, cancellationToken);
-        string body = await response.Content.ReadAsStringAsync(cancellationToken);
-        response.StatusCode.ShouldBe(HttpStatusCode.OK, body);
-        JsonElement result = JsonSerializer.Deserialize<JsonElement>(body);
-        result.GetProperty("success").GetBoolean().ShouldBeTrue(body);
-        byte[] payloadBytes = result.GetProperty("payloadBytes").GetBytesFromBase64();
-        return JsonSerializer.Deserialize<JsonElement>(payloadBytes);
     }
 
     private static async Task<JsonElement> PollUntilTerminalAsync(

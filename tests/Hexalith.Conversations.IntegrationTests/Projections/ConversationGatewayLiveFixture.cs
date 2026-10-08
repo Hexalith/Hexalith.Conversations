@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 
 using Dapr.Actors;
@@ -17,6 +18,7 @@ using Dapr.Client;
 using Hexalith.Conversations;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Server;
+using Hexalith.Conversations.Server.Agents;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
@@ -27,6 +29,7 @@ using Hexalith.EventStore.Server.Configuration;
 using Hexalith.EventStore.Server.DomainServices;
 using Hexalith.EventStore.Server.Projections;
 using Hexalith.EventStore.Testing.Integration;
+using Hexalith.EventStore.ServiceDefaults.Authentication;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -53,6 +56,8 @@ namespace Hexalith.Conversations.IntegrationTests.Projections;
 /// The configured <c>IReadModelStore</c> is the platform's DAPR-backed adapter over a Redis state store, not an
 /// in-memory fake, so ADR 0003's "configured integration state-store adapter" is the thing under assertion.
 /// </para>
+/// <para>External tenant read access and exact enrolled human command authority are supplied by the fixture;
+/// production command admission, projection dispatch, persistence, and boundary assertions remain active.</para>
 /// </remarks>
 public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
 {
@@ -70,6 +75,9 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
     private static readonly System.Text.Json.JsonSerializerOptions MetadataSerializerOptions =
         new(System.Text.Json.JsonSerializerDefaults.Web);
 
+    private readonly string _appChannelToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+    private readonly string _jwtSigningKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    private readonly ConversationGatewayCommandAuthority _commandAuthority = new();
     private readonly StringBuilder _daprStandardError = new();
     private readonly StringBuilder _daprStandardOutput = new();
     private readonly RecordingLoggerProvider _recordingLoggerProvider = new();
@@ -97,6 +105,20 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
 
     /// <summary>Gets the DAPR gRPC endpoint of the fixture sidecar.</summary>
     public string DaprGrpcEndpoint => $"http://localhost:{_daprGrpcPort}";
+
+    /// <summary>Gets the application endpoint for direct trust-boundary probes.</summary>
+    internal string ApplicationHttpEndpoint => $"http://127.0.0.1:{_appPort}";
+
+    /// <summary>Creates a test probe carrying this application's real sidecar-channel credential.</summary>
+    /// <param name="path">The application-relative GET path.</param>
+    /// <param name="method">The HTTP method; defaults to GET.</param>
+    /// <returns>A caller-owned request with the fixture's generated channel token.</returns>
+    internal HttpRequestMessage CreateAppChannelRequest(string path, HttpMethod? method = null)
+    {
+        HttpRequestMessage request = new(method ?? HttpMethod.Get, ApplicationHttpEndpoint + path);
+        request.Headers.Add(DaprAppChannelToken.HeaderName, _appChannelToken);
+        return request;
+    }
 
     /// <summary>
     /// Gets a value indicating whether the live gateway boundary started and is available to assert against.
@@ -132,9 +154,16 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
     /// <param name="aggregateId">The aggregate identity.</param>
     /// <returns>The aggregate actor proxy served by this fixture's host.</returns>
     public IAggregateActor CreateAggregateActor(string tenantId, string domain, string aggregateId)
-        => CreateActorProxyFactory().CreateActorProxy<IAggregateActor>(
+    {
+        if (domain == ConversationProjectionHandler.ConversationDomain)
+        {
+            _commandAuthority.Enroll(tenantId, aggregateId);
+        }
+
+        return CreateActorProxyFactory().CreateActorProxy<IAggregateActor>(
             new ActorId($"{tenantId}:{domain}:{aggregateId}"),
             AggregateActorTypeName);
+    }
 
     /// <summary>Fails if fixture initialization did not establish the mandatory live boundary.</summary>
     public void RequireAvailable()
@@ -350,6 +379,17 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
 
         // The sidecar, actor runtime, and gateway are all in-process here, so request logging would bury the
         // assertion output without adding diagnostic value.
+        // This disposable single-app-id topology uses the platform's production internal trust boundary.
+        // Both the sidecar channel and operation-scoped workload assertions have fresh per-run credentials.
+        builder.Configuration["APP_API_TOKEN"] = _appChannelToken;
+        builder.Configuration["Authentication:JwtBearer:Authority"] = string.Empty;
+        builder.Configuration["Authentication:JwtBearer:Issuer"] = $"gateway-fixture-{AppId}";
+        builder.Configuration["Authentication:JwtBearer:Audience"] = AppId;
+        builder.Configuration["Authentication:JwtBearer:SigningKey"] = _jwtSigningKey;
+        builder.Configuration["Authentication:JwtBearer:AllowInsecureSymmetricKey"] = "true";
+        builder.Configuration["Authentication:Workload:Audience"] = AppId;
+        builder.Configuration["Authentication:Workload:AllowedCallers:0"] = AppId;
+        builder.Configuration["Authentication:WorkloadIssuer:Workload"] = AppId;
         builder.Configuration["Logging:LogLevel:Default"] = "Warning";
         builder.Logging.AddProvider(_recordingLoggerProvider);
         builder.Logging.AddFilter<RecordingLoggerProvider>(category: null, LogLevel.Debug);
@@ -370,9 +410,12 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         _ = builder.AddEventStoreDomainService(
             typeof(ConversationsAssemblyMarker).Assembly,
             typeof(ServerAssemblyMarker).Assembly);
+        // Supply the external command authority before the fail-closed default registration. Every append
+        // still passes the production admission stage, with its exact enrolled tenant/conversation identity.
+        _ = builder.Services.AddSingleton<IConversationAgentAuthority>(_commandAuthority);
         _ = builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
 
-        // Tenant admission is the one deliberately substituted seam: it needs a live Tenants projection, is
+        // Read-side tenant admission is the other external authority seam: it needs a live Tenants projection, is
         // orthogonal to projection delivery, and gates only the read side. Recorded in the v2 proof evidence.
         _ = builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowConfiguredTenantAccessService());
 
@@ -400,12 +443,11 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
                     ServiceVersion));
 
         _testHost = builder.Build();
-        _ = _testHost.MapActorsHandlers();
+        _ = _testHost.MapActorsHandlers().RequireEventStoreSidecarChannel();
 
         // Maps /process, /project, /project/v2, the rebuild routes, and the operational-index metadata the
         // gateway's catalog refresher reads. This is the production mapping, not a test-local shim.
         _ = _testHost.UseEventStoreDomainService();
-        _ = _testHost.MapGet("/healthz", () => Microsoft.AspNetCore.Http.Results.Ok("healthy"));
 
         await _testHost.StartAsync().ConfigureAwait(false);
 
@@ -467,6 +509,8 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
             },
             EnableRaisingEvents = true,
         };
+
+        _daprProcess.StartInfo.Environment["APP_API_TOKEN"] = _appChannelToken;
 
         _daprProcess.OutputDataReceived += (_, args) => Append(_daprStandardOutput, args.Data);
         _daprProcess.ErrorDataReceived += (_, args) => Append(_daprStandardError, args.Data);
@@ -590,7 +634,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
     private async Task VerifyAppListeningAsync()
     {
         using HttpClient client = new() { Timeout = TimeSpan.FromSeconds(3) };
-        string healthUrl = $"http://127.0.0.1:{_appPort}/healthz";
+        string healthUrl = $"http://127.0.0.1:{_appPort}/alive";
         string? lastError = null;
         for (int attempt = 0; attempt < 30; attempt++)
         {
