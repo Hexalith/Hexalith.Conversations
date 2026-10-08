@@ -56,11 +56,10 @@ try {
       tagFormat: releaseConfiguration.tagFormat,
       repositoryUrl: pathToFileURL(localRemote).href,
       plugins: [analyzer],
+      dryRun: true,
     },
     {
-      ci: false,
       cwd: process.cwd(),
-      dryRun: true,
       env: process.env,
       stderr: process.stderr,
       stdout: process.stdout,

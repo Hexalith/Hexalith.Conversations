@@ -2,7 +2,7 @@
 title: 'Publish Conversations NuGet packages'
 type: 'chore'
 created: '2026-09-18'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'af3bfe369c40b634b7c7f45b3d05b079a47a4aa8'
@@ -52,7 +52,7 @@ context:
 - [x] Add the four-package manifest, deterministic pack/validation/consumer checks, semantic-release tooling, and tooling tests.
 - [x] Add shared CI, security workflows, and the pinned manual Release workflow with supported authorization bypass and post-publication assertions.
 - [x] Run local workflow, npm, Release build, unit/conformance, pack, archive, and tooling validations; validate the exact Conventional Commit message with the pinned commitlint CLI.
-- [ ] Commit and push the implementation, wait for exact-source CI success, create the main-only unreviewed `production` environment, temporarily unfreeze publication, dispatch Release, monitor it to completion, verify all four NuGet packages plus `v1.0.0`, then refreeze.
+- [x] Commit and push the implementation, wait for exact-source CI success, create the main-only unreviewed `production` environment, temporarily unfreeze publication, dispatch Release, monitor it to completion, verify all four NuGet packages plus `v1.0.0`, then refreeze.
 
 **Acceptance Criteria:**
 - Given Release package mode, when the solution builds and packages are inspected, then no external Hexalith project assembly is mixed with its NuGet equivalent and all dependency versions resolve to the Builds catalog.
@@ -72,6 +72,23 @@ context:
 ## Spec Change Log
 
 - 2026-09-19: Implemented the local Release/package graph, exact package tooling, CI/security automation, and pinned manual release path; recorded remaining conformance, Dapr-runtime, and remote-operator gates.
+- 2026-10-08: Resumed review and verified the completed September 19 publication against official GitHub and NuGet endpoints. Reconciled the stale operator-task checkbox; retained the original implementation notes and generated final record as historical evidence. Review corrections keep the planner in explicit dry-run mode and verify downloaded symbol assets, with focused rejection tests.
+
+## Publication Verification — 2026-10-08
+
+- Released source: `c98b37958c6ed49bc82badc701b5a3d4f9b76229`, with successful exact-source push [CI run 35437362987](https://github.com/Hexalith/Hexalith.Conversations/actions/runs/35437362987) and successful dispatched [Release run 35437945119](https://github.com/Hexalith/Hexalith.Conversations/actions/runs/35437945119).
+- The stable [GitHub release v1.0.0](https://github.com/Hexalith/Hexalith.Conversations/releases/tag/v1.0.0) contains exactly four `.nupkg` and four `.snupkg` uploaded assets. Its tag resolves to the released source. All four official NuGet downloads contain the expected package ID, version `1.0.0`, and repository commit, and their canonical payloads match the GitHub assets' verified SHA-256 digests.
+- All four downloaded symbol assets match their API SHA-256 digests and sizes and contain their exact canonical Portable PDBs. This verifies the GitHub symbol archives; BH-12's NuGet symbol-server consumption probe remains deferred.
+- The `production` environment has only the `main` deployment branch policy and no required reviewers. Repository variable `HEXALITH_RELEASE_PUBLISH_ENABLED` is exactly `false`, last updated at `2026-09-19T10:45:54Z`.
+- This resumption did not dispatch Release, change the environment or freeze variable, or republish an occupied version. Later `main` CI run [37743182190](https://github.com/Hexalith/Hexalith.Conversations/actions/runs/37743182190) has separate conformance (`PUBLIC_CONTRACT_WIDENED`) and integration failures (scaffold dependency expectation and live gateway domain rejection); it is not the successful CI proof for the published source.
+
+## Verification — Resumed Review
+
+- `npm test`: PASS, 52 tests, including all 25 release-tooling tests and the new missing/corrupt asset, NuGet content mismatch, and CI planner ref-preservation checks.
+- `python3 scripts/check-root-submodules.py --repository .`: PASS. `actionlint .github/workflows/ci.yml .github/workflows/release.yml`: PASS. `git diff --check`: PASS.
+- Read-only execution of the updated `release_state.verify_present('1.0.0', 'c98b37958c6ed49bc82badc701b5a3d4f9b76229', attempts=1, delay_seconds=0)` against official endpoints: PASS for all eight GitHub downloads, the exact tag, and all four NuGet payloads.
+- Regression verification in temporary/in-memory fixtures: the previous verifier fails three new asset-download assertions; the previous planner creates a local tag and notes and fails the new CI ref-preservation test. No repository source was changed by those negative experiments.
+- Byte comparison against committed source: approved frozen intent and historical generated final-record region are unchanged. No historical authority or release-owner evidence is rewritten.
 
 ## Review Triage Log
 
@@ -106,6 +123,22 @@ context:
 | VG-02 | medium | patch | Pre-verified gap: tests call `verify_publishable()` directly but never execute the shell phase router, so a verify/publish state-routing regression remains green. |
 | VG-03 | medium | patch | Pre-verified gap: `verify_present()` has only a happy path; missing and unexpected asset rejection has no regression test. |
 | VG-04 | medium | patch | Pre-verified gap: XML inspection does not evaluate `UseHexalithProjectReferences`; add focused MSBuild checks for local Debug, local Release, and Debug under CI. |
+| BH-R2-01 | high | defer | `ConversationAgentAdmissionStage` accepts legacy GeneralCommand grants without comparing the payload actor with the admitted Party; server searches find no subsequent actor binding for that path. This Agents surface is absent from the published source and belongs to later feature work. |
+| BH-R2-02 | high | defer | Approved deletion sets the deletion signal without closing aggregate lifecycle; legacy participant/project/governance validators check Open lifecycle without `IsDeleted`. These later Agents changes are absent from the published source. |
+| BH-R2-03 | medium | defer | Restricted membership/posting handlers validate wrapper occurrence but do not compare the portable `OperationTimestamp`; the client supplies matching values but direct gateway wrappers can differ. This later feature contract is absent from the published source. |
+| BH-R2-04 | high | defer | Restricted posting accepts a supplied event ID without checking prior event IDs; authoritative replay rejects duplicate message-event identities. Admission validates the prefix but does not bind that supplied ID. This is later Agents feature work. |
+| BH-R2-05 | high | defer | Restricted posting checks only the shape of HumanEdited/EditedByPartyId while admission authenticates the Agent Party, not the claimed human editor. This later provenance feature needs independent evidence binding. |
+| BH-R2-06 | medium | defer | Message-edit replay copies retained text without the command's nonblank check, and replay/source callers add no payload text validation. The edited-event surface was added after the released source. |
+| BH-R2-07 | medium | defer | Delivery replay ignores conflicting attempt-target `TryAdd` results even though command handling quarantines that conflict. This later deletion-delivery feature is absent from the released source. |
+| BH-R2-08 | medium | defer | Edit projection changes message content but retains the append position used by message evidence. The edit handling is later feature work and is not changed by these release-tooling corrections. |
+| BH-R2-09 | medium | defer | Client deletion-query validation requires a nonblank acknowledgement target but does not compare it with the returned checkpoint target. This later public Agents query contract is absent from the released source. |
+| BH-R2-10a | medium | patch | The verifier downloads only package assets; symbol metadata can pass even when its URL returns 404 or corrupt bytes. Verify all eight GitHub asset downloads against their digests before accepting publication. |
+| BH-R2-10b | medium | defer | carried BH-12: NuGet symbol validation/indexing is asynchronous and a PDB-signature symbol-server consumption probe remains deferred; GitHub archive verification does not satisfy that separate claim. |
+| EC-R2-01 | high | patch | Pinned Semantic Release reads dryRun from its first options argument; flags in the context argument are ignored under CI, allowing local tag/note creation. Move dryRun into options and exercise planning in a temporary CI repository while asserting unchanged refs. |
+| EC-R2-02 | medium | patch | Independent reproduction accepted symbol metadata with every symbol download returning 404 and made no symbol requests. Shares BH-R2-10a's asset-download correction. |
+| EC-R2-03 | low | reject | Main can advance after the final pre-tag proof; publish then validates the finalized tag rather than main, deliberately following BH-07. Artifacts remain bound to the exact green tagged source. The one-time 1.0.0 destinations are now occupied, and changing the accepted tagging protocol for this narrow race would add more than a direct correction. |
+| VG-R2-01 | medium | patch | Pre-verified regression gap: deleting the package integrity loop leaves all 22 ReleaseToolingTests green. Add rejection tests for wrong GitHub bytes and different NuGet archive contents while preserving the allowed repository signature. |
+| VG-R2-02 | medium | defer | Pre-verified regression gap: later participant-route registration and route/body checks have no exercised endpoint tests. The route was added after the published source and belongs to subsequent API feature verification. |
 
 <!-- STORY-FINAL-RECORD:BEGIN -->
 

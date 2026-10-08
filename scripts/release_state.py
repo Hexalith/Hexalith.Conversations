@@ -304,16 +304,19 @@ def verify_present(
         f"GitHub release {tag}",
     )
     release_assets = _release_asset_digests(release, version)
-    for package_id, nuget_payload in nuget_payloads.items():
-        asset_name = f"{package_id}.{version}.nupkg"
-        asset = release_assets[asset_name]
+    asset_payloads: dict[str, bytes] = {}
+    for asset_name, asset in release_assets.items():
         asset_response = request("GET", asset.download_url)
         if asset_response.status != 200 or not asset_response.body:
             raise ValueError(f"GitHub release asset {asset_name} could not be downloaded")
         if hashlib.sha256(asset_response.body).hexdigest() != asset.sha256:
             raise ValueError(f"GitHub release asset {asset_name} does not match its API digest")
+        asset_payloads[asset_name] = asset_response.body
+
+    for package_id, nuget_payload in nuget_payloads.items():
+        asset_name = f"{package_id}.{version}.nupkg"
         nuget_digest = _canonical_package_digest(nuget_payload, f"NuGet package {package_id} {version}")
-        asset_digest = _canonical_package_digest(asset_response.body, f"GitHub release asset {asset_name}")
+        asset_digest = _canonical_package_digest(asset_payloads[asset_name], f"GitHub release asset {asset_name}")
         if asset_digest != nuget_digest:
             raise ValueError(
                 f"NuGet package {package_id} {version} payload does not match GitHub asset {asset_name}"

@@ -82,6 +82,31 @@ def release_assets(version: str, payloads: dict[str, bytes]) -> list[dict[str, o
     return assets
 
 
+def publication_request(source_sha: str, payloads: dict[str, bytes]):
+    assets = release_assets("1.0.0", payloads)
+
+    def published(method: str, url: str) -> release_state.HttpResponse:
+        if "api.nuget.org" in url:
+            package_id = next(
+                package_id for package_id in release_contract.EXACT_PACKAGE_IDS
+                if f"/{package_id.lower()}/" in url
+            )
+            return release_state.HttpResponse(200, repository_signed(payloads[package_id]))
+        if "/git/ref/tags/v1.0.0" in url:
+            document = {"object": {"type": "commit", "sha": source_sha}}
+        elif "/releases/tags/v1.0.0" in url:
+            document = {"tag_name": "v1.0.0", "draft": False, "prerelease": False, "assets": assets}
+        elif f"https://github.com/{release_contract.REPOSITORY}/releases/download/v1.0.0/" in url:
+            name = url.rsplit("/", maxsplit=1)[-1]
+            content = payloads[name.removesuffix(".1.0.0.nupkg")] if name.endswith(".nupkg") else name.encode()
+            return release_state.HttpResponse(200, content)
+        else:
+            raise AssertionError(f"unexpected publication URL: {url}")
+        return release_state.HttpResponse(200, json.dumps(document).encode())
+
+    return published
+
+
 class ReleaseToolingTests(unittest.TestCase):
     def test_package_output_must_stay_below_repository_root(self) -> None:
         with self.assertRaisesRegex(ValueError, "child of the repository root"):
@@ -300,46 +325,104 @@ class ReleaseToolingTests(unittest.TestCase):
     def test_first_release_present_state_accepts_exact_pairs_and_sha(self) -> None:
         source_sha = "a" * 40
         payloads = published_payloads()
-        assets = release_assets("1.0.0", payloads)
+        valid = publication_request(source_sha, payloads)
+        downloaded_assets: set[str] = set()
 
-        def published(method: str, url: str) -> release_state.HttpResponse:
-            if "api.nuget.org" in url:
-                package_id = next(
-                    package_id
-                    for package_id in release_contract.EXACT_PACKAGE_IDS
-                    if f"/{package_id.lower()}/" in url
-                )
-                return release_state.HttpResponse(200, repository_signed(payloads[package_id]))
-            if "/git/ref/tags/v1.0.0" in url:
-                return release_state.HttpResponse(
-                    200,
-                    json.dumps({"object": {"type": "commit", "sha": source_sha}}).encode(),
-                )
-            if "/releases/tags/v1.0.0" in url:
-                return release_state.HttpResponse(
-                    200,
-                    json.dumps(
-                        {
-                            "tag_name": "v1.0.0",
-                            "draft": False,
-                            "prerelease": False,
-                            "assets": assets,
-                        }
-                    ).encode(),
-                )
-            if f"https://github.com/{release_contract.REPOSITORY}/releases/download/v1.0.0/" in url:
-                asset_name = url.rsplit("/", maxsplit=1)[-1]
-                package_id = asset_name.removesuffix(".1.0.0.nupkg")
-                return release_state.HttpResponse(200, payloads[package_id])
-            self.fail(f"unexpected publication URL: {url}")
+        def observed(method: str, url: str) -> release_state.HttpResponse:
+            if "/releases/download/v1.0.0/" in url:
+                downloaded_assets.add(url.rsplit("/", maxsplit=1)[-1])
+            return valid(method, url)
 
         release_state.verify_present(
             "1.0.0",
             source_sha,
-            request=published,
+            request=observed,
             attempts=1,
             delay_seconds=0,
         )
+        self.assertEqual(release_contract.expected_asset_names("1.0.0"), downloaded_assets)
+
+    def test_publication_rejects_missing_or_corrupt_asset_downloads(self) -> None:
+        source_sha = "a" * 40
+        valid = publication_request(source_sha, published_payloads())
+        prefix = f"https://github.com/{release_contract.REPOSITORY}/releases/download/v1.0.0/"
+        for extension, response, expected in (
+            ("snupkg", release_state.HttpResponse(404), "could not be downloaded"),
+            ("snupkg", release_state.HttpResponse(200, b"corrupt symbols"), "does not match its API digest"),
+            ("nupkg", release_state.HttpResponse(200, b"corrupt package"), "does not match its API digest"),
+        ):
+            with self.subTest(extension=extension, status=response.status):
+                bad_url = f"{prefix}Hexalith.Conversations.1.0.0.{extension}"
+
+                def invalid(method: str, url: str) -> release_state.HttpResponse:
+                    return response if url == bad_url else valid(method, url)
+
+                with self.assertRaisesRegex(ValueError, expected):
+                    release_state.verify_present("1.0.0", source_sha, request=invalid, attempts=1, delay_seconds=0)
+
+    def test_publication_rejects_different_nuget_package_contents(self) -> None:
+        source_sha = "a" * 40
+        payloads = published_payloads()
+        valid = publication_request(source_sha, payloads)
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(io.BytesIO(payloads["Hexalith.Conversations"])) as original:
+            with zipfile.ZipFile(buffer, "w") as changed:
+                for name in original.namelist():
+                    changed.writestr(name, b"different assembly" if name.endswith(".dll") else original.read(name))
+
+        def mismatch(method: str, url: str) -> release_state.HttpResponse:
+            if "api.nuget.org/v3-flatcontainer/hexalith.conversations/" in url:
+                return release_state.HttpResponse(200, repository_signed(buffer.getvalue()))
+            return valid(method, url)
+
+        with self.assertRaisesRegex(ValueError, "payload does not match GitHub asset"):
+            release_state.verify_present("1.0.0", source_sha, request=mismatch, attempts=1, delay_seconds=0)
+
+    def test_semantic_release_planning_in_ci_preserves_repository_refs(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="conversations-planning-test-") as temporary:
+            root = Path(temporary)
+            configuration = (ROOT / ".releaserc.json").read_text(encoding="utf-8")
+            (root / ".releaserc.json").write_text(configuration, encoding="utf-8")
+            (root / "node_modules").symlink_to(ROOT / "node_modules", target_is_directory=True)
+            environment = {
+                **os.environ,
+                "GIT_CONFIG_GLOBAL": os.devnull,
+                "GIT_CONFIG_NOSYSTEM": "1",
+            }
+
+            def git(*arguments: str) -> str:
+                result = subprocess.run(
+                    ["git", *arguments], cwd=root, env=environment,
+                    check=True, capture_output=True, text=True, timeout=30,
+                )
+                return result.stdout
+
+            git("init", "-b", "main")
+            git("add", ".releaserc.json")
+            # Validated by the pinned CLI before this temporary fixture creates its commit.
+            message = "fix: seed release planning fixture\n"
+            validation = subprocess.run(
+                [str(ROOT / "node_modules/.bin/commitlint"), "--config", str(ROOT / "commitlint.config.mjs")],
+                input=message, capture_output=True, text=True, timeout=30,
+            )
+            self.assertEqual(0, validation.returncode, validation.stdout + validation.stderr)
+            git("-c", "user.name=Release fixture", "-c", "user.email=release-fixture@hexalith.test",
+                "commit", "--no-gpg-sign", "-m", message.strip())
+            before = git("for-each-ref", "--format=%(refname) %(objectname)")
+            environment.update({
+                "CI": "true", "GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "push",
+                "GITHUB_REF": "refs/heads/main", "GITHUB_REF_NAME": "main",
+                "GITHUB_SHA": git("rev-parse", "HEAD").strip(),
+                "GITHUB_REPOSITORY": release_contract.REPOSITORY,
+                "GITHUB_WORKSPACE": str(root),
+            })
+            result = subprocess.run(
+                ["node", str(SCRIPTS / "verify-semantic-release-plan.mjs"), "1.0.0"],
+                cwd=root, env=environment, capture_output=True, text=True, timeout=60,
+            )
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+            self.assertIn("Semantic Release plan is exactly 1.0.0.", result.stdout)
+            self.assertEqual(before, git("for-each-ref", "--format=%(refname) %(objectname)"))
 
     def test_release_assets_reject_missing_and_unexpected_names(self) -> None:
         payloads = published_payloads()

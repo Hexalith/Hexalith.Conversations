@@ -470,3 +470,41 @@ Recorded after Story 8.2 reached `done` at `5a7c422`; the Story 8.2 candidate pa
 - source_spec: `_bmad-output/implementation-artifacts/spec-9-1-freeze-the-conformance-assertion-inventory-tier-decisions-digest-and-approvals.md`
   summary: Nine Story 8.2 tests in `_bmad/scripts/tests/test_generate_story_record.py` fail at the current HEAD because root gitlinks moved after Story 8.2's scope start, keeping `ci / repository` red.
   evidence: Review 1 (B7), medium, reported by the 9.1 implementation as failing identically on an untouched HEAD copy and not re-run during triage. Settle by running that file at a clean HEAD and re-anchoring or retiring the 8.2 retained-candidate cases.
+
+## Deferred from: resumed package-publication review (2026-10-08)
+
+The review range begins at the original publication-spec baseline and includes later
+Agents/API features absent from the released `c98b37958c6ed49bc82badc701b5a3d4f9b76229`
+source. These follow-ups preserve those subsequent features rather than changing
+public contracts or domain behavior during publication reconciliation.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md`
+  summary: Bind legacy GeneralCommand payload actors to the authenticated Party.
+  evidence: BH-R2-01; ConversationAgentAdmissionStage accepts the legacy branch before comparing payload ActorPartyId with the admitted Party; the server path has no later binding check.
+- source_spec: `_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md`
+  summary: Reject legacy mutations after approved source deletion.
+  evidence: BH-R2-02; ConversationState.Agents sets the deletion signal without closing lifecycle, while legacy participant, project, and governance validators check lifecycle without IsDeleted.
+- source_spec: `_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md`
+  summary: Bind restricted membership and posting wrapper timestamps to portable OperationTimestamp.
+  evidence: BH-R2-03; ConversationAggregate.Agents validates AddedAt/PostedAt but ignores OperationTimestamp, which the client supplies but direct gateway callers can omit or contradict.
+- source_spec: `_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md`
+  summary: Prevent restricted posting from appending a reused or unbound source event identity.
+  evidence: BH-R2-04; the aggregate accepts the caller's EventId and admission does not derive it, while ConversationReplayVerifier rejects duplicate message event identities.
+- source_spec: `_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md`
+  summary: Authenticate claimed human editing provenance on restricted Agent posting.
+  evidence: BH-R2-05; the aggregate validates only HumanEdited/EditedByPartyId shape and admission binds the Agent, allowing an unauthenticated claimed human editor.
+- source_spec: `_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md`
+  summary: Validate nonblank retained message edit text during authoritative replay.
+  evidence: BH-R2-06; ConversationState.Agents copies MessageEditedDomainEvent.Text without command-side validation and replay/source callers do not add it.
+- source_spec: `_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md`
+  summary: Enforce immutable delivery attempt targets during deletion replay.
+  evidence: BH-R2-07; ConversationState.Agents ignores a conflicting TryAdd result while ConversationAggregate.Agents quarantines attempt-target conflicts at command time.
+- source_spec: `_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md`
+  summary: Bind current edited message evidence to the edit source position.
+  evidence: BH-R2-08; ConversationProjectionMaterializer replaces visible text while retaining original.Position, which SourcePositionForMessage exposes to generated message evidence.
+- source_spec: `_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md`
+  summary: Reject deletion query responses with contradictory acknowledgement and checkpoint targets.
+  evidence: BH-R2-09; ConversationClient checks a nonblank acknowledgement.TargetVersion but does not compare it with result.TargetVersion.
+- source_spec: `_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md`
+  summary: Exercise the later participant HTTP endpoint and route/body identity rejection.
+  evidence: VG-R2-02; both command API test files exercise only create, messages, and project routes; removing the participant registration leaves those requests and tests intact.
