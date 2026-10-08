@@ -86,7 +86,7 @@ try {
     Invoke-FixtureGit $dependencyPath commit -m 'state one' | Out-Null
     $dependencyBaseline = @(Invoke-FixtureGit $dependencyPath rev-parse HEAD)[0]
 
-    Write-Utf8File (Join-Path $fixtureRoot 'contract.json') '{"shape":"stable"}'
+    Write-Utf8File (Join-Path $fixtureRoot 'contract.json') '{"typeCount":1,"types":[{"namespace":"Fixture","name":"Original"}]}'
     Write-Utf8File (Join-Path $fixtureRoot 'concurrent.txt') 'baseline'
     Invoke-FixtureGit $fixtureRoot add contract.json concurrent.txt dependency | Out-Null
     Invoke-FixtureGit $fixtureRoot commit -m baseline | Out-Null
@@ -315,6 +315,11 @@ This successor does not reconstruct the former uncommitted working tree.
     $scenarioCount++
     Write-Utf8File (Join-Path $fixtureRoot 'story.md') $storyContent
 
+    Write-Utf8File (Join-Path $fixtureRoot 'story.md') ($storyContent.Replace('evidence.json', 'Evidence.json'))
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText 'Evidence.json'
+    $scenarioCount++
+    Write-Utf8File (Join-Path $fixtureRoot 'story.md') $storyContent
+
     Write-Utf8File (Join-Path $fixtureRoot 'story.md') ($storyContent + "`n- ``ghost.txt```n")
     Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText "is missing 'ghost.txt'"
     $scenarioCount++
@@ -362,7 +367,106 @@ This successor does not reconstruct the former uncommitted working tree.
     Write-Utf8File (Join-Path $fixtureRoot 'contract.json') '{"shape":"drift"}'
     Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText "contract.json"
     $scenarioCount++
-    Write-Utf8File (Join-Path $fixtureRoot 'contract.json') '{"shape":"stable"}'
+    Write-Utf8File (Join-Path $fixtureRoot 'contract.json') '{"typeCount":1,"types":[{"namespace":"Fixture","name":"Original"}]}'
+
+    Write-Utf8File (Join-Path $fixtureRoot 'result.trx') ($trx.Replace('passed="1"', 'passed="2"'))
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText 'counter disagrees with executed results'
+    $scenarioCount++
+    Write-Utf8File (Join-Path $fixtureRoot 'result.trx') $trx
+
+    Write-Utf8File (Join-Path $fixtureRoot 'result.trx') ($trx -replace '<UnitTestResult[^>]+/>', '')
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText 'no Counters or executed test results'
+    $scenarioCount++
+    Write-Utf8File (Join-Path $fixtureRoot 'result.trx') $trx
+
+    $aggregate = $baseInput | ConvertFrom-Json -Depth 30
+    $aggregate.live | Add-Member -NotePropertyName additionalTestResultPaths -NotePropertyValue @('second.trx')
+    $aggregate.live | Add-Member -NotePropertyName comparisonBaselinePath -NotePropertyValue 'contract.json'
+    $aggregate.live.expectedChangedPaths += 'second.trx'
+    $aggregate.live.expectedCounts.total = 2
+    $aggregate.live.expectedCounts.passed = 2
+    Write-Utf8File (Join-Path $fixtureRoot 'second.trx') ($trx.Replace('Fixture.CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting', 'Fixture.OtherTier'))
+    Write-Utf8File (Join-Path $fixtureRoot 'story.md') ($storyContent + "`n- ``second.trx```n")
+    Write-Utf8File $inputPath (($aggregate | ConvertTo-Json -Depth 30) + "`n")
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $true -ExpectedText 'Final-record verification passed'
+    $scenarioCount++
+
+    $unboundAggregate = $aggregate | ConvertTo-Json -Depth 30 | ConvertFrom-Json -Depth 30
+    $unboundAggregate.live.PSObject.Properties.Remove('comparisonBaselinePath')
+    Write-Utf8File $inputPath (($unboundAggregate | ConvertTo-Json -Depth 30) + "`n")
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText 'Final-record input schema validation failed'
+    $scenarioCount++
+    Write-Utf8File $inputPath (($aggregate | ConvertTo-Json -Depth 30) + "`n")
+
+    $overlap = $aggregate | ConvertTo-Json -Depth 30 | ConvertFrom-Json -Depth 30
+    $overlap.live.additionalTestResultPaths += 'overlapping.trx'
+    $overlap.live.expectedChangedPaths += 'overlapping.trx'
+    $overlap.live.expectedCounts.total = 3
+    $overlap.live.expectedCounts.passed = 3
+    Write-Utf8File (Join-Path $fixtureRoot 'overlapping.trx') ($trx.Replace('Fixture.CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting', 'Fixture.OtherTier'))
+    Write-Utf8File (Join-Path $fixtureRoot 'story.md') ($storyContent + "`n- ``second.trx```n- ``overlapping.trx```n")
+    Write-Utf8File $inputPath (($overlap | ConvertTo-Json -Depth 30) + "`n")
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText 'Fixture.OtherTier'
+    $scenarioCount++
+    Remove-Item -LiteralPath (Join-Path $fixtureRoot 'overlapping.trx')
+    Write-Utf8File (Join-Path $fixtureRoot 'story.md') ($storyContent + "`n- ``second.trx```n")
+    Write-Utf8File $inputPath (($aggregate | ConvertTo-Json -Depth 30) + "`n")
+
+    Write-Utf8File (Join-Path $fixtureRoot 'second.trx') $trx
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText 'exactly one contract comparison test'
+    $scenarioCount++
+    $aggregate.live.additionalTestResultPaths = @('result.trx')
+    Write-Utf8File $inputPath (($aggregate | ConvertTo-Json -Depth 30) + "`n")
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText 'Duplicate TRX result'
+    $scenarioCount++
+    Remove-Item -LiteralPath (Join-Path $fixtureRoot 'second.trx')
+    Write-Utf8File (Join-Path $fixtureRoot 'story.md') $storyContent
+    Write-Utf8File $inputPath $baseInput
+
+    $approved = $baseInput | ConvertFrom-Json -Depth 30
+    $baselineHash = Get-FileHashValue (Join-Path $fixtureRoot 'contract.json')
+    $approvedSnapshot = '{"typeCount":2,"types":[{"namespace":"Fixture","name":"Added"},{"namespace":"Fixture","name":"Original"}]}'
+    Write-Utf8File (Join-Path $fixtureRoot 'approved-snapshot.json') $approvedSnapshot
+    $snapshotHash = Get-TextHash $approvedSnapshot
+    $driftText = '{"addedTypes":["Fixture.Added"],"changedTypes":[],"removedTypes":[]}'
+    $driftHash = Get-TextHash $driftText
+    # Independently specified canonical JSON; do not reuse the checker's canonicalizer.
+    $proposalText = "{`"publicSurface`":{`"baseline`":{`"path`":`"contract.json`",`"sha256`":`"$baselineHash`"},`"currentSnapshot`":{`"path`":`"approved-snapshot.json`",`"sha256`":`"$snapshotHash`"},`"drift`":$driftText,`"driftSha256`":`"$driftHash`"}}"
+    $proposalHash = Get-TextHash $proposalText
+    Write-Utf8File (Join-Path $fixtureRoot 'approved-proposal.json') "{`"proposal`":$proposalText,`"proposalSha256`":`"$proposalHash`"}"
+    $approvalText = "{`"status`":`"approved`",`"approvalId`":`"fixture-quality-decision`",`"binding`":{`"proposalSha256`":`"$proposalHash`",`"publicDriftSha256`":`"$driftHash`"}}"
+    Write-Utf8File (Join-Path $fixtureRoot 'approval.json') $approvalText
+    $approvalConfiguration = [ordered]@{
+        proposalPath = 'approved-proposal.json'; approvalPath = 'approval.json'
+        approvalSha256 = Get-TextHash $approvalText; approvalId = 'fixture-quality-decision'
+        driftSha256 = $driftHash; currentSnapshotPath = 'approved-snapshot.json'
+    }
+    $approved.live | Add-Member -NotePropertyName contractApproval -NotePropertyValue $approvalConfiguration
+    $approved.live | Add-Member -NotePropertyName comparisonBaselinePath -NotePropertyValue 'approved-snapshot.json'
+    $approvalPaths = @('approval.json', 'approved-proposal.json', 'approved-snapshot.json')
+    $approved.live.expectedChangedPaths += $approvalPaths
+    Write-Utf8File (Join-Path $fixtureRoot 'story.md') ($storyContent + (($approvalPaths | ForEach-Object { "`n- ``$_``" }) -join '') + "`n")
+    Write-Utf8File $inputPath (($approved | ConvertTo-Json -Depth 30) + "`n")
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $true -ExpectedText 'Final-record verification passed'
+    $scenarioCount++
+
+    $approvalRemoved = $approved | ConvertTo-Json -Depth 30 | ConvertFrom-Json -Depth 30
+    $approvalRemoved.live.PSObject.Properties.Remove('contractApproval')
+    Write-Utf8File $inputPath (($approvalRemoved | ConvertTo-Json -Depth 30) + "`n")
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText 'without'
+    $scenarioCount++
+    Write-Utf8File $inputPath (($approved | ConvertTo-Json -Depth 30) + "`n")
+
+    Write-Utf8File (Join-Path $fixtureRoot 'approved-snapshot.json') ($approvedSnapshot.Replace('Added', 'Unapproved'))
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText 'Public-contract approval failed'
+    $scenarioCount++
+    Write-Utf8File (Join-Path $fixtureRoot 'approved-snapshot.json') $approvedSnapshot
+    Write-Utf8File (Join-Path $fixtureRoot 'approval.json') ($approvalText.Replace('approved', 'pending'))
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText 'Public-contract approval failed'
+    $scenarioCount++
+    foreach ($path in $approvalPaths) { Remove-Item -LiteralPath (Join-Path $fixtureRoot $path) }
+    Write-Utf8File (Join-Path $fixtureRoot 'story.md') $storyContent
+    Write-Utf8File $inputPath $baseInput
 
     $missingHistory = $baseInput | ConvertFrom-Json -Depth 30
     $missingHistory.historical[0].finalCommit = 'ffffffffffffffffffffffffffffffffffffffff'

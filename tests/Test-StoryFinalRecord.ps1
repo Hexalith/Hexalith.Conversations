@@ -133,7 +133,7 @@ function Get-DiffEntries {
         [switch]$IncludeUntracked
     )
 
-    $entries = [ordered]@{}
+    $entries = [System.Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
     foreach ($line in Invoke-GitLines -Root $Root -GitArguments @('diff', '--name-status', '--no-renames', $Range, '--')) {
         if ([string]::IsNullOrWhiteSpace($line)) {
             continue
@@ -322,10 +322,16 @@ function Test-PathSets {
     $normalizedObserved = @($Observed | ForEach-Object { ConvertTo-NormalizedPath $_ })
     $expectedDuplicates = @($normalizedExpected | Group-Object -CaseSensitive | Where-Object Count -gt 1 | ForEach-Object Name)
     $observedDuplicates = @($normalizedObserved | Group-Object -CaseSensitive | Where-Object Count -gt 1 | ForEach-Object Name)
-    $expectedSet = @($normalizedExpected | Sort-Object -Unique)
-    $observedSet = @($normalizedObserved | Sort-Object -Unique)
-    $missing = @($expectedSet | Where-Object { $_ -notin $observedSet })
-    $unexpected = @($observedSet | Where-Object { $_ -notin $expectedSet })
+    $expectedLookup = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $observedLookup = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($path in $normalizedExpected) { [void]$expectedLookup.Add($path) }
+    foreach ($path in $normalizedObserved) { [void]$observedLookup.Add($path) }
+    $expectedSet = [string[]]@($expectedLookup)
+    $observedSet = [string[]]@($observedLookup)
+    [Array]::Sort($expectedSet, [StringComparer]::Ordinal)
+    [Array]::Sort($observedSet, [StringComparer]::Ordinal)
+    $missing = @($expectedSet | Where-Object { -not $observedLookup.Contains($_) })
+    $unexpected = @($observedSet | Where-Object { -not $expectedLookup.Contains($_) })
 
     foreach ($path in $expectedDuplicates) {
         Add-Failure -Failures $Failures -Message "$Label has duplicate expected path '$path'."
@@ -460,6 +466,7 @@ function Test-PreexistingState {
         [void]$results.Add([ordered]@{
             path = $path
             kind = [string]$entry.kind
+            frozenIdentity = $entry
             status = if ($entryFailures.Count -eq 0) { 'unchanged-excluded' } else { 'changed-fail' }
             failures = @($entryFailures)
         })
@@ -495,7 +502,7 @@ function Get-InputFingerprint {
     }
 
     $rows = [System.Collections.Generic.List[string]]::new()
-    foreach ($path in @($resolvedPaths | Sort-Object -Unique)) {
+    foreach ($path in @($resolvedPaths | Sort-Object -CaseSensitive -Unique)) {
         $absolutePath = Resolve-RepositoryPath -Root $Root -Path $path
         if (-not (Test-Path -LiteralPath $absolutePath -PathType Leaf)) {
             throw "Executable/test input '$path' is missing."
@@ -508,67 +515,174 @@ function Get-InputFingerprint {
 
 function Test-TrxResult {
     param(
-        [string]$Path,
+        [string[]]$Path,
         [object]$ExpectedCounts,
         [string]$ContractTestName,
         [System.Collections.Generic.List[string]]$Failures
     )
 
-    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
-        Add-Failure -Failures $Failures -Message "TRX result '$Path' does not exist."
-        return [ordered]@{ status = 'fail'; path = $Path }
+    $actual = [ordered]@{ total = 0; executed = 0; passed = 0; failed = 0; skipped = 0 }
+    $artifacts = [System.Collections.Generic.List[object]]::new()
+    $results = [System.Collections.Generic.List[object]]::new()
+    $seenPaths = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $seenTests = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($resultPath in $Path) {
+        if (-not $seenPaths.Add([System.IO.Path]::GetFullPath($resultPath))) {
+            Add-Failure -Failures $Failures -Message "Duplicate TRX result '$resultPath'."
+            continue
+        }
+        if (-not (Test-Path -LiteralPath $resultPath -PathType Leaf)) {
+            Add-Failure -Failures $Failures -Message "TRX result '$resultPath' does not exist."
+            continue
+        }
+        [xml]$trx = Get-Content -LiteralPath $resultPath -Raw
+        $counters = $trx.SelectSingleNode("/*[local-name()='TestRun']/*[local-name()='ResultSummary']/*[local-name()='Counters']")
+        $unitTestResults = @($trx.SelectNodes("/*[local-name()='TestRun']/*[local-name()='Results']/*[local-name()='UnitTestResult']"))
+        if ($null -eq $counters -or $unitTestResults.Count -eq 0) {
+            Add-Failure -Failures $Failures -Message "TRX result '$resultPath' has no Counters or executed test results."
+            continue
+        }
+        $counts = [ordered]@{
+            total = $unitTestResults.Count
+            executed = @($unitTestResults | Where-Object { [string]$_.outcome -cne 'NotExecuted' }).Count
+            passed = @($unitTestResults | Where-Object { [string]$_.outcome -ceq 'Passed' }).Count
+            failed = @($unitTestResults | Where-Object { [string]$_.outcome -ceq 'Failed' }).Count
+            skipped = @($unitTestResults | Where-Object { [string]$_.outcome -ceq 'NotExecuted' }).Count
+        }
+        foreach ($name in @('total', 'executed', 'passed', 'failed', 'skipped')) {
+            $attribute = if ($name -eq 'skipped') { 'notExecuted' } else { $name }
+            if ([int]$counters.GetAttribute($attribute) -ne $counts[$name]) {
+                Add-Failure -Failures $Failures -Message "TRX '$resultPath' $name counter disagrees with executed results."
+            }
+            $actual[$name] += $counts[$name]
+        }
+        if ($counts.passed + $counts.failed + $counts.skipped -ne $counts.total) {
+            Add-Failure -Failures $Failures -Message "TRX '$resultPath' contains an unsupported result outcome."
+        }
+        foreach ($testResult in $unitTestResults) {
+            $identity = [string]$testResult.testName
+            if ([string]::IsNullOrWhiteSpace($identity) -or -not $seenTests.Add($identity)) {
+                Add-Failure -Failures $Failures -Message "Duplicate or empty executed test identity '$identity' in TRX '$resultPath'."
+            }
+        }
+        $results.AddRange([object[]]$unitTestResults)
+        [void]$artifacts.Add([ordered]@{ path = $resultPath; counts = $counts; sha256 = Get-Sha256ForFile $resultPath })
     }
-
-    [xml]$trx = Get-Content -LiteralPath $Path -Raw
-    $counters = $trx.SelectSingleNode("/*[local-name()='TestRun']/*[local-name()='ResultSummary']/*[local-name()='Counters']")
-    if ($null -eq $counters) {
-        Add-Failure -Failures $Failures -Message "TRX result '$Path' has no Counters element."
-        return [ordered]@{ status = 'fail'; path = $Path }
-    }
-
-    $actual = [ordered]@{
-        total = [int]$counters.total
-        executed = [int]$counters.executed
-        passed = [int]$counters.passed
-        failed = [int]$counters.failed
-        skipped = [int]$counters.notExecuted
-    }
-    $unitTestResults = @($trx.SelectNodes("//*[local-name()='UnitTestResult']"))
-    $failedTests = @($unitTestResults |
-        Where-Object { [string]$_.outcome -cne 'Passed' } |
-        ForEach-Object { [string]$_.testName } |
-        Sort-Object -Unique)
+    $failedTests = @($results | Where-Object { [string]$_.outcome -cne 'Passed' } |
+        ForEach-Object { [string]$_.testName } | Sort-Object -CaseSensitive -Unique)
     foreach ($name in @('total', 'passed', 'failed', 'skipped')) {
         if ([int]$actual[$name] -ne [int]$ExpectedCounts.$name) {
             Add-Failure -Failures $Failures -Message "TRX $name count is $($actual[$name]); expected $($ExpectedCounts.$name)."
         }
     }
-    if ($actual.executed -ne $actual.total -or $actual.passed -ne $actual.total) {
+    if ($actual.total -eq 0 -or $actual.executed -ne $actual.total -or $actual.passed -ne $actual.total) {
         Add-Failure -Failures $Failures -Message "TRX is not fully green: total=$($actual.total), executed=$($actual.executed), passed=$($actual.passed)."
     }
-
-    $contractResult = $unitTestResults |
-        Where-Object { $_.testName -like "*$ContractTestName*" } |
-        Select-Object -First 1
-    if ($null -eq $contractResult) {
-        Add-Failure -Failures $Failures -Message "TRX does not contain contract comparison test '$ContractTestName'."
-        $contractStatus = 'missing'
+    $contractResults = @($results | Where-Object { [string]$_.testName -like "*$ContractTestName*" })
+    $contractStatus = 'missing'
+    if ($contractResults.Count -ne 1) {
+        Add-Failure -Failures $Failures -Message "TRX must contain exactly one contract comparison test '$ContractTestName'; found $($contractResults.Count)."
     }
     else {
-        $contractStatus = [string]$contractResult.outcome
+        $contractStatus = [string]$contractResults[0].outcome
         if ($contractStatus -cne 'Passed') {
             Add-Failure -Failures $Failures -Message "Contract comparison test '$ContractTestName' outcome is '$contractStatus'."
         }
     }
-
     return [ordered]@{
-        status = if ($actual.failed -eq 0 -and $actual.skipped -eq 0 -and $contractStatus -eq 'Passed') { 'pass' } else { 'fail' }
-        path = $Path
+        status = if ($Failures.Count -eq 0) { 'pass' } else { 'fail' }
+        path = $Path[0]
         counts = $actual
+        artifacts = @($artifacts)
         failedTests = $failedTests
         contractTest = $ContractTestName
         contractTestOutcome = $contractStatus
-        sha256 = Get-Sha256ForFile $Path
+        sha256 = if ($artifacts.Count -eq 1) { $artifacts[0].sha256 } else { Get-Sha256ForText (($artifacts | ForEach-Object { "$($_.path):$($_.sha256)" }) -join "`n") }
+    }
+}
+
+function ConvertTo-CanonicalJson {
+    param([object]$Value)
+
+    function ConvertTo-SortedObject {
+        param([object]$Item)
+        if ($null -eq $Item -or $Item -is [string] -or $Item -is [ValueType]) { return $Item }
+        if ($Item -is [System.Collections.IDictionary]) {
+            $sorted = [ordered]@{}
+            $keys = [string[]]@($Item.Keys)
+            [Array]::Sort($keys, [StringComparer]::Ordinal)
+            foreach ($key in $keys) { $sorted[$key] = ConvertTo-SortedObject $Item[$key] }
+            return $sorted
+        }
+        if ($Item -is [System.Collections.IEnumerable]) {
+            $items = @($Item | ForEach-Object { ConvertTo-SortedObject $_ })
+            return ,$items
+        }
+        $sorted = [ordered]@{}
+        $keys = [string[]]@($Item.PSObject.Properties.Name)
+        [Array]::Sort($keys, [StringComparer]::Ordinal)
+        foreach ($key in $keys) { $sorted[$key] = ConvertTo-SortedObject $Item.$key }
+        return $sorted
+    }
+    return ConvertTo-Json -InputObject (ConvertTo-SortedObject $Value) -Depth 100 -Compress
+}
+
+function Test-ContractApproval {
+    param([string]$Root, [object]$Live, [System.Collections.Generic.List[string]]$Failures)
+
+    $configuration = Get-OptionalProperty -Object $Live -Name 'contractApproval'
+    if ($null -eq $configuration) { return $null }
+    try {
+        $proposalPath = Resolve-RepositoryPath -Root $Root -Path $configuration.proposalPath -MustExist
+        $approvalPath = Resolve-RepositoryPath -Root $Root -Path $configuration.approvalPath -MustExist
+        $proposalDocument = Get-Content -LiteralPath $proposalPath -Raw | ConvertFrom-Json -Depth 100
+        $approval = Get-Content -LiteralPath $approvalPath -Raw | ConvertFrom-Json -Depth 100
+        $surface = $proposalDocument.proposal.publicSurface
+        $baselinePath = Resolve-RepositoryPath -Root $Root -Path $Live.contractBaselinePath -MustExist
+        $snapshotPath = Resolve-RepositoryPath -Root $Root -Path $configuration.currentSnapshotPath -MustExist
+        $baseline = Get-Content -LiteralPath $baselinePath -Raw | ConvertFrom-Json -Depth 100
+        $snapshot = Get-Content -LiteralPath $snapshotPath -Raw | ConvertFrom-Json -Depth 100
+        $before = [System.Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+        $after = [System.Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+        foreach ($type in $baseline.types) { $before.Add("$($type.namespace).$($type.name)", $type) }
+        foreach ($type in $snapshot.types) { $after.Add("$($type.namespace).$($type.name)", $type) }
+        $changed = @($before.Keys | Where-Object { $after.ContainsKey($_) } | Sort-Object -CaseSensitive |
+            Where-Object { (ConvertTo-CanonicalJson $before[$_]) -cne (ConvertTo-CanonicalJson $after[$_]) } |
+            ForEach-Object { [ordered]@{ identity = $_; before = $before[$_]; after = $after[$_] } })
+        $drift = [ordered]@{
+            addedTypes = @($after.Keys | Where-Object { -not $before.ContainsKey($_) } | Sort-Object -CaseSensitive)
+            removedTypes = @($before.Keys | Where-Object { -not $after.ContainsKey($_) } | Sort-Object -CaseSensitive)
+            changedTypes = $changed
+        }
+        $driftHash = Get-Sha256ForText (ConvertTo-CanonicalJson $drift)
+        $proposalHash = Get-Sha256ForText (ConvertTo-CanonicalJson $proposalDocument.proposal)
+        if ($approval.status -cne 'approved' -or $approval.approvalId -cne $configuration.approvalId -or
+            (Get-Sha256ForFile $approvalPath) -cne $configuration.approvalSha256 -or
+            $proposalDocument.proposalSha256 -cne $proposalHash -or $approval.binding.proposalSha256 -cne $proposalHash -or
+            $approval.binding.publicDriftSha256 -cne $driftHash -or $configuration.driftSha256 -cne $driftHash -or
+            $surface.driftSha256 -cne $driftHash -or
+            (ConvertTo-CanonicalJson $surface.drift) -cne (ConvertTo-CanonicalJson $drift) -or
+            $surface.baseline.path -cne $Live.contractBaselinePath -or $surface.currentSnapshot.path -cne $configuration.currentSnapshotPath -or
+            $surface.baseline.sha256 -cne (Get-Sha256ForFile $baselinePath) -or
+            $surface.currentSnapshot.sha256 -cne (Get-Sha256ForFile $snapshotPath)) {
+            throw 'Public-contract drift does not exactly match the hash-bound approval and measured snapshots.'
+        }
+        return [ordered]@{
+            status = 'approved-difference'
+            approvalReference = $configuration.approvalPath
+            approvalId = $configuration.approvalId
+            approvalSha256 = $configuration.approvalSha256
+            proposalSha256 = $proposalHash
+            driftSha256 = $driftHash
+            differences = $drift
+            currentSnapshotPath = $configuration.currentSnapshotPath
+            regeneratedShapeTypeCount = $snapshot.typeCount
+            regeneratedShapeSha256 = Get-Sha256ForFile $snapshotPath
+        }
+    }
+    catch {
+        Add-Failure -Failures $Failures -Message "Public-contract approval failed: $($_.Exception.Message)"
+        return [ordered]@{ status = 'fail' }
     }
 }
 
@@ -622,10 +736,10 @@ function Test-PredecessorRecord {
 
             $expectedFailures = @($Predecessor.expectedFailures | ForEach-Object { "$_" })
             $actualFailures = @($source.live.failures | ForEach-Object { "$_" })
-            foreach ($failure in @($expectedFailures | Where-Object { $_ -notin $actualFailures })) {
+            foreach ($failure in @($expectedFailures | Where-Object { $_ -cnotin $actualFailures })) {
                 Add-Failure -Failures $failures -Message "Predecessor failure inventory is missing '$failure'."
             }
-            foreach ($failure in @($actualFailures | Where-Object { $_ -notin $expectedFailures })) {
+            foreach ($failure in @($actualFailures | Where-Object { $_ -cnotin $expectedFailures })) {
                 Add-Failure -Failures $failures -Message "Predecessor failure inventory contains unexpected failure '$failure'."
             }
         }
@@ -673,7 +787,7 @@ function Test-LiveRecord {
         [string]$Root,
         [object]$Configuration,
         [object]$PreexistingState,
-        [string]$ResolvedTestResultPath
+        [string[]]$ResolvedTestResultPath
     )
 
     $failures = [System.Collections.Generic.List[string]]::new()
@@ -724,12 +838,12 @@ function Test-LiveRecord {
     }
     else {
         $blockerFailures = [System.Collections.Generic.List[string]]::new()
-        $expectedFailedTests = @($blockedValidationConfiguration.expectedFailedTests | ForEach-Object { "$_" } | Sort-Object -Unique)
-        $actualFailedTests = @($trx.failedTests | ForEach-Object { "$_" } | Sort-Object -Unique)
-        foreach ($testName in @($expectedFailedTests | Where-Object { $_ -notin $actualFailedTests })) {
+        $expectedFailedTests = @($blockedValidationConfiguration.expectedFailedTests | ForEach-Object { "$_" } | Sort-Object -CaseSensitive -Unique)
+        $actualFailedTests = @($trx.failedTests | ForEach-Object { "$_" } | Sort-Object -CaseSensitive -Unique)
+        foreach ($testName in @($expectedFailedTests | Where-Object { $_ -cnotin $actualFailedTests })) {
             Add-Failure -Failures $blockerFailures -Message "Blocked validation is missing expected failed test '$testName'."
         }
-        foreach ($testName in @($actualFailedTests | Where-Object { $_ -notin $expectedFailedTests })) {
+        foreach ($testName in @($actualFailedTests | Where-Object { $_ -cnotin $expectedFailedTests })) {
             Add-Failure -Failures $blockerFailures -Message "Blocked validation contains unexpected failed test '$testName'."
         }
 
@@ -758,6 +872,39 @@ function Test-LiveRecord {
             failures = @($blockerFailures)
         }
     }
+    $validationCommands = @(Get-OptionalProperty -Object $live -Name 'validationCommands' -Default @())
+    foreach ($command in $validationCommands) {
+        if ([int]$command.exitCode -ne 0) {
+            Add-Failure -Failures $failures -Message "Validation command exited $($command.exitCode): $($command.command)"
+        }
+    }
+    $historicalReproduction = $null
+    $reproductionConfiguration = Get-OptionalProperty -Object $live -Name 'historicalReproduction'
+    if ($null -ne $reproductionConfiguration) {
+        $reproductionFailures = [System.Collections.Generic.List[string]]::new()
+        $reproductionPaths = @($reproductionConfiguration.testResultPaths | ForEach-Object { Resolve-RepositoryPath -Root $Root -Path $_ })
+        $reproduction = Test-TrxResult -Path $reproductionPaths -ExpectedCounts $reproductionConfiguration.expectedCounts -ContractTestName $live.contractTestName -Failures $reproductionFailures
+        $failureCheck = Test-PathSets -Expected @($reproductionConfiguration.expectedFailedTests) -Observed @($reproduction.failedTests) -Failures $failures -Label 'Historical reproduction failed test inventory'
+        foreach ($message in $reproductionFailures) {
+            if (-not $message.StartsWith('TRX is not fully green:', [StringComparison]::Ordinal)) {
+                Add-Failure -Failures $failures -Message "Historical reproduction: $message"
+            }
+        }
+        if ($reproduction.counts.failed -eq 0) {
+            Add-Failure -Failures $failures -Message 'Historical reproduction unexpectedly has no failures.'
+        }
+        $policyPath = Resolve-RepositoryPath -Root $Root -Path $reproductionConfiguration.policyPath -MustExist
+        $historicalReproduction = [ordered]@{
+            status = 'fail'
+            mechanicalResult = 'FAIL'
+            testRun = $reproduction
+            failedTests = $failureCheck
+            policyPath = $reproductionConfiguration.policyPath
+            policySha256 = Get-Sha256ForFile $policyPath
+            rationale = $reproductionConfiguration.rationale
+            limitations = 'This unfiltered reproduction remains FAIL. The current policy selection is reported separately; no historical result is reclassified as PASS.'
+        }
+    }
     $claims = Test-CountClaims -Root $Root -Claims @($live.countClaims) -DefaultRevision 'WORKTREE' -Failures $failures
 
     try {
@@ -771,7 +918,20 @@ function Test-LiveRecord {
         Add-Failure -Failures $failures -Message $_.Exception.Message
     }
 
+    $contractApproval = Test-ContractApproval -Root $Root -Live $live -Failures $failures
     $contractBaselinePath = ConvertTo-NormalizedPath ([string]$live.contractBaselinePath)
+    $comparisonBaselinePath = ConvertTo-NormalizedPath ([string](Get-OptionalProperty -Object $live -Name 'comparisonBaselinePath' -Default $contractBaselinePath))
+    $contractBaselineHash = Get-Sha256ForFile (Resolve-RepositoryPath -Root $Root -Path $contractBaselinePath -MustExist)
+    $comparisonBaselineHash = Get-Sha256ForFile (Resolve-RepositoryPath -Root $Root -Path $comparisonBaselinePath -MustExist)
+    $comparisonBaselineDiffers = $contractBaselineHash -cne $comparisonBaselineHash
+    $comparisonApproved = $null -ne $contractApproval -and $contractApproval.status -eq 'approved-difference' -and
+        $contractApproval.currentSnapshotPath -ceq $comparisonBaselinePath
+    if ($comparisonBaselineDiffers -and -not $comparisonApproved) {
+        Add-Failure -Failures $failures -Message "Comparator baseline '$comparisonBaselinePath' differs from immutable baseline '$contractBaselinePath' without its exact approved contract delta."
+    }
+    if ($null -ne $contractApproval -and $contractApproval.status -eq 'approved-difference' -and -not $comparisonApproved) {
+        Add-Failure -Failures $failures -Message "Approved contract snapshot '$($contractApproval.currentSnapshotPath)' is not the comparator baseline '$comparisonBaselinePath'."
+    }
     $contractBaselineDiff = @(Invoke-GitLines -Root $Root -GitArguments @('diff', '--name-only', [string]$live.baselineCommit, '--', $contractBaselinePath))
     if ($contractBaselineDiff.Count -gt 0) {
         Add-Failure -Failures $failures -Message "Public-contract baseline '$contractBaselinePath' changed in the live tree."
@@ -805,7 +965,7 @@ function Test-LiveRecord {
     foreach ($pair in @($live.evidencePairs)) {
         foreach ($pathValue in @($pair)) {
             $path = ConvertTo-NormalizedPath ([string]$pathValue)
-            if ($path -notin @($live.expectedChangedPaths)) {
+            if ($path -cnotin @($live.expectedChangedPaths)) {
                 Add-Failure -Failures $failures -Message "Evidence pair path '$path' is not declared in expectedChangedPaths."
             }
         }
@@ -820,6 +980,8 @@ function Test-LiveRecord {
         mechanicalResult = if ($failures.Count -gt 0) { 'FAIL' } elseif ($blockedValidation.status -eq 'blocked') { 'BLOCKED' } else { 'PASS' }
         failures = @($failures)
         testRun = $trx
+        validationCommands = $validationCommands
+        historicalReproduction = $historicalReproduction
         blockedValidation = $blockedValidation
         countClaims = $claims
         executableInputFingerprint = $inputFingerprint
@@ -829,9 +991,14 @@ function Test-LiveRecord {
         changedDocumentationAndEvidence = @($evidence)
         publicContractShape = [ordered]@{
             baselinePath = $contractBaselinePath
-            baselineSha256 = Get-Sha256ForFile (Resolve-RepositoryPath -Root $Root -Path $contractBaselinePath -MustExist)
+            baselineSha256 = $contractBaselineHash
+            comparisonBaselinePath = $comparisonBaselinePath
+            comparisonBaselineSha256 = $comparisonBaselineHash
+            comparisonBaselineMatchesImmutable = -not $comparisonBaselineDiffers
             comparisonTest = [string]$live.contractTestName
-            diffState = if ($contractBaselineDiff.Count -eq 0 -and $trx.contractTestOutcome -eq 'Passed') { 'empty' } else { 'non-empty-or-unproven' }
+            diffState = if ($contractBaselineDiff.Count -gt 0 -or $trx.contractTestOutcome -ne 'Passed' -or ($null -ne $contractApproval -and $contractApproval.status -eq 'fail') -or ($comparisonBaselineDiffers -and -not $comparisonApproved)) { 'non-empty-or-unproven' } elseif ($comparisonBaselineDiffers) { 'approved-difference' } else { 'empty' }
+            currentShapeDiffState = if ($trx.contractTestOutcome -eq 'Passed') { 'empty' } else { 'unproven' }
+            approval = $contractApproval
         }
     }
 }
@@ -987,6 +1154,10 @@ function ConvertTo-ReportMarkdown {
     [void]$lines.Add("- Changed paths: $($Report.live.changedPaths.observed.Count) observed, $($Report.live.changedPaths.missing.Count) missing, $($Report.live.changedPaths.unexpected.Count) unexpected.")
     [void]$lines.Add("- Frozen pre-existing entries: $($Report.live.frozenPreexistingState.Count) checked.")
     [void]$lines.Add("- Public-contract-shape diff: $($Report.live.publicContractShape.diffState).")
+    if ($null -ne $Report.live.publicContractShape.approval -and $Report.live.publicContractShape.approval.status -eq 'approved-difference') {
+        [void]$lines.Add("- Approved historical contract drift: $($Report.live.publicContractShape.approval.driftSha256); reference: $($Report.live.publicContractShape.approval.approvalReference).")
+        [void]$lines.Add("- Current successor contract shape: $($Report.live.publicContractShape.currentShapeDiffState); $($Report.live.publicContractShape.approval.regeneratedShapeTypeCount) types.")
+    }
     if ($Report.live.blockedValidation.status -eq 'blocked') {
         [void]$lines.Add("- Completion blocker: $($Report.live.blockedValidation.code) — $($Report.live.blockedValidation.rationale)")
         [void]$lines.Add("- Focused contract comparison: $($Report.live.blockedValidation.focusedTestRun.counts.passed) / $($Report.live.blockedValidation.focusedTestRun.counts.total) passed.")
@@ -998,6 +1169,17 @@ function ConvertTo-ReportMarkdown {
         }
     }
     [void]$lines.Add('')
+    if ($null -ne $Report.live.historicalReproduction) {
+        [void]$lines.Add('## Unfiltered Historical Reproduction')
+        [void]$lines.Add('')
+        $reproduction = $Report.live.historicalReproduction
+        [void]$lines.Add("- Result: FAIL; $($reproduction.testRun.counts.passed) / $($reproduction.testRun.counts.total) passed; $($reproduction.testRun.counts.failed) failed; $($reproduction.testRun.counts.skipped) skipped.")
+        [void]$lines.Add("- Current validation policy: $($reproduction.policyPath). $($reproduction.rationale)")
+        [void]$lines.Add("- Limitation: $($reproduction.limitations)")
+        [void]$lines.Add('')
+        foreach ($testName in $reproduction.testRun.failedTests) { [void]$lines.Add("- $testName") }
+        [void]$lines.Add('')
+    }
     [void]$lines.Add('## Historical Epic 5 Audit')
     [void]$lines.Add('')
     [void]$lines.Add('| Story | Result | Passed / Total | File List | Contract baseline |')
@@ -1031,9 +1213,12 @@ else {
     (Resolve-Path -LiteralPath $TestResultPath).Path
 }
 
+$additionalTrxPaths = @(Get-OptionalProperty -Object $configuration.live -Name 'additionalTestResultPaths' -Default @())
+$resolvedTrxPaths = @($resolvedTrxPath) + @($additionalTrxPaths | ForEach-Object { Resolve-RepositoryPath -Root $root -Path $_ })
+
 $predecessorConfiguration = Get-OptionalProperty -Object $configuration -Name 'predecessor'
 $predecessorResult = Test-PredecessorRecord -Root $root -Predecessor $predecessorConfiguration
-$liveResult = Test-LiveRecord -Root $root -Configuration $configuration -PreexistingState $preexistingState -ResolvedTestResultPath $resolvedTrxPath
+$liveResult = Test-LiveRecord -Root $root -Configuration $configuration -PreexistingState $preexistingState -ResolvedTestResultPath $resolvedTrxPaths
 $historicalResults = [System.Collections.Generic.List[object]]::new()
 foreach ($record in @($configuration.historical)) {
     [void]$historicalResults.Add((Test-HistoricalRecord -Root $root -Record $record))

@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
+    <ProjectReference Include="..\Hexalith.Conversations.Client\Hexalith.Conversations.Client.csproj" />
     <ProjectReference Include="..\Hexalith.Conversations\Hexalith.Conversations.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">

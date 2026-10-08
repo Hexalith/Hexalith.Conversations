@@ -1,0 +1,1973 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epic-5-final-record-check",
+  "generatedAtUtc": "2026-10-08T12:50:47Z",
+  "status": "fail",
+  "mechanicalResult": "FAIL",
+  "approvedProposal": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
+  "predecessor": {
+    "id": "epic-5-final-record-check-2026-07-14",
+    "status": "pass-with-approved-amendment",
+    "mechanicalResult": "PASS",
+    "sourceResult": "FAIL",
+    "sourceCommit": "8f8f14fd6e842eeb19b7410554366a93f8a93ce5",
+    "jsonPath": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.json",
+    "jsonSha256": "a6ec97c1fc3fb3e026d72ce5bd480561d71acf3c051f84ac73f9fd24671c65e1",
+    "markdownPath": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.md",
+    "markdownSha256": "0b8e1de3fcd132c2d0d226a38d9e7c94037a5b4db6c2448c5d418070f551a710",
+    "amendmentPath": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-corrective-amendment-2026-08-22.md",
+    "failures": [],
+    "limitations": "The predecessor failure and exact bytes are preserved. The amendment disposes the named historical discrepancy; it does not reconstruct the former uncommitted working tree."
+  },
+  "live": {
+    "id": "epic-5-final-record-successor-2026-10-08",
+    "mode": "live-working-tree",
+    "baselineCommit": "8793d26306f91d2cfe00116dc0b8eec41ec8900f",
+    "evaluatedHead": "8793d26306f91d2cfe00116dc0b8eec41ec8900f",
+    "status": "fail",
+    "mechanicalResult": "FAIL",
+    "failures": [
+      "Frozen entry 'references/Hexalith.Builds' changed: submodule internal status hash changed from e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 to d662a78b7d1574a61a91b521584d1e3152917d1ca7d74548c5074e02d7b64216.",
+      "Live declared-vs-observed path inventory contains unexpected path '.github/workflows/ci.yml'.",
+      "Live declared-vs-observed path inventory contains unexpected path '_bmad-output/implementation-artifacts/spec-update-all-packages.md'.",
+      "Live declared-vs-observed path inventory contains unexpected path '_bmad/scripts/check_package_refresh_environment.py'.",
+      "Live declared-vs-observed path inventory contains unexpected path 'package-lock.json'.",
+      "Live declared-vs-observed path inventory contains unexpected path 'package.json'.",
+      "Live declared-vs-observed path inventory contains unexpected path 'references/Hexalith.Builds'.",
+      "Live declared-vs-observed path inventory contains unexpected path 'src/Hexalith.Conversations.Server/Agents/ConversationDeletionPublicationProjector.cs'.",
+      "Live declared-vs-observed path inventory contains unexpected path 'tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionPublicationProjectorTests.cs'.",
+      "Live declared-vs-observed path inventory contains unexpected path 'uv.lock'.",
+      "Live work item contains non-excluded gitlink 'references/Hexalith.Builds'.",
+      "Executable/test input fingerprint is stale: expected PENDING_FINAL_RUN, found 6cdae800bb1ef7253d778279f5ae0e6cbaea7b817b717b79ea372e14c89d5ea9.",
+      "Changed documentation/evidence '.github/workflows/ci.yml' SHA-256 is a3e797dd1af943eb32cda4224e2aa82dc0b773c03dd8c9d27b2d0c3a9bf033a9; expected 134b264eae0c986f132c0fcdf55648613d4c28947652d94b84a1a904e71365b5."
+    ],
+    "testRun": {
+      "status": "pass",
+      "path": "/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-portable.xml",
+      "counts": {
+        "total": 418,
+        "executed": 418,
+        "passed": 418,
+        "failed": 0,
+        "skipped": 0
+      },
+      "artifacts": [
+        {
+          "path": "/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-portable.xml",
+          "counts": {
+            "total": 326,
+            "executed": 326,
+            "passed": 326,
+            "failed": 0,
+            "skipped": 0
+          },
+          "sha256": "99ff7339f08830f6559dc0b0d8d9d56709479ace559c5b08ef03f0622ad78d15"
+        },
+        {
+          "path": "/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-internal.xml",
+          "counts": {
+            "total": 92,
+            "executed": 92,
+            "passed": 92,
+            "failed": 0,
+            "skipped": 0
+          },
+          "sha256": "42af43c9d176ffb312820ee18357184848dfd9aa9dc29bb63ce06d65b7c7a6d4"
+        }
+      ],
+      "failedTests": [],
+      "contractTest": "CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
+      "contractTestOutcome": "Passed",
+      "sha256": "ae26407b8809f40c1a3be01bf784c4f91d1438b1609aeae55ae7e46cbaec14ea"
+    },
+    "validationCommands": [
+      {
+        "command": "dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -failSkips -class- Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest -class- Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest -class- Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest -class- Hexalith.Conversations.Conformance.Tests.PlanningToolingEnvironmentAuthorityV15ValidationTest -class- Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest -class- Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest -class- Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest -class- Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest -method- Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently -method- Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.CurrentControlsAndTierPrerequisiteShouldStayTruthful -method- Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap -method- Hexalith.Conversations.Conformance.Tests.SmC2BaselineReconstructionValidationTest.BaselineShouldRecordAnAuditableReconstructionMethod -parallelMode none -result-trx /tmp/epic5-current-policy-portable.trx -noLogo",
+        "runner": "xUnit v3 executable",
+        "exitCode": 0
+      },
+      {
+        "command": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests -noLogo -trx /tmp/epic5-current-internal.trx",
+        "runner": "xUnit v3 executable",
+        "exitCode": 0
+      }
+    ],
+    "historicalReproduction": {
+      "status": "fail",
+      "mechanicalResult": "FAIL",
+      "testRun": {
+        "status": "fail",
+        "path": "/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-portable.xml",
+        "counts": {
+          "total": 489,
+          "executed": 489,
+          "passed": 483,
+          "failed": 6,
+          "skipped": 0
+        },
+        "artifacts": [
+          {
+            "path": "/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-portable.xml",
+            "counts": {
+              "total": 397,
+              "executed": 397,
+              "passed": 391,
+              "failed": 6,
+              "skipped": 0
+            },
+            "sha256": "e2dda65e7b2f04684614e4c15d153e1ba2f1a8ee09ce07922ffa35a18baded08"
+          },
+          {
+            "path": "/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-internal.xml",
+            "counts": {
+              "total": 92,
+              "executed": 92,
+              "passed": 92,
+              "failed": 0,
+              "skipped": 0
+            },
+            "sha256": "42af43c9d176ffb312820ee18357184848dfd9aa9dc29bb63ce06d65b7c7a6d4"
+          }
+        ],
+        "failedTests": [
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.AssertionInventoryShouldMatchPreSplitResultAndSource",
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.DenominatorSuitesShouldRemainUnchanged",
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ServerBoundAssertionsShouldHaveExactDisposition",
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.StrengthDigestsShouldRemainEqual",
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.TieringShouldNotWidenPublicContracts",
+          "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap"
+        ],
+        "contractTest": "CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
+        "contractTestOutcome": "Passed",
+        "sha256": "3c61e9bfad56d1bd977d6bce0e3282c8144e6cc47b93454bd6a5f82dab5d80f8"
+      },
+      "failedTests": {
+        "expected": [
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.AssertionInventoryShouldMatchPreSplitResultAndSource",
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.DenominatorSuitesShouldRemainUnchanged",
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ServerBoundAssertionsShouldHaveExactDisposition",
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.StrengthDigestsShouldRemainEqual",
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.TieringShouldNotWidenPublicContracts",
+          "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap"
+        ],
+        "observed": [
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.AssertionInventoryShouldMatchPreSplitResultAndSource",
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.DenominatorSuitesShouldRemainUnchanged",
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ServerBoundAssertionsShouldHaveExactDisposition",
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.StrengthDigestsShouldRemainEqual",
+          "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.TieringShouldNotWidenPublicContracts",
+          "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap"
+        ],
+        "duplicateExpected": [],
+        "duplicateObserved": [],
+        "missing": [],
+        "unexpected": [],
+        "status": "pass"
+      },
+      "policyPath": "docs/runbooks/current-change-validation.md",
+      "policySha256": "12f208ba36787264c3fad5c129e3981d4a40f4151a630051b6a608f341a27961",
+      "rationale": "The existing CI selection retires historical authority subjects and original single-assembly Story 9.1 controls. Both unfiltered assemblies were executed without exclusions; all six reproduced failures remain named and FAIL. The canonical current run uses the pre-existing CI class/method exclusions without adding exclusions.",
+      "limitations": "This unfiltered reproduction remains FAIL. The current policy selection is reported separately; no historical result is reclassified as PASS."
+    },
+    "blockedValidation": {
+      "status": "not-applicable",
+      "mechanicalResult": "not-applicable"
+    },
+    "countClaims": [
+      {
+        "path": "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "kind": "regex",
+        "claim": "Current policy conformance: 418 / 418 passed",
+        "status": "pass"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "kind": "regex",
+        "claim": "Current policy conformance: 418 / 418 passed",
+        "status": "pass"
+      }
+    ],
+    "executableInputFingerprint": "6cdae800bb1ef7253d778279f5ae0e6cbaea7b817b717b79ea372e14c89d5ea9",
+    "changedPaths": {
+      "expected": [
+        "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+        "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.md",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-input.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-internal.xml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-portable.xml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-preexisting-state.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-internal.xml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-portable.xml",
+        "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
+        "tests/README.md",
+        "tests/Test-StoryFinalRecord.Input.schema.json",
+        "tests/Test-StoryFinalRecord.Tests.ps1",
+        "tests/Test-StoryFinalRecord.ps1"
+      ],
+      "observed": [
+        ".github/workflows/ci.yml",
+        "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+        "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "_bmad-output/implementation-artifacts/spec-update-all-packages.md",
+        "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.md",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-input.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-internal.xml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-portable.xml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-preexisting-state.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-internal.xml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-portable.xml",
+        "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
+        "_bmad/scripts/check_package_refresh_environment.py",
+        "package-lock.json",
+        "package.json",
+        "references/Hexalith.Builds",
+        "src/Hexalith.Conversations.Server/Agents/ConversationDeletionPublicationProjector.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionPublicationProjectorTests.cs",
+        "tests/README.md",
+        "tests/Test-StoryFinalRecord.Input.schema.json",
+        "tests/Test-StoryFinalRecord.Tests.ps1",
+        "tests/Test-StoryFinalRecord.ps1",
+        "uv.lock"
+      ],
+      "duplicateExpected": [],
+      "duplicateObserved": [],
+      "missing": [],
+      "unexpected": [
+        ".github/workflows/ci.yml",
+        "_bmad-output/implementation-artifacts/spec-update-all-packages.md",
+        "_bmad/scripts/check_package_refresh_environment.py",
+        "package-lock.json",
+        "package.json",
+        "references/Hexalith.Builds",
+        "src/Hexalith.Conversations.Server/Agents/ConversationDeletionPublicationProjector.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionPublicationProjectorTests.cs",
+        "uv.lock"
+      ],
+      "status": "fail"
+    },
+    "configuredFileList": {
+      "expected": [
+        "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+        "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.md",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-input.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-internal.xml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-portable.xml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-preexisting-state.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-internal.xml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-portable.xml",
+        "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
+        "tests/README.md",
+        "tests/Test-StoryFinalRecord.Input.schema.json",
+        "tests/Test-StoryFinalRecord.Tests.ps1",
+        "tests/Test-StoryFinalRecord.ps1"
+      ],
+      "observed": [
+        "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+        "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.md",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-input.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-internal.xml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-portable.xml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-preexisting-state.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-internal.xml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-portable.xml",
+        "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
+        "tests/README.md",
+        "tests/Test-StoryFinalRecord.Input.schema.json",
+        "tests/Test-StoryFinalRecord.Tests.ps1",
+        "tests/Test-StoryFinalRecord.ps1"
+      ],
+      "duplicateExpected": [],
+      "duplicateObserved": [],
+      "missing": [],
+      "unexpected": [],
+      "status": "pass"
+    },
+    "frozenPreexistingState": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "kind": "gitlink",
+        "frozenIdentity": {
+          "path": "references/Hexalith.AI.Tools",
+          "kind": "gitlink",
+          "baselineCommit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+          "indexCommit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+          "worktreeCommit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+          "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "kind": "gitlink",
+        "frozenIdentity": {
+          "path": "references/Hexalith.Builds",
+          "kind": "gitlink",
+          "baselineCommit": "f717a87c26a8266bdde95d18f998ef2ab366d43a",
+          "indexCommit": "f717a87c26a8266bdde95d18f998ef2ab366d43a",
+          "worktreeCommit": "f717a87c26a8266bdde95d18f998ef2ab366d43a",
+          "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "changed-fail",
+        "failures": [
+          "submodule internal status hash changed from e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 to d662a78b7d1574a61a91b521584d1e3152917d1ca7d74548c5074e02d7b64216"
+        ]
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "kind": "gitlink",
+        "frozenIdentity": {
+          "path": "references/Hexalith.Commons",
+          "kind": "gitlink",
+          "baselineCommit": "116d26815eb81e35b3c161e1799e5ee12805fc0a",
+          "indexCommit": "116d26815eb81e35b3c161e1799e5ee12805fc0a",
+          "worktreeCommit": "116d26815eb81e35b3c161e1799e5ee12805fc0a",
+          "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "kind": "gitlink",
+        "frozenIdentity": {
+          "path": "references/Hexalith.EventStore",
+          "kind": "gitlink",
+          "baselineCommit": "9542d3c9f48bf9ce1c57f2ef68904703eaba56cc",
+          "indexCommit": "9542d3c9f48bf9ce1c57f2ef68904703eaba56cc",
+          "worktreeCommit": "9542d3c9f48bf9ce1c57f2ef68904703eaba56cc",
+          "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "kind": "gitlink",
+        "frozenIdentity": {
+          "path": "references/Hexalith.Folders",
+          "kind": "gitlink",
+          "baselineCommit": "c8e3d99468e27329d9e3977ec2d0b1542c7e9e60",
+          "indexCommit": "c8e3d99468e27329d9e3977ec2d0b1542c7e9e60",
+          "worktreeCommit": "c8e3d99468e27329d9e3977ec2d0b1542c7e9e60",
+          "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "kind": "gitlink",
+        "frozenIdentity": {
+          "path": "references/Hexalith.FrontComposer",
+          "kind": "gitlink",
+          "baselineCommit": "0e114214007c22f5cdbac21a6853cff4208340ee",
+          "indexCommit": "0e114214007c22f5cdbac21a6853cff4208340ee",
+          "worktreeCommit": "0e114214007c22f5cdbac21a6853cff4208340ee",
+          "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "kind": "gitlink",
+        "frozenIdentity": {
+          "path": "references/Hexalith.Memories",
+          "kind": "gitlink",
+          "baselineCommit": "3e18d0dcdceb387eff89862c382637da89ad7e47",
+          "indexCommit": "3e18d0dcdceb387eff89862c382637da89ad7e47",
+          "worktreeCommit": "3e18d0dcdceb387eff89862c382637da89ad7e47",
+          "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "kind": "gitlink",
+        "frozenIdentity": {
+          "path": "references/Hexalith.Parties",
+          "kind": "gitlink",
+          "baselineCommit": "ccaf77399d92be696e44ecb8ab17acf77d97646a",
+          "indexCommit": "ccaf77399d92be696e44ecb8ab17acf77d97646a",
+          "worktreeCommit": "ccaf77399d92be696e44ecb8ab17acf77d97646a",
+          "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "kind": "gitlink",
+        "frozenIdentity": {
+          "path": "references/Hexalith.Projects",
+          "kind": "gitlink",
+          "baselineCommit": "f8649509d798435af4021cec4440c425b80f6fd6",
+          "indexCommit": "f8649509d798435af4021cec4440c425b80f6fd6",
+          "worktreeCommit": "f8649509d798435af4021cec4440c425b80f6fd6",
+          "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "kind": "gitlink",
+        "frozenIdentity": {
+          "path": "references/Hexalith.Tenants",
+          "kind": "gitlink",
+          "baselineCommit": "fcdcb4205a3f6e46f736cdd3e6f2b20ca2f241df",
+          "indexCommit": "fcdcb4205a3f6e46f736cdd3e6f2b20ca2f241df",
+          "worktreeCommit": "fcdcb4205a3f6e46f736cdd3e6f2b20ca2f241df",
+          "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "unchanged-excluded",
+        "failures": []
+      }
+    ],
+    "changedDocumentationAndEvidence": [
+      {
+        "path": "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+        "status": "present",
+        "sha256": "605541fc06c8f674ae41fb6864137ee332590436bc4b091ece27b27fbcc6b85c"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "status": "present",
+        "sha256": "c0c6aae9125702cf5a7011314bed1617415d0f1e3bf5c211f1b9e4d5dfbefbeb"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "status": "present",
+        "sha256": "7094d18ee4e91503361111d7ac1c9c66eefe21671c67dc9587bb7445e19fb3f4"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-input.json",
+        "status": "present",
+        "sha256": "9aef81303480055b0e8c3a38a30e8e81e88d4e0c9f6be5398e10783f6c569b64"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-internal.xml",
+        "status": "present",
+        "sha256": "42af43c9d176ffb312820ee18357184848dfd9aa9dc29bb63ce06d65b7c7a6d4"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-portable.xml",
+        "status": "present",
+        "sha256": "99ff7339f08830f6559dc0b0d8d9d56709479ace559c5b08ef03f0622ad78d15"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-preexisting-state.json",
+        "status": "present",
+        "sha256": "a9b39cab9492cd6752f4b7e3cd64be8ba4e5aa72906638e163b4bbcbdb895b36"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-internal.xml",
+        "status": "present",
+        "sha256": "42af43c9d176ffb312820ee18357184848dfd9aa9dc29bb63ce06d65b7c7a6d4"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-portable.xml",
+        "status": "present",
+        "sha256": "e2dda65e7b2f04684614e4c15d153e1ba2f1a8ee09ce07922ffa35a18baded08"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "status": "present",
+        "sha256": "f3dd876b606f65af047b6fb80cf4e619f58b016815e8ce7e10759ccc94d96d53"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
+        "status": "present",
+        "sha256": "129d0ffd65eed9fcae7dc32c944332d05cec7ba1149b8dde3886dca60cbaa058"
+      },
+      {
+        "path": "tests/README.md",
+        "status": "present",
+        "sha256": "c6cf7ffaf362d8782a2d351e13cf17c2f894076b25db75efdb6a063f2dc16b6a"
+      },
+      {
+        "path": "tests/Test-StoryFinalRecord.Input.schema.json",
+        "status": "present",
+        "sha256": "efd702685cb1d52b5ef62d981759243113f8153c84896adc22429aec3667ddc3"
+      },
+      {
+        "path": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+        "status": "present",
+        "sha256": "ebfc2f67e90ecc8a7734719c6e2673b6e8392ab2cae9956a8e98b7bf769acfca"
+      },
+      {
+        "path": "docs/release-evidence/public-contract-shape-story-9.2-v2.json",
+        "status": "present",
+        "sha256": "0160a2be428c681d22c014afa109fc80eb97706fe6f47367ac571b9a9a7595f8"
+      },
+      {
+        "path": "docs/release-evidence/conformance-oracle-tiering-migration-v3.json",
+        "status": "present",
+        "sha256": "b038eb86f243228196645f5a828496bd012cd4e40021429d113312a5d9204130"
+      },
+      {
+        "path": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v3.json",
+        "status": "present",
+        "sha256": "8143718e4d1b1f9966fd90cb0ea64bd9cf101e6f114ca4001ba64e1046ef0edb"
+      },
+      {
+        "path": "docs/runbooks/current-change-validation.md",
+        "status": "present",
+        "sha256": "12f208ba36787264c3fad5c129e3981d4a40f4151a630051b6a608f341a27961"
+      },
+      {
+        "path": ".github/workflows/ci.yml",
+        "status": "hash-mismatch",
+        "sha256": "a3e797dd1af943eb32cda4224e2aa82dc0b773c03dd8c9d27b2d0c3a9bf033a9"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+        "status": "present",
+        "sha256": "ab6d4970d1e7cc78738435b09e0777d0a2eefe473ba91ca2310c26aa4d220b21"
+      }
+    ],
+    "publicContractShape": {
+      "baselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+      "baselineSha256": "ebfc2f67e90ecc8a7734719c6e2673b6e8392ab2cae9956a8e98b7bf769acfca",
+      "comparisonBaselinePath": "docs/release-evidence/public-contract-shape-story-9.2-v2.json",
+      "comparisonBaselineSha256": "0160a2be428c681d22c014afa109fc80eb97706fe6f47367ac571b9a9a7595f8",
+      "comparisonBaselineMatchesImmutable": false,
+      "comparisonTest": "CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
+      "diffState": "approved-difference",
+      "currentShapeDiffState": "empty",
+      "approval": {
+        "status": "approved-difference",
+        "approvalReference": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v3.json",
+        "approvalId": "story-9.2-user-quality-approval-2026-10-07",
+        "approvalSha256": "8143718e4d1b1f9966fd90cb0ea64bd9cf101e6f114ca4001ba64e1046ef0edb",
+        "proposalSha256": "5ea111cbb12a196ba79231bccfeadf239109e50002a40ca0b942ea9568e79217",
+        "driftSha256": "3357725bc7ebc039baca0bf928718f03f2ae037dbd130e37704bd3315480d2d1",
+        "differences": {
+          "addedTypes": [
+            "Hexalith.Conversations.Contracts.Agents.AgentMessageProvenance",
+            "Hexalith.Conversations.Contracts.Agents.ApproveConversationDeletionCommand",
+            "Hexalith.Conversations.Contracts.Agents.ConversationActiveCountQuery",
+            "Hexalith.Conversations.Contracts.Agents.ConversationActiveCountResult",
+            "Hexalith.Conversations.Contracts.Agents.ConversationAgentCommandResult",
+            "Hexalith.Conversations.Contracts.Agents.ConversationAgentMessage",
+            "Hexalith.Conversations.Contracts.Agents.ConversationAgentReadQuery",
+            "Hexalith.Conversations.Contracts.Agents.ConversationAgentReadResult",
+            "Hexalith.Conversations.Contracts.Agents.ConversationAgentsOutcome",
+            "Hexalith.Conversations.Contracts.Agents.ConversationDeletionAcknowledgement",
+            "Hexalith.Conversations.Contracts.Agents.ConversationDeletionDeliveryAction",
+            "Hexalith.Conversations.Contracts.Agents.ConversationDeletionSignal",
+            "Hexalith.Conversations.Contracts.Agents.ConversationDeletionSourceQuery",
+            "Hexalith.Conversations.Contracts.Agents.ConversationDeletionSourceResult",
+            "Hexalith.Conversations.Contracts.Agents.DeleteConversationMessageCommand",
+            "Hexalith.Conversations.Contracts.Agents.EditConversationMessageCommand",
+            "Hexalith.Conversations.Contracts.Agents.RecordConversationDeletionDeliveryCommand",
+            "Hexalith.Conversations.Contracts.Agents.RemoveAgentParticipantCommand",
+            "Hexalith.Conversations.Contracts.Events.AgentParticipantRemoved",
+            "Hexalith.Conversations.Contracts.Events.ConversationDeletionApproved",
+            "Hexalith.Conversations.Contracts.Events.ConversationDeletionDeliveryRecorded",
+            "Hexalith.Conversations.Contracts.Events.MessageDeleted",
+            "Hexalith.Conversations.Contracts.Events.MessageEdited"
+          ],
+          "removedTypes": [],
+          "changedTypes": [
+            {
+              "identity": "Hexalith.Conversations.Contracts.Commands.AddParticipantCommand",
+              "before": {
+                "namespace": "Hexalith.Conversations.Contracts.Commands",
+                "name": "AddParticipantCommand",
+                "kind": "record",
+                "isAbstract": false,
+                "isSealed": true,
+                "interfaces": [
+                  "System.IEquatable<Hexalith.Conversations.Contracts.Commands.AddParticipantCommand>"
+                ],
+                "properties": [
+                  {
+                    "name": "ConversationId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.ConversationId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "Metadata",
+                    "type": "Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ParticipantPartyId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ParticipantRole",
+                    "type": "Hexalith.Conversations.Contracts.Participants.ParticipantRole",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ParticipantType",
+                    "type": "Hexalith.Conversations.Contracts.Participants.ParticipantType",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ProviderCorrelation",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  }
+                ],
+                "constructors": [
+                  {
+                    "name": "(ctor)",
+                    "parameters": [
+                      {
+                        "name": "Metadata",
+                        "type": "Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata"
+                      },
+                      {
+                        "name": "ConversationId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ConversationId"
+                      },
+                      {
+                        "name": "ParticipantPartyId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId"
+                      },
+                      {
+                        "name": "ParticipantType",
+                        "type": "Hexalith.Conversations.Contracts.Participants.ParticipantType"
+                      },
+                      {
+                        "name": "ParticipantRole",
+                        "type": "Hexalith.Conversations.Contracts.Participants.ParticipantRole"
+                      },
+                      {
+                        "name": "ProviderCorrelation",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata"
+                      }
+                    ]
+                  }
+                ],
+                "methods": [
+                  {
+                    "name": "Deconstruct",
+                    "returnType": "System.Void",
+                    "parameters": [
+                      {
+                        "name": "Metadata",
+                        "type": "Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata&"
+                      },
+                      {
+                        "name": "ConversationId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ConversationId&"
+                      },
+                      {
+                        "name": "ParticipantPartyId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId&"
+                      },
+                      {
+                        "name": "ParticipantType",
+                        "type": "Hexalith.Conversations.Contracts.Participants.ParticipantType&"
+                      },
+                      {
+                        "name": "ParticipantRole",
+                        "type": "Hexalith.Conversations.Contracts.Participants.ParticipantRole&"
+                      },
+                      {
+                        "name": "ProviderCorrelation",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata&"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "after": {
+                "namespace": "Hexalith.Conversations.Contracts.Commands",
+                "name": "AddParticipantCommand",
+                "kind": "record",
+                "isAbstract": false,
+                "isSealed": true,
+                "interfaces": [
+                  "System.IEquatable<Hexalith.Conversations.Contracts.Commands.AddParticipantCommand>"
+                ],
+                "properties": [
+                  {
+                    "name": "ConversationId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.ConversationId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "Metadata",
+                    "type": "Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "OperationTimestamp",
+                    "type": "System.DateTimeOffset?",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ParticipantPartyId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ParticipantRole",
+                    "type": "Hexalith.Conversations.Contracts.Participants.ParticipantRole",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ParticipantType",
+                    "type": "Hexalith.Conversations.Contracts.Participants.ParticipantType",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ProviderCorrelation",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  }
+                ],
+                "constructors": [
+                  {
+                    "name": "(ctor)",
+                    "parameters": [
+                      {
+                        "name": "Metadata",
+                        "type": "Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata"
+                      },
+                      {
+                        "name": "ConversationId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ConversationId"
+                      },
+                      {
+                        "name": "ParticipantPartyId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId"
+                      },
+                      {
+                        "name": "ParticipantType",
+                        "type": "Hexalith.Conversations.Contracts.Participants.ParticipantType"
+                      },
+                      {
+                        "name": "ParticipantRole",
+                        "type": "Hexalith.Conversations.Contracts.Participants.ParticipantRole"
+                      },
+                      {
+                        "name": "ProviderCorrelation",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata"
+                      },
+                      {
+                        "name": "OperationTimestamp",
+                        "type": "System.DateTimeOffset?"
+                      }
+                    ]
+                  }
+                ],
+                "methods": [
+                  {
+                    "name": "Deconstruct",
+                    "returnType": "System.Void",
+                    "parameters": [
+                      {
+                        "name": "Metadata",
+                        "type": "Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata&"
+                      },
+                      {
+                        "name": "ConversationId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ConversationId&"
+                      },
+                      {
+                        "name": "ParticipantPartyId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId&"
+                      },
+                      {
+                        "name": "ParticipantType",
+                        "type": "Hexalith.Conversations.Contracts.Participants.ParticipantType&"
+                      },
+                      {
+                        "name": "ParticipantRole",
+                        "type": "Hexalith.Conversations.Contracts.Participants.ParticipantRole&"
+                      },
+                      {
+                        "name": "ProviderCorrelation",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata&"
+                      },
+                      {
+                        "name": "OperationTimestamp",
+                        "type": "System.Nullable`1[[System.DateTimeOffset, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]&"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "identity": "Hexalith.Conversations.Contracts.Commands.AppendMessageCommand",
+              "before": {
+                "namespace": "Hexalith.Conversations.Contracts.Commands",
+                "name": "AppendMessageCommand",
+                "kind": "record",
+                "isAbstract": false,
+                "isSealed": true,
+                "interfaces": [
+                  "System.IEquatable<Hexalith.Conversations.Contracts.Commands.AppendMessageCommand>"
+                ],
+                "properties": [
+                  {
+                    "name": "AuthorPartyId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "CallerMetadata",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.CallerMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ConversationId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.ConversationId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "MessageId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.MessageId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "Metadata",
+                    "type": "Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ProviderCorrelation",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "Text",
+                    "type": "System.String",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  }
+                ],
+                "constructors": [
+                  {
+                    "name": "(ctor)",
+                    "parameters": [
+                      {
+                        "name": "Metadata",
+                        "type": "Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata"
+                      },
+                      {
+                        "name": "ConversationId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ConversationId"
+                      },
+                      {
+                        "name": "MessageId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.MessageId"
+                      },
+                      {
+                        "name": "AuthorPartyId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId"
+                      },
+                      {
+                        "name": "Text",
+                        "type": "System.String"
+                      },
+                      {
+                        "name": "ProviderCorrelation",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata"
+                      },
+                      {
+                        "name": "CallerMetadata",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.CallerMetadata"
+                      }
+                    ]
+                  }
+                ],
+                "methods": [
+                  {
+                    "name": "Deconstruct",
+                    "returnType": "System.Void",
+                    "parameters": [
+                      {
+                        "name": "Metadata",
+                        "type": "Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata&"
+                      },
+                      {
+                        "name": "ConversationId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ConversationId&"
+                      },
+                      {
+                        "name": "MessageId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.MessageId&"
+                      },
+                      {
+                        "name": "AuthorPartyId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId&"
+                      },
+                      {
+                        "name": "Text",
+                        "type": "System.String&"
+                      },
+                      {
+                        "name": "ProviderCorrelation",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata&"
+                      },
+                      {
+                        "name": "CallerMetadata",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.CallerMetadata&"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "after": {
+                "namespace": "Hexalith.Conversations.Contracts.Commands",
+                "name": "AppendMessageCommand",
+                "kind": "record",
+                "isAbstract": false,
+                "isSealed": true,
+                "interfaces": [
+                  "System.IEquatable<Hexalith.Conversations.Contracts.Commands.AppendMessageCommand>"
+                ],
+                "properties": [
+                  {
+                    "name": "AgentProvenance",
+                    "type": "Hexalith.Conversations.Contracts.Agents.AgentMessageProvenance",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "AuthorPartyId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "CallerMetadata",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.CallerMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ConversationId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.ConversationId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "MessageId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.MessageId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "Metadata",
+                    "type": "Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "OperationTimestamp",
+                    "type": "System.DateTimeOffset?",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ProviderCorrelation",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "Text",
+                    "type": "System.String",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  }
+                ],
+                "constructors": [
+                  {
+                    "name": "(ctor)",
+                    "parameters": [
+                      {
+                        "name": "Metadata",
+                        "type": "Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata"
+                      },
+                      {
+                        "name": "ConversationId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ConversationId"
+                      },
+                      {
+                        "name": "MessageId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.MessageId"
+                      },
+                      {
+                        "name": "AuthorPartyId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId"
+                      },
+                      {
+                        "name": "Text",
+                        "type": "System.String"
+                      },
+                      {
+                        "name": "ProviderCorrelation",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata"
+                      },
+                      {
+                        "name": "CallerMetadata",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.CallerMetadata"
+                      },
+                      {
+                        "name": "AgentProvenance",
+                        "type": "Hexalith.Conversations.Contracts.Agents.AgentMessageProvenance"
+                      },
+                      {
+                        "name": "OperationTimestamp",
+                        "type": "System.DateTimeOffset?"
+                      }
+                    ]
+                  }
+                ],
+                "methods": [
+                  {
+                    "name": "Deconstruct",
+                    "returnType": "System.Void",
+                    "parameters": [
+                      {
+                        "name": "Metadata",
+                        "type": "Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata&"
+                      },
+                      {
+                        "name": "ConversationId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ConversationId&"
+                      },
+                      {
+                        "name": "MessageId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.MessageId&"
+                      },
+                      {
+                        "name": "AuthorPartyId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId&"
+                      },
+                      {
+                        "name": "Text",
+                        "type": "System.String&"
+                      },
+                      {
+                        "name": "ProviderCorrelation",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata&"
+                      },
+                      {
+                        "name": "CallerMetadata",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.CallerMetadata&"
+                      },
+                      {
+                        "name": "AgentProvenance",
+                        "type": "Hexalith.Conversations.Contracts.Agents.AgentMessageProvenance&"
+                      },
+                      {
+                        "name": "OperationTimestamp",
+                        "type": "System.Nullable`1[[System.DateTimeOffset, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]&"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "identity": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+              "before": {
+                "namespace": "Hexalith.Conversations.Contracts.Events",
+                "name": "ConversationEventType",
+                "kind": "record",
+                "isAbstract": false,
+                "isSealed": true,
+                "interfaces": [
+                  "System.IEquatable<Hexalith.Conversations.Contracts.Events.ConversationEventType>"
+                ],
+                "properties": [
+                  {
+                    "name": "ConversationArchived",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationClosed",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationContentMarkedSensitive",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationCreated",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationLifecycleChanged",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationMetadataUpdated",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationProjectChanged",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "FileReferenceAttached",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "MessageAppended",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "MessageContentRedacted",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ParticipantAdded",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "RetentionPolicyReplaced",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "RetentionPolicySet",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "Value",
+                    "type": "System.String",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": false
+                  }
+                ],
+                "methods": [
+                  {
+                    "name": "Parse",
+                    "returnType": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "parameters": [
+                      {
+                        "name": "value",
+                        "type": "System.String"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "after": {
+                "namespace": "Hexalith.Conversations.Contracts.Events",
+                "name": "ConversationEventType",
+                "kind": "record",
+                "isAbstract": false,
+                "isSealed": true,
+                "interfaces": [
+                  "System.IEquatable<Hexalith.Conversations.Contracts.Events.ConversationEventType>"
+                ],
+                "properties": [
+                  {
+                    "name": "AgentParticipantRemoved",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationArchived",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationClosed",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationContentMarkedSensitive",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationCreated",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationDeletionApproved",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationDeletionDeliveryRecorded",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationLifecycleChanged",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationMetadataUpdated",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ConversationProjectChanged",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "FileReferenceAttached",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "MessageAppended",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "MessageContentRedacted",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "MessageDeleted",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "MessageEdited",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "ParticipantAdded",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "RetentionPolicyReplaced",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "RetentionPolicySet",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": true
+                  },
+                  {
+                    "name": "Value",
+                    "type": "System.String",
+                    "canRead": true,
+                    "canWrite": false,
+                    "isStatic": false
+                  }
+                ],
+                "methods": [
+                  {
+                    "name": "Parse",
+                    "returnType": "Hexalith.Conversations.Contracts.Events.ConversationEventType",
+                    "parameters": [
+                      {
+                        "name": "value",
+                        "type": "System.String"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "identity": "Hexalith.Conversations.Contracts.Events.MessageAppended",
+              "before": {
+                "namespace": "Hexalith.Conversations.Contracts.Events",
+                "name": "MessageAppended",
+                "kind": "record",
+                "isAbstract": false,
+                "isSealed": true,
+                "interfaces": [
+                  "System.IEquatable<Hexalith.Conversations.Contracts.Events.MessageAppended>"
+                ],
+                "properties": [
+                  {
+                    "name": "AuthorPartyId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "MessageId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.MessageId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "Metadata",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ProviderCorrelation",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "Text",
+                    "type": "System.String",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  }
+                ],
+                "constructors": [
+                  {
+                    "name": "(ctor)",
+                    "parameters": [
+                      {
+                        "name": "Metadata",
+                        "type": "Hexalith.Conversations.Contracts.Events.ConversationEventMetadata"
+                      },
+                      {
+                        "name": "MessageId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.MessageId"
+                      },
+                      {
+                        "name": "AuthorPartyId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId"
+                      },
+                      {
+                        "name": "Text",
+                        "type": "System.String"
+                      },
+                      {
+                        "name": "ProviderCorrelation",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata"
+                      }
+                    ]
+                  }
+                ],
+                "methods": [
+                  {
+                    "name": "Deconstruct",
+                    "returnType": "System.Void",
+                    "parameters": [
+                      {
+                        "name": "Metadata",
+                        "type": "Hexalith.Conversations.Contracts.Events.ConversationEventMetadata&"
+                      },
+                      {
+                        "name": "MessageId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.MessageId&"
+                      },
+                      {
+                        "name": "AuthorPartyId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId&"
+                      },
+                      {
+                        "name": "Text",
+                        "type": "System.String&"
+                      },
+                      {
+                        "name": "ProviderCorrelation",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata&"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "after": {
+                "namespace": "Hexalith.Conversations.Contracts.Events",
+                "name": "MessageAppended",
+                "kind": "record",
+                "isAbstract": false,
+                "isSealed": true,
+                "interfaces": [
+                  "System.IEquatable<Hexalith.Conversations.Contracts.Events.MessageAppended>"
+                ],
+                "properties": [
+                  {
+                    "name": "AgentProvenance",
+                    "type": "Hexalith.Conversations.Contracts.Agents.AgentMessageProvenance",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "AuthorPartyId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "IdempotencyKey",
+                    "type": "System.String",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "MessageId",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.MessageId",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "Metadata",
+                    "type": "Hexalith.Conversations.Contracts.Events.ConversationEventMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "ProviderCorrelation",
+                    "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  },
+                  {
+                    "name": "Text",
+                    "type": "System.String",
+                    "canRead": true,
+                    "canWrite": true,
+                    "isStatic": false
+                  }
+                ],
+                "constructors": [
+                  {
+                    "name": "(ctor)",
+                    "parameters": [
+                      {
+                        "name": "Metadata",
+                        "type": "Hexalith.Conversations.Contracts.Events.ConversationEventMetadata"
+                      },
+                      {
+                        "name": "MessageId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.MessageId"
+                      },
+                      {
+                        "name": "AuthorPartyId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId"
+                      },
+                      {
+                        "name": "Text",
+                        "type": "System.String"
+                      },
+                      {
+                        "name": "ProviderCorrelation",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata"
+                      },
+                      {
+                        "name": "AgentProvenance",
+                        "type": "Hexalith.Conversations.Contracts.Agents.AgentMessageProvenance"
+                      },
+                      {
+                        "name": "IdempotencyKey",
+                        "type": "System.String"
+                      }
+                    ]
+                  }
+                ],
+                "methods": [
+                  {
+                    "name": "Deconstruct",
+                    "returnType": "System.Void",
+                    "parameters": [
+                      {
+                        "name": "Metadata",
+                        "type": "Hexalith.Conversations.Contracts.Events.ConversationEventMetadata&"
+                      },
+                      {
+                        "name": "MessageId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.MessageId&"
+                      },
+                      {
+                        "name": "AuthorPartyId",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.PartyId&"
+                      },
+                      {
+                        "name": "Text",
+                        "type": "System.String&"
+                      },
+                      {
+                        "name": "ProviderCorrelation",
+                        "type": "Hexalith.Conversations.Contracts.Identifiers.ProviderCorrelationMetadata&"
+                      },
+                      {
+                        "name": "AgentProvenance",
+                        "type": "Hexalith.Conversations.Contracts.Agents.AgentMessageProvenance&"
+                      },
+                      {
+                        "name": "IdempotencyKey",
+                        "type": "System.String&"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "currentSnapshotPath": "docs/release-evidence/public-contract-shape-story-9.2-v2.json",
+        "regeneratedShapeTypeCount": 219,
+        "regeneratedShapeSha256": "0160a2be428c681d22c014afa109fc80eb97706fe6f47367ac571b9a9a7595f8"
+      }
+    }
+  },
+  "historical": [
+    {
+      "id": "5.1",
+      "mode": "historical-commit-record-consistency",
+      "baselineCommit": "f7cee22495eb6eecec97e97a11adb580805edae5",
+      "finalCommit": "5afc695d74b95d36f5b8cbd481a0c1e7bfb3ef7b",
+      "status": "pass",
+      "mechanicalResult": "PASS",
+      "limitations": "Committed bytes, path modes, and cross-record claims are verified. A former uncommitted working tree is not reconstructed or claimed.",
+      "failures": [],
+      "counts": {
+        "total": 365,
+        "passed": 365,
+        "failed": 0,
+        "skipped": 0,
+        "proof": "cross-record-consistency"
+      },
+      "countClaims": [
+        {
+          "path": "_bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md",
+          "kind": "regex",
+          "claim": "365/365|365 / 365",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "kind": "json",
+          "claim": "conformanceRun.total",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "kind": "json",
+          "claim": "conformanceRun.passed",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "kind": "json",
+          "claim": "conformanceRun.failed",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "kind": "json",
+          "claim": "conformanceRun.skipped",
+          "status": "pass"
+        },
+        {
+          "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "kind": "regex",
+          "claim": "365 total",
+          "status": "pass"
+        }
+      ],
+      "changedPaths": {
+        "expected": [
+          "_bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md",
+          "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "docs/release-evidence/final-conformance-contract-diff-v1.md",
+          "tests/Hexalith.Conversations.Conformance.Tests/FinalConformanceContractDiffEvidenceValidationTest.cs"
+        ],
+        "observed": [
+          "_bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md",
+          "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "docs/release-evidence/final-conformance-contract-diff-v1.md",
+          "tests/Hexalith.Conversations.Conformance.Tests/FinalConformanceContractDiffEvidenceValidationTest.cs"
+        ],
+        "duplicateExpected": [],
+        "duplicateObserved": [],
+        "missing": [],
+        "unexpected": [],
+        "status": "pass"
+      },
+      "fileListAmendments": [],
+      "evidence": [
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "status": "pass",
+          "blobOid": "3a0d59e0fabe6a6bf2f2d9f56150cb8b78a61b8f"
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.md",
+          "status": "pass",
+          "blobOid": "d3b1f8eef1f7d10a4ab8889567bb92ef0d8ee683"
+        }
+      ],
+      "publicContractShape": {
+        "baselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+        "baselineChangedInRange": false,
+        "diffState": "baseline-unchanged-and-recorded-diff-empty"
+      }
+    },
+    {
+      "id": "5.2",
+      "mode": "historical-commit-record-consistency",
+      "baselineCommit": "5afc695d74b95d36f5b8cbd481a0c1e7bfb3ef7b",
+      "finalCommit": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
+      "status": "pass-with-approved-amendment",
+      "mechanicalResult": "PASS",
+      "limitations": "Committed bytes, path modes, and cross-record claims are verified. A former uncommitted working tree is not reconstructed or claimed.",
+      "failures": [],
+      "counts": {
+        "total": 374,
+        "passed": 374,
+        "failed": 0,
+        "skipped": 0,
+        "proof": "cross-record-consistency"
+      },
+      "countClaims": [
+        {
+          "path": "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+          "kind": "regex",
+          "claim": "374/374|374 / 374",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.total",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.passed",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.failed",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.skipped",
+          "status": "pass"
+        },
+        {
+          "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "kind": "regex",
+          "claim": "374 total",
+          "status": "pass"
+        }
+      ],
+      "changedPaths": {
+        "expected": [
+          "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+          "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.md",
+          "tests/Hexalith.Conversations.Conformance.Tests/RemovedTestJustificationLedgerReconciliationValidationTest.cs"
+        ],
+        "observed": [
+          "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+          "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.md",
+          "tests/Hexalith.Conversations.Conformance.Tests/RemovedTestJustificationLedgerReconciliationValidationTest.cs"
+        ],
+        "duplicateExpected": [],
+        "duplicateObserved": [],
+        "missing": [],
+        "unexpected": [],
+        "status": "pass"
+      },
+      "fileListAmendments": [
+        "_bmad-output/implementation-artifacts/tests/test-summary.md"
+      ],
+      "evidence": [
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "status": "pass",
+          "blobOid": "e67c3cae29edc16d7ddf25d24c4e21eb93e08761"
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.md",
+          "status": "pass",
+          "blobOid": "63a340b9f5494ebffe3b520f52d78bdf73438fde"
+        }
+      ],
+      "publicContractShape": {
+        "baselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+        "baselineChangedInRange": false,
+        "diffState": "baseline-unchanged-and-recorded-diff-empty"
+      }
+    },
+    {
+      "id": "5.3",
+      "mode": "historical-commit-record-consistency",
+      "baselineCommit": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
+      "finalCommit": "ba01c4fc8addfef777b2da5e2f96c0184deeeb3e",
+      "status": "pass",
+      "mechanicalResult": "PASS",
+      "limitations": "Committed bytes, path modes, and cross-record claims are verified. A former uncommitted working tree is not reconstructed or claimed.",
+      "failures": [],
+      "counts": {
+        "total": 384,
+        "passed": 384,
+        "failed": 0,
+        "skipped": 0,
+        "proof": "cross-record-consistency"
+      },
+      "countClaims": [
+        {
+          "path": "_bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md",
+          "kind": "regex",
+          "claim": "384/384|384 / 384",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.total",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.passed",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.failed",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.skipped",
+          "status": "pass"
+        }
+      ],
+      "changedPaths": {
+        "expected": [
+          "_bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md",
+          "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "docs/release-evidence/success-metric-report-and-attestation-v1.md",
+          "tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs"
+        ],
+        "observed": [
+          "_bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md",
+          "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "docs/release-evidence/success-metric-report-and-attestation-v1.md",
+          "tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs"
+        ],
+        "duplicateExpected": [],
+        "duplicateObserved": [],
+        "missing": [],
+        "unexpected": [],
+        "status": "pass"
+      },
+      "fileListAmendments": [],
+      "evidence": [
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "status": "pass",
+          "blobOid": "1ee038462839a6f669138afd3d3462bcd6b90dbe"
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.md",
+          "status": "pass",
+          "blobOid": "b86c215d2713c4a404fc3986ca2bdfa447dad983"
+        }
+      ],
+      "publicContractShape": {
+        "baselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+        "baselineChangedInRange": false,
+        "diffState": "baseline-unchanged-and-recorded-diff-empty"
+      }
+    }
+  ],
+  "assertionLedger": [
+    {
+      "id": "live-final-tree",
+      "result": "FAIL"
+    },
+    {
+      "id": "historical-5.1",
+      "result": "PASS"
+    },
+    {
+      "id": "historical-5.2",
+      "result": "PASS"
+    },
+    {
+      "id": "historical-5.3",
+      "result": "PASS"
+    },
+    {
+      "id": "predecessor-disposition",
+      "result": "PASS"
+    }
+  ],
+  "renderedMarkdownSha256": "56bab84f25a50e271e21bce3edc227a67a2247b55785be3f24402473fc0ff6c7"
+}

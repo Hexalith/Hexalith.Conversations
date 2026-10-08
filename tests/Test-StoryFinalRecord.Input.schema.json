@@ -93,6 +93,16 @@
     "live": {
       "type": "object",
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "required": ["additionalTestResultPaths"] },
+          "then": { "required": ["comparisonBaselinePath"] }
+        },
+        {
+          "if": { "required": ["contractApproval"] },
+          "then": { "required": ["comparisonBaselinePath"] }
+        }
+      ],
       "required": [
         "id",
         "baselineCommit",
@@ -126,6 +136,35 @@
         "testResultPath": {
           "$ref": "#/$defs/repositoryPath"
         },
+        "additionalTestResultPaths": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "validationCommands": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["command", "runner", "exitCode"],
+            "properties": {
+              "command": { "type": "string", "minLength": 1 },
+              "runner": { "type": "string", "minLength": 1 },
+              "exitCode": { "type": "integer" }
+            }
+          }
+        },
+        "historicalReproduction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["testResultPaths", "expectedCounts", "expectedFailedTests", "policyPath", "rationale"],
+          "properties": {
+            "testResultPaths": { "$ref": "#/$defs/pathSet" },
+            "expectedCounts": { "$ref": "#/$defs/counts" },
+            "expectedFailedTests": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+            "policyPath": { "$ref": "#/$defs/repositoryPath" },
+            "rationale": { "type": "string", "minLength": 1 }
+          }
+        },
         "expectedCounts": {
           "$ref": "#/$defs/counts"
         },
@@ -135,6 +174,22 @@
         },
         "contractBaselinePath": {
           "$ref": "#/$defs/repositoryPath"
+        },
+        "comparisonBaselinePath": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "contractApproval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["proposalPath", "approvalPath", "approvalSha256", "approvalId", "driftSha256", "currentSnapshotPath"],
+          "properties": {
+            "proposalPath": { "$ref": "#/$defs/repositoryPath" },
+            "approvalPath": { "$ref": "#/$defs/repositoryPath" },
+            "approvalSha256": { "$ref": "#/$defs/sha256" },
+            "approvalId": { "type": "string", "minLength": 1 },
+            "driftSha256": { "$ref": "#/$defs/sha256" },
+            "currentSnapshotPath": { "$ref": "#/$defs/repositoryPath" }
+          }
         },
         "executableInputs": {
           "$ref": "#/$defs/pathSet"

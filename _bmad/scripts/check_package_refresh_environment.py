@@ -19,6 +19,7 @@ import xml.etree.ElementTree as ET
 
 
 _helper_path = Path(__file__).with_name("publish_v18_package_environment_authority.py")
+_HELPER_BYTES = _helper_path.read_bytes()
 _helper_spec = importlib.util.spec_from_file_location("package_refresh_v18_helpers", _helper_path)
 assert _helper_spec is not None and _helper_spec.loader is not None
 helpers = importlib.util.module_from_spec(_helper_spec)
@@ -32,6 +33,8 @@ SCRIPT_PATH = "_bmad/scripts/check_package_refresh_environment.py"
 TEST_PATH = "_bmad/scripts/tests/test_check_package_refresh_environment.py"
 BUILDS_PATH = "references/Hexalith.Builds"
 CATALOG_PATH = "Props/Directory.Packages.props"
+AUDIT_PATH = "Tools/package-version-audit.json"
+HELPER_PATH = "_bmad/scripts/publish_v18_package_environment_authority.py"
 SOURCE_PATHS = tuple(sorted((
     ".github/workflows/ci.yml", "Directory.Packages.props", "global.json",
     "package.json", "package-lock.json", "pyproject.toml", "uv.lock",
@@ -58,6 +61,38 @@ PYTHON_PACKAGES = {
     "iniconfig": "2.3.1", "jsonschema": "4.26.0", "jsonschema-specifications": "2025.9.1",
     "packaging": "26.3", "pluggy": "1.6.0", "pygments": "2.21.0", "pytest": "9.1.1",
     "referencing": "0.37.0", "rpds-py": "2026.9.1", "typing-extensions": "4.16.0",
+}
+PYTHON_DEPENDENCIES = {
+    "hexalith-conversations-planning": [{"name": "jsonschema"}, {"name": "pytest"}],
+    "jsonschema": [{"name": name} for name in ("attrs", "jsonschema-specifications", "referencing", "rpds-py")],
+    "jsonschema-specifications": [{"name": "referencing"}],
+    "pytest": [{"name": "colorama", "marker": "sys_platform == 'win32'"},
+               *({"name": name} for name in ("iniconfig", "packaging", "pluggy", "pygments"))],
+    "referencing": [{"name": "attrs"}, {"name": "rpds-py"},
+                    {"name": "typing-extensions", "marker": "python_full_version < '3.13'"}],
+}
+MICROSOFT_SERVICING_MEMBERS = frozenset((
+    *(f"Microsoft.AspNetCore.{name}" for name in (
+        "Authorization", "Authentication.Facebook", "Authentication.JwtBearer", "Authentication.MicrosoftAccount",
+        "Authentication.Google", "Authentication.OpenIdConnect", "Components.Authorization", "Components.CustomElements",
+        "Components.Web", "Components.WebAssembly", "Components.WebAssembly.Authentication", "Components.WebAssembly.Server",
+        "Components.WebAssembly.DevServer", "DataProtection", "DataProtection.Abstractions", "Mvc.Testing", "OpenApi",
+        "SignalR.Client", "SignalR.StackExchangeRedis", "TestHost",
+    )),
+    *(f"Microsoft.Extensions.{name}" for name in (
+        "Configuration", "Configuration.Abstractions", "Configuration.Binder", "Configuration.FileExtensions",
+        "Configuration.UserSecrets", "DependencyInjection", "DependencyInjection.Abstractions", "Diagnostics.Abstractions",
+        "Hosting", "Hosting.Abstractions", "Http", "Identity.Stores", "Localization", "Localization.Abstractions",
+        "Logging.Abstractions", "Options", "Options.ConfigurationExtensions", "Options.DataAnnotations",
+    )),
+    "System.Collections.Immutable", "System.Text.Json",
+))
+INDEPENDENT_CATALOG_PINS = {
+    "Microsoft.AspNetCore.Identity": "2.3.13", "Microsoft.Extensions.Identity.Http": "10.0.9",
+    "Microsoft.Extensions.Http.Resilience": "10.10.0", "Microsoft.Extensions.ServiceDiscovery": "10.10.0",
+    "Microsoft.Extensions.TimeProvider.Testing": "10.10.0", "System.CommandLine": "2.0.12",
+    "System.ComponentModel.Annotations": "5.0.0", "System.IdentityModel.Tokens.Jwt": "8.23.0",
+    "System.Reactive": "7.0.0", "System.Threading.Tasks.Extensions": "4.6.3",
 }
 CATALOG_PINS = {
     "HotChocolate": "16.6.8", "Verify": "33.3.2", "Verify.XunitV3": "33.3.2",
@@ -127,6 +162,8 @@ def builds_context(root: Path, candidate: str | None) -> tuple[bytes, dict[str, 
     committed = helpers.run_git(builds, "show", f"{head}:{CATALOG_PATH}").stdout
     clean = not git_text(builds, "status", "--porcelain", "--untracked-files=all")
     remote_available = bool(git_text(builds, "branch", "-r", "--contains", head))
+    if candidate is not None:
+        validate_builds_audit(builds, recorded, catalog)
     return catalog, {
         "path": BUILDS_PATH, "catalogPath": CATALOG_PATH,
         "catalogSha256": helpers.sha256(catalog), "mode": mode,
@@ -136,10 +173,61 @@ def builds_context(root: Path, candidate: str | None) -> tuple[bytes, dict[str, 
     }
 
 
+def catalog_versions(catalog: bytes) -> dict[str, str]:
+    """Read the fixed catalog's literal selections and declared default properties."""
+    parsed = ET.fromstring(catalog.decode("utf-8-sig"))
+    properties: dict[str, str | None] = {}
+    for group in parsed.findall("PropertyGroup"):
+        for prop in group:
+            condition = prop.get("Condition")
+            if condition is None or (condition == f"'$({prop.tag})' == ''" and prop.tag not in properties):
+                properties[prop.tag] = prop.text
+    rows: dict[str, str] = {}
+    for item in parsed.iter("PackageVersion"):
+        name, value = item.get("Include"), item.get("Version", "")
+        if name is None:
+            continue
+        require(name not in rows, "REFRESH_CATALOG_DUPLICATE", name)
+        if value.startswith("$(") and value.endswith(")"):
+            value = properties.get(value[2:-1])
+        require(isinstance(value, str) and bool(value), "REFRESH_CATALOG_VERSION_INVALID", name)
+        rows[name] = value
+    return rows
+
+
+def validate_builds_audit(builds: Path, recorded: str, catalog: bytes) -> None:
+    """Prove the existing owning audit binds this committed catalog and its ancestry."""
+    audit = json.loads(source_bytes(builds, AUDIT_PATH, recorded))
+    require(isinstance(audit, dict), "REFRESH_BUILDS_AUDIT_INVALID", "audit must be an object")
+    require(audit.get("catalogPath") == CATALOG_PATH and audit.get("catalogRawSha256") == helpers.sha256(catalog),
+            "REFRESH_BUILDS_AUDIT_CATALOG_DRIFT", "raw catalog binding")
+    revision = audit.get("generatedFromRevision")
+    require(isinstance(revision, str) and re.fullmatch(r"[0-9a-f]{40}", revision) is not None,
+            "REFRESH_BUILDS_AUDIT_REVISION_INVALID", "canonical generatedFromRevision required")
+    require(helpers.resolve_commit(builds, revision, "REFRESH_BUILDS_AUDIT_REVISION_UNAVAILABLE") == revision,
+            "REFRESH_BUILDS_AUDIT_REVISION_INVALID", revision)
+    helpers.require_ancestor(builds, revision, recorded, "REFRESH_BUILDS_AUDIT_REVISION_NOT_ANCESTOR")
+    require(source_bytes(builds, CATALOG_PATH, revision) == catalog,
+            "REFRESH_BUILDS_AUDIT_REVISION_CATALOG_DRIFT", "generated revision's exact catalog bytes")
+    packages = audit.get("packages")
+    require(isinstance(packages, list) and all(isinstance(row, dict) and isinstance(row.get("id"), str)
+            and isinstance(row.get("selectedVersion"), str) for row in packages),
+            "REFRESH_BUILDS_AUDIT_INVALID", "package selections must be objects")
+    rows = catalog_versions(catalog)
+    require(len(packages) == len(rows) and {row["id"]: row["selectedVersion"] for row in packages} == rows,
+            "REFRESH_BUILDS_AUDIT_SELECTION_DRIFT", "complete selected catalog versions")
+
+
 def validate_graph(sources: dict[str, bytes], catalog: bytes) -> None:
     """Validate exact direct pins, lock parity, release channels, and toolchains."""
     package = json.loads(sources["package.json"])
     lock = json.loads(sources["package-lock.json"])
+    require(isinstance(package, dict) and isinstance(lock, dict), "REFRESH_INPUT_INVALID", "npm inputs must be objects")
+    root_lock = lock["packages"][""]
+    require(isinstance(root_lock, dict), "REFRESH_INPUT_INVALID", "root lock package must be an object")
+    for section in ("dependencies", "optionalDependencies", "peerDependencies", "peerDependenciesMeta"):
+        require(package.get(section, {}) == {} and root_lock.get(section, {}) == {},
+                "REFRESH_NPM_SCOPE_DRIFT", f"unselected npm section: {section}")
     require(package.get("devDependencies") == NPM_PINS, "REFRESH_NPM_PIN_DRIFT", "direct pins")
     require(lock["packages"][""].get("devDependencies") == NPM_PINS,
             "REFRESH_NPM_LOCK_PARITY_DRIFT", "root lock pins")
@@ -153,9 +241,11 @@ def validate_graph(sources: dict[str, bytes], catalog: bytes) -> None:
     packages = python_lock["package"]
     require(len(packages) == len(PYTHON_PACKAGES) and {p["name"]: p["version"] for p in packages} == PYTHON_PACKAGES,
             "REFRESH_PYTHON_GRAPH_DRIFT", "complete locked graph")
+    require(all(p.get("dependencies", []) == PYTHON_DEPENDENCIES.get(p["name"], []) for p in packages),
+            "REFRESH_PYTHON_RELATIONSHIP_DRIFT", "fixed dependency edges and markers")
     project_rows = [p for p in packages if p["name"] == "hexalith-conversations-planning"]
     metadata = project_rows[0]["metadata"]["requires-dist"]
-    require({p["name"]: p["specifier"] for p in metadata} == {n: f"=={v}" for n, v in PYTHON_PINS.items()},
+    require(metadata == [{"name": n, "specifier": f"=={v}"} for n, v in sorted(PYTHON_PINS.items())],
             "REFRESH_PYTHON_LOCK_PARITY_DRIFT", "requires-dist")
     require(json.loads(sources["global.json"])["sdk"]["version"] == "10.0.401",
             "REFRESH_SDK_DRIFT", "SDK pin")
@@ -169,24 +259,12 @@ def validate_graph(sources: dict[str, bytes], catalog: bytes) -> None:
             or any(s.get("Name") == "Aspire.AppHost.Sdk" and s.get("Version") == "13.6.1" for s in app_host.findall("Sdk")),
             "REFRESH_ASPIRE_DRIFT", "AppHost SDK alignment")
     require(catalog.startswith(b"\xef\xbb\xbf"), "REFRESH_CATALOG_BOM_DRIFT", "owning catalog BOM")
-    parsed = ET.fromstring(catalog.decode("utf-8-sig"))
-    properties = {p.tag: p.text for group in parsed.findall("PropertyGroup") for p in group if p.get("Condition") is None}
-    rows: dict[str, str] = {}
-    for item in parsed.iter("PackageVersion"):
-        name, value = item.get("Include"), item.get("Version", "")
-        if name is None:
-            continue
-        require(name not in rows, "REFRESH_CATALOG_DUPLICATE", name)
-        if value.startswith("$(") and value.endswith(")"):
-            value = properties.get(value[2:-1], "")
-        rows[name] = value
+    rows = catalog_versions(catalog)
     require(all(rows.get(n) == v for n, v in CATALOG_PINS.items()), "REFRESH_CATALOG_PIN_DRIFT", "selected catalog versions")
-    # Identity.Http has its own release cadence; the registry's current stable
-    # version is 10.0.9, independently bound above rather than upgraded to an
-    # unpublished 10.0.12. The shared servicing family stays aligned.
-    require(all(v == "10.0.12" for n, v in rows.items() if n != "Microsoft.Extensions.Identity.Http"
-                and n.startswith(("Microsoft.Extensions.", "Microsoft.AspNetCore.", "System.")) and v.startswith("10.0.")),
+    require(all(rows.get(name) == "10.0.12" for name in MICROSOFT_SERVICING_MEMBERS),
             "REFRESH_MICROSOFT_FAMILY_DRIFT", "coherent 10.0.x family")
+    require(all(rows.get(name) == version for name, version in INDEPENDENT_CATALOG_PINS.items()),
+            "REFRESH_CATALOG_CADENCE_DRIFT", "intentional independent servicing cadences")
 
 
 def render(root: Path, candidate: str | None = None) -> dict[str, Any]:
@@ -195,7 +273,10 @@ def render(root: Path, candidate: str | None = None) -> dict[str, Any]:
         candidate = helpers.resolve_commit(root, candidate, "REFRESH_CANDIDATE_UNAVAILABLE")
         parents = helpers.commit_parents(root, candidate, "REFRESH_HISTORY_UNAVAILABLE")
         require(len(parents) == 1, "REFRESH_C1_PARENT_INVALID", candidate, "BLOCKED")
+        require(parents == (BASELINE,), "REFRESH_C1_PARENT_DRIFT", "C1 must directly follow the recorded baseline", "BLOCKED")
         helpers.require_ancestor(root, BASELINE, candidate, "REFRESH_BASELINE_NOT_ANCESTOR")
+        require(source_bytes(root, HELPER_PATH, candidate) == _HELPER_BYTES,
+                "REFRESH_HELPER_DRIFT", "executed V18 helper differs from the committed candidate")
         require(helpers.changed_paths(root, parents[0], candidate) == C1_PATHS,
                 "REFRESH_C1_SCOPE_DRIFT", "exact approved C1 paths required")
         require(helpers.changed_gitlinks(root, parents[0], candidate) == (BUILDS_PATH,),
@@ -289,8 +370,11 @@ def main(arguments: Sequence[str] | None = None) -> int:
         root = Path(args.repository).resolve(strict=True)
         require(not (args.write and args.check), "REFRESH_ARGUMENT_INVALID", "choose write or check", "BLOCKED")
         if args.check:
-            document = json.loads(worktree_bytes(root, RECORD_PATH))
+            record = worktree_bytes(root, RECORD_PATH)
+            document = json.loads(record)
+            require(record == helpers.json_bytes(document), "REFRESH_RECORD_BYTES_NONCANONICAL", RECORD_PATH)
             document = check(root, document)
+            require(record == helpers.json_bytes(document), "REFRESH_RECORD_BYTES_NONCANONICAL", RECORD_PATH)
         else:
             document = render(root, args.candidate)
             validate_schema(root, document, args.candidate)
@@ -304,6 +388,8 @@ def main(arguments: Sequence[str] | None = None) -> int:
                 target.write_bytes(helpers.json_bytes(document))
                 if document["result"] == "PASS":
                     raise RefreshError("REFRESH_C2_PUBLICATION_REQUIRED", "Generated source projection; record-only C2 is not yet committed.", "BLOCKED")
+            elif document["result"] == "PASS":
+                document = check(root, document)
         print(helpers.json_bytes(document).decode("utf-8"), end="")
         return 0 if document["result"] == "PASS" else 1
     except helpers.PackageAuthorityError as error:
@@ -314,7 +400,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
         print(json.dumps({"result": "BLOCKED", "assertionLedger": [{"id": "REFRESH_IO_UNAVAILABLE", "state": "BLOCKED"}],
                           "blockers": [{"code": "REFRESH_IO_UNAVAILABLE", "detail": str(error)}]}))
         return 1
-    except (ValueError, KeyError, TypeError, ET.ParseError) as error:
+    except (ValueError, KeyError, TypeError, AttributeError, IndexError, ET.ParseError) as error:
         print(json.dumps({"result": "FAIL", "assertionLedger": [{"id": "REFRESH_INPUT_INVALID", "state": "FAIL"}],
                           "blockers": [{"code": "REFRESH_INPUT_INVALID", "detail": str(error)}]}))
         return 1

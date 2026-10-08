@@ -69,7 +69,94 @@ context:
 - `dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release -m:1`
 - `git diff --check`
 
+The commands above are the 2026-08-22 historical checks. The disposition below
+does not re-run them. Current routine work uses the
+[current-change policy](../../docs/runbooks/current-change-validation.md).
+
 ## Spec Change Log
 
 - 2026-08-22: Jerome selected Option 1 and authorized ownership of the concurrent worktree plus creation of the committed continuation candidate.
 - 2026-08-22: Rebound planning candidate `1e9a61126d3b7a55b514b7c7c8942d5af03355e5`, preserved V12–V14 byte-for-byte, closed A2/A3 after passing gates, and recorded independent IR-0 `READY` with the implementation hold still `ACTIVE`.
+- 2026-10-08: Appended the current-policy disposition below after verifying the 2026-08-22 record. The committed `in-progress` status remains historical metadata.
+- 2026-10-08: Review corrected the sprint-banner reading, bundle and V12–V14 identities, historical verification scope, and runbook link.
+
+## Current policy disposition (2026-10-08)
+
+Recording commit `6400c09d0ab8352d2ed9dd0221ffe6f4f96b91c4` marked the five
+task checkboxes in this spec and appended the 2026-08-22 completion entry.
+Its diff contains only this spec and the IR-0 report. It left
+`status: in-progress` and `review_loop_iteration: 0` unchanged. This
+verification does not support rewriting that status to `done` or `in-review`.
+There is no review triage, and the Verification commands remain the historical
+August 22 checks. The frontmatter `context` list remains that same August 22
+list, including the historical evidence-boundary runbook.
+
+Read-only comparison on 2026-10-08 used `git rev-parse`, `git grep`,
+`git diff-tree`, and `git show` against `HEAD`
+`f6f8c4fea84c728568bfae4c4a5a58262a01c49d` before this disposition:
+
+- Spec blob `88c21bc4627724bf8bee076d58e4aa34e7ee9c94` and IR-0 report blob
+  `1abb099d5b2980eb01eecb911b61e3b6a76bf485` match the recording commit and
+  that `HEAD`.
+- The IR-0 report, assessed from publication
+  `5900d9f8500af72183db9511db60b39ad7f74f29`, records `READY`, planning
+  candidate `1e9a61126d3b7a55b514b7c7c8942d5af03355e5`, and effective hold
+  `ACTIVE`.
+- `_bmad-output/planning-artifacts/v9-authority-bundle-v1.json` blob
+  `827c3a2b30ae3617b4f01863e92fcf1392f9dd70` matches at the recording commit
+  and that `HEAD`. Its `planningCandidate` is
+  `1e9a61126d3b7a55b514b7c7c8942d5af03355e5` and its `bundleDigest` is
+  `159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055`.
+- These sidecar blobs match at baseline
+  `bdd27b53e0e676f26bdcd093ef2bccefadcae285`, the planning candidate, the
+  recording commit, and that `HEAD`:
+  - `_bmad-output/planning-artifacts/v12-pre-ir0-remediation-authority-v1.json`
+    `f2b346d0f982ed2ab9db94da2d0580b73e3395db`
+  - `_bmad-output/planning-artifacts/v13-current-proof-authority-v1.json`
+    `e8d1703122bf47fb7f308fd58bc8ad535d3919ec`
+  - `_bmad-output/planning-artifacts/v14-current-candidate-authority-v1.json`
+    `cf766b608b9c650354fede4d359d36a9f1cadca6`
+- V1–V11 were not compared. This append does not edit them.
+
+The sources disagree, and each one keeps its own meaning:
+
+- Frozen V12 still lists A1–A3 as `open`. Preserving that sidecar left those
+  rows unchanged.
+- The IR-0 report is the August 22 assessment. It records A1–A3 `PASS` with
+  recorded status `done`, result `READY`, and effective hold `ACTIVE`.
+- `sprint-status.yaml` at publication
+  `5900d9f8500af72183db9511db60b39ad7f74f29` and at `HEAD`
+  `f6f8c4fea84c728568bfae4c4a5a58262a01c49d` still has one V14 banner: the
+  global implementation hold remains `ACTIVE`, IR-0 was not run, A2 and A3
+  are done, and A4–A6 remain open. That banner predates the IR-0 report. The
+  recording commit did not change sprint tracking, so the checkbox on the
+  A2/A3 task records this spec's acceptance of that already-written banner and
+  of the later IR-0 report. It does not record a sprint-status edit.
+
+The recorded completion is the checked spec, the completion changelog, and the
+IR-0 report. It does not rewrite V12 or the sprint banner.
+
+This append leaves the frozen approval block, the compared V12–V14 sidecars,
+and the IR-0 report byte-for-byte unchanged. It does not rebind authority,
+restore retired gates, run another IR-0, lift the implementation hold, start
+a successor story, or authorize release. Later hold decisions stay separate
+records. New routine work follows the
+[current-change policy](../../docs/runbooks/current-change-validation.md).
+
+Focused checks after the review patch, on 2026-10-08:
+`python3 scripts/check-root-submodules.py --repository .` exited 0
+(`root submodules: PASS`), and `git diff --check` on the edited spec and
+runbook exited 0. The historical Verification commands were not re-run.
+
+## Review Triage Log
+
+| ID | Verdict | Route | Evidence |
+| --- | --- | --- | --- |
+| BH-01 | medium | patch | The first disposition named the parent comment and omitted the same V14 banner at the compared `HEAD`. `git show HEAD:sprint-status.yaml` still has that one banner. The corrected disposition records it. |
+| BH-02 | medium | patch | "A2 and A3 were done" and "IR-0 had not been run" are one banner, not two sources, and the first text gave them no precedence against V12 `open` and the IR-0 report. The corrected disposition states each source's meaning. |
+| BH-03 | medium | patch | The first text omitted the publication commit, bundle blob, and `bundleDigest`, and its closing sentence covered V1–V14 without a V1–V11 comparison. The corrected text cites the compared blob ids and says V1–V11 were not compared. |
+| BH-04 | medium | patch | "Current policy does not support" was not a sentence in the policy file, and the Verification section still read as a current command list. The text now says this verification does not support a status rewrite, and Verification is labeled historical. |
+| BH-05 | medium | patch | The runbook link opened the spec at `status: in-progress`, and the frontmatter `context` list was unlabeled. The link now targets this section, and the disposition identifies `context` as the unchanged August 22 list. |
+| BH-06 | false | reject | The same paragraph already stated that `review_loop_iteration: 0` was left unchanged. There is no separate permission to rewrite it. |
+| BH-07 | low | reject | The 2026-10-08 changelog line names no person. This run has no named human actor to add, and the omission does not change the recorded commits or blobs. |
+| BH-08 | medium | patch | "Checked every task" collided with "did not edit sprint tracking" because one task says to close A2/A3 in `sprint-status.yaml`. The recording commit's file list is only this spec and the IR-0 report; the checkbox is not a sprint edit. |

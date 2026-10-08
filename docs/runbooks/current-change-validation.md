@@ -55,6 +55,14 @@ The halted V21 publication spec retains its historical `in-review` metadata.
 For current-main work, use the [V21 review disposition](v21-review-disposition.md)
 rather than restarting its retired workflow or repairing its frozen tooling.
 
+The 2026-08-22 IR-0 continuation spec retains its historical `in-progress`
+metadata. Commit `6400c09d0ab8352d2ed9dd0221ffe6f4f96b91c4` recorded its
+completed tasks and the independent IR-0 report. For current-main work, use
+its [2026-10-08 disposition](../../_bmad-output/implementation-artifacts/spec-e6-current-candidate-ir0-continuation.md#current-policy-disposition-2026-10-08).
+Leave its frozen approval block, V1–V14 sidecars, and IR-0 report unchanged.
+Do not resume it into another IR-0, restore its retired publication or
+evidence-boundary gates, lift the implementation hold, or start a successor.
+
 The old [evidence-boundary runbook](evidence-boundary-validation.md) is retained
 for reproducing historical results. It is no longer the operational route for
 new work. Release decisions and product safety checks continue to use their own

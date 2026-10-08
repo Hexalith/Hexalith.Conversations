@@ -5,7 +5,9 @@ from __future__ import annotations
 from copy import deepcopy
 import importlib.util
 import json
+import os
 from pathlib import Path
+import subprocess
 
 import pytest
 
@@ -16,22 +18,26 @@ assert SPEC is not None and SPEC.loader is not None
 checker = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(checker)
 REAL_BUILDS_CONTEXT = checker.builds_context
+FIXTURE_COMMIT_MESSAGE = 'test(evidence): model the package refresh boundary'
+
+
+def fixture_catalog() -> bytes:
+    """Keep all fixed families available without reading an initialized submodule."""
+    rows = {**dict.fromkeys(checker.MICROSOFT_SERVICING_MEMBERS, '10.0.12'),
+            **checker.INDEPENDENT_CATALOG_PINS, **checker.CATALOG_PINS}
+    return b'\xef\xbb\xbf' + ('<Project><ItemGroup>'
+        + ''.join(f'<PackageVersion Include="{name}" Version="{version}" />' for name, version in sorted(rows.items()))
+        + '</ItemGroup></Project>').encode()
 
 
 @pytest.fixture
 def environment(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Supply real tooling bytes and an isolated, explicitly uncommitted catalog."""
-    for path in (*checker.SOURCE_PATHS, *checker.IMMUTABLE):
+    for path in (*checker.SOURCE_PATHS, *checker.IMMUTABLE, checker.HELPER_PATH):
         target = tmp_path / path
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((ROOT / path).read_bytes())
-    catalog = b"\xef\xbb\xbf" + (
-        '<Project><PropertyGroup><HexalithAspireHostingDaprVersion>'
-        + checker.CATALOG_PINS['CommunityToolkit.Aspire.Hosting.Dapr']
-        + '</HexalithAspireHostingDaprVersion></PropertyGroup><ItemGroup>'
-        + ''.join(f'<PackageVersion Include="{name}" Version="{version}" />' for name,version in checker.CATALOG_PINS.items())
-        + '</ItemGroup></Project>'
-    ).encode()
+    catalog = fixture_catalog()
     target = tmp_path / checker.BUILDS_PATH / checker.CATALOG_PATH
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(catalog)
@@ -267,3 +273,289 @@ def test_wrong_c1_gitlink_scope_fails(committed_environment, monkeypatch: pytest
     monkeypatch.setattr(checker.helpers, 'changed_gitlinks', lambda *args: ('references/Unapproved',))
     with pytest.raises(checker.RefreshError, match='REFRESH_GITLINK_SCOPE_DRIFT'):
         checker.render(root, candidate)
+
+
+@pytest.mark.parametrize('path,content', [
+    ('package.json', '[]'), ('package-lock.json', '{"packages": []}'),
+    ('package-lock.json', '{"packages": {"": []}}'), ('global.json', '{"sdk": []}'),
+    ('package-lock.json', json.dumps({'packages': {'': {'devDependencies': checker.NPM_PINS},
+                                                  'node_modules/@commitlint/cli': []}})),
+    ('uv.lock', 'package = [0]'),
+])
+def test_malformed_nested_inputs_keep_structured_failures(environment: Path, capsys, path: str, content: str) -> None:
+    (environment / path).write_text(content)
+    assert checker.main(['--repository', str(environment)]) == 1
+    result = json.loads(capsys.readouterr().out)
+    assert result['result'] == 'FAIL'
+    assert result['assertionLedger'] and result['blockers']
+
+
+@pytest.mark.parametrize('section', ['dependencies', 'optionalDependencies', 'peerDependencies', 'peerDependenciesMeta'])
+@pytest.mark.parametrize('path', ['package.json', 'package-lock.json'])
+def test_unselected_npm_sections_are_closed(environment: Path, path: str, section: str) -> None:
+    target = environment / path
+    document = json.loads(target.read_bytes())
+    entry = document if path == 'package.json' else document['packages']['']
+    entry[section] = {'unselected-runtime-package': '1.0.0'}
+    target.write_text(json.dumps(document))
+    with pytest.raises(checker.RefreshError, match='REFRESH_NPM_SCOPE_DRIFT'):
+        checker.render(environment)
+
+
+@pytest.mark.parametrize('fault', ['deleted-edge', 'changed-marker', 'duplicate-metadata', 'conflicting-metadata'])
+def test_fixed_python_relationships_and_metadata_are_closed(environment: Path, fault: str) -> None:
+    target = environment / 'uv.lock'
+    original = target.read_bytes()
+    if fault == 'deleted-edge':
+        mutated = original.replace(b'    { name = "rpds-py" },\n', b'', 1)
+    elif fault == 'changed-marker':
+        mutated = original.replace(b"python_full_version < '3.13'", b"python_full_version >= '3.13'")
+    else:
+        version = b'9.1.1' if fault == 'duplicate-metadata' else b'0.0.0'
+        entry = b'    { name = "pytest", specifier = "==' + version + b'" },\n'
+        mutated = original.replace(b'requires-dist = [\n', b'requires-dist = [\n' + entry, 1)
+    assert mutated != original
+    target.write_bytes(mutated)
+    code = 'REFRESH_PYTHON_RELATIONSHIP_DRIFT' if fault in ['deleted-edge', 'changed-marker'] else 'REFRESH_PYTHON_LOCK_PARITY_DRIFT'
+    with pytest.raises(checker.RefreshError, match=code):
+        checker.render(environment)
+
+
+@pytest.mark.parametrize('name', ['System.Text.Json', 'Microsoft.AspNetCore.Authorization'])
+def test_servicing_downgrade_cannot_leave_family_by_changing_version_prefix(environment: Path, name: str) -> None:
+    target = environment / checker.BUILDS_PATH / checker.CATALOG_PATH
+    target.write_bytes(target.read_bytes().replace(
+        f'Include="{name}" Version="10.0.12"'.encode(), f'Include="{name}" Version="9.0.0"'.encode()))
+    with pytest.raises(checker.RefreshError, match='REFRESH_MICROSOFT_FAMILY_DRIFT'):
+        checker.render(environment)
+
+
+def test_check_rejects_noncanonical_worktree_record_bytes(committed_environment, capsys) -> None:
+    root, document, _, _ = committed_environment
+    (root / checker.RECORD_PATH).write_text(json.dumps(document))
+    assert checker.main(['--repository', str(root), '--check']) == 1
+    result = json.loads(capsys.readouterr().out)
+    assert result['blockers'][0]['code'] == 'REFRESH_RECORD_BYTES_NONCANONICAL'
+
+
+def test_preview_record_requires_the_projection_field_order(environment: Path, capsys) -> None:
+    document = checker.render(environment)
+    reordered = dict(reversed(list(document.items())))
+    (environment / checker.RECORD_PATH).write_bytes(checker.helpers.json_bytes(reordered))
+    assert checker.main(['--repository', str(environment), '--check']) == 1
+    result = json.loads(capsys.readouterr().out)
+    assert result['blockers'][0]['code'] == 'REFRESH_RECORD_BYTES_NONCANONICAL'
+
+
+def fixture_git(root: Path, *arguments: str) -> str:
+    """Mutate only explicitly supplied temporary repositories, without global hooks/config."""
+    assert root.resolve() != ROOT.resolve() and not root.resolve().is_relative_to(ROOT.resolve())
+    result = subprocess.run(['git', '-C', str(root), *arguments], check=True, capture_output=True,
+                            env={**os.environ, 'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull}, timeout=30)
+    return result.stdout.decode().strip()
+
+
+def fixture_commit(root: Path) -> str:
+    """The exact fixture message was validated with the root's pinned commitlint."""
+    fixture_git(root, 'commit', '--quiet', '-m', FIXTURE_COMMIT_MESSAGE)
+    return fixture_git(root, 'rev-parse', 'HEAD')
+
+
+@pytest.fixture
+def real_environment_factory(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """Create isolated root/Builds commits and a local bare remote; mock no Git reads."""
+    def create(*, audit_fault=None, extra_parent=False, helper_drift=False):
+        root = tmp_path / 'root'
+        builds = root / checker.BUILDS_PATH
+        builds.mkdir(parents=True)
+        for repo in (root, builds):
+            fixture_git(repo, 'init', '--quiet', '--initial-branch=main')
+            fixture_git(repo, 'config', 'user.name', 'Package Refresh Fixtures')
+            fixture_git(repo, 'config', 'user.email', 'package-refresh@example.invalid')
+            fixture_git(repo, 'config', 'core.autocrlf', 'false')
+        for path in (*checker.SOURCE_PATHS, *checker.IMMUTABLE, checker.HELPER_PATH,
+                     '_bmad-output/implementation-artifacts/spec-update-all-packages.md'):
+            target = root / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((ROOT / path).read_bytes())
+        if helper_drift:
+            target = root / checker.HELPER_PATH
+            target.write_bytes(target.read_bytes() + b'\n')
+        catalog_path = builds / checker.CATALOG_PATH
+        catalog_path.parent.mkdir(parents=True)
+        catalog = fixture_catalog()
+        old_catalog = catalog.replace(b'16.6.8', b'16.6.7').replace(b'33.3.2', b'33.3.1')
+        catalog_path.write_bytes(old_catalog)
+        fixture_git(builds, 'add', '--', checker.CATALOG_PATH)
+        old_revision = fixture_commit(builds)
+
+        def audit_document(content, revision):
+            return {'catalogPath': checker.CATALOG_PATH, 'catalogRawSha256': checker.helpers.sha256(content),
+                    'generatedFromRevision': revision,
+                    'packages': [{'id': n, 'selectedVersion': v} for n, v in checker.catalog_versions(content).items()]}
+
+        audit_path = builds / checker.AUDIT_PATH
+        audit_path.parent.mkdir(parents=True)
+        old_audit = audit_document(old_catalog, old_revision)
+        audit_path.write_bytes(checker.helpers.json_bytes(old_audit))
+        fixture_git(builds, 'add', '--', checker.AUDIT_PATH)
+        old_head = fixture_commit(builds)
+        (root / '.gitmodules').write_text('[submodule "Builds"]\n\tpath = references/Hexalith.Builds\n\turl = ./Builds.git\n')
+        fixture_git(root, 'add', '--', '.')
+        baseline = fixture_commit(root)
+        monkeypatch.setattr(checker, 'BASELINE', baseline)
+
+        catalog_path.write_bytes(catalog)
+        fixture_git(builds, 'add', '--', checker.CATALOG_PATH)
+        catalog_revision = fixture_commit(builds)
+        audit = audit_document(catalog, catalog_revision)
+        if audit_fault == 'raw-hash':
+            audit['catalogRawSha256'] = '0'*64
+        elif audit_fault == 'selection':
+            audit['packages'][0]['selectedVersion'] = '0.0.0'
+        elif audit_fault == 'revision-alias':
+            audit['generatedFromRevision'] = 'HEAD'
+        elif audit_fault == 'revision-catalog':
+            audit['generatedFromRevision'] = old_revision
+        elif audit_fault == 'revision-ancestry':
+            tree = fixture_git(builds, 'rev-parse', 'HEAD^{tree}')
+            audit['generatedFromRevision'] = fixture_git(builds, 'commit-tree', tree, '-m', FIXTURE_COMMIT_MESSAGE)
+        if audit_fault != 'stale-audit':
+            audit_path.write_bytes(checker.helpers.json_bytes(audit))
+            fixture_git(builds, 'add', '--', checker.AUDIT_PATH)
+            fixture_commit(builds)
+        owning = fixture_git(builds, 'rev-parse', 'HEAD')
+        remote = tmp_path / 'Builds.git'
+        fixture_git(builds, 'clone', '--bare', str(builds), str(remote))
+        fixture_git(builds, 'remote', 'add', 'origin', str(remote))
+        fixture_git(builds, 'fetch', '--quiet', 'origin')
+        if extra_parent:
+            (root / 'unrelated.txt').write_text('unrelated history\n')
+            fixture_git(root, 'add', '--', 'unrelated.txt')
+            fixture_commit(root)
+        for path in checker.C1_PATHS:
+            if path == checker.BUILDS_PATH:
+                continue
+            target = root / path
+            if path == checker.SCHEMA_PATH:
+                schema = json.loads(target.read_bytes())
+                schema['properties']['baselineCommit']['const'] = baseline
+                target.write_bytes(checker.helpers.json_bytes(schema))
+            else:
+                target.write_bytes(target.read_bytes() + b'\n')
+            fixture_git(root, 'add', '--', path)
+        fixture_git(root, 'update-index', '--cacheinfo', f'160000,{owning},{checker.BUILDS_PATH}')
+        candidate = fixture_commit(root)
+        return {'root': root, 'builds': builds, 'candidate': candidate,
+                'baseline': baseline, 'owning': owning, 'old_head': old_head}
+    return create
+
+
+def publish_fixture(state, *, extra_path=False):
+    root, candidate = state['root'], state['candidate']
+    document = checker.render(root, candidate)
+    (root / checker.RECORD_PATH).write_bytes(checker.helpers.json_bytes(document))
+    fixture_git(root, 'add', '--', checker.RECORD_PATH)
+    if extra_path:
+        (root / 'unexpected.txt').write_text('extra C2 path\n')
+        fixture_git(root, 'add', '--', 'unexpected.txt')
+    state['publication'] = fixture_commit(root)
+    state['document'] = document
+    return state
+
+
+def test_real_clean_builds_c1_c2_gitlink_and_remote_reads(real_environment_factory, capsys) -> None:
+    state = publish_fixture(real_environment_factory())
+    assert checker.check(state['root'], state['document']) == state['document']
+    context = state['document']['buildsCatalog']
+    assert context['clean'] and context['catalogCommitted'] and context['remoteAvailable']
+    assert context['headCommit'] == context['recordedCommit'] == state['owning']
+    assert checker.main(['--repository', str(state['root']), '--candidate', state['candidate']]) == 0
+    assert json.loads(capsys.readouterr().out)['result'] == 'PASS'
+
+
+@pytest.mark.parametrize('kind', ['tracked', 'untracked'])
+def test_real_dirty_builds_cannot_pass(real_environment_factory, kind: str) -> None:
+    state = real_environment_factory()
+    target = state['builds'] / (checker.CATALOG_PATH if kind == 'tracked' else 'untracked.txt')
+    target.write_bytes(target.read_bytes() + b'\n' if target.exists() else b'untracked\n')
+    document = checker.render(state['root'], state['candidate'])
+    assert document['result'] == 'BLOCKED'
+    assert 'REFRESH_BUILDS_COMMIT_REQUIRED' in {b['code'] for b in document['blockers']}
+
+
+def test_real_remote_containment_is_required(real_environment_factory) -> None:
+    state = real_environment_factory()
+    fixture_git(state['builds'], 'update-ref', '-d', 'refs/remotes/origin/main')
+    document = checker.render(state['root'], state['candidate'])
+    assert document['result'] == 'BLOCKED'
+    assert 'REFRESH_REMOTE_COMMIT_UNAVAILABLE' in {b['code'] for b in document['blockers']}
+
+
+def test_real_gitlink_must_equal_builds_head(real_environment_factory) -> None:
+    state = real_environment_factory()
+    fixture_git(state['builds'], 'checkout', '--quiet', '--detach', state['old_head'])
+    document = checker.render(state['root'], state['candidate'])
+    assert document['result'] == 'BLOCKED'
+    assert 'REFRESH_GITLINK_COMMIT_REQUIRED' in {b['code'] for b in document['blockers']}
+
+
+def test_real_extra_history_before_c1_is_rejected(real_environment_factory) -> None:
+    state = real_environment_factory(extra_parent=True)
+    with pytest.raises(checker.RefreshError, match='REFRESH_C1_PARENT_DRIFT'):
+        checker.render(state['root'], state['candidate'])
+
+
+def test_real_candidate_only_and_writer_stay_blocked_until_c2(real_environment_factory, capsys) -> None:
+    state = real_environment_factory()
+    args = ['--repository', str(state['root']), '--candidate', state['candidate']]
+    for tail in [[], ['--write']]:
+        assert checker.main(args + tail) == 1
+        result = json.loads(capsys.readouterr().out)
+        assert result['result'] == 'BLOCKED' and result['assertionLedger']
+        assert result['blockers'][0]['code'] == 'REFRESH_C2_PUBLICATION_REQUIRED'
+
+
+def test_real_extra_c2_paths_are_rejected(real_environment_factory) -> None:
+    state = publish_fixture(real_environment_factory(), extra_path=True)
+    with pytest.raises(checker.RefreshError, match='REFRESH_C2_SCOPE_DRIFT'):
+        checker.check(state['root'], state['document'])
+
+
+def test_real_intervening_commit_before_c2_is_rejected(real_environment_factory) -> None:
+    state = real_environment_factory()
+    (state['root'] / 'intervening.txt').write_text('intervening history\n')
+    fixture_git(state['root'], 'add', '--', 'intervening.txt')
+    fixture_commit(state['root'])
+    publish_fixture(state)
+    with pytest.raises(checker.helpers.PackageAuthorityError, match='REFRESH_C2_PARENT_DRIFT'):
+        checker.check(state['root'], state['document'])
+
+
+def test_real_accepted_record_writer_preserves_exact_bytes(real_environment_factory, capsys) -> None:
+    state = publish_fixture(real_environment_factory())
+    record = state['root'] / checker.RECORD_PATH
+    original = record.read_bytes()
+    assert checker.main(['--repository', str(state['root']), '--candidate', state['candidate'], '--write']) == 1
+    result = json.loads(capsys.readouterr().out)
+    assert result['blockers'][0]['code'] == 'REFRESH_ACCEPTED_RECORD_IMMUTABLE'
+    assert record.read_bytes() == original
+
+
+def test_real_candidate_helper_bytes_must_match_effective_helper(real_environment_factory) -> None:
+    state = real_environment_factory(helper_drift=True)
+    with pytest.raises(checker.RefreshError, match='REFRESH_HELPER_DRIFT'):
+        checker.render(state['root'], state['candidate'])
+
+
+@pytest.mark.parametrize('fault,code', [
+    ('stale-audit', 'REFRESH_BUILDS_AUDIT_CATALOG_DRIFT'), ('raw-hash', 'REFRESH_BUILDS_AUDIT_CATALOG_DRIFT'),
+    ('selection', 'REFRESH_BUILDS_AUDIT_SELECTION_DRIFT'), ('revision-alias', 'REFRESH_BUILDS_AUDIT_REVISION_INVALID'),
+    ('revision-catalog', 'REFRESH_BUILDS_AUDIT_REVISION_CATALOG_DRIFT'),
+    ('revision-ancestry', 'REFRESH_BUILDS_AUDIT_REVISION_NOT_ANCESTOR'),
+])
+def test_real_committed_audit_provenance_is_required(real_environment_factory, fault: str, code: str) -> None:
+    state = real_environment_factory(audit_fault=fault)
+    assert fixture_git(state['builds'], 'status', '--porcelain') == ''
+    with pytest.raises(checker.helpers.PackageAuthorityError, match=code):
+        checker.render(state['root'], state['candidate'])

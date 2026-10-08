@@ -348,3 +348,9 @@ Epic 5 and Stories 5.1-5.3 remain `done`; no new backlog key is added.
 Approval authorizes the bounded workflow-tooling, validation, documentation, audit, retrospective-resolution, and sprint-action changes described above. It does not authorize product/runtime changes, submodule updates, edits to signed release evidence, or acceptance of any discrepancy the checker may find.
 
 **Decision requested:** Approve, reject, or request revisions to this Sprint Change Proposal.
+
+## 8. Dated Successor — 2026-10-08
+
+The later implementation retains the failed July and blocked August audit bytes and adds `epic-5-final-record-successor-2026-10-08-check.json` with its rendered Markdown and non-ignored raw XML receipts. The current conformance policy is the unchanged tracked CI selection under `docs/runbooks/current-change-validation.md`: both active tiers pass 418 / 418. The independently executed unfiltered 483 / 489 result retains all six historical failures and remains `FAIL`.
+
+The v1 baseline remains immutable. The full current shape matches the approved Story 9.2 v2 snapshot; the measured v1 delta exactly reproduces the existing user Quality approval's public-drift digest. This uses the proposal's explicit approved-difference branch and introduces no public contract change. The gate rejects extra drift, changed approval bytes, inconsistent counters, duplicated executed cases, and changed frozen identities. Closure depends on the dated live/historical gate passing after final sealing.

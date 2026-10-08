@@ -68,6 +68,8 @@ context:
 
 - 2026-08-22: The user approved preserving the failed July 14 record and adding a dated corrective amendment plus successor audit. The successor remains blocked on 15 current-tree conformance failures; the spec and Epic 4 action stay in progress.
 
+- 2026-10-08: The existing Story 9.2 user Quality approval covers exactly the measured v1-to-current drift. The current-policy conformance selection is taken unchanged from tracked CI; the unfiltered failing reproduction and older failed/blocked audits remain explicit and immutable. A separate dated successor binds the current clean boundary and both tier receipts.
+
 ## Design Notes
 
 Live mode reads the current index/worktree relative to `baseline_commit` and subtracts only exact frozen entries. Historical mode reads bytes and path modes from Git objects. The final conformance TRX is authoritative for current counts; historical counts are cross-record consistency claims. Contract equality is proven by a dedicated non-mutating xUnit fact whose TRX result is consumed by the gate.
@@ -83,7 +85,7 @@ The 2026-08-22 successor separately verifies the byte-identical failed predecess
 - `pwsh -NoProfile -File tests/Test-StoryFinalRecord.ps1 -InputPath _bmad-output/implementation-artifacts/tests/epic-5-final-record-input.json` -- expected: live and historical results pass and render identical JSON/Markdown facts.
 - `git diff --check` -- expected: no whitespace errors; unrelated files and frozen gitlinks remain byte-identical.
 
-## Validation Results
+## Validation Results — 2026-08-22 historical
 
 - PowerShell disposable-repository fault injection: 13 / 13 scenarios passed.
 - Release conformance build: 0 warnings and 0 errors.
@@ -91,21 +93,62 @@ The 2026-08-22 successor separately verifies the byte-identical failed predecess
 - Focused non-mutating public-contract-shape comparison: 5 / 5 passed; baseline working-tree diff empty.
 - Story 5.2 source record SHA-256 remains `ab6d4970d1e7cc78738435b09e0777d0a2eefe473ba91ca2310c26aa4d220b21`, matching the signed Story 5.3 source manifest.
 - The original failed JSON/Markdown remain byte-identical at SHA-256 `a6ec97c1fc3fb3e026d72ce5bd480561d71acf3c051f84ac73f9fd24671c65e1` / `0b8e1de3fcd132c2d0d226a38d9e7c94037a5b4db6c2448c5d418070f551a710`.
-- Final successor live/historical gate: pending final fingerprint sealing; expected completion result remains `BLOCKED` until the 15 broad conformance failures are resolved outside this spec.
+- The August 22 successor remains `BLOCKED` as recorded; its bytes are preserved by the later audit below.
+
+## Validation Results — 2026-10-08 successor
+
+- Current policy conformance: 418 / 418 passed; portable 326 / 326 and internal 92 / 92, 0 failed, 0 skipped. Both Release project builds completed with 0 warnings and 0 errors.
+- Unfiltered reproduction: 483 / 489 passed, 6 failed, 0 skipped. Five original single-assembly Story 9.1 controls and the retired preservation zero-gap assertion remain `FAIL`; the new authoritative JSON names all six. The canonical run uses the pre-existing selection in `.github/workflows/ci.yml` under `docs/runbooks/current-change-validation.md`, with no new exclusions.
+- PowerShell adversarial fixtures: 25 / 25, including counter/result disagreement, empty results, both-tier aggregation, duplicate paths/cases, exact approved drift, and unapproved or altered approval rejection.
+- The non-mutating full current shape comparison passes against the 219-type Story 9.2 successor. The immutable 196-type v1 shape remains byte-identical. Its 23 added types and four changed types reproduce approved drift `3357725bc7ebc039baca0bf928718f03f2ae037dbd130e37704bd3315480d2d1`, bound to the existing user Quality decision `story-9.2-user-quality-approval-2026-10-07`; the report labels this `approved-difference`, and current-to-successor drift is `empty`.
+- The July failed record, August blocked record, historical Story 5.2 source, and signed release evidence remain unchanged. Historical 365 / 365, 374 / 374 (with the existing amendment), and 384 / 384 claims remain commit-record consistency checks.
+- A fresh live boundary uses commit `8793d26306f91d2cfe00116dc0b8eec41ec8900f`, a clean initial root tree, and exact frozen identities for all ten root gitlinks. It does not attribute intervening committed work to this task or reconstruct a former uncommitted tree.
+- The dated successor includes non-ignored raw TRX XML, exact canonical commands, receipt hashes, executed binary/source/dependency fingerprints, and an authoritative JSON/Markdown pair. Final verification is required before action closure.
+
+## Current closure blocker — 2026-10-08 interim run
+
+The disposable-repository checker suite passed **25 / 25**. Final completion remains blocked because concurrent dependency, CI, and production work introduced out-of-scope changes after the captured clean boundary. The input fingerprint is explicitly `PENDING_FINAL_RUN`; the earlier August sealed digest is not reused.
+
+```powershell
+pwsh -NoProfile -File tests/Test-StoryFinalRecord.ps1 -InputPath _bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-input.json
+```
+
+Recorded result at `2026-10-08T12:49:49Z`: **exit 1**, JSON `status: fail`, `mechanicalResult: FAIL`. The checker reported these exact failures:
+
+- Frozen entry 'references/Hexalith.Builds' changed: submodule internal status hash changed from e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 to d662a78b7d1574a61a91b521584d1e3152917d1ca7d74548c5074e02d7b64216.
+- Live declared-vs-observed path inventory contains unexpected path '.github/workflows/ci.yml'.
+- Live declared-vs-observed path inventory contains unexpected path '_bmad-output/implementation-artifacts/spec-update-all-packages.md'.
+- Live declared-vs-observed path inventory contains unexpected path '_bmad/scripts/check_package_refresh_environment.py'.
+- Live declared-vs-observed path inventory contains unexpected path 'package-lock.json'.
+- Live declared-vs-observed path inventory contains unexpected path 'package.json'.
+- Live declared-vs-observed path inventory contains unexpected path 'references/Hexalith.Builds'.
+- Live declared-vs-observed path inventory contains unexpected path 'src/Hexalith.Conversations.Server/Agents/ConversationDeletionPublicationProjector.cs'.
+- Live declared-vs-observed path inventory contains unexpected path 'tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionPublicationProjectorTests.cs'.
+- Live declared-vs-observed path inventory contains unexpected path 'uv.lock'.
+- Live work item contains non-excluded gitlink 'references/Hexalith.Builds'.
+- Executable/test input fingerprint is stale: expected PENDING_FINAL_RUN, found 6cdae800bb1ef7253d778279f5ae0e6cbaea7b817b717b79ea372e14c89d5ea9.
+- Changed documentation/evidence '.github/workflows/ci.yml' SHA-256 is a3e797dd1af943eb32cda4224e2aa82dc0b773c03dd8c9d27b2d0c3a9bf033a9; expected 134b264eae0c986f132c0fcdf55648613d4c28947652d94b84a1a904e71365b5.
+
+The authoritative interim JSON and rendered Markdown preserve the failed gate result. The 418 / 418 current-policy receipts describe the tree exercised before these concurrent edits; they do not certify the changing tree. The independent 483 / 489 unfiltered reproduction remains `FAIL` with all six historical failures. Earlier audit pairs and signed evidence remain unchanged.
+
+The spec and Epic 4 A1 remain `in-progress`. After the external owner finishes, capture a fresh current boundary and exact unrelated state, rerun the affected builds/tests, bind the final executable inputs, and regenerate the live audit. Do not retroactively freeze the intervening changes at the original start or close the action from this interim failure.
 
 ### File List
 
 - `_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md`
 - `_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md`
 - `_bmad-output/implementation-artifacts/sprint-status.yaml`
-- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-corrective-amendment-2026-08-22.md`
-- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-check.json`
-- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-check.md`
-- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-input.json`
-- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-preexisting-state.json`
+- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.json`
+- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.md`
+- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-input.json`
+- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-internal.xml`
+- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-portable.xml`
+- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-preexisting-state.json`
+- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-internal.xml`
+- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-portable.xml`
 - `_bmad-output/implementation-artifacts/tests/test-summary.md`
+- `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md`
 - `tests/README.md`
 - `tests/Test-StoryFinalRecord.Input.schema.json`
-- `tests/Test-StoryFinalRecord.PreexistingState.schema.json`
 - `tests/Test-StoryFinalRecord.Tests.ps1`
 - `tests/Test-StoryFinalRecord.ps1`

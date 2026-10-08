@@ -1,0 +1,593 @@
+{
+  "schemaVersion": 1,
+  "approvedProposal": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
+  "preexistingStatePath": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-preexisting-state.json",
+  "output": {
+    "json": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.json",
+    "markdown": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.md"
+  },
+  "predecessor": {
+    "id": "epic-5-final-record-check-2026-07-14",
+    "sourceCommit": "8f8f14fd6e842eeb19b7410554366a93f8a93ce5",
+    "jsonPath": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.json",
+    "jsonSha256": "a6ec97c1fc3fb3e026d72ce5bd480561d71acf3c051f84ac73f9fd24671c65e1",
+    "markdownPath": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.md",
+    "markdownSha256": "0b8e1de3fcd132c2d0d226a38d9e7c94037a5b4db6c2448c5d418070f551a710",
+    "expectedStatus": "fail",
+    "expectedFailures": [
+      "Live declared-vs-observed path inventory contains unexpected path '_bmad-output/planning-artifacts/implementation-readiness-report-2026-07-14.md'.",
+      "Executable/test input fingerprint is stale: expected PENDING_FINAL_RUN, found 3c12175c7a32b4cabc0ad967c1dd9e10d2e4a6f1eb06c273f6092e7ca1cc6805."
+    ],
+    "amendmentPath": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-corrective-amendment-2026-08-22.md",
+    "amendmentMarker": "EPIC-5-FINAL-RECORD-CORRECTIVE-AMENDMENT-2026-08-22"
+  },
+  "live": {
+    "id": "epic-5-final-record-successor-2026-10-08",
+    "baselineCommit": "8793d26306f91d2cfe00116dc0b8eec41ec8900f",
+    "recordPath": "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+    "expectedChangedPaths": [
+      "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+      "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+      "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.json",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.md",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-input.json",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-internal.xml",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-portable.xml",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-preexisting-state.json",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-internal.xml",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-portable.xml",
+      "_bmad-output/implementation-artifacts/tests/test-summary.md",
+      "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
+      "tests/README.md",
+      "tests/Test-StoryFinalRecord.Input.schema.json",
+      "tests/Test-StoryFinalRecord.Tests.ps1",
+      "tests/Test-StoryFinalRecord.ps1"
+    ],
+    "testResultPath": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-portable.xml",
+    "expectedCounts": {
+      "total": 418,
+      "passed": 418,
+      "failed": 0,
+      "skipped": 0
+    },
+    "contractTestName": "CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
+    "contractBaselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+    "executableInputs": [
+      ".gitattributes",
+      ".github/workflows/ci.yml",
+      "Directory.Build.props",
+      "Directory.Packages.props",
+      "Hexalith.Conversations.slnx",
+      "docs/runbooks/current-change-validation.md",
+      "global.json",
+      "package-lock.json",
+      "package.json",
+      "pyproject.toml",
+      "tests/Directory.Build.props",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/ByteAether.Ulid.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Dapr.Client.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Dapr.Common.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Dapr.Protos.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/DiffEngine.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/EmptyFiles.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Google.Api.CommonProtos.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Google.Protobuf.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Grpc.Core.Api.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Grpc.Net.Client.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Grpc.Net.Common.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Grpc.Reflection.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Commons.Http.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Commons.Serialization.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Commons.UniqueIds.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Client.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.deps.json",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.runtimeconfig.json",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Testing.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.EventStore.Client.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.EventStore.Contracts.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.ApplicationInsights.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.Bcl.AsyncInterfaces.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.TestPlatform.CommunicationUtilities.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.TestPlatform.CoreUtilities.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.TestPlatform.CrossPlatEngine.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.TestPlatform.PlatformAbstractions.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.TestPlatform.Utilities.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.Testing.Extensions.MSBuild.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.Testing.Extensions.Telemetry.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.Testing.Extensions.TrxReport.Abstractions.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.Testing.Platform.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.VisualStudio.CodeCoverage.Shim.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.VisualStudio.TestPlatform.Common.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Microsoft.VisualStudio.TestPlatform.ObjectModel.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Shouldly.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/System.CodeDom.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/System.Management.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/testhost.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/xunit.abstractions.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/xunit.runner.visualstudio.testadapter.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/xunit.v3.assert.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/xunit.v3.common.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/xunit.v3.core.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/xunit.v3.mtp-v2.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/xunit.v3.runner.common.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/xunit.v3.runner.inproc.console.dll",
+      "tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/xunit.v3.runner.utility.netcore.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/ByteAether.Ulid.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Dapr.Actors.AspNetCore.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Dapr.Actors.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Dapr.AspNetCore.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Dapr.Client.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Dapr.Common.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Dapr.Protos.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/DiffEngine.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/EmptyFiles.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Google.Api.CommonProtos.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Google.Protobuf.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Grpc.Core.Api.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Grpc.Net.Client.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Grpc.Net.Common.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Grpc.Reflection.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Commons.Diagnostics.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Commons.Http.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Commons.Publication.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Commons.Serialization.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Commons.TenantAccess.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Commons.UniqueIds.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Client.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.deps.json",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.runtimeconfig.json",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Server.deps.json",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Server.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Server.runtimeconfig.json",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Server.staticwebassets.endpoints.json",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Testing.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.EventStore.Client.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.EventStore.Contracts.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.EventStore.DomainService.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.EventStore.ServiceDefaults.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Tenants.Client.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Tenants.Contracts.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.ApplicationInsights.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Bcl.AsyncInterfaces.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Bcl.Cryptography.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Extensions.AmbientMetadata.Application.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Extensions.Compliance.Abstractions.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Extensions.DependencyInjection.AutoActivation.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Extensions.Diagnostics.ExceptionSummarization.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Extensions.Http.Diagnostics.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Extensions.Http.Resilience.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Extensions.Resilience.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Extensions.ServiceDiscovery.Abstractions.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Extensions.ServiceDiscovery.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Extensions.Telemetry.Abstractions.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Extensions.Telemetry.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.IdentityModel.Abstractions.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.IdentityModel.JsonWebTokens.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.IdentityModel.Logging.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.IdentityModel.Protocols.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.IdentityModel.Tokens.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.TestPlatform.CommunicationUtilities.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.TestPlatform.CoreUtilities.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.TestPlatform.CrossPlatEngine.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.TestPlatform.PlatformAbstractions.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.TestPlatform.Utilities.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Testing.Extensions.MSBuild.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Testing.Extensions.Telemetry.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Testing.Extensions.TrxReport.Abstractions.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.Testing.Platform.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.VisualStudio.CodeCoverage.Shim.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.VisualStudio.TestPlatform.Common.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Microsoft.VisualStudio.TestPlatform.ObjectModel.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/OpenTelemetry.Api.ProviderBuilderExtensions.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/OpenTelemetry.Api.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/OpenTelemetry.Exporter.OpenTelemetryProtocol.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/OpenTelemetry.Extensions.Hosting.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/OpenTelemetry.Instrumentation.AspNetCore.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/OpenTelemetry.Instrumentation.Http.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/OpenTelemetry.Instrumentation.Runtime.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/OpenTelemetry.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Polly.Core.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Polly.Extensions.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Polly.RateLimiting.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Shouldly.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/System.CodeDom.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/System.IdentityModel.Tokens.Jwt.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/System.Management.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/testhost.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/xunit.abstractions.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/xunit.runner.visualstudio.testadapter.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/xunit.v3.assert.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/xunit.v3.common.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/xunit.v3.core.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/xunit.v3.mtp-v2.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/xunit.v3.runner.common.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/xunit.v3.runner.inproc.console.dll",
+      "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/xunit.v3.runner.utility.netcore.dll",
+      "tests/Test-StoryFinalRecord.Input.schema.json",
+      "tests/Test-StoryFinalRecord.PreexistingState.schema.json",
+      "tests/Test-StoryFinalRecord.Tests.ps1",
+      "tests/Test-StoryFinalRecord.ps1",
+      "uv.lock"
+    ],
+    "executableInputRoots": [
+      {
+        "path": "src",
+        "extensions": [
+          ".cs",
+          ".csproj",
+          ".props",
+          ".targets"
+        ]
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Conformance.Tests",
+        "extensions": [
+          ".cs",
+          ".csproj",
+          ".props",
+          ".targets"
+        ]
+      },
+      {
+        "path": "references/Hexalith.Commons/src",
+        "extensions": [
+          ".cs",
+          ".csproj",
+          ".props",
+          ".targets"
+        ]
+      },
+      {
+        "path": "references/Hexalith.EventStore/src",
+        "extensions": [
+          ".cs",
+          ".csproj",
+          ".props",
+          ".targets"
+        ]
+      },
+      {
+        "path": "references/Hexalith.Tenants/src",
+        "extensions": [
+          ".cs",
+          ".csproj",
+          ".props",
+          ".targets"
+        ]
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Conformance.Portable.Tests",
+        "extensions": [
+          ".cs",
+          ".csproj",
+          ".props",
+          ".targets"
+        ]
+      },
+      {
+        "path": "_bmad/scripts",
+        "extensions": [
+          ".py"
+        ]
+      },
+      {
+        "path": "_bmad/schemas",
+        "extensions": [
+          ".json"
+        ]
+      },
+      {
+        "path": "scripts",
+        "extensions": [
+          ".py",
+          ".mjs",
+          ".ps1"
+        ]
+      }
+    ],
+    "executableInputFingerprint": "PENDING_FINAL_RUN",
+    "countClaims": [
+      {
+        "path": "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "kind": "regex",
+        "pattern": "Current policy conformance: 418 / 418 passed",
+        "revision": "WORKTREE"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "kind": "regex",
+        "pattern": "Current policy conformance: 418 / 418 passed",
+        "revision": "WORKTREE"
+      }
+    ],
+    "evidencePaths": [
+      "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+      "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+      "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-input.json",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-internal.xml",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-portable.xml",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-preexisting-state.json",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-internal.xml",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-portable.xml",
+      "_bmad-output/implementation-artifacts/tests/test-summary.md",
+      "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
+      "tests/README.md",
+      "tests/Test-StoryFinalRecord.Input.schema.json",
+      {
+        "path": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+        "sha256": "ebfc2f67e90ecc8a7734719c6e2673b6e8392ab2cae9956a8e98b7bf769acfca"
+      },
+      {
+        "path": "docs/release-evidence/public-contract-shape-story-9.2-v2.json",
+        "sha256": "0160a2be428c681d22c014afa109fc80eb97706fe6f47367ac571b9a9a7595f8"
+      },
+      {
+        "path": "docs/release-evidence/conformance-oracle-tiering-migration-v3.json",
+        "sha256": "b038eb86f243228196645f5a828496bd012cd4e40021429d113312a5d9204130"
+      },
+      {
+        "path": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v3.json",
+        "sha256": "8143718e4d1b1f9966fd90cb0ea64bd9cf101e6f114ca4001ba64e1046ef0edb"
+      },
+      {
+        "path": "docs/runbooks/current-change-validation.md",
+        "sha256": "12f208ba36787264c3fad5c129e3981d4a40f4151a630051b6a608f341a27961"
+      },
+      {
+        "path": ".github/workflows/ci.yml",
+        "sha256": "134b264eae0c986f132c0fcdf55648613d4c28947652d94b84a1a904e71365b5"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+        "sha256": "ab6d4970d1e7cc78738435b09e0777d0a2eefe473ba91ca2310c26aa4d220b21"
+      }
+    ],
+    "evidencePairs": [
+      [
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.md"
+      ]
+    ],
+    "additionalTestResultPaths": [
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-internal.xml"
+    ],
+    "historicalReproduction": {
+      "testResultPaths": [
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-portable.xml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-internal.xml"
+      ],
+      "expectedCounts": {
+        "total": 489,
+        "passed": 483,
+        "failed": 6,
+        "skipped": 0
+      },
+      "expectedFailedTests": [
+        "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.AssertionInventoryShouldMatchPreSplitResultAndSource",
+        "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.DenominatorSuitesShouldRemainUnchanged",
+        "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ServerBoundAssertionsShouldHaveExactDisposition",
+        "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.StrengthDigestsShouldRemainEqual",
+        "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.TieringShouldNotWidenPublicContracts",
+        "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap"
+      ],
+      "policyPath": "docs/runbooks/current-change-validation.md",
+      "rationale": "The existing CI selection retires historical authority subjects and original single-assembly Story 9.1 controls. Both unfiltered assemblies were executed without exclusions; all six reproduced failures remain named and FAIL. The canonical current run uses the pre-existing CI class/method exclusions without adding exclusions."
+    },
+    "contractApproval": {
+      "proposalPath": "docs/release-evidence/conformance-oracle-tiering-migration-v3.json",
+      "approvalPath": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v3.json",
+      "approvalSha256": "8143718e4d1b1f9966fd90cb0ea64bd9cf101e6f114ca4001ba64e1046ef0edb",
+      "approvalId": "story-9.2-user-quality-approval-2026-10-07",
+      "driftSha256": "3357725bc7ebc039baca0bf928718f03f2ae037dbd130e37704bd3315480d2d1",
+      "currentSnapshotPath": "docs/release-evidence/public-contract-shape-story-9.2-v2.json"
+    },
+    "validationCommands": [
+      {
+        "command": "dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -failSkips -class- Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest -class- Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest -class- Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest -class- Hexalith.Conversations.Conformance.Tests.PlanningToolingEnvironmentAuthorityV15ValidationTest -class- Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest -class- Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest -class- Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest -class- Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest -method- Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently -method- Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.CurrentControlsAndTierPrerequisiteShouldStayTruthful -method- Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap -method- Hexalith.Conversations.Conformance.Tests.SmC2BaselineReconstructionValidationTest.BaselineShouldRecordAnAuditableReconstructionMethod -parallelMode none -result-trx /tmp/epic5-current-policy-portable.trx -noLogo",
+        "runner": "xUnit v3 executable",
+        "exitCode": 0
+      },
+      {
+        "command": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests -noLogo -trx /tmp/epic5-current-internal.trx",
+        "runner": "xUnit v3 executable",
+        "exitCode": 0
+      }
+    ],
+    "comparisonBaselinePath": "docs/release-evidence/public-contract-shape-story-9.2-v2.json"
+  },
+  "historical": [
+    {
+      "id": "5.1",
+      "baselineCommit": "f7cee22495eb6eecec97e97a11adb580805edae5",
+      "finalCommit": "5afc695d74b95d36f5b8cbd481a0c1e7bfb3ef7b",
+      "storyPath": "_bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md",
+      "expectedCounts": {
+        "total": 365,
+        "passed": 365,
+        "failed": 0,
+        "skipped": 0
+      },
+      "fileListAmendments": [],
+      "amendmentRecordPath": null,
+      "amendmentPattern": null,
+      "contractBaselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+      "countClaims": [
+        {
+          "path": "_bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md",
+          "kind": "regex",
+          "pattern": "365/365|365 / 365"
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "kind": "json",
+          "jsonPath": "conformanceRun.total",
+          "expected": 365
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "kind": "json",
+          "jsonPath": "conformanceRun.passed",
+          "expected": 365
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "kind": "json",
+          "jsonPath": "conformanceRun.failed",
+          "expected": 0
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "kind": "json",
+          "jsonPath": "conformanceRun.skipped",
+          "expected": 0
+        },
+        {
+          "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "kind": "regex",
+          "pattern": "365 total"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "blobOid": "3a0d59e0fabe6a6bf2f2d9f56150cb8b78a61b8f"
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.md",
+          "blobOid": "d3b1f8eef1f7d10a4ab8889567bb92ef0d8ee683"
+        }
+      ]
+    },
+    {
+      "id": "5.2",
+      "baselineCommit": "5afc695d74b95d36f5b8cbd481a0c1e7bfb3ef7b",
+      "finalCommit": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
+      "storyPath": "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+      "expectedCounts": {
+        "total": 374,
+        "passed": 374,
+        "failed": 0,
+        "skipped": 0
+      },
+      "fileListAmendments": [
+        "_bmad-output/implementation-artifacts/tests/test-summary.md"
+      ],
+      "amendmentRecordPath": "_bmad-output/implementation-artifacts/tests/story-5-2-final-record-amendment.md",
+      "amendmentPattern": "FINAL-RECORD-AMENDMENT-5.2-TEST-SUMMARY",
+      "contractBaselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+      "countClaims": [
+        {
+          "path": "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+          "kind": "regex",
+          "pattern": "374/374|374 / 374"
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "kind": "json",
+          "jsonPath": "validation.fullConformance.total",
+          "expected": 374
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "kind": "json",
+          "jsonPath": "validation.fullConformance.passed",
+          "expected": 374
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "kind": "json",
+          "jsonPath": "validation.fullConformance.failed",
+          "expected": 0
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "kind": "json",
+          "jsonPath": "validation.fullConformance.skipped",
+          "expected": 0
+        },
+        {
+          "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "kind": "regex",
+          "pattern": "374 total"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "blobOid": "e67c3cae29edc16d7ddf25d24c4e21eb93e08761"
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.md",
+          "blobOid": "63a340b9f5494ebffe3b520f52d78bdf73438fde"
+        }
+      ]
+    },
+    {
+      "id": "5.3",
+      "baselineCommit": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
+      "finalCommit": "ba01c4fc8addfef777b2da5e2f96c0184deeeb3e",
+      "storyPath": "_bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md",
+      "expectedCounts": {
+        "total": 384,
+        "passed": 384,
+        "failed": 0,
+        "skipped": 0
+      },
+      "fileListAmendments": [],
+      "amendmentRecordPath": null,
+      "amendmentPattern": null,
+      "contractBaselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+      "countClaims": [
+        {
+          "path": "_bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md",
+          "kind": "regex",
+          "pattern": "384/384|384 / 384"
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "kind": "json",
+          "jsonPath": "validation.fullConformance.total",
+          "expected": 384
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "kind": "json",
+          "jsonPath": "validation.fullConformance.passed",
+          "expected": 384
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "kind": "json",
+          "jsonPath": "validation.fullConformance.failed",
+          "expected": 0
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "kind": "json",
+          "jsonPath": "validation.fullConformance.skipped",
+          "expected": 0
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "blobOid": "1ee038462839a6f669138afd3d3462bcd6b90dbe"
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.md",
+          "blobOid": "b86c215d2713c4a404fc3986ca2bdfa447dad983"
+        }
+      ]
+    }
+  ]
+}

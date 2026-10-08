@@ -85,7 +85,7 @@ public sealed class ConversationAgentQueryService(IConversationAgentAuthority au
 
     /// <summary>Counts active source Conversations without granting unjoined content access.</summary>
     /// <param name="principal">Authenticated service principal.</param>
-    /// <param name="query">Proposed half-open UTC creation window, awaiting owner acceptance.</param>
+    /// <param name="query">Owner-accepted half-open UTC creation window; currently open/undeleted Conversations, including zero Agent Calls.</param>
     /// <param name="cancellationToken">Cancellation.</param>
     /// <returns>Complete denominator or Unavailable, never inferred zero.</returns>
     public async Task<ConversationActiveCountResult> CountAsync(string principal, ConversationActiveCountQuery query,

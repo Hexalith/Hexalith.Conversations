@@ -2,7 +2,7 @@
 title: 'Refresh all package dependency graphs'
 type: 'chore'
 created: '2026-09-12'
-status: 'in-progress'
+status: 'in-review'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'b819a7c43a7024295abaabd418a74f5f64cb5af0'
@@ -150,6 +150,20 @@ audit of the uncommitted catalog.
   Independent parent preview/check runs remain `BLOCKED` with the same two
   commit-required codes after review fixes and exact-byte regeneration.
 
+- Independent review exposed missing Verify consumer evidence. Using the same
+  isolated checkout's existing FrontComposer consumers and unchanged owner-approved
+  sponsorship configuration, both `Hexalith.FrontComposer.SourceTools.Tests` and
+  `Hexalith.FrontComposer.Shell.Tests` build in Release with zero warnings/errors
+  against Verify/Verify.XunitV3 `33.3.2`. Their focused runs pass 35 and 3 tests
+  without skips, including eight emitter snapshots and three persistence snapshots.
+  The package reports informational SC059 for the existing private-sponsor
+  attestation; no new assertion, exemption, suppression, or baseline was created.
+  Commands/results are in `/tmp/package-refresh-verify-consumer-results.json`,
+  and TRX files in `/tmp/package-refresh-fresh-tests/*-Verify.trx`.
+- Published Builds CI run `37797493016` and Commitlint run `37797492939` pass.
+  The earlier stale-audit result is superseded by the regenerated audit and its
+  successful committed validator/CI results.
+
 ### Current refresh publication — 2026-10-08
 
 The authorized Builds catalog commit is `eaa53b009f1547d1af97a8aa6a8ad6b214a3276d`.
@@ -159,7 +173,11 @@ only HotChocolate and Verify are refreshed, with the other 144 family and packag
 observations preserved exactly. The audit retains the earlier Verify sponsorship
 configuration failure as historical context and grants no downstream compatibility
 acceptance. Conversations' isolated package-only Release build and tests pass.
-The parent C1/C2 publication and final independent review are in progress.
+Parent C1 is `680d31f6f577e77d0e2eb55af5eb7c9fb8e3d871` and the record-only direct child
+C2 is `f6f8c4fea84c728568bfae4c4a5a58262a01c49d`. The canonical package-environment checker now
+reports `PASS`, five assertions, and no blockers; all four authority flags remain
+false. The October submodule-promotion gate reports `PASS`, and the root structural
+checker passes. Final independent review and parent remote publication are pending.
 
 The original sections below retain the September implementation and evidence.
 
@@ -200,6 +218,37 @@ The original sections below retain the September implementation and evidence.
 ## Spec Change Log
 
 ## Review Triage Log
+
+### Independent October review triage — 2026-10-08
+
+Every finding was classified before grouping. The review covers the approved
+October amendment from `refresh_baseline_commit`, plus the two task-owned Builds
+paths. The legacy September baseline remains preserved for historical inspection.
+
+| Finding | Verdict | Evidence and route |
+|---|---|---|
+| Blind 1: Verify paired-consumer acceptance | medium | The root graph does not consume Verify; the prior paired probe stopped at SC021 for both versions. Patch verification completed: two existing FrontComposer consumers build cleanly and 38 tests, including 11 snapshots, pass using unchanged owner-approved sponsorship configuration; no licensing assertion was invented. |
+| Blind 2: stale owning audit can pass | medium | `builds_context` reads only catalog objects. Actual catalog commit `eaa53b009f1547d1af97a8aa6a8ad6b214a3276d` still contains the old audit. Patch its existing publication observation with bounded audit hash, revision, and selection checks. |
+| Blind 3: cached remote reachability | false | The required promotion gate explicitly uses locally known remote-tracking containment; this is the same observation, not a live-network claim. Publication additionally fetched and verified the exact origin/main SHA with `git ls-remote`. No new network-dependent authority route is needed. |
+| Blind 4: npm direct sections and transitive entry | medium | A parent in-memory probe confirms an unlocked runtime dependency is admitted; close that unselected direct section. The missing-semver part does not invalidate the named direct-lock assertion: recursive graph validity is separately covered by clean `npm ci` and `npm ls --all`, both passed. Patch the demonstrated direct-section gap. |
+| Blind 5: Python edges and duplicate metadata | medium | Parent probes confirm a deleted rpds-py edge and conflicting duplicate jsonschema metadata are admitted. Patch the known complete locked relationships and require-dist cardinality without changing the projection. |
+| Blind 6: Microsoft downgrade skips alignment | medium | A parent probe changed System.Text.Json to 9.0.0 and validation passed because membership depends on the submitted version prefix. Patch the fixed servicing-family membership, preserving separately versioned identities. |
+| Blind 7: imported helper execution not bound | medium | The checker executes the local V18 helper while the record binds the source candidate. A helper edit can change the effective implementation without changing the declared sources. Patch a candidate-byte equality guard for that existing executable dependency; preserve the record's schema and bytes. |
+| Blind 8: worktree record representation | medium | `main --check` deserializes before validating, so whitespace-only replacement of canonical committed bytes is accepted. Patch an exact comparison of the bytes actually read with canonical serialization. |
+| Blind 9: candidate-only premature PASS | high | The generation branch returns a PASS source projection without querying publication; only `--check` proves C2. Patch PASS generation to perform the existing publication check. |
+| Blind 10: later Builds checkout drift | false | This is an operational clean-checkout/promotion verifier by explicit intent. Moving the owning checkout away from the candidate must produce a precise non-success state. The historical accepted JSON bytes remain unchanged; perpetual PASS in a different checkout is not promised. |
+| Blind 11: malformed input exception | medium | A parent package.json=[] probe raises uncaught AttributeError before ledger emission. Patch shape validation and structured malformed-input handling. |
+| Blind 12: committed Git observations mocked | medium | Existing positive committed tests replace every Git helper; the real runtime publication pass covers only the happy path. Patch isolated real-repository tests for publication, history, gitlink, cleanliness, and remote containment failures. |
+| Edge 1: malformed package root | medium | Same reproduced AttributeError as Blind 11. Patch the same input boundary. |
+| Edge 2: candidate without C2 | high | Same unguarded generation branch as Blind 9. Patch publication checking before emitting PASS. |
+| Edge 3: intervening unrelated commit | high | The immediate-parent scope check plus baseline ancestry admits an unrelated intermediate commit. The approved October boundary has a direct baseline child. Patch that parent equality and test rejection. |
+| Verification 1: cleanliness mutation survives tests | medium | Pre-verified mutation forced clean=True and all 36 tests passed. Patch a real temporary Builds repository dirty-catalog test; keep all fixture commits local to temporary repositories. |
+| Verification 2: immutable writer guard lacks test | medium | Pre-verified removal of the overwrite guard left all 36 tests passing. Patch a writer mutation test proving the accepted bytes cannot change. |
+
+Patch groups retain every demonstrated outcome above. The catalog, C1/C2 identities,
+canonical record, and accepted V15/V16/V18 bytes will remain unchanged; review fixes
+are additive descendants. No intent or specification amendment is required.
+
 
 - 2026-10-08 parent diff inspection: bind committed-record schema validation to
   the canonical source candidate; reject symlinks in every path component before

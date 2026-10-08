@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUtc": "2026-10-08T12:33:06Z",
+  "baselineCommit": "8793d26306f91d2cfe00116dc0b8eec41ec8900f",
+  "excludedEntries": [
+    {
+      "path": "references/Hexalith.AI.Tools",
+      "kind": "gitlink",
+      "baselineCommit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "indexCommit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "worktreeCommit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "kind": "gitlink",
+      "baselineCommit": "f717a87c26a8266bdde95d18f998ef2ab366d43a",
+      "indexCommit": "f717a87c26a8266bdde95d18f998ef2ab366d43a",
+      "worktreeCommit": "f717a87c26a8266bdde95d18f998ef2ab366d43a",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.Commons",
+      "kind": "gitlink",
+      "baselineCommit": "116d26815eb81e35b3c161e1799e5ee12805fc0a",
+      "indexCommit": "116d26815eb81e35b3c161e1799e5ee12805fc0a",
+      "worktreeCommit": "116d26815eb81e35b3c161e1799e5ee12805fc0a",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "kind": "gitlink",
+      "baselineCommit": "9542d3c9f48bf9ce1c57f2ef68904703eaba56cc",
+      "indexCommit": "9542d3c9f48bf9ce1c57f2ef68904703eaba56cc",
+      "worktreeCommit": "9542d3c9f48bf9ce1c57f2ef68904703eaba56cc",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "kind": "gitlink",
+      "baselineCommit": "c8e3d99468e27329d9e3977ec2d0b1542c7e9e60",
+      "indexCommit": "c8e3d99468e27329d9e3977ec2d0b1542c7e9e60",
+      "worktreeCommit": "c8e3d99468e27329d9e3977ec2d0b1542c7e9e60",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "kind": "gitlink",
+      "baselineCommit": "0e114214007c22f5cdbac21a6853cff4208340ee",
+      "indexCommit": "0e114214007c22f5cdbac21a6853cff4208340ee",
+      "worktreeCommit": "0e114214007c22f5cdbac21a6853cff4208340ee",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "kind": "gitlink",
+      "baselineCommit": "3e18d0dcdceb387eff89862c382637da89ad7e47",
+      "indexCommit": "3e18d0dcdceb387eff89862c382637da89ad7e47",
+      "worktreeCommit": "3e18d0dcdceb387eff89862c382637da89ad7e47",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "kind": "gitlink",
+      "baselineCommit": "ccaf77399d92be696e44ecb8ab17acf77d97646a",
+      "indexCommit": "ccaf77399d92be696e44ecb8ab17acf77d97646a",
+      "worktreeCommit": "ccaf77399d92be696e44ecb8ab17acf77d97646a",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "kind": "gitlink",
+      "baselineCommit": "f8649509d798435af4021cec4440c425b80f6fd6",
+      "indexCommit": "f8649509d798435af4021cec4440c425b80f6fd6",
+      "worktreeCommit": "f8649509d798435af4021cec4440c425b80f6fd6",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "kind": "gitlink",
+      "baselineCommit": "fcdcb4205a3f6e46f736cdd3e6f2b20ca2f241df",
+      "indexCommit": "fcdcb4205a3f6e46f736cdd3e6f2b20ca2f241df",
+      "worktreeCommit": "fcdcb4205a3f6e46f736cdd3e6f2b20ca2f241df",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

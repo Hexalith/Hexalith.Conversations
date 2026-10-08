@@ -116,7 +116,7 @@ Full operating procedure, blocker→remediation table, exit codes, and safety bo
 
 `tests/Test-StoryFinalRecord.ps1` and `tests/Test-StoryFinalRecord.Tests.ps1` are the Epic 4 action A1 asset and the record of the Epic 5 final-record check. They verify a **hand-authored** manifest — the defect the generator above exists to remove — and are bound to Epic 5 artifacts. They are retained as the historical record and are not invoked by any workflow. Do not delete them.
 
-The original 2026-07-14 JSON and Markdown result remain byte-identical evidence of a failed run; they are not superseded by rewriting them. The approved 2026-08-22 corrective amendment binds those source bytes to a separately generated successor audit. That successor proves the focused non-mutating public-contract comparison but remains `BLOCKED` while the broad conformance run has unresolved failures. Epic 4 action A1 therefore remains in progress until a later successor audit is fully green.
+The original 2026-07-14 JSON and Markdown result remain byte-identical evidence of a failed run; they are not superseded by rewriting them. The approved 2026-08-22 corrective amendment binds those source bytes to a separately generated successor audit. That successor proves the focused non-mutating public-contract comparison but remains `BLOCKED` while the broad conformance run has unresolved failures. That August result remains historical `BLOCKED`; it is preserved by the dated October 8 successor.
 
 ## Architecture
 
@@ -155,3 +155,20 @@ Upload `TestResults/` as the coverage artifact when CI is configured.
 ## Knowledge References
 
 This scaffold applies Murat knowledge fragments: `fixture-architecture`, `test-levels-framework`, `test-quality`, and `playwright-config` for future UI expansion.
+
+### Epic 5 dated successor operation — 2026-10-08
+
+Run the historical asset explicitly when its spec requires it:
+
+```powershell
+pwsh -NoProfile -File tests/Test-StoryFinalRecord.Tests.ps1
+pwsh -NoProfile -File tests/Test-StoryFinalRecord.ps1 -InputPath _bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-input.json
+```
+
+Capture the baseline and exact pre-existing state before work; finish executable/test changes; build and execute both conformance tiers with the existing CI selection; then bind the raw results and executable inputs. Finalize the record and File List, seal the fingerprint, and run the checker from the final tree. Any later executable-input change requires a fresh run. Review the JSON, every frozen exclusion, the preserved failing reproduction, and the approval reference before closing the action.
+
+The 25 disposable-repository scenarios pass, including missing comparator binding and approval removal while the comparator target differs from v1.
+
+`additionalTestResultPaths` combines distinct tier receipts and rejects repeated paths or executed case identities. Counters must match the actual result rows. `comparisonBaselinePath` explicitly identifies the baseline exercised by the comparator, independently of approval, and is required for multi-tier or approved-difference inputs. The gate compares its complete bytes with the immutable baseline; a difference requires the exact pinned `contractApproval`, and removing approval fails. Further drift or changed approval bytes also fail. Legacy single-result inputs retain their implicit v1 binding for historical compatibility and must not be reused as current proof. The October successor records approved v1 drift and an empty full current-to-v2 comparison separately.
+
+The canonical current scope is defined by `.github/workflows/ci.yml` and `docs/runbooks/current-change-validation.md`. Its 418 active cases pass. The separately executed unfiltered 483 / 489 reproduction retains six named historical failures; it is never labelled green. Raw TRX is stored with the `.xml` extension so a clean checkout retains the evidence. A later tree needs its own frozen boundary, receipts, and successor input; historical fingerprints cannot be reused as proof of that tree.
