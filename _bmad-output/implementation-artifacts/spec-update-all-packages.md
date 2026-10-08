@@ -2,7 +2,7 @@
 title: 'Refresh all package dependency graphs'
 type: 'chore'
 created: '2026-09-12'
-status: 'in-review'
+status: 'in-progress'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'b819a7c43a7024295abaabd418a74f5f64cb5af0'
@@ -177,7 +177,78 @@ Parent C1 is `680d31f6f577e77d0e2eb55af5eb7c9fb8e3d871` and the record-only dire
 C2 is `f6f8c4fea84c728568bfae4c4a5a58262a01c49d`. The canonical package-environment checker now
 reports `PASS`, five assertions, and no blockers; all four authority flags remain
 false. The October submodule-promotion gate reports `PASS`, and the root structural
-checker passes. Final independent review and parent remote publication are pending.
+checker passes. All three independent review layers are triaged. Every accepted finding is fixed or verified; no findings are deferred. The package source/evidence commits and checker/test fixes are published; final lifecycle completion is blocked by the separately pushed product build described below.
+
+### Final review verification — 2026-10-08
+
+The parent reviewed the final checker/test diff and passes all 75 checker tests
+in one registered run (`5.39s`, no skips), including real temporary C1/C2 and
+Builds repositories. They exercise malformed data, unselected direct dependency
+sections, Python edges/markers and duplicate metadata, servicing downgrades,
+helper drift, stale audit hashes/selections/revisions, dirty/unavailable Builds,
+extra source/publication history, and immutable/canonical record bytes.
+`/tmp/package-refresh-parent-checker-tests-result.json` and its log/JUnit XML
+retain the command and result. The implementation agent's earlier 74-test run
+and final one-test C2-history run are superseded by this complete focused run.
+
+The unchanged canonical record passes the tightened checker with five assertions
+and no blockers. Root structure and the explicit October promotion gate pass.
+The earlier full current tooling lane passed 933 tests in 629.71 seconds. An
+additional broad local rerun was intentionally canceled after the changed-file
+suite passed (exit 143, incomplete, no failure inferred); its exact command/log
+remain `/tmp/package-refresh-parent-current-tooling-result.json`. It is not a
+second full-suite PASS. CI run `37802846530` is executing the complete updated tooling lane on the
+combined published tree. Product graph changes have already passed the isolated Release
+build and 2,030 root tests, and the additional Verify consumer checks pass 38.
+
+All task commit messages, including temporary Git fixture messages, passed the
+owning pinned commitlint `21.2.3`; successful full-message validation evidence is
+retained in `/tmp/package-refresh-root-commitlint.json` and
+`/tmp/package-refresh-builds-commitlint.json`. All captured concurrent user-file
+bytes are preserved. Schema and accepted package/V15/V16/V18 records retain their
+original bytes; no historical resolver or story-final-record workflow is added.
+
+### Concurrent publication and completion blocker — 2026-10-08
+
+While final verification ran, a separate user commit
+`cf485f15cb95226faf9834ca4e5cf9134133539a` captured and pushed the package commits,
+checker/test corrections, concurrent deletion product work, and six other gitlinks.
+This run preserved that published commit and all its user-owned files. Its broader
+changes are outside the package review boundary. Final package-only review uses
+explicit task paths, not the combined descendant's complete diff.
+
+Conversations CI run `37802846530` has failing build-and-test and conformance jobs.
+The exact product command is
+`dotnet build Hexalith.Conversations.slnx --no-restore --configuration Release -warnaserror`
+(exit 1, seven CS0246 errors); the internal conformance build
+`dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release -warnaserror`
+also exits 1 on those errors. The concurrent deletion pump/projector/delivery files
+reference `SourcePublicationIndexEntry`, `SourcePublicationDescriptor`,
+`ISourcePublicationProjector`, `ISourcePublicationDelivery`, and
+`SourcePublicationDeliveryStatus`. These exist in the newly advanced EventStore
+source but are absent from the published Client/Contracts packages. Direct NuGet
+index checks still report `3.117.1` as the newest stable Client, Contracts, and
+Server version, matching the current central selections and root import property.
+No available package upgrade can supply the missing API. Product source, release
+channel, and Release dependency mode were preserved.
+
+The canonical package-environment checker remains `PASS`. The current committed
+promotion observation passes with baseline/candidate
+`cf485f15cb95226faf9834ca4e5cf9134133539a` and only Builds declared: all current user
+gitlinks are captured and Builds is clean and remote-contained. A historical C2
+promotion rerun after the user's other checkout advances reports
+`UNCAPTURED_SUBMODULE_PROMOTION` for those six unrelated paths; that is an old
+candidate/current-checkout mismatch, not an attempted promotion by this run.
+The original October package candidate's prior promotion result remains `PASS`.
+
+The repository runbook requires fixing a failed product/repository check before
+the next change, and the build completion step forbids marking a failing change
+complete. Status therefore remains `in-progress`; this final task-owned spec update
+is left unstaged and uncommitted. No additional product or gitlink changes are
+made. Completion needs an upstream EventStore package release containing these
+APIs, or a separately scoped product correction, followed by successful current CI.
+Job logs are `/tmp/package-refresh-ci-job-113399277054.log` and
+`/tmp/package-refresh-ci-job-113399276692.log`.
 
 The original sections below retain the September implementation and evidence.
 
