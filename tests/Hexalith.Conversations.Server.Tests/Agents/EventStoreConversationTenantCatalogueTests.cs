@@ -18,6 +18,7 @@ public sealed class EventStoreConversationTenantCatalogueTests : TimeProvider, I
     private readonly SourcePublicationScope _scope = new(F.Tenant.Value, "conversation", "catalogue", "installation-1");
     private readonly Dictionary<AggregateIdentity, AuthoritativeEventStream> _sources = [];
     private bool _complete = true;
+    private long? _certifiedHead;
     private int _namespaceReads;
     private DateTimeOffset _now = DateTimeOffset.UtcNow;
     private bool _expireAfterFinalCapture;
@@ -37,7 +38,7 @@ public sealed class EventStoreConversationTenantCatalogueTests : TimeProvider, I
     {
         _namespaceReads++;
         return Task.FromResult<SourcePublicationCut?>(new(scope, "authority", _now.AddSeconds(-1),
-            _now.AddMinutes(1), _sources.Select(s => new SourcePublicationHead(s.Key, s.Value.Head)).ToArray(), _complete));
+            _now.AddMinutes(1), _sources.Select(s => new SourcePublicationHead(s.Key, _certifiedHead ?? s.Value.Head)).ToArray(), _complete));
     }
 
     /// <inheritdoc/>
@@ -111,5 +112,17 @@ public sealed class EventStoreConversationTenantCatalogueTests : TimeProvider, I
         var result = await Catalogue().ReadAsync(new(F.Tenant, F.At, F.At.AddDays(1)), TestContext.Current.CancellationToken);
         result.Outcome.ShouldBe(ConversationAgentsOutcome.Unavailable); result.Entries.ShouldBeNull(); result.Checkpoint.ShouldBeNull();
         _namespaceReads.ShouldBe(2);
+    }
+
+    /// <summary>A current stream may have later lifecycle bytes while the exact certified cut folds only its consecutive creation prefix; a prefix gap still denies.</summary>
+    [Theory]
+    [InlineData(false)][InlineData(true)]
+    public async Task CertifiedCatalogueCutFoldsOriginalPrefixAfterCurrentHeadAdvances(bool gap)
+    {
+        await AddAsync("advanced-conversation", "Closed"); _certifiedHead = 1;
+        if (gap) { var identity = _sources.Keys.Single(); var source = _sources[identity]; _sources[identity] = source with { Events = [source.Events[0] with { SequenceNumber = 2 }, source.Events[1]] }; }
+        var result = await Catalogue().ReadAsync(new(F.Tenant, F.At.AddDays(-1), F.At.AddDays(1)), TestContext.Current.CancellationToken);
+        result.Outcome.ShouldBe(gap ? ConversationAgentsOutcome.Unavailable : ConversationAgentsOutcome.Available);
+        if (!gap) { result.Complete.ShouldBeTrue(); result.Entries!.Single().Active.ShouldBeTrue(); }
     }
 }

@@ -10,6 +10,7 @@ using Hexalith.Conversations.Events;
 using Hexalith.Conversations.Server.Agents;
 using Hexalith.EventStore.Contracts.Identity;
 using Hexalith.EventStore.Contracts.Streams;
+using Hexalith.EventStore.Client.Streams;
 using F = Hexalith.Conversations.Server.Tests.Agents.ConversationAgentLocalFixture;
 
 namespace Hexalith.Conversations.Server.Tests.Agents;
@@ -145,4 +146,50 @@ public sealed class ConversationDeletionDeliveryPumpTests
         exception.CancellationToken.ShouldBe(caller.Token); f.Submissions.ShouldBe(0); f.LookupPending.TrySetResult(new(ConversationAgentsOutcome.Absent));
     }
 
+
+    /// <summary>Read-only owner acknowledgement lookup proves actual serialized Pending/Acknowledged state through restart and fails closed for unknown, quarantined or withdrawn authority.</summary>
+    [Theory]
+    [InlineData("ack")][InlineData("unknown")][InlineData("quarantine")][InlineData("withdrawn")]
+    public async Task ConcretePublicationAdapterReadsActualSourceAcknowledgementAndCurrentAuthority(string vector)
+    {
+        var f = await Approved(); var adapter = new ConversationDeletionPublicationDelivery(f.Pump());
+        (await adapter.LookupAcknowledgementAsync(f.Entry, TestContext.Current.CancellationToken)).ShouldBe(SourcePublicationDeliveryStatus.Pending);
+        f.Submissions.ShouldBe(0); f.AttemptCommands.ShouldBeEmpty();
+        if (vector == "quarantine") { f.ChangedReceipt = true; (await adapter.DeliverAsync(f.Entry, TestContext.Current.CancellationToken)).ShouldBe(SourcePublicationDeliveryStatus.Quarantined); }
+        else if (vector == "unknown") { f.Source.CorruptHead = true; }
+        else { (await adapter.DeliverAsync(f.Entry, TestContext.Current.CancellationToken)).ShouldBe(SourcePublicationDeliveryStatus.Acknowledged); }
+        if (vector == "withdrawn") { f.WithdrawAuthority = true; }
+        var restarted = new ConversationDeletionPublicationDelivery(f.Pump()); int effects = f.Submissions, commands = f.AttemptCommands.Count;
+        var expected = vector == "ack" ? SourcePublicationDeliveryStatus.Acknowledged : vector == "quarantine" ? SourcePublicationDeliveryStatus.Quarantined : SourcePublicationDeliveryStatus.Unavailable;
+        (await restarted.LookupAcknowledgementAsync(f.Entry, TestContext.Current.CancellationToken)).ShouldBe(expected);
+        f.Submissions.ShouldBe(effects); f.AttemptCommands.Count.ShouldBe(commands);
+        if (vector == "ack") { (await f.Source.ReplayAsync()).DeletionSource.AcknowledgedSourceRevision.ShouldBe(f.Entry.Publication.SourceRevision); }
+    }
+    /// <summary>Delivery-only revocation after durable attempt never borrows still-current source-read permission for a receiver effect.</summary>
+    [Fact]
+    public async Task DeliveryPermissionWithdrawalAfterAttemptMakesZeroSubmissions()
+    {
+        var f = await Approved(); f.RevokeDeliveryAfterAttempt = true;
+        (await f.Pump().DeliverAsync(f.Entry, TestContext.Current.CancellationToken)).ShouldBe(ConversationAgentsOutcome.Denied);
+        f.Submissions.ShouldBe(0); f.AttemptCommands.Count.ShouldBe(1);
+        var original = (await f.Source.ReplayAsync()).DeletionSource; original.LastAttemptId.ShouldBe(f.AttemptCommands.Single().DeliveryAttemptId);
+        original.Acknowledgement.ShouldBeNull(); original.AcknowledgedSourceRevision.ShouldBe(0);
+        (await f.AuthorizeAsync("conversations-worker", F.Tenant, F.Conversation, "DeletionSource", TestContext.Current.CancellationToken)).Outcome.ShouldBe(ConversationAgentsOutcome.Available);
+    }
+    /// <summary>The actually suspended second target lookup is followed by fresh source and delivery admission, preserving the persisted original attempt.</summary>
+    [Theory]
+    [InlineData(false)][InlineData(true)]
+    public async Task AuthorityWithdrawalDuringFinalTargetLookupMakesZeroSubmissions(bool deliveryOnly)
+    {
+        var f = await Approved(); f.BlockTargetCall = 2;
+        var result = f.Pump().DeliverAsync(f.Entry, TestContext.Current.CancellationToken);
+        await f.TargetEntered.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        f.AttemptCommands.Count.ShouldBe(1); f.Submissions.ShouldBe(0);
+        if (deliveryOnly) { f.RevokeDeliveryAfterAttempt = true; } else { f.WithdrawAuthority = true; }
+        f.TargetPending.SetResult(f.Target);
+        (await result.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken)).ShouldBe(ConversationAgentsOutcome.Denied);
+        f.Submissions.ShouldBe(0); f.AttemptCommands.Count.ShouldBe(1);
+        var original = (await f.Source.ReplayAsync()).DeletionSource; original.LastAttemptId.ShouldBe(f.AttemptCommands.Single().DeliveryAttemptId);
+        original.Acknowledgement.ShouldBeNull(); original.AcknowledgedSourceRevision.ShouldBe(0);
+    }
 }

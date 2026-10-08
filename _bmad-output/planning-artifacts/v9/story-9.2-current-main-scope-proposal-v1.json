@@ -1,0 +1,2095 @@
+{
+  "schemaVersion": "hexalith.conversations.story-9.2-current-main-scope-proposal.v1",
+  "status": "prepared-unapproved",
+  "authorizationClaimed": false,
+  "approvalClaimed": false,
+  "originalBaseline": "51aa06b856bcb0aaf22013153cfe02a51b046156",
+  "originalAcceptedSourceCandidate": "c44f6b7b116b17453aa213d39cd244a3e0cbe1dd",
+  "originalPublication": "97d300d9bfda3ed771d35bea9f41a91356c907a9",
+  "measuredCommittedCandidate": "59e72b82cdc2ecc58971e34594c4e8b62896518b",
+  "completedOriginalScopeSuccessor": {
+    "candidate": "1275e5cfb2ec8a77095ec6f097dcdfb62ce43650",
+    "publication": "7183038b367863ac769546206b951681042c11b3",
+    "lifecycle": "19d8f234d04b3ebc7a1fe8d37445803cba0bd403"
+  },
+  "counts": {
+    "committedChangedPaths": 97,
+    "productionPaths": 20,
+    "changedRootGitlinks": 9,
+    "owningPromotionCommits": 10
+  },
+  "committedChangesSinceAcceptedCandidate": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "27a30aa0261ced433327294662011a6b969a5d27",
+        "sha256": "d83caa481b6d479a6d21bad6568e322ee8caeb207bd5fb711288444e7f778299"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "070b4191e4e6a448438abca2fbfca14b6a295aa1",
+        "sha256": "a3e797dd1af943eb32cda4224e2aa82dc0b773c03dd8c9d27b2d0c3a9bf033a9"
+      }
+    },
+    {
+      "path": "Directory.Packages.props",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "ca95f091968bd578ca05ee60f0ca14bcc8184846",
+        "sha256": "3ef8efc82a412b90a82b89e1cb809af1459e675dbd11f811a495eaf1354269b0"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "5f44157355698feac60846e2aa313b662354270f",
+        "sha256": "ed0c1c2a11f3a0aa87ccf28a2e91cd6495533118c094a26b1b282a5fd747a1f1"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/deferred-work.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "76acf55d1c9c42a7830b63a4af6c62b7fb20f9ef",
+        "sha256": "27a3599265301111916de69cfceaed9da0d325529bd5aa9e19994b23e9d9a627"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "d7c9c2faaf4aea1dd1f91f1b9fefef75259e3b9e",
+        "sha256": "30e5e2523a30e71f0d2b977d81744f7a943ac765b826cf767bb5ffdafe563e90"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "d0a25d61c20266b8762d26792fe3c3787fc84d6b",
+        "sha256": "75af50f7b875198a154340f2036897aa4f39f5e8f69c13725dbf1f12fec69169"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "38015a8ed560c52a760c1bc888efb84a6cd338e0",
+        "sha256": "605541fc06c8f674ae41fb6864137ee332590436bc4b091ece27b27fbcc6b85c"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "38605fa5280ed45ebf7a262a63f0db4c70665563",
+        "sha256": "a7efd5b468c9e87c04085ade9269ce8d9d3490bb1236a7b07a1c6c46380bb7d8"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "80dd36cfa0e724f336a9f6a263208135a3e7277a",
+        "sha256": "661273654ab8a8bc4064dfa2ee2f2cb0f41ef88882e6c6162fc454d8358117bd"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-cp-1-cp-2-close-a2-after-anti-skip-guard.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "1cb6571413b2e5a5b59604cb8573c584f1614a0e",
+        "sha256": "0bb19ea6da6f3f59a067f3bc31eb6ce6f1112332e69233d311bbd0730d22fa18"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "bd9640e931e31c2922e5d350e10555a0c474a35c",
+        "sha256": "f4e0171c6349a5bc5d63457ebe2d94098a784fcf7661bbcc2d97a0cc55b8fdc0"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-e6-current-candidate-ir0-continuation.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "88c21bc4627724bf8bee076d58e4aa34e7ee9c94",
+        "sha256": "f575a73340ac4ef895979237713d3c4c68d923eb2d07cb5487844fde57d0c75c"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "e9eb19753f73003d3016fe720f89bc3a22120417",
+        "sha256": "0cf56bc800235c5640babef1991b8b6043d8ebb27c8f1d5c49d0206f7987f02a"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "240fc899afada5372aee3cab7f4b936167f6360a",
+        "sha256": "7d9166ad185c5094d1a6fc53358a3907ef8322dcb5e71453649411b3e6c8b012"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "7e84ffe9faced1930360c2384e55fc24916f8764",
+        "sha256": "c0c6aae9125702cf5a7011314bed1617415d0f1e3bf5c211f1b9e4d5dfbefbeb"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-fix-ci-37750935721.md",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "3ef8adfac97bfda11b98dd0cd872a40197e69a73",
+        "sha256": "3088d3d051c8612ba21a546286fd1762e8473f301917a86ed5e85f6660024418"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "519a90cfb96cfe7a61087d636ef5cac54a855537",
+        "sha256": "4d91fd628a3779e3844270b352647206311ac06302cc10d0aea9214130cc4c1b"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a97ee78fab69bf8a30f58c5867e72d99b6b7c34d",
+        "sha256": "2a55111e6aac2d8a76f1f8ae1bc5be74e1e79ad3fb0f763c80c212e514516326"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-publish-v20-story-7-1-release-owner-authority.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "68c2d8bc5895a284eabfa92471c30a8274a6e698",
+        "sha256": "6c1b2ff548da21ed93f9b7c19c30e7b008cede0b1a3bc4633be96da5a05d481f"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "38b3d335c6c70ad65a526f5d88b9d9729423aa8f",
+        "sha256": "862d204622bf45bffde305a10fc541ef12a8ad1c06383a5cd341f2a8324acd39"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-update-all-packages.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a207e4ad777bb46a45d83b79559ba95f938a0184",
+        "sha256": "be0bb7b6c01b1827399e3635d6435ec41589a0239e05cb5307547c36f71618db"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "833085f3ca6af5339221f23e336b87a3abdc7640",
+        "sha256": "4a90c1fdd67554050f26c1f8bf6057fc2d9dcdb019793a61acc2d8064fd8b96d"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-v17-implementation-hold-decision-authority.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a0bafd0b86b9f6df2d9b99d5bdb089848938d9ad",
+        "sha256": "e2595871170c710b9ff9ebaceae65f942b0ed98ccf6e1a096bc7e38c3cc42978"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "18eb84e63b0cfbe897bccf56da132a3fcfc30ecd",
+        "sha256": "7329adecf2929a1642eb4197cdf2ef197103c6cd2c8523140e887ee3071a15d6"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-v21-review-current-policy-disposition.md",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a37267aa267299ab29c1afc2b9d1cce8d5132af3",
+        "sha256": "f458f93ea3bc5407fb6c7725c9837871a8c4ceaa851778984385a319b88b0b9d"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a9637a4d4f52dbbf65ed436798867ec8447d062e",
+        "sha256": "f7f94d8be7d2d0bc61d6a30dd46b1cf12df1306f100db1c8a10884a60308ebd3"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "64048910bbcdcdc7578171b67df0cdf4e24d2c0b",
+        "sha256": "7094d18ee4e91503361111d7ac1c9c66eefe21671c67dc9587bb7445e19fb3f4"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "8228915bab87f17df6171e50af9ed4f90a4162f6",
+        "sha256": "befbbd16a57d733d352dac677784f4b3c45e633772e1e2a23acbf7031bf95610"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-check.md",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "f528a5c77484aad52f15bd19c204fb4f7096eb15",
+        "sha256": "56bab84f25a50e271e21bce3edc227a67a2247b55785be3f24402473fc0ff6c7"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-input.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "f5a9b05bbd0f356138d66222dc4dddf7c4690461",
+        "sha256": "9aef81303480055b0e8c3a38a30e8e81e88d4e0c9f6be5398e10783f6c569b64"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-internal.xml",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "b088f18b3329e978673144174ab57d847d67832c",
+        "sha256": "42af43c9d176ffb312820ee18357184848dfd9aa9dc29bb63ce06d65b7c7a6d4"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-portable.xml",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "050c7a35097f2ad2675abd77a28a456d9aacbd31",
+        "sha256": "99ff7339f08830f6559dc0b0d8d9d56709479ace559c5b08ef03f0622ad78d15"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-preexisting-state.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "76a30c6413abf0c99f090243522e8f09ab833763",
+        "sha256": "a9b39cab9492cd6752f4b7e3cd64be8ba4e5aa72906638e163b4bbcbdb895b36"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-internal.xml",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "b088f18b3329e978673144174ab57d847d67832c",
+        "sha256": "42af43c9d176ffb312820ee18357184848dfd9aa9dc29bb63ce06d65b7c7a6d4"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-2026-10-08-unfiltered-portable.xml",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "6832e07f0a6026033cfbe3fb8e45216ebac92bd6",
+        "sha256": "e2dda65e7b2f04684614e4c15d153e1ba2f1a8ee09ce07922ffa35a18baded08"
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "e80148598b0048fbdbf84b7b4a7b4d014e1f3119",
+        "sha256": "3417fbea00ae0433464246c9284616f124d07740e73a4b97a7fb06eded7992ee"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "589960c0953660c50dba1ae8d5634b3471a1689b",
+        "sha256": "f3dd876b606f65af047b6fb80cf4e619f58b016815e8ce7e10759ccc94d96d53"
+      }
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/package-refresh-environment-2026-10-08.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "e3655c7b2cab6ecb2e6db1eef276045aa09f3860",
+        "sha256": "751f1ecb5ff5e3f0dd2bc85d8f080ca9c2a38e27acb4b752ab3de9ffe4d65e8e"
+      }
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "6ae3dabb7de0ef32f8fc0a4ef7438ab142f68a97",
+        "sha256": "490bdfd8d20d41e6b929b461d3228dc6621250d763c36c41ce46f477365860b0"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "70f5f465feac9344b0e0ceafb040e42d3a8c700b",
+        "sha256": "129d0ffd65eed9fcae7dc32c944332d05cec7ba1149b8dde3886dca60cbaa058"
+      }
+    },
+    {
+      "path": "_bmad/schemas/package-refresh-environment-v1.schema.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "c4333d7bba93e9117281a304adb1a518a355a977",
+        "sha256": "f6d2c5746318b52a177f1dede2445c5bb51077f1f892a303f6bc2d1348bf69b6"
+      }
+    },
+    {
+      "path": "_bmad/scripts/check_package_refresh_environment.py",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "28bfae725da56795ffa4b87fd1d6d76768faad19",
+        "sha256": "51d7628395b06c5a70da99b394d0e74d92b32a22b1dd56062aa02b07cbcea24a"
+      }
+    },
+    {
+      "path": "_bmad/scripts/tests/test_check_package_refresh_environment.py",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "5542db9d0c3677dbdb1edccd507e5938e52f944b",
+        "sha256": "f5e60e157b1dacb97eae9e63c38d52546861108867d31e3af39208a33a1d443e"
+      }
+    },
+    {
+      "path": "_bmad/scripts/tests/test_conformance_tiering.py",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "ced8b60b49cd935768f510bc83813a7f68ed661f",
+        "sha256": "8ff73b0c863a52ad2a95d241b7684c0d90ed60eb355c352e9efe5415b52c00fd"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "af4645fdb601780ab6c58528d3027b4748c57991",
+        "sha256": "88fcdae66bdae2099348267f0f24f0bec56bb0eee3674ec173e4dedd9ec94829"
+      }
+    },
+    {
+      "path": "_bmad/scripts/tests/test_generate_story_record.py",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "4db503551f9f23c6643b71c7ab8a7af8d7a67c64",
+        "sha256": "12cef8ba6acca1fd26e9e0c49a2a0755d4f8b02928247103624dcd819d87c8c1"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "1c90c3fbc173d70337c20999f78ebc0d947abb1f",
+        "sha256": "32daa3ce949247757bbad0aede5d0a906810351d7fa7588ed66af0e1b2a15de8"
+      }
+    },
+    {
+      "path": "_bmad/scripts/verify_conformance_tiering.py",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "e1f716ec62125699d3b47d76555d121b9f4b781d",
+        "sha256": "0d6d77f321ff2788d8b7258f08a82c583d5110ae343199fd86b84cbe30b27073"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "ab5a3bbc4cee1806c99cfa3eaf9b97e314f20481",
+        "sha256": "87f7ca23f34b77d3c807e3c4c7ed4c4ef011a7c6415b090e4a697dc7491ea87a"
+      }
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-owner-implementation-2026-10-07.md",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "4e96acac24aae06bbf8377889bae5123f587218c",
+        "sha256": "9dc28379c814a35b8e338bcd030c3cad8dac4f72edb05e9a8f824cf2773d9da5"
+      }
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-source-evidence-2026-10-07.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "bc8d0eda1ed8eb2ea5a3dabeac516a85c078339c",
+        "sha256": "809277899d32aaf6fbbdf56efc40995a17570923e760b2d476c7d353e75778ba"
+      }
+    },
+    {
+      "path": "docs/release-evidence/story-9.2-final-record-v2.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "f54354da5456a6e7fc4ad55738bc65435afd31e7",
+        "sha256": "86bfe3db92a193038b5da0d9207a0c5aaafe9d098c64dc2a58c6b3b8770afcee"
+      }
+    },
+    {
+      "path": "docs/release-evidence/story-9.2-final-record-v2.md",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "28c607a4157ee7ba1bfd02872976480f87e01889",
+        "sha256": "951e737b2d5ed6809d5e8bfc4b89069befe4379a478da44ee4e08d5caed5b9f1"
+      }
+    },
+    {
+      "path": "docs/runbooks/current-change-validation.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "e6625783ac44217d268a7d70b8e3c40f182d8023",
+        "sha256": "0834bb47ebe6336fb9b979d11483215c7bfe4fcd1be13e3c5b9816bc9c1b1389"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "0258a825ae5b376d254641043f6370cfc3a47527",
+        "sha256": "20338bc2c244f781cae93e70e4752ccbdf914b7966588e87cb39c67c7f73c055"
+      }
+    },
+    {
+      "path": "docs/runbooks/story-final-record-generation.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "020166e9943bd285019e9caa67654120ff4c8fb5",
+        "sha256": "0ff7eb1191da9d7b8cb5dd362434c4c63d528ac9ba9d1989bd265f4e32a3c1fb"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "4b8b12faba036f907e854154952f44c62fa46c27",
+        "sha256": "4e4c93afeed45ccf807cc9ad5991687ac817ab1ca4c25226dd09b1898b1e37b3"
+      }
+    },
+    {
+      "path": "docs/runbooks/v21-review-disposition.md",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "e4734754927697696580a23af62b02ab4b678468",
+        "sha256": "b669b4b3470bc87ab68371cab595904d4d0e184fbe95943feba929f1c8cd1b85"
+      }
+    },
+    {
+      "path": "eng/verify-ext-conv-ai-1.ps1",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "19958e0efdf9891e760df19d9ec7e5d3499e51dc",
+        "sha256": "3934603317c7a57817c038046eb97afe51c2772fa0be8ac22ec3550dc057bd19"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "3e8e630d57c404f028bca843fcafc3a3ce248b84",
+        "sha256": "1add3555ee055bff9aabf4fa6c9b19f5cd6fd1d27977073be1f1b0da18f6f37e"
+      }
+    },
+    {
+      "path": "package-lock.json",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "5edd692bfc2af3efa234fc1636077cd01a5de115",
+        "sha256": "a33fddc334693279b11e30f70d139bd0ec984d39bc2102a86f078706f5906eb1"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "c6b0fff8ad2bae48302703f6cc4266c5d1cf986b",
+        "sha256": "928c2591dabfacc9ab7fc3d568e5cd79a72d726357363a48ddacc4c4e396f3b7"
+      }
+    },
+    {
+      "path": "package.json",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "6ae295e3c5c8d11d7cad4927bd74cf0d0280dce7",
+        "sha256": "70471818a28ed9867b05996d5cd12515938bbccffc3ab24a03e1e0cce34575fa"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "f10589540ea17bcb1d8398ff888d08f45cdba961",
+        "sha256": "f4daa6761aca55a451ed8d50c2f4f824cb72199322c50185fca2ff4ef8159123"
+      }
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "af20682ac8fc420068a731ecb87cff84727a3d53"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "58d9b546b4741a246121ab40fc3945703db2e19b"
+      }
+    },
+    {
+      "path": "references/Hexalith.Commons",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "116d26815eb81e35b3c161e1799e5ee12805fc0a"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "b247ed116c6523f8c596ec0a933eff8973d11568"
+      }
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "02e99bfa282ace7d56a1d7d7ad5c0321f63293e3"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "07d1e23a6c5b06bbbb1fc8ddb5174cc3382d3d93"
+      }
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "b7f445becca270e176c54f7f6fe19c5d2940ff20"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "039ec7a54a603b64c16e63e53e3640a99ccf5674"
+      }
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "c561b3210f15206a90c39c82c58f2e5b1005cd60"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "0e114214007c22f5cdbac21a6853cff4208340ee"
+      }
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "f4e7eb8626513c83f392a7cabf223b1a4673daa3"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "906bc07ad6a8e4912a7222d9d097da434148266a"
+      }
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "d519cec885fe32e77452bfe66048e04db22ffd0e"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "9e74c2b66ea0e201c6a4f9200e875627fed3b541"
+      }
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "f8649509d798435af4021cec4440c425b80f6fd6"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "caf3721427f0b4834415369c2b4a5f981725474f"
+      }
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "811447342e8f44b644a2074565e83f45519528fd"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "032573384d3df4bc7a5bc0e69945ecca4e00967f"
+      }
+    },
+    {
+      "path": "scripts/release_state.py",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "5d689565300dea1245739890bfb92997930ab232",
+        "sha256": "5b67dd179c3b196644fe1df5f32314ef73ada34ab73de9e0588e4ea2ad517645"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "32d836a6b0e21cec6a3bfa72435ac8879e44a620",
+        "sha256": "f657a7f0c2c183a539cc9e8748934be6af5b248c8fb5d196489200af2ca6ac39"
+      }
+    },
+    {
+      "path": "scripts/verify-semantic-release-plan.mjs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "28e301c076849f6f36ea42573201517c87e36eeb",
+        "sha256": "174be3c471a816e0bef0fa2c61e66cff9893de7c09da8355b2d395cd19659d0f"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "6aea349c6fbc169c7b54fccc4b300e432c895f71",
+        "sha256": "118ddbe00e230278be7e10cba31cbba210d0895c15203b9fd80bda8d075feee7"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "06bc091bb6db265c90854e9d892347f5af3f096e",
+        "sha256": "e5806dfab4f67df653a00938bebeb3250e527011622e6be9c523d937b04a0b65"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "abb228d3bf8a2eff5020cce0f3b567ab01078231",
+        "sha256": "2027a5fe47f819306b30df1499d9209e7b71fba11f52d7f73d94f590f2369916"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "33fd0475cc425fd4eb8522102f0c104753e6a83e",
+        "sha256": "f13e7fecb74c6520eae21e07c6aa5d85a65790a677875f4444916f48b1a74ab5"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "865f5457953fff5b03410e3d6ff5d05b3d82cb09",
+        "sha256": "11aedb0ea85809e27284405ffad0eaed519c42ad2344a570ad9abfc1f6af6cd0"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.AppHost/KeycloakRealms/hexalith-realm.json",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "6d67f0a1279289dda419a30c8241b9657065f454",
+        "sha256": "4f5917763cd4f179d82970c75043777d78aa5019450840ce0f1454dbdc3a195c"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "364a480b342fbc01cfd967a8ed088966cf47baa5",
+        "sha256": "858e57b863fb5c3dca55c01e3d7972db9b637dd4d94d389c1b0bb1d4f00d0d91"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConfiguredConversationDeletionReceiptVerifier.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "f930b35908909a2f629296aeea2cee176c6e4d7d",
+        "sha256": "7e15661332e214a30694195aac785aa1cce411b7eb21f2d4d57f95c70c121313"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConfiguredConversationDeletionWorker.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "bfa2e4ad700d8fdfb23f8bc7c9ee0cf5390bd130",
+        "sha256": "7a0d17cc90113b7d258e04096ca0a18446a8a4fe8475d99fe36a9c04f05b3d66"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationAgentAdmissionStage.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "e6dbcbf52c88ce6678c676f99577c4865529ea6a",
+        "sha256": "b7bdeaad1aa0cb1f64de82b79f469b9898756182c9e9ce04563e510fc9a985f0"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "cbf554195e714d5e6a77235358ca712179e0664c",
+        "sha256": "4500355ee39dd03d354df5fbda41e36246e6857defd540e5e62182f86a8e47cc"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationAgentQueryService.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "409a2cb66ebb3a0c86701115169da65a19543ace",
+        "sha256": "a9402b866ad6cbd162a4e05d181c89df306db1d2c8edc4b7732558046ea98c09"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "b4f71f2abfe3627d6ae0a1fbb767ae7a71d0c643",
+        "sha256": "699d7bc00e414536d8cf386c7b20986e5dae09592d80c16afcf4375268c2bdd6"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationAgentServiceCollectionExtensions.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "389c65c2d834ca50e807a1fab103f82ec5669fd0",
+        "sha256": "cf26a74a54fafee591a02fc37504a232be4ecb6f9b39f63709e9bccbe5ac1f68"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "40e9cca7c8d6529c64413a796c8bd7b131f9fc14",
+        "sha256": "4b0e13934f3ed9bfb3295380061f6b25ceb722a0b54904cf5b3a173a25d6aad4"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationAgentSourceReader.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "65d048e7c3ef9ed75b48516646badd9aea5b84d3",
+        "sha256": "d1c822cea6808c90e10204412e94dd86a1473e30cd7f6cb794e553e61211ac5b"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "c8f07187085c363b9f0df7641c8d24fbf5811a96",
+        "sha256": "055b64e67ddd543ebc6baa5cd1228406888213880f28ab710c9e1ac7925dacfc"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationDeletionDeliveryPump.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "5b797d1446f09e909bfeca3d5006a61cb8ab834b",
+        "sha256": "3e3a14b150f55d896a66fb0b57ff10897bcf668863c64239f20fd6131eadf355"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationDeletionPublicationDelivery.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "15228d8262ce6a2a207f7124a92887a8e4aad5f7",
+        "sha256": "68c7dc04ad5a194d56e04f61ef260143f1f0855016ea751ddfe9ce4bec32152e"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationDeletionPublicationProjector.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "4fdabbf2ba37c03aebdd3185e6f3e81524a70394",
+        "sha256": "e8b78d372fc1c9d90085ad2952b6c21fca4c09b216bc1cce6b51978c3cf93071"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationDeletionReceiverResult.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "8b066cbbe7888f0142fe54716ae73693a6afdc17",
+        "sha256": "f8b72b1efb79323dd7bc7d0ad9a16913052076b725da49f3ba32437de5f30a9f"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationDeletionWorkerRegistration.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "d219b0df9509603e6a6d377ae655ea80ba2d93a1",
+        "sha256": "31314985406d0175d97e8665ce127e7352584a96e3816874249ee3d43ceab961"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationTenantCatalogueRegistration.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a1375cf6e2a3520b4c771b4f2d2b24a2a51f5c3b",
+        "sha256": "7378fa815a439ba58c357296b26f5d3069121f64cbcbbf8fecc5425ac9856b6c"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/EventStoreConversationTenantCatalogue.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "117521cff21ce715d27ce914a28c41dd1f861a8d",
+        "sha256": "4ee499e32a598f4f088908735c00932e99a0c30f929489b25d79ba26576bb397"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/IConversationDeletionReceiver.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "80fbe7117f5699f7bc96988670508407cdfc5c70",
+        "sha256": "c4c88e7a9d4b63c1902cf6bbd5bc48eb6ada606731883aa172e6b147f0b0d125"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "04802fb17c003e08dbf06fb50114532a19ef4e57",
+        "sha256": "47754e7ee0bcd04f24b1a9ea5590f018e37ec50cc98f0a22351d34b4eab6d6da"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "07544933771e48eebd9bf5035456d9f704b8f887",
+        "sha256": "589a3d25a6b0f5c86eb27b5f3120724dc7f91677f306501faaa5a7cedef1cc4f"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations/Aggregates/ConversationAggregate.Agents.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "749d14f920ad51c90567edcaaca66bf197587c46",
+        "sha256": "ab12583e35b48956a653471ab18d2a31b2f99c0c0753db214cfa0545aa37b477"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "dca5ba5502560a03a1957c2920032baab5ae705e",
+        "sha256": "6b8019124caf8ea874db3f9d175b4e6f134b386daad0efd78a0efdec594ca23b"
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations/State/ConversationState.Agents.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "905c6efcf8c54460b6fe5a8ca2a2d4966c08368e",
+        "sha256": "08daea7fc10c68cbc58e0c6cb736909406ebf053fba2693133730a24e7b06e2c"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "fbaa3cf05b70aad9b285bac96b470bd6d814f47c",
+        "sha256": "08cccffd00e141281ea804520e0e03bf9bb3ffd329ef87241aaa54d9eb1d8d36"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "10184fcebf7ef2b05ee77fb955edc9a812260824",
+        "sha256": "e45cf7843421c3108645c567e3e2208eded752e3f28cfed39e6cb0ce3795f7a7"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "8f9010ab1151100626f042b1d7aaf893fa6c8bbb",
+        "sha256": "1e7ce4612cfc6930f1a24e6e7671c4f77db771e3d235234c29d96203ceb9f9ed"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Conformance.Portable.Tests/Story92TieringVerification.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "f3aacf3be5a54e490bcd3ceb8c1aca5238bb53de",
+        "sha256": "86824f47da322cfe3434adab25fb9a064a84ebd7281e82aeff10d787b35171d1"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "ae21e5d50385c29aceb7bd71dd07e49ccb60246d",
+        "sha256": "ac13a998407f42c2cf6133a51d1252386e15760570d11518c2cb1759ea775c7e"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayAdmissionTests.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "abfc8c6511e231a71447fc8de8639e978ff430a5",
+        "sha256": "b9c7c484d781455667a0f6379fc44ea32244dd6e77efdf4b2202648151e11f48"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayCommandAuthority.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "7ea282900fbfc75c135d234e7f0780c0cf62ef37",
+        "sha256": "a963ffeeffe9e7c50c735ddfc37ed0f2308a38210760db92a15c007183855ffa"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayCommandAuthorityTests.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "92979dd77a97a3b1032175a763ab4eb1c940d695",
+        "sha256": "6f9281220ff2871f609a3c99da47a6ffa3f7bda06eb3466d7eaf2ebf4ec1e26b"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "1985dedba73adc5073295ea5f9fd0738786c9aaa",
+        "sha256": "cbb62780574af3d05aeaf7dc6694832fce5614e54b8032d8b816867d2386e5c4"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "5d57d80ebba0850f359cd343d037ddeb1849bc78",
+        "sha256": "111a38a53577f5e27e5f66456e0b70f204f708b7da33679877b3d8a49616169f"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewaySecurityTests.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "585ef6c5d5ef29490fb6c09687acc6541625036d",
+        "sha256": "8121c44dde2cc4710860ce803b976c9d8ef1893d9f638b9dc35d737acc4f4a50"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "e1eda9c1d7c9e6de48f0d6d55737703011d8efc3",
+        "sha256": "15014e0d1226a100f853ca62a1ab89cf03c1ac7ea9f8faad4d8f5441aa3fdef2"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "b507af707b2d0c513d3db8ea80979f59a87e0908",
+        "sha256": "7541c65f3137b797a6ce52a620e965f901664d48db6f7ae142b5b94567b1451e"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationAgentLocalFixture.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "d1a6a8ff5b29922f7d8f7d3f161ad6507bf83050",
+        "sha256": "6770645734f95d7e4f3a04e9b444c6344c0e557af273d9a99ba7f425bc0c5fc0"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "8be7145108d64860850ec836639d20bcee2cee8f",
+        "sha256": "84d030b4d4a9578ba9b466e1d8c5f009d4eee8b76285dbec0cf9b20e2d894c52"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationAgentSixSeamTests.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "533c94b8525f89b93d0d4cf0c4ea70ddfbda237b",
+        "sha256": "33e571f5908b8a4a72661735e20d75ad47d05ae59d7d215b2ae03499579f8bf2"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "0c3ba01cd981a21c1a0cdf096cb8eeca72c668bc",
+        "sha256": "2c6f10a7c0da024007ee032665a6cdf8d83dd34b19b05a240020bb786dba3e69"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionDeliveryPumpFixture.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "338b85050613f912cbebca657a8eacbd7dac2727",
+        "sha256": "2a479e818513674e6e8d9b548dc79072b98314072fae9124630599fb5be951ea"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionDeliveryPumpTests.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "6a8c7e9c4db29634218b0989b6d310e15a5c8611",
+        "sha256": "c4c59216a00ccb3c48445f7e449262d9c44d1cfd72300254e0a7c23b97225673"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionPublicationDeliveryTests.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "15c065fb71ac1f75df3842b31ffe8289da142f36",
+        "sha256": "cb5645515074681c0082b735460ac4d96d3b1d2bcb418e4b55b5680e3bb253f1"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionPublicationProjectorTests.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "fb4b74ff038069b83c7914dc37070256991a32ec",
+        "sha256": "098a6261be7486dd722116ffe73bc79fec7d9c73c72e597291d934e508255cab"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionWorkerAdmissionTests.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "b262091ef52eaed20b9aa1bf60e980fc586c8f9c",
+        "sha256": "514b40f293496eff876f3f82a16f125df8c4d24eae9b61b11d7944021a097046"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionWorkerBoundaryHandler.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "ab082688da2e82941df092ef31114280858f60d3",
+        "sha256": "930f96745d1f26ed02cdc76531e62db03a802b6b433ba5cd4bbce8eaf3e47ec6"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationSourceCancellationFixture.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "243e5c9c009f1485e33f72c848ce2df6ac649af7",
+        "sha256": "e69cc79d55eba66088a0a932a886e8bef265b12a2fc810427aa215ddef863baf"
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/EventStoreConversationTenantCatalogueTests.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "5c3f53721415f571fd2d3da9c283647d5eef6292",
+        "sha256": "3acde0abdf207a6b66a792217db85b5a6da45f7ca85c27514f3f901e1190599f"
+      }
+    },
+    {
+      "path": "tests/README.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "30a26a36d8c62cf6f6be28edd157b730ff7a2c65",
+        "sha256": "abf63c32d57d70c99c09da71063c33addd2cbffd0d36a22b5128eb3a725ba75c"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "d80cfb4df49b4b2f868aca82482db486ee9a409e",
+        "sha256": "c6cf7ffaf362d8782a2d351e13cf17c2f894076b25db75efdb6a063f2dc16b6a"
+      }
+    },
+    {
+      "path": "tests/Test-StoryFinalRecord.Input.schema.json",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "dcfc6072abb2813cae166e35f7eb04343c678302",
+        "sha256": "309d060e177fee020fe16efd7cf6f3e873c29b708bf5ac5daaa8b15ca80a2b12"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "9d0ee53aeac62189e99dcc8a1413a7fa73ea6e94",
+        "sha256": "efd702685cb1d52b5ef62d981759243113f8153c84896adc22429aec3667ddc3"
+      }
+    },
+    {
+      "path": "tests/Test-StoryFinalRecord.Tests.ps1",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "1acfe10a740adaf6cdbc01a7919350cd5415ef32",
+        "sha256": "c296445af3e30d0ad6b29db8aedcab5990565aad91f20d5672804ace07735fa8"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "6d2a0e0e2f30dec988af30020e2527bf3de99e17",
+        "sha256": "76b41d2e085417a2f7b28a2ccb9843585d647e9b45174c821fe19c65680f24f4"
+      }
+    },
+    {
+      "path": "tests/Test-StoryFinalRecord.ps1",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "5e1d33f0f3ee1d7d182c2526ef1da4af12b409f6",
+        "sha256": "cb5897dfa0ab87e205af422dce452a0ed60d78866a8b8a23a25aec01eaa00866"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "98a93495744396272400f3643710ee6c0598e739",
+        "sha256": "4a08b327911dbe1c764a4e47c75f385cc7914ca411c242009b3185e532eff078"
+      }
+    },
+    {
+      "path": "tests/tooling/test_release_tooling.py",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "88f939ff25ae19dea427615fb0433b1ff7a60e97",
+        "sha256": "5068f1ba84fce2ad051ce846d82a7965f4ecf6ee056938cb52d9aa186d2533e6"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "b385c0c41ef2ffe44b397f06636c5bf44c358ac3",
+        "sha256": "3b6c762012f5a16f727c21b9a5be7005c63233a6f744505b1dd02e9e5f63eaa4"
+      }
+    },
+    {
+      "path": "uv.lock",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "ff7c1ba3cd82046810f9d5edef1c4b499e625e6a",
+        "sha256": "21559067380dce0f8da1ff8f311bf451976b29d590a6cf8f630bc9fd9c59169e"
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "2a68417945fbf5d5c1083af579cbc6227e770c2c",
+        "sha256": "23788fd096ff6158a4fd288cbe0f9a8dd29cc34e32f418e577a6e612ffa55ecb"
+      }
+    }
+  ],
+  "rootGitlinkPromotionHistorySinceAcceptedCandidate": [
+    {
+      "commit": "746eb04b6065d055047837af11b15aedf4d31aeb",
+      "parent": "e5b0a1ea2e76452e8a5a73e672ed33893172bfce",
+      "gitlinks": [
+        {
+          "path": "references/Hexalith.EventStore",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "02e99bfa282ace7d56a1d7d7ad5c0321f63293e3"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "40c92e085d8a6463d469c1b340c410fec84a690f"
+          }
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "f4e7eb8626513c83f392a7cabf223b1a4673daa3"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "e1c72dabc7a2a2464e34a1b46422ec2ddfbb1cda"
+          }
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "d519cec885fe32e77452bfe66048e04db22ffd0e"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "2c2ff2ea4ead2c4b8cbd3a96c60f04426630efd1"
+          }
+        }
+      ]
+    },
+    {
+      "commit": "7351d35409fca1be1a0f6be1f5c5c8b5db6a3bfd",
+      "parent": "746eb04b6065d055047837af11b15aedf4d31aeb",
+      "gitlinks": [
+        {
+          "path": "references/Hexalith.EventStore",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "40c92e085d8a6463d469c1b340c410fec84a690f"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "46a96f6a0769a807b3678fc47380e7c0b5b06589"
+          }
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "2c2ff2ea4ead2c4b8cbd3a96c60f04426630efd1"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "2b8a1eff5cbfa2b7561d36a4d54c65cbf684051e"
+          }
+        }
+      ]
+    },
+    {
+      "commit": "e35c9e89b4fd1963e8169852fa123dacbced8d49",
+      "parent": "7351d35409fca1be1a0f6be1f5c5c8b5db6a3bfd",
+      "gitlinks": [
+        {
+          "path": "references/Hexalith.EventStore",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "46a96f6a0769a807b3678fc47380e7c0b5b06589"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "4cc77f9554395e84539e173e94b8f0b4df14d643"
+          }
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "2b8a1eff5cbfa2b7561d36a4d54c65cbf684051e"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "c095134f6ec648560954d6f0fc76858fd1d7cd0e"
+          }
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "811447342e8f44b644a2074565e83f45519528fd"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "bd87d68ed5fcf10eb5177286da6cc4bbe8907222"
+          }
+        }
+      ]
+    },
+    {
+      "commit": "5e4abc6f87692e634319c1d5612c91647ae6eae7",
+      "parent": "e8e6bedbad39198490a1a2285746af6c1a100275",
+      "gitlinks": [
+        {
+          "path": "references/Hexalith.EventStore",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "4cc77f9554395e84539e173e94b8f0b4df14d643"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "b830d9829af70536d2a3fd21c5e2a23b2ca2f256"
+          }
+        },
+        {
+          "path": "references/Hexalith.Folders",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "b7f445becca270e176c54f7f6fe19c5d2940ff20"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "8542c827ea51772755d3ce9b2f9a37e60a1da870"
+          }
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "e1c72dabc7a2a2464e34a1b46422ec2ddfbb1cda"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "aac6d9054cb138881e6e49c8e48233553123ffce"
+          }
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "c095134f6ec648560954d6f0fc76858fd1d7cd0e"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "28fff255a18a7de540631c792034a8df5a33c980"
+          }
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "bd87d68ed5fcf10eb5177286da6cc4bbe8907222"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "86aa888301b40cda12b000f68d9292d53cd93efe"
+          }
+        }
+      ]
+    },
+    {
+      "commit": "67513d03e4a47ead8f3ce239577cc422b6659038",
+      "parent": "e1137f1512ceed7c4337e93801f4f677bc103ada",
+      "gitlinks": [
+        {
+          "path": "references/Hexalith.Builds",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "af20682ac8fc420068a731ecb87cff84727a3d53"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "57a3167dcf6a4855c195fc1029856b5251e16ac3"
+          }
+        },
+        {
+          "path": "references/Hexalith.EventStore",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "b830d9829af70536d2a3fd21c5e2a23b2ca2f256"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "9542d3c9f48bf9ce1c57f2ef68904703eaba56cc"
+          }
+        },
+        {
+          "path": "references/Hexalith.FrontComposer",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "c561b3210f15206a90c39c82c58f2e5b1005cd60"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "0e114214007c22f5cdbac21a6853cff4208340ee"
+          }
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "aac6d9054cb138881e6e49c8e48233553123ffce"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "3e18d0dcdceb387eff89862c382637da89ad7e47"
+          }
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "28fff255a18a7de540631c792034a8df5a33c980"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "998c0b649d7bbf01e0fed4cc79924662dd16cc91"
+          }
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "86aa888301b40cda12b000f68d9292d53cd93efe"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "1dffe336c9fde823b7b8ed6df9d63019dae64b90"
+          }
+        }
+      ]
+    },
+    {
+      "commit": "8793d26306f91d2cfe00116dc0b8eec41ec8900f",
+      "parent": "67513d03e4a47ead8f3ce239577cc422b6659038",
+      "gitlinks": [
+        {
+          "path": "references/Hexalith.Builds",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "57a3167dcf6a4855c195fc1029856b5251e16ac3"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "f717a87c26a8266bdde95d18f998ef2ab366d43a"
+          }
+        },
+        {
+          "path": "references/Hexalith.Folders",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "8542c827ea51772755d3ce9b2f9a37e60a1da870"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "c8e3d99468e27329d9e3977ec2d0b1542c7e9e60"
+          }
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "998c0b649d7bbf01e0fed4cc79924662dd16cc91"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "ccaf77399d92be696e44ecb8ab17acf77d97646a"
+          }
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "1dffe336c9fde823b7b8ed6df9d63019dae64b90"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "fcdcb4205a3f6e46f736cdd3e6f2b20ca2f241df"
+          }
+        }
+      ]
+    },
+    {
+      "commit": "680d31f6f577e77d0e2eb55af5eb7c9fb8e3d871",
+      "parent": "8793d26306f91d2cfe00116dc0b8eec41ec8900f",
+      "gitlinks": [
+        {
+          "path": "references/Hexalith.Builds",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "f717a87c26a8266bdde95d18f998ef2ab366d43a"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "a283481c69393dcba911db6a0edcb152167238cc"
+          }
+        }
+      ]
+    },
+    {
+      "commit": "cf485f15cb95226faf9834ca4e5cf9134133539a",
+      "parent": "f6f8c4fea84c728568bfae4c4a5a58262a01c49d",
+      "gitlinks": [
+        {
+          "path": "references/Hexalith.EventStore",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "9542d3c9f48bf9ce1c57f2ef68904703eaba56cc"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "8dd7dc2ecdb2c06ecb900676042aa42b66619ee0"
+          }
+        },
+        {
+          "path": "references/Hexalith.Folders",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "c8e3d99468e27329d9e3977ec2d0b1542c7e9e60"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "74b5eb2e4813fa77e0b1ed3971e3d04423118b9a"
+          }
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "3e18d0dcdceb387eff89862c382637da89ad7e47"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "8c7c1e9621ecae31150f0e6ae65f3ce6ca81cbed"
+          }
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "ccaf77399d92be696e44ecb8ab17acf77d97646a"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "9e74c2b66ea0e201c6a4f9200e875627fed3b541"
+          }
+        },
+        {
+          "path": "references/Hexalith.Projects",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "f8649509d798435af4021cec4440c425b80f6fd6"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "caf3721427f0b4834415369c2b4a5f981725474f"
+          }
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "fcdcb4205a3f6e46f736cdd3e6f2b20ca2f241df"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "416ab32cca5d4b9d1f56bc5558bc2c974912a8cf"
+          }
+        }
+      ]
+    },
+    {
+      "commit": "1b97145c2c4581eb635e23c5dfbad09324bf357a",
+      "parent": "cf485f15cb95226faf9834ca4e5cf9134133539a",
+      "gitlinks": [
+        {
+          "path": "references/Hexalith.Commons",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "116d26815eb81e35b3c161e1799e5ee12805fc0a"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "b247ed116c6523f8c596ec0a933eff8973d11568"
+          }
+        },
+        {
+          "path": "references/Hexalith.Folders",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "74b5eb2e4813fa77e0b1ed3971e3d04423118b9a"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "6b7274ac06f1bdcb03bc6b10071384406bfd7386"
+          }
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "416ab32cca5d4b9d1f56bc5558bc2c974912a8cf"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "390da330337e09cf95bac51cb33cce934bd9fc6c"
+          }
+        }
+      ]
+    },
+    {
+      "commit": "3c5699761c4944b6d68ddf585b26bb720f8792ca",
+      "parent": "1b97145c2c4581eb635e23c5dfbad09324bf357a",
+      "gitlinks": [
+        {
+          "path": "references/Hexalith.Builds",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "a283481c69393dcba911db6a0edcb152167238cc"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "58d9b546b4741a246121ab40fc3945703db2e19b"
+          }
+        },
+        {
+          "path": "references/Hexalith.EventStore",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "8dd7dc2ecdb2c06ecb900676042aa42b66619ee0"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "07d1e23a6c5b06bbbb1fc8ddb5174cc3382d3d93"
+          }
+        },
+        {
+          "path": "references/Hexalith.Folders",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "6b7274ac06f1bdcb03bc6b10071384406bfd7386"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "039ec7a54a603b64c16e63e53e3640a99ccf5674"
+          }
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "8c7c1e9621ecae31150f0e6ae65f3ce6ca81cbed"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "906bc07ad6a8e4912a7222d9d097da434148266a"
+          }
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "390da330337e09cf95bac51cb33cce934bd9fc6c"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "032573384d3df4bc7a5bc0e69945ecca4e00967f"
+          }
+        }
+      ]
+    }
+  ],
+  "preservedProtectedEvidence": [
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-9.2-candidate-environment-amendment-v1.json",
+      "sha256": "ae7175a058a5a2a9006d715a96481f25b9a748e1c918a32d111ab0b92c15607a",
+      "sizeBytes": 14880,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-9.2-execution-amendment-v1.json",
+      "sha256": "921bf66838c6121ffd57421804192c108b02b5d0c71bd4063e3cb5664d399951",
+      "sizeBytes": 14121,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/9.2.json",
+      "sha256": "50ed8c46184c7bae9fd236967efaf560cd439b5c7a41b26643a48a42df0d1dda",
+      "sizeBytes": 12036,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/at-risk-test-register-v1.json",
+      "sha256": "5463ccc24cf2c34cf0a44a79f3d5de39c13986419661f77e05e41f263f08b4a8",
+      "sizeBytes": 54854,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/conformance-manifest-v1-fixture.json",
+      "sha256": "a26e44fbe0a19bea522864d654e2e38901e74d3e482f8f56f49bcfb35c59ee3f",
+      "sizeBytes": 16742,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v3.json",
+      "sha256": "8143718e4d1b1f9966fd90cb0ea64bd9cf101e6f114ca4001ba64e1046ef0edb",
+      "sizeBytes": 4266,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-migration-v3.json",
+      "sha256": "b038eb86f243228196645f5a828496bd012cd4e40021429d113312a5d9204130",
+      "sizeBytes": 1357696,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/manifest.schema.json",
+      "sha256": "a7b22c8ec7eca96ed75b831a3e37e938c163468f46a0ac7d0f53e8f8ab7a99de",
+      "sizeBytes": 6136,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+      "sha256": "ebfc2f67e90ecc8a7734719c6e2673b6e8392ab2cae9956a8e98b7bf769acfca",
+      "sizeBytes": 709382,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/release-baseline-v1.json",
+      "sha256": "a3f0b4a76aa99226dfb6a7d9a0c930f30705c4d4f8d8c32f97a5b3124a335932",
+      "sizeBytes": 8572,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/release-baseline-v1.md",
+      "sha256": "183b392e8090619f2a40c7defe72679718c53c2832e3b6961b5308ba62e9f8f4",
+      "sizeBytes": 7778,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+      "sha256": "a462b6a3d3f740451def4c4d21e123ecd252ea4856eb340b08bcfece6f5a8782",
+      "sizeBytes": 34273,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/story-9.1-final-record-v2.json",
+      "sha256": "c9d8ef947f1a43a702039d9c1c7c9cb1922f974e6ba207cba8b751fca93bd592",
+      "sizeBytes": 28172,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/story-9.1-final-record-v2.md",
+      "sha256": "aeea78fcc4cd14cc0d80be2f99c50eb53c0703c11b12684cbb000abce94cc15a",
+      "sizeBytes": 18588,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/story-9.2-final-record-v2.json",
+      "sha256": "86bfe3db92a193038b5da0d9207a0c5aaafe9d098c64dc2a58c6b3b8770afcee",
+      "sizeBytes": 158621,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/story-9.2-final-record-v2.md",
+      "sha256": "951e737b2d5ed6809d5e8bfc4b89069befe4379a478da44ee4e08d5caed5b9f1",
+      "sizeBytes": 97281,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/success-metric-report-and-attestation-v1-release-owner-decision.json",
+      "sha256": "8091f6c26251420242a491cad100472dc1604a7163cc9d8df51bb1c742844856",
+      "sizeBytes": 2818,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/success-metric-report-and-attestation-v1-release-owner-decision.md",
+      "sha256": "a73077c0b5416c5085796c2e808a45efe09f5eb6a4ddf852214ecc93a9209e0b",
+      "sizeBytes": 2436,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+      "sha256": "062ca0c7bc94279007077bda59eae867d21c12da2ffc0b59a0f389b99067e0fe",
+      "sizeBytes": 37066,
+      "unchangedFromOriginalPublication": true
+    },
+    {
+      "path": "docs/release-evidence/success-metric-report-and-attestation-v1.md",
+      "sha256": "aa7e52c11ce36fc2c9ea953e275c654e7f312016c990cb20be16666d87f9a2cd",
+      "sizeBytes": 5084,
+      "unchangedFromOriginalPublication": true
+    }
+  ],
+  "workingTreeSnapshot": [
+    {
+      "path": "eng/verify-ext-conv-ai-1.ps1",
+      "status": " M",
+      "sha256": "47e94253d2e551bf9d2d23ce8ddcc844d63b4d7d34683f3f47347d62487242cd"
+    }
+  ],
+  "historicalCandidateEnvironmentVerification": {
+    "result": "FAIL",
+    "blockers": [
+      {
+        "code": "AUTHORITY_BINDING_INVALID",
+        "subject": "_bmad-output/planning-artifacts/v9/story-9.2-candidate-environment-amendment-v1.json",
+        "message": "the measured before/after root gitlinks differ from the authorized seven-row environment"
+      }
+    ]
+  },
+  "requestedScopeDecision": {
+    "status": "unapproved",
+    "action": "Prepare a versioned current-main successor from the exact committed path, source, and root-gitlink bytes above.",
+    "preserveOriginalBaselineFrozenContractsApprovalsAndAcceptedRecords": true,
+    "workingTreeChangesIncluded": false,
+    "qualityDecisionIncluded": false,
+    "followOnQualityRequirement": "Bind any changed migration proposal, successor assertion rows, and public drift to a separate genuine Quality decision before acceptance.",
+    "acceptanceRequirement": "Fresh candidate-bound AC01-10, all 415 frozen cases and three controls, exact restored faults, deterministic final pair, and insertion verification."
+  },
+  "proposalSha256": "852db3f13f442300f71142cdf094b2e4feb54cb77f90ef0a48f4905e4c51c4df"
+}

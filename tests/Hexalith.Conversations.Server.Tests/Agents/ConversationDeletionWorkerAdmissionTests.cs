@@ -76,4 +76,24 @@ public sealed class ConversationDeletionWorkerAdmissionTests
         (await verifier.VerifyAsync(f.Source.Envelope(new RecordConversationDeletionDelivery(request, "ack-event"), "conversations-worker"), request,
             TestContext.Current.CancellationToken)).ShouldBe(known ? ConversationAgentsOutcome.Available : ConversationAgentsOutcome.Denied);
     }
+    /// <summary>Current machine/Party withdrawal during either final receiver await prevents command admission.</summary>
+    [Theory]
+    [InlineData(false)][InlineData(true)]
+    public async Task WorkerWithdrawalDuringFinalReceiverAwaitDenies(bool acknowledgement)
+    {
+        var f = await Approved(); var signal = (await f.Source.ReplayAsync()).DeletionSource.Signal!;
+        var receipt = new ConversationDeletionAcknowledgement(signal.ConversationDeletionSignalId, signal.SourceRevision, 19, f.Target, "independent-receipt");
+        f.BlockLookup = acknowledgement; f.BlockTarget = !acknowledgement;
+        var request = new RecordConversationDeletionDeliveryCommand(f.Source.CommandMetadata(ConversationDeletionDeliveryPumpTests.ServiceParty, "withdrawal"), F.Conversation, signal,
+            acknowledgement ? ConversationDeletionDeliveryAction.Acknowledge : ConversationDeletionDeliveryAction.Attempt, "original-attempt", f.Target, acknowledgement ? 1 : 0,
+            acknowledgement ? receipt : null);
+        var verifier = new ConfiguredConversationDeletionReceiptVerifier(new(new(F.Tenant, "conversations-worker", ConversationDeletionDeliveryPumpTests.ServiceParty), f), f);
+        var verifying = verifier.VerifyAsync(f.Source.Envelope(new RecordConversationDeletionDelivery(request, "event"), "conversations-worker"), request, TestContext.Current.CancellationToken);
+        await (acknowledgement ? f.LookupEntered.Task : f.TargetEntered.Task).WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        f.WithdrawAuthority = true;
+        if (acknowledgement) { f.LookupPending.TrySetResult(new(ConversationAgentsOutcome.Available, receipt)); } else { f.TargetPending.TrySetResult(f.Target); }
+        (await verifying).ShouldBe(ConversationAgentsOutcome.Denied);
+        (await f.Source.ReplayAsync()).DeletionSource.DeliveryRevision.ShouldBe(0); f.AttemptCommands.ShouldBeEmpty();
+    }
+
 }

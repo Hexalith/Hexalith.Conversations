@@ -6,6 +6,7 @@ using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.EventStore.Contracts.Streams;
+using Hexalith.EventStore.Client.Streams;
 
 namespace Hexalith.Conversations.Server.Agents;
 
@@ -74,6 +75,10 @@ public sealed class ConversationDeletionDeliveryPump(IConversationClient convers
                 string? currentTarget = await receiver.CurrentTargetAsync(tenant, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
                 if (currentTarget != target) { return ConversationAgentsOutcome.Unavailable; }
+                if (!await StillAuthorizedAsync(admitted, conversation, cancellationToken).ConfigureAwait(false)
+                    || await worker.AuthorizeDeliveryAsync(tenant, conversation, cancellationToken).ConfigureAwait(false) is null)
+                { return ConversationAgentsOutcome.Denied; }
+                cancellationToken.ThrowIfCancellationRequested();
                 outcome = await receiver.SubmitAsync(signal, currentAttempt, target, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
             }
@@ -85,6 +90,35 @@ public sealed class ConversationDeletionDeliveryPump(IConversationClient convers
         }
         catch (Exception exception) when (exception is HttpRequestException or InvalidOperationException or ArgumentException or JsonException)
         { cancellationToken.ThrowIfCancellationRequested(); return ConversationAgentsOutcome.Unavailable; }
+        catch (Exception) { cancellationToken.ThrowIfCancellationRequested(); throw; }
+    }
+
+    /// <summary>Proves the exact persisted source acknowledgement or retained pending original under current worker authority, without a receiver effect.</summary>
+    public async Task<SourcePublicationDeliveryStatus> LookupAcknowledgementAsync(SourcePublicationIndexEntry entry, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested(); ArgumentNullException.ThrowIfNull(entry);
+            var publication = entry.Publication;
+            if (entry.Offset <= 0 || publication?.Identity is null || publication.Identity.Domain != "conversation" || publication.SourceRevision <= 0)
+            { return SourcePublicationDeliveryStatus.Unavailable; }
+            var tenant = new TenantId(publication.Identity.TenantId); var conversation = new ConversationId(publication.Identity.AggregateId);
+            var admitted = await worker.AuthorizeAsync(tenant, conversation, cancellationToken).ConfigureAwait(false);
+            if (admitted is null) { return SourcePublicationDeliveryStatus.Unavailable; }
+            var source = await conversations.GetConversationDeletionSourceAsync(new(tenant, conversation, publication.SourceRevision, publication.PublicationId), cancellationToken)
+                .WaitAsync(cancellationToken).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (source.Signal is null || !Matches(publication, source.Signal) || !await StillAuthorizedAsync(admitted, conversation, cancellationToken).ConfigureAwait(false))
+            { return SourcePublicationDeliveryStatus.Unavailable; }
+            cancellationToken.ThrowIfCancellationRequested();
+            if (source.Outcome == ConversationAgentsOutcome.Quarantined) { return SourcePublicationDeliveryStatus.Quarantined; }
+            if (source.Outcome != ConversationAgentsOutcome.Available) { return SourcePublicationDeliveryStatus.Unavailable; }
+            if (source.Acknowledgement is not null) { return Confirmed(source) ? SourcePublicationDeliveryStatus.Acknowledged : SourcePublicationDeliveryStatus.Quarantined; }
+            return source.AcknowledgedSourceRevision == 0 && string.IsNullOrWhiteSpace(source.PoisonCode)
+                ? SourcePublicationDeliveryStatus.Pending : SourcePublicationDeliveryStatus.Unavailable;
+        }
+        catch (Exception exception) when (exception is HttpRequestException or InvalidOperationException or ArgumentException or JsonException)
+        { cancellationToken.ThrowIfCancellationRequested(); return SourcePublicationDeliveryStatus.Unavailable; }
         catch (Exception) { cancellationToken.ThrowIfCancellationRequested(); throw; }
     }
 

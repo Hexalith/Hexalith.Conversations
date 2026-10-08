@@ -1,0 +1,2148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "hexalith.conversations.story-9.2-current-main-successor-proposal.v1",
+  "title": "Pending Story 9.2 current-main successor preparation",
+  "$ref": "#/$defs/Preparation",
+  "$defs": {
+    "Acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "blockers",
+        "executionClaimed",
+        "requiredFrozenCases",
+        "requiredLiveControls",
+        "state"
+      ],
+      "properties": {
+        "blockers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "executionClaimed": {
+          "const": false
+        },
+        "requiredFrozenCases": {
+          "const": 415
+        },
+        "requiredLiveControls": {
+          "const": 3
+        },
+        "state": {
+          "const": "blocked"
+        }
+      }
+    },
+    "Stderr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "ObservationsItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "exitCode",
+        "id",
+        "state",
+        "stderr",
+        "stdout"
+      ],
+      "properties": {
+        "command": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exitCode": {
+          "type": "integer"
+        },
+        "id": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "stderr": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "stdout": {
+          "$ref": "#/$defs/Stderr"
+        }
+      }
+    },
+    "BuildEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "acceptanceClaimed",
+        "candidate",
+        "observations",
+        "receipt",
+        "schemaVersion",
+        "sourceSnapshotSha256"
+      ],
+      "properties": {
+        "acceptanceClaimed": {
+          "const": false
+        },
+        "candidate": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ObservationsItem"
+          },
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "receipt": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "schemaVersion": {
+          "const": "hexalith.conversations.story-9.2-successor-build-receipt.v1"
+        },
+        "sourceSnapshotSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "RequiredQualityBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "changedAssertionRows",
+        "migrationProposalSha256",
+        "proposalSha256",
+        "publicDriftSha256",
+        "role",
+        "scopeProposalSha256",
+        "sourceSnapshotSha256"
+      ],
+      "properties": {
+        "changedAssertionRows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "migrationProposalSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "proposalSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "publicDriftSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "role": {
+          "const": "Quality owner"
+        },
+        "scopeProposalSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sourceSnapshotSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "Authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actor",
+        "authorizedOn",
+        "evidence",
+        "statement"
+      ],
+      "properties": {
+        "actor": {
+          "type": "string"
+        },
+        "authorizedOn": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "statement": {
+          "type": "string"
+        }
+      }
+    },
+    "Proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "proposalSha256",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "proposalSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "Decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authorization",
+        "measuredCommittedCandidate",
+        "originalBaseline",
+        "preserveOriginalBaselineFrozenContractsApprovalsAndAcceptedRecords",
+        "proposal",
+        "qualityDecisionIncluded",
+        "schemaVersion",
+        "status",
+        "storyId",
+        "workingTreeChangesIncluded"
+      ],
+      "properties": {
+        "authorization": {
+          "$ref": "#/$defs/Authorization"
+        },
+        "measuredCommittedCandidate": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "originalBaseline": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "preserveOriginalBaselineFrozenContractsApprovalsAndAcceptedRecords": {
+          "const": true
+        },
+        "proposal": {
+          "$ref": "#/$defs/Proposal"
+        },
+        "qualityDecisionIncluded": {
+          "const": false
+        },
+        "schemaVersion": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "storyId": {
+          "type": "string"
+        },
+        "workingTreeChangesIncluded": {
+          "const": false
+        }
+      }
+    },
+    "ApprovedScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authorization",
+        "decision",
+        "proposal",
+        "proposalSha256"
+      ],
+      "properties": {
+        "authorization": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "decision": {
+          "$ref": "#/$defs/Decision"
+        },
+        "proposal": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "proposalSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "ComparisonToOriginal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "changedRowsChanged",
+        "migrationProposalChanged",
+        "originalChangedRows",
+        "originalMigrationProposalSha256",
+        "originalPublicDriftSha256",
+        "proposedChangedRows",
+        "proposedPublicDriftSha256",
+        "publicDriftChanged"
+      ],
+      "properties": {
+        "changedRowsChanged": {
+          "type": "boolean"
+        },
+        "migrationProposalChanged": {
+          "type": "boolean"
+        },
+        "originalChangedRows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "originalMigrationProposalSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "originalPublicDriftSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "proposedChangedRows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "proposedPublicDriftSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "publicDriftChanged": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ActualProductionSurfaceItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fileCount",
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "fileCount": {
+          "type": "integer"
+        },
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "After": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "object",
+        "sha256",
+        "type"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "After2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "object",
+        "type"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "ChangesItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "after",
+        "before",
+        "path",
+        "status"
+      ],
+      "properties": {
+        "after": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/After"
+            },
+            {
+              "$ref": "#/$defs/After2"
+            }
+          ]
+        },
+        "before": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/After"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/After2"
+            }
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "CopiedRootDependenciesItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "path",
+        "tree"
+      ],
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "path": {
+          "type": "string"
+        },
+        "tree": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "Counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "changedRootGitlinks",
+        "committedChangedPaths",
+        "owningPromotionCommits",
+        "productionPaths"
+      ],
+      "properties": {
+        "changedRootGitlinks": {
+          "type": "integer"
+        },
+        "committedChangedPaths": {
+          "type": "integer"
+        },
+        "owningPromotionCommits": {
+          "type": "integer"
+        },
+        "productionPaths": {
+          "type": "integer"
+        }
+      }
+    },
+    "HistoryItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "parents",
+        "tree"
+      ],
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "parents": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          }
+        },
+        "tree": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "GitlinksItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "after",
+        "before",
+        "path",
+        "status"
+      ],
+      "properties": {
+        "after": {
+          "$ref": "#/$defs/After2"
+        },
+        "before": {
+          "$ref": "#/$defs/After2"
+        },
+        "path": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "PromotionsItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "gitlinks",
+        "parent"
+      ],
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "gitlinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GitlinksItem"
+          }
+        },
+        "parent": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "RootGitlinksItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "object",
+        "path",
+        "type"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "path": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "SourceFilesItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "object",
+        "path",
+        "sha256",
+        "type"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "CurrentSourceSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actualProductionSurface",
+        "candidate",
+        "changes",
+        "copiedRootDependencies",
+        "counts",
+        "history",
+        "historySha256",
+        "promotions",
+        "rootGitlinks",
+        "sourceFiles",
+        "sourceFilesSha256",
+        "tree"
+      ],
+      "properties": {
+        "actualProductionSurface": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ActualProductionSurfaceItem"
+          }
+        },
+        "candidate": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ChangesItem"
+          }
+        },
+        "copiedRootDependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CopiedRootDependenciesItem"
+          }
+        },
+        "counts": {
+          "$ref": "#/$defs/Counts"
+        },
+        "history": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/HistoryItem"
+          }
+        },
+        "historySha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "promotions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PromotionsItem"
+          }
+        },
+        "rootGitlinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RootGitlinksItem"
+          }
+        },
+        "sourceFiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SourceFilesItem"
+          }
+        },
+        "sourceFilesSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "tree": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "CompletedOriginalScopeSuccessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate",
+        "lifecycle",
+        "publication"
+      ],
+      "properties": {
+        "candidate": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "lifecycle": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "publication": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "ProtectedItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "sizeBytes",
+        "unchangedFromOriginalPublication"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sizeBytes": {
+          "type": "integer"
+        },
+        "unchangedFromOriginalPublication": {
+          "type": "boolean"
+        }
+      }
+    },
+    "OriginalEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "acceptedCandidate",
+        "baseline",
+        "completedOriginalScopeSuccessor",
+        "protected",
+        "publication"
+      ],
+      "properties": {
+        "acceptedCandidate": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "baseline": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "completedOriginalScopeSuccessor": {
+          "$ref": "#/$defs/CompletedOriginalScopeSuccessor"
+        },
+        "protected": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProtectedItem"
+          }
+        },
+        "publication": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "BeforeStrengthMaterial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "behaviorIdentity",
+        "boundAssemblies",
+        "negativeCaseCount"
+      ],
+      "properties": {
+        "behaviorIdentity": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "boundAssemblies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "negativeCaseCount": {
+          "type": "integer"
+        }
+      }
+    },
+    "Approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approvalId",
+        "membershipSha256",
+        "rowSha256"
+      ],
+      "properties": {
+        "approvalId": {
+          "type": "string"
+        },
+        "membershipSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "rowSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "PublicReplacement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "equalStrength",
+        "expression",
+        "strengthSha256",
+        "surfaces"
+      ],
+      "properties": {
+        "equalStrength": {
+          "type": "boolean"
+        },
+        "expression": {
+          "type": "string"
+        },
+        "strengthSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "surfaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "DispositionEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approval",
+        "owner",
+        "publicReplacement",
+        "rationale"
+      ],
+      "properties": {
+        "approval": {
+          "$ref": "#/$defs/Approval"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "publicReplacement": {
+          "$ref": "#/$defs/PublicReplacement"
+        },
+        "rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "InternalTypeAndReason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "types"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "DispositionEvidence2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approval",
+        "internalTypeAndReason",
+        "owner",
+        "rationale"
+      ],
+      "properties": {
+        "approval": {
+          "$ref": "#/$defs/Approval"
+        },
+        "internalTypeAndReason": {
+          "$ref": "#/$defs/InternalTypeAndReason"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "AssertionsItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assertionSiteCount",
+        "beforeStrengthMaterial",
+        "beforeStrengthSha256",
+        "closureFiles",
+        "control",
+        "dispositionEvidence",
+        "id",
+        "kind",
+        "sourcePath",
+        "sourceSha256",
+        "strengthMaterial",
+        "strengthSha256",
+        "tier"
+      ],
+      "properties": {
+        "assertionSiteCount": {
+          "type": "integer"
+        },
+        "beforeStrengthMaterial": {
+          "$ref": "#/$defs/BeforeStrengthMaterial"
+        },
+        "beforeStrengthSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "closureFiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Stderr"
+          }
+        },
+        "control": {
+          "type": "boolean"
+        },
+        "dispositionEvidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DispositionEvidence"
+            },
+            {
+              "$ref": "#/$defs/DispositionEvidence2"
+            }
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "sourcePath": {
+          "type": "string"
+        },
+        "sourceSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "strengthMaterial": {
+          "$ref": "#/$defs/BeforeStrengthMaterial"
+        },
+        "strengthSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "tier": {
+          "type": "string"
+        }
+      }
+    },
+    "ChangedAssertionsItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assertionSiteCount",
+        "beforeStrengthMaterial",
+        "beforeStrengthSha256",
+        "closureFiles",
+        "control",
+        "dispositionEvidence",
+        "id",
+        "kind",
+        "reason",
+        "rowSha256",
+        "sourcePath",
+        "sourceSha256",
+        "strengthMaterial",
+        "strengthSha256",
+        "tier"
+      ],
+      "properties": {
+        "assertionSiteCount": {
+          "type": "integer"
+        },
+        "beforeStrengthMaterial": {
+          "$ref": "#/$defs/BeforeStrengthMaterial"
+        },
+        "beforeStrengthSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "closureFiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Stderr"
+          }
+        },
+        "control": {
+          "type": "boolean"
+        },
+        "dispositionEvidence": {
+          "$ref": "#/$defs/DispositionEvidence"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "rowSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sourcePath": {
+          "type": "string"
+        },
+        "sourceSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "strengthMaterial": {
+          "$ref": "#/$defs/BeforeStrengthMaterial"
+        },
+        "strengthSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "tier": {
+          "type": "string"
+        }
+      }
+    },
+    "CompletionInventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Hexalith.Conversations.Admin.Web.Tests",
+        "Hexalith.Conversations.AppHost.Tests",
+        "Hexalith.Conversations.Client.Tests",
+        "Hexalith.Conversations.Conformance.Portable.Tests",
+        "Hexalith.Conversations.Conformance.Tests",
+        "Hexalith.Conversations.Contracts.Tests",
+        "Hexalith.Conversations.IntegrationTests",
+        "Hexalith.Conversations.Server.Tests",
+        "Hexalith.Conversations.Tests"
+      ],
+      "properties": {
+        "Hexalith.Conversations.Admin.Web.Tests": {
+          "type": "string"
+        },
+        "Hexalith.Conversations.AppHost.Tests": {
+          "type": "string"
+        },
+        "Hexalith.Conversations.Client.Tests": {
+          "type": "string"
+        },
+        "Hexalith.Conversations.Conformance.Portable.Tests": {
+          "type": "string"
+        },
+        "Hexalith.Conversations.Conformance.Tests": {
+          "type": "string"
+        },
+        "Hexalith.Conversations.Contracts.Tests": {
+          "type": "string"
+        },
+        "Hexalith.Conversations.IntegrationTests": {
+          "type": "string"
+        },
+        "Hexalith.Conversations.Server.Tests": {
+          "type": "string"
+        },
+        "Hexalith.Conversations.Tests": {
+          "type": "string"
+        }
+      }
+    },
+    "Declarations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "completionInventory",
+        "executionAmendment",
+        "solution",
+        "workflow"
+      ],
+      "properties": {
+        "completionInventory": {
+          "$ref": "#/$defs/CompletionInventory"
+        },
+        "executionAmendment": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "solution": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "workflow": {
+          "$ref": "#/$defs/Stderr"
+        }
+      }
+    },
+    "HistoricalApproval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approvedBy",
+        "approvedOn",
+        "approvesRows",
+        "scope",
+        "sha256",
+        "source"
+      ],
+      "properties": {
+        "approvedBy": {
+          "type": "string"
+        },
+        "approvedOn": {
+          "type": "string"
+        },
+        "approvesRows": {
+          "type": "boolean"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    },
+    "ManifestUpdate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest",
+        "membershipChanged",
+        "path",
+        "previousManifest",
+        "testsRemoved",
+        "testsWeakened",
+        "version"
+      ],
+      "properties": {
+        "manifest": {
+          "type": "string"
+        },
+        "membershipChanged": {
+          "type": "boolean"
+        },
+        "path": {
+          "type": "string"
+        },
+        "previousManifest": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "testsRemoved": {
+          "type": "integer"
+        },
+        "testsWeakened": {
+          "type": "integer"
+        },
+        "version": {
+          "type": "integer"
+        }
+      }
+    },
+    "RowTiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "module-internal",
+        "portable"
+      ],
+      "properties": {
+        "module-internal": {
+          "type": "integer"
+        },
+        "portable": {
+          "type": "integer"
+        }
+      }
+    },
+    "DenominatorSuitesItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approval",
+        "class",
+        "currentIdentities",
+        "currentIdentitiesSha256",
+        "historicalApproval",
+        "manifestUpdate",
+        "membershipChanged",
+        "owner",
+        "rationale",
+        "releaseGateBehavior",
+        "rowTiers",
+        "sourcePath",
+        "sourceSha256",
+        "suite",
+        "tier",
+        "v1FloorTestIds",
+        "v1FloorTestIdsSha256"
+      ],
+      "properties": {
+        "approval": {
+          "$ref": "#/$defs/Approval"
+        },
+        "class": {
+          "type": "string"
+        },
+        "currentIdentities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "currentIdentitiesSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "historicalApproval": {
+          "$ref": "#/$defs/HistoricalApproval"
+        },
+        "manifestUpdate": {
+          "$ref": "#/$defs/ManifestUpdate"
+        },
+        "membershipChanged": {
+          "type": "boolean"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "releaseGateBehavior": {
+          "type": "string"
+        },
+        "rowTiers": {
+          "$ref": "#/$defs/RowTiers"
+        },
+        "sourcePath": {
+          "type": "string"
+        },
+        "sourceSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "suite": {
+          "type": "string"
+        },
+        "tier": {
+          "type": "string"
+        },
+        "v1FloorTestIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "v1FloorTestIdsSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "Exclusions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classes",
+        "methods"
+      ],
+      "properties": {
+        "classes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "methods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ExecutionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "activeFrozenMethods",
+        "allActiveAssertionsRequired",
+        "controlsCountedSeparately",
+        "exclusions",
+        "failedSkippedNotRunAllowed",
+        "frozenDefinitions",
+        "frozenExecutedCaseFloor",
+        "historicalControlClass",
+        "historicalFrozenExclusions",
+        "historicalValidationControls",
+        "nonzeroPassingBothTiers",
+        "runnerAmendment"
+      ],
+      "properties": {
+        "activeFrozenMethods": {
+          "type": "integer"
+        },
+        "allActiveAssertionsRequired": {
+          "type": "boolean"
+        },
+        "controlsCountedSeparately": {
+          "type": "boolean"
+        },
+        "exclusions": {
+          "$ref": "#/$defs/Exclusions"
+        },
+        "failedSkippedNotRunAllowed": {
+          "type": "integer"
+        },
+        "frozenDefinitions": {
+          "type": "integer"
+        },
+        "frozenExecutedCaseFloor": {
+          "type": "integer"
+        },
+        "historicalControlClass": {
+          "type": "string"
+        },
+        "historicalFrozenExclusions": {
+          "type": "integer"
+        },
+        "historicalValidationControls": {
+          "type": "integer"
+        },
+        "nonzeroPassingBothTiers": {
+          "type": "boolean"
+        },
+        "runnerAmendment": {
+          "type": "string"
+        }
+      }
+    },
+    "ApprovedCumulative": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approvalDecision",
+        "testCount",
+        "testIdsSha256",
+        "tierCounts"
+      ],
+      "properties": {
+        "approvalDecision": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "testCount": {
+          "type": "integer"
+        },
+        "testIdsSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "tierCounts": {
+          "$ref": "#/$defs/RowTiers"
+        }
+      }
+    },
+    "V1Floor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline",
+        "source",
+        "sourceCommit",
+        "suiteCount",
+        "testCount",
+        "testIdsSha256",
+        "tierCounts"
+      ],
+      "properties": {
+        "baseline": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "source": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "sourceCommit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "suiteCount": {
+          "type": "integer"
+        },
+        "testCount": {
+          "type": "integer"
+        },
+        "testIdsSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "tierCounts": {
+          "$ref": "#/$defs/RowTiers"
+        }
+      }
+    },
+    "Fr20Membership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approvedCumulative",
+        "missingIdentities",
+        "rule",
+        "v1Floor"
+      ],
+      "properties": {
+        "approvedCumulative": {
+          "$ref": "#/$defs/ApprovedCumulative"
+        },
+        "missingIdentities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rule": {
+          "type": "string"
+        },
+        "v1Floor": {
+          "$ref": "#/$defs/V1Floor"
+        }
+      }
+    },
+    "LiveControlsItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assertionSiteCount",
+        "beforeStrengthMaterial",
+        "beforeStrengthSha256",
+        "closureFiles",
+        "control",
+        "dispositionEvidence",
+        "id",
+        "kind",
+        "sourcePath",
+        "sourceSha256",
+        "strengthMaterial",
+        "strengthSha256",
+        "tier"
+      ],
+      "properties": {
+        "assertionSiteCount": {
+          "type": "integer"
+        },
+        "beforeStrengthMaterial": {
+          "type": "null"
+        },
+        "beforeStrengthSha256": {
+          "type": "null"
+        },
+        "closureFiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Stderr"
+          }
+        },
+        "control": {
+          "type": "boolean"
+        },
+        "dispositionEvidence": {
+          "type": "null"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "sourcePath": {
+          "type": "string"
+        },
+        "sourceSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "strengthMaterial": {
+          "$ref": "#/$defs/BeforeStrengthMaterial"
+        },
+        "strengthSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "tier": {
+          "type": "string"
+        }
+      }
+    },
+    "EvaluatedProjectsItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assembly",
+        "packable",
+        "project"
+      ],
+      "properties": {
+        "assembly": {
+          "type": "string"
+        },
+        "packable": {
+          "type": "boolean"
+        },
+        "project": {
+          "type": "string"
+        }
+      }
+    },
+    "TransitiveCompileAssetsItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset",
+        "library",
+        "target"
+      ],
+      "properties": {
+        "asset": {
+          "type": "string"
+        },
+        "library": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        }
+      }
+    },
+    "PortableSurface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evaluatedProjects",
+        "referencePathAssemblies",
+        "transitiveCompileAssets"
+      ],
+      "properties": {
+        "evaluatedProjects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvaluatedProjectsItem"
+          }
+        },
+        "referencePathAssemblies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "transitiveCompileAssets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TransitiveCompileAssetsItem"
+          }
+        }
+      }
+    },
+    "Projects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "module-internal",
+        "portable"
+      ],
+      "properties": {
+        "module-internal": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "portable": {
+          "$ref": "#/$defs/Stderr"
+        }
+      }
+    },
+    "ParametersItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "type"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "ConstructorsItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "parameters"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ParametersItem"
+          }
+        }
+      }
+    },
+    "MethodsItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "parameters",
+        "returnType"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ParametersItem"
+          }
+        },
+        "returnType": {
+          "type": "string"
+        }
+      }
+    },
+    "PropertiesItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canRead",
+        "canWrite",
+        "isStatic",
+        "name",
+        "type"
+      ],
+      "properties": {
+        "canRead": {
+          "type": "boolean"
+        },
+        "canWrite": {
+          "type": "boolean"
+        },
+        "isStatic": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "After3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "constructors",
+        "interfaces",
+        "isAbstract",
+        "isSealed",
+        "kind",
+        "methods",
+        "name",
+        "namespace",
+        "properties"
+      ],
+      "properties": {
+        "constructors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConstructorsItem"
+          }
+        },
+        "interfaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "isAbstract": {
+          "type": "boolean"
+        },
+        "isSealed": {
+          "type": "boolean"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "methods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MethodsItem"
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PropertiesItem"
+          }
+        }
+      }
+    },
+    "After4": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "interfaces",
+        "isAbstract",
+        "isSealed",
+        "kind",
+        "methods",
+        "name",
+        "namespace",
+        "properties"
+      ],
+      "properties": {
+        "interfaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "isAbstract": {
+          "type": "boolean"
+        },
+        "isSealed": {
+          "type": "boolean"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "methods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MethodsItem"
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PropertiesItem"
+          }
+        }
+      }
+    },
+    "ChangedTypesItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "after",
+        "before",
+        "identity"
+      ],
+      "properties": {
+        "after": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/After3"
+            },
+            {
+              "$ref": "#/$defs/After4"
+            }
+          ]
+        },
+        "before": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/After3"
+            },
+            {
+              "$ref": "#/$defs/After4"
+            }
+          ]
+        },
+        "identity": {
+          "type": "string"
+        }
+      }
+    },
+    "Drift": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "addedTypes",
+        "changedTypes",
+        "removedTypes"
+      ],
+      "properties": {
+        "addedTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "changedTypes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ChangedTypesItem"
+          }
+        },
+        "removedTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ProductionSurface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "projects",
+        "sha256"
+      ],
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ActualProductionSurfaceItem"
+          }
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "PublicSurface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approvalClaimed",
+        "baseline",
+        "currentSnapshot",
+        "drift",
+        "driftSha256",
+        "productionSurface"
+      ],
+      "properties": {
+        "approvalClaimed": {
+          "const": false
+        },
+        "baseline": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "currentSnapshot": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "drift": {
+          "$ref": "#/$defs/Drift"
+        },
+        "driftSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "productionSurface": {
+          "$ref": "#/$defs/ProductionSurface"
+        }
+      }
+    },
+    "ProposedMigration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "afterIdentitySha256",
+        "afterStrengthInventorySha256",
+        "assertions",
+        "beforeDisposition",
+        "beforeIdentitySha256",
+        "beforeStrengthInventorySha256",
+        "changedAssertions",
+        "contract",
+        "declarations",
+        "denominatorSuites",
+        "executionAmendment",
+        "executionPolicy",
+        "fr20Membership",
+        "liveControls",
+        "portableSurface",
+        "predecessorRecord",
+        "projects",
+        "publicSurface",
+        "rollback",
+        "storyId"
+      ],
+      "properties": {
+        "afterIdentitySha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "afterStrengthInventorySha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "assertions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AssertionsItem"
+          }
+        },
+        "beforeDisposition": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "beforeIdentitySha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "beforeStrengthInventorySha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "changedAssertions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ChangedAssertionsItem"
+          }
+        },
+        "contract": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "declarations": {
+          "$ref": "#/$defs/Declarations"
+        },
+        "denominatorSuites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DenominatorSuitesItem"
+          }
+        },
+        "executionAmendment": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "executionPolicy": {
+          "$ref": "#/$defs/ExecutionPolicy"
+        },
+        "fr20Membership": {
+          "$ref": "#/$defs/Fr20Membership"
+        },
+        "liveControls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LiveControlsItem"
+          }
+        },
+        "portableSurface": {
+          "$ref": "#/$defs/PortableSurface"
+        },
+        "predecessorRecord": {
+          "$ref": "#/$defs/Stderr"
+        },
+        "projects": {
+          "$ref": "#/$defs/Projects"
+        },
+        "publicSurface": {
+          "$ref": "#/$defs/PublicSurface"
+        },
+        "rollback": {
+          "type": "string"
+        },
+        "storyId": {
+          "type": "string"
+        }
+      }
+    },
+    "SuccessorMaterial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approvedScope",
+        "comparisonToOriginal",
+        "currentSourceSnapshot",
+        "originalEvidence",
+        "proposedMigration",
+        "proposedMigrationSha256"
+      ],
+      "properties": {
+        "approvedScope": {
+          "$ref": "#/$defs/ApprovedScope"
+        },
+        "comparisonToOriginal": {
+          "$ref": "#/$defs/ComparisonToOriginal"
+        },
+        "currentSourceSnapshot": {
+          "$ref": "#/$defs/CurrentSourceSnapshot"
+        },
+        "originalEvidence": {
+          "$ref": "#/$defs/OriginalEvidence"
+        },
+        "proposedMigration": {
+          "$ref": "#/$defs/ProposedMigration"
+        },
+        "proposedMigrationSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "Preparation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "acceptance",
+        "acceptanceClaimed",
+        "buildEvidence",
+        "preparationOnly",
+        "proposalSha256",
+        "qualityApprovalClaimed",
+        "requiredQualityBinding",
+        "schemaVersion",
+        "status",
+        "storyId",
+        "successorMaterial"
+      ],
+      "properties": {
+        "acceptance": {
+          "$ref": "#/$defs/Acceptance"
+        },
+        "acceptanceClaimed": {
+          "const": false
+        },
+        "buildEvidence": {
+          "$ref": "#/$defs/BuildEvidence"
+        },
+        "preparationOnly": {
+          "const": true
+        },
+        "proposalSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "qualityApprovalClaimed": {
+          "const": false
+        },
+        "requiredQualityBinding": {
+          "$ref": "#/$defs/RequiredQualityBinding"
+        },
+        "schemaVersion": {
+          "const": "hexalith.conversations.story-9.2-current-main-successor-proposal.v1"
+        },
+        "status": {
+          "const": "quality-review-pending"
+        },
+        "storyId": {
+          "const": "9.2"
+        },
+        "successorMaterial": {
+          "$ref": "#/$defs/SuccessorMaterial"
+        }
+      }
+    }
+  }
+}

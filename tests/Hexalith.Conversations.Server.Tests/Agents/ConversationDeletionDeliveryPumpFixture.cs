@@ -22,6 +22,10 @@ internal sealed class ConversationDeletionDeliveryPumpFixture(F source, SourcePu
         internal string Target = "receiver-v1";
         internal bool LoseReceiverResponse, RefuseSubmission, UnknownLookup, ChangedReceipt, RevokeAfterAttempt, BlockLookup;
         internal bool PersistCommands = true;
+        internal bool WithdrawAuthority, BlockTarget, RevokeDeliveryAfterAttempt;
+        internal int BlockTargetCall, TargetCalls;
+        internal TaskCompletionSource TargetEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        internal TaskCompletionSource<string?> TargetPending = new(TaskCreationOptions.RunContinuationsAsynchronously);
         internal string? BadBinding;
         internal int Submissions, SourceReads, ReceiverReads;
         internal List<RecordConversationDeletionDeliveryCommand> AttemptCommands = [];
@@ -32,8 +36,8 @@ internal sealed class ConversationDeletionDeliveryPumpFixture(F source, SourcePu
             new ConversationDeletionWorkerRegistration(F.Tenant, "conversations-worker", ConversationDeletionDeliveryPumpTests.ServiceParty), this), this);
         public Task<ConversationAgentAuthorization> AuthorizeAsync(string principal, TenantId tenant, ConversationId? conversation, string operation, CancellationToken token)
         {
-            token.ThrowIfCancellationRequested(); operation.ShouldBeOneOf("DeletionSource", "RecordConversationDeletionDelivery"); conversation.ShouldBe(F.Conversation);
-            return Task.FromResult(new ConversationAgentAuthorization(RevokeAfterAttempt && AttemptCommands.Count > 0
+            token.ThrowIfCancellationRequested(); operation.ShouldBeOneOf("DeletionSource", "RecordConversationDeletionDelivery"); conversation.ShouldBe(source.CurrentConversation);
+            return Task.FromResult(new ConversationAgentAuthorization(WithdrawAuthority || RevokeAfterAttempt && AttemptCommands.Count > 0 || RevokeDeliveryAfterAttempt && AttemptCommands.Count > 0 && operation == "RecordConversationDeletionDelivery"
                 ? ConversationAgentsOutcome.Denied : ConversationAgentsOutcome.Available,
                 BadBinding == "tenant" ? new TenantId("other-tenant") : tenant,
                 BadBinding == "principal" ? "wrong-principal" : principal,
@@ -52,7 +56,7 @@ internal sealed class ConversationDeletionDeliveryPumpFixture(F source, SourcePu
                 command.Metadata.IdempotencyKey!), await source.ReplayAsync())); }
             return new(ConversationAgentsOutcome.Available);
         }
-        public Task<string?> CurrentTargetAsync(TenantId tenant, CancellationToken token) { token.ThrowIfCancellationRequested(); ReceiverReads++; return Task.FromResult<string?>(Target); }
+        public Task<string?> CurrentTargetAsync(TenantId tenant, CancellationToken token) { token.ThrowIfCancellationRequested(); ReceiverReads++; TargetCalls++; if (BlockTarget || BlockTargetCall == TargetCalls) { TargetEntered.TrySetResult(); return TargetPending.Task; } return Task.FromResult<string?>(Target); }
         public Task<ConversationDeletionReceiverResult> LookupAsync(ConversationDeletionSignal signal, string attemptId, string target, CancellationToken token)
         {
             token.ThrowIfCancellationRequested(); ReceiverReads++;

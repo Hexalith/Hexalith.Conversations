@@ -32,11 +32,14 @@ public sealed class ConfiguredConversationDeletionReceiptVerifier(ConfiguredConv
                 var current = await receiver.LookupAsync(command.Signal, command.DeliveryAttemptId, command.TargetVersion, cancellationToken)
                     .WaitAsync(cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
-                return current.Outcome == ConversationAgentsOutcome.Available && current.Acknowledgement is { } receipt
+                bool exact = current.Outcome == ConversationAgentsOutcome.Available && current.Acknowledgement is { } receipt
                     && receipt == command.Acknowledgement && receipt.SignalId == command.Signal.ConversationDeletionSignalId
                     && receipt.SourceRevision == command.Signal.SourceRevision && receipt.ProtectedDeletionRevision > 0
                     && receipt.TargetVersion == command.TargetVersion && !string.IsNullOrWhiteSpace(receipt.Evidence)
-                    ? ConversationAgentsOutcome.Available : ConversationAgentsOutcome.Denied;
+                    && await worker.AuthorizeDeliveryAsync(command.Metadata.TenantId, command.ConversationId, cancellationToken).ConfigureAwait(false) == admitted
+                    ;
+                cancellationToken.ThrowIfCancellationRequested();
+                return exact ? ConversationAgentsOutcome.Available : ConversationAgentsOutcome.Denied;
             }
             if (command.Acknowledgement is not null) { return ConversationAgentsOutcome.Denied; }
             if (command.Action == ConversationDeletionDeliveryAction.Attempt)
@@ -46,7 +49,9 @@ public sealed class ConfiguredConversationDeletionReceiptVerifier(ConfiguredConv
                 if (target != command.TargetVersion) { return ConversationAgentsOutcome.Denied; }
             }
             // Only an authenticated dedicated worker can request safe quarantine; pure source replay binds immutable fields.
-            return ConversationAgentsOutcome.Available;
+            var final = await worker.AuthorizeDeliveryAsync(command.Metadata.TenantId, command.ConversationId, cancellationToken).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            return final == admitted ? ConversationAgentsOutcome.Available : ConversationAgentsOutcome.Denied;
         }
         catch (Exception exception) when (exception is HttpRequestException or InvalidOperationException or ArgumentException)
         { cancellationToken.ThrowIfCancellationRequested(); return ConversationAgentsOutcome.Unavailable; }

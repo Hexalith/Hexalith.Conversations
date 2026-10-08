@@ -159,8 +159,13 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
     } = new(ConversationAgentsOutcome.Unavailable);
 
     /// <summary>Creates one serialized local source creation event.</summary>
-    public ConversationAgentLocalFixture()
-        => PersistedEvents.Add(new ConversationCreatedDomainEvent(Metadata(ConversationEventType.ConversationCreated, Human, At), null, null, null, null));
+    public ConversationAgentLocalFixture(ConversationId? conversationId = null)
+    {
+        CurrentConversation = conversationId ?? Conversation;
+        PersistedEvents.Add(new ConversationCreatedDomainEvent(Metadata(ConversationEventType.ConversationCreated, Human, At), null, null, null, null));
+    }
+    /// <summary>Gets the exact locally serialized source identity; defaults to the original shared fixture scope.</summary>
+    public ConversationId CurrentConversation { get; }
 
     /// <summary>Current source query service bound to local ports.</summary>
     public ConversationAgentQueryService Queries => new(this, new ConversationAgentSourceReader(this), this);
@@ -170,10 +175,10 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
     public ConversationCommandMetadata CommandMetadata(PartyId? actor = null, string key = "intent-1")
         => new(SchemaVersion.Current, Tenant, actor ?? Agent, "correlation-1", IdempotencyKey: key);
     /// <summary>Exact restricted AiAgent Member intent.</summary>
-    public AddAgentParticipant Membership => new(new(CommandMetadata(), Conversation, Agent,
+    public AddAgentParticipant Membership => new(new(CommandMetadata(), CurrentConversation, Agent,
         ParticipantType.AiAgent, ParticipantRole.Member), At.AddMinutes(1), "membership-event");
     /// <summary>Exact deterministic posting intent.</summary>
-    public AppendAgentMessage Posting => new(new(CommandMetadata(key: "post-key"), Conversation, new MessageId("message-original"), Agent,
+    public AppendAgentMessage Posting => new(new(CommandMetadata(key: "post-key"), CurrentConversation, new MessageId("message-original"), Agent,
         "Original content", AgentProvenance: new("agent-call-trace", true, false), OperationTimestamp: At.AddMinutes(2)), At.AddMinutes(2), "post-event");
 
     /// <summary>Appends local domain results to serialized replay inputs.</summary>
@@ -187,7 +192,7 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
 
     /// <summary>Replays a fresh state from serialized local events.</summary>
     public async Task<ConversationState> ReplayAsync()
-        => (await new ConversationAgentSourceReader(this).ReadAsync(Tenant, Conversation))!.Value.State;
+        => (await new ConversationAgentSourceReader(this).ReadAsync(Tenant, CurrentConversation))!.Value.State;
 
     /// <summary>Creates synthetic audit evidence bound to an exact local approval source; never production evidence.</summary>
     public static GovernanceAuditEvidenceReference DeletionAudit(long sourceRevision, DateTimeOffset occurrence)
@@ -195,7 +200,7 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
 
     /// <summary>Creates exact local event scope and identity.</summary>
     public ConversationEventMetadata Metadata(ConversationEventType type, PartyId actor, DateTimeOffset occurrence)
-        => new(SchemaVersion.Current, $"event-{PersistedEvents.Count + 1}", type, Tenant, Conversation, "correlation-1", occurrence, actor);
+        => new(SchemaVersion.Current, $"event-{PersistedEvents.Count + 1}", type, Tenant, CurrentConversation, "correlation-1", occurrence, actor);
 
     /// <inheritdoc />
     public Task<ConversationAgentAuthorization> AuthorizeAsync(string authenticatedPrincipalId, TenantId tenantId,
@@ -210,7 +215,7 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
         {
             return PendingAuthority;
         }
-        bool deny = Deny || tenantId != Tenant || (conversationId is not null && conversationId != Conversation)
+        bool deny = Deny || tenantId != Tenant || (conversationId is not null && conversationId != CurrentConversation)
             || (RevokeAfterRead && Reads > 0) || (operation == "GeneralCommand" && authenticatedPrincipalId == "agents-service")
             || (operation == "DeletionSource" && authenticatedPrincipalId != "source-worker")
             || (operation == "HumanMessageMutation" && authenticatedPrincipalId != "human");
@@ -288,8 +293,8 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
     /// <summary>Builds the complete SDK prefix for local transport simulation.</summary>
     public async Task<DomainServiceCurrentState> CurrentStateAsync()
     {
-        var source = (await ReadAsync(new AggregateIdentity(Tenant.Value, "conversation", Conversation.Value))).Stream!;
-        var events = source.Events.Select(e => new EventEnvelope(new EventMetadata(e.MessageId, Conversation.Value, "Conversation",
+        var source = (await ReadAsync(new AggregateIdentity(Tenant.Value, "conversation", CurrentConversation.Value))).Stream!;
+        var events = source.Events.Select(e => new EventEnvelope(new EventMetadata(e.MessageId, CurrentConversation.Value, "Conversation",
             Tenant.Value, "conversation", e.SequenceNumber, 0, e.Timestamp, "correlation-1", "causation-1", "human", "local-fixture",
             e.EventTypeName, 1, "json"), e.Payload, null)).ToArray();
         return new(null, events, 0, source.Head);
@@ -297,6 +302,6 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
 
     /// <summary>Builds the authenticated local SDK envelope.</summary>
     public CommandEnvelope Envelope<T>(T command, string principal = "agents-service")
-        => new("command-1", Tenant.Value, "conversation", Conversation.Value, typeof(T).Name,
+        => new("command-1", Tenant.Value, "conversation", CurrentConversation.Value, typeof(T).Name,
             JsonSerializer.SerializeToUtf8Bytes(command, Options), "correlation-1", null, principal, null);
 }

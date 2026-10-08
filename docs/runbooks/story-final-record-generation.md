@@ -1704,3 +1704,80 @@ Normal AC-10 generation executes the declared build/Python commands; at a
 later record or lifecycle `HEAD`, a build can stamp that later commit and
 invalidate the retained SC-9.2 results. Keep the original candidate-stamped
 assemblies and receipts for post-publication verification.
+
+### Authorized current-main successor preparation
+
+The 2026-10-08 scope decision authorizes preparation at the exact committed
+source/environment `59e72b82cdc2ecc58971e34594c4e8b62896518b`. The
+[scope authorization](../../_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v1.json)
+binds the byte-identical [reviewed scope proposal](../../_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v1.json),
+material digest `852db3f13f442300f71142cdf094b2e4feb54cb77f90ef0a48f4905e4c51c4df`.
+It excludes uncommitted work and supplies no new Quality decision or acceptance.
+The original baseline, frozen intent, v3 migration/approval, accepted pairs,
+and completed original-scope successor remain unchanged.
+
+`_bmad/scripts/prepare_story92_successor.py` uses a separate clean detached
+checkout of the authorized source. It remeasures the 97 committed changed
+paths, 20 production paths, nine changed root gitlinks, ten owning promotions,
+full commit history, protected evidence, source bytes, and copied dependency
+bytes. Hidden index changes and ignored extra source/configuration inputs also
+fail. Only local root-declared dependency copies are permitted; never initialize
+nested submodules or use a remote operation for this phase.
+
+Measure builds once into a new, contained versioned directory:
+
+```bash
+uv run --frozen --no-sync python3 _bmad/scripts/prepare_story92_successor.py \
+  --repository <clean-authorized-source-checkout> \
+  --authorization-root . \
+  --output-directory artifacts/v9/9.2/<review-name>-v1 \
+  --measure-builds
+```
+
+The measurement route restores Release using only the local NuGet package cache
+with audit disabled. It retains each exact command, exit code, stdout/stderr,
+and log digest; a failed build stays blocked. Existing build receipts cannot
+be overwritten. Preparation then reuses those measured bytes and writes pending
+JSON/Markdown under the same explicit directory. Different existing output bytes,
+symlinks, hardlinks, and aliases of protected inputs fail before writing.
+
+The completed review packet is
+[the pending v4 proposal](../release-evidence/conformance-oracle-tiering-migration-v4-proposal.json)
+and [its Quality review](../release-evidence/conformance-oracle-tiering-migration-review-v4.md).
+Its material digest is
+`4ac1299fb3ee707b94e6ea3b331ebc99e84e9ecfd869e69b89092c511f52d296`;
+the proposed migration digest is
+`606a7e57dafb2084101e85c4003c93bf602643cf2a3f1265c1275424cb050fb4`.
+All 14 changed-row digests and the public-drift digest match v3. The new
+proposal binds the actual authorized production snapshot and dependency
+environment separately from the retained historical production freeze.
+Source-byte inventories alone do not prove exported API additions.
+
+The first measured logs and provisional rendering remain at
+`artifacts/v9/9.2/current-main-successor-v1/`. Corrected review wording uses
+`artifacts/v9/9.2/current-main-successor-v2/`; its
+`build-evidence-provenance.json` records byte-identical archived log copies and
+receipt path rebinding. This relocates the same measurement and claims no fresh
+build. The actual final preparation command, run twice, is:
+
+```bash
+uv run --frozen --no-sync python3 _bmad/scripts/prepare_story92_successor.py \
+  --repository /tmp/story92-approved-source-ofz1orw9/checkout \
+  --authorization-root . \
+  --output-directory artifacts/v9/9.2/current-main-successor-v2
+```
+
+The review's `requiredQualityBinding` contains the exact successor material,
+migration material, ordered changed-row digests, public drift, source snapshot,
+and approved scope. A later genuine Quality-owner decision must explicitly
+approve that complete binding. Pending preparation is not an approval document
+or accepted-record input; the historical generator retains its original gates.
+
+Both local-cache Release restores and the portable Release build pass. The
+internal Release build and its serialized fallback each exit `1` with nine
+`CS0246` diagnostics for seven missing publication/snapshot types, including
+`SourceNamespaceSnapshotReader`. Fresh complete tier execution and accepted-record
+generation remain blocked. No stale internal assembly supplies acceptance.
+Keep the spec and sprint row `in-progress` until the source/build blocker, genuine
+Quality decision, compatible successor bindings, and complete fresh acceptance
+are resolved. The pending packet never replaces either accepted predecessor.
