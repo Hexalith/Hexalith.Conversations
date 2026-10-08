@@ -138,7 +138,7 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
             var sourceProof = await commandSources.VerifyAsync(context.Request, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
             var source = sourceProof.IsAuthoritative
-                ? ConversationAgentSourceReader.ReplaySource(sourceProof.Stream, envelope.AggregateIdentity) : null;
+                ? ConversationAgentSourceReader.ReplaySource(sourceProof.Stream, envelope.AggregateIdentity, cancellationToken) : null;
             if (source is null || !MatchesCompleteState(context.CurrentState, source.Value.Source))
             {
                 return Reject(ConversationAgentsOutcome.Unavailable);

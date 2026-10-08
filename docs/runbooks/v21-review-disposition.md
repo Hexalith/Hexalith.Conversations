@@ -24,6 +24,21 @@ V19–V21 suite from directory runs while allowing explicit historical reproduct
 No current workflow invokes the V21 publisher. Its recorded historical result
 does not determine whether a new routine change can proceed.
 
+Explicitly selecting the V21 test file at current `main` only overrides collection
+exclusion; it does not restore the deleted workflow and other historical inputs
+that its fixtures read. To reproduce the frozen suite, use a separate complete
+checkout at tooling commit `239758d396d28372687b73f5dc128405892cb520`, as required
+by the V22 recovery spec, without initializing submodules. From that checkout's
+root, run:
+
+```bash
+uv run --frozen --no-cache python3 -m pytest -q \
+  _bmad/scripts/tests/test_publish_story_7_1_successor_authorities.py
+```
+
+This historical-suite procedure is separate from the two recorded CLI checks
+below; the suite was not rerun for this documentation change.
+
 ## Loop-11 findings
 
 Every finding below retains its original verdict and evidence in the publication
@@ -38,6 +53,22 @@ current work; it does not mean the defect was fixed or the earlier review passed
 | `R11-EDGE-05` | Delete/re-add inventory history can bypass publication uniqueness checks. | Unresolved archived lifecycle defect; no current routine gate relies on that effective-hold result. |
 | `R11-BLIND-10`, `R11-EDGE-06` | Bootstrap ledgers report skipped assertions as PASS. | Unresolved archived reporting defect. Historical output must be read with the original review's qualification. |
 | `R11-BLIND-05`, `R11-BLIND-08`, `R11-BLIND-09`, `R11-BLIND-13`, `R11-BLIND-14` | Previously rejected claims about organization origin, implementation-path scope, the immutable V19 schema and spec lifecycle metadata. | Preserve the existing rejection reasons. No new code-fix or acceptance claim is made. |
+
+For the integration row, the current-change policy adopted on 2026-09-27 in
+`0db6207a4b1466371bedde7d09caa6c686f44ff1` permits routine direct pushes and
+checks them through ordinary CI after they land. V21's exact descendant topology
+and required synthetic-merge check therefore no longer govern routine work.
+Its missing terminal transition remains an unresolved historical intent gap.
+The later [AD-4 preparation approval dated 2026-09-27](../../_bmad-output/implementation-artifacts/story-7-1-ad4-approval-2026-09-27.md)
+authorized a bounded readiness inspector, not terminal acceptance; the
+[AD-4 runbook](story-7.1-ad4-acceptance.md) retains that distinction.
+
+The rejected metadata finding's “deliberately uncommitted” rationale describes
+the earlier review state. Commit `c2486abc8232640e67be094bd1ca5e040b7697eb` on
+2026-09-16 subsequently committed the `in-review` status, loop-11 counter and
+triage after V21 publication. The original verdict is preserved as historical
+evidence, rather than presenting uncommitted metadata as a current repository
+fact.
 
 ## Recorded checks
 
@@ -68,7 +99,11 @@ successor to accommodate routine changes.
 
 The current root-submodule command,
 `python3 scripts/check-root-submodules.py --repository .`, exited `0` with
-`root submodules: PASS`.
+`root submodules: PASS` in checkout
+`b3a813b0ba0020a558a3779e4e88b65612850e82`. The live index matched that commit,
+`.gitmodules` matched its committed blob, and both inputs remained unchanged
+through the check. This validates current declarations and indexed gitlink
+modes; it does not verify V21 history, signing trust or hold authority.
 
 ## Current use
 

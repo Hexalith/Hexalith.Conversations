@@ -508,3 +508,7 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md`
   summary: Exercise the later participant HTTP endpoint and route/body identity rejection.
   evidence: VG-R2-02; both command API test files exercise only create, messages, and project routes; removing the participant registration leaves those requests and tests intact.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: Read the managed AssemblyInformationalVersion attribute when binding test binaries to a source revision instead of searching arbitrary DLL bytes.
+  evidence: Original-candidate review on 2026-10-08 appended `1.0.0+c44f6b7b116b17453aa213d39cd244a3e0cbe1dd` to Microsoft.TestPlatform.Utilities.dll; the shared matcher then reported that sole revision and the managed metadata validator still passed. The identical helper exists at baseline `51aa06b856bcb0aaf22013153cfe02a51b046156`; this is deferred shared-generator work, not a demonstrated complete final-record bypass. Probe: `artifacts/v9/9.2/resume-2026-10-08/review-guard-probes.json`.

@@ -4,6 +4,8 @@
 // </copyright>
 
 using System.Text.Json;
+using System.Reflection;
+using Hexalith.Conversations.Replay;
 using Hexalith.Conversations.Aggregates;
 using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Agents;
@@ -15,6 +17,8 @@ using Hexalith.Conversations.Server.Agents;
 using Hexalith.EventStore.Client.Handlers;
 using Hexalith.EventStore.Contracts.Commands;
 using Hexalith.EventStore.Contracts.Queries;
+using Hexalith.EventStore.Contracts.Security;
+using Hexalith.EventStore.Contracts.Streams;
 using Hexalith.EventStore.Contracts.Projections;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
@@ -352,6 +356,162 @@ public sealed class ConversationAgentSixSeamTests
         (await f.Admission.EvaluateAsync(new(new(f.Envelope(command), mismatch)), TestContext.Current.CancellationToken)).IsRejected.ShouldBeTrue();
         f.CorruptHead = true;
         (await f.Queries.ReadAsync("agents-service", new(F.Tenant, F.Conversation), cancellationToken: TestContext.Current.CancellationToken)).Outcome.ShouldBe(ConversationAgentsOutcome.Unavailable);
+    }
+
+    /// <summary>Unreadable/future protection metadata never becomes current evidence or deletion publication.</summary>
+    [Theory]
+    [InlineData(1, 1, false)]
+    [InlineData(2, 1, false)]
+    [InlineData(999, 1, false)]
+    [InlineData(0, 2, false)]
+    [InlineData(0, 0, false)]
+    [InlineData(1, 1, true)]
+    [InlineData(2, 1, true)]
+    [InlineData(999, 1, true)]
+    [InlineData(0, 2, true)]
+    [InlineData(0, 0, true)]
+    public async Task UnsupportedProtectionMetadata_DeniesCurrentAndDeletionEvidence(int state, int metadataVersion, bool deletionSource)
+    {
+        var f = new F();
+        f.Persist(ConversationAggregate.Handle(f.Membership, await f.ReplayAsync()));
+        var before = await f.ReplayAsync();
+        var approval = new ApproveConversationDeletion(new(f.CommandMetadata(F.Human, "approval"), F.Conversation,
+            "independent-approval", before.SourceRevision, F.At.AddMinutes(3), F.DeletionAudit(before.SourceRevision, F.At.AddMinutes(3))), "approval-event");
+        f.Persist(ConversationAggregate.Handle(approval, before));
+        f.TransformSource = source => source with
+        {
+            Events = source.Events.Select((e, index) => index == 0 ? e with
+            {
+                ProtectionMetadata = new((PayloadProtectionState)state, metadataVersion, null, null, null, null)
+            } : e).ToArray()
+        };
+        if (deletionSource)
+        {
+            var result = await f.Queries.DeletionSourceAsync("source-worker", new(F.Tenant, F.Conversation), TestContext.Current.CancellationToken);
+            result.Outcome.ShouldBe(ConversationAgentsOutcome.Unavailable);
+            result.Signal.ShouldBeNull();
+            result.Acknowledgement.ShouldBeNull();
+            result.AcknowledgedSourceRevision.ShouldBe(0);
+        }
+        else
+        {
+            var result = await f.Queries.ReadAsync("agents-service", new(F.Tenant, F.Conversation), TestContext.Current.CancellationToken);
+            result.Outcome.ShouldBe(ConversationAgentsOutcome.Unavailable);
+            result.SourceRevision.ShouldBeNull();
+            result.Messages.ShouldBeNull();
+            result.Participants.ShouldBeNull();
+        }
+    }
+
+    /// <summary>Readable plaintext and gateway-unprotected Protected provenance preserve complete source behavior.</summary>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task SupportedReadableMetadata_PreservesMembershipEvidence(bool protectedProvenance)
+    {
+        var f = new F();
+        f.Persist(ConversationAggregate.Handle(f.Membership, await f.ReplayAsync()));
+        f.TransformSource = source => source with
+        {
+            Events = source.Events.Select(e => e with { ProtectionMetadata = protectedProvenance
+                ? new(PayloadProtectionState.Protected, 1, "aes-gcm-256", "alias", "application/json", null)
+                : EventStorePayloadProtectionMetadata.Unprotected() }).ToArray()
+        };
+        var result = await f.Queries.ReadAsync("agents-service", new(F.Tenant, F.Conversation), TestContext.Current.CancellationToken);
+        result.Outcome.ShouldBe(ConversationAgentsOutcome.Available);
+        result.AgentParticipantPresent.ShouldBeTrue();
+        result.SourceRevision.ShouldBe(2);
+    }
+
+    /// <summary>Cancellation during captured-prefix iteration stops before the remainder and releases no state.</summary>
+    [Fact]
+    public async Task CancellationDuringSourceReplay_StopsBeforeRemainingEvents()
+    {
+        var f = new F();
+        f.Persist(ConversationAggregate.Handle(f.Membership, await f.ReplayAsync()));
+        f.Persist(ConversationAggregate.Handle(f.Posting, await f.ReplayAsync()));
+        using var caller = new CancellationTokenSource();
+        ConversationSourceCancellationFixture? visited = null;
+        f.TransformSource = source => source with
+        {
+            Events = visited = new(source.Events, () => caller.Cancel())
+        };
+        var exception = await Should.ThrowAsync<OperationCanceledException>(() =>
+            new ConversationAgentSourceReader(f).ReadAsync(F.Tenant, F.Conversation, caller.Token));
+        exception.CancellationToken.ShouldBe(caller.Token);
+        visited.ShouldNotBeNull().Visited.ShouldBe(2);
+    }
+
+    /// <summary>Admission observes the original caller cancellation in prefix replay before visiting any remainder.</summary>
+    [Fact]
+    public async Task CancellationDuringAdmissionReplay_StopsBeforeRemainingEvents()
+    {
+        var f = new F();
+        f.Persist(ConversationAggregate.Handle(f.Membership, await f.ReplayAsync()));
+        f.Persist(ConversationAggregate.Handle(f.Posting, await f.ReplayAsync()));
+        var current = await f.CurrentStateAsync();
+        using var caller = new CancellationTokenSource();
+        ConversationSourceCancellationFixture? visited = null;
+        f.TransformSource = source => source with { Events = visited = new(source.Events, caller.Cancel) };
+        var exception = await Should.ThrowAsync<OperationCanceledException>(() =>
+            f.Admission.EvaluateAsync(new(new(f.Envelope(f.Membership), current)), caller.Token));
+        exception.CancellationToken.ShouldBe(caller.Token);
+        visited.ShouldNotBeNull().Visited.ShouldBe(2);
+    }
+
+    /// <summary>The existing fold stops between records through its private cancellation-aware enumeration.</summary>
+    [Fact]
+    public async Task CancellationDuringSecondFold_StopsBeforeRemainingRecords()
+    {
+        var f = new F();
+        f.Persist(ConversationAggregate.Handle(f.Membership, await f.ReplayAsync()));
+        f.Persist(ConversationAggregate.Handle(f.Posting, await f.ReplayAsync()));
+        using var caller = new CancellationTokenSource();
+        int visited = 0;
+        IEnumerable<ConversationReplayEventRecord> CancellingRecords()
+        {
+            foreach (var value in f.PersistedEvents)
+            {
+                if (++visited == 2) { caller.Cancel(); }
+                yield return new(visited, value);
+            }
+        }
+        // Exercise the private adapter with the actual verifier rather than exposing a product replay hook.
+        var method = typeof(ConversationAgentSourceReader).GetMethod("CancellationChecked", BindingFlags.Static | BindingFlags.NonPublic)!;
+        var checkedRecords = (IEnumerable<ConversationReplayEventRecord>)method.Invoke(null, [CancellingRecords(), caller.Token])!;
+        var exception = Should.Throw<OperationCanceledException>(() => ConversationReplayVerifier.Replay(F.Tenant, F.Conversation, checkedRecords));
+        exception.CancellationToken.ShouldBe(caller.Token);
+        visited.ShouldBe(2);
+    }
+
+    /// <summary>Carrier field limits and forbidden secret-shaped flags deny current evidence.</summary>
+    [Theory]
+    [InlineData("scheme-length")]
+    [InlineData("scheme-secret")]
+    [InlineData("alias-length")]
+    [InlineData("hint-control")]
+    [InlineData("flag-count")]
+    [InlineData("flag-key")]
+    [InlineData("flag-value")]
+    public async Task MalformedCurrentProtectionCarrier_DeniesEvidence(string variant)
+    {
+        var f = new F();
+        var metadata = EventStorePayloadProtectionMetadata.Unprotected();
+        metadata = variant switch
+        {
+            "scheme-length" => metadata with { Scheme = new string('a', 65) },
+            "scheme-secret" => metadata with { Scheme = "private-key" },
+            "alias-length" => metadata with { KeyAlias = new string('a', 257) },
+            "hint-control" => metadata with { ContentHint = "application/\njson" },
+            "flag-count" => metadata with { CompatibilityFlags = Enumerable.Range(0, 9).ToDictionary(x => $"flag{x}", _ => "safe") },
+            "flag-key" => metadata with { CompatibilityFlags = new Dictionary<string, string> { ["nonce"] = "safe" } },
+            _ => metadata with { CompatibilityFlags = new Dictionary<string, string> { ["mode"] = "secret" } },
+        };
+        f.TransformSource = source => source with { Events = source.Events.Select(e => e with { ProtectionMetadata = metadata }).ToArray() };
+        var result = await f.Queries.ReadAsync("agents-service", new(F.Tenant, F.Conversation), TestContext.Current.CancellationToken);
+        result.Outcome.ShouldBe(ConversationAgentsOutcome.Unavailable);
+        result.SourceRevision.ShouldBeNull();
+        result.Participants.ShouldBeNull();
     }
 
     /// <summary>Verifies current admission and sdk process query are runnable with local fixture.</summary>

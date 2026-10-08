@@ -10,6 +10,7 @@ using Hexalith.Conversations.Replay;
 using Hexalith.Conversations.State;
 using Hexalith.EventStore.Client.Streams;
 using Hexalith.EventStore.Contracts.Identity;
+using Hexalith.EventStore.Contracts.Security;
 using Hexalith.EventStore.Contracts.Streams;
 
 namespace Hexalith.Conversations.Server.Agents;
@@ -38,7 +39,7 @@ public sealed class ConversationAgentSourceReader(IAuthoritativeEventStreamReade
         {
             AuthoritativeStreamReadResult result = await streams.ReadAsync(identity, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
-            return result is { IsAuthoritative: true } ? ReplaySource(result.Stream, identity) : null;
+            return result is { IsAuthoritative: true } ? ReplaySource(result.Stream, identity, cancellationToken) : null;
         }
         catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {
@@ -52,6 +53,24 @@ public sealed class ConversationAgentSourceReader(IAuthoritativeEventStreamReade
     /// <returns>The valid complete state or null.</returns>
     public static (AuthoritativeEventStream Source, ConversationState State)? ReplaySource(AuthoritativeEventStream? sourceInput,
         AggregateIdentity identity)
+        => ReplaySource(sourceInput, identity, CancellationToken.None);
+
+    /// <summary>Replays the same exact source with caller-first completion and iteration cancellation.</summary>
+    /// <param name="sourceInput">Certified complete source.</param>
+    /// <param name="identity">Exact expected source.</param>
+    /// <param name="cancellationToken">Cancellation observed during capture and before state release.</param>
+    /// <returns>The valid complete state or null.</returns>
+    public static (AuthoritativeEventStream Source, ConversationState State)? ReplaySource(AuthoritativeEventStream? sourceInput,
+        AggregateIdentity identity, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var result = ReplaySourceCore(sourceInput, identity, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        return result;
+    }
+
+    private static (AuthoritativeEventStream Source, ConversationState State)? ReplaySourceCore(AuthoritativeEventStream? sourceInput,
+        AggregateIdentity identity, CancellationToken cancellationToken)
     {
         var tenant = new TenantId(identity.TenantId);
         var conversation = new ConversationId(identity.AggregateId);
@@ -70,7 +89,10 @@ public sealed class ConversationAgentSourceReader(IAuthoritativeEventStreamReade
             var records = new List<ConversationReplayEventRecord>();
             foreach (StreamReadEvent item in source.Events)
             {
-                if (item is null || string.IsNullOrWhiteSpace(item.MessageId) || item.SequenceNumber != records.Count + 1 || item.MetadataVersion != 1
+                cancellationToken.ThrowIfCancellationRequested();
+                if (item is null || item.Payload is null
+                    || item.ProtectionMetadata is { } metadata && (metadata.State is not (PayloadProtectionState.Unprotected or PayloadProtectionState.Protected)
+                        || !EventStorePayloadProtectionMetadataCarrier.TryValidate(metadata, out _)) || string.IsNullOrWhiteSpace(item.MessageId) || item.SequenceNumber != records.Count + 1 || item.MetadataVersion != 1
                     || !string.Equals(item.SerializationFormat, "json", StringComparison.OrdinalIgnoreCase)
                     || !EventTypes.TryGetValue(item.EventTypeName, out Type? type))
                 {
@@ -81,9 +103,12 @@ public sealed class ConversationAgentSourceReader(IAuthoritativeEventStreamReade
                 {
                     return null;
                 }
+                cancellationToken.ThrowIfCancellationRequested();
                 records.Add(new(item.SequenceNumber, value));
             }
-            ConversationReplayResult replay = ConversationReplayVerifier.Replay(tenant, conversation, records);
+            cancellationToken.ThrowIfCancellationRequested();
+            ConversationReplayResult replay = ConversationReplayVerifier.Replay(tenant, conversation, CancellationChecked(records, cancellationToken));
+            cancellationToken.ThrowIfCancellationRequested();
             return replay.State is { HasCompleteEventPrefix: true } state && state.SourceRevision == source.Head
                 ? (source, state) : null;
         }
@@ -92,4 +117,18 @@ public sealed class ConversationAgentSourceReader(IAuthoritativeEventStreamReade
             return null;
         }
     }
+
+    private static IEnumerable<ConversationReplayEventRecord> CancellationChecked(IEnumerable<ConversationReplayEventRecord> records,
+        CancellationToken cancellationToken)
+    {
+        using var iterator = records.GetEnumerator();
+        while (true)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!iterator.MoveNext()) { yield break; }
+            cancellationToken.ThrowIfCancellationRequested();
+            yield return iterator.Current;
+        }
+    }
+
 }

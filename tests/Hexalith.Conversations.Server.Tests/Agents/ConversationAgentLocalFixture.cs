@@ -130,6 +130,9 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
         get;
         set;
     }
+    /// <summary>Mutates only synthetic returned source evidence for boundary regressions.</summary>
+    public Func<AuthoritativeEventStream, AuthoritativeEventStream>? TransformSource { get; set; }
+
     /// <summary>Whether source head evidence is incomplete.</summary>
     public bool CorruptHead
     {
@@ -277,8 +280,9 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
         var events = PersistedEvents.Select((e, index) => new StreamReadEvent(index + 1, e.GetType().FullName!,
             JsonSerializer.SerializeToUtf8Bytes(e, e.GetType(), Options), "json", 1, $"persisted-{index + 1}",
             "correlation-1", null, At.AddMinutes(index), "human")).ToArray();
-        return new AuthoritativeStreamReadResult(new AuthoritativeEventStream(identity,
-            events.Length + (CorruptHead ? 1 : 0), At.AddHours(1), events, "stable-source-observation"), null);
+        var source = new AuthoritativeEventStream(identity,
+            events.Length + (CorruptHead ? 1 : 0), At.AddHours(1), events, "stable-source-observation");
+        return new AuthoritativeStreamReadResult(TransformSource?.Invoke(source) ?? source, null);
     }
 
     /// <summary>Builds the complete SDK prefix for local transport simulation.</summary>
