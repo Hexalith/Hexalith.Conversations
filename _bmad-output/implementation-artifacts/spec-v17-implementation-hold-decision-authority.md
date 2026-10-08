@@ -2,15 +2,45 @@
 title: 'Publish the release-owner implementation-hold lift as V17 authority'
 type: 'feature'
 created: '2026-09-08'
-status: 'ready-for-dev'
+status: 'in-progress'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '94dbb37694747e9dedee20591b84b5d6a69d19b3'
+completion_scope: 'documentation-reconciliation'
+publication_baseline_commit: '074c5b7afb95dfb6365d62a9afa93b4ef75e6fcf'
+implementation_commit: '82b91c10fe95f8ef7a7576d35199322481e359a7'
+publication_commit: '8bd6789eae34a322e06156dd8e7e2fb0aded42d7'
+reconciliation_baseline_commit: '5e4abc6f87692e634319c1d5612c91647ae6eae7'
 submodule_promotions: []
 context:
+  - '{project-root}/docs/runbooks/current-change-validation.md'
   - '{project-root}/docs/runbooks/evidence-boundary-validation.md'
   - '{project-root}/references/Hexalith.AI.Tools/hexalith-git-instructions.md'
 ---
+
+## Reconciled Scope (2026-10-08)
+
+The user authorized reconciliation with the existing V17 publication and current
+validation policy. V17 was already published in the C1/C2 commits named above.
+This run changes only this spec; it records that delivery rather than implementing
+or republishing it. `status` tracks this documentation reconciliation. Completion
+does not certify every original matrix fault, start a successor, satisfy the
+readiness rerun, or grant current execution, release, or push authority.
+
+The frozen section below remains byte-identical historical intent. Its missing-record
+description and green-gate prerequisite describe the original development entry,
+not a new implementation request. The reconciled tasks and acceptance below govern
+this documentation correction. The original `baseline_commit` is retained as
+planning provenance; the eight-path V17 transaction starts at
+`publication_baseline_commit`, after the prerequisite work. Review the current
+documentation diff from `reconciliation_baseline_commit`.
+
+Use the [current-change policy](../../docs/runbooks/current-change-validation.md)
+for this correction. The [evidence-boundary runbook](../../docs/runbooks/evidence-boundary-validation.md)
+and verifier remain historical reproduction tools. A historical V17 `PASS` does
+not turn a later `BLOCKED` result into a pass or change a current hold decision.
+Preserve every authority, schema, publisher, test, and IR-0 record. Create no new
+commits or publications, and do not push.
 
 <frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
 
@@ -48,48 +78,72 @@ context:
 
 ## Code Map
 
-New, mirroring `publish_v16_planning_tooling_lifecycle.py` and its test:
+Already committed in C1, mirroring `publish_v16_planning_tooling_lifecycle.py` and its test:
 
 - `_bmad/schemas/implementation-hold-v1.schema.json` -- closed record schema. `$id https://hexalith.com/schemas/implementation-hold-v1.schema.json`.
 - `_bmad/schemas/v17-implementation-hold-decision-authority-v1.schema.json` -- closed successor-authority schema, same `$id` host form.
 - `_bmad/scripts/publish_implementation_hold_decision.py` -- publisher. Error class `ImplementationHoldError(code, detail, state="FAIL")`, `HOLD_*` codes, success token `HOLD_DECISION_OK`.
 - `_bmad/scripts/tests/test_publish_implementation_hold_decision.py` -- fault suite.
 
-Modified:
+Already modified in C1:
 
-- `_bmad/scripts/verify_evidence_boundary.py` -- add `V17_*` constants (~L21-57), a `v17` branch at the head of `authority_route` (~L247, most-recent-first), `validate_v17_scope()` beside `validate_v16_scope()` (~L605), the `verify()` dispatch branch, the `applicable` / `route in (...)` tuples, and the V17 publisher in `run_publication_check` (~L636).
+- `_bmad/scripts/verify_evidence_boundary.py` -- contains the V17 constants, candidate-tree route ahead of V16, `validate_v17_scope()`, verification dispatch, and publisher check. Later successors take precedence when reproducing their candidates.
 - `_bmad/scripts/tests/test_verify_evidence_boundary.py` -- V17 route and scope coverage.
 
-Generated outputs (C2):
+Already published outputs (C2):
 
 - `_bmad-output/planning-artifacts/implementation-hold-v1.json`
 - `_bmad-output/planning-artifacts/v17-implementation-hold-decision-authority-v1.json`
 
 Read-only roots of trust — never modified, only hashed: `v9-authority-bundle-v1.json`, `v12`/`v13`/`v14`/`v15`/`v16` authority JSONs, `implementation-readiness-report-2026-08-22-ir-0.md`, `v11-story-7.1-schema-slice-v1.json`.
 
-Conventions to reuse verbatim from V16: `json_bytes` = `json.dumps(value, indent=2, ensure_ascii=False) + "\n"` UTF-8, **no `sort_keys`** (dict literal order is canonical); atomic `.tmp` + `os.replace`; `run_git` with `timeout=30` and `GIT_CONFIG_NOSYSTEM=1`; `--repository` / `--candidate` / `--publication` / `--check` flags; exit `0`/`1`/`2`; tests load the publisher by path with `importlib.util`, stage faults into `tmp_path` via `git clone --shared`, and never mutate repository bytes.
+The existing publisher uses the V16 JSON, Git, CLI, and per-file atomic-write conventions. Its fault tests load it by path and stage fixtures in shared temporary clones. The current correction's only editable path is `_bmad-output/implementation-artifacts/spec-v17-implementation-hold-decision-authority.md`.
 
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `_bmad/schemas/implementation-hold-v1.schema.json` -- author the closed record schema: `additionalProperties: false` at every level including `$defs` and array items; exhaustive `required`; `$defs.sha1 ^[0-9a-f]{40}$`, `$defs.sha256 ^[0-9a-f]{64}$`, repo-relative path pattern `^(?!/)(?!.*(?:^|/)\.\.(?:/|$))(?!.*\\)[^\\u0000-\\u001f]+$`; `resultSemantics` as a `const` object; `effectiveState` `const "LIFTED"`; `assertionLedger` `minItems: 1`.
-- [ ] `_bmad-output/planning-artifacts/implementation-hold-v1.json` -- generate the record: `decisionId`, `decisionDate 2026-09-08`, `decisionAuthority`, `scope` (`unlocks: ["7.1-SCHEMAS"]`, bound candidate/bundleDigest/IR-0 sha256, `staleOnDrift: true`, `global: false`), `expiry {kind: "candidate-bound", calendarExpiry: null}`, `ir0Assessment` (exact path + `862a880a…8b122ad`, `result READY`, `effectiveHoldAtAssessment ACTIVE`), `rationale`, `nonClaims`, `effectiveState LIFTED`.
-- [ ] `_bmad/schemas/v17-implementation-hold-decision-authority-v1.schema.json` -- successor schema pinning `authorityId V17-IMPLEMENTATION-HOLD-DECISION`, `predecessorAuthorityId V16-PLANNING-TOOLING-LIFECYCLE`, `immutableAuthorities` as a 7-element `const`, and `authorityEffect` as a `const` object.
-- [ ] `_bmad/scripts/publish_implementation_hold_decision.py` -- deterministic publisher producing both documents from committed blobs; builds the 7-row `immutableAuthorities` (V9, V12, V13, V14, V15, **V16**, IR-0 last) each `{path, sha256, mode}` with mode `100644`; asserts V13/V14 `nonClaims` bytes unchanged; emits a nonempty `V17-*` ledger.
-- [ ] `_bmad/scripts/tests/test_publish_implementation_hold_decision.py` -- one named fault per matrix row, each changing a single condition, asserting the exact code and state, and leaving repository bytes byte-identical.
-- [ ] `_bmad/scripts/verify_evidence_boundary.py` + its test -- route V17 ahead of V16 and preserve child `FAIL`/`BLOCKED` states.
-- [ ] Commit C1 with only the six code/schema/test/spec paths and C2 with only the two generated artifacts; validate both messages with the pinned commitlint CLI; do not push.
+
+- [ ] This spec -- record the actual C0/C1/C2 commit identities and compare C1's six paths and C2's two paths to the published inventories by exact set equality, including missing and unexpected paths; derive modes and gitlinks from Git.
+- [ ] This spec -- record deterministic publisher and historical V17 verifier results; independently recompute all seven carried hashes and modes at the publication baseline, C2, and reconciliation baseline.
+- [ ] This spec -- record the focused publisher and V17 routing test results and validate the two existing commit messages with the pinned commitlint CLI, retaining successful command evidence outside the repository.
+- [ ] This spec -- distinguish the original planning baseline and its broader diff from the publication baseline; explain the current-change policy and retain the current historical-verifier blocker honestly.
+- [ ] This spec -- verify the current documentation diff is exactly this file, the frozen section is unchanged, links resolve, and root-submodule inventory and whitespace checks pass. Leave historical artifacts, sprint states, and authorization flags untouched.
 
 **Acceptance Criteria:**
-- Given the published candidate, `--check` reproduces both documents byte-for-byte and returns `PASS` with a nonempty ledger.
-- Given a mutation of any carried authority's bytes or mode, publication fails closed with `HOLD_PREDECESSOR_DRIFT` and writes nothing.
-- Given the published V17, `authorityEffect.implementationHold` is `LIFTED`, `successorActivated` is `true`, `releaseAuthorized` and `pushAuthorized` are `false`, and `nonClaims` states the readiness rerun is unmet.
-- Given baseline `94dbb37`, C1 and C2 contain exactly eight distinct paths combined, zero raw-mode `160000` changes, and V9–V16 plus IR-0 hashes are unchanged.
-- Given `v11-story-7.1-schema-slice-v1.json`, the record path and `holdRequirement.effectiveState LIFTED` match exactly, so `7.1-SCHEMAS` is unlocked and no other successor is started.
+
+- Given the existing C1/C2 and their actual C0, when their Git objects and publisher are checked, then the path sets are exactly six and two (eight combined), no raw mode `160000` changed, both documents reproduce, and all seven carried authorities retain their declared bytes and modes.
+- Given the historical V17 publication, when the verifier evaluates C0 to C2 and focused tests run, then the verifier returns `PASS` with a nonempty ledger, all selected tests pass without skips, and the existing commit messages pass pinned commitlint.
+- Given the reconciliation baseline and current policy, when the historical verifier returns `BLOCKED`, then this spec records its exact command, code, and exit state separately from V17's historical `PASS`, and makes no current hold-lift or readiness-rerun claim.
+- Given the authorized documentation correction, when its diff is reviewed, then only this spec changes, the original baseline and frozen intent remain preserved, links and focused checks pass, and completion refers only to documentation reconciliation.
 
 ## Implementation Notes
 
+- Original planning entry: `94dbb37694747e9dedee20591b84b5d6a69d19b3`.
+- Publication C0: `074c5b7afb95dfb6365d62a9afa93b4ef75e6fcf`.
+- Implementation C1: `82b91c10fe95f8ef7a7576d35199322481e359a7`.
+- Publication C2: `8bd6789eae34a322e06156dd8e7e2fb0aded42d7`.
+- Documentation reconciliation baseline: `5e4abc6f87692e634319c1d5612c91647ae6eae7`.
+
+C1 is C0's direct child and changes exactly the six code/schema/test paths in
+V17's `publication.c1Paths`; the spec is outside that historical transaction.
+C2 is C1's direct child and adds only the hold record and V17 authority. Their
+combined changed-path set is the published eight-path inventory, with zero
+changed gitlinks. The original planning-entry-to-C2 range instead contains
+40 paths and six changed gitlinks from intervening work; it is not the V17
+publication transaction. Preserve that distinction rather than rewriting history.
+
+V17 records `implementationHold: LIFTED` for `7.1-SCHEMAS`, with release and push
+authorization false and the readiness rerun unmet. That candidate-bound historical
+decision is reproduced here. Later authority and effective-hold decisions retain
+their own meaning; this correction grants no current permission to resume work.
+
 ## Spec Change Log
+
+- 2026-10-08: The user authorized reconciling the stale spec with the already
+  published V17 and current validation policy. Retained the original baseline
+  and frozen intent, recorded the actual transaction separately, replaced the
+  new-implementation tasks with a documentation audit, and scoped completion to
+  that correction. Keep all historical publication, authority, and IR-0 bytes.
 
 ## Review Triage Log
 
@@ -97,7 +151,7 @@ Conventions to reuse verbatim from V16: `json_bytes` = `json.dumps(value, indent
 
 **Carried set is 7, not 16.** V1–V14 are not standalone files — they are byte-pinned overlay blocks inside `epics.md`/`architecture.md`, and V10 has no file at all. `immutableAuthorities` was introduced at V15; the growth rule is "append the immediate predecessor authority JSON, keep IR-0 pinned last". V1–V14 remain preserved transitively because the V9 bundle pins all 101 artifacts, including V11 at `14e95c44…a59da82d`.
 
-**The record stays outside the bundle digest.** `publish_v9_planning_authority.py:1874` raises `BUNDLE_INVENTORY_DRIFT` ("mutable gate or hold result") for any bundle inventory containing `implementation-hold-v1.json`. This is intentional: the mutable decision record must not enter the immutable digest. Do not add any new path to `CANONICAL_PATHS`, `PROTECTED_CANDIDATE_PATHS`, or `EXPECTED_OUTPUT_PATHS`; V15 and V16 are absent from them for the same reason. Add a test asserting this exclusion holds.
+**The record stays outside the bundle digest.** `publish_v9_planning_authority.py` raises `BUNDLE_INVENTORY_DRIFT` ("mutable gate or hold result") for any bundle inventory containing `implementation-hold-v1.json`. The existing V17 exclusion test verifies the hold record is absent from the V9 inventory and protected path sets. This correction changes none of those inventories.
 
 **V13/V14 `nonClaims` are not a contradiction.** Both pin the literal string `"create implementation-hold-v1.json"` as something *they* do not do. V17 creating it is consistent; their bytes must remain untouched, asserted explicitly.
 
@@ -105,12 +159,12 @@ Conventions to reuse verbatim from V16: `json_bytes` = `json.dumps(value, indent
 
 ## Verification
 
-**Commands:**
-- `uv run --frozen python3 _bmad/scripts/publish_implementation_hold_decision.py --check --repository .` -- expected: exit 0, `HOLD_DECISION_OK`.
-- `uv run --frozen python3 -m pytest -q _bmad/scripts/tests` -- expected: zero failed, skipped, xfailed, xpassed or not-run.
-- `uv run --frozen python3 _bmad/scripts/verify_evidence_boundary.py --baseline <C0> --candidate <C2>` -- expected: `result: PASS`, nonempty ledger, exit 0.
-- `git diff --name-only <C0>..<C2>` and `git diff --raw --no-abbrev <C0>..<C2>` -- expected: exactly the eight declared paths by set equality; zero `160000` modes.
-- Pinned commitlint CLI on each exact commit message -- expected: pass, evidence preserved.
+Use frozen Python dependencies and explicit historical test selection. The
+current directory lane excludes retired evidence suites; a directory-level pass
+would not establish their coverage. Run the existing publisher suite and the
+V17-specific routing tests, and report their measured counts. This audit does
+not claim exhaustive fault coverage of the archived matrix.
 
-**Manual checks:**
-- `sha256sum` each of the 7 carried authorities against the values in V17 and against V16's declarations — all unchanged.
+Record exact commands and measured results for the publisher, historical C0/C2
+verifier, current historical-verifier blocker, Git path/mode/hash checks, existing
+C1/C2 commitlint, root-submodule inventory, and this spec's diff/link/frozen checks.

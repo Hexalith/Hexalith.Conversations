@@ -383,3 +383,15 @@ CI wiring validation covers the exact `contents: read` permission, sole `plannin
 - Fresh local clone with repository/user trust config unset -- expected: V20/V21/effective-hold checks pass from tracked source alone.
 - GitHub ruleset inspection plus a pull request that replaces the candidate workflow with a no-op -- expected after external activation: the protected source workflow still runs against the candidate and blocks it; before activation this gate is explicitly `BLOCKED`.
 - `git diff --check` plus exact parent/path/mode audits and pinned commitlint validation immediately before each commit -- expected: no whitespace, scope, history, or message-policy drift.
+
+## Current policy disposition (2026-10-08)
+
+This spec's existing `in-review` status and loop-11 findings record a historical,
+halted review. Architecture V16/AR-15 froze the V21 record, schema, publisher and
+tests; the later current-change policy retired its workflow for routine work.
+The [V21 review disposition](../../docs/runbooks/v21-review-disposition.md)
+maps every loop-11 finding to its current scope and records the observed historical
+and current-baseline checks. It does not mark unresolved defects fixed, approve
+the archived review, or change any earlier content in this spec. Use the
+[current-change policy](../../docs/runbooks/current-change-validation.md) for new
+routine work.

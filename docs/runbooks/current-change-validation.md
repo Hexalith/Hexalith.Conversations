@@ -36,10 +36,11 @@ repository's Conventional Commit policy.
 
 ## Historical boundary
 
-The V23–V29 publishers, resolver, evidence verifier, schemas, records, and their
-tests remain in Git for historical inspection. They are not required for future
-pushes, CI, or routine lifecycle transitions. Do not create another
-authority successor solely because a new commit touches a path they governed.
+The V19–V21 successor-authority tooling and the V23–V29 publishers, resolver,
+evidence verifier, schemas, records, and their tests remain in Git for historical
+inspection. They are not required for future pushes, CI, or routine lifecycle
+transitions. Do not create another authority successor solely because a new
+commit touches a path they governed.
 The default Python test selection is current repository tooling; invoke a
 historical authority test file explicitly when reproducing its result.
 `_bmad/scripts/tests/conftest.py` lists the authority and evidence suites whose
@@ -49,6 +50,10 @@ still runs it.
 The V29 result for `0bb017e641eb7bd03864466526c4918f9c55ef70` remains a
 historical `FAIL`; this policy makes no retroactive `PASS` or authorization claim.
 The recorded V29 hold remains `ACTIVE`, with all four authority flags false.
+
+The halted V21 publication spec retains its historical `in-review` metadata.
+For current-main work, use the [V21 review disposition](v21-review-disposition.md)
+rather than restarting its retired workflow or repairing its frozen tooling.
 
 The old [evidence-boundary runbook](evidence-boundary-validation.md) is retained
 for reproducing historical results. It is no longer the operational route for
