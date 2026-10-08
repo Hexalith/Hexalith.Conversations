@@ -40,10 +40,10 @@ function Assert-Hash([string]$Path, [string]$Expected) {
 }
 
 # Full live execution cannot be enabled by caller-authored acceptance/provider metadata.
-# C4 publication discovery, ordered backfill/pump, worker binding and independent receiver lookup
-# are not installed. LiveManifest is reserved for a future complete owner implementation.
+# Candidate C4 discovery, ordered backfill/pump and catalogue source exist, but independently
+# qualified runtime bindings, worker enrollment and receiver lookup are not installed.
 if ($Mode -eq 'Live') {
-    throw 'Live gate closed before any calls: the installed implementation is partial. Automatic C4 publication discovery, ordered backfill/pump, worker binding and independent authenticated receiver acknowledgement lookup are absent, as are production SDK source attestation/compare-append and the accepted catalogue/approval bindings. No manifest can override missing code. Execution requires complete installed behavior and actual Available owner records, or an explicitly accepted all-owner qualification cohort.'
+    throw 'Live gate closed before any calls: candidate discovery/backfill/pump/catalogue source is not independently qualified or installed with current authority, worker enrollment and an authenticated exact receiver acknowledgement. Production SDK source attestation/compare-append and approval bindings remain unestablished. No caller manifest can override incomplete installation or qualification. Execution requires complete installed behavior and actual Available owner records, or an explicitly accepted all-owner qualification cohort.'
 }
 
 New-Item -ItemType Directory -Path $ArtifactsPath -Force | Out-Null
@@ -110,9 +110,9 @@ foreach ($name in $projects) {
 $evidence = @{ Mode = 'Local'; EvidenceKind = 'SerializedLocalSimulation'; LiveReady = $false;
     SourceRevision = (& git -C $repository rev-parse HEAD).Trim(); Lanes = $lanes;
     RemainingGates = @('Owner full target/date/command acceptance', 'Real current authority and immutable Party',
-        'Authenticated SDK complete command-source attestation and actor compare/append', 'Complete authenticated tenant catalogue and accepted window',
+        'Independently qualified SDK complete command-source attestation and actor compare/append', 'Installed complete authenticated tenant catalogue under the accepted creation window',
         'Independent deletion approval with authentic policy/source-bound logical-deletion audit evidence',
-        'Publication discovery, ordered source backfill and automatic worker/pump binding',
+        'Qualified runtime publication discovery/backfill/pump binding and actual dedicated service-Party enrollment',
         'Authenticated receiver, independent remote receipt lookup and accepted exact target', 'Live storage/restart/replica/race evidence') }
 $evidence | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $ArtifactsPath 'local-evidence.json') -Encoding utf8
 Write-Output 'Local verification passed. This is not live readiness or dependency availability.'

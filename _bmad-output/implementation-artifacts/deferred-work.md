@@ -512,3 +512,19 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
   summary: Read the managed AssemblyInformationalVersion attribute when binding test binaries to a source revision instead of searching arbitrary DLL bytes.
   evidence: Original-candidate review on 2026-10-08 appended `1.0.0+c44f6b7b116b17453aa213d39cd244a3e0cbe1dd` to Microsoft.TestPlatform.Utilities.dll; the shared matcher then reported that sole revision and the managed metadata validator still passed. The identical helper exists at baseline `51aa06b856bcb0aaf22013153cfe02a51b046156`; this is deferred shared-generator work, not a demonstrated complete final-record bypass. Probe: `artifacts/v9/9.2/resume-2026-10-08/review-guard-probes.json`.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations-story92-guards-8y20scx2/checkout/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: Debug structural verification compares a source-reference graph with the approved Release migration.
+  evidence: The exact Debug --structure-only probe exits 1 with ASSERTION_STRENGTH_WEAKENED; helper/configuration behavior predates c44f6b7. Separate configuration evidence must preserve approved Release migration and Quality bindings.
+- source_spec: `/home/administrator/projects/hexalith/conversations-story92-guards-8y20scx2/checkout/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: Ordinary execution verification accepts deliberately fabricated metadata-only managed binaries and matching synthetic TRX.
+  evidence: A disposable unmocked root probe reports completePassingExecution=true for both c44f6b7 and 1275e5c; executable method/body/build provenance is not established by the managed-container and identity checks. Genuine acceptance used real candidate-stamped builds and emitted results.
+- source_spec: `/home/administrator/projects/hexalith/conversations-story92-guards-8y20scx2/checkout/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: TRX theory results can reuse one definition ID across distinct frozen case names.
+  evidence: The disposable root probe accepts the reassigned testId at both c44f6b7 and 1275e5c while retaining 415 case names; the definition join is unchanged. Investigate per-case definition association without changing the frozen case floor.
+- source_spec: `/home/administrator/projects/hexalith/conversations-story92-guards-8y20scx2/checkout/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: Static CI declarations do not reject execution-altering BASH_ENV hooks.
+  evidence: The disposable root probe accepts a required-step BASH_ENV mapping at both c44f6b7 and 1275e5c; the actual approved workflow has no override. Validate relevant shell environment provenance in a separate correction.
+- source_spec: `/home/administrator/projects/hexalith/conversations-story92-guards-8y20scx2/checkout/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: Retained Story 9.2 generation lacks a regression test for suppressing commands through the real generator-to-scenario-reader boundary.
+  evidence: The verification reviewer removed the execute_commands=False argument in a disposable mutant and the existing tests still passed. The generator and those tests predate the guard successor; add a boundary regression that fails on command launch and changed binary/result bytes or timestamps.

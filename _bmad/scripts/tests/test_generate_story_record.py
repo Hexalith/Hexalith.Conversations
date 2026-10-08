@@ -13,6 +13,7 @@ import os
 import re
 import shutil
 import shlex
+import struct
 import subprocess
 import sys
 import time
@@ -9352,6 +9353,62 @@ def _story92_write_json(path: Path, value) -> None:
     path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+def _story92_managed_binary_fixture(assembly: str, methods: set[str]) -> bytes:
+    """Synthetic CLI identity tables for hermetic parser tests, never real execution evidence."""
+    strings = bytearray(b"\0")
+    def string(value: str) -> int:
+        index = len(strings)
+        strings.extend(value.encode() + b"\0")
+        return index
+    module_name = string("SYNTHETIC-PARSER-FIXTURE-NOT-ACCEPTANCE.dll")
+    assembly_name = string(assembly)
+    groups = {}
+    for identity in sorted(methods):
+        owner, name = identity.rsplit(".", 1)
+        groups.setdefault(owner, []).append(name)
+    type_rows = [struct.pack("<IHHHHH", 0, string("<Module>"), 0, 0, 1, 1)]
+    method_rows = []
+    for owner, names in groups.items():
+        namespace, _, name = owner.rpartition(".")
+        type_rows.append(struct.pack("<IHHHHH", 1, string(name), string(namespace), 0, 1, len(method_rows) + 1))
+        for name in names:
+            method_rows.append(struct.pack("<IHHHHH", 0, 0, 6, string(name), 0, 1))
+    assert len(strings) < 65536
+    valid = sum(1 << index for index in (0, 2, 6, 32))
+    tables = (struct.pack("<IBBBBQQ", 0, 2, 0, 0, 1, valid, 0)
+              + struct.pack("<IIII", 1, len(type_rows), len(method_rows), 1)
+              + struct.pack("<HHHHH", 0, module_name, 1, 0, 0)
+              + b"".join(type_rows) + b"".join(method_rows)
+              + struct.pack("<IHHHHIHHH", 0, 1, 0, 0, 0, 0, 0, assembly_name, 0))
+    stream_data = [(b"#~", tables), (b"#Strings", bytes(strings)), (b"#GUID", b"\0" * 16), (b"#Blob", b"\0")]
+    version = b"v4.0.30319\0\0"
+    version += b"\0" * (-len(version) % 4)
+    prefix = b"BSJB" + struct.pack("<HHII", 1, 1, 0, len(version)) + version + struct.pack("<HH", 0, len(stream_data))
+    names = [name + b"\0" * (4 - len(name) % 4) for name, _ in stream_data]
+    cursor = len(prefix) + sum(8 + len(name) for name in names)
+    headers, payloads = [], []
+    for name, (_, payload) in zip(names, stream_data, strict=True):
+        headers.append(struct.pack("<II", cursor, len(payload)) + name)
+        padded = payload + b"\0" * (-len(payload) % 4)
+        payloads.append(padded)
+        cursor += len(padded)
+    metadata = prefix + b"".join(headers) + b"".join(payloads)
+    content = bytearray(((0x280 + len(metadata) + 511) // 512) * 512)
+    content[:2] = b"MZ"
+    struct.pack_into("<I", content, 0x3C, 0x80)
+    content[0x80:0x84] = b"PE\0\0"
+    struct.pack_into("<H", content, 0x86, 1)
+    struct.pack_into("<H", content, 0x94, 0xE0)
+    struct.pack_into("<H", content, 0x98, 0x10B)
+    struct.pack_into("<I", content, 0x98 + 92, 16)
+    struct.pack_into("<II", content, 0x98 + 96 + 14 * 8, 0x2000, 72)
+    struct.pack_into("<IIII", content, 0x178 + 8, len(content) - 0x200, 0x2000, len(content) - 0x200, 0x200)
+    struct.pack_into("<I", content, 0x200, 72)
+    struct.pack_into("<II", content, 0x208, 0x2080, len(metadata))
+    content[0x280:0x280 + len(metadata)] = metadata
+    return bytes(content)
+
+
 def _story92_synthetic_result(root: Path, tier: str, destination: Path) -> None:
     """Structurally valid, deterministic TRX in a disposable parser fixture."""
     frozen = json.loads((root / story92.DISPOSITION).read_bytes())
@@ -9362,7 +9419,8 @@ def _story92_synthetic_result(root: Path, tier: str, destination: Path) -> None:
     name = Path(story92.PROJECTS[tier]).stem
     binary = root / Path(story92.PROJECTS[tier]).parent / "bin/Release/net10.0" / (name + ".dll")
     binary.parent.mkdir(parents=True, exist_ok=True)
-    binary.write_bytes(b"SYNTHETIC-STORY92-NEGATIVE-FIXTURE-NOT-ACCEPTANCE-EVIDENCE")
+    binary_methods = {row["id"] for row in frozen["assertions"] if row["tier"] == tier} | set(story92.CONTROL_IDS[tier])
+    binary.write_bytes(_story92_managed_binary_fixture(name, binary_methods))
     document = ElementTree.Element("TestRun", xmlns=TRX_NAMESPACE)
     results = ElementTree.SubElement(document, "Results")
     definitions = ElementTree.SubElement(document, "TestDefinitions")
@@ -9372,7 +9430,7 @@ def _story92_synthetic_result(root: Path, tier: str, destination: Path) -> None:
         definition = ElementTree.SubElement(definitions, "UnitTest", id=identifier, name=name)
         owner, method = identity.rsplit(".", 1)
         ElementTree.SubElement(definition, "TestMethod", codeBase=str(binary), className=owner, name=method)
-    summary = ElementTree.SubElement(document, "ResultSummary")
+    summary = ElementTree.SubElement(document, "ResultSummary", outcome="Completed")
     ElementTree.SubElement(summary, "Counters", total=str(len(identities)), executed=str(len(identities)),
                            passed=str(len(identities)), failed="0", notExecuted="0")
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -9389,7 +9447,8 @@ def _story92_portable_model(root: Path):
     for row in rows:
         project = root / row["project"]
         project.parent.mkdir(parents=True, exist_ok=True); project.write_text("<Project />")
-        graphs[row["project"]] = {"Properties": {"AssemblyName": row["assembly"], "IsPackable": "true"},
+        output = root / "refs" / (row["assembly"] + ".dll")
+        graphs[row["project"]] = {"Properties": {"AssemblyName": row["assembly"], "IsPackable": "true", "TargetPath": str(output)},
                                   "Items": {"ProjectReference": [], "PackageReference": [{"Identity": name} for name in packages]}}
     project = root / story92.PROJECTS["portable"]
     project.parent.mkdir(parents=True, exist_ok=True); project.write_text("<Project />")
@@ -9398,24 +9457,45 @@ def _story92_portable_model(root: Path):
     domain = next(row for row in rows if row["assembly"] == "Hexalith.Conversations")
     graphs["src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj"]["Items"]["ProjectReference"] = [{"FullPath": str(root / domain["project"])}]
     references = []
+    framework_pack = root / "framework/Microsoft.NETCore.App.Ref/10.0.0"
     for name in approved["referencePathAssemblies"]:
         path = root / "refs" / (name + ".dll")
         path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"compile-model fixture")
         references.append({"FullPath": str(path), "FusionName": name + ", Version=1.0.0.0, Culture=neutral"})
-    assets = {"targets": {}}
+    assets = {"targets": {}, "libraries": {}, "packageFolders": {str(root / "packages"): {}}}
     for row in approved["transitiveCompileAssets"]:
         metadata = assets["targets"].setdefault(row["target"], {}).setdefault(row["library"],
                    {"type": "project" if row["library"].partition("/")[0] in {item["assembly"] for item in rows} else "package", "compile": {}})
         metadata["compile"][row["asset"]] = {}
+        if metadata["type"] == "package":
+            assets["libraries"][row["library"]] = {"path": row["library"].lower()}
+    project_names = {row["assembly"] for row in rows}
+    for reference in references:
+        name = reference["FusionName"].partition(",")[0]
+        candidates = [root / "packages" / library.lower() / asset for libraries in assets["targets"].values()
+                      for library, metadata in libraries.items() if metadata["type"] == "package"
+                      for asset in metadata["compile"] if Path(asset).stem == name]
+        if candidates:
+            path = candidates[0]
+            path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"package compile-model fixture")
+            reference["FullPath"] = str(path)
+        elif name not in project_names:
+            path = framework_pack / "ref/net10.0" / (name + ".dll")
+            path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"framework compile-model fixture")
+            reference.update(FullPath=str(path), FrameworkReferenceName="Microsoft.NETCore.App", NuGetPackageId="Microsoft.NETCore.App.Ref")
     assets_path = root / "project.assets.json"
     _story92_write_json(assets_path, assets)
     evaluated = {"portable": {"Properties": {"ProjectAssetsFile": str(assets_path)},
                              "Items": {"ProjectReference": refs, "ReferencePath": references,
+                                       "FrameworkReference": [{"Identity": "Microsoft.NETCore.App"}],
+                                       "ResolvedFrameworkReference": [{"Identity": "Microsoft.NETCore.App", "TargetingPackName": "Microsoft.NETCore.App.Ref", "TargetingPackPath": str(framework_pack)}],
                                        "PackageReference": [{"Identity": name} for name in packages]}}}
     return approved, evaluated, graphs, assets_path, assets
 
 
-@pytest.mark.parametrize("mutation", [None, "unprefixed-nonpackable", "foreign-binary", "foreign-asset", "mismatched-package-asset"])
+@pytest.mark.parametrize("mutation", [None, "unprefixed-nonpackable", "foreign-binary", "foreign-asset", "mismatched-package-asset",
+                                      "unprefixed-binary", "project-path", "package-path", "unreached-package",
+                                      "framework-path", "framework-package", "undeclared-framework"])
 def test_story92_portable_surface_guards_python_only(tmp_path: Path, monkeypatch, mutation) -> None:
     approved, evaluated, graphs, assets_path, assets = _story92_portable_model(tmp_path)
     if mutation == "unprefixed-nonpackable":
@@ -9432,6 +9512,29 @@ def test_story92_portable_surface_guards_python_only(tmp_path: Path, monkeypatch
     elif mutation == "mismatched-package-asset":
         assets["targets"]["net10.0"]["Hexalith.EventStore.Contracts/3.115.0"]["compile"]["lib/net10.0/Hexalith.Foreign.Server.dll"] = {}
         _story92_write_json(assets_path, assets)
+    elif mutation in ("unprefixed-binary", "unreached-package"):
+        reference = tmp_path / "refs/Outside.Module.dll"; reference.write_bytes(b"fixture")
+        evaluated["portable"]["Items"]["ReferencePath"].append({"FullPath": str(reference), "FusionName": "Outside.Module, Version=1.0.0.0"})
+        if mutation == "unreached-package":
+            assets["targets"]["net10.0"]["Outside.Module/1.0.0"] = {"type": "package", "compile": {"lib/net10.0/Outside.Module.dll": {}}}
+            assets["libraries"]["Outside.Module/1.0.0"] = {"path": "outside.module/1.0.0"}
+            _story92_write_json(assets_path, assets)
+    elif mutation in ("project-path", "package-path", "framework-path", "framework-package"):
+        references = evaluated["portable"]["Items"]["ReferencePath"]
+        if mutation == "project-path":
+            reference = next(row for row in references if row["FusionName"].startswith("Hexalith.Conversations.Contracts,"))
+        elif mutation == "package-path":
+            reference = next(row for row in references if "/packages/" in row["FullPath"])
+        else:
+            reference = next(row for row in references if row.get("FrameworkReferenceName"))
+        if mutation == "framework-package":
+            reference["NuGetPackageId"] = "Invented.Ref"
+        else:
+            path = tmp_path / "foreign" / Path(reference["FullPath"]).name
+            path.parent.mkdir(); path.write_bytes(b"fixture")
+            reference["FullPath"] = str(path)
+    elif mutation == "undeclared-framework":
+        evaluated["portable"]["Items"]["FrameworkReference"] = []
     monkeypatch.setattr(story92, "msbuild", lambda _root, project, *_args, **_kwargs: graphs[project])
     if mutation:
         with pytest.raises(story92.VerificationError) as error:
@@ -9441,7 +9544,16 @@ def test_story92_portable_surface_guards_python_only(tmp_path: Path, monkeypatch
         assert story92.portable_surface(tmp_path, evaluated) == approved
 
 
-@pytest.mark.parametrize("mutation", [None, "echo", "comment", "assignment", "assignment-comment", "build-echo"])
+@pytest.mark.parametrize("mutation", [None, "echo", "comment", "assignment", "assignment-comment", "build-echo",
+                                      "verifier-echo", "verifier-comment", "verifier-missing", "verifier-input",
+                                      "fault-echo", "fault-comment", "fault-missing", "python-shell", "missing-shell",
+                                      "job-false", "job-if-space", "job-quoted-if", "job-needs", "job-merge", "jobs-merge",
+                                      "manual-only", "no-pull-request", "wrong-branch", "duplicate-job", "duplicate-step",
+                                      "step-if-space", "step-quoted-if", "step-merge",
+                                      "duplicate-trigger-key", "duplicate-steps-key", "duplicate-run-key", "early-exit",
+                                      "duplicate-conformance-key", "duplicate-shell-key", "duplicate-runner-key",
+                                      "job-continue-on-error", "step-continue-on-error", "workflow-default-shell",
+                                      "step-false-portable", "step-false-internal", "step-false-execution", "step-false-verifier", "step-false-fault"])
 def test_story92_declarations_require_executable_ci_tiers(tmp_path: Path, mutation) -> None:
     paths = ["Hexalith.Conversations.slnx", story92.AMENDMENT, story92.TIERING.CI_WORKFLOW_PATH, *story92.PROJECTS.values()]
     for path in paths:
@@ -9459,6 +9571,78 @@ def test_story92_declarations_require_executable_ci_tiers(tmp_path: Path, mutati
     elif mutation == "assignment": text = text.replace('internal="tests/', 'internal="wrong/tests/')
     elif mutation == "assignment-comment": text = text.replace('          internal="', '          # internal="')
     elif mutation == "build-echo": text = text.replace("          dotnet build", "          echo dotnet build")
+    elif mutation and mutation.startswith("verifier-"):
+        command = "          uv run --frozen --no-sync python3 _bmad/scripts/verify_conformance_tiering.py"
+        replacement = {"verifier-echo": "          echo " + command.strip(),
+                       "verifier-comment": "          # " + command.strip(),
+                       "verifier-missing": "          true"}.get(mutation, command)
+        text = text.replace(command, replacement)
+        if mutation == "verifier-input":
+            text = text.replace("--internal-result TestResults/conformance/internal.trx", "--internal-result missing.trx")
+    elif mutation and mutation.startswith("fault-"):
+        command = "          uv run --frozen --no-sync python3 -m pytest -q\n"
+        replacement = {"fault-echo": "          echo " + command.strip() + "\n",
+                       "fault-comment": "          # " + command.strip() + "\n",
+                       "fault-missing": "          true\n"}[mutation]
+        text = text.replace(command, replacement)
+    elif mutation == "python-shell":
+        text = text.replace("      - name: Run current conformance checks\n        shell: bash\n",
+                            "      - name: Run current conformance checks\n        shell: python\n")
+    elif mutation == "missing-shell":
+        text = text.replace("      - name: Run current conformance checks\n        shell: bash\n",
+                            "      - name: Run current conformance checks\n")
+    elif mutation in ("job-false", "job-if-space", "job-quoted-if", "job-needs", "job-merge"):
+        condition = {"job-false": "if: false", "job-if-space": "if : false", "job-quoted-if": '"if": false',
+                     "job-needs": "needs : disabled", "job-merge": "<<: {if: false}"}[mutation]
+        text = text.replace("  conformance:\n", "  conformance:\n    " + condition + "\n")
+    elif mutation == "jobs-merge":
+        text = text.replace("jobs:\n", "jobs:\n  <<: {conformance: {if: false}}\n")
+    elif mutation == "manual-only":
+        text = text.replace("on:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]", "on:\n  workflow_dispatch:")
+    elif mutation == "no-pull-request":
+        text = text.replace("  pull_request:\n    branches: [main]\n", "")
+    elif mutation == "wrong-branch":
+        text = text.replace("branches: [main]", "branches: [unrelated]")
+    elif mutation == "duplicate-job":
+        start = text.index("  conformance:\n")
+        text += text[start:]
+    elif mutation == "duplicate-step":
+        start = text.index("      - name: Verify complete monotonic tier execution\n")
+        end = text.index("      - name: Prove structural and execution faults\n", start)
+        text = text[:end] + text[start:end] + text[end:]
+    elif mutation == "duplicate-trigger-key":
+        text = text.replace("jobs:\n", "on :\n  workflow_dispatch:\n\njobs:\n")
+    elif mutation == "duplicate-steps-key":
+        text = text.replace("  tooling:\n", "    steps : []\n\n  tooling:\n")
+    elif mutation == "duplicate-run-key":
+        text = text.replace("      - name: Prove structural and execution faults\n",
+                            "        run : exit 0\n\n      - name: Prove structural and execution faults\n")
+    elif mutation == "early-exit":
+        text = text.replace("          mkdir -p TestResults/conformance", "          exit 0\n          mkdir -p TestResults/conformance")
+    elif mutation == "duplicate-conformance-key":
+        text = text.replace("  tooling:\n", "  conformance : {if: false}\n\n  tooling:\n")
+    elif mutation == "duplicate-shell-key":
+        text = text.replace("      - name: Run current conformance checks\n        shell: bash\n",
+                            "      - name: Run current conformance checks\n        shell: bash\n        shell : python\n")
+    elif mutation == "duplicate-runner-key":
+        text = text.replace("  conformance:\n", "  conformance:\n    runs-on : windows-latest\n")
+    elif mutation == "job-continue-on-error":
+        text = text.replace("  conformance:\n", "  conformance:\n    continue-on-error: true\n")
+    elif mutation == "step-continue-on-error":
+        text = text.replace("      - name: Verify complete monotonic tier execution\n",
+                            "      - name: Verify complete monotonic tier execution\n        continue-on-error : true\n")
+    elif mutation == "workflow-default-shell":
+        text = text.replace("jobs:\n", "defaults:\n  run:\n    shell: echo {0}\n\njobs:\n")
+    elif mutation in ("step-if-space", "step-quoted-if", "step-merge"):
+        condition = {"step-if-space": "if : false", "step-quoted-if": '"if": false', "step-merge": "<<: {if: false}"}[mutation]
+        text = text.replace("      - name: Verify complete monotonic tier execution\n",
+                            "      - name: Verify complete monotonic tier execution\n        " + condition + "\n")
+    elif mutation and mutation.startswith("step-false-"):
+        step = {"portable": "Build portable conformance project", "internal": "Build conformance project",
+                "execution": "Run current conformance checks", "verifier": "Verify complete monotonic tier execution",
+                "fault": "Prove structural and execution faults"}[mutation.removeprefix("step-false-")]
+        text = text.replace("      - name: " + step + "\n", "      - name: " + step + "\n        if: false\n")
+    assert mutation is None or text != before.decode(), mutation
     try:
         workflow.write_text(text)
         if mutation:
@@ -9470,10 +9654,12 @@ def test_story92_declarations_require_executable_ci_tiers(tmp_path: Path, mutati
     finally:
         workflow.write_bytes(before)
     assert workflow.read_bytes() == before
+    assert story92.declarations(tmp_path)["workflow"]["sha256"] == story92.TIERING.sha256_bytes(before)
 
 
 @pytest.mark.parametrize("path", [story92.DISPOSITION, story92.MIGRATION, story92.APPROVAL, story92.SNAPSHOT,
-                                 "artifacts/v9/9.2/portable.trx", "custom-input.trx", "tests/example.cs", "test/obj/project.assets.json"])
+                                 "artifacts/v9/9.2/portable.trx", "custom-input.trx", "tests/example.cs", "test/obj/project.assets.json",
+                                 *sorted(story92.ROOT_CONFIGURATION_PATHS)])
 def test_story92_outputs_cannot_overwrite_inputs(tmp_path: Path, path: str) -> None:
     target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(b"protected bytes")
     with pytest.raises(story92.VerificationError) as error:
@@ -9481,13 +9667,16 @@ def test_story92_outputs_cannot_overwrite_inputs(tmp_path: Path, path: str) -> N
     assert error.value.code == "OUTPUT_PATH_INVALID" and target.read_bytes() == b"protected bytes"
 
 
-def test_story92_output_aliases_and_explicit_migration_writer(tmp_path: Path) -> None:
-    approval = tmp_path / story92.APPROVAL; approval.parent.mkdir(parents=True); approval.write_bytes(b"approval")
+@pytest.mark.parametrize("protected_path", [story92.APPROVAL, "AGENTS.md", "pyproject.toml"])
+def test_story92_output_aliases_and_explicit_migration_writer(tmp_path: Path, protected_path: str) -> None:
+    approval = tmp_path / protected_path; approval.parent.mkdir(parents=True, exist_ok=True); approval.write_bytes(b"approval")
     alias = tmp_path / "alias.json"; alias.hardlink_to(approval)
     with pytest.raises(story92.VerificationError): story92.write_json(tmp_path, "alias.json", {})
     alias.unlink(); alias.symlink_to(approval)
     with pytest.raises(story92.VerificationError): story92.write_json(tmp_path, "alias.json", {})
     assert approval.read_bytes() == b"approval"
+    (tmp_path / story92.APPROVAL).parent.mkdir(parents=True, exist_ok=True)
+    (tmp_path / story92.APPROVAL).write_bytes(b"approval")
     _story92_write_json(tmp_path / story92.MIGRATION, {"proposal": "unchanged"})
     before = (tmp_path / story92.MIGRATION).read_bytes()
     modified = (tmp_path / story92.MIGRATION).stat().st_mtime_ns
@@ -9554,6 +9743,9 @@ def test_v2_story_9_2_facts_call_actual_verifier_with_both_tier_results(tmp_path
     monkeypatch.setattr(verifier, "declarations", lambda *_args, **_kwargs: declarations)
     monkeypatch.setattr(verifier, "derive_migration", lambda *_args, **_kwargs: json.loads(blobs[verifier.MIGRATION]))
     monkeypatch.setattr(verifier, "_execution_binary_is_managed", lambda _: True)
+    # This caller/source-revision fixture intentionally uses marker bytes. The separate
+    # execution regressions below use real unmocked CLI identity parsing.
+    monkeypatch.setattr(verifier, "_require_execution_binary_identity", lambda *_: None)
     report = verifier.verify(tmp_path, portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx")
     assert report["result"] == "PASS", report
     output = tmp_path / module.V2_9_2_RESULT_PATH; output.write_text(json.dumps(report))
@@ -9569,11 +9761,160 @@ def test_v2_story_9_2_facts_call_actual_verifier_with_both_tier_results(tmp_path
         assert facts["execution"]["completePassingExecution"] and facts["execution"]["afterExecutedCases"] == 415
 
 
-def test_story92_ordinary_execution_rejects_marker_only_binaries(tmp_path: Path) -> None:
+def _story92_pe_without_cli() -> bytes:
+    """A contained native PE header with no CLI directory; it cannot prove managed execution."""
+    content = bytearray(512)
+    content[:2] = b"MZ"
+    struct.pack_into("<I", content, 0x3C, 0x80)
+    content[0x80:0x84] = b"PE\0\0"
+    struct.pack_into("<H", content, 0x86, 1)
+    struct.pack_into("<H", content, 0x94, 0xE0)
+    struct.pack_into("<H", content, 0x98, 0x10B)
+    struct.pack_into("<I", content, 0x98 + 92, 16)
+    return bytes(content)
+
+
+@pytest.mark.parametrize("binary_bytes", [b"SYNTHETIC-MARKER-NOT-A-MANAGED-ASSEMBLY", b"MZ", b"MZ" + b"\0" * 126,
+                                           _story92_pe_without_cli()],
+                         ids=["marker-only", "truncated-mz", "invalid-mz", "pe-without-cli"])
+def test_story92_ordinary_execution_rejects_invalid_managed_binaries(tmp_path: Path, binary_bytes: bytes) -> None:
+    """Keep the metadata validator unmocked through the execution caller for malformed PE cases."""
     frozen = _story92_execution_fixture(tmp_path)
+    binary = tmp_path / Path(story92.PROJECTS["portable"]).parent / "bin/Release/net10.0" / (Path(story92.PROJECTS["portable"]).stem + ".dll")
+    binary.write_bytes(binary_bytes)
+    result = tmp_path / "artifacts/v9/9.2/portable.trx"
+    result.write_bytes(result.read_bytes())
+    assert not story92._execution_binary_is_managed(binary_bytes)
     with pytest.raises(story92.VerificationError) as error:
         story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")
     assert error.value.code == "TIER_EXECUTION_INCOMPLETE" and "not a managed assembly" in str(error.value)
+
+
+@pytest.mark.parametrize("mutation", ["unrelated-assembly", "swapped-tier", "missing-frozen-method", "missing-historical-method", "missing-control", "malformed-table", "appended-identity"])
+def test_story92_execution_requires_managed_tier_and_method_identity(tmp_path: Path, mutation: str) -> None:
+    """Exercise real CLI tables through execution; claimed TRX paths and names stay valid."""
+    frozen = _story92_execution_fixture(tmp_path)
+    project = Path(story92.PROJECTS["portable"])
+    binary = tmp_path / project.parent / "bin/Release/net10.0" / (project.stem + ".dll")
+    result = tmp_path / "artifacts/v9/9.2/portable.trx"
+    before_binary, before_result = binary.read_bytes(), result.read_bytes()
+    methods = {row["id"] for row in frozen["assertions"] if row["tier"] == "portable"}
+    methods.update(story92.CONTROL_IDS["portable"])
+    if mutation in ("unrelated-assembly", "appended-identity"):
+        content = _story92_managed_binary_fixture("Hexalith.Conversations.Contracts", methods)
+        if mutation == "appended-identity":
+            content += (project.stem + "\n" + "\n".join(sorted(methods)) + "\n1.0.0+" + "a" * 40).encode()
+    elif mutation == "swapped-tier":
+        internal = Path(story92.PROJECTS["module-internal"])
+        content = (tmp_path / internal.parent / "bin/Release/net10.0" / (internal.stem + ".dll")).read_bytes()
+    elif mutation in ("missing-frozen-method", "missing-historical-method", "missing-control"):
+        if mutation == "missing-control":
+            missing = story92.CONTROL_IDS["portable"][0]
+        else:
+            missing = next(row["id"] for row in frozen["assertions"]
+                           if row["tier"] == "portable" and (row["preSplitResultIdentity"]["lane"] == "executed")
+                           == (mutation == "missing-frozen-method"))
+        content = _story92_managed_binary_fixture(project.stem, methods - {missing})
+    else:
+        content = bytearray(before_binary)
+        table_offset = story92._execution_metadata_streams(before_binary)[b"#~"][0]
+        struct.pack_into("<I", content, table_offset + 32, 65535)
+        content = bytes(content)
+    assert story92._execution_binary_is_managed(content)
+    try:
+        binary.write_bytes(content); result.write_bytes(before_result)
+        for allow_control_failure in (False, True):
+            with pytest.raises(story92.VerificationError) as error:
+                story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx",
+                                  allow_control_failure=allow_control_failure)
+            assert error.value.code == "TIER_EXECUTION_INCOMPLETE"
+    finally:
+        binary.write_bytes(before_binary); result.write_bytes(before_result)
+    assert binary.read_bytes() == before_binary and result.read_bytes() == before_result
+    assert story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")["completePassingExecution"]
+
+
+@pytest.mark.parametrize("mutation", ["failed", "unknown", "missing-outcome", "missing-summary", "duplicate-summary", "duplicate-counters",
+                                      "nested-failed", "nested-passed", "nested-skipped", "empty-inner-results", "orphan-nested-result"])
+def test_story92_execution_rejects_invalid_summary_and_nested_results(tmp_path: Path, mutation: str) -> None:
+    frozen = _story92_execution_fixture(tmp_path)
+    path = tmp_path / "artifacts/v9/9.2/portable.trx"
+    before = path.read_bytes()
+    tree = ElementTree.fromstring(before)
+    summary = tree.find("./{*}ResultSummary")
+    if mutation in ("failed", "unknown"):
+        summary.set("outcome", "Failed" if mutation == "failed" else "Unrecognized")
+    elif mutation == "missing-outcome":
+        del summary.attrib["outcome"]
+    elif mutation == "missing-summary":
+        tree.remove(summary)
+    elif mutation == "duplicate-summary":
+        tree.append(deepcopy(summary))
+    elif mutation == "duplicate-counters":
+        summary.append(deepcopy(summary.find("./{*}Counters")))
+    else:
+        parent = tree.find("./{*}Results/{*}UnitTestResult")
+        inner = ElementTree.SubElement(parent, "InnerResults" if mutation != "orphan-nested-result" else "UnexpectedWrapper")
+        if mutation != "empty-inner-results":
+            outcome = {"nested-failed": "Failed", "nested-passed": "Passed", "nested-skipped": "NotExecuted", "orphan-nested-result": "Passed"}[mutation]
+            ElementTree.SubElement(inner, "UnitTestResult", testName="nested-case", outcome=outcome)
+    try:
+        path.write_bytes(ElementTree.tostring(tree))
+        for allow_control_failure in (False, True):
+            with pytest.raises(story92.VerificationError) as error:
+                story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx",
+                                  allow_control_failure=allow_control_failure)
+            assert error.value.code == "TIER_EXECUTION_INCOMPLETE"
+    finally:
+        path.write_bytes(before)
+    assert path.read_bytes() == before
+    assert story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")["completePassingExecution"]
+
+
+@pytest.mark.parametrize("summary_outcome", ["Completed", "Failed", "Unrecognized", None])
+def test_story92_execution_observation_preserves_named_control_failure(tmp_path: Path, summary_outcome) -> None:
+    frozen = _story92_execution_fixture(tmp_path)
+    path = tmp_path / "artifacts/v9/9.2/portable.trx"
+    before = path.read_bytes()
+    tree = ElementTree.fromstring(before)
+    control = next(row for row in tree.findall("./{*}Results/{*}UnitTestResult") if row.get("testName") == story92.CONTROL_IDS["portable"][0])
+    control.set("outcome", "Failed")
+    summary = tree.find("./{*}ResultSummary")
+    if summary_outcome is None:
+        del summary.attrib["outcome"]
+    else:
+        summary.set("outcome", summary_outcome)
+    counters = summary.find("./{*}Counters")
+    counters.set("failed", "1"); counters.set("passed", str(int(counters.get("passed")) - 1))
+    try:
+        path.write_bytes(ElementTree.tostring(tree))
+        with pytest.raises(story92.VerificationError) as error:
+            story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")
+        assert error.value.code == "TIER_EXECUTION_FAILED"
+        if summary_outcome in ("Completed", "Failed"):
+            observed = story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx", allow_control_failure=True)
+            assert not observed["completePassingExecution"] and observed["afterExecutedCases"] == 415
+            assert observed["tiers"]["portable"]["counts"]["failed"] == 1
+            assert observed["tiers"]["portable"]["failedControlCases"] == story92.CONTROL_IDS["portable"]
+        else:
+            with pytest.raises(story92.VerificationError) as error:
+                story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx", allow_control_failure=True)
+            assert error.value.code == "TIER_EXECUTION_INCOMPLETE"
+    finally:
+        path.write_bytes(before)
+    assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize("mode", ["compelte", "", "COMPLETE", "execution"])
+def test_story92_unknown_api_mode_fails_before_dispatch(tmp_path: Path, monkeypatch, mode: str) -> None:
+    def unexpected_dispatch(*_args, **_kwargs):
+        pytest.fail("An unsupported API mode reached a verification adapter")
+    for name in ("inputs", "declarations", "evaluated_projects", "msbuild", "derive_migration", "execution"):
+        monkeypatch.setattr(story92, name, unexpected_dispatch)
+    report = story92.verify(tmp_path, mode=mode)
+    assert report["result"] == "FAIL" and report["exitCode"] == 1
+    assert report["blockers"] == [{"code": "TIERING_INPUT_INVALID", "message": f"Unsupported verification mode: {mode!r}"}]
+    assert not set(report).intersection(("declarations", "portableSurface", "inventories", "observedExecution", "execution"))
 
 
 @pytest.mark.parametrize("mutation", [None, "orphan", "duplicate-definition", "wrong-method", "wrong-class", "wrong-binary", "no-definition", "wrong-claimed-name"])
@@ -9593,7 +9934,6 @@ def test_story92_execution_joins_tier_method_definitions(tmp_path: Path, monkeyp
     elif mutation == "wrong-binary": method.set("codeBase", str(tmp_path / "wrong.dll"))
     elif mutation == "no-definition": definitions.remove(definition)
     elif mutation == "wrong-claimed-name": result.set("testName", "InventedClaim")
-    monkeypatch.setattr(story92, "_execution_binary_is_managed", lambda _: True)
     try:
         path.write_bytes(story92.RECORD.ElementTree.tostring(tree))
         if mutation:

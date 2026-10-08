@@ -54,6 +54,11 @@ CONTROL_IDS = {
         "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.PostSplitAssertionInventoryShouldEqualApprovedDisposition",
     ],
 }
+ROOT_CONFIGURATION_PATHS = {
+    "AGENTS.md", "CLAUDE.md", ".editorconfig", ".gitattributes", ".gitignore", ".gitmodules",
+    "pyproject.toml", "uv.lock", "package.json", "package-lock.json", "commitlint.config.mjs",
+    "Hexalith.Conversations.slnx", "Directory.Build.props", "Directory.Packages.props", "global.json",
+}
 AUTHORIZED_SUCCESSOR_FILES = {
     TIERING.PROJECT_DIR + "/GovernanceAuditPairingSafetyNetConformanceTest.cs":
         "Exact current governance and non-governance command sets include the pre-existing agent/deletion commands; neither set is made optional.",
@@ -124,7 +129,8 @@ def bound(root: Path, relative: str) -> dict[str, str]:
 def msbuild(root: Path, project: str, configuration: str, *, resolved: bool = False) -> dict[str, Any]:
     require((root / project).is_file(), "TIER_PROJECT_MISSING", f"Tier project is missing: {project}")
     command = ["dotnet", "msbuild", project, f"-p:Configuration={configuration}", "-nr:false",
-               "-getProperty:IsPackable,AssemblyName,ProjectAssetsFile", "-getItem:Compile,ProjectReference,PackageReference,ReferencePath"]
+               "-getProperty:IsPackable,AssemblyName,ProjectAssetsFile,TargetPath,TargetRefPath",
+               "-getItem:Compile,ProjectReference,PackageReference,ReferencePath,FrameworkReference,ResolvedFrameworkReference"]
     if resolved:
         # Resolve existing outputs without rebuilding them: a rebuild would invalidate the tier TRX files.
         command += ["-target:ResolveReferences", "-p:BuildProjectReferences=false"]
@@ -153,6 +159,7 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
             "PORTABLE_TIER_NONPORTABLE_REFERENCE", "Portable direct references must be the three approved shipped surfaces.")
     queue = [Path(item["FullPath"]) for item in initial]
     seen: dict[str, dict[str, Any]] = {}
+    project_outputs: dict[str, set[Path]] = {}
     package_roots = {item["Identity"] for item in portable["Items"].get("PackageReference", [])}
     while queue:
         path = queue.pop()
@@ -167,6 +174,8 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
         require(packable,
                 "PORTABLE_TIER_NONPORTABLE_REFERENCE", f"Evaluated non-packable module reference: {name}")
         seen[relative] = {"project": relative, "assembly": name, "packable": packable}
+        project_outputs.setdefault(name, set()).update(
+            Path(properties[key]).resolve() for key in ("TargetPath", "TargetRefPath") if properties.get(key))
         queue.extend(Path(item["FullPath"]) for item in graph["Items"]["ProjectReference"])
         package_roots.update(item["Identity"] for item in graph["Items"].get("PackageReference", []))
     allowed = {row["assembly"] for row in seen.values() if row["packable"]}
@@ -176,6 +185,7 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
             "RESOLVED_COMPILE_SURFACE_INVALID", "Restored transitive assets are missing or outside the repository.")
     assets = json.loads(assets_path.read_bytes())
     compile_assets = []
+    package_outputs: dict[str, set[Path]] = {}
     for target, libraries in assets["targets"].items():
         by_name = {library.partition("/")[0]: metadata for library, metadata in libraries.items()}
         pending = list(allowed | package_roots)
@@ -196,12 +206,23 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
                             "PORTABLE_TIER_NONPORTABLE_REFERENCE", f"Nonportable transitive compile asset: {name}")
                     if shipped_package:
                         allowed.add(name)
+                    if metadata.get("type") == "package" and package_name in reached:
+                        package_path = assets.get("libraries", {}).get(library, {}).get("path")
+                        if package_path:
+                            require(RECORD.safe_relative_path(package_path) == package_path
+                                    and RECORD.safe_relative_path(asset) == asset,
+                                    "RESOLVED_COMPILE_SURFACE_INVALID", "A restored package compile path is invalid.")
+                            package_outputs.setdefault(name, set()).update(
+                                (Path(folder) / package_path / asset).resolve() for folder in assets.get("packageFolders", {}))
                     compile_assets.append({"target": target, "library": library, "asset": asset})
 
     def permitted(name: str) -> bool:
         return not name.startswith("Hexalith.") or name in allowed
 
     references = portable["Items"]["ReferencePath"]
+    framework_names = {item["Identity"] for item in portable["Items"].get("FrameworkReference", [])}
+    framework_packs = {item["Identity"]: item for item in portable["Items"].get("ResolvedFrameworkReference", [])
+                       if item["Identity"] in framework_names}
     require(bool(references), "RESOLVED_COMPILE_SURFACE_INVALID", "Resolved ReferencePath is empty.")
     names = []
     for item in references:
@@ -214,6 +235,16 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
         require(bool(name) and ", Version=" in fusion_name, "RESOLVED_COMPILE_SURFACE_INVALID",
                 f"Resolved reference lacks its assembly identity: {path.name}")
         require(permitted(name), "PORTABLE_TIER_NONPORTABLE_REFERENCE", f"Nonportable resolved ReferencePath: {name}")
+        resolved_path = path.resolve()
+        project_match = resolved_path in project_outputs.get(name, set())
+        package_match = resolved_path in package_outputs.get(name, set())
+        framework = framework_packs.get(item.get("FrameworkReferenceName"))
+        framework_path = Path(framework["TargetingPackPath"]).resolve() if framework and framework.get("TargetingPackPath") else None
+        framework_match = (framework_path is not None and resolved_path.is_relative_to(framework_path / "ref")
+                           and item.get("NuGetPackageId") == framework.get("TargetingPackName")
+                           and path.stem == name)
+        require(project_match or package_match or framework_match, "PORTABLE_TIER_NONPORTABLE_REFERENCE",
+                f"Resolved reference is outside evaluated packable projects, restored compile assets, and framework packs: {name}")
         names.append(name)
     require(bool(compile_assets), "RESOLVED_COMPILE_SURFACE_INVALID", "Transitive compile assets are empty.")
     return {"evaluatedProjects": sorted(seen.values(), key=lambda row: row["project"]),
@@ -265,10 +296,38 @@ def declarations(root: Path, *, current_tree: bool = False) -> dict[str, Any]:
     amendment = document(root, AMENDMENT)
     require(amendment.get("projects") == PROJECTS, "TIER_NOT_DECLARED", "The execution/completion amendment must declare both exact tiers.")
     workflow = read(root, TIERING.CI_WORKFLOW_PATH).decode()
-    def run_body(name: str) -> str:
-        match = re.search(r"(?m)^      - name: " + re.escape(name) + r"\n(?P<body>(?:        .*\n|\n)+)", workflow)
-        require(match is not None, "TIER_NOT_DECLARED", f"CI step is missing: {name}")
-        body = match.group("body")
+    triggers = list(re.finditer(r"(?m)^on:\n(?P<body>(?:  .*\n|\n)+)", workflow))
+    require(len(triggers) == 1 and triggers[0].group("body").strip() ==
+            "push:\n    branches: [main]\n  pull_request:\n    branches: [main]"
+            and len(re.findall(r"(?m)^on\s*:", workflow)) == 1
+            and len(re.findall(r"(?m)^jobs\s*:", workflow)) == 1
+            and not re.search(r"(?m)^(?:[\"']|<<\s*:|defaults\s*:)", workflow),
+            "TIER_NOT_DECLARED", "CI must retain its existing main push and pull-request triggers and unambiguous job mapping.")
+    job_mapping = re.search(r"(?m)^jobs:\n(?P<body>(?:  .*\n|\n)+)", workflow)
+    require(job_mapping is not None and not re.search(r"(?m)^  (?:[\"']|<<\s*:)", job_mapping.group("body")),
+            "TIER_NOT_DECLARED", "CI jobs must use the existing explicit YAML mapping without merges.")
+    jobs = list(re.finditer(r"(?m)^  conformance:\n(?P<body>(?:    .*\n|\n)+)", job_mapping.group("body")))
+    require(len(jobs) == 1 and len(re.findall(r"(?m)^  conformance\s*:", job_mapping.group("body"))) == 1,
+            "TIER_NOT_DECLARED", "CI must declare exactly one conformance job.")
+    job = jobs[0].group("body")
+    require(not re.search(r"(?m)^    (?:[\"']|<<\s*:|(?:if|needs|defaults|continue-on-error)\s*:)", job)
+            and re.findall(r"(?m)^    runs-on: (.+)$", job) == ["ubuntu-latest"]
+            and len(re.findall(r"(?m)^    runs-on\s*:", job)) == 1
+            and re.findall(r"(?m)^    steps\s*:(.*)$", job) == [""],
+            "TIER_NOT_DECLARED", "The conformance job must be unconditional with its normal Ubuntu shell defaults.")
+    def run_body(name: str, *, required_shell: str | None = None) -> str:
+        matches = list(re.finditer(r"(?m)^      - name: " + re.escape(name) + r"\n(?P<body>(?:        .*\n|\n)+)", job))
+        require(len(matches) == 1, "TIER_NOT_DECLARED", f"CI step must occur once in the conformance job: {name}")
+        body = matches[0].group("body")
+        require(not re.search(r"(?m)^        (?:[\"']|<<\s*:|(?:if|continue-on-error)\s*:)", body)
+                and len(re.findall(r"(?m)^        run\s*:", body)) == 1,
+                "TIER_NOT_DECLARED", f"Required CI step must be unconditional without YAML merges: {name}")
+        shells = re.findall(r"(?m)^        shell: (.+)$", body)
+        require(shells in ([], ["bash"]) and len(re.findall(r"(?m)^        shell\s*:", body)) == len(shells),
+                "TIER_NOT_DECLARED", f"CI step must execute its commands with Bash: {name}")
+        if required_shell is not None:
+            require(shells == [required_shell],
+                    "TIER_NOT_DECLARED", f"CI step must use the {required_shell} shell: {name}")
         run = re.search(r"(?m)^        run: [|>]-?\n(?P<commands>(?:          .*\n|\n)+)", body)
         require(run is not None, "TIER_NOT_DECLARED", f"CI executable run block is missing: {name}")
         return re.sub(r"\\\s*\n\s*", " ", run.group("commands"))
@@ -277,7 +336,11 @@ def declarations(root: Path, *, current_tree: bool = False) -> dict[str, Any]:
         tokens = shlex.split(run_body(step), comments=True)
         require(tokens == ["dotnet", "build", PROJECTS[tier], "--configuration", "Release", "-warnaserror"],
                 "TIER_NOT_DECLARED", f"CI must execute the exact tier build: {PROJECTS[tier]}")
-    commands = [shlex.split(line, comments=True) for line in run_body("Run current conformance checks").splitlines()]
+    commands = [shlex.split(line, comments=True) for line in
+                run_body("Run current conformance checks", required_shell="bash").splitlines()]
+    expected_body = [["set", "-euo", "pipefail"], ["mkdir", "-p", "TestResults/conformance"]]
+    expected_body.extend([[variable + "=" + str(Path(PROJECTS[tier]).parent / "bin/Release/net10.0" / (Path(PROJECTS[tier]).stem + ".dll"))]
+                          for tier, variable in (("portable", "portable"), ("module-internal", "internal"))])
     policy = amendment["executionPolicy"]
     for tier, variable in (("portable", "portable"), ("module-internal", "internal")):
         assembly = str(Path(PROJECTS[tier]).parent / "bin/Release/net10.0" / (Path(PROJECTS[tier]).stem + ".dll"))
@@ -291,13 +354,25 @@ def declarations(root: Path, *, current_tree: bool = False) -> dict[str, Any]:
                 expected += ["-method-", name]
         expected += ["-parallelMode", "none", "-result-trx", f"TestResults/conformance/{variable}.trx", "-noLogo"]
         require(commands.count(expected) == 1, "TIER_NOT_DECLARED", f"CI must invoke each exact tier once: {variable}")
+        expected_body.append(expected)
+    require([command for command in commands if command] == expected_body,
+            "TIER_NOT_DECLARED", "CI tier body must execute its existing commands in order without extra flow control.")
+    verifier_command = shlex.split(run_body("Verify complete monotonic tier execution"), comments=True)
+    verifier_prefix = ["uv", "run", "--frozen", "--no-sync", "python3", "_bmad/scripts/verify_conformance_tiering.py",
+                       "--repository", ".", "--contract", CONTRACT]
+    verifier_suffix = ["--portable-result", "TestResults/conformance/portable.trx",
+                       "--internal-result", "TestResults/conformance/internal.trx",
+                       "--output", "TestResults/conformance/tiering.json"]
+    verifier_modes = (["--current-tree"],) if current_tree else ([], ["--current-tree"])
+    require(any(verifier_command == verifier_prefix + mode + verifier_suffix for mode in verifier_modes),
+            "TIER_NOT_DECLARED", "CI must execute the combined tier verifier with both exact result inputs.")
     fault_command = shlex.split(run_body("Prove structural and execution faults"), comments=True)
     selections = (("structural_and_execution_faults or current_tree",) if current_tree else
                   ("structural_and_execution_faults", "structural_and_execution_faults or current_tree"))
-    require("verify_conformance_tiering.py" in workflow and len(fault_command) >= 11
-            and fault_command[:10] == ["uv", "run", "--frozen", "--no-sync", "python3", "-m", "pytest", "-q",
-                                      "_bmad/scripts/tests/test_conformance_tiering.py", "-k"]
-            and fault_command[10] in selections,
+    fault_prefix = ["uv", "run", "--frozen", "--no-sync", "python3", "-m", "pytest", "-q",
+                    "_bmad/scripts/tests/test_conformance_tiering.py", "-k"]
+    require(any(fault_command == fault_prefix + [selection, "--junitxml=TestResults/conformance/faults.xml"]
+                for selection in selections),
             "TIER_NOT_DECLARED", "CI must verify combined execution and measured faults.")
     return {"solution": bound(root, "Hexalith.Conversations.slnx"), "workflow": bound(root, TIERING.CI_WORKFLOW_PATH),
             "completionInventory": completion,
@@ -551,22 +626,22 @@ def approved_migration(root: Path, derived: dict[str, Any], *, require_approval:
     return bound(root, APPROVAL)
 
 
-def _execution_binary_is_managed(content: bytes) -> bool:
-    """Recognize a PE/CLI assembly with contained CLI metadata, not a version/fixture marker."""
+def _execution_metadata_streams(content: bytes) -> dict[bytes, tuple[int, int]] | None:
+    """Read contained PE/CLI metadata stream locations without loading executable code."""
     try:
         require(content[:2] == b"MZ", "TIER_EXECUTION_INCOMPLETE", "not a PE image")
         pe = struct.unpack_from("<I", content, 0x3C)[0]
         if content[pe:pe+4] != b"PE\0\0":
-            return False
+            return None
         sections = struct.unpack_from("<H", content, pe + 6)[0]
         optional_size = struct.unpack_from("<H", content, pe + 20)[0]
         optional = pe + 24
         magic = struct.unpack_from("<H", content, optional)[0]
         directories = optional + (96 if magic == 0x10B else 112 if magic == 0x20B else 0)
         if directories == optional or directories + 15 * 8 > optional + optional_size:
-            return False
+            return None
         if struct.unpack_from("<I", content, directories - 4)[0] < 15:
-            return False
+            return None
         cli_rva, cli_size = struct.unpack_from("<II", content, directories + 14 * 8)
         def offset(rva: int, size: int) -> int:
             for index in range(sections):
@@ -577,42 +652,145 @@ def _execution_binary_is_managed(content: bytes) -> bool:
                     return raw_offset + delta
             raise ValueError("RVA is outside image sections")
         if not cli_rva or cli_size < 72:
-            return False
+            return None
         cli = offset(cli_rva, 72)
         if struct.unpack_from("<I", content, cli)[0] < 72:
-            return False
+            return None
         metadata_rva, metadata_size = struct.unpack_from("<II", content, cli + 8)
         metadata = offset(metadata_rva, metadata_size)
         if metadata_size < 20 or content[metadata:metadata+4] != b"BSJB":
-            return False
+            return None
         version_size = struct.unpack_from("<I", content, metadata + 12)[0]
         cursor = metadata + 16 + ((version_size + 3) & ~3)
         if not version_size or cursor + 4 > metadata + metadata_size:
-            return False
+            return None
         streams_count = struct.unpack_from("<H", content, cursor + 2)[0]
         cursor += 4
         streams = {}
         if not 1 <= streams_count <= 64:
-            return False
+            return None
         for _ in range(streams_count):
             stream_offset, stream_size = struct.unpack_from("<II", content, cursor)
             end = content.index(b"\0", cursor + 8, min(cursor + 40, metadata + metadata_size))
             name = content[cursor+8:end]
             if name in streams or stream_offset + stream_size > metadata_size:
-                return False
+                return None
             streams[name] = (metadata + stream_offset, stream_size)
             cursor = (end + 4) & ~3
         table = streams.get(b"#~") or streams.get(b"#-")
         if not table or not {b"#Strings", b"#Blob", b"#GUID"}.issubset(streams) or table[1] < 24:
-            return False
+            return None
         valid = struct.unpack_from("<Q", content, table[0] + 8)[0]
         if not valid & 1 or not valid & (1 << 32) or table[1] < 24 + valid.bit_count() * 4:
-            return False
+            return None
         module_rows = struct.unpack_from("<I", content, table[0] + 24)[0]
         assembly_rows = struct.unpack_from("<I", content, table[0] + 24 + (valid & ((1 << 32)-1)).bit_count() * 4)[0]
-        return module_rows == assembly_rows == 1
+        return streams if module_rows == assembly_rows == 1 else None
     except (VerificationError, ValueError, struct.error):
-        return False
+        return None
+
+
+def _execution_binary_is_managed(content: bytes) -> bool:
+    """Recognize contained PE/CLI metadata, not a version or fixture marker."""
+    return _execution_metadata_streams(content) is not None
+
+
+def _execution_binary_inventory(content: bytes) -> tuple[str, set[str]]:
+    """Derive Assembly/TypeDef/MethodDef identities from CLI tables, never byte searches."""
+    streams = _execution_metadata_streams(content)
+    require(streams is not None, "TIER_EXECUTION_INCOMPLETE", "Execution binary has invalid managed metadata.")
+    table_start, table_size = streams.get(b"#~") or streams[b"#-"]
+    tables = content[table_start:table_start + table_size]
+    strings_start, strings_size = streams[b"#Strings"]
+    strings = content[strings_start:strings_start + strings_size]
+    try:
+        heap_sizes = tables[6]
+        valid = struct.unpack_from("<Q", tables, 8)[0]
+        counts = {}
+        cursor = 24
+        for index in range(64):
+            if valid & (1 << index):
+                counts[index] = struct.unpack_from("<I", tables, cursor)[0]
+                cursor += 4
+
+        def index_size(table: int) -> int:
+            return 4 if counts.get(table, 0) >= 65536 else 2
+
+        def coded(bits: int, *targets: int) -> int:
+            return 4 if max((counts.get(table, 0) for table in targets), default=0) >= (1 << (16 - bits)) else 2
+
+        string_size = 4 if heap_sizes & 1 else 2
+        guid_size = 4 if heap_sizes & 2 else 2
+        blob_size = 4 if heap_sizes & 4 else 2
+        typedef_or_ref = coded(2, 2, 1, 27)
+        method_or_ref = coded(1, 6, 10)
+        # ECMA-335 II.22 table layouts. These are all tables preceding Assembly (32).
+        sizes = [
+            2 + string_size + 3 * guid_size,
+            coded(2, 0, 26, 35, 1) + 2 * string_size,
+            4 + 2 * string_size + typedef_or_ref + index_size(4) + index_size(6),
+            index_size(4), 2 + string_size + blob_size, index_size(6),
+            8 + string_size + blob_size + index_size(8), index_size(8), 4 + string_size,
+            index_size(2) + typedef_or_ref,
+            coded(3, 2, 1, 26, 6, 27) + string_size + blob_size,
+            2 + coded(2, 4, 8, 23) + blob_size,
+            coded(5, 6, 4, 1, 2, 8, 9, 10, 0, 14, 23, 20, 17, 26, 27, 32, 35, 38, 39, 40, 42, 44, 43)
+            + coded(3, 6, 10) + blob_size,
+            coded(1, 4, 8) + blob_size, 2 + coded(2, 2, 6, 32) + blob_size,
+            6 + index_size(2), 4 + index_size(4), blob_size,
+            index_size(2) + index_size(20), index_size(20), 2 + string_size + typedef_or_ref,
+            index_size(2) + index_size(23), index_size(23), 2 + string_size + blob_size,
+            2 + index_size(6) + coded(1, 20, 23), index_size(2) + 2 * method_or_ref,
+            string_size, blob_size, 2 + coded(1, 4, 6) + string_size + index_size(26),
+            4 + index_size(4), 8, 4, 16 + blob_size + 2 * string_size,
+        ]
+        # The compiler emits #~ tables. Reject unsupported pointer-table indirection
+        # rather than silently joining MethodDef rows to the wrong owning type.
+        require(not any(counts.get(index, 0) for index in (3, 5, 7, 19, 22)),
+                "TIER_EXECUTION_INCOMPLETE", "Execution metadata uses unsupported pointer tables.")
+        starts = {}
+        for index, size in enumerate(sizes):
+            starts[index] = cursor
+            cursor += counts.get(index, 0) * size
+            if cursor > len(tables):
+                raise ValueError("CLI table rows exceed their stream")
+
+        def number(position: int, size: int) -> int:
+            return struct.unpack_from("<I" if size == 4 else "<H", tables, position)[0]
+
+        def string(position: int) -> str:
+            index = number(position, string_size)
+            if index >= len(strings):
+                raise ValueError("CLI string index exceeds its heap")
+            return strings[index:strings.index(b"\0", index)].decode("utf-8")
+
+        assembly = string(starts[32] + 16 + blob_size)
+        require(bool(assembly), "TIER_EXECUTION_INCOMPLETE", "Execution metadata has no Assembly name.")
+        types = []
+        for index in range(counts.get(2, 0)):
+            position = starts[2] + index * sizes[2]
+            name, namespace = string(position + 4), string(position + 4 + string_size)
+            first_method = number(position + 4 + 2 * string_size + typedef_or_ref + index_size(4), index_size(6))
+            types.append(((namespace + "." if namespace else "") + name, first_method))
+        methods = set()
+        next_method = 1
+        for index, (owner, first) in enumerate(types):
+            last = types[index + 1][1] if index + 1 < len(types) else counts.get(6, 0) + 1
+            require(first == next_method and first <= last <= counts.get(6, 0) + 1,
+                    "TIER_EXECUTION_INCOMPLETE", "TypeDef method ranges are invalid.")
+            for method_index in range(first, last):
+                name = string(starts[6] + (method_index - 1) * sizes[6] + 8)
+                methods.add(owner + "." + name)
+            next_method = last
+        return assembly, methods
+    except (IndexError, ValueError, UnicodeError, struct.error) as error:
+        raise VerificationError("TIER_EXECUTION_INCOMPLETE", "Execution binary has malformed identity tables.") from error
+
+
+def _require_execution_binary_identity(content: bytes, project_name: str, methods: set[str]) -> None:
+    assembly, actual_methods = _execution_binary_inventory(content)
+    require(assembly == project_name and methods.issubset(actual_methods), "TIER_EXECUTION_INCOMPLETE",
+            "Execution binary does not contain its exact tier assembly and required test methods.")
 
 
 def _joined_execution_definitions(content: bytes, root: Path, assembly_path: str,
@@ -649,6 +827,11 @@ def execution(root: Path, frozen: dict[str, Any], portable_result: str, internal
     combined_methods = []
     for tier, result_path in (("portable", portable_result), ("module-internal", internal_result)):
         content = read(root, result_path)
+        tree = ElementTree.fromstring(content)
+        summaries = tree.findall("./{*}ResultSummary")
+        require(len(summaries) == len(tree.findall(".//{*}ResultSummary")) == 1
+                and len(summaries[0].findall("./{*}Counters")) == 1,
+                "TIER_EXECUTION_INCOMPLETE", "TRX must contain exactly one run summary and counter row.")
         parsed = RECORD.parse_trx(content)
         require(parsed["reported"]["executed"] > 0 and parsed["results"], "ASSERTION_LEDGER_EMPTY", f"The {tier} tier executed zero cases.")
         require(not RECORD.count_disagreements(parsed) and not parsed["unknown_outcomes"], "TIER_EXECUTION_INCOMPLETE", f"TRX counters/outcomes disagree: {tier}")
@@ -658,6 +841,12 @@ def execution(root: Path, frozen: dict[str, Any], portable_result: str, internal
         permitted_failure = allow_control_failure and set(failed_names).issubset(CONTROL_IDS[tier])
         require(permitted_failure or (not parsed["reported"]["failed"] and parsed["reported"]["passed"] == parsed["reported"]["total"]),
                 "TIER_EXECUTION_FAILED", f"The {tier} tier contains failing cases.")
+        require(summaries[0].get("outcome") == "Completed"
+                or (permitted_failure and bool(failed_names) and summaries[0].get("outcome") == "Failed"),
+                "TIER_EXECUTION_INCOMPLETE", "TRX run summary does not consistently identify completed execution.")
+        require(not tree.findall(".//{*}InnerResults")
+                and len(tree.findall(".//{*}UnitTestResult")) == len(tree.findall("./{*}Results/{*}UnitTestResult")),
+                "TIER_EXECUTION_INCOMPLETE", "Nested TRX result shapes are unsupported in the frozen flat case ledger.")
         project_name = Path(PROJECTS[tier]).stem
         assembly_path = str(Path(PROJECTS[tier]).parent / "bin" / configuration / "net10.0" / (project_name + ".dll"))
         require(parsed["assemblies"] == [project_name] and parsed["code_bases"] and
@@ -670,6 +859,8 @@ def execution(root: Path, frozen: dict[str, Any], portable_result: str, internal
         identities = {item["testName"]: row["id"] for row in rows if row["tier"] == tier
                       and row["preSplitResultIdentity"]["lane"] == "executed" for item in row["preSplitResultIdentity"]["results"]}
         identities.update({name: name for name in CONTROL_IDS[tier]})
+        required_binary_methods = {row["id"] for row in rows if row["tier"] == tier} | set(CONTROL_IDS[tier])
+        _require_execution_binary_identity(read(root, assembly_path), project_name, required_binary_methods)
         _joined_execution_definitions(content, root, assembly_path, set(identities.values()), identities)
         expected = {item["testName"] for row in rows if row["tier"] == tier and row["preSplitResultIdentity"]["lane"] == "executed"
                     for item in row["preSplitResultIdentity"]["results"]}
@@ -705,6 +896,8 @@ def verify(root: Path, contract_path: str = CONTRACT, portable_result: str | Non
     report: dict[str, Any] = {"schemaVersion": "hexalith.conversations.conformance-tier-execution.v1", "storyId": "9.2",
                               "result": "FAIL", "exitCode": 1, "blockers": []}
     try:
+        require(mode in ("complete", "structure", "surface", "declarations"),
+                "TIERING_INPUT_INVALID", f"Unsupported verification mode: {mode!r}")
         if mode == "declarations":
             report["declarations"] = declarations(root, current_tree=current_tree)
         elif mode == "surface":
@@ -747,6 +940,7 @@ def _json_output_target(root: Path, path: str) -> Path:
 def write_json(root: Path, path: str, value: dict[str, Any], *, result_inputs: tuple[str, ...] = ()) -> None:
     target = _json_output_target(root, path)
     protected = {CONTRACT, AMENDMENT, DISPOSITION, PREDECESSOR, MIGRATION, APPROVAL, SNAPSHOT,
+                 *ROOT_CONFIGURATION_PATHS,
                  "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx", *result_inputs}
     resolved = target.resolve().relative_to(root).as_posix()
     require(not resolved.startswith(("docs/release-evidence/", "_bmad-output/", "src/", "tests/", "_bmad/scripts/", "_bmad/schemas/",
@@ -754,7 +948,7 @@ def write_json(root: Path, path: str, value: dict[str, Any], *, result_inputs: t
             and not {"obj", "bin"}.intersection(Path(resolved).parts)
             and Path(resolved).suffix.lower() not in (".trx", ".xml", ".dll", ".cs", ".csproj", ".props", ".targets")
             and resolved not in protected
-            and resolved not in {"Hexalith.Conversations.slnx", "Directory.Build.props", "Directory.Packages.props", "global.json", TIERING.CI_WORKFLOW_PATH},
+            and resolved != TIERING.CI_WORKFLOW_PATH,
             "OUTPUT_PATH_INVALID", "Output would overwrite protected verifier input or evidence.")
     for relative in protected:
         source = root / relative

@@ -645,7 +645,7 @@ def _synthetic_tier_result(repository: Path, tier: str, destination: Path) -> No
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(
         '<TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"><Results>' + results
-        + '</Results><TestDefinitions>' + definitions + '</TestDefinitions><ResultSummary><Counters '
+        + '</Results><TestDefinitions>' + definitions + '</TestDefinitions><ResultSummary outcome="Completed"><Counters '
         + f'total="{len(names)}" executed="{len(names)}" passed="{len(names)}" failed="0" notExecuted="0"'
         + '/></ResultSummary></TestRun>', encoding="utf-8")
 
@@ -660,11 +660,27 @@ def structural_execution_repository(tmp_path_factory: pytest.TempPathFactory) ->
     props = repository / "references/Hexalith.Builds/Props"
     props.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "references/Hexalith.Builds/Props/Directory.Packages.props", props)
+    # Existing restored source-reference graphs can reach root-declared dependencies.
+    # Copy only their evaluated projects and ordinary ancestor build configuration;
+    # do not initialize/update submodules or turn a package graph into a source graph.
+    surface = story92.portable_surface(ROOT, {"portable": story92.msbuild(ROOT, story92.PROJECTS["portable"], "Release", resolved=True)})
     # Resolve the same restored compile assets without dependency updates or rebuilding fixtures.
-    for project in [*story92.PROJECTS.values(), *(f"src/{row['name']}/{row['name']}.csproj"
-                      for row in json.loads((ROOT / story92.DISPOSITION).read_bytes())["moduleAssemblies"])]:
+    projects = {*story92.PROJECTS.values(), *(f"src/{row['name']}/{row['name']}.csproj"
+                for row in json.loads((ROOT / story92.DISPOSITION).read_bytes())["moduleAssemblies"]),
+                *(row["project"] for row in surface["evaluatedProjects"])}
+    for project in sorted(projects):
         source = ROOT / Path(project).parent
         target = repository / Path(project).parent
+        if project.startswith("references/"):
+            shutil.copytree(source, target, dirs_exist_ok=True, ignore=shutil.ignore_patterns("bin", "obj"))
+            for ancestor in (source, *source.parents):
+                if ancestor == ROOT:
+                    break
+                for name in ("Directory.Build.props", "Directory.Build.targets", "Directory.Packages.props", "global.json"):
+                    if (ancestor / name).is_file():
+                        destination = repository / ancestor.relative_to(ROOT) / name
+                        destination.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(ancestor / name, destination)
         for folder in ("bin/Release", "obj"):
             if (source / folder).is_dir():
                 shutil.copytree(source / folder, target / folder, dirs_exist_ok=True)
@@ -691,7 +707,9 @@ def _verify_story92(repository: Path) -> dict[str, Any]:
     assert repository.resolve() != ROOT.resolve()
     # These private overrides apply only to the disposable negative fixture.
     # Ordinary verification rejects both synthetic identities and marker-only binaries.
-    with patch.object(story92, "_genuine_approval_identity", return_value=True), patch.object(story92, "_execution_binary_is_managed", return_value=True):
+    with patch.object(story92, "_genuine_approval_identity", return_value=True), \
+            patch.object(story92, "_execution_binary_is_managed", return_value=True), \
+            patch.object(story92, "_require_execution_binary_identity", return_value=None):
         return story92.verify(repository, portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx", current_tree=True)
 
 

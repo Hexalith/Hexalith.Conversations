@@ -29,4 +29,23 @@ public static class ConversationAgentServiceCollectionExtensions
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IDomainServiceAdmissionStage, ConversationAgentAdmissionStage>());
         return services;
     }
+
+    /// <summary>Selects an explicitly installed complete tenant namespace; independent namespace and stream providers remain mandatory.</summary>
+    /// <param name="services">Host registrations.</param>
+    /// <param name="registration">Exact installed namespace selection.</param>
+    /// <returns>The registrations.</returns>
+    public static IServiceCollection AddConversationTenantCatalogue(this IServiceCollection services,
+        ConversationTenantCatalogueRegistration registration)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(registration);
+        ArgumentNullException.ThrowIfNull(registration.Scope);
+        if (registration.Scope.Domain != "conversation")
+        { throw new ArgumentException("Catalogue requires the Conversation source namespace.", nameof(registration)); }
+        services.AddSingleton(registration);
+        services.TryAddSingleton(TimeProvider.System);
+        services.TryAddScoped<SourceNamespaceSnapshotReader>();
+        services.Replace(ServiceDescriptor.Scoped<IConversationTenantCatalogue, EventStoreConversationTenantCatalogue>());
+        return services;
+    }
 }
