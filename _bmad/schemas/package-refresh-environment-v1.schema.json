@@ -1,0 +1,672 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "baselineCommit",
+    "candidateCommit",
+    "bindingKind",
+    "sourceBindings",
+    "buildsCatalog",
+    "packages",
+    "toolchain",
+    "immutableAuthorities",
+    "authorityEffect",
+    "result",
+    "assertionLedger",
+    "blockers"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "hexalith.conversations.package-refresh-environment.v1"
+    },
+    "baselineCommit": {
+      "const": "8793d26306f91d2cfe00116dc0b8eec41ec8900f"
+    },
+    "candidateCommit": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "bindingKind": {
+      "enum": [
+        "working-tree-preview",
+        "committed-candidate"
+      ]
+    },
+    "sourceBindings": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "mode",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": ".github/workflows/ci.yml"
+            },
+            "mode": {
+              "const": "100644"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "mode",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "Directory.Packages.props"
+            },
+            "mode": {
+              "const": "100644"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "mode",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "_bmad/schemas/package-refresh-environment-v1.schema.json"
+            },
+            "mode": {
+              "const": "100644"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "mode",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "_bmad/scripts/check_package_refresh_environment.py"
+            },
+            "mode": {
+              "const": "100644"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "mode",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "_bmad/scripts/tests/test_check_package_refresh_environment.py"
+            },
+            "mode": {
+              "const": "100644"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "mode",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "global.json"
+            },
+            "mode": {
+              "const": "100644"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "mode",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "package-lock.json"
+            },
+            "mode": {
+              "const": "100644"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "mode",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "package.json"
+            },
+            "mode": {
+              "const": "100644"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "mode",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "pyproject.toml"
+            },
+            "mode": {
+              "const": "100644"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "mode",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj"
+            },
+            "mode": {
+              "const": "100644"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "mode",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs"
+            },
+            "mode": {
+              "const": "100644"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "mode",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "uv.lock"
+            },
+            "mode": {
+              "const": "100644"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        }
+      ],
+      "items": false
+    },
+    "buildsCatalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "catalogPath",
+        "catalogSha256",
+        "mode",
+        "recordedCommit",
+        "headCommit",
+        "clean",
+        "catalogCommitted",
+        "remoteAvailable"
+      ],
+      "properties": {
+        "path": {
+          "const": "references/Hexalith.Builds"
+        },
+        "catalogPath": {
+          "const": "Props/Directory.Packages.props"
+        },
+        "catalogSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "mode": {
+          "const": "160000"
+        },
+        "recordedCommit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "headCommit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "clean": {
+          "type": "boolean"
+        },
+        "catalogCommitted": {
+          "type": "boolean"
+        },
+        "remoteAvailable": {
+          "type": "boolean"
+        }
+      }
+    },
+    "packages": {
+      "const": {
+        "npmDirect": {
+          "@commitlint/cli": "21.2.3",
+          "@commitlint/config-conventional": "21.2.3",
+          "@semantic-release/commit-analyzer": "13.0.1",
+          "@semantic-release/exec": "7.1.0",
+          "@semantic-release/github": "12.0.10",
+          "@semantic-release/release-notes-generator": "14.1.1",
+          "semantic-release": "25.0.9"
+        },
+        "pythonDirect": {
+          "jsonschema": "4.26.0",
+          "pytest": "9.1.1"
+        },
+        "pythonGraph": {
+          "attrs": "26.1.0",
+          "colorama": "0.4.6",
+          "hexalith-conversations-planning": "0.0.0",
+          "iniconfig": "2.3.1",
+          "jsonschema": "4.26.0",
+          "jsonschema-specifications": "2025.9.1",
+          "packaging": "26.3",
+          "pluggy": "1.6.0",
+          "pygments": "2.21.0",
+          "pytest": "9.1.1",
+          "referencing": "0.37.0",
+          "rpds-py": "2026.9.1",
+          "typing-extensions": "4.16.0"
+        },
+        "catalogSelected": {
+          "HotChocolate": "16.6.8",
+          "Verify": "33.3.2",
+          "Verify.XunitV3": "33.3.2",
+          "Microsoft.Extensions.Http": "10.0.12",
+          "Microsoft.NET.Test.Sdk": "18.10.1",
+          "Aspire.Hosting": "13.6.1",
+          "Aspire.Hosting.Testing": "13.6.1",
+          "CommunityToolkit.Aspire.Hosting.Dapr": "13.6.0-preview.1.261001-0243",
+          "Microsoft.Extensions.Identity.Http": "10.0.9"
+        }
+      }
+    },
+    "toolchain": {
+      "const": {
+        "dotnetSdk": "10.0.401",
+        "uv": "0.12.23",
+        "aspire": "13.6.1"
+      }
+    },
+    "immutableAuthorities": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "_bmad-output/planning-artifacts/v15-planning-tooling-environment-authority-v1.json"
+            },
+            "sha256": {
+              "const": "bac4dc435bc200d2eb5b3601a794b20abe5afaa79dc51b79d4f9571a6f6a37ea"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "_bmad-output/planning-artifacts/v16-planning-tooling-lifecycle-authority-v1.json"
+            },
+            "sha256": {
+              "const": "5b71e6fbf8851f790af92f0a0d056d7f7e04b3b9749c3a2f3f4ef5f87312d45a"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "_bmad-output/planning-artifacts/v18-package-environment-authority-v1.json"
+            },
+            "sha256": {
+              "const": "24891d990b399fd9526f864c3e8be2b188db728a398f09d9129731d3169f1d94"
+            }
+          }
+        }
+      ],
+      "items": false
+    },
+    "authorityEffect": {
+      "const": {
+        "executionAllowed": false,
+        "ownerApprovalClaimed": false,
+        "releaseAuthorized": false,
+        "pushAuthorized": false
+      }
+    },
+    "result": {
+      "enum": [
+        "PASS",
+        "BLOCKED"
+      ]
+    },
+    "assertionLedger": {
+      "type": "array",
+      "minItems": 5,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "state"
+          ],
+          "properties": {
+            "id": {
+              "const": "REFRESH.DIRECT-LOCK-PARITY"
+            },
+            "state": {
+              "const": "PASS"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "state"
+          ],
+          "properties": {
+            "id": {
+              "const": "REFRESH.TOOLCHAIN-ALIGNMENT"
+            },
+            "state": {
+              "const": "PASS"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "state"
+          ],
+          "properties": {
+            "id": {
+              "const": "REFRESH.CATALOG-CHANNELS"
+            },
+            "state": {
+              "const": "PASS"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "state"
+          ],
+          "properties": {
+            "id": {
+              "const": "REFRESH.IMMUTABLE-PREDECESSORS"
+            },
+            "state": {
+              "const": "PASS"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "state"
+          ],
+          "properties": {
+            "id": {
+              "const": "REFRESH.EXACT-BYTE-INVENTORY"
+            },
+            "state": {
+              "const": "PASS"
+            }
+          }
+        }
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "state"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^REFRESH_[A-Z0-9_]+$"
+          },
+          "state": {
+            "const": "BLOCKED"
+          }
+        }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "detail"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^REFRESH_[A-Z0-9_]+$"
+          },
+          "detail": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.com/schemas/package-refresh-environment-v1.schema.json",
+  "title": "October package-refresh environment evidence",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "bindingKind": {
+            "const": "working-tree-preview"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "candidateCommit": {
+            "type": "null"
+          },
+          "result": {
+            "const": "BLOCKED"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "candidateCommit": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "PASS"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "bindingKind": {
+            "const": "committed-candidate"
+          },
+          "assertionLedger": {
+            "maxItems": 5
+          },
+          "blockers": {
+            "maxItems": 0
+          },
+          "buildsCatalog": {
+            "properties": {
+              "clean": {
+                "const": true
+              },
+              "catalogCommitted": {
+                "const": true
+              },
+              "remoteAvailable": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "assertionLedger": {
+            "minItems": 6
+          },
+          "blockers": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

@@ -6,6 +6,8 @@ status: 'in-progress'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'b819a7c43a7024295abaabd418a74f5f64cb5af0'
+refresh_baseline_commit: '8793d26306f91d2cfe00116dc0b8eec41ec8900f'
+refresh_authorized_date: '2026-10-08'
 submodule_promotions:
   - path: 'references/Hexalith.Builds'
     require_remote: true
@@ -44,6 +46,123 @@ context:
 
 </frozen-after-approval>
 
+## User-approved refresh amendment — 2026-10-08
+
+The user explicitly requested: **"Refresh all selected packages to today's versions."**
+This renegotiates the September version assumptions while retaining the selected npm,
+Python, shared NuGet catalog, SDK, and CI uv surfaces and their compatible release
+channels. The historical `baseline_commit`, C1/C2 identities, authority records, and
+observed September results below remain unchanged. The current refresh starts at
+`refresh_baseline_commit`; later user work outside this scope is preserved.
+
+Use `docs/runbooks/current-change-validation.md` for current operational checks.
+The retired planning-authority preflight workflow stays retired; update the two
+active uv pins in `.github/workflows/ci.yml`. Publish only the additive package
+environment evidence required for the changed Python bytes, without introducing
+another historical authority resolver route. A working-tree preview must say
+`BLOCKED`; canonical candidate and publication claims require the separately
+authorized owning catalog and parent commits. On 2026-10-08, the user explicitly
+authorized committing and pushing only these package changes in Builds and
+Conversations to finish publication and gitlink promotion. Concurrent user work
+remains outside the authorized commit scope.
+
+### Current refresh tasks
+
+- [x] Discover current compatible releases from npm, PyPI, official .NET metadata,
+      and the owning Builds NuGet audit without changing historical evidence.
+- [x] Update commitlint CLI/config to `21.2.3` and semantic-release/github to
+      `12.0.10`; regenerate the compatible npm graph with npm.
+- [x] Keep jsonschema `4.26.0` and pytest `9.1.1`; use uv `0.12.23` to refresh
+      iniconfig to `2.3.1` and rpds-py to `2026.9.1`.
+- [x] Update both active CI uv pins to `0.12.23`; keep current SDK `10.0.401`
+      and its structural assertion byte-identical; align AppHost SDK `13.6.0`
+      with the existing Hosting/Testing `13.6.1` family.
+- [x] Update the owning Builds catalog's HotChocolate to `16.6.8` and coherent
+      Verify/Verify.XunitV3 to `33.3.2`, preserving its BOM and CRLF bytes.
+- [x] Add and verify a closed additive package-environment record, schema,
+      checker, and focused mutation tests; retain accepted V15/V16/V18 bytes.
+- [x] Run clean installs, focused tooling/catalog gates, Release restore/build,
+      and every root test project individually; record precise non-success states.
+- [x] Commit the owning catalog, regenerate its committed audit, and publish its
+      clean remote-resolvable commit after explicit authorization. Promote the
+      mode-`160000` gitlink in the parent source candidate and publish its record.
+
+Discovery found the Microsoft `10.0.12`, Test SDK `18.10.1`, Aspire `13.6.1`, and
+Toolkit Dapr `13.6.0-preview.1.261001-0243` selections already current. OpenApi
+`2.12.2` is the newest compatible 2.x release. Six Parties packages advertise
+`1.2.1`, but the legacy Server/UI indexes return 404; preserve the existing coherent
+family selection rather than invent a verified upgrade for those unavailable IDs.
+The full 304-package, 146-family registry discovery is diagnostic, not a committed
+audit of the uncommitted catalog.
+
+### Current refresh verification — 2026-10-08
+
+- `npm ci --ignore-scripts`, `npm ls --all`, and `npm outdated --json` pass;
+  outdated reports `{}`. `npm test` passes all 52 tests. A compatible
+  `npm audit fix --package-lock-only --ignore-scripts` leaves 13 vulnerabilities
+  (2 moderate, 11 high); suggested major downgrades were not applied.
+- With isolated uv `0.12.23`, `uv lock --check --no-cache`,
+  `uv sync --frozen --no-cache`, and `uv pip check` pass. The current CI Python
+  lane passes 933 tests without skips. The final package-environment mutation
+  suite passes 36 tests after parent diff review; the unchanged V18 Python suite
+  separately passes 14.
+- The new package-environment preview and `--check` both return `BLOCKED`
+  (exit 1): 12 exact source bindings and a nonempty seven-row ledger, including
+  `REFRESH_SOURCE_COMMIT_REQUIRED` and `REFRESH_BUILDS_COMMIT_REQUIRED`.
+  Accepted V15, V16, and V18 artifacts retain their exact original SHA-256 bytes.
+  The preview is not canonical publication evidence.
+- Owning Builds gates pass: central catalog 304 packages; authoritative catalog
+  50 approved identities and 3 shared versions; central fixtures 17 scenarios;
+  Dapr catalog 8 aligned packages and Dapr fixtures 29 scenarios; audit-generator
+  fixtures 115 scenarios; audit-validator fixtures 103 scenarios. The checked-in
+  package audit fails precisely on the
+  changed catalog hash and the three changed selections. Regeneration requires
+  a separately authorized owning catalog commit; the existing audit stays intact.
+- `dotnet restore Hexalith.Conversations.slnx -p:Configuration=Release -m:1`
+  succeeds in the working tree. Its subsequent Release build encounters four
+  CS0246 errors in concurrent conversation-deletion source work. Those files
+  are preserved. A local isolated checkout of `refresh_baseline_commit`, with
+  only this refresh applied and root-declared submodules cloned locally, restores
+  and builds successfully with zero warnings and zero errors.
+- In that isolated checkout, individual Release projects pass without skips:
+  Contracts 618, Client 39, core 185, Server 721, Admin Web 14. The full Integration
+  run exceeds 180 seconds and its own process group is canceled; the focused
+  run excluding `SmC2HotPathBenchmark` passes all 25 remaining tests. AppHost
+  topology passes 8 tests; explicitly enabling `HEXALITH_RUN_APPHOST_BOUNDARY_TESTS`
+  separately passes the live boundary test. Current-policy conformance passes
+  326 portable and 92 internal tests with the tracked CI exclusions, zero skips.
+  The benchmark's finite workload is four paths times 2,000 operations times
+  five warmup plus 30 measured repetitions, totaling 280,000 operations. Its
+  isolated class-only retry passes the single test without skips in 239.779
+  seconds (240.09 elapsed), under a 900-second ceiling. All isolated projects
+  therefore execute 2,030 successful tests. The current-tree Story 9.2 verifier
+  also passes against the portable/internal result files.
+- Exact commands, statuses, and logs are retained under `/tmp/package-refresh-*`;
+  the isolated checkout is `/tmp/package-refresh-validation-5y20qz24/repository`.
+  The audit-validator fixture suite exceeded 90-, 300-, and 900-second bounds;
+  the last run reached scenario 101. A focused repository-history/parameter run
+  passes four selected scenarios. The final unchanged full fixture run, with only
+  progress logging added outside the repository, passes all 103 scenarios under
+  a 1,200-second ceiling. Its log is
+  `/tmp/package-refresh-test-package-version-audit-validator-final.log` and its
+  result is `/tmp/package-refresh-audit-validator-final-result.json`.
+  The earlier timeouts are superseded incomplete runs, not environmental blockers.
+  Independent parent preview/check runs remain `BLOCKED` with the same two
+  commit-required codes after review fixes and exact-byte regeneration.
+
+### Current refresh publication — 2026-10-08
+
+The authorized Builds catalog commit is `eaa53b009f1547d1af97a8aa6a8ad6b214a3276d`.
+Its incremental audit commit is `a283481c69393dcba911db6a0edcb152167238cc`, now published
+on `origin/main`. The audit validates 304 packages, 146 families, and one source;
+only HotChocolate and Verify are refreshed, with the other 144 family and package
+observations preserved exactly. The audit retains the earlier Verify sponsorship
+configuration failure as historical context and grants no downstream compatibility
+acceptance. Conversations' isolated package-only Release build and tests pass.
+The parent C1/C2 publication and final independent review are in progress.
+
+The original sections below retain the September implementation and evidence.
+
 ## Code Map
 
 - `package.json`, `package-lock.json` -- exact commitlint pins are current; npm reports compatible transitive lock changes only.
@@ -62,7 +181,7 @@ context:
 - [x] `global.json`, `tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs`, `.github/workflows/planning-authority-preflight.yml` -- update SDK `10.0.400` to `10.0.401`, its exact assertion, and uv `0.11.16` to `0.12.13`.
 - [x] `_bmad/schemas/v18-package-environment-authority-v1.schema.json`, `_bmad/scripts/publish_v18_package_environment_authority.py`, `_bmad/scripts/tests/test_publish_v18_package_environment_authority.py`, `_bmad-output/planning-artifacts/v18-package-environment-authority-v1.json`, `tests/Hexalith.Conversations.Conformance.Tests/PackageEnvironmentAuthorityV18ValidationTest.cs`, and `.github/workflows/planning-authority-preflight.yml` -- additively bind the refreshed Python/toolchain bytes and their non-vacuous consumers without rewriting V15/V16.
 - [x] `references/Hexalith.Builds/Props/Directory.Packages.props` -- update the coherent `10.0.11` Microsoft.AspNetCore, Microsoft.Extensions, and System families to `10.0.12`, Microsoft.NET.Test.Sdk to `18.10.0`, and CommunityToolkit Dapr to `13.5.1-beta.751`; run the owning repository's catalog gates.
-- [ ] `references/Hexalith.Builds` -- record and promote the exact clean, remote-resolvable Builds commit as a mode-`160000` gitlink; halt before commit or push unless the separately required authority is explicit.
+- [x] `references/Hexalith.Builds` -- record and promote the exact clean, remote-resolvable Builds commit as a mode-`160000` gitlink; halt before commit or push unless the separately required authority is explicit.
 
 **Acceptance Criteria:**
 - Given every selected manifest and registry, when the refresh completes, then direct and transitive dependencies resolve to the newest compatible versions within their approved release channels.
@@ -81,6 +200,15 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+- 2026-10-08 parent diff inspection: bind committed-record schema validation to
+  the canonical source candidate; reject symlinks in every path component before
+  Git reads or record writes; reject non-object records with a stable diagnostic.
+  All 36 focused mutation tests pass. Package-only isolated build/test evidence
+  remains applicable because these fixes affect only the new authority checker.
+  The shared catalog/audit commits, remote publication, gitlink promotion, and
+  parent C1/C2 publication remain blocked on explicit authorization. No files
+  were staged, committed, or pushed; concurrent user work remains preserved.
 
 ## Design Notes
 
