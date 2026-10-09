@@ -12,6 +12,8 @@ context:
   - '_bmad-output/planning-artifacts/v9/story-contracts/9.2.json'
   - '_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v1.json'
   - '_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v1.json'
+  - '_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v2.json'
+  - '_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v2.json'
 ---
 
 <frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
@@ -1034,3 +1036,59 @@ All original and authorized preparation task boxes above remain complete. The cu
 The authorized EventStore repair now has one additional uncommitted candidate source change: expose its existing bounded `AuthoritativeStreamReadDeadline` and validate the public constructor's `TimeProvider`. The [v7 candidate packet](../../docs/release-evidence/conformance-oracle-tiering-eventstore-repair-v7-proposal.json), SHA-256 `644ef49ef1d603b324c5c5bbe5f1d0ff132dc0d47a03e0f3a01621659e848917`, and [review](../../docs/release-evidence/conformance-oracle-tiering-eventstore-repair-review-v7.md) bind the exact source, new public API, disposable package hashes, and checks. The [Client API diff](../../docs/release-evidence/conformance-oracle-tiering-eventstore-client-api-diff-v7.jsonl) reports 17 additive changes across 17 types against published `3.117.1`, with no removed or changed existing public type surface. The predecessor v6 JSON remains byte-identical.
 
 The source-referenced Conversations Server Debug build and EventStore client test build pass with zero warnings/errors. Snapshot reader tests pass 35/35 and deletion pump tests pass 57/57, with zero failed/skipped/not-run. Four disposable `3.117.2-story92.5` EventStore packages pack against published Commons.UniqueIds `2.30.1`, and the internal conformance Release build against those packages passes with zero warnings/errors. The Story 9.2 structural/execution fault selector passes 22/22 with 40 other cases deselected; its matrix probes reject the nonportable compile surface, assertion drift/weakening, declaration loss, and empty/skipped/regressed execution, then restore each mutation byte-identically. These are candidate checks only. The owning package API review, official package promotion and pin, clean committed successor remeasurement, new Quality decision, and fresh complete AC01–10 still gate Story 9.2 completion; status remains `in-progress`.
+
+### Current-tree verification and next scope proposal — 2026-10-09
+
+At clean root `ec5c9be52631b96793ab028febfbbfba4d362d48`, the released EventStore `3.118.0` pin allows both portable and internal conformance Release builds with zero warnings or errors. The CI-selected tier runs pass 326/326 portable and 92/92 internal. The current-tree verifier reports all 415 frozen cases across 401 active methods and three live controls, with zero failures, skips, or omissions. The exact `structural_and_execution_faults` selector passes 22/22 with 40 cases deselected; `git diff --check` passes. These are current-tree results, not candidate-bound final acceptance. A direct inserted-record verification exits 1 with `CANDIDATE_NOT_FINAL` and `GITLINK_DRIFT` because the retained candidate predates later source and root-gitlink changes.
+
+The additive [v2 current-main scope proposal](../planning-artifacts/v9/story-9.2-current-main-scope-proposal-v2.json) measures the exact eight commits, 46 paths, and seven root gitlinks between the previously authorized `59e72b82cdc2ecc58971e34594c4e8b62896518b` and current HEAD. Its file SHA-256 is `ea902b33ed0d35ad44922a7ba63b14e23b65058bcb3a47a11357c16d3f1fd083`; proposal material SHA-256 is `925cf11a819e9412055f3d35ea85a0a4334f9371e7d1decdb8199bb7b6757672`. It claims neither scope authorization nor Quality approval. The v1 authorization still binds only its original candidate. Story 9.2 remains `in-progress` pending an explicit decision on this new exact scope, successor remeasurement, a genuine Quality decision on the resulting material, and fresh candidate-bound AC01–10/final-record verification.
+
+The user replied "yes" on 2026-10-09 to the exact v2 scope request. The [v2 authorization](../planning-artifacts/v9/story-9.2-current-main-scope-authorization-v2.json) binds that proposal's file/material digests and committed candidate `ec5c9be52631b96793ab028febfbbfba4d362d48`. This authorizes successor preparation for only those measured bytes. It supplies no Quality approval, candidate-bound acceptance, final-record publication, or lifecycle completion. Prepare the versioned successor and review packet without altering the original accepted materials.
+
+### Authorized v2 successor preparation — 2026-10-09
+
+The additive `_bmad/scripts/prepare_story92_successor_v2.py` and closed v2 schema
+consume only the exact approved authorization, proposal, and isolated committed
+source. They verify the eight-commit chain, 46 path changes, seven changed root
+gitlinks, all tracked source bytes, the copied Builds dependency, and every
+protected original artifact. The v1 preparer, v4 packet, accepted records, and
+historical Quality decision remain unchanged. The [pending v5 proposal](../../docs/release-evidence/conformance-oracle-tiering-migration-v5-proposal.json)
+and [Quality review](../../docs/release-evidence/conformance-oracle-tiering-migration-review-v5.md)
+bind successor material `3e1c8e6a4dfb4358e2797d8a3bfb84d652d330ed28924b8b916995613232bb9a`
+and migration material `8a192571a6660638731184fd1086f97c1d8bd585f68e4290ce16988dc110206a`.
+All 459 rows, 14 changed-row hashes, original before-strength bindings, and the
+Conversations public-drift digest are preserved. The packet requests a later
+genuine Quality decision on the exact new material; it claims no approval or
+acceptance.
+
+An isolated `ec5c9be` checkout measured separate local-cache Release restores
+and builds for both tiers. All five commands exit `0`; the build receipt and
+logs are retained under `artifacts/v9/9.2/current-main-successor-v7/`.
+Two preparations produce identical JSON SHA-256
+`0ce2f8a68fe91bea852bf66220259f6328858525b3ef05dcf86fc0699d90598f`
+and Markdown SHA-256
+`68927548a2934d6fe5dd84f38eb20d867843b3d48f04cd285cd57d16876d3cc0`.
+The [exact released EventStore API diff](../../docs/release-evidence/conformance-oracle-tiering-eventstore-released-api-diff-v1.json),
+SHA-256 `6a5e5d51f9ec9e5f5cd144b83b25a55547c3231110693e224d6db84fad978b7e`,
+is bound into both the proposal material and required Quality decision. The
+published Client `3.117.1` to `3.118.0` comparison has one breaking and 28
+additive changes across 25 types. The breaking change replaces the marker-store
+`EventStoreDomainEventProcessor` five-parameter constructor with a six-parameter
+signature adding optional `EventPayloadEvolutionRegistry`; binary compatibility
+is affected. Contracts has 97 additive changes across 97 types. DomainService
+and ServiceDefaults comparisons are `BothIncomplete`, each with a metadata
+inspection failure before and after. Complete released-package API review and
+a genuine Quality decision remain open. The [SDK API compatibility receipt](../../docs/release-evidence/conformance-oracle-tiering-eventstore-released-api-compat-v1.json),
+SHA-256 `ebe059f6e4d0213ad29fe1884f384d685beea4262bb1dafdf53ab71f8f2e302d`,
+is also bound into the pending proposal and Quality request. Its .NET 10
+`RunPackageValidation` target with `RunApiCompat` confirms Client `CP0002` for
+the removed constructor; DomainService and ServiceDefaults exit `0`. It captures
+exact disposable project definitions, commands, outputs, exit codes, and
+published package hashes. This does not complete additive API review or measure
+Contracts with that SDK target. The earlier dotnet-inspect record remains
+byte-identical. The focused v1/v2 preparation tests pass 76/76, including an
+empty local NuGet-cache probe; Python compilation and whitespace checks pass.
+Story 9.2 stays
+`in-progress` until the exact Quality
+decision, compatible committed successor, fresh candidate-bound AC01–10,
+deterministic final pair, and insertion verification are complete.

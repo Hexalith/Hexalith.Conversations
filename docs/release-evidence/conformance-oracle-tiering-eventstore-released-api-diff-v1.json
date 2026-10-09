@@ -1,0 +1,256 @@
+{
+  "schemaVersion": "hexalith.conversations.story-9.2-released-eventstore-api-diff.v1",
+  "status": "incomplete-quality-review-required",
+  "tool": {
+    "name": "dotnet-inspect",
+    "version": "0.26.0+d236a7a",
+    "invocationPrefix": [
+      "dnx",
+      "dotnet-inspect",
+      "-y",
+      "--"
+    ]
+  },
+  "versions": {
+    "before": "3.117.1",
+    "after": "3.118.0"
+  },
+  "packageArchives": [
+    {
+      "package": "Hexalith.EventStore.Client",
+      "version": "3.117.1",
+      "sha256": "f2bf7cb0ba626dd659d2a4756db66795deaf7e321340b19496392363279cfc0c",
+      "sizeBytes": 313765
+    },
+    {
+      "package": "Hexalith.EventStore.Client",
+      "version": "3.118.0",
+      "sha256": "43108966c677e4ca5d8c2205ffd51cdcbdc37a89d94077c956618b8891f05251",
+      "sizeBytes": 431611
+    },
+    {
+      "package": "Hexalith.EventStore.Contracts",
+      "version": "3.117.1",
+      "sha256": "2aee83e93aaee0819f856af8a5b32a031535649bb30ef546c4f855a01bb35580",
+      "sizeBytes": 217612
+    },
+    {
+      "package": "Hexalith.EventStore.Contracts",
+      "version": "3.118.0",
+      "sha256": "81af7adb04e1908bca9ee7dacb409cb4a8f51bf7696bad1a0f7984cf12e3baa3",
+      "sizeBytes": 318526
+    },
+    {
+      "package": "Hexalith.EventStore.DomainService",
+      "version": "3.117.1",
+      "sha256": "d6da079ad344316be5d6cb718745d1b7a187a6e80d9fec376954688bad145cdb",
+      "sizeBytes": 166939
+    },
+    {
+      "package": "Hexalith.EventStore.DomainService",
+      "version": "3.118.0",
+      "sha256": "3fd0ae1183bd1c6040d8b9d65a2d1af8d9361c6d52a8f0225b4b324089308f37",
+      "sizeBytes": 174005
+    },
+    {
+      "package": "Hexalith.EventStore.ServiceDefaults",
+      "version": "3.117.1",
+      "sha256": "8d7391c51f7433dba066f2a5783d62072c6a61e36ae940473619b7fe34726ba1",
+      "sizeBytes": 61560
+    },
+    {
+      "package": "Hexalith.EventStore.ServiceDefaults",
+      "version": "3.118.0",
+      "sha256": "5bbb454428452de070b8a2ce59a0bf583c55e73351609a006859d5e2f34e92e2",
+      "sizeBytes": 61562
+    }
+  ],
+  "probes": [
+    {
+      "id": "client",
+      "command": [
+        "dnx",
+        "dotnet-inspect",
+        "-y",
+        "--",
+        "diff",
+        "--package",
+        "Hexalith.EventStore.Client@3.117.1..3.118.0",
+        "--table"
+      ],
+      "exitCode": 0,
+      "stdout": {
+        "path": "artifacts/v9/9.2/current-main-successor-v6/api-diff/client.stdout.log",
+        "sha256": "8887d0552b0b9f4a7dc9d29003a9f7a82c6101762a6347d0b93877516b997883",
+        "text": "Field     Value\nVersions  3.117.1 -> 3.118.0\nSummary   1 breaking, 28 additive across 25 types\n\nChange  Type                                       Detail\n~       AggregateReplayer                          1 additive\n~       EventStoreAggregate`1                      3 additive\n+       EventPayloadEvolutionException             added\n+       EventPayloadEvolutionRegistry              added\n+       IEventPayloadUpcaster                      added\n+       ResolvedEventPayload                       added\n~       EventEvolutionServiceCollectionExtensions  2 additive\n+       AuthoritativeStreamReadDeadline            added\n+       DirectoryAtomicAppendClient                added\n+       DirectoryAtomicAppendOutcome               added\n+       DirectoryAtomicAppendRequest               added\n+       DirectoryAtomicAppendState                 added\n+       IAtomicDirectoryAppendOwner                added\n+       IDirectoryAtomicAppendAuthority            added\n+       ISourcePublicationDelivery                 added\n+       ISourcePublicationIndexStore               added\n+       ISourcePublicationNamespaceSource          added\n+       ISourcePublicationProjector                added\n+       ISourcePublicationWriterRegistration       added\n+       SourceNamespaceSnapshotReader              added\n+       SourcePublicationDeliveryStatus            added\n+       SourcePublicationDispatchResult            added\n+       SourcePublicationDispatcher                added\n+       SourcePublicationFeed                      added\nx       EventStoreDomainEventProcessor             1 breaking, 1 additive\n"
+      },
+      "stderr": {
+        "path": "artifacts/v9/9.2/current-main-successor-v6/api-diff/client.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    {
+      "id": "contracts",
+      "command": [
+        "dnx",
+        "dotnet-inspect",
+        "-y",
+        "--",
+        "diff",
+        "--package",
+        "Hexalith.EventStore.Contracts@3.117.1..3.118.0",
+        "--table"
+      ],
+      "exitCode": 0,
+      "stdout": {
+        "path": "artifacts/v9/9.2/current-main-successor-v6/api-diff/contracts.stdout.log",
+        "sha256": "cadf172f045d5a4d0fa594e5661da8012cf7f74d5ccea7850d441075c0c26e87",
+        "text": "Field     Value\nVersions  3.117.1 -> 3.118.0\nSummary   97 additive across 97 types\n\nChange  Type                                      Detail\n+       EventIdentityValidationException          added\n+       EventIdentityValidator                    added\n+       EventPayloadVersionAttribute              added\n+       EventPayloadVersionResolver               added\n+       AnchoredStateTransition                   added\n+       DeletionActivationComparison              added\n+       DeletionBatchBlockRequest                 added\n+       DeletionBatchCapabilityIdentity           added\n+       DeletionBatchCapabilityV1                 added\n+       DeletionBatchConsumptionRequest           added\n+       DeletionBlockedReplacementReconciliation  added\n+       DeletionBlockedReplacementResult          added\n+       DeletionCapabilityRevocationEnvelope      added\n+       DeletionCapabilityRevocationReceipt       added\n+       DeletionConsumptionBlockReason            added\n+       DeletionConsumptionOutcome                added\n+       DeletionConsumptionStatus                 added\n+       DeletionManifestProviderResult            added\n+       DeletionManifestProviderState             added\n+       DeletionReattestationActivation           added\n+       DeletionTargetReceipt                     added\n+       DirectoryBoundaryOutcome                  added\n+       DirectoryBoundaryOutcomeState             added\n+       DirectoryEpochActivation                  added\n+       DirectoryEpochInstallation                added\n+       DirectoryEpochLedger                      added\n+       DirectoryRepairBoundary                   added\n+       DirectoryRepairCohortItem                 added\n+       DirectoryRepairDrainReceipt               added\n+       DirectoryRepairOriginalIdentity           added\n+       DirectoryWriteKind                        added\n+       ExpiredIdentityHistoryCertificate         added\n+       GovernanceAdmissionAttribution            added\n+       GovernanceAuthorization                   added\n+       GovernanceBatchCommand                    added\n+       GovernanceBatchState                      added\n+       GovernanceContentBinding                  added\n+       GovernanceDeletionState                   added\n+       GovernanceGuardEvidence                   added\n+       GovernanceGuardOperation                  added\n+       GovernanceGuardReduction                  added\n+       GovernanceGuardTransition                 added\n+       GovernanceHoldCommand                     added\n+       GovernanceHoldState                       added\n+       GovernanceOrdinalCommand                  added\n+       GovernanceOwnerCycle                      added\n+       GovernanceProtectionTarget                added\n+       GovernanceProtocolReceipt                 added\n+       GovernanceRepairState                     added\n+       GovernanceScopeV1                         added\n+       GovernanceSigningRecovery                 added\n+       GovernanceViolation                       added\n+       GovernanceWriteFacts                      added\n+       GuardedStateCell                          added\n+       GuardedStateCommitReceipt                 added\n+       GuardedStateCommitRequest                 added\n+       GuardedStateCommitResult                  added\n+       GuardedStateCommitStatus                  added\n+       GuardedStateMutation                      added\n+       GuardedStateTransactionTarget             added\n+       IAnchoredStateTransitionAuthority         added\n+       IDeletionCapabilityCompromiseRegistrar    added\n+       IDeletionProtectionOwner                  added\n+       IExpiredIdentityHistoryCustody            added\n+       IGovernanceScopeGuard                     added\n+       IInteractionOccurrenceRegistry            added\n+       InteractionOccurrenceIdentity             added\n+       InteractionOccurrenceRecord               added\n+       InteractionOccurrenceRegistrySnapshot     added\n+       InteractionOccurrenceRequest              added\n+       InteractionOccurrenceReservationResult    added\n+       InteractionOccurrenceReservationStatus    added\n+       InteractionOccurrenceSealedResult         added\n+       InteractionOccurrenceWriterState          added\n+       ProtectionTarget                          added\n+       RecoverableAnchoredState                  added\n+       TenantGovernanceGuardState                added\n~       RetainedIdentityHistoryStream             1 additive\n+       SourceNamespaceFold`1                     added\n+       SourceNamespaceSnapshot                   added\n+       SourcePublicationCheckpoint               added\n+       SourcePublicationCut                      added\n+       SourcePublicationDescriptor               added\n+       SourcePublicationDispatchAdvance          added\n+       SourcePublicationDispatchProgress         added\n+       SourcePublicationHead                     added\n+       SourcePublicationIndexEntry               added\n+       SourcePublicationIndexState               added\n+       SourcePublicationIndexWrite               added\n+       SourcePublicationNamespaceAuthorization   added\n+       SourcePublicationNamespaceState           added\n+       SourcePublicationPage                     added\n+       SourcePublicationReadResult               added\n+       SourcePublicationReconciliationAdvance    added\n+       SourcePublicationReconciliationProgress   added\n+       SourcePublicationScope                    added\n~       StreamReadEvent                           1 additive\n"
+      },
+      "stderr": {
+        "path": "artifacts/v9/9.2/current-main-successor-v6/api-diff/contracts.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    {
+      "id": "domainservice",
+      "command": [
+        "dnx",
+        "dotnet-inspect",
+        "-y",
+        "--",
+        "diff",
+        "--package",
+        "Hexalith.EventStore.DomainService@3.117.1..3.118.0",
+        "--table"
+      ],
+      "exitCode": 1,
+      "stdout": {
+        "path": "artifacts/v9/9.2/current-main-successor-v6/api-diff/domainservice.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      },
+      "stderr": {
+        "path": "artifacts/v9/9.2/current-main-successor-v6/api-diff/domainservice.stderr.log",
+        "sha256": "8dddc246f8b616628917719837cc2665ea768e2166d8f61c2533beaad50de1e3",
+        "text": "Error: API comparison is incomplete; not compared (BothIncomplete). Before: 1 metadata inspection failure(s). After: 1 metadata inspection failure(s).\n"
+      }
+    },
+    {
+      "id": "servicedefaults",
+      "command": [
+        "dnx",
+        "dotnet-inspect",
+        "-y",
+        "--",
+        "diff",
+        "--package",
+        "Hexalith.EventStore.ServiceDefaults@3.117.1..3.118.0",
+        "--table"
+      ],
+      "exitCode": 1,
+      "stdout": {
+        "path": "artifacts/v9/9.2/current-main-successor-v6/api-diff/servicedefaults.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      },
+      "stderr": {
+        "path": "artifacts/v9/9.2/current-main-successor-v6/api-diff/servicedefaults.stderr.log",
+        "sha256": "8dddc246f8b616628917719837cc2665ea768e2166d8f61c2533beaad50de1e3",
+        "text": "Error: API comparison is incomplete; not compared (BothIncomplete). Before: 1 metadata inspection failure(s). After: 1 metadata inspection failure(s).\n"
+      }
+    },
+    {
+      "id": "client-constructor-before",
+      "command": [
+        "dnx",
+        "dotnet-inspect",
+        "-y",
+        "--",
+        "member",
+        "EventStoreDomainEventProcessor",
+        "--package",
+        "Hexalith.EventStore.Client@3.117.1",
+        "-m",
+        ".ctor"
+      ],
+      "exitCode": 0,
+      "stdout": {
+        "path": "artifacts/v9/9.2/current-main-successor-v6/api-diff/client-constructor-before.stdout.log",
+        "sha256": "9a3404f98420c8627dfb94a6f7f8dee4c0983142c92933136bf658e59f4c53da",
+        "text": "# Hexalith.EventStore.Client.Subscriptions.EventStoreDomainEventProcessor\n\nReceives domain-event envelopes, resolves the event type, deserializes the payload, deduplicates by message ID, optionally validates payload/aggregate consistency, and dispatches to registered IEventStoreDomainEventHandler implementations.\n\nPackage: Hexalith.EventStore.Client | Version: 3.117.1 | TFM: net10.0 | Library: lib/net10.0/Hexalith.EventStore.Client.dll | Source: NuGet\n\n## Constructors\n\n| Name | Digest | Signature | Description |\n| ---- | ------ | --------- | ----------- |\n| .ctor | `acd44cf693` | `public EventStoreDomainEventProcessor(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, System.Collections.Generic.IReadOnlyDictionary<string, System.Type> eventTypeRegistry, Hexalith.EventStore.Client.Subscriptions.IEventStoreDomainEventMarkerStore markerStore, Microsoft.Extensions.Logging.ILogger<Hexalith.EventStore.Client.Subscriptions.EventStoreDomainEventProcessor> logger, string? payloadAggregateIdPropertyName = null)` | Initializes a new instance of the EventStoreDomainEventProcessor class. |\n| .ctor | `2eb4f2a081` | `public EventStoreDomainEventProcessor(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, System.Collections.Generic.IReadOnlyDictionary<string, System.Type> eventTypeRegistry, Microsoft.Extensions.Logging.ILogger<Hexalith.EventStore.Client.Subscriptions.EventStoreDomainEventProcessor> logger, string? payloadAggregateIdPropertyName = null)` | Initializes a new instance of the EventStoreDomainEventProcessor class. |\n"
+      },
+      "stderr": {
+        "path": "artifacts/v9/9.2/current-main-successor-v6/api-diff/client-constructor-before.stderr.log",
+        "sha256": "26bba6fd8ee0ecbdb19c1ed6c189a4ccb97cffd5da73c69ea743e6f8c17e519c",
+        "text": "\nTips:\nmember EventStoreDomainEventProcessor --package Hexalith.EventStore.Client .ctor:1            # view member detail (source, IL)\nmember EventStoreDomainEventProcessor --package Hexalith.EventStore.Client -S \"Member Index\"  # full selector/identity table\ntype EventStoreDomainEventProcessor --package Hexalith.EventStore.Client --tree               # view type tree\n"
+      }
+    },
+    {
+      "id": "client-constructor-after",
+      "command": [
+        "dnx",
+        "dotnet-inspect",
+        "-y",
+        "--",
+        "member",
+        "EventStoreDomainEventProcessor",
+        "--package",
+        "Hexalith.EventStore.Client@3.118.0",
+        "-m",
+        ".ctor"
+      ],
+      "exitCode": 0,
+      "stdout": {
+        "path": "artifacts/v9/9.2/current-main-successor-v6/api-diff/client-constructor-after.stdout.log",
+        "sha256": "80d861f7b0102c85358a2bd3a017fd025d05dadfc41df912ca711d5f4af7d5a6",
+        "text": "# Hexalith.EventStore.Client.Subscriptions.EventStoreDomainEventProcessor\n\nReceives domain-event envelopes, resolves the event type, deserializes the payload, deduplicates by message ID, optionally validates payload/aggregate consistency, and dispatches to registered IEventStoreDomainEventHandler implementations.\n\nPackage: Hexalith.EventStore.Client | Version: 3.118.0 | TFM: net10.0 | Library: lib/net10.0/Hexalith.EventStore.Client.dll | Source: NuGet\n\n## Constructors\n\n| Name | Digest | Signature | Description |\n| ---- | ------ | --------- | ----------- |\n| .ctor | `5022f823cd` | `public EventStoreDomainEventProcessor(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, System.Collections.Generic.IReadOnlyDictionary<string, System.Type> eventTypeRegistry, Hexalith.EventStore.Client.Subscriptions.IEventStoreDomainEventMarkerStore markerStore, Microsoft.Extensions.Logging.ILogger<Hexalith.EventStore.Client.Subscriptions.EventStoreDomainEventProcessor> logger, string? payloadAggregateIdPropertyName = null, Hexalith.EventStore.Client.Events.EventPayloadEvolutionRegistry? evolution = null)` | Initializes a new instance of the EventStoreDomainEventProcessor class. |\n| .ctor | `2eb4f2a081` | `public EventStoreDomainEventProcessor(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, System.Collections.Generic.IReadOnlyDictionary<string, System.Type> eventTypeRegistry, Microsoft.Extensions.Logging.ILogger<Hexalith.EventStore.Client.Subscriptions.EventStoreDomainEventProcessor> logger, string? payloadAggregateIdPropertyName = null)` | Initializes a new instance of the EventStoreDomainEventProcessor class. |\n"
+      },
+      "stderr": {
+        "path": "artifacts/v9/9.2/current-main-successor-v6/api-diff/client-constructor-after.stderr.log",
+        "sha256": "26bba6fd8ee0ecbdb19c1ed6c189a4ccb97cffd5da73c69ea743e6f8c17e519c",
+        "text": "\nTips:\nmember EventStoreDomainEventProcessor --package Hexalith.EventStore.Client .ctor:1            # view member detail (source, IL)\nmember EventStoreDomainEventProcessor --package Hexalith.EventStore.Client -S \"Member Index\"  # full selector/identity table\ntype EventStoreDomainEventProcessor --package Hexalith.EventStore.Client --tree               # view type tree\n"
+      }
+    }
+  ],
+  "findings": {
+    "client": {
+      "state": "complete",
+      "breaking": 1,
+      "additive": 28,
+      "affectedTypes": 25
+    },
+    "contracts": {
+      "state": "complete",
+      "breaking": 0,
+      "additive": 97,
+      "affectedTypes": 97
+    },
+    "domainService": {
+      "state": "BothIncomplete",
+      "beforeMetadataInspectionFailures": 1,
+      "afterMetadataInspectionFailures": 1
+    },
+    "serviceDefaults": {
+      "state": "BothIncomplete",
+      "beforeMetadataInspectionFailures": 1,
+      "afterMetadataInspectionFailures": 1
+    },
+    "clientMarkerStoreConstructor": {
+      "type": "Hexalith.EventStore.Client.Subscriptions.EventStoreDomainEventProcessor",
+      "beforeDigest": "acd44cf693",
+      "afterDigest": "5022f823cd",
+      "beforeSignature": "public EventStoreDomainEventProcessor(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, System.Collections.Generic.IReadOnlyDictionary<string, System.Type> eventTypeRegistry, Hexalith.EventStore.Client.Subscriptions.IEventStoreDomainEventMarkerStore markerStore, Microsoft.Extensions.Logging.ILogger<Hexalith.EventStore.Client.Subscriptions.EventStoreDomainEventProcessor> logger, string? payloadAggregateIdPropertyName = null)",
+      "afterSignature": "public EventStoreDomainEventProcessor(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, System.Collections.Generic.IReadOnlyDictionary<string, System.Type> eventTypeRegistry, Hexalith.EventStore.Client.Subscriptions.IEventStoreDomainEventMarkerStore markerStore, Microsoft.Extensions.Logging.ILogger<Hexalith.EventStore.Client.Subscriptions.EventStoreDomainEventProcessor> logger, string? payloadAggregateIdPropertyName = null, Hexalith.EventStore.Client.Events.EventPayloadEvolutionRegistry? evolution = null)",
+      "beforeParameterCount": 5,
+      "afterParameterCount": 6,
+      "newParameterOptional": true,
+      "binarySignatureChanged": true
+    },
+    "allFourPackageComparisonsComplete": false
+  },
+  "qualityApprovalClaimed": false,
+  "acceptedStoryRecordChanged": false
+}

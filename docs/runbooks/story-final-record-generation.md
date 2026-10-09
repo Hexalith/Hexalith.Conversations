@@ -1781,3 +1781,67 @@ generation remain blocked. No stale internal assembly supplies acceptance.
 Keep the spec and sprint row `in-progress` until the source/build blocker, genuine
 Quality decision, compatible successor bindings, and complete fresh acceptance
 are resolved. The pending packet never replaces either accepted predecessor.
+
+### Authorized current-main v2 successor preparation
+
+The later [v2 scope authorization](../../_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v2.json)
+binds the exact [v2 scope proposal](../../_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v2.json),
+material digest `925cf11a819e9412055f3d35ea85a0a4334f9371e7d1decdb8199bb7b6757672`,
+and committed source `ec5c9be52631b96793ab028febfbbfba4d362d48`. It authorizes
+preparation only. The original baseline, v3 migration and Quality approval,
+accepted pairs, and pending v4 proposal retain their bytes.
+
+Use an isolated clean checkout of that exact commit with local, root-declared
+dependency source copies as needed. The additive v2 preparer checks the pinned
+authorization and proposal, exact eight-commit history, 46 changed paths, seven
+changed root gitlinks, actual source bytes, copied dependency bytes, and original
+protected evidence. It writes only into a fresh contained versioned directory:
+
+```bash
+uv run --frozen --no-sync python3 _bmad/scripts/prepare_story92_successor_v2.py \
+  --repository <clean-ec5c9be-source-checkout> \
+  --authorization-root . \
+  --output-directory artifacts/v9/9.2/<new-review-directory> \
+  --measure-builds
+uv run --frozen --no-sync python3 _bmad/scripts/prepare_story92_successor_v2.py \
+  --repository <clean-ec5c9be-source-checkout> \
+  --authorization-root . \
+  --output-directory artifacts/v9/9.2/<new-review-directory>
+```
+
+The current pending packet is [the v5 proposal](../release-evidence/conformance-oracle-tiering-migration-v5-proposal.json)
+and [its Quality review](../release-evidence/conformance-oracle-tiering-migration-review-v5.md).
+Its complete material digest is `3e1c8e6a4dfb4358e2797d8a3bfb84d652d330ed28924b8b916995613232bb9a`;
+proposed migration digest is `8a192571a6660638731184fd1086f97c1d8bd585f68e4290ce16988dc110206a`.
+All 459 retained rows and original before-strength bindings remain present. The
+14 changed-row digests and Conversations public-drift digest are unchanged from
+v4; the resolved package environment changes the migration digest. The proposal
+binds a new exact Quality decision request and does not claim approval or
+candidate-bound acceptance.
+
+The measured local-cache Release restores and builds pass for both tiers with
+zero errors. The five commands and their stdout/stderr hashes are in the v2
+build receipt under `artifacts/v9/9.2/current-main-successor-v7/`. Repeated
+preparation reproduces the same JSON and Markdown bytes. The [versioned released
+EventStore API diff](../release-evidence/conformance-oracle-tiering-eventstore-released-api-diff-v1.json)
+is bound by SHA-256 `6a5e5d51f9ec9e5f5cd144b83b25a55547c3231110693e224d6db84fad978b7e`.
+The `3.117.1` to `3.118.0` Client comparison has one breaking and 28 additive
+changes, including a changed marker-store processor constructor signature.
+Contracts has 97 additive changes. DomainService and ServiceDefaults both
+return `BothIncomplete` after metadata inspection failures, so complete
+released-package API review remains a Quality decision input. The prior v4 and
+original accepted materials remain the historical route. A genuine Quality
+decision on the v5 material, a compatible committed successor, fresh
+candidate-bound AC01–10, deterministic final-pair publication, and insertion
+verification still gate completion.
+
+The later [SDK API compatibility receipt](../release-evidence/conformance-oracle-tiering-eventstore-released-api-compat-v1.json),
+SHA-256 `ebe059f6e4d0213ad29fe1884f384d685beea4262bb1dafdf53ab71f8f2e302d`,
+captures `.NET 10` `RunPackageValidation` with `RunApiCompat` against the exact
+released package archives. Client fails with `CP0002` for the removed
+five-parameter constructor. DomainService and ServiceDefaults exit `0` for that
+SDK target. The receipt binds all three disposable project definitions, exact
+commands, package hashes, output bytes, and exit codes. It does not measure
+Contracts with that target or complete additive API review. The proposal and
+later Quality binding include both the SDK receipt and the earlier
+dotnet-inspect receipt; no approval is claimed.

@@ -1,0 +1,786 @@
+{
+  "schemaVersion": "hexalith.conversations.story-9.2-current-main-scope-proposal.v2",
+  "status": "prepared-unapproved",
+  "authorizationClaimed": false,
+  "qualityApprovalClaimed": false,
+  "originalBaseline": "51aa06b856bcb0aaf22013153cfe02a51b046156",
+  "priorAuthorizedCandidate": "59e72b82cdc2ecc58971e34594c4e8b62896518b",
+  "priorScopeProposal": {
+    "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v1.json",
+    "sha256": "e3835746809ae7a30184d25d1a53303ad821ebc8c2f5165ee8f63630a7a66c61"
+  },
+  "priorScopeAuthorization": {
+    "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v1.json",
+    "sha256": "e70ab5de8df530a29e575def28067cde2f0005de1420121182729a49f7c2b102"
+  },
+  "measuredCommittedCandidate": "ec5c9be52631b96793ab028febfbbfba4d362d48",
+  "workingTreeChangesIncluded": false,
+  "counts": {
+    "changedPaths": 46,
+    "changedRootGitlinks": 7,
+    "interveningCommits": 8
+  },
+  "interveningCommits": [
+    {
+      "commit": "2c2b30d5045837e2277bc63d4296e096313ff151",
+      "parent": "59e72b82cdc2ecc58971e34594c4e8b62896518b",
+      "subject": "fix: dd conformance oracle tiering migration review and proposal documents"
+    },
+    {
+      "commit": "daa857a02861cd186c13f62cf6a10174351f3089",
+      "parent": "2c2b30d5045837e2277bc63d4296e096313ff151",
+      "subject": "fix: enhance Conversation Deletion Delivery Pump with Operation Hooks and Testing Improvements"
+    },
+    {
+      "commit": "ce81859b086509d07156caa8185773d345ad0b8c",
+      "parent": "daa857a02861cd186c13f62cf6a10174351f3089",
+      "subject": "fix: update Hexalith.EventStore subproject commit to indicate dirty state"
+    },
+    {
+      "commit": "afe58a608d1902e91faf9d708eeeee92bea82c7f",
+      "parent": "ce81859b086509d07156caa8185773d345ad0b8c",
+      "subject": "fix: enhance EventStore integration and introduce deadline API"
+    },
+    {
+      "commit": "c53f5b180355f609284af66933746b2f0afd5a7c",
+      "parent": "afe58a608d1902e91faf9d708eeeee92bea82c7f",
+      "subject": "fix(release): accept the next planned Conversations version"
+    },
+    {
+      "commit": "02d7543438e9e676507bab63501af4ccd1b48857",
+      "parent": "c53f5b180355f609284af66933746b2f0afd5a7c",
+      "subject": "fix(deps): pin released EventStore 3.118.0"
+    },
+    {
+      "commit": "f42d64ea390d787cf414792f099e0ea1803b4cc8",
+      "parent": "02d7543438e9e676507bab63501af4ccd1b48857",
+      "subject": "fix(test): align scaffold server reference assertion"
+    },
+    {
+      "commit": "ec5c9be52631b96793ab028febfbbfba4d362d48",
+      "parent": "f42d64ea390d787cf414792f099e0ea1803b4cc8",
+      "subject": "fix(release): use NuGet trusted publishing for Conversations"
+    }
+  ],
+  "changesSincePriorAuthorizedCandidate": [
+    {
+      "path": ".github/workflows/release.yml",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "b7ce8f420eead881239bc35b3d1795eaf76e6744",
+        "sha256": "1e07e307faec1688645feb1e76a50f691ebeedcde2043d86ff2ce2d3b95a28a2",
+        "sizeBytes": 3523
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "1bda13641acba6bc83f41fbc9e70f0e9f77216f4",
+        "sha256": "d0760e43c318f7d55362a1e633aad25205cabaf13785a118c5fe9aa1f729dad6",
+        "sizeBytes": 7084
+      }
+    },
+    {
+      "path": "Directory.Packages.props",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "5f44157355698feac60846e2aa313b662354270f",
+        "sha256": "ed0c1c2a11f3a0aa87ccf28a2e91cd6495533118c094a26b1b282a5fd747a1f1",
+        "sizeBytes": 1431
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "181b6a95f9d77ebfb1be311ca57fe758babe8ffd",
+        "sha256": "62160d7c7855846a8cf0918018a9842fbdac831a16f1de92d0dc700b232bf748",
+        "sizeBytes": 1431
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "80dd36cfa0e724f336a9f6a263208135a3e7277a",
+        "sha256": "661273654ab8a8bc4064dfa2ee2f2cb0f41ef88882e6c6162fc454d8358117bd",
+        "sizeBytes": 153118
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "803aa146a38cf27706c6bf2fe47463794eed34ad",
+        "sha256": "29e86010138026a6ec90135a6bc8004086d021f386c4d6abf259d8b7cdce78d9",
+        "sizeBytes": 176802
+      }
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v1.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "62e63f3e323ceac0c24cee0db8ca53ad66ee97aa",
+        "sha256": "e70ab5de8df530a29e575def28067cde2f0005de1420121182729a49f7c2b102",
+        "sizeBytes": 1021
+      }
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v1.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a52e17c8ea7ede582b22df95e3df3830228180e0",
+        "sha256": "e3835746809ae7a30184d25d1a53303ad821ebc8c2f5165ee8f63630a7a66c61",
+        "sizeBytes": 69647
+      }
+    },
+    {
+      "path": "_bmad/schemas/story-9.2-current-main-successor-proposal-v1.schema.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "7dcec8d7abbf94e7745ecbbee25260e175580363",
+        "sha256": "ef5fd902d545ef2d54f2d09423b1160d7c94e177b778f51522d11616a6cd1557",
+        "sizeBytes": 48505
+      }
+    },
+    {
+      "path": "_bmad/scripts/prepare_story92_successor.py",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "f05f18434922fcb48d7ca4d947062e071f53e00e",
+        "sha256": "ae4db2e39fbd3559a82fc804555f0af2ce9cf6861f7d1c19426d254a20441528",
+        "sizeBytes": 42028
+      }
+    },
+    {
+      "path": "_bmad/scripts/tests/test_prepare_story92_successor.py",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a9816b1882e96b1b160e7505903cbecc05d1e239",
+        "sha256": "ff7a4d5ebca57c66131808b2f892d761feb49736aef4f564294e6030fffda3f9",
+        "sizeBytes": 22647
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-client-api-diff-v6.jsonl",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "29fe941a2f5f5577066f4d32632cc232d043b48c",
+        "sha256": "59fac2b0250a5a663e2dda75ca55c678cf26a39f2e24066a2578db630e902969",
+        "sizeBytes": 1349
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-client-api-diff-v7.jsonl",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "0e44db302f328877b52f2d186a6c578631cfda26",
+        "sha256": "5f6ed5908be35a4fb75b794d02f248aee9870490ee39929cf986e7d5d873e104",
+        "sizeBytes": 1355
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-repair-review-v5.md",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "4dd256a2c520c71af332d70b4994f01e0768d70e",
+        "sha256": "588eb70fc1802531895822456e52249f49be30e6602c697e418cbf4d7c41d5e1",
+        "sizeBytes": 4353
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-repair-review-v6.md",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a705b3ea8a0e7dac916866a6c9c4be66cf5b4012",
+        "sha256": "4f9f5a0e22bd5927b6319edf964e883c0105ab1c6c2d0ebf4147d784b92bf2d5",
+        "sizeBytes": 4162
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-repair-review-v7.md",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "3ce68765e07f4533f0f2a23631167cbbbcef9195",
+        "sha256": "f0d3f2707b9352a0ce60b9867c9bb92482f55cc4fa291fcb4c352ad5e640dded",
+        "sizeBytes": 2915
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-repair-v5-proposal.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "00e723d0addd860308b7207fff787be26ddad48f",
+        "sha256": "c1c919df4c8a1dcd021de24c99ebe88c50f4c2dd81f4da68f9c3fbd2ee2e7f84",
+        "sizeBytes": 16000
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-repair-v6-proposal.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "39113d55296323f4c409f0390b9c69e905c629bb",
+        "sha256": "0bbf7346addb7860ad77376f7595126f436fc14afae6d8a69782fd60836969fd",
+        "sizeBytes": 17653
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-repair-v7-proposal.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "d6c8bd81f67044288aa4faa76d14651c90c4349b",
+        "sha256": "644ef49ef1d603b324c5c5bbe5f1d0ff132dc0d47a03e0f3a01621659e848917",
+        "sizeBytes": 7235
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-migration-review-v4.md",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "e6d8fefd1f9d4dbc099ca5dd4d75d20ab13f9a3e",
+        "sha256": "57ee42ba8c45a4e09414d4f94ce13c68cf57413f884f738e585681caa19b6665",
+        "sizeBytes": 11235
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-migration-v4-proposal.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "5087e26ef3ac812c3700f7d97503cd142e2693ea",
+        "sha256": "8aea6446a2f10d308284580cbc11ab4d90268ef2bc69e7e140f6d9300a4eb95d",
+        "sizeBytes": 1650300
+      }
+    },
+    {
+      "path": "docs/runbooks/story-final-record-generation.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "4b8b12faba036f907e854154952f44c62fa46c27",
+        "sha256": "4e4c93afeed45ccf807cc9ad5991687ac817ab1ca4c25226dd09b1898b1e37b3",
+        "sizeBytes": 110787
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "44495ecbd87618e2d951eaa7742708e67fbdcadf",
+        "sha256": "bf2b0bf2f25d40a160241ba59c1032a9dc82a88ac05989c9336667e0fe9badf8",
+        "sizeBytes": 115223
+      }
+    },
+    {
+      "path": "eng/verify-ext-conv-ai-1.ps1",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "3e8e630d57c404f028bca843fcafc3a3ce248b84",
+        "sha256": "1add3555ee055bff9aabf4fa6c9b19f5cd6fd1d27977073be1f1b0da18f6f37e",
+        "sizeBytes": 8673
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "988391ae114883e58dae09f67dd3732ffaf2a34e",
+        "sha256": "47e94253d2e551bf9d2d23ce8ddcc844d63b4d7d34683f3f47347d62487242cd",
+        "sizeBytes": 8736
+      }
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "58d9b546b4741a246121ab40fc3945703db2e19b"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "0d988cfc5ea123553f6961b6f3f04f375ff8ac3a"
+      }
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "07d1e23a6c5b06bbbb1fc8ddb5174cc3382d3d93"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "5e5d2305d870a03d6d63f52470ce9f7a1ec058da"
+      }
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "039ec7a54a603b64c16e63e53e3640a99ccf5674"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "17b5a70d2b4b91bbbf73ea63c8a214a0ad426759"
+      }
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "906bc07ad6a8e4912a7222d9d097da434148266a"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "858a828d7cdb648d18f07a4a568e8d8a52f92113"
+      }
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "9e74c2b66ea0e201c6a4f9200e875627fed3b541"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "926faa207bab55eeeed4bc7d5d5a50b3e6af917f"
+      }
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "caf3721427f0b4834415369c2b4a5f981725474f"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "eaf195b1c0a654127ca85d22069b6e1129911c86"
+      }
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "032573384d3df4bc7a5bc0e69945ecca4e00967f"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "42d1e30044c8aaa16627c87c197e6e1a17bedbe4"
+      }
+    },
+    {
+      "path": "scripts/validate-publication-preflight.sh",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "e3129bd1893432c491c57cf877f10404d616011f",
+        "sha256": "bf4f7c3804ddca55d8afe9232eec8c94c299ee103393084cf012b99ddbf78fa1",
+        "sizeBytes": 2214
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "14437544d133435df9cc30f9a4862fb4b3f6a939",
+        "sha256": "515a3bc4f9e3fd053d5182be5135686abbefec21ab2c733cd3cdafa2475d5820",
+        "sizeBytes": 2336
+      }
+    },
+    {
+      "path": "scripts/verify-release-source.py",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "ba3df71d132afb77d2e162e17adb8ead29d3ce11",
+        "sha256": "a89aa453500710c505c8daddb37fbb48343a6bedb38276c6734db296ccd69937",
+        "sizeBytes": 5858
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "2bc3a9ff6e45f852521cc13ea27e4e82951671ee",
+        "sha256": "c5a5ad9943fb29be3ffc92f5aa677f31e80827e16b103afbdcade0b23780a1ea",
+        "sizeBytes": 6096
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConfiguredConversationDeletionReceiptVerifier.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "f930b35908909a2f629296aeea2cee176c6e4d7d",
+        "sha256": "7e15661332e214a30694195aac785aa1cce411b7eb21f2d4d57f95c70c121313",
+        "sizeBytes": 4328
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "9056d98d234f5f62b83baf1e9916b3000944d350",
+        "sha256": "44979399958da740f849c7fb96fe88f14090a5503ba9b06a8d44fb924a81abec",
+        "sizeBytes": 5285
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConfiguredConversationDeletionWorker.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "bfa2e4ad700d8fdfb23f8bc7c9ee0cf5390bd130",
+        "sha256": "7a0d17cc90113b7d258e04096ca0a18446a8a4fe8475d99fe36a9c04f05b3d66",
+        "sizeBytes": 3220
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "df39094e93085aa18a11b55d49fb90487c85e25a",
+        "sha256": "ae384425b84c013da830802e7fd0fb34c1e92f6242af13fa5f682b6fe4954c74",
+        "sizeBytes": 3698
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationAgentServiceCollectionExtensions.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "40e9cca7c8d6529c64413a796c8bd7b131f9fc14",
+        "sha256": "4b0e13934f3ed9bfb3295380061f6b25ceb722a0b54904cf5b3a173a25d6aad4",
+        "sizeBytes": 3071
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "b8adbd29dcda402c71ede3fed6b89dff9a5d5128",
+        "sha256": "8091071e220ef0d94f286909d939511d6c3a40cab06489a19dbc66b72ce97ad8",
+        "sizeBytes": 3094
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationDeletionDeliveryPump.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "5b797d1446f09e909bfeca3d5006a61cb8ab834b",
+        "sha256": "3e3a14b150f55d896a66fb0b57ff10897bcf668863c64239f20fd6131eadf355",
+        "sizeBytes": 13223
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "8b3dbeb48b9357f75cc8b6222173ee3427336992",
+        "sha256": "9586f42ab102e301106584cda45f90c773b71c8d94aa30c0e80d2741fe111aff",
+        "sizeBytes": 19589
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationDeletionPublicationDelivery.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "15228d8262ce6a2a207f7124a92887a8e4aad5f7",
+        "sha256": "68c7dc04ad5a194d56e04f61ef260143f1f0855016ea751ddfe9ce4bec32152e",
+        "sizeBytes": 1183
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "c9be7cc81d12cf5eae3d3c0d425a00dcfe65cefc",
+        "sha256": "020fc1313383f91913cec062b43531cae802cce395e2143935ec380da324c303",
+        "sizeBytes": 1436
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/ConversationTenantCatalogueRegistration.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a1375cf6e2a3520b4c771b4f2d2b24a2a51f5c3b",
+        "sha256": "7378fa815a439ba58c357296b26f5d3069121f64cbcbbf8fecc5425ac9856b6c",
+        "sizeBytes": 390
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "4afbc9e5a8959b9d35a3d87eb05cd652f3bfe444",
+        "sha256": "e7022be4b13e7701d612f2c4ea2f727b70df7691a66322df4919a0f82a48ea3a",
+        "sizeBytes": 397
+      }
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Agents/EventStoreConversationTenantCatalogue.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "117521cff21ce715d27ce914a28c41dd1f861a8d",
+        "sha256": "4ee499e32a598f4f088908735c00932e99a0c30f929489b25d79ba26576bb397",
+        "sizeBytes": 3471
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "48bb23d5113ed32241a202a4087c137adbbb0532",
+        "sha256": "109fe222c72d802cd8461f694f81ad6d654b529408e784447f76c5a5a486ff21",
+        "sizeBytes": 3525
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "b507af707b2d0c513d3db8ea80979f59a87e0908",
+        "sha256": "7541c65f3137b797a6ce52a620e965f901664d48db6f7ae142b5b94567b1451e",
+        "sizeBytes": 22599
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "2533f15e2ffd48e3d16f5161d2d5226d1604a015",
+        "sha256": "87b2f349ed1b7d0476a1e999d0ac1270bd16c1e1f63b2267257c5871ef00e046",
+        "sizeBytes": 22685
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationAgentLocalFixture.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "8be7145108d64860850ec836639d20bcee2cee8f",
+        "sha256": "84d030b4d4a9578ba9b466e1d8c5f009d4eee8b76285dbec0cf9b20e2d894c52",
+        "sizeBytes": 14449
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "64b979f76d73f623297d8ee8b56364da1b4ea6dd",
+        "sha256": "897ea4c0deca292145beea8062b64409d915448f524d4c1851bd778c219b6344",
+        "sizeBytes": 14798
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionBackfillTests.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "00c5e7535f48407583a1cf0a9ed9ce10ddb21c99",
+        "sha256": "8ec04b6225832d42a536ec738db90c0c4254d787c11de66b8eb85316f50d19ad",
+        "sizeBytes": 18386
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionDeliveryPumpFixture.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "338b85050613f912cbebca657a8eacbd7dac2727",
+        "sha256": "2a479e818513674e6e8d9b548dc79072b98314072fae9124630599fb5be951ea",
+        "sizeBytes": 7241
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "c0b2207ce87a283b057952c7055649cb950b7856",
+        "sha256": "2ac0420bfc3469dae9db8203b684d386727adf04523010a5d415295a1416ca0d",
+        "sizeBytes": 9392
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionDeliveryPumpTests.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "6a8c7e9c4db29634218b0989b6d310e15a5c8611",
+        "sha256": "c4c59216a00ccb3c48445f7e449262d9c44d1cfd72300254e0a7c23b97225673",
+        "sizeBytes": 9549
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "f878a369aee2f69500813f165702dd229a1607a1",
+        "sha256": "0e017649b3743aec463038ea138a32a771af1921df112b7ce92dad51e1910825",
+        "sizeBytes": 21458
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionWorkerAdmissionTests.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "b262091ef52eaed20b9aa1bf60e980fc586c8f9c",
+        "sha256": "514b40f293496eff876f3f82a16f125df8c4d24eae9b61b11d7944021a097046",
+        "sizeBytes": 5975
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "3d8e94ff385388546d3e414533bc656ef51f4ed1",
+        "sha256": "e7cc42adf539ba5839c39a1266c6753c95cdeb38ba701ca7ed1724132056def7",
+        "sizeBytes": 19907
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/EventStoreConversationTenantCatalogueTests.cs",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "5c3f53721415f571fd2d3da9c283647d5eef6292",
+        "sha256": "3acde0abdf207a6b66a792217db85b5a6da45f7ca85c27514f3f901e1190599f",
+        "sizeBytes": 6734
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "3121d0e0e2395e806865b8e75edf08e5a038d57c",
+        "sha256": "5474a054a9e24370fc2c8ba141b87a49ed6a9e9c2ddb544a12cdf096872fc1f9",
+        "sizeBytes": 11777
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/PumpClock.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "06fa9ca88734712eaff6b60a80afc6f9cdeedca0",
+        "sha256": "ef3914b66c8918746f823c606661221c8ce0ee3e7e71c731934c4268298b64d6",
+        "sizeBytes": 1077
+      }
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Agents/PumpTimer.cs",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "96c6364921308953a80c9e5152a65271c6d0de77",
+        "sha256": "e353aef1ac67e67cd8914eaa07de3bca16f80061466bcc9278eb7621c47b6b5e",
+        "sizeBytes": 597
+      }
+    },
+    {
+      "path": "tests/tooling/test_release_tooling.py",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "b385c0c41ef2ffe44b397f06636c5bf44c358ac3",
+        "sha256": "3b6c762012f5a16f727c21b9a5be7005c63233a6f744505b1dd02e9e5f63eaa4",
+        "sizeBytes": 30813
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "ca196f969f331c02631f5e4be5500c3ee0887aed",
+        "sha256": "7d46d2aa6f0f583501b71b02b889afb598ddf4b03665145a942e9680068d06af",
+        "sizeBytes": 31556
+      }
+    }
+  ],
+  "observedCurrentTreeChecks": {
+    "portablePassed": 326,
+    "internalPassed": 92,
+    "retainedCasesPassed": 415,
+    "liveControlsPassed": 3,
+    "faultCasesPassed": 22,
+    "failed": 0,
+    "skipped": 0,
+    "notRun": 0,
+    "candidateBoundAcceptanceClaimed": false
+  },
+  "currentFinalRecordVerification": {
+    "result": "FAIL",
+    "blockers": [
+      "CANDIDATE_NOT_FINAL",
+      "GITLINK_DRIFT"
+    ]
+  },
+  "requestedScopeDecision": {
+    "status": "unapproved",
+    "action": "Authorize preparation of a Story 9.2 successor from precisely the committed path, source, and root-gitlink bytes in this proposal.",
+    "preserveOriginalBaselineFrozenContractsApprovalsAndAcceptedRecords": true,
+    "qualityDecisionIncluded": false,
+    "followOnQualityRequirement": "Review and explicitly approve the exact newly measured successor migration material before candidate-bound acceptance.",
+    "acceptanceRequirement": "Fresh candidate-bound AC01-10, all 415 frozen cases and three controls, exact restored faults, deterministic final pair, and insertion verification."
+  },
+  "proposalSha256": "925cf11a819e9412055f3d35ea85a0a4334f9371e7d1decdb8199bb7b6757672"
+}

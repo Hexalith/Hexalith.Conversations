@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "hexalith.conversations.story-9.2-current-main-scope-authorization.v2",
+  "storyId": "9.2",
+  "status": "authorized",
+  "authorization": {
+    "actor": "user",
+    "authorizedOn": "2026-10-09",
+    "statement": "yes",
+    "evidence": "Conversation response to the exact v2 current-main scope proposal, including its file and material digests; this authorizes successor preparation and does not supply a Quality decision."
+  },
+  "proposal": {
+    "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v2.json",
+    "sha256": "ea902b33ed0d35ad44922a7ba63b14e23b65058bcb3a47a11357c16d3f1fd083",
+    "proposalSha256": "925cf11a819e9412055f3d35ea85a0a4334f9371e7d1decdb8199bb7b6757672"
+  },
+  "measuredCommittedCandidate": "ec5c9be52631b96793ab028febfbbfba4d362d48",
+  "priorAuthorizedCandidate": "59e72b82cdc2ecc58971e34594c4e8b62896518b",
+  "originalBaseline": "51aa06b856bcb0aaf22013153cfe02a51b046156",
+  "workingTreeChangesIncluded": false,
+  "qualityDecisionIncluded": false,
+  "preserveOriginalBaselineFrozenContractsApprovalsAndAcceptedRecords": true
+}
