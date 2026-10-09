@@ -2,6 +2,11 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: Stable semantic version planned from commits on main
+        required: true
+        type: string
 
 concurrency:
   group: release-production
@@ -12,7 +17,7 @@ permissions:
 
 jobs:
   verify-source:
-    name: Verify exact green main and first-release destinations
+    name: Verify exact green main and requested release destinations
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -32,6 +37,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           PUBLISH_ENABLED: ${{ vars.HEXALITH_RELEASE_PUBLISH_ENABLED }}
+          RELEASE_VERSION: ${{ inputs.version }}
         run: >-
           python3 scripts/verify-release-source.py
           --publish-enabled "${PUBLISH_ENABLED-}"
@@ -39,6 +45,7 @@ jobs:
           --dispatch-ref "${{ github.ref }}"
           --dispatch-sha "${{ github.sha }}"
           --workflow ci.yml
+          --release-version "$RELEASE_VERSION"
           --github-output "$GITHUB_OUTPUT"
 
       - name: Set up supported Node
@@ -56,9 +63,11 @@ jobs:
         if: ${{ steps.source.outputs.publish-enabled == 'true' }}
         run: npm audit signatures
 
-      - name: Require the semantic plan to be exactly 1.0.0
+      - name: Require the semantic plan to match the requested version
         if: ${{ steps.source.outputs.publish-enabled == 'true' }}
-        run: npm run verify:release-plan -- 1.0.0
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: npm run verify:release-plan -- "$RELEASE_VERSION"
 
   release:
     needs: verify-source
@@ -106,8 +115,9 @@ jobs:
       - name: Poll official publication endpoints
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
         run: >-
-          python3 scripts/verify-release-state.py present 1.0.0
+          python3 scripts/verify-release-state.py present "$RELEASE_VERSION"
           --repository "${{ github.repository }}"
           --source-sha "${{ github.sha }}"
           --attempts 61

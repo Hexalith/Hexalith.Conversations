@@ -13,7 +13,8 @@ fail() {
   exit 1
 }
 
-[ "$version" = "1.0.0" ] || fail "The authorized first release version is exactly 1.0.0."
+python3 -c 'import sys; from scripts.release_contract import validate_semver; validate_semver(sys.argv[1])' "$version" ||
+  fail "A valid semantic release version is required."
 case "$phase" in verify|publish) ;; *) fail "Publication phase must be verify or publish." ;; esac
 [ "${HEXALITH_BUILDS_EXECUTION_SHA:-}" = "b93e9889e9e7b67036837015b4b2b115e326c4da" ] ||
   fail "The reusable release workflow must execute the reviewed Builds commit."
@@ -37,6 +38,7 @@ if [ "$phase" = "verify" ]; then
     --dispatch-ref "${GITHUB_REF:-}" \
     --dispatch-sha "${GITHUB_SHA:-}" \
     --workflow ci.yml \
+    --release-version "$version" \
     --destination-state absent
 else
   python3 scripts/verify-release-state.py publishable "$version" \

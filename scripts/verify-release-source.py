@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prove a dispatch selects the live main tip with exact-source successful CI."""
+"""Prove a dispatch selects the live main tip and unused release destinations."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ import urllib.request
 from pathlib import Path
 from typing import Callable
 
-from release_contract import FIRST_RELEASE_VERSION, REPOSITORY, load_manifest
+from release_contract import FIRST_RELEASE_VERSION, REPOSITORY, load_manifest, validate_semver
 from release_state import verify_absent
 
 
@@ -51,11 +51,13 @@ def verify_source(
     workflow: str,
     get_json: GetJson = default_get_json,
     verify_destinations: Callable[[str, str], None] = verify_absent,
+    release_version: str = FIRST_RELEASE_VERSION,
 ) -> bool:
     """Return false for an exact frozen posture, otherwise prove release source."""
     load_manifest()
     if publish_enabled != "true":
         return False
+    validate_semver(release_version)
     if repository != REPOSITORY:
         raise ValueError(f"release repository must be exactly {REPOSITORY}")
     if dispatch_ref != "refs/heads/main":
@@ -110,7 +112,7 @@ def verify_source(
         raise ValueError(
             "EXACT_CI_ABSENT: newest push CI run/attempt for the current main SHA is not successful"
         )
-    verify_destinations(FIRST_RELEASE_VERSION, repository)
+    verify_destinations(release_version, repository)
     return True
 
 
@@ -122,6 +124,7 @@ def main() -> int:
     parser.add_argument("--dispatch-sha", default=os.environ.get("GITHUB_SHA", ""))
     parser.add_argument("--workflow", default="ci.yml")
     parser.add_argument("--destination-state", choices=("absent",), default="absent")
+    parser.add_argument("--release-version", default=FIRST_RELEASE_VERSION)
     parser.add_argument("--github-output", type=Path)
     args = parser.parse_args()
     enabled = verify_source(
@@ -130,12 +133,13 @@ def main() -> int:
         args.dispatch_ref,
         args.dispatch_sha,
         args.workflow,
+        release_version=args.release_version,
     )
     if args.github_output is not None:
         with args.github_output.open("a", encoding="utf-8", newline="\n") as handle:
             handle.write(f"publish-enabled={'true' if enabled else 'false'}\n")
     if enabled:
-        print("Verified live main, exact-source successful CI, and absent 1.0.0 destinations.")
+        print(f"Verified live main, exact-source successful CI, and absent {args.release_version} destinations.")
     else:
         print("Release publication is frozen; publication validation is not applicable.")
     return 0

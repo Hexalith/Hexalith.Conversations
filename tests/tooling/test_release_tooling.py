@@ -247,6 +247,20 @@ class ReleaseToolingTests(unittest.TestCase):
             destinations,
         )
 
+        destinations.clear()
+        enabled = verify_release_source.verify_source(
+            "true",
+            release_contract.REPOSITORY,
+            "refs/heads/main",
+            source_sha,
+            "ci.yml",
+            github,
+            lambda version, repository: destinations.append((version, repository)),
+            release_version="1.1.0",
+        )
+        self.assertTrue(enabled)
+        self.assertEqual([("1.1.0", release_contract.REPOSITORY)], destinations)
+
     def test_newest_exact_source_ci_attempt_must_succeed(self) -> None:
         source_sha = "a" * 40
 
@@ -530,16 +544,17 @@ class ReleaseToolingTests(unittest.TestCase):
                 "GITHUB_REF": "refs/heads/main",
                 "GITHUB_SHA": "a" * 40,
             }
-            command = ["bash", str(SCRIPTS / "validate-publication-preflight.sh"), "1.0.0"]
+            command = ["bash", str(SCRIPTS / "validate-publication-preflight.sh"), "1.1.0"]
 
             subprocess.run([*command, "verify"], cwd=ROOT, env=environment, check=True)
             verify_arguments = capture.read_text(encoding="utf-8").strip()
             self.assertTrue(verify_arguments.startswith("scripts/verify-release-source.py "))
             self.assertIn("--destination-state absent", verify_arguments)
+            self.assertIn("--release-version 1.1.0", verify_arguments)
 
             subprocess.run([*command, "publish"], cwd=ROOT, env=environment, check=True)
             publish_arguments = capture.read_text(encoding="utf-8").strip()
-            self.assertTrue(publish_arguments.startswith("scripts/verify-release-state.py publishable 1.0.0 "))
+            self.assertTrue(publish_arguments.startswith("scripts/verify-release-state.py publishable 1.1.0 "))
 
     def test_msbuild_dependency_mode_matrix_is_evaluated(self) -> None:
         project = ROOT / "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj"
@@ -572,7 +587,7 @@ class ReleaseToolingTests(unittest.TestCase):
         self.assertIn("release-authority-owner: ''", release)
         self.assertIn("HEXALITH_RELEASE_PUBLISH_ENABLED", release)
         self.assertIn("if: ${{ needs.verify-source.outputs.publish-enabled == 'true' }}", release)
-        self.assertIn("verify:release-plan -- 1.0.0", release)
+        self.assertIn('verify:release-plan -- "$RELEASE_VERSION"', release)
         self.assertNotIn("secrets: inherit", release)
 
         configuration = json.loads((ROOT / ".releaserc.json").read_text(encoding="utf-8"))
