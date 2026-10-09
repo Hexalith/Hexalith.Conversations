@@ -1,0 +1,19 @@
+{"field":"Versions","value":"Hexalith.EventStore.Client.dll -> Hexalith.EventStore.Client.dll"}
+{"field":"Summary","value":"17 additive across 17 types"}
+{"change":"+","type":"DirectoryAtomicAppendClient","detail":"added"}
+{"change":"+","type":"DirectoryAtomicAppendOutcome","detail":"added"}
+{"change":"+","type":"DirectoryAtomicAppendRequest","detail":"added"}
+{"change":"+","type":"DirectoryAtomicAppendState","detail":"added"}
+{"change":"+","type":"IAtomicDirectoryAppendOwner","detail":"added"}
+{"change":"+","type":"IDirectoryAtomicAppendAuthority","detail":"added"}
+{"change":"+","type":"ISourcePublicationDelivery","detail":"added"}
+{"change":"+","type":"ISourcePublicationIndexStore","detail":"added"}
+{"change":"+","type":"ISourcePublicationNamespaceSource","detail":"added"}
+{"change":"+","type":"ISourcePublicationProjector","detail":"added"}
+{"change":"+","type":"ISourcePublicationWriterRegistration","detail":"added"}
+{"change":"+","type":"SourceNamespaceSnapshotReader","detail":"added"}
+{"change":"+","type":"SourceNamespaceSnapshot`1","detail":"added"}
+{"change":"+","type":"SourcePublicationDeliveryStatus","detail":"added"}
+{"change":"+","type":"SourcePublicationDispatchResult","detail":"added"}
+{"change":"+","type":"SourcePublicationDispatcher","detail":"added"}
+{"change":"+","type":"SourcePublicationFeed","detail":"added"}
