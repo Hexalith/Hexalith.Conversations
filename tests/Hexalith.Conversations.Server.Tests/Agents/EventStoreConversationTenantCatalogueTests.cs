@@ -7,6 +7,7 @@ using Hexalith.Conversations.Server.Agents;
 using Hexalith.EventStore.Client.Streams;
 using Hexalith.EventStore.Contracts.Identity;
 using Hexalith.EventStore.Contracts.Streams;
+using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using F = Hexalith.Conversations.Server.Tests.Agents.ConversationAgentLocalFixture;
 
@@ -125,4 +126,52 @@ public sealed class EventStoreConversationTenantCatalogueTests : TimeProvider, I
         result.Outcome.ShouldBe(gap ? ConversationAgentsOutcome.Unavailable : ConversationAgentsOutcome.Available);
         if (!gap) { result.Complete.ShouldBeTrue(); result.Entries!.Single().Active.ShouldBeTrue(); }
     }
+    /// <summary>A serialized approved deletion leaves lifecycle Open but is excluded from the complete accepted active denominator.</summary>
+    [Fact]
+    public async Task DeletedOpenConversationIsExcludedFromCompleteActiveCount()
+    {
+        var fixture = new F(); var before = await fixture.ReplayAsync();
+        fixture.Persist(Hexalith.Conversations.Aggregates.ConversationAggregate.Handle(new Hexalith.Conversations.Commands.ApproveConversationDeletion(
+            new(fixture.CommandMetadata(F.Human, "catalogue-deletion"), F.Conversation, "independent-approved-deletion", before.SourceRevision,
+                F.At.AddMinutes(1), F.DeletionAudit(before.SourceRevision, F.At.AddMinutes(1))), "catalogue-deletion-event"), before));
+        var identity = new AggregateIdentity(F.Tenant.Value, "conversation", F.Conversation.Value);
+        var source = (await fixture.ReadAsync(identity, TestContext.Current.CancellationToken)).Stream!;
+        byte[] saved = JsonSerializer.SerializeToUtf8Bytes(source, F.Options);
+        _sources[identity] = JsonSerializer.Deserialize<AuthoritativeEventStream>(saved, F.Options)!;
+        var reconstructed = ConversationAgentSourceReader.ReplaySource(_sources[identity], identity, TestContext.Current.CancellationToken)!.Value.State;
+        reconstructed.Lifecycle.ToString().ShouldBe("Open"); reconstructed.IsDeleted.ShouldBeTrue();
+        await AddAsync("ordinary-open-zero-calls");
+        var catalogue = await Catalogue().ReadAsync(new(F.Tenant, F.At, F.At.AddDays(1)), TestContext.Current.CancellationToken);
+        catalogue.Outcome.ShouldBe(ConversationAgentsOutcome.Available); catalogue.Complete.ShouldBeTrue();
+        catalogue.Entries!.Single(entry => entry.ConversationId == F.Conversation).Active.ShouldBeFalse();
+        catalogue.Entries!.Single(entry => entry.ConversationId.Value == "ordinary-open-zero-calls").Active.ShouldBeTrue();
+        var service = new ConversationAgentQueryService(fixture, new(fixture), Catalogue());
+        var count = await service.CountAsync("agents-service", new(F.Tenant, F.At, F.At.AddMinutes(1)), TestContext.Current.CancellationToken);
+        count.Outcome.ShouldBe(ConversationAgentsOutcome.Available); count.CatalogCheckpoint.ShouldNotBeNullOrWhiteSpace(); count.Count.ShouldBe(1);
+        JsonSerializer.SerializeToUtf8Bytes(_sources[identity], F.Options).ShouldBe(saved);
+    }
+
+    /// <summary>Both real registration methods resolve the complete source catalogue through the scoped query service.</summary>
+    [Fact]
+    public async Task RegisteredCatalogueSuppliesCompleteScopedCount()
+    {
+        await AddAsync("registered-open-zero-calls");
+        var services = new ServiceCollection();
+        services.AddSingleton<IConversationAgentAuthority>(new F());
+        services.AddSingleton<ISourcePublicationNamespaceSource>(this);
+        services.AddSingleton<IAuthoritativeEventStreamReader>(this);
+        services.AddSingleton<TimeProvider>(this);
+        services.AddConversationAgentServices();
+        services.AddConversationTenantCatalogue(new(_scope));
+        using var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var catalogue = scope.ServiceProvider.GetRequiredService<IConversationTenantCatalogue>();
+        catalogue.ShouldBeOfType<EventStoreConversationTenantCatalogue>();
+        var query = scope.ServiceProvider.GetRequiredService<ConversationAgentQueryService>();
+        var result = await query.CountAsync("agents-service", new(F.Tenant, F.At, F.At.AddMinutes(1)), TestContext.Current.CancellationToken);
+        result.Outcome.ShouldBe(ConversationAgentsOutcome.Available);
+        result.Count.ShouldBe(1);
+        result.CatalogCheckpoint.ShouldNotBeNullOrWhiteSpace();
+    }
+
 }

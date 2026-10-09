@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "hexalith.conversations.story-9.2-eventstore-repair-proposal.v3",
+  "storyId": "9.2",
+  "status": "preparation-only",
+  "qualityApprovalClaimed": false,
+  "acceptanceClaimed": false,
+  "sourceCommitted": false,
+  "rootHead": "ce81859b086509d07156caa8185773d345ad0b8c",
+  "eventStoreHead": "c4dff081e2ca2cf60042cd1f28d60a01ca31b204",
+  "predecessorV6": {
+    "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-repair-v6-proposal.json",
+    "sha256": "0bbf7346addb7860ad77376f7595126f436fc14afae6d8a69782fd60836969fd"
+  },
+  "candidateSourceDelta": {
+    "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Streams/AuthoritativeStreamReadDeadline.cs",
+    "beforeSha256": "2f1b9ec1a68d61b7fecd52174a3e9425924b099f12640d884e90efbf91b816c8",
+    "afterSha256": "586461eb261b114d72e7158d8424842303283079ca96ed3218987cdbb04b5c4e",
+    "change": "Expose the existing bounded deadline helper for the committed Conversations deletion pump and validate the public constructor's TimeProvider input."
+  },
+  "clientPublicSurface": {
+    "packageId": "Hexalith.EventStore.Client",
+    "publishedBaselineVersion": "3.117.1",
+    "candidateAssemblySha256": "51ade4f6588e19968fb58868b30e7dda16739a9c43294d709410f9b67baf135c",
+    "newlyExposedType": "Hexalith.EventStore.Client.Streams.AuthoritativeStreamReadDeadline",
+    "newlyExposedMembers": [
+      "AuthoritativeStreamReadDeadline(TimeSpan timeout, TimeProvider timeProvider, CancellationToken callerToken, long startedAt)",
+      "bool IsExpired { get; }",
+      "void ThrowIfCancellationRequested()",
+      "Task<T> ReadAsync<T>(Func<CancellationToken, Task<T>> read, Action<Task<T>>? operationStarted = null, Action<T>? abandonedResultCleanup = null)",
+      "void Dispose()"
+    ],
+    "diffPath": "docs/release-evidence/conformance-oracle-tiering-eventstore-client-api-diff-v7.jsonl",
+    "diffSha256": "5f6ed5908be35a4fb75b794d02f248aee9870490ee39929cf986e7d5d873e104",
+    "diffSummary": "17 additive changes across 17 types against the published 3.117.1 Client assembly; no removed or changed existing public type surface reported"
+  },
+  "disposableLocalPackageTrial": {
+    "version": "3.117.2-story92.5",
+    "published": false,
+    "externalDependencyBoundary": "Published Hexalith.Commons.UniqueIds 2.30.1; no disposable Commons package is included in this trial.",
+    "packages": [
+      { "id": "Hexalith.EventStore.Contracts", "sha256": "1ec885025eab695a1e1c0d8d7f6642b9573dd922456bd5be080379a9dd21230c" },
+      { "id": "Hexalith.EventStore.Client", "sha256": "05b8d7a22a247e30c8a4473b26370a1d4610989708a8dd39d098eafd85641a5c" },
+      { "id": "Hexalith.EventStore.ServiceDefaults", "sha256": "e70ddd9de9a17968a25e86278c239f75e58c9e125c4cf38da46bbd467594b9b6" },
+      { "id": "Hexalith.EventStore.DomainService", "sha256": "bf398434aa57448f83b81d03b027fbee04f539e1e4aac91878e26d2c7693aaf6" }
+    ]
+  },
+  "reproduction": {
+    "rootWorkingDirectory": "/home/administrator/projects/hexalith/conversations",
+    "eventStoreWorkingDirectory": "/home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore",
+    "localPackageDirectory": "/tmp/story92-eventstore-packages-v7-corrected-1791536695465",
+    "commands": [
+      "dotnet build src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj --configuration Debug --no-restore -m:1 --verbosity quiet",
+      "dotnet build references/Hexalith.EventStore/tests/Hexalith.EventStore.Client.Tests/Hexalith.EventStore.Client.Tests.csproj --configuration Debug --no-restore -m:1 --verbosity quiet",
+      "dotnet references/Hexalith.EventStore/tests/Hexalith.EventStore.Client.Tests/bin/Debug/net10.0/Hexalith.EventStore.Client.Tests.dll -class Hexalith.EventStore.Client.Tests.Streams.SourceNamespaceSnapshotReaderTests",
+      "dotnet restore tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj -p:Configuration=Debug -p:UseHexalithProjectReferences=true -p:NuGetAudit=false --verbosity quiet",
+      "dotnet build tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --configuration Debug --no-restore -p:UseHexalithProjectReferences=true -m:1 --verbosity quiet",
+      "dotnet tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests.dll -class Hexalith.Conversations.Server.Tests.Agents.ConversationDeletionDeliveryPumpTests",
+      "dotnet pack src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj --configuration Release --output /tmp/story92-eventstore-packages-v7-corrected-1791536695465 -p:Version=3.117.2-story92.5 -p:UseHexalithProjectReferences=false -m:1 --nologo",
+      "dotnet pack src/Hexalith.EventStore.Client/Hexalith.EventStore.Client.csproj --configuration Release --output /tmp/story92-eventstore-packages-v7-corrected-1791536695465 -p:Version=3.117.2-story92.5 -p:UseHexalithProjectReferences=false -m:1 --nologo",
+      "dotnet pack src/Hexalith.EventStore.ServiceDefaults/Hexalith.EventStore.ServiceDefaults.csproj --configuration Release --output /tmp/story92-eventstore-packages-v7-corrected-1791536695465 -p:Version=3.117.2-story92.5 -p:UseHexalithProjectReferences=false -m:1 --nologo",
+      "dotnet pack src/Hexalith.EventStore.DomainService/Hexalith.EventStore.DomainService.csproj --configuration Release --output /tmp/story92-eventstore-packages-v7-corrected-1791536695465 -p:Version=3.117.2-story92.5 -p:UseHexalithProjectReferences=false -m:1 --nologo",
+      "dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release -p:UseHexalithProjectReferences=false -p:HexalithEventStoreVersion=3.117.2-story92.5 -p:RestoreAdditionalProjectSources=/tmp/story92-eventstore-packages-v7-corrected-1791536695465 -m:1 --nologo",
+      "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_conformance_tiering.py -k structural_and_execution_faults"
+    ]
+  },
+  "measuredChecks": [
+    { "id": "conversations-server-debug-project-references", "result": "pass", "warnings": 0, "errors": 0 },
+    { "id": "eventstore-client-tests-debug-build", "result": "pass", "warnings": 0, "errors": 0 },
+    { "id": "eventstore-snapshot-reader-tests", "result": "pass", "total": 35, "failed": 0, "skipped": 0, "notRun": 0 },
+    { "id": "conversations-server-tests-debug-build", "result": "pass", "warnings": 0, "errors": 0 },
+    { "id": "conversations-deletion-pump-tests", "result": "pass", "total": 57, "failed": 0, "skipped": 0, "notRun": 0 },
+    { "id": "eventstore-four-package-local-release-pack", "result": "pass" },
+    { "id": "conversations-internal-conformance-release-local-packages-build", "result": "pass", "warnings": 0, "errors": 0 },
+    { "id": "story92-structural-and-execution-faults", "result": "pass", "total": 22, "failed": 0, "deselected": 40 }
+  ],
+  "story92Acceptance": {
+    "state": "pending",
+    "cleanCommittedSuccessor": false,
+    "freshCompleteTierExecution": false,
+    "blockers": [
+      "OFFICIAL_EVENTSTORE_PACKAGES_NOT_PROMOTED",
+      "CURRENT_CANDIDATE_NOT_COMMITTED",
+      "SUCCESSOR_QUALITY_DECISION_REQUIRED",
+      "FRESH_COMPLETE_ACCEPTANCE_REQUIRED"
+    ]
+  }
+}

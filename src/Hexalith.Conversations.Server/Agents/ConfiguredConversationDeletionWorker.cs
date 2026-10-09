@@ -1,5 +1,6 @@
 using Hexalith.Conversations.Contracts.Agents;
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.EventStore.Client.Streams;
 
 namespace Hexalith.Conversations.Server.Agents;
 
@@ -9,15 +10,16 @@ public sealed class ConfiguredConversationDeletionWorker
 {
     private readonly ConversationDeletionWorkerRegistration? _registration;
     private readonly IConversationAgentAuthority _authority;
+    private readonly TimeProvider _clock;
 
     /// <summary>Creates the disabled-by-default exact binding. A missing registration cannot authorize work.</summary>
-    public ConfiguredConversationDeletionWorker(ConversationDeletionWorkerRegistration? registration, IConversationAgentAuthority authority)
+    public ConfiguredConversationDeletionWorker(ConversationDeletionWorkerRegistration? registration, IConversationAgentAuthority authority, TimeProvider? clock = null)
     {
         ArgumentNullException.ThrowIfNull(authority);
         if (registration is not null && (registration.TenantId is null || registration.ServicePartyId is null
             || string.IsNullOrWhiteSpace(registration.AuthenticatedPrincipalId)))
         { throw new ArgumentException("Malformed worker registration.", nameof(registration)); }
-        _registration = registration; _authority = authority;
+        _registration = registration; _authority = authority; _clock = clock ?? TimeProvider.System;
     }
 
     /// <summary>Resolves current exact Conversation authority for the dedicated service Party, without any human-role fallback.</summary>
@@ -32,16 +34,19 @@ public sealed class ConfiguredConversationDeletionWorker
     private async Task<ConversationAgentAuthorization?> ResolveAsync(TenantId tenant, ConversationId conversation, string operation,
         CancellationToken cancellationToken)
     {
+        using var deadline = new AuthoritativeStreamReadDeadline(TimeSpan.FromSeconds(30), _clock, cancellationToken, _clock.GetTimestamp());
         try
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            deadline.ThrowIfCancellationRequested();
             if (_registration is null || _registration.TenantId != tenant) { return null; }
-            ConversationAgentAuthorization result = await _authority.AuthorizeAsync(_registration.AuthenticatedPrincipalId,
-                tenant, conversation, operation, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
-            cancellationToken.ThrowIfCancellationRequested();
-            return ConversationAgentQueryService.CheckAuthority(result, _registration.AuthenticatedPrincipalId, tenant, true)
+            ConversationAgentAuthorization result = await deadline.ReadAsync(token => _authority.AuthorizeAsync(_registration.AuthenticatedPrincipalId,
+                tenant, conversation, operation, token)).ConfigureAwait(false);
+            deadline.ThrowIfCancellationRequested();
+            var admitted = ConversationAgentQueryService.CheckAuthority(result, _registration.AuthenticatedPrincipalId, tenant, true)
                 == ConversationAgentsOutcome.Available && result.PartyId == _registration.ServicePartyId ? result : null;
+            deadline.ThrowIfCancellationRequested(); return admitted;
         }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested && deadline.IsExpired) { return null; }
         catch (Exception) { cancellationToken.ThrowIfCancellationRequested(); throw; }
     }
 }
