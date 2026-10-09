@@ -17,6 +17,8 @@ namespace Hexalith.Conversations.Server.Tests.Agents;
 /// <summary>Synthetic worker ports retain actual serialized aggregate events across pump instances; no production qualification.</summary>
 internal sealed class ConversationDeletionDeliveryPumpFixture(F source, SourcePublicationIndexEntry entry) : IConversationClient, IConversationAgentAuthority, IConversationDeletionReceiver
     {
+        internal Func<string, Task>? OperationHook;
+        internal Action<string>? OperationFinished;
         internal F Source => source;
         internal SourcePublicationIndexEntry Entry => entry;
         internal string Target = "receiver-v1";
@@ -28,53 +30,83 @@ internal sealed class ConversationDeletionDeliveryPumpFixture(F source, SourcePu
         internal TaskCompletionSource<string?> TargetPending = new(TaskCreationOptions.RunContinuationsAsynchronously);
         internal string? BadBinding;
         internal int Submissions, SourceReads, ReceiverReads;
+        internal int BlockSourceCall;
+        internal TaskCompletionSource SourceEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        internal TaskCompletionSource SourcePending = new(TaskCreationOptions.RunContinuationsAsynchronously);
         internal List<RecordConversationDeletionDeliveryCommand> AttemptCommands = [];
         internal Dictionary<string, ConversationDeletionAcknowledgement> Receipts = [];
         internal TaskCompletionSource LookupEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
         internal TaskCompletionSource<ConversationDeletionReceiverResult> LookupPending = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        internal ConversationDeletionDeliveryPump Pump() => new(this, new(BadBinding == "missing" ? null :
-            new ConversationDeletionWorkerRegistration(F.Tenant, "conversations-worker", ConversationDeletionDeliveryPumpTests.ServiceParty), this), this);
-        public Task<ConversationAgentAuthorization> AuthorizeAsync(string principal, TenantId tenant, ConversationId? conversation, string operation, CancellationToken token)
+        internal ConversationDeletionDeliveryPump Pump(TimeProvider? clock = null) => new(this, new(BadBinding == "missing" ? null :
+            new ConversationDeletionWorkerRegistration(F.Tenant, "conversations-worker", ConversationDeletionDeliveryPumpTests.ServiceParty), this), this, clock);
+        public async Task<ConversationAgentAuthorization> AuthorizeAsync(string principal, TenantId tenant, ConversationId? conversation, string operation, CancellationToken token)
         {
-            token.ThrowIfCancellationRequested(); operation.ShouldBeOneOf("DeletionSource", "RecordConversationDeletionDelivery"); conversation.ShouldBe(source.CurrentConversation);
-            return Task.FromResult(new ConversationAgentAuthorization(WithdrawAuthority || RevokeAfterAttempt && AttemptCommands.Count > 0 || RevokeDeliveryAfterAttempt && AttemptCommands.Count > 0 && operation == "RecordConversationDeletionDelivery"
+            try
+            {
+            token.ThrowIfCancellationRequested(); await (OperationHook?.Invoke("authority") ?? Task.CompletedTask); operation.ShouldBeOneOf("DeletionSource", "RecordConversationDeletionDelivery"); conversation.ShouldBe(source.CurrentConversation);
+            return new ConversationAgentAuthorization(WithdrawAuthority || RevokeAfterAttempt && AttemptCommands.Count > 0 || RevokeDeliveryAfterAttempt && AttemptCommands.Count > 0 && operation == "RecordConversationDeletionDelivery"
                 ? ConversationAgentsOutcome.Denied : ConversationAgentsOutcome.Available,
                 BadBinding == "tenant" ? new TenantId("other-tenant") : tenant,
                 BadBinding == "principal" ? "wrong-principal" : principal,
-                BadBinding == "party" ? F.Agent : ConversationDeletionDeliveryPumpTests.ServiceParty, "current-independent-authority", BadBinding != "organization"));
+                BadBinding == "party" ? F.Agent : ConversationDeletionDeliveryPumpTests.ServiceParty, "current-independent-authority", BadBinding != "organization");
+            }
+            finally { OperationFinished?.Invoke("authority"); }
         }
         public async Task<ConversationDeletionSourceResult> GetConversationDeletionSourceAsync(ConversationDeletionSourceQuery request, CancellationToken token)
         {
-            token.ThrowIfCancellationRequested(); SourceReads++;
-            var state = await source.ReplayAsync(); return state.DeletionSource;
+            try
+            {
+            token.ThrowIfCancellationRequested(); await (OperationHook?.Invoke("source") ?? Task.CompletedTask); SourceReads++;
+            var state = await source.ReplayAsync();
+            if (SourceReads == BlockSourceCall) { SourceEntered.TrySetResult(); await SourcePending.Task; state = await source.ReplayAsync(); }
+            return state.DeletionSource;
+            }
+            finally { OperationFinished?.Invoke("source"); }
         }
         public async Task<ConversationAgentCommandResult> RecordConversationDeletionDeliveryAsync(RecordConversationDeletionDeliveryCommand command, CancellationToken token)
         {
-            token.ThrowIfCancellationRequested(); command.Metadata.ActorPartyId.ShouldBe(ConversationDeletionDeliveryPumpTests.ServiceParty);
+            try
+            {
+            token.ThrowIfCancellationRequested(); await (OperationHook?.Invoke("record:" + command.Action) ?? Task.CompletedTask); command.Metadata.ActorPartyId.ShouldBe(ConversationDeletionDeliveryPumpTests.ServiceParty);
             if (command.Action == ConversationDeletionDeliveryAction.Attempt) { AttemptCommands.Add(command); }
             if (PersistCommands) { source.Persist(ConversationAggregate.Handle(new RecordConversationDeletionDelivery(command,
                 command.Metadata.IdempotencyKey!), await source.ReplayAsync())); }
             return new(ConversationAgentsOutcome.Available);
+            }
+            finally { OperationFinished?.Invoke("record:" + command.Action); }
         }
-        public Task<string?> CurrentTargetAsync(TenantId tenant, CancellationToken token) { token.ThrowIfCancellationRequested(); ReceiverReads++; TargetCalls++; if (BlockTarget || BlockTargetCall == TargetCalls) { TargetEntered.TrySetResult(); return TargetPending.Task; } return Task.FromResult<string?>(Target); }
-        public Task<ConversationDeletionReceiverResult> LookupAsync(ConversationDeletionSignal signal, string attemptId, string target, CancellationToken token)
-        {
-            token.ThrowIfCancellationRequested(); ReceiverReads++;
-            if (BlockLookup) { LookupEntered.TrySetResult(); return LookupPending.Task; }
-            if (UnknownLookup) { return Task.FromResult(new ConversationDeletionReceiverResult(ConversationAgentsOutcome.Unavailable)); }
-            return Task.FromResult(Receipts.TryGetValue(target, out var receipt) ? new(ConversationAgentsOutcome.Available, receipt)
-                : new ConversationDeletionReceiverResult(ConversationAgentsOutcome.Absent));
+        public async Task<string?> CurrentTargetAsync(TenantId tenant, CancellationToken token) {
+            try
+            { token.ThrowIfCancellationRequested(); await (OperationHook?.Invoke("target") ?? Task.CompletedTask); ReceiverReads++; TargetCalls++; if (BlockTarget || BlockTargetCall == TargetCalls) { TargetEntered.TrySetResult(); return await TargetPending.Task; } return Target;
+            }
+            finally { OperationFinished?.Invoke("target"); }
         }
-        public Task<ConversationDeletionReceiverResult> SubmitAsync(ConversationDeletionSignal signal, string attemptId, string target, CancellationToken token)
+        public async Task<ConversationDeletionReceiverResult> LookupAsync(ConversationDeletionSignal signal, string attemptId, string target, CancellationToken token)
         {
-            token.ThrowIfCancellationRequested(); Submissions++;
+            try
+            {
+            token.ThrowIfCancellationRequested(); await (OperationHook?.Invoke("lookup") ?? Task.CompletedTask); ReceiverReads++;
+            if (BlockLookup) { LookupEntered.TrySetResult(); return await LookupPending.Task; }
+            if (UnknownLookup) { return new ConversationDeletionReceiverResult(ConversationAgentsOutcome.Unavailable); }
+            return Receipts.TryGetValue(target, out var receipt) ? new(ConversationAgentsOutcome.Available, receipt)
+                : new ConversationDeletionReceiverResult(ConversationAgentsOutcome.Absent);
+            }
+            finally { OperationFinished?.Invoke("lookup"); }
+        }
+        public async Task<ConversationDeletionReceiverResult> SubmitAsync(ConversationDeletionSignal signal, string attemptId, string target, CancellationToken token)
+        {
+            try
+            {
+            token.ThrowIfCancellationRequested(); await (OperationHook?.Invoke("submit") ?? Task.CompletedTask); Submissions++;
             source.PersistedEvents.OfType<ConversationDeletionDeliveryRecordedDomainEvent>()
                 .Any(e => e.Action == ConversationDeletionDeliveryAction.Attempt && e.DeliveryAttemptId == attemptId && e.TargetVersion == target).ShouldBeTrue();
-            if (RefuseSubmission) { return Task.FromResult(new ConversationDeletionReceiverResult(ConversationAgentsOutcome.Denied)); }
+            if (RefuseSubmission) { return new ConversationDeletionReceiverResult(ConversationAgentsOutcome.Denied); }
             var receipt = new ConversationDeletionAcknowledgement(ChangedReceipt ? "changed-signal" : signal.ConversationDeletionSignalId,
                 signal.SourceRevision, 19, target, "synthetic-authenticated-receiver-receipt"); Receipts[target] = receipt;
-            if (LoseReceiverResponse) { LoseReceiverResponse = false; return Task.FromException<ConversationDeletionReceiverResult>(new HttpRequestException("Controlled lost receiver response.")); }
-            return Task.FromResult(new ConversationDeletionReceiverResult(ConversationAgentsOutcome.Available, receipt));
+            if (LoseReceiverResponse) { LoseReceiverResponse = false; throw new HttpRequestException("Controlled lost receiver response."); }
+            return new ConversationDeletionReceiverResult(ConversationAgentsOutcome.Available, receipt);
+            }
+            finally { OperationFinished?.Invoke("submit"); }
         }
         public Task<ConversationClientResult<ConversationCreatedResult>> CreateConversationAsync(CreateConversationCommand command, CancellationToken token) => throw new NotSupportedException();
         public Task<ConversationClientResult<ConversationCommandAcceptedResult>> AppendMessageAsync(AppendMessageCommand command, CancellationToken token) => throw new NotSupportedException();

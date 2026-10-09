@@ -1,0 +1,21 @@
+# Story 9.2 EventStore repair and successor review
+
+This is preparation evidence for the 2026-10-09 authorized EventStore repair. It is not a Quality decision or a completed Story 9.2 record. The exact proposed material is [the v5 JSON packet](conformance-oracle-tiering-eventstore-repair-v5-proposal.json), SHA-256 `c1c919df4c8a1dcd021de24c99ebe88c50f4c2dd81f4da68f9c3fbd2ee2e7f84`, with canonical material digest `140bd55d8bbf370efc7527bfb9b284fe789b2c54162cfdb5de44244b4de12464`.
+
+## Source and package change
+
+EventStore head `07d1e23a6c5b06bbbb1fc8ddb5174cc3382d3d93` has four uncommitted repair files: a bounded `SourceNamespaceSnapshotReader`, its separate result type, a documented `Pending` publication delivery status, and 21 focused test cases. The packet binds their before and after SHA-256 bytes. The root head is `2c2b30d5045837e2277bc63d4296e096313ff151`; the EventStore gitlink has not been promoted. No new package or source candidate is claimed.
+
+The smallest package graph needed by the internal conformance project consists of EventStore Contracts, Client, ServiceDefaults, and DomainService. Release packages for all four were built locally at disposable version `3.117.2-story92.2`; their package hashes and dependencies are in the packet. With package references forced and that local feed supplied, the Conversations internal conformance Release build exits `0` with zero warnings and errors. Debug and Release source-reference builds also exit `0`. The pinned released version `3.117.1` lacks the publication and snapshot APIs, so it is not evidence of Release readiness.
+
+The repair expands the **EventStore.Client package API** relative to EventStore source head: public `SourceNamespaceSnapshotReader` and its constructor and generic `ReadFoldedAsync<T>` method; public `SourceNamespaceSnapshot<T>` and its constructor, properties, and generated record members; and `SourcePublicationDeliveryStatus.Pending = 3`. The packet binds every exported declaration from this repair (SHA-256 `df5445e94ae3e17e2b8ddb40a17ba0665e869f91987b58283816cccb94420078`) and the exact candidate Client assembly bytes. Comparing the Client assembly with published 3.117.1 changes 17 public type names, including publication APIs already present in the EventStore checkout. The packet binds that broader type list and both assembly hashes; the complete release API diff still needs package-owner review.
+
+## Migration impact
+
+Current-tree rederivation reports migration proposal `606a7e57dafb2084101e85c4003c93bf602643cf2a3f1265c1275424cb050fb4`, the same 14 changed-row digests as the retained v4 proposal, and **Conversations public drift** digest `3357725bc7ebc039baca0bf928718f03f2ae037dbd130e37704bd3315480d2d1`. That digest covers the Story 9.2 Conversations production surface; it does not cover the EventStore.Client API expansion above. The frozen executed-case floor remains 415, with three live controls counted separately. This measurement does not authorize the new source and package environment. The accepted v3 migration and records remain untouched. The pending v4 JSON and review remain byte-identical at SHA-256 `8aea6446a2f10d308284580cbc11ab4d90268ef2bc69e7e140f6d9300a4eb95d` and `57ee42ba8c45a4e09414d4f94ce13c68cf57413f884f738e585681caa19b6665`.
+
+## Checks and later decision
+
+The EventStore client and test project compile with zero warnings/errors; all 21 focused snapshot cases pass with no failed, skipped, or not-run cases. The two Conversations source-reference conformance builds and the local package-reference Release build pass. Commands and exact outcomes are in the JSON packet. These are compile and focused behavior checks; no complete tier execution or candidate-bound AC01–10 run is claimed.
+
+The package owner must review the full EventStore package API delta, commit and release a coherent package set, and Conversations must pin that released version. A clean committed successor candidate must then be remeasured. The Quality owner should review the resulting exact source/environment material, all 14 changed rows, the Conversations public drift digest, and the EventStore package API expansion and record a genuine digest-bound decision. Only after that decision may fresh portable and internal tier runs, the 22 exact/restored faults, and final-record verification establish Story 9.2 completion.

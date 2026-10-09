@@ -192,4 +192,108 @@ public sealed class ConversationDeletionDeliveryPumpTests
         var original = (await f.Source.ReplayAsync()).DeletionSource; original.LastAttemptId.ShouldBe(f.AttemptCommands.Single().DeliveryAttemptId);
         original.Acknowledgement.ShouldBeNull(); original.AcknowledgedSourceRevision.ShouldBe(0);
     }
+
+    /// <summary>Withdrawal during the final actual serialized source read cannot release acknowledgement/quarantine success, while durable original receipts remain intact.</summary>
+    [Theory]
+    [InlineData("existing-ack")][InlineData("existing-quarantine")][InlineData("persisted-ack")][InlineData("persisted-quarantine")][InlineData("attempt-ack")]
+    public async Task TerminalSourceReadRequiresSameCurrentWorkerAuthority(string vector)
+    {
+        ArgumentNullException.ThrowIfNull(vector);
+        var f = await Approved();
+        if (vector.StartsWith("existing", StringComparison.Ordinal))
+        {
+            f.ChangedReceipt = vector == "existing-quarantine";
+            (await f.Pump().DeliverAsync(f.Entry, TestContext.Current.CancellationToken)).ShouldBe(f.ChangedReceipt ? ConversationAgentsOutcome.Quarantined : ConversationAgentsOutcome.Available);
+            f.BlockSourceCall = f.SourceReads + 1;
+        }
+        else { f.ChangedReceipt = vector == "persisted-quarantine"; f.BlockSourceCall = vector == "attempt-ack" ? 2 : 3; }
+        var pending = f.Pump().DeliverAsync(f.Entry, TestContext.Current.CancellationToken);
+        await f.SourceEntered.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        // Exercise the attempt-read shortcut with an original acknowledgement already committed by another independently admitted worker.
+        if (vector == "attempt-ack")
+        {
+            f.BlockSourceCall = 0;
+            (await f.Pump().DeliverAsync(f.Entry, TestContext.Current.CancellationToken)).ShouldBe(ConversationAgentsOutcome.Available);
+        }
+        var retained = (await f.Source.ReplayAsync()).DeletionSource;
+        string before = System.Text.Json.JsonSerializer.Serialize(f.Source.PersistedEvents);
+        f.WithdrawAuthority = true; f.SourcePending.TrySetResult();
+        (await pending.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken)).ShouldBe(vector == "attempt-ack" ? ConversationAgentsOutcome.Unavailable : ConversationAgentsOutcome.Denied);
+        System.Text.Json.JsonSerializer.Serialize(f.Source.PersistedEvents).ShouldBe(before);
+        var after = (await f.Source.ReplayAsync()).DeletionSource;
+        after.Acknowledgement.ShouldBe(retained.Acknowledgement); after.LastAttemptId.ShouldBe(retained.LastAttemptId); after.PoisonCode.ShouldBe(retained.PoisonCode);
+        after.AcknowledgedSourceRevision.ShouldBe(retained.AcknowledgedSourceRevision);
+    }
+    /// <summary>Standalone pump entries bound actual dependency Tasks and synchronous invocations; late results resume no later protocol phase.</summary>
+    [Theory]
+    [InlineData("authority", false, false, false)]
+    [InlineData("authority", false, false, true)]
+    [InlineData("authority", false, true, false)]
+    [InlineData("authority", false, true, true)]
+    [InlineData("source", false, false, false)]
+    [InlineData("source", false, false, true)]
+    [InlineData("source", false, true, false)]
+    [InlineData("source", false, true, true)]
+    [InlineData("target", false, false, false)]
+    [InlineData("target", false, false, true)]
+    [InlineData("target", false, true, false)]
+    [InlineData("target", false, true, true)]
+    [InlineData("lookup", false, false, false)]
+    [InlineData("lookup", false, false, true)]
+    [InlineData("lookup", false, true, false)]
+    [InlineData("lookup", false, true, true)]
+    [InlineData("submit", false, false, false)]
+    [InlineData("submit", false, false, true)]
+    [InlineData("submit", false, true, false)]
+    [InlineData("submit", false, true, true)]
+    [InlineData("record:Attempt", false, false, false)]
+    [InlineData("record:Attempt", false, false, true)]
+    [InlineData("record:Attempt", false, true, false)]
+    [InlineData("record:Attempt", false, true, true)]
+    [InlineData("authority", true, false, false)]
+    [InlineData("authority", true, false, true)]
+    [InlineData("authority", true, true, false)]
+    [InlineData("authority", true, true, true)]
+    [InlineData("source", true, false, false)]
+    [InlineData("source", true, false, true)]
+    [InlineData("source", true, true, false)]
+    [InlineData("source", true, true, true)]
+    public async Task StandalonePumpBudgetBoundsEveryDependency(string stage, bool lookupOnly, bool invocation, bool cancellation)
+    {
+        var f = await Approved(); var clock = new PumpClock(); using var caller = new CancellationTokenSource(); using var unblock = new ManualResetEventSlim();
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously); var released = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var finished = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously); int pauses = 0;
+        f.OperationHook = async operation =>
+        {
+            if (operation != stage || Interlocked.Increment(ref pauses) != 1) { return; }
+            entered.TrySetResult(); if (invocation) { unblock.Wait(); } else { await released.Task; }
+        };
+        f.OperationFinished = operation => { if (operation == stage) { finished.TrySetResult(); } };
+        var pump = f.Pump(clock);
+        var pending = Task.Run(async () => lookupOnly ? (int)await pump.LookupAcknowledgementAsync(f.Entry, caller.Token) : (int)await pump.DeliverAsync(f.Entry, caller.Token), CancellationToken.None);
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(3), TestContext.Current.CancellationToken);
+        try
+        {
+            if (cancellation) { caller.Cancel(); var error = await Should.ThrowAsync<OperationCanceledException>(() => pending.WaitAsync(TimeSpan.FromSeconds(2), TestContext.Current.CancellationToken)); error.CancellationToken.ShouldBe(caller.Token); }
+            else { clock.Advance(TimeSpan.FromSeconds(30)); (await pending.WaitAsync(TimeSpan.FromSeconds(2), TestContext.Current.CancellationToken)).ShouldBe(lookupOnly ? (int)SourcePublicationDeliveryStatus.Unavailable : (int)ConversationAgentsOutcome.Unavailable); }
+            (await f.Source.ReplayAsync()).DeletionSource.AcknowledgedSourceRevision.ShouldBe(0);
+            int attempts = f.AttemptCommands.Count; int submissions = f.Submissions;
+            unblock.Set(); released.TrySetResult(); await finished.Task.WaitAsync(TimeSpan.FromSeconds(2), TestContext.Current.CancellationToken);
+            f.OperationHook = null;
+            if (stage == "submit")
+            {
+                SpinWait.SpinUntil(() => f.Receipts.ContainsKey(f.Target), TimeSpan.FromSeconds(2)).ShouldBeTrue();
+                (await f.Pump().DeliverAsync(f.Entry, TestContext.Current.CancellationToken)).ShouldBe(ConversationAgentsOutcome.Available);
+                f.Submissions.ShouldBe(1); f.AttemptCommands.Count.ShouldBe(1);
+                (await new ConversationDeletionPublicationDelivery(f.Pump()).LookupAcknowledgementAsync(f.Entry, TestContext.Current.CancellationToken)).ShouldBe(SourcePublicationDeliveryStatus.Acknowledged);
+            }
+            else
+            {
+                if (stage == "record:Attempt") { SpinWait.SpinUntil(() => f.AttemptCommands.Count == 1, TimeSpan.FromSeconds(2)).ShouldBeTrue(); }
+                else { f.AttemptCommands.Count.ShouldBe(attempts); }
+                f.Submissions.ShouldBe(submissions); (await f.Source.ReplayAsync()).DeletionSource.AcknowledgedSourceRevision.ShouldBe(0);
+            }
+        }
+        finally { unblock.Set(); released.TrySetResult(); }
+    }
 }
