@@ -579,15 +579,16 @@ class ReleaseToolingTests(unittest.TestCase):
 
     def test_workflows_pin_bypass_and_freeze_contract(self) -> None:
         release = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
-        self.assertEqual(2, release.count(release_contract.BUILDS_EXECUTION_SHA))
-        self.assertIn("require-publication-authority: false", release)
-        self.assertIn("publish-containers: false", release)
-        self.assertIn("reserved-version: ''", release)
-        self.assertIn("release-authority-issue-url: ''", release)
-        self.assertIn("release-authority-owner: ''", release)
+        self.assertEqual(3, release.count(release_contract.BUILDS_EXECUTION_SHA))
+        self.assertIn("HEXALITH_RELEASE_REQUIRE_AUTHORITY: 'false'", release)
+        self.assertIn("environment: production", release)
         self.assertIn("HEXALITH_RELEASE_PUBLISH_ENABLED", release)
         self.assertIn("if: ${{ needs.verify-source.outputs.publish-enabled == 'true' }}", release)
         self.assertIn('verify:release-plan -- "$RELEASE_VERSION"', release)
+        self.assertIn("NuGet/login@8d196754b4036150537f80ac539e15c2f1028841", release)
+        self.assertIn("NUGET_TRUSTED_PUBLISHING_USER: ${{ vars.NUGET_TRUSTED_PUBLISHING_USER }}", release)
+        self.assertIn("NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}", release)
+        self.assertNotIn("secrets.NUGET_API_KEY", release)
         self.assertNotIn("secrets: inherit", release)
 
         configuration = json.loads((ROOT / ".releaserc.json").read_text(encoding="utf-8"))
