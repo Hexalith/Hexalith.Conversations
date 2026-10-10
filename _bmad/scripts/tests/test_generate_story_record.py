@@ -10078,7 +10078,7 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
         binary.write_bytes(b"candidate binary")
     monkeypatch.setattr(generator, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
     monkeypatch.setattr(generator, "v2_verified_predecessor", lambda _repo, _rev, story, *_: story * 32)
-    authority = {"epic": "epic-v10", "architecture": "architecture-v10", "planningCandidate": "c" * 40}
+    authority = {"epic": "epic-v10", "architecture": "architecture-v10", "planningCandidate": "c" * 40, "bundleDigest": "d" * 64}
     previous = {
         "summary": {"required": 1, "passed": 1, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0},
         "scenarios": [{"result": "PASS"}], "candidate": {"commit": "b" * 40}, "authority": authority.copy(),
@@ -10098,25 +10098,30 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
     contract = {"inventory": {"id": "V9-10.1-ENTRY-v1", "sha256":
                 "74c4c5e9e70cb86648dc753c5edc97bdb8d598ad2a4aba55d3670794e990ca84"},
                 "predecessors": ["7.4", "9.2"], "authority": authority}
-    facts = generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, scenario_records, None)
+    facts = generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
     assert facts["sourceRevisionId"] == candidate
     assert len(facts["predecessorRecords"]) == 2
     assert len(facts["projects"]) == 2
     assert len(facts["results"]) == 5
     scenario_records["AC-10.1-06"]["resultFile"]["path"] = "foreign.trx"
     with pytest.raises(generator.V2Stop) as error:
-        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, scenario_records, None)
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
     assert "TEST_RESULTS_MISSING" in {row["code"] for row in error.value.findings}
 
     scenario_records["AC-10.1-06"]["resultFile"]["path"] = "artifacts/v9/10.1/AC-10.1-06.trx"
     previous["authority"] = {**authority, "architecture": "foreign-architecture"}
     with pytest.raises(generator.V2Stop) as error:
-        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, scenario_records, None)
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "AUTHORITY_BINDING_INVALID" in {row["code"] for row in error.value.findings}
+    previous["authority"] = authority.copy()
+    previous["authority"]["bundleDigest"] = "e" * 64
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
     assert "AUTHORITY_BINDING_INVALID" in {row["code"] for row in error.value.findings}
     previous["authority"] = authority.copy()
     monkeypatch.setattr(generator, "try_resolve_commit", lambda *_: None)
     with pytest.raises(generator.V2Stop) as error:
-        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, scenario_records, None)
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
     assert "AUTHORITY_BINDING_INVALID" in {row["code"] for row in error.value.findings}
 
 
@@ -10139,6 +10144,41 @@ def test_story101_evaluated_project_boundary_rejects_overrides_and_references(tm
                        encoding="utf-8")
     with pytest.raises(ValueError, match="assembly reference"):
         generator.v2_10_1_project_boundary(tmp_path, path, True)
+    for dependency in (
+        '<PackageReference Include="Hexalith.Conversations.Contracts" Version="1.0.0" />',
+        '<ProjectReference Include="../Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj" />',
+    ):
+        project.write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>'
+                           '<IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>'
+                           f'</PropertyGroup><ItemGroup>{dependency}</ItemGroup></Project>', encoding="utf-8")
+        with pytest.raises(ValueError, match="package or project dependency"):
+            generator.v2_10_1_project_boundary(tmp_path, path, True)
+
+
+def test_story101_committed_predecessor_requires_valid_pair(tmp_path: Path) -> None:
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    json_path = "docs/release-evidence/story-7.4-final-record-v2.json"
+    markdown_path = "docs/release-evidence/story-7.4-final-record-v2.md"
+    for path in (json_path, markdown_path):
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((WORKSPACE / path).read_bytes())
+    subprocess.run(["git", "-C", str(tmp_path), "add", "--", json_path, markdown_path], check=True)
+    subprocess.run(["git", "-C", str(tmp_path), "-c", "user.name=Fixture", "-c",
+                    "user.email=fixture@example.invalid", "commit", "-qm", "test: add predecessor fixture"], check=True)
+    candidate = subprocess.check_output(["git", "-C", str(tmp_path), "rev-parse", "HEAD"], text=True).strip()
+    assert generator.v2_verified_predecessor(tmp_path, candidate, "7.4", json_path,
+                                             markdown_path, validators["record"]) is not None
+    target = tmp_path / markdown_path
+    target.write_bytes(target.read_bytes() + b"corruption\n")
+    subprocess.run(["git", "-C", str(tmp_path), "add", "--", markdown_path], check=True)
+    subprocess.run(["git", "-C", str(tmp_path), "-c", "user.name=Fixture", "-c",
+                    "user.email=fixture@example.invalid", "commit", "-qm", "test: corrupt predecessor fixture"], check=True)
+    candidate = subprocess.check_output(["git", "-C", str(tmp_path), "rev-parse", "HEAD"], text=True).strip()
+    assert generator.v2_verified_predecessor(tmp_path, candidate, "7.4", json_path,
+                                             markdown_path, validators["record"]) is None
 
 
 def test_story101_artifact_linked_parent_is_rejected(tmp_path: Path) -> None:

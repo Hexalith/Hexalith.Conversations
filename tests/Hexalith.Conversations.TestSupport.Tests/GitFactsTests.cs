@@ -137,6 +137,32 @@ public sealed class GitFactsTests
             GitFact<IReadOnlyList<GitDiffEntry>> invalidEncoding = await PythonFacts(malformedUtf8).ReadDiffAsync(
                 fixture.Root, before, after, TestContext.Current.CancellationToken);
             invalidEncoding.Status.ShouldBe(GitFactStatus.Invalid);
+            string malformedRevision = "import sys\na=sys.argv[1:]\n"
+                + "sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode() if '--show-toplevel' in a else b' '+b'a'*40+b'\\n')";
+            (await PythonFacts(malformedRevision).ResolveRevisionAsync(
+                fixture.Root, after, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
+            foreach (string raw in new[]
+            {
+                "b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R999\\0old\\0new\\0'",
+                "b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' A\\0path\\0'",
+            })
+            {
+                string malformedDiff = "import sys\na=sys.argv[1:]\n"
+                    + "sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode() if '--show-toplevel' in a else "
+                    + "(b'a'*40+b'\\n' if '--verify' in a else (" + raw + " if 'diff' in a else b'')))";
+                (await PythonFacts(malformedDiff).ReadDiffAsync(
+                    fixture.Root, before, after, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
+            }
+            string renameSource = Path.Combine(fixture.Root, "rename-source.txt");
+            File.WriteAllText(renameSource, "content to rename");
+            string renameBefore = fixture.Commit();
+            File.Move(renameSource, Path.Combine(fixture.Root, "rename-destination.txt"));
+            string renameAfter = fixture.Commit();
+            fixture.Git("config", "diff.renames", "false");
+            GitFact<IReadOnlyList<GitDiffEntry>> renamed = await facts.ReadDiffAsync(
+                fixture.Root, renameBefore, renameAfter, TestContext.Current.CancellationToken);
+            renamed.IsSuccess.ShouldBeTrue(renamed.Message);
+            renamed.Value!.Single().Status.ShouldBe("R100");
         }
         finally
         {
@@ -173,6 +199,11 @@ public sealed class GitFactsTests
             Directory.CreateSymbolicLink(rootLink, fixture.Root);
             RepositoryLocator.ResolveContainedPath(rootLink, "seed.txt").Code.ShouldBe("REPOSITORY_PATH_ESCAPE");
             File.Delete(rootLink);
+            string ancestorLink = Path.Combine(Path.GetTempPath(), "gitfacts-ancestor-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateSymbolicLink(ancestorLink, Path.GetDirectoryName(fixture.Root)!);
+            RepositoryLocator.ResolveContainedPath(Path.Combine(ancestorLink, Path.GetFileName(fixture.Root)), "seed.txt")
+                .Code.ShouldBe("REPOSITORY_PATH_ESCAPE");
+            File.Delete(ancestorLink);
             Directory.Delete(outside);
         }
         string shallowPath = Path.Combine(Path.GetTempPath(), "gitfacts-shallow-" + Guid.NewGuid().ToString("N"));
@@ -183,7 +214,10 @@ public sealed class GitFactsTests
                 ["clone", "--quiet", "--depth", "1", "file://" + fixture.Root, shallowPath], TestContext.Current.CancellationToken);
             shallowClone.Value!.ExitCode.ShouldBe(0);
             (await facts.ResolveRevisionAsync(shallowPath, first, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
+            (await facts.ResolveRevisionAsync(shallowPath, "HEAD~1", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
             (await facts.ResolveRevisionAsync(shallowPath, "misspelled", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
+            (await facts.ResolveRevisionAsync(shallowPath, "HEAD~bogus", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
+            (await facts.ResolveRevisionAsync(shallowPath, new string('f', 40), TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
             fixture.Git("config", "uploadpack.allowFilter", "true");
             GitFact<GitCommandResult> partialClone = await facts.RunAsync(Path.GetTempPath(),
                 ["clone", "--quiet", "--no-checkout", "--filter=blob:none", "--no-local", "file://" + fixture.Root, partialPath], TestContext.Current.CancellationToken);

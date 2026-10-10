@@ -5400,6 +5400,8 @@ def v2_verified_predecessor(
 
 def v2_10_1_artifact_bytes(repository: Path, relative: str) -> bytes:
     """Read a regular candidate artifact without following any linked path component."""
+    if any(parent.is_symlink() for parent in (repository, *repository.parents)):
+        raise ValueError(f"linked artifact path: {relative}")
     path = repository
     for component in PurePosixPath(relative).parts:
         if component in ("", ".", ".."):
@@ -5456,7 +5458,7 @@ def v2_10_1_project_boundary(repository: Path, relative: str, helper: bool) -> N
 
 def v2_10_1_facts(
     repository: Path, candidate: str, contract_path: str,
-    contract: dict[str, Any], scenario_records: dict[str, dict[str, Any]],
+    contract: dict[str, Any], authority: dict[str, Any], scenario_records: dict[str, dict[str, Any]],
     validator: Any,
 ) -> dict[str, Any]:
     """Bind the two neutral projects, five measured results, and hard entry records."""
@@ -5473,8 +5475,8 @@ def v2_10_1_facts(
             continue
         previous = v2_parse_json(v2_committed_blob(repository, candidate, json_path) or b"")
         summary = previous["summary"]
-        authority_keys = ("epic", "architecture", "planningCandidate")
-        compatible_authority = all(previous["authority"].get(key) == contract["authority"].get(key)
+        authority_keys = ("epic", "architecture", "planningCandidate", "bundleDigest")
+        compatible_authority = all(previous["authority"].get(key) == authority.get(key)
                                    for key in authority_keys)
         predecessor_candidate = previous["candidate"]["commit"]
         if (summary["passed"] != summary["required"] or any(summary[key] for key in
@@ -8041,7 +8043,7 @@ def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> b
         record["faultInjection"]["results"] = v2_9_2_faults(repository, candidate, validators["record"])
     if story_id == "10.1":
         record["testSupportExecution"] = v2_10_1_facts(
-            repository, candidate, contract_path, contract, scenario_records, validators["record"])
+            repository, candidate, contract_path, contract, authority, scenario_records, validators["record"])
     if story_id == "8.2":
         v2_8_2_positive(repository, candidate, scenario_records["AC-8.2-01"])
         record["uxValidation"] = v2_8_2_facts(repository, candidate, contract, validators["record"])

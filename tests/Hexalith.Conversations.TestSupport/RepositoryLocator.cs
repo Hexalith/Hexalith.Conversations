@@ -26,7 +26,7 @@ public static class RepositoryLocator
         try
         {
             string fullRoot = Path.GetFullPath(root);
-            if (!Directory.Exists(fullRoot) || new DirectoryInfo(fullRoot).LinkTarget is not null)
+            if (!Directory.Exists(fullRoot) || HasLinkedAncestor(fullRoot))
                 return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", "The repository root is missing or symbolic.");
             string normalized = relativePath.Replace('/', Path.DirectorySeparatorChar);
             string candidate = Path.GetFullPath(Path.Combine(fullRoot, normalized));
@@ -50,5 +50,15 @@ public static class RepositoryLocator
         {
             return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", exception.Message);
         }
+    }
+
+    private static bool HasLinkedAncestor(string path)
+    {
+        for (string? current = path; current is not null; current = Path.GetDirectoryName(current))
+        {
+            if (new DirectoryInfo(current).LinkTarget is not null) return true;
+            if (Path.GetPathRoot(current) == current) break;
+        }
+        return false;
     }
 }
