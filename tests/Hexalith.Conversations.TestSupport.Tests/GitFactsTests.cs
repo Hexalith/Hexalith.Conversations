@@ -153,6 +153,17 @@ public sealed class GitFactsTests
                 (await PythonFacts(malformedDiff).ReadDiffAsync(
                     fixture.Root, before, after, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
             }
+            string scoredRename = "import sys\na=sys.argv[1:]\n"
+                + "sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode() if '--show-toplevel' in a else "
+                + "(b'a'*40+b'\\n' if '--verify' in a else "
+                + "(b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R75\\0old\\0new\\0' if 'diff' in a else b'')))";
+            GitFact<IReadOnlyList<GitDiffEntry>> validScore = await PythonFacts(scoredRename).ReadDiffAsync(
+                fixture.Root, before, after, TestContext.Current.CancellationToken);
+            validScore.IsSuccess.ShouldBeTrue(validScore.Message);
+            GitDiffEntry scoredEntry = validScore.Value!.Single();
+            scoredEntry.Status.ShouldBe("R75");
+            scoredEntry.SourcePath.ShouldBe("old");
+            scoredEntry.Path.ShouldBe("new");
             string renameSource = Path.Combine(fixture.Root, "rename-source.txt");
             File.WriteAllText(renameSource, "content to rename");
             string renameBefore = fixture.Commit();

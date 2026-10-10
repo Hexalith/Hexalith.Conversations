@@ -451,7 +451,7 @@ public sealed class GitFacts
     private static bool IsTreeMode(string mode, string type) => ((mode is "100644" or "100755" or "120000") && type == "blob")
         || (mode == "160000" && type == "commit");
     private static bool IsDiffStatus(string value) => value is "A" or "D" or "M" or "T"
-        || (value.Length == 4 && (value[0] is 'R' or 'C' or 'M') && value[1..].All(char.IsAsciiDigit)
+        || (value.Length is >= 2 and <= 4 && (value[0] is 'R' or 'C' or 'M') && value[1..].All(char.IsAsciiDigit)
             && int.Parse(value[1..], System.Globalization.CultureInfo.InvariantCulture) <= 100);
     private static bool IsDiffRelation(string[] fields)
     {
