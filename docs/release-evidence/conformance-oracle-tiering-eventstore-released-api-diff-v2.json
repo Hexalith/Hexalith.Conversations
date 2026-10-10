@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "hexalith.conversations.story-9.2-released-eventstore-api-diff.v2",
+  "status": "partial-comparison-quality-review-required",
+  "versions": {
+    "before": "3.118.0",
+    "after": "3.119.0"
+  },
+  "priorEvidence": {
+    "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-released-api-diff-v1.json",
+    "sha256": "6a5e5d51f9ec9e5f5cd144b83b25a55547c3231110693e224d6db84fad978b7e"
+  },
+  "tool": {
+    "name": "dotnet-inspect",
+    "version": "0.26.0+d236a7a",
+    "invocationPrefix": [
+      "dnx",
+      "dotnet-inspect",
+      "-y",
+      "--"
+    ]
+  },
+  "packageArchives": [
+    {
+      "package": "Hexalith.EventStore.Client",
+      "version": "3.118.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.client/3.118.0/hexalith.eventstore.client.3.118.0.nupkg",
+      "sha256": "43108966c677e4ca5d8c2205ffd51cdcbdc37a89d94077c956618b8891f05251",
+      "sizeBytes": 431611
+    },
+    {
+      "package": "Hexalith.EventStore.Client",
+      "version": "3.119.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.client/3.119.0/hexalith.eventstore.client.3.119.0.nupkg",
+      "sha256": "8dcabb8c34d071721b95d7abbabbe4b86fb6af780301e1ac080300031ba7898c",
+      "sizeBytes": 431680
+    },
+    {
+      "package": "Hexalith.EventStore.Contracts",
+      "version": "3.118.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.contracts/3.118.0/hexalith.eventstore.contracts.3.118.0.nupkg",
+      "sha256": "81af7adb04e1908bca9ee7dacb409cb4a8f51bf7696bad1a0f7984cf12e3baa3",
+      "sizeBytes": 318526
+    },
+    {
+      "package": "Hexalith.EventStore.Contracts",
+      "version": "3.119.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.contracts/3.119.0/hexalith.eventstore.contracts.3.119.0.nupkg",
+      "sha256": "24b85cddb83fa51998cdea1cd0521d24d437abc865003061fba8a11a54270205",
+      "sizeBytes": 318589
+    },
+    {
+      "package": "Hexalith.EventStore.DomainService",
+      "version": "3.118.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.domainservice/3.118.0/hexalith.eventstore.domainservice.3.118.0.nupkg",
+      "sha256": "3fd0ae1183bd1c6040d8b9d65a2d1af8d9361c6d52a8f0225b4b324089308f37",
+      "sizeBytes": 174005
+    },
+    {
+      "package": "Hexalith.EventStore.DomainService",
+      "version": "3.119.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.domainservice/3.119.0/hexalith.eventstore.domainservice.3.119.0.nupkg",
+      "sha256": "75080b4d20790e9685cdf83b012f11680b3dbd4433ca7938174ad992da99cf51",
+      "sizeBytes": 174012
+    },
+    {
+      "package": "Hexalith.EventStore.ServiceDefaults",
+      "version": "3.118.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.servicedefaults/3.118.0/hexalith.eventstore.servicedefaults.3.118.0.nupkg",
+      "sha256": "5bbb454428452de070b8a2ce59a0bf583c55e73351609a006859d5e2f34e92e2",
+      "sizeBytes": 61562
+    },
+    {
+      "package": "Hexalith.EventStore.ServiceDefaults",
+      "version": "3.119.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.servicedefaults/3.119.0/hexalith.eventstore.servicedefaults.3.119.0.nupkg",
+      "sha256": "874b08e064ab525cc1264f7394a2c57e18e6a37c5af070c96a47a192676a43ae",
+      "sizeBytes": 61557
+    }
+  ],
+  "probes": [
+    {
+      "id": "client",
+      "command": [
+        "dnx",
+        "dotnet-inspect",
+        "-y",
+        "--",
+        "diff",
+        "--package",
+        "Hexalith.EventStore.Client@3.118.0..3.119.0",
+        "--table"
+      ],
+      "exitCode": 0,
+      "stdout": {
+        "sha256": "6b9231cfb7b632b7329e8a1ea0ce48554a85563cab37b18ff401a1b9faa602c4",
+        "text": "Field     Value\nVersions  3.118.0 -> 3.119.0\nSummary   no changes\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    {
+      "id": "contracts",
+      "command": [
+        "dnx",
+        "dotnet-inspect",
+        "-y",
+        "--",
+        "diff",
+        "--package",
+        "Hexalith.EventStore.Contracts@3.118.0..3.119.0",
+        "--table"
+      ],
+      "exitCode": 0,
+      "stdout": {
+        "sha256": "6b9231cfb7b632b7329e8a1ea0ce48554a85563cab37b18ff401a1b9faa602c4",
+        "text": "Field     Value\nVersions  3.118.0 -> 3.119.0\nSummary   no changes\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    {
+      "id": "domainservice",
+      "command": [
+        "dnx",
+        "dotnet-inspect",
+        "-y",
+        "--",
+        "diff",
+        "--package",
+        "Hexalith.EventStore.DomainService@3.118.0..3.119.0",
+        "--table"
+      ],
+      "exitCode": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "8dddc246f8b616628917719837cc2665ea768e2166d8f61c2533beaad50de1e3",
+        "text": "Error: API comparison is incomplete; not compared (BothIncomplete). Before: 1 metadata inspection failure(s). After: 1 metadata inspection failure(s).\n"
+      }
+    },
+    {
+      "id": "servicedefaults",
+      "command": [
+        "dnx",
+        "dotnet-inspect",
+        "-y",
+        "--",
+        "diff",
+        "--package",
+        "Hexalith.EventStore.ServiceDefaults@3.118.0..3.119.0",
+        "--table"
+      ],
+      "exitCode": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "8dddc246f8b616628917719837cc2665ea768e2166d8f61c2533beaad50de1e3",
+        "text": "Error: API comparison is incomplete; not compared (BothIncomplete). Before: 1 metadata inspection failure(s). After: 1 metadata inspection failure(s).\n"
+      }
+    }
+  ],
+  "findings": {
+    "client": "no public API changes reported",
+    "contracts": "no public API changes reported",
+    "domainService": "BothIncomplete: one metadata inspection failure before and after",
+    "serviceDefaults": "BothIncomplete: one metadata inspection failure before and after",
+    "allFourComparisonsComplete": false
+  },
+  "qualityApprovalClaimed": false,
+  "candidateAcceptanceClaimed": false,
+  "historicalEvidenceChanged": false
+}

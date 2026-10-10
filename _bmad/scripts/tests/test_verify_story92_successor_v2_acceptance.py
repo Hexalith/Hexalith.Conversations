@@ -94,7 +94,11 @@ def test_changed_approval_bytes_reject_before_candidate_checks(approved_source: 
 def test_v2_environment_schema_is_additive() -> None:
     schema = json.loads((ROOT / "_bmad/schemas/story-final-record-v2.schema.json").read_bytes())
     validator = jsonschema.Draft202012Validator(schema)
-    original = json.loads((ROOT / "docs/release-evidence/story-9.2-final-record-v2.json").read_bytes())
+    historical = subprocess.run(
+        ["git", "-C", str(ROOT), "show",
+         "fbe2f502eed26df45edc12e4a12e9917bf97b438:docs/release-evidence/story-9.2-final-record-v2.json"],
+        capture_output=True, check=True)
+    original = json.loads(historical.stdout)
     assert not list(validator.iter_errors(original))
     environment = {
         "route": "story-9.2-successor-v2", "approvedSourceCommit": MODULE.BASE,

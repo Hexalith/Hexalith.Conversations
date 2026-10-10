@@ -4320,7 +4320,8 @@
           "oneOf": [
             {"$ref": "#/$defs/candidateEnvironment"},
             {"$ref": "#/$defs/candidateEnvironmentV2"},
-            {"$ref": "#/$defs/candidateEnvironmentV3"}
+            {"$ref": "#/$defs/candidateEnvironmentV3"},
+            {"$ref": "#/$defs/candidateEnvironmentV4"}
           ]
         }
       }
@@ -4475,6 +4476,38 @@
             }
           }
         }
+      }
+    },
+    "candidateEnvironmentV4": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["route", "approvedSourceCommit", "scopeAuthorization", "scopeProposal", "qualityApproval", "rootGitlinks"],
+      "properties": {
+        "route": {"const": "story-9.2-successor-v4"},
+        "approvedSourceCommit": {"const": "353e9dbf47a1472b29fe3f43d485a8ae3a03b884"},
+        "scopeAuthorization": {
+          "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+          "properties": {
+            "path": {"const": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v4.json"},
+            "sha256": {"const": "a848504c12f4c638190657621470d78ad9a0c330f980017a4e93593afc21ef10"}
+          }
+        },
+        "scopeProposal": {
+          "type": "object", "additionalProperties": false, "required": ["path", "sha256", "proposalSha256"],
+          "properties": {
+            "path": {"const": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v4.json"},
+            "sha256": {"const": "0939819cbe661a25abcb8746dd85a7cecf2fdfd1ed33a957d1265d42257930b1"},
+            "proposalSha256": {"const": "f5dfa7f71b93bbb799559bbddef69464cd63d2a49dc8ffb127323c2e5e8f1c44"}
+          }
+        },
+        "qualityApproval": {
+          "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+          "properties": {
+            "path": {"const": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v7.json"},
+            "sha256": {"const": "8acb6e58c34a0de0931651e2597afdad1bd958a8be8a75fca616fcd56e770389"}
+          }
+        },
+        "rootGitlinks": {"$ref": "#/$defs/candidateEnvironmentV3/properties/rootGitlinks"}
       }
     },
     "candidateEnvironment": {

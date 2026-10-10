@@ -100,13 +100,23 @@ def test_v6_packet_binds_authorized_source_and_prior_api_evidence() -> None:
     assert binding["releasedEventStoreApiCompatSha256"] == V3.V2.PREPARER.API_COMPAT_EVIDENCE_SHA
     assert len(binding["changedAssertionRows"]) == 14
     assert proposal["qualityApprovalClaimed"] is False and proposal["acceptanceClaimed"] is False
-    assert PREPARE.validate_packet(ROOT, proposal) == binding
+    # The retained packet belongs to fbe2f50. Current main has seven later
+    # gitlink promotions, which the historical validator must reject.
+    with pytest.raises(PREPARE.V3.AcceptanceError) as error:
+        PREPARE.validate_packet(ROOT, proposal)
+    assert error.value.code == "SUCCESSOR_SCOPE_DRIFT"
 
 
 def test_v6_packet_rejects_a_change_outside_row_digests(monkeypatch: pytest.MonkeyPatch) -> None:
     proposal = json.loads((ROOT / PREPARE.OUT).read_bytes())
     actual = PREPARE.verifier().derive_migration(ROOT, current_tree=True)
+    prior = json.loads((ROOT / V3.V2.PROPOSAL).read_bytes())["successorMaterial"]
+    actual["proposal"] = prior["proposedMigration"]
+    actual["proposalSha256"] = prior["proposedMigrationSha256"]
     actual["proposal"]["declarations"]["completionInventory"]["unreviewed"] = "change"
+    # Isolate the migration check from the separately exercised current-main
+    # scope drift; the mutation must still fail against the approved v6 bytes.
+    monkeypatch.setattr(PREPARE.V3, "validate", lambda *_args, **_kwargs: {})
     monkeypatch.setattr(PREPARE, "verifier", lambda: type("ChangedVerifier", (), {"derive_migration":
                                                         staticmethod(lambda *_args, **_kwargs: actual)})())
     with pytest.raises(PREPARE.V3.AcceptanceError) as error:

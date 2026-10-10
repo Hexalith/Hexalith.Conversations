@@ -54,11 +54,13 @@ AcceptanceError = V2.AcceptanceError
 require = V2.require
 
 
-def validate(root: Path, candidate: str, *, committed: bool = True) -> dict[str, Any]:
+def validate(root: Path, candidate: str, *, committed: bool = True,
+             require_head: bool = True) -> dict[str, Any]:
     """Prove exact v1/v2/v3 committed history and constrain later tooling changes."""
     root = root.resolve()
-    require(V2.git(root, "rev-parse", "HEAD^{commit}") == candidate,
-            "SUCCESSOR_CANDIDATE_INVALID", "candidate must be the checkout HEAD")
+    if require_head:
+        require(V2.git(root, "rev-parse", "HEAD^{commit}") == candidate,
+                "SUCCESSOR_CANDIDATE_INVALID", "candidate must be the checkout HEAD")
     require(V2.git(root, "merge-base", BASE, candidate) == BASE,
             "SUCCESSOR_CANDIDATE_INVALID", "candidate does not descend from the authorized v3 source")
     # The prior validator proves the entire v1/v2 Git path/object and promotion

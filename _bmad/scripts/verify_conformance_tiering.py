@@ -37,6 +37,7 @@ def _load(name: str, path: Path) -> Any:
 TIERING = _load("story92_frozen_tiering", Path(__file__).with_name("generate_conformance_tiering.py"))
 SUCCESSOR_V2 = _load("story92_successor_v2_acceptance", Path(__file__).with_name("verify_story92_successor_v2_acceptance.py"))
 SUCCESSOR_V3 = _load("story92_successor_v3_scope", Path(__file__).with_name("verify_story92_successor_v3_scope.py"))
+SUCCESSOR_V4 = _load("story92_successor_v4_acceptance", Path(__file__).with_name("verify_story92_successor_v4_acceptance.py"))
 RECORD = TIERING.RECORD
 CONTRACT = "_bmad-output/planning-artifacts/v9/story-contracts/9.2.json"
 AMENDMENT = "_bmad-output/planning-artifacts/v9/story-9.2-execution-amendment-v1.json"
@@ -279,6 +280,15 @@ def fault_source_paths(root: Path) -> list[str]:
                       SUCCESSOR_V3.SCOPE, SUCCESSOR_V3.REVIEW, SUCCESSOR_V3.AUTH})
         for path in (SUCCESSOR_V3.QUALITY_PROPOSAL, SUCCESSOR_V3.QUALITY_REVIEW,
                      SUCCESSOR_V3.QUALITY_APPROVAL):
+            if (root / path).is_file():
+                paths.add(path)
+    if (root / SUCCESSOR_V4.SCOPE).is_file() and (root / SUCCESSOR_V4.AUTH).is_file():
+        paths.add("_bmad/scripts/verify_story92_successor_v4_acceptance.py")
+        paths.add("_bmad/scripts/tests/test_verify_story92_successor_v4_acceptance.py")
+        for path in (SUCCESSOR_V4.SCOPE, SUCCESSOR_V4.REVIEW, SUCCESSOR_V4.AUTH,
+                     SUCCESSOR_V4.API_DIFF, SUCCESSOR_V4.API_COMPAT,
+                     SUCCESSOR_V4.QUALITY_PROPOSAL, SUCCESSOR_V4.QUALITY_REVIEW,
+                     SUCCESSOR_V4.QUALITY_APPROVAL):
             if (root / path).is_file():
                 paths.add(path)
     paths.update(row["path"] for row in frozen["supersedes"]["v1Artifacts"] + frozen["supersedes"]["tieringLineage"])
@@ -1021,6 +1031,44 @@ def verify_authorized_successor_v3_scope(root: Path, candidate: str, portable_re
     return report
 
 
+def verify_authorized_successor_v4_scope(root: Path, candidate: str, portable_result: str | None = None,
+                                         internal_result: str | None = None, *, mode: str = "complete") -> dict[str, Any]:
+    """Run the exact v4 scope and v7 Quality route with live migration proof."""
+    report: dict[str, Any] = {"schemaVersion": "hexalith.conversations.conformance-tier-execution.v1",
+                              "storyId": "9.2", "result": "FAIL", "exitCode": 1, "blockers": []}
+    try:
+        require(mode in ("complete", "structure"), "TIERING_INPUT_INVALID", "Unsupported v4 successor mode")
+        scope = SUCCESSOR_V4.authority(root, candidate)
+        approval = SUCCESSOR_V4.approved_quality(root, candidate)
+        report = verify(root, portable_result=portable_result, internal_result=internal_result,
+                        mode=mode, current_tree=True, require_approval=False)
+        if report["result"] != "PASS":
+            return report
+        proposal = SUCCESSOR_V4.V2.PREPARER.V1.parse(SUCCESSOR_V4.V2.pinned(
+            root, SUCCESSOR_V4.QUALITY_PROPOSAL, SUCCESSOR_V4.QUALITY_PROPOSAL_SHA,
+            candidate=candidate))
+        material = proposal["successorMaterial"]
+        derived = derive_migration(root, current_tree=True)
+        require(derived["proposalSha256"] == material["migration"]["proposalSha256"]
+                and [[row["id"], row["rowSha256"]] for row in derived["proposal"]["changedAssertions"]]
+                == material["migration"]["changedAssertionRows"]
+                and derived["proposal"]["publicSurface"]["driftSha256"]
+                == material["migration"]["publicDriftSha256"],
+                "ASSERTION_STRENGTH_WEAKENED", "live migration differs from v7 approved material")
+        report["migration"] = bound(root, SUCCESSOR_V4.QUALITY_PROPOSAL)
+        report["proposalSha256"] = derived["proposalSha256"]
+        report["approval"] = approval
+        report["successorV4Scope"] = scope
+        return report
+    except SUCCESSOR_V4.AcceptanceError as error:
+        report["blockers"] = [{"code": error.code, "message": str(error)}]
+    except (VerificationError, TIERING.TieringError) as error:
+        report["blockers"] = [{"code": error.code, "message": str(error)}]
+    except (KeyError, TypeError, ValueError, OSError) as error:
+        report["blockers"] = [{"code": "TIERING_INPUT_INVALID", "message": type(error).__name__ + ": " + str(error)}]
+    return report
+
+
 def _json_output_target(root: Path, path: str) -> Path:
     relative = RECORD.safe_relative_path(path)
     target = root / relative
@@ -1073,19 +1121,24 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--current-tree", action="store_true", help="Verify routine CI without regenerating historical migration evidence.")
     parser.add_argument("--successor-v2", action="store_true", help="Require exact committed v2 scope and v5 Quality approval.")
     parser.add_argument("--successor-v3", action="store_true", help="Require exact committed v3 scope and v6 Quality approval.")
+    parser.add_argument("--successor-v4", action="store_true", help="Require exact committed v4 scope and v7 Quality approval.")
     parser.add_argument("--structure-only", action="store_true")
     parser.add_argument("--declarations-only", action="store_true")
     parser.add_argument("--surface-only", action="store_true")
     args = parser.parse_args(argv)
     if args.current_tree and args.propose_migration:
         parser.error("--current-tree cannot be combined with --propose-migration")
-    if args.successor_v2 and (args.current_tree or args.propose_migration or args.declarations_only
+    if args.successor_v2 and (args.successor_v3 or args.successor_v4 or args.current_tree or args.propose_migration or args.declarations_only
                               or args.surface_only or args.contract != CONTRACT or args.configuration != "Release"):
         parser.error("--successor-v2 requires the frozen Release contract and complete or structure mode")
-    if args.successor_v3 and (args.successor_v2 or args.current_tree or args.propose_migration
+    if args.successor_v3 and (args.successor_v2 or args.successor_v4 or args.current_tree or args.propose_migration
                               or args.declarations_only or args.surface_only or args.contract != CONTRACT
                               or args.configuration != "Release"):
         parser.error("--successor-v3 requires the frozen Release contract and complete or structure mode")
+    if args.successor_v4 and (args.successor_v2 or args.current_tree or args.propose_migration
+                              or args.declarations_only or args.surface_only or args.contract != CONTRACT
+                              or args.configuration != "Release"):
+        parser.error("--successor-v4 requires the frozen Release contract and complete or structure mode")
     root = args.repository.resolve()
     if args.propose_migration:
         try:
@@ -1101,9 +1154,13 @@ def main(argv: list[str] | None = None) -> int:
         candidate = SUCCESSOR_V2.git(root, "rev-parse", "HEAD^{commit}")
         committed_v5 = SUCCESSOR_V2.candidate_blob(root, candidate, SUCCESSOR_V2.APPROVAL) is not None
         committed_v3 = SUCCESSOR_V2.candidate_blob(root, candidate, SUCCESSOR_V3.AUTH) is not None
+        committed_v4 = SUCCESSOR_V2.candidate_blob(root, candidate, SUCCESSOR_V4.AUTH) is not None
     except SUCCESSOR_V2.AcceptanceError:
-        candidate, committed_v5, committed_v3 = "", False, False
-    if args.successor_v3 or (committed_v3 and not args.current_tree and mode in ("complete", "structure")):
+        candidate, committed_v5, committed_v3, committed_v4 = "", False, False, False
+    if args.successor_v4 or (committed_v4 and not args.current_tree and mode in ("complete", "structure")):
+        report = verify_authorized_successor_v4_scope(root, candidate, args.portable_result,
+                                                     args.internal_result, mode=mode)
+    elif args.successor_v3 or (committed_v3 and not args.current_tree and mode in ("complete", "structure")):
         report = verify_authorized_successor_v3_scope(root, candidate, args.portable_result,
                                                      args.internal_result, mode=mode)
     elif args.successor_v2 or (committed_v5 and not args.current_tree and mode in ("complete", "structure")):

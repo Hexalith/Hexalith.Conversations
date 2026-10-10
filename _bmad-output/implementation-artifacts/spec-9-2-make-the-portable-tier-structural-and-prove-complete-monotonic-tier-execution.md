@@ -21,6 +21,14 @@ context:
   - 'docs/release-evidence/conformance-oracle-tiering-migration-v6-proposal.json'
   - 'docs/release-evidence/conformance-oracle-tiering-migration-review-v6.md'
   - 'docs/release-evidence/conformance-oracle-tiering-migration-approval-v6.json'
+  - '_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v4.json'
+  - '_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-review-v4.md'
+  - '_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v4.json'
+  - 'docs/release-evidence/conformance-oracle-tiering-eventstore-released-api-diff-v2.json'
+  - 'docs/release-evidence/conformance-oracle-tiering-eventstore-released-api-compat-v2.json'
+  - 'docs/release-evidence/conformance-oracle-tiering-migration-v7-proposal.json'
+  - 'docs/release-evidence/conformance-oracle-tiering-migration-review-v7.md'
+  - 'docs/release-evidence/conformance-oracle-tiering-migration-approval-v7.json'
 ---
 
 <frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
@@ -1121,3 +1129,9 @@ The additive v3 authority check remeasures the exact v1/v2/v3 Git history, all 1
 ### V6 Quality decision — 2026-10-10
 
 The conversation user replied "approve exact v6 quality packet" to the request for proposal SHA-256 `f07cf3dfbe526efad3a8965f6fe2b210b3e9368d852725c484ffc08018137503`, review SHA-256 `605c735f78fd3127dd4440d739ec2d66af4e3d7b422e14dd80bd55f60a45b6c9`, and successor material `eb6d91b7600b6916942f824ed8ba4fdfd8973c3197f5969f54b0a3f6ac7b60aa`. The [v6 approval](../../docs/release-evidence/conformance-oracle-tiering-migration-approval-v6.json), SHA-256 `dc66a8610bd6483ee6d8ad50e7f1d6dbe496c6f85e84ebf1b0ab1785cc75e57d`, binds the exact source/scope, all 14 changed-row hashes, public drift, and released API evidence. The request expressly disclosed the Client `CP0002` binary break and incomplete DomainService/ServiceDefaults additive comparisons. The approval is pinned in the v3 authority route. It does not claim candidate-bound execution or final-record acceptance; a committed candidate, fresh AC01–10, deterministic pair, and insertion verification remain required before `done`.
+
+### V4 scope and v7 Quality decisions — 2026-10-10
+
+The user replied "I approve, apply recommended" to both recommended decisions: exact v4 current-main scope material `f5dfa7f71b93bbb799559bbddef69464cd63d2a49dc8ffb127323c2e5e8f1c44` for committed source `353e9dbf47a1472b29fe3f43d485a8ae3a03b884`, and exact v7 Quality material `f23e3d3d005b82be76dbdc825cc7abf6da5e65cd98ef37a65674c035c4f7ec7b`. The [v4 authorization](../planning-artifacts/v9/story-9.2-current-main-scope-authorization-v4.json) and [v7 Quality approval](../../docs/release-evidence/conformance-oracle-tiering-migration-approval-v7.json) record these as separate decisions. The v7 packet discloses the EventStore `3.119.0` delta and the still-incomplete DomainService/ServiceDefaults dotnet-inspect additive comparisons. Both SDK binary compatibility checks pass; Client and Contracts show no API delta. The current migration digest changes only for two portable compile asset version identities, while all 14 row digests and public drift remain unchanged.
+
+The additive v4 authority, verifier, final-record, schema, and runbook route is prepared for a later committed source candidate. Current uncommitted approval/tooling bytes cannot supply candidate-bound acceptance. Story 9.2 remains `in-progress` pending the committed candidate, fresh AC01–10, complete fault restoration, deterministic final pair, and inserted-record verification.

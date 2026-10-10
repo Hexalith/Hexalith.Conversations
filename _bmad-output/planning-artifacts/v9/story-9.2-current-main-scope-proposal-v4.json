@@ -1,0 +1,712 @@
+{
+  "schemaVersion": "hexalith.conversations.story-9.2-current-main-scope-proposal.v4",
+  "storyId": "9.2",
+  "status": "prepared-unapproved",
+  "authorizationClaimed": false,
+  "qualityApprovalClaimedForNewScope": false,
+  "candidateAcceptanceClaimed": false,
+  "originalBaseline": "51aa06b856bcb0aaf22013153cfe02a51b046156",
+  "priorAuthorizedCandidate": "fbe2f502eed26df45edc12e4a12e9917bf97b438",
+  "priorScopeProposal": {
+    "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v3.json",
+    "sha256": "30cb277b1b549c13a7c06e380f5477f01843f9c665ce70855c21f28703c54811"
+  },
+  "priorScopeAuthorization": {
+    "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v3.json",
+    "sha256": "54f3193f21d05ce6a769e0f6e6a9071091fbff60844f65f3b07fcae32ee9efe9"
+  },
+  "priorQualityApproval": {
+    "path": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v6.json",
+    "sha256": "dc66a8610bd6483ee6d8ad50e7f1d6dbe496c6f85e84ebf1b0ab1785cc75e57d",
+    "sourceCandidate": "fbe2f502eed26df45edc12e4a12e9917bf97b438",
+    "coversMeasuredCandidate": false
+  },
+  "measuredCommittedCandidate": "353e9dbf47a1472b29fe3f43d485a8ae3a03b884",
+  "measuredCommittedTree": "b3af5900eb22e356360d247adc99a0fe662415fd",
+  "workingTreeChangesIncluded": false,
+  "counts": {
+    "changedPaths": 28,
+    "changedRootGitlinks": 7,
+    "interveningCommits": 6,
+    "owningPromotionCommits": 1,
+    "productionPathsChanged": 0
+  },
+  "interveningCommits": [
+    {
+      "commit": "98a7aa13aadf0afeab73efc8ce7fea6ca562beef",
+      "parent": "fbe2f502eed26df45edc12e4a12e9917bf97b438",
+      "subject": "fix(conformance): bind story 9.2 successor approval and candidate gates"
+    },
+    {
+      "commit": "c3c7502f7fd5e08377694a530f8ba3560f2c7e37",
+      "parent": "98a7aa13aadf0afeab73efc8ce7fea6ca562beef",
+      "subject": "docs(conformance): retract stale story 9.2 final record pair"
+    },
+    {
+      "commit": "8700f92fb6e4155b893c054b56e56c458bab8788",
+      "parent": "c3c7502f7fd5e08377694a530f8ba3560f2c7e37",
+      "subject": "fix(conformance): allow pair-only story 9.2 record retraction"
+    },
+    {
+      "commit": "d66ba43297119a6bb77eb30c20f05cf2900221bc",
+      "parent": "8700f92fb6e4155b893c054b56e56c458bab8788",
+      "subject": "fix: update HexalithEventStoreVersion to 3.119.0 and adjust related comment"
+    },
+    {
+      "commit": "8469c5c6891d12b43d2082136b1ca7ddfac52c3b",
+      "parent": "d66ba43297119a6bb77eb30c20f05cf2900221bc",
+      "subject": "fix(conformance): use successor inputs in story 9.2 record"
+    },
+    {
+      "commit": "353e9dbf47a1472b29fe3f43d485a8ae3a03b884",
+      "parent": "8469c5c6891d12b43d2082136b1ca7ddfac52c3b",
+      "subject": "fix(conformance): add deferred work entries for Story 9.2 regression tests and verification gaps"
+    }
+  ],
+  "changesSincePriorAuthorizedCandidate": [
+    {
+      "path": "Directory.Packages.props",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "181b6a95f9d77ebfb1be311ca57fe758babe8ffd",
+        "sha256": "62160d7c7855846a8cf0918018a9842fbdac831a16f1de92d0dc700b232bf748",
+        "sizeBytes": 1431
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "ca95f091968bd578ca05ee60f0ca14bcc8184846",
+        "sha256": "3ef8efc82a412b90a82b89e1cb809af1459e675dbd11f811a495eaf1354269b0",
+        "sizeBytes": 1095
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/deferred-work.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "d7c9c2faaf4aea1dd1f91f1b9fefef75259e3b9e",
+        "sha256": "30e5e2523a30e71f0d2b977d81744f7a943ac765b826cf767bb5ffdafe563e90",
+        "sizeBytes": 92502
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "dd0288cfad44826d09fc2d5ea9e122b460dc994a",
+        "sha256": "62f5a9e60e351b72ff5953f9db0812b8f032cba100f325088816ad29da32fea8",
+        "sizeBytes": 95703
+      }
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "49f3ec319a3032221ddccaef593d8bbafac0769d",
+        "sha256": "ca0a63016af114563c76fb1fc9eded855fcb63299c51f9e6ff022bf1302380e3",
+        "sizeBytes": 182655
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "0913419fa6fa6ea58c0f71add7c9537513b17e48",
+        "sha256": "e184d7ec4f572468b39aa4be3579a544de095b5cdf47d472a11a06bbc30bb738",
+        "sizeBytes": 190344
+      }
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v3.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "d5a11f38cb9b67a03d9ceabf3a02ca88f80ea92c",
+        "sha256": "54f3193f21d05ce6a769e0f6e6a9071091fbff60844f65f3b07fcae32ee9efe9",
+        "sizeBytes": 1423
+      }
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v3.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a1fededa2ff707ea8663f0a4f5f5693686f51cac",
+        "sha256": "30cb277b1b549c13a7c06e380f5477f01843f9c665ce70855c21f28703c54811",
+        "sizeBytes": 9952
+      }
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-review-v3.md",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "38c1e8f18d92a10bc4154b4dc93f7fc55b3afd1f",
+        "sha256": "52120291bb78df35b0ae8fe1eebf294172d2da0f4380b215a118eec2ecc08b9a",
+        "sizeBytes": 2828
+      }
+    },
+    {
+      "path": "_bmad/schemas/story-final-record-v2.schema.json",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "28662c2c8f45af9e46e735ecb2f99f1e8ddb5142",
+        "sha256": "5cbf7bc0e08a94062fe1ee46e5f4cd9478bbe9ab439cd87be8d51fbc427361d1",
+        "sizeBytes": 105886
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "09e591bc0e4b6861c02e32a6b9a97f5fc26be8df",
+        "sha256": "ee4dca14f2a143c4814e7a7edcc1fe5fc083fd62e0e01df9d63d3ad5ca38a776",
+        "sizeBytes": 110396
+      }
+    },
+    {
+      "path": "_bmad/scripts/generate_story_record.py",
+      "status": "M",
+      "before": {
+        "mode": "100755",
+        "type": "blob",
+        "object": "9f5da808a1d16fa7ed460042b5ad15b682bfcbf2",
+        "sha256": "49876587acc526212a604fc43a2003a03329c17e052ef72f3738bde04bd1780f",
+        "sizeBytes": 377904
+      },
+      "after": {
+        "mode": "100755",
+        "type": "blob",
+        "object": "8b07536187950beb98a04d66b5721bf87fb8da03",
+        "sha256": "a0d6cb3b4654a9ff30fd7464d85350c39a10dd3adbc936f73b07609fbb796593",
+        "sizeBytes": 383781
+      }
+    },
+    {
+      "path": "_bmad/scripts/prepare_story92_successor_v3.py",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "3195e3a5a9ce97a955c705c537d4430fb7559261",
+        "sha256": "6dc25894481cec2b123814e363d35a73b5949d818e547030928cb552cb99a1b4",
+        "sizeBytes": 18417
+      }
+    },
+    {
+      "path": "_bmad/scripts/tests/test_verify_story92_successor_v2_acceptance.py",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "c3b8c0679c8cddaf6d1ab08a80bd837ebb7fcdc7",
+        "sha256": "0fb9ab654c645532ac86b23e4eb34a91a5861f3081dcec28b3466b8c47c1ba97",
+        "sizeBytes": 6571
+      }
+    },
+    {
+      "path": "_bmad/scripts/tests/test_verify_story92_successor_v3_scope.py",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "8c1b7c5e38a2685e2bc3c6b5cbe84a31d57dfa32",
+        "sha256": "9231740c07d2be088e101086449603e7beb83cb449df2dc6ee649031c66bc0c5",
+        "sizeBytes": 7728
+      }
+    },
+    {
+      "path": "_bmad/scripts/verify_conformance_tiering.py",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "ab5a3bbc4cee1806c99cfa3eaf9b97e314f20481",
+        "sha256": "87f7ca23f34b77d3c807e3c4c7ed4c4ef011a7c6415b090e4a697dc7491ea87a",
+        "sizeBytes": 71105
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "e1ae6c722d8b39e61c27a43d62bf250a8a884a94",
+        "sha256": "85fb41da1897af836982740ea60c0163ac85f4955c451234164992ef5b557e07",
+        "sizeBytes": 79436
+      }
+    },
+    {
+      "path": "_bmad/scripts/verify_story92_successor_v2_acceptance.py",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a5179b35a83f6cb03ce2d7380493f1d51b1b2a5c",
+        "sha256": "b0bfda90a84ac956b494cc0397fd0cfa206a5da3b6d75e3971be0d3280ea0ee5",
+        "sizeBytes": 10624
+      }
+    },
+    {
+      "path": "_bmad/scripts/verify_story92_successor_v3_scope.py",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "fe9bab73690b1d73e8dd72bcd3e930a7fd87cc56",
+        "sha256": "4ad66095b0918c6eacc1ae1e117b8fcd09954e54c787a230f0a520592cb87b36",
+        "sizeBytes": 12464
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v5.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "d588aa2d52242919f4153a58069a2618d6666f2f",
+        "sha256": "6a0218ea421ff448dee93e066b6bbc801498cecd28d95e7322a783a97ebbceb3",
+        "sizeBytes": 5677
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v6.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "197ae97c2a0878d8b96a90b5e31194f021c45a45",
+        "sha256": "dc66a8610bd6483ee6d8ad50e7f1d6dbe496c6f85e84ebf1b0ab1785cc75e57d",
+        "sizeBytes": 5315
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-migration-review-v6.md",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "7e5085fc130ce310d68e046fadba99d7259ccf34",
+        "sha256": "605c735f78fd3127dd4440d739ec2d66af4e3d7b422e14dd80bd55f60a45b6c9",
+        "sizeBytes": 7048
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-migration-v6-proposal.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "30e5d2d1510e7c3345d8af115ffb98130936c032",
+        "sha256": "f07cf3dfbe526efad3a8965f6fe2b210b3e9368d852725c484ffc08018137503",
+        "sizeBytes": 15675
+      }
+    },
+    {
+      "path": "docs/release-evidence/story-9.2-final-record-v2.json",
+      "status": "D",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "f54354da5456a6e7fc4ad55738bc65435afd31e7",
+        "sha256": "86bfe3db92a193038b5da0d9207a0c5aaafe9d098c64dc2a58c6b3b8770afcee",
+        "sizeBytes": 158621
+      },
+      "after": null
+    },
+    {
+      "path": "docs/release-evidence/story-9.2-final-record-v2.md",
+      "status": "D",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "28c607a4157ee7ba1bfd02872976480f87e01889",
+        "sha256": "951e737b2d5ed6809d5e8bfc4b89069befe4379a478da44ee4e08d5caed5b9f1",
+        "sizeBytes": 97281
+      },
+      "after": null
+    },
+    {
+      "path": "docs/runbooks/story-final-record-generation.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a7450a3463f4e8445d22f17bcbf8b8e54c6fe470",
+        "sha256": "5425aebfa6d81b01324b1d961f3ecdeb7636a365643b7d3ced9ac1bc33cd2732",
+        "sizeBytes": 119387
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "8fe2ac491e53c77678135e6655ea7e0b1268b302",
+        "sha256": "325eed04d1e615b8c7043e1f532b247acf29114b5e43801e0617107bbac7023d",
+        "sizeBytes": 122785
+      }
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "2cf00028bbe563d80d4d12b5fb2054914f14fcb6"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "6a002df5fa60f2f880f09ffd90b3bfaf819bcbf5"
+      }
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "37451b529ab21869fa4e2806968b5143ddeea14b"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "9b26956f9e825fd6771b62a79c7b81323ba856cf"
+      }
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "31909333eb763f73275c4d3df4367f5d06219c2f"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "4d2d7d820431cb354804583ee5c217ec9ce11fb6"
+      }
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "7b33e016a52907989181139298db18edef1a05d7"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "1295decba902954c3f783d2084f979b808ed7538"
+      }
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "926faa207bab55eeeed4bc7d5d5a50b3e6af917f"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "56cb4401c4179d431385ad3d931fefa402e4fc5a"
+      }
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "fff5a5dbb74ff79bf56cd10527260178776eb060"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "44188d8985789f7ecff7e8f9fde7b11a1ba61df0"
+      }
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "4b0cfa3440d2a0b623c4e9d4d1ba4b6aba9de100"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "cdd0c80c111109125f6bec63d7cf1fd7a3d64885"
+      }
+    }
+  ],
+  "rootGitlinkPromotionHistorySincePriorAuthorizedCandidate": [
+    {
+      "commit": "d66ba43297119a6bb77eb30c20f05cf2900221bc",
+      "parent": "8700f92fb6e4155b893c054b56e56c458bab8788",
+      "gitlinks": [
+        {
+          "path": "references/Hexalith.Builds",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "2cf00028bbe563d80d4d12b5fb2054914f14fcb6"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "6a002df5fa60f2f880f09ffd90b3bfaf819bcbf5"
+          }
+        },
+        {
+          "path": "references/Hexalith.EventStore",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "37451b529ab21869fa4e2806968b5143ddeea14b"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "9b26956f9e825fd6771b62a79c7b81323ba856cf"
+          }
+        },
+        {
+          "path": "references/Hexalith.Folders",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "31909333eb763f73275c4d3df4367f5d06219c2f"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "4d2d7d820431cb354804583ee5c217ec9ce11fb6"
+          }
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "7b33e016a52907989181139298db18edef1a05d7"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "1295decba902954c3f783d2084f979b808ed7538"
+          }
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "926faa207bab55eeeed4bc7d5d5a50b3e6af917f"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "56cb4401c4179d431385ad3d931fefa402e4fc5a"
+          }
+        },
+        {
+          "path": "references/Hexalith.Projects",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "fff5a5dbb74ff79bf56cd10527260178776eb060"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "44188d8985789f7ecff7e8f9fde7b11a1ba61df0"
+          }
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "status": "M",
+          "before": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "4b0cfa3440d2a0b623c4e9d4d1ba4b6aba9de100"
+          },
+          "after": {
+            "mode": "160000",
+            "type": "commit",
+            "object": "cdd0c80c111109125f6bec63d7cf1fd7a3d64885"
+          }
+        }
+      ]
+    }
+  ],
+  "rootGitlinks": {
+    "before": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "object": "3f194e17174994d308ec84af9ee2b5aa68674d0d"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "object": "2cf00028bbe563d80d4d12b5fb2054914f14fcb6"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "object": "b247ed116c6523f8c596ec0a933eff8973d11568"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "object": "37451b529ab21869fa4e2806968b5143ddeea14b"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "object": "31909333eb763f73275c4d3df4367f5d06219c2f"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "object": "0e114214007c22f5cdbac21a6853cff4208340ee"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "object": "7b33e016a52907989181139298db18edef1a05d7"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "object": "926faa207bab55eeeed4bc7d5d5a50b3e6af917f"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "object": "fff5a5dbb74ff79bf56cd10527260178776eb060"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "object": "4b0cfa3440d2a0b623c4e9d4d1ba4b6aba9de100"
+      }
+    ],
+    "after": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "object": "3f194e17174994d308ec84af9ee2b5aa68674d0d"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "object": "6a002df5fa60f2f880f09ffd90b3bfaf819bcbf5"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "object": "b247ed116c6523f8c596ec0a933eff8973d11568"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "object": "9b26956f9e825fd6771b62a79c7b81323ba856cf"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "object": "4d2d7d820431cb354804583ee5c217ec9ce11fb6"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "object": "0e114214007c22f5cdbac21a6853cff4208340ee"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "object": "1295decba902954c3f783d2084f979b808ed7538"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "object": "56cb4401c4179d431385ad3d931fefa402e4fc5a"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "object": "44188d8985789f7ecff7e8f9fde7b11a1ba61df0"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "object": "cdd0c80c111109125f6bec63d7cf1fd7a3d64885"
+      }
+    ]
+  },
+  "effectivePackageCatalog": {
+    "path": "references/Hexalith.Builds/Props/Directory.Packages.props",
+    "ownerGitlink": "6a002df5fa60f2f880f09ffd90b3bfaf819bcbf5",
+    "blobObject": "9f960576a6c76ad5b23d2e3e0e309d7d5d562fac",
+    "sha256": "f5004136d4fc669325d84918fc4d87214542eaebf8fa20d94c6fb0e040514d8b",
+    "eventStoreVersion": "3.119.0"
+  },
+  "historicalFinalPairRetraction": {
+    "commit": "c3c7502f7fd5e08377694a530f8ba3560f2c7e37",
+    "deletedPaths": [
+      "docs/release-evidence/story-9.2-final-record-v2.json",
+      "docs/release-evidence/story-9.2-final-record-v2.md"
+    ],
+    "historicalBlobsRetainedInGit": true
+  },
+  "observedChecks": {
+    "currentTreeStructure": {
+      "command": "uv run --frozen --no-sync python3 _bmad/scripts/verify_conformance_tiering.py --repository . --current-tree --structure-only",
+      "exitCode": 0,
+      "result": "PASS"
+    },
+    "authorizedV3Structure": {
+      "command": "uv run --frozen --no-sync python3 _bmad/scripts/verify_conformance_tiering.py --repository . --successor-v3 --structure-only",
+      "exitCode": 1,
+      "blocker": "SUCCESSOR_SCOPE_DRIFT",
+      "detail": "root gitlinks changed after the authorized v3 source"
+    },
+    "insertedRecord": {
+      "command": "uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json --verify-inserted-record _bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md",
+      "exitCode": 1,
+      "blocker": "RECORD_CONTENT_DRIFT",
+      "detail": "the final record pair is not committed at HEAD"
+    },
+    "portableReleaseBuild": {
+      "restoreCommand": "dotnet restore tests/Hexalith.Conversations.Conformance.Portable.Tests/Hexalith.Conversations.Conformance.Portable.Tests.csproj -p:Configuration=Release --verbosity quiet",
+      "buildCommand": "dotnet build tests/Hexalith.Conversations.Conformance.Portable.Tests/Hexalith.Conversations.Conformance.Portable.Tests.csproj --configuration Release --no-restore -m:1 --verbosity quiet",
+      "restoreExitCode": 0,
+      "buildExitCode": 0,
+      "warnings": 0,
+      "errors": 0
+    },
+    "internalReleaseBuild": {
+      "restoreCommand": "dotnet restore tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -p:Configuration=Release --verbosity quiet",
+      "buildCommand": "dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release --no-restore -m:1 --verbosity quiet",
+      "restoreExitCode": 0,
+      "buildExitCode": 0,
+      "warnings": 0,
+      "errors": 0
+    }
+  },
+  "requestedScopeDecision": {
+    "status": "unapproved",
+    "action": "Authorize successor preparation for exactly this measured six-commit chain, 28 net changed paths, seven root gitlinks, the effective EventStore 3.119.0 package catalog, and the pair-only historical record retraction.",
+    "workingTreeChangesIncluded": false,
+    "qualityDecisionIncluded": false,
+    "followOnQualityRequirement": "Remeasure migration and released EventStore 3.119.0 API evidence against this exact source and package environment; request a new digest-bound Quality decision if the binding differs from v6.",
+    "acceptanceRequirement": "Run fresh candidate-bound AC01-10 with all 415 frozen cases and three live controls, restored fault receipts, deterministic final pair, and inserted-record verification.",
+    "preserveOriginalBaselineFrozenContractsHistoricalApprovalsAndRecords": true
+  },
+  "proposalSha256": "f5dfa7f71b93bbb799559bbddef69464cd63d2a49dc8ffb127323c2e5e8f1c44"
+}

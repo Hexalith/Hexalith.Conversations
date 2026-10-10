@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "hexalith.conversations.story-9.2-current-main-scope-authorization.v4",
+  "storyId": "9.2",
+  "status": "authorized",
+  "authorization": {
+    "actor": "user",
+    "authorizedOn": "2026-10-10",
+    "statement": "I approve, apply recommended",
+    "evidence": "The conversation user replied \"I approve, apply recommended\" to the two recommended decisions: exact v4 current-main scope material and exact v7 Quality material. This scope decision authorizes successor preparation for the measured committed candidate only; candidate-bound acceptance remains separate."
+  },
+  "proposal": {
+    "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v4.json",
+    "sha256": "0939819cbe661a25abcb8746dd85a7cecf2fdfd1ed33a957d1265d42257930b1",
+    "proposalSha256": "f5dfa7f71b93bbb799559bbddef69464cd63d2a49dc8ffb127323c2e5e8f1c44"
+  },
+  "review": {
+    "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-review-v4.md",
+    "sha256": "bc1b0ef24f49e31501104310b16ef9853483ddc0a30ec5bf3f73eec48c5865b2"
+  },
+  "measuredCommittedCandidate": "353e9dbf47a1472b29fe3f43d485a8ae3a03b884",
+  "priorAuthorizedCandidate": "fbe2f502eed26df45edc12e4a12e9917bf97b438",
+  "originalBaseline": "51aa06b856bcb0aaf22013153cfe02a51b046156",
+  "workingTreeChangesIncluded": false,
+  "qualityDecisionIncluded": false,
+  "preserveOriginalBaselineFrozenContractsApprovalsAndAcceptedRecords": true
+}

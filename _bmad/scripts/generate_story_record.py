@@ -4468,8 +4468,9 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
         lines.extend(["", "Fault fixtures use explicitly synthetic approval, execution, and assembly bytes. "
                       "Their measured blockers and restoration bind candidate source inputs; passing acceptance comes from the two tier results above."])
         environment = tiering["candidateEnvironment"]
-        if environment.get("route") in ("story-9.2-successor-v2", "story-9.2-successor-v3"):
-            version = "v3" if environment["route"].endswith("v3") else "v2"
+        if environment.get("route") in ("story-9.2-successor-v2", "story-9.2-successor-v3",
+                                        "story-9.2-successor-v4"):
+            version = environment["route"].rsplit("-", 1)[-1]
             lines.extend(["", f"### Authorized candidate environment {version}", "",
                           f"- Approved source: {code(environment['approvedSourceCommit'])}",
                           f"- Scope authorization SHA-256: {code(environment['scopeAuthorization']['sha256'])}",
@@ -7155,6 +7156,23 @@ def v2_9_2_environment_successor_v3(repository: Path, candidate: str, module: An
     }
 
 
+def v2_9_2_environment_successor_v4(repository: Path, candidate: str, module: Any) -> dict[str, Any]:
+    """Bind the exact v4 scope and v7 Quality decision."""
+    try:
+        binding = module.SUCCESSOR_V4.authority(repository, candidate)
+        approval = module.SUCCESSOR_V4.approved_quality(repository, candidate)
+    except module.SUCCESSOR_V4.AcceptanceError as error:
+        raise V2Stop([v2_finding("AUTHORITY_BINDING_INVALID", error.code, str(error))], "9.2") from error
+    return {
+        "route": "story-9.2-successor-v4",
+        "approvedSourceCommit": binding["approvedSource"],
+        "scopeAuthorization": binding["scopeAuthorization"],
+        "scopeProposal": binding["scopeProposal"],
+        "qualityApproval": approval,
+        "rootGitlinks": binding["rootGitlinks"],
+    }
+
+
 def v2_9_2_command(tokens: list[str]) -> dict[str, Any] | None:
     """Normalize only this amendment's xUnit v4 options for the existing successor reader."""
     if tokens[:1] != ["dotnet"] or len(tokens) < 2 or not tokens[1].endswith(".dll"):
@@ -7236,8 +7254,17 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
     def stop(code: str, subject: str, message: str) -> NoReturn:
         raise V2Stop([v2_finding(code if code in V2_CODES else "TEST_RESULTS_FAILED", subject, message)], "9.2")
     module = v2_9_2_verifier()
+    v4_scope = getattr(module, "SUCCESSOR_V4", None)
+    successor_v4 = (v4_scope is not None
+                    and v2_committed_blob(repository, candidate, v4_scope.AUTH) is not None)
+    if successor_v4:
+        try:
+            v4_scope.authority(repository, candidate)
+            v4_scope.approved_quality(repository, candidate)
+        except v4_scope.AcceptanceError as error:
+            stop("AUTHORITY_BINDING_INVALID", error.code, str(error))
     v3_scope = getattr(module, "SUCCESSOR_V3", None)
-    successor_v3 = (v3_scope is not None
+    successor_v3 = (not successor_v4 and v3_scope is not None
                     and v2_committed_blob(repository, candidate, v3_scope.AUTH) is not None)
     if successor_v3:
         try:
@@ -7264,7 +7291,10 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
     baseline = frontmatter_scalar(parse_frontmatter(spec.decode("utf-8")), "baseline_commit") if spec else None
     if baseline != V2_9_2_BASELINE or not is_ancestor(repository, baseline, candidate):
         stop("BASELINE_NOT_TRUSTWORTHY", V2_9_2_SPEC_PATH, "the original Story 9.2 baseline must be preserved")
-    if successor_v3:
+    if successor_v4:
+        environment = v2_9_2_environment_successor_v4(repository, candidate, module)
+        touched = set()
+    elif successor_v3:
         environment = v2_9_2_environment_successor_v3(repository, candidate, module)
         touched = set()
     elif successor_v2:
@@ -7281,9 +7311,9 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
                module.PROJECTS["module-internal"],
                "tests/Hexalith.Conversations.Conformance.Tests/ConformanceTierAssemblyInventory.cs",
                *(module.AUTHORIZED_SUCCESSOR_FILES)}
-    if not successor_v2 and not successor_v3:
+    if not successor_v2 and not successor_v3 and not successor_v4:
         allowed.update(row["path"] for row in environment["gitlinks"])
-    if not successor_v2 and not successor_v3:
+    if not successor_v2 and not successor_v3 and not successor_v4:
         changed = set(committed_path_status(repository, baseline, candidate)) | touched
         forbidden = sorted(path for path in changed if path not in allowed and not path.startswith((
             "tests/Hexalith.Conversations.Conformance.Portable.Tests/", "tests/Hexalith.Conversations.Conformance.Tests/Story92/")))
@@ -7300,7 +7330,9 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
         content, _ = v2_9_2_receipt(repository, assembly)
         if dotnet_source_revisions(content) != [candidate]:
             stop("TEST_RESULTS_STALE", assembly, "retained tier assembly must be stamped by SC-9.2")
-    report = (module.verify_authorized_successor_v3_scope(repository, candidate,
+    report = (module.verify_authorized_successor_v4_scope(repository, candidate,
+              portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx")
+              if successor_v4 else module.verify_authorized_successor_v3_scope(repository, candidate,
               portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx")
               if successor_v3 else module.verify_approved_successor_v2(repository, candidate,
               portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx")
@@ -7312,7 +7344,11 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
     receipt, _ = v2_9_2_receipt(repository, V2_9_2_RESULT_PATH)
     if v2_parse_json(receipt) != report:
         stop("TEST_RESULTS_STALE", V2_9_2_RESULT_PATH, "AC-9.2-08 differs from fresh read-only verification")
-    if successor_v3:
+    if successor_v4:
+        proposal = module.derive_migration(repository, current_tree=True)["proposal"]
+        approval = module.document(repository, module.SUCCESSOR_V4.QUALITY_APPROVAL)
+        migration_path, approval_path = module.SUCCESSOR_V4.QUALITY_PROPOSAL, module.SUCCESSOR_V4.QUALITY_APPROVAL
+    elif successor_v3:
         proposal = module.document(repository, module.SUCCESSOR_V2.PROPOSAL)["successorMaterial"]["proposedMigration"]
         approval = module.document(repository, module.SUCCESSOR_V3.QUALITY_APPROVAL)
         migration_path, approval_path = module.SUCCESSOR_V3.QUALITY_PROPOSAL, module.SUCCESSOR_V3.QUALITY_APPROVAL
@@ -7331,7 +7367,7 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
     if approval["approver"] == "SYNTHETIC-FIXTURE" or approval["approvalId"] == "SYNTHETIC-FIXTURE-NOT-AN-APPROVAL":
         stop("TIER_APPROVAL_MISSING", approval_path, "disposable fixture approval cannot authorize acceptance")
     try:
-        frozen, amendment = module.inputs(repository, current_tree=successor_v2 or successor_v3)
+        frozen, amendment = module.inputs(repository, current_tree=successor_v2 or successor_v3 or successor_v4)
     except module.VerificationError as error:
         stop(error.code if error.code in V2_CODES else "TEST_RESULTS_FAILED",
              "tier inputs", str(error))

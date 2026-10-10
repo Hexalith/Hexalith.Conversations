@@ -1,0 +1,194 @@
+{
+  "schemaVersion": "hexalith.conversations.story-9.2-released-eventstore-api-compat.v2",
+  "status": "binary-compatibility-pass-additive-review-incomplete",
+  "versions": {
+    "before": "3.118.0",
+    "after": "3.119.0"
+  },
+  "priorEvidence": {
+    "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-released-api-compat-v1.json",
+    "sha256": "ebe059f6e4d0213ad29fe1884f384d685beea4262bb1dafdf53ab71f8f2e302d"
+  },
+  "sdk": {
+    "command": [
+      "dotnet",
+      "--version"
+    ],
+    "exitCode": 0,
+    "stdout": "10.0.401\n",
+    "stderr": ""
+  },
+  "settings": {
+    "target": "RunPackageValidation",
+    "EnablePackageValidation": true,
+    "RunApiCompat": true,
+    "RunPackageValidationWithoutReferences": true
+  },
+  "packageArchives": [
+    {
+      "package": "Hexalith.EventStore.Client",
+      "version": "3.118.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.client/3.118.0/hexalith.eventstore.client.3.118.0.nupkg",
+      "sha256": "43108966c677e4ca5d8c2205ffd51cdcbdc37a89d94077c956618b8891f05251",
+      "sizeBytes": 431611
+    },
+    {
+      "package": "Hexalith.EventStore.Client",
+      "version": "3.119.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.client/3.119.0/hexalith.eventstore.client.3.119.0.nupkg",
+      "sha256": "8dcabb8c34d071721b95d7abbabbe4b86fb6af780301e1ac080300031ba7898c",
+      "sizeBytes": 431680
+    },
+    {
+      "package": "Hexalith.EventStore.Contracts",
+      "version": "3.118.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.contracts/3.118.0/hexalith.eventstore.contracts.3.118.0.nupkg",
+      "sha256": "81af7adb04e1908bca9ee7dacb409cb4a8f51bf7696bad1a0f7984cf12e3baa3",
+      "sizeBytes": 318526
+    },
+    {
+      "package": "Hexalith.EventStore.Contracts",
+      "version": "3.119.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.contracts/3.119.0/hexalith.eventstore.contracts.3.119.0.nupkg",
+      "sha256": "24b85cddb83fa51998cdea1cd0521d24d437abc865003061fba8a11a54270205",
+      "sizeBytes": 318589
+    },
+    {
+      "package": "Hexalith.EventStore.DomainService",
+      "version": "3.118.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.domainservice/3.118.0/hexalith.eventstore.domainservice.3.118.0.nupkg",
+      "sha256": "3fd0ae1183bd1c6040d8b9d65a2d1af8d9361c6d52a8f0225b4b324089308f37",
+      "sizeBytes": 174005
+    },
+    {
+      "package": "Hexalith.EventStore.DomainService",
+      "version": "3.119.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.domainservice/3.119.0/hexalith.eventstore.domainservice.3.119.0.nupkg",
+      "sha256": "75080b4d20790e9685cdf83b012f11680b3dbd4433ca7938174ad992da99cf51",
+      "sizeBytes": 174012
+    },
+    {
+      "package": "Hexalith.EventStore.ServiceDefaults",
+      "version": "3.118.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.servicedefaults/3.118.0/hexalith.eventstore.servicedefaults.3.118.0.nupkg",
+      "sha256": "5bbb454428452de070b8a2ce59a0bf583c55e73351609a006859d5e2f34e92e2",
+      "sizeBytes": 61562
+    },
+    {
+      "package": "Hexalith.EventStore.ServiceDefaults",
+      "version": "3.119.0",
+      "path": "/home/administrator/.nuget/packages/hexalith.eventstore.servicedefaults/3.119.0/hexalith.eventstore.servicedefaults.3.119.0.nupkg",
+      "sha256": "874b08e064ab525cc1264f7394a2c57e18e6a37c5af070c96a47a192676a43ae",
+      "sizeBytes": 61557
+    }
+  ],
+  "probes": [
+    {
+      "id": "client",
+      "command": [
+        "dotnet",
+        "msbuild",
+        "/tmp/story92-apicompat-119-client/Compare.csproj",
+        "-t:RunPackageValidation",
+        "-v:minimal"
+      ],
+      "exitCode": 0,
+      "project": {
+        "path": "/tmp/story92-apicompat-119-client/Compare.csproj",
+        "sha256": "c9d67e2c4c62fb46be9c15219206547e0c3f62122d396f0caf7d52c691518082",
+        "text": "<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net10.0</TargetFramework><IsPackable>true</IsPackable><EnablePackageValidation>true</EnablePackageValidation><RunApiCompat>true</RunApiCompat><RunPackageValidationWithoutReferences>true</RunPackageValidationWithoutReferences><PackageId>Hexalith.EventStore.Client</PackageId><PackageVersion>3.119.0</PackageVersion><PackageValidationBaselinePath>/home/administrator/.nuget/packages/hexalith.eventstore.client/3.118.0/hexalith.eventstore.client.3.118.0.nupkg</PackageValidationBaselinePath></PropertyGroup><ItemGroup><NuGetPackInput Include=\"/home/administrator/.nuget/packages/hexalith.eventstore.client/3.119.0/hexalith.eventstore.client.3.119.0.nupkg\" /><NuGetPackOutput Include=\"/home/administrator/.nuget/packages/hexalith.eventstore.client/3.119.0/hexalith.eventstore.client.3.119.0.nupkg\" /></ItemGroup></Project>"
+      },
+      "stdout": {
+        "sha256": "3c1bd31cff135ad4eb5848fd75ffde2439295959d2cbb8e10ea7d91d3f59fe49",
+        "text": "MSBuild version 18.9.11+e34a38d2a for .NET\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    {
+      "id": "contracts",
+      "command": [
+        "dotnet",
+        "msbuild",
+        "/tmp/story92-apicompat-119-contracts/Compare.csproj",
+        "-t:RunPackageValidation",
+        "-v:minimal"
+      ],
+      "exitCode": 0,
+      "project": {
+        "path": "/tmp/story92-apicompat-119-contracts/Compare.csproj",
+        "sha256": "02d786968b73cf36b3dff6b6227bbb1216bf47a7999e18abc874d231a4777442",
+        "text": "<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net10.0</TargetFramework><IsPackable>true</IsPackable><EnablePackageValidation>true</EnablePackageValidation><RunApiCompat>true</RunApiCompat><RunPackageValidationWithoutReferences>true</RunPackageValidationWithoutReferences><PackageId>Hexalith.EventStore.Contracts</PackageId><PackageVersion>3.119.0</PackageVersion><PackageValidationBaselinePath>/home/administrator/.nuget/packages/hexalith.eventstore.contracts/3.118.0/hexalith.eventstore.contracts.3.118.0.nupkg</PackageValidationBaselinePath></PropertyGroup><ItemGroup><NuGetPackInput Include=\"/home/administrator/.nuget/packages/hexalith.eventstore.contracts/3.119.0/hexalith.eventstore.contracts.3.119.0.nupkg\" /><NuGetPackOutput Include=\"/home/administrator/.nuget/packages/hexalith.eventstore.contracts/3.119.0/hexalith.eventstore.contracts.3.119.0.nupkg\" /></ItemGroup></Project>"
+      },
+      "stdout": {
+        "sha256": "3c1bd31cff135ad4eb5848fd75ffde2439295959d2cbb8e10ea7d91d3f59fe49",
+        "text": "MSBuild version 18.9.11+e34a38d2a for .NET\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    {
+      "id": "domainservice",
+      "command": [
+        "dotnet",
+        "msbuild",
+        "/tmp/story92-apicompat-119-domainservice/Compare.csproj",
+        "-t:RunPackageValidation",
+        "-v:minimal"
+      ],
+      "exitCode": 0,
+      "project": {
+        "path": "/tmp/story92-apicompat-119-domainservice/Compare.csproj",
+        "sha256": "b95090b90eabcfb658866507a1e1cb6f683a9272b6123bc25d790f58fb7a27e1",
+        "text": "<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net10.0</TargetFramework><IsPackable>true</IsPackable><EnablePackageValidation>true</EnablePackageValidation><RunApiCompat>true</RunApiCompat><RunPackageValidationWithoutReferences>true</RunPackageValidationWithoutReferences><PackageId>Hexalith.EventStore.DomainService</PackageId><PackageVersion>3.119.0</PackageVersion><PackageValidationBaselinePath>/home/administrator/.nuget/packages/hexalith.eventstore.domainservice/3.118.0/hexalith.eventstore.domainservice.3.118.0.nupkg</PackageValidationBaselinePath></PropertyGroup><ItemGroup><NuGetPackInput Include=\"/home/administrator/.nuget/packages/hexalith.eventstore.domainservice/3.119.0/hexalith.eventstore.domainservice.3.119.0.nupkg\" /><NuGetPackOutput Include=\"/home/administrator/.nuget/packages/hexalith.eventstore.domainservice/3.119.0/hexalith.eventstore.domainservice.3.119.0.nupkg\" /></ItemGroup></Project>"
+      },
+      "stdout": {
+        "sha256": "3c1bd31cff135ad4eb5848fd75ffde2439295959d2cbb8e10ea7d91d3f59fe49",
+        "text": "MSBuild version 18.9.11+e34a38d2a for .NET\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    {
+      "id": "servicedefaults",
+      "command": [
+        "dotnet",
+        "msbuild",
+        "/tmp/story92-apicompat-119-servicedefaults/Compare.csproj",
+        "-t:RunPackageValidation",
+        "-v:minimal"
+      ],
+      "exitCode": 0,
+      "project": {
+        "path": "/tmp/story92-apicompat-119-servicedefaults/Compare.csproj",
+        "sha256": "0828042869ca96674c829d20c61f7852c23dcf4d4661d46f5284f314ab7c3795",
+        "text": "<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net10.0</TargetFramework><IsPackable>true</IsPackable><EnablePackageValidation>true</EnablePackageValidation><RunApiCompat>true</RunApiCompat><RunPackageValidationWithoutReferences>true</RunPackageValidationWithoutReferences><PackageId>Hexalith.EventStore.ServiceDefaults</PackageId><PackageVersion>3.119.0</PackageVersion><PackageValidationBaselinePath>/home/administrator/.nuget/packages/hexalith.eventstore.servicedefaults/3.118.0/hexalith.eventstore.servicedefaults.3.118.0.nupkg</PackageValidationBaselinePath></PropertyGroup><ItemGroup><NuGetPackInput Include=\"/home/administrator/.nuget/packages/hexalith.eventstore.servicedefaults/3.119.0/hexalith.eventstore.servicedefaults.3.119.0.nupkg\" /><NuGetPackOutput Include=\"/home/administrator/.nuget/packages/hexalith.eventstore.servicedefaults/3.119.0/hexalith.eventstore.servicedefaults.3.119.0.nupkg\" /></ItemGroup></Project>"
+      },
+      "stdout": {
+        "sha256": "3c1bd31cff135ad4eb5848fd75ffde2439295959d2cbb8e10ea7d91d3f59fe49",
+        "text": "MSBuild version 18.9.11+e34a38d2a for .NET\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    }
+  ],
+  "findings": {
+    "client": "RunApiCompat pass",
+    "contracts": "RunApiCompat pass",
+    "domainService": "RunApiCompat pass",
+    "serviceDefaults": "RunApiCompat pass",
+    "allFourBinaryCompatibilityChecksPass": true,
+    "allAdditiveApiReviewComplete": false
+  },
+  "qualityApprovalClaimed": false,
+  "candidateAcceptanceClaimed": false,
+  "historicalEvidenceChanged": false
+}
