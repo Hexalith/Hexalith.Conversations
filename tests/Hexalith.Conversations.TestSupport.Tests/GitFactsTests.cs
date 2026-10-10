@@ -13,12 +13,14 @@ public sealed class GitFactsTests
     [Fact]
     public async Task RunnerShouldDrainStdoutAndStderrConcurrently()
     {
-        const string script = "import sys,threading\na=b'x'*262144\nt=threading.Thread(target=lambda:(sys.stderr.buffer.write(a),sys.stderr.buffer.flush()))\nt.start()\nsys.stdout.buffer.write(a)\nsys.stdout.buffer.flush()\nt.join()";
+        const string script = "import sys,threading\na=b'out\\x00'*65536\nb=b'err\\xff'*65536\nt=threading.Thread(target=lambda:(sys.stderr.buffer.write(b),sys.stderr.buffer.flush()))\nt.start()\nsys.stdout.buffer.write(a)\nsys.stdout.buffer.flush()\nt.join()";
         GitFact<GitCommandResult> result = await PythonFacts(script).RunAsync(Path.GetTempPath(), [], TestContext.Current.CancellationToken);
         result.IsSuccess.ShouldBeTrue(result.Message);
         result.Value!.ExitCode.ShouldBe(0);
-        result.Value.Stdout.Length.ShouldBe(262144);
-        result.Value.Stderr.Length.ShouldBe(262144);
+        byte[] expectedOut = Enumerable.Range(0, 65536).SelectMany(_ => new byte[] { 111, 117, 116, 0 }).ToArray();
+        byte[] expectedError = Enumerable.Range(0, 65536).SelectMany(_ => new byte[] { 101, 114, 114, 255 }).ToArray();
+        result.Value.Stdout.SequenceEqual(expectedOut).ShouldBeTrue();
+        result.Value.Stderr.SequenceEqual(expectedError).ShouldBeTrue();
         GitFact<GitCommandResult> overflow = await PythonFacts("import sys\nsys.stdout.buffer.write(b'x'*(17*1024*1024))\nsys.stdout.flush()").RunAsync(
             Path.GetTempPath(), [], TestContext.Current.CancellationToken);
         overflow.Status.ShouldBe(GitFactStatus.Invalid);
@@ -164,6 +166,62 @@ public sealed class GitFactsTests
             scoredEntry.Status.ShouldBe("R75");
             scoredEntry.SourcePath.ShouldBe("old");
             scoredEntry.Path.ShouldBe("new");
+            foreach ((string sourceMode, string destinationMode, string status) in new[]
+            {
+                ("000000", "100755", "A"), ("000000", "120000", "A"),
+                ("000000", "160000", "A"), ("100644", "000000", "D"),
+                ("100644", "120000", "T"), ("100644", "160000", "T"),
+                ("100644", "100755", "M"),
+            })
+            {
+                string sourceId = sourceMode == "000000" ? new string('0', 40) : new string('a', 40);
+                string destinationId = destinationMode == "000000" ? new string('0', 40) : new string('b', 40);
+                string raw = $":{sourceMode} {destinationMode} {sourceId} {destinationId} {status}\0path\0";
+                string modeScript = "import sys\na=sys.argv[1:]\n"
+                    + "sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode() if '--show-toplevel' in a else "
+                    + "(b'a'*40+b'\\n' if '--verify' in a else ("
+                    + JsonSerializer.Serialize(raw) + ".encode() if 'diff' in a else b'')))";
+                GitFact<IReadOnlyList<GitDiffEntry>> modeFact = await PythonFacts(modeScript).ReadDiffAsync(
+                    fixture.Root, before, after, TestContext.Current.CancellationToken);
+                modeFact.IsSuccess.ShouldBeTrue(modeFact.Message);
+                modeFact.Value!.Single().SourceMode.ShouldBe(sourceMode);
+                modeFact.Value!.Single().DestinationMode.ShouldBe(destinationMode);
+            }
+            foreach (string malformedRaw in new[]
+            {
+                $":100644 160000 {new string('a', 40)} {new string('b', 40)} M\0path\0",
+                $":100644 100644 {new string('a', 40)} {new string('b', 40)} T\0path\0",
+            })
+            {
+                string modeScript = "import sys\na=sys.argv[1:]\n"
+                    + "sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode() if '--show-toplevel' in a else "
+                    + "(b'a'*40+b'\\n' if '--verify' in a else ("
+                    + JsonSerializer.Serialize(malformedRaw) + ".encode() if 'diff' in a else b'')))";
+                (await PythonFacts(modeScript).ReadDiffAsync(
+                    fixture.Root, before, after, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
+            }
+            foreach (string malformedTree in new[]
+            {
+                $"100644  blob {new string('a', 40)}\tpath\0",
+                $"100644 blob {new string('0', 40)}\tpath\0",
+            })
+            {
+                string treeScript = "import sys\na=sys.argv[1:]\n"
+                    + "sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode() if '--show-toplevel' in a else "
+                    + "(b'a'*40+b'\\n' if '--verify' in a else ("
+                    + JsonSerializer.Serialize(malformedTree) + ".encode() if 'ls-tree' in a else b'')))";
+                (await PythonFacts(treeScript).ReadTreeAsync(
+                    fixture.Root, after, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
+            }
+            string narrowTreeScript = "import sys\na=sys.argv[1:]\n"
+                + "sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode() if '--show-toplevel' in a else "
+                + "(b'a'*40+b'\\n' if '--verify' in a else "
+                + "(b'100644 blob '+b'1'*40+b'\\tsmall.txt\\0' if 'ls-tree' in a and ':(literal)small.txt' in a "
+                + "else (b'x'*(17*1024*1024) if 'ls-tree' in a else b'small' if 'cat-file' in a else b''))))";
+            GitFact<GitBlob> narrowBlob = await PythonFacts(narrowTreeScript).ReadBlobAsync(
+                fixture.Root, after, "small.txt", TestContext.Current.CancellationToken);
+            narrowBlob.IsSuccess.ShouldBeTrue(narrowBlob.Message);
+            narrowBlob.Value!.Content.ShouldBe(Encoding.UTF8.GetBytes("small"));
             string renameSource = Path.Combine(fixture.Root, "rename-source.txt");
             File.WriteAllText(renameSource, "content to rename");
             string renameBefore = fixture.Commit();
@@ -191,6 +249,7 @@ public sealed class GitFactsTests
         File.WriteAllText(Path.Combine(fixture.Root, "seed.txt"), "changed");
         fixture.Commit();
         GitFacts facts = new();
+        (await facts.RunAsync(fixture.Root, null!, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
         (await facts.ResolveRevisionAsync(fixture.Root, "missing-revision", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
         (await facts.ResolveRepositoryAsync(Path.Combine(fixture.Root, "absent"), TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
         Directory.CreateDirectory(Path.Combine(fixture.Root, "nested"));
@@ -230,6 +289,47 @@ public sealed class GitFactsTests
             (await facts.ResolveRevisionAsync(shallowPath, "misspelled", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
             (await facts.ResolveRevisionAsync(shallowPath, "HEAD~bogus", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
             (await facts.ResolveRevisionAsync(shallowPath, new string('f', 40), TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
+            using (GitFixture rootFixture = new())
+            {
+                File.WriteAllText(Path.Combine(rootFixture.Root, "only.txt"), "only");
+                rootFixture.Commit();
+                string rootClone = Path.Combine(Path.GetTempPath(), "gitfacts-root-shallow-" + Guid.NewGuid().ToString("N"));
+                try
+                {
+                    string rootUri = new Uri(rootFixture.Root + Path.DirectorySeparatorChar).AbsoluteUri;
+                    (await facts.RunAsync(Path.GetTempPath(), ["clone", "--quiet", "--depth", "1", rootUri, rootClone],
+                        TestContext.Current.CancellationToken)).Value!.ExitCode.ShouldBe(0);
+                    (await facts.ResolveRevisionAsync(rootClone, "HEAD~1", TestContext.Current.CancellationToken))
+                        .Status.ShouldBe(GitFactStatus.Invalid);
+                }
+                finally { if (Directory.Exists(rootClone)) Directory.Delete(rootClone, recursive: true); }
+            }
+            using (GitFixture mergeFixture = new())
+            {
+                File.WriteAllText(Path.Combine(mergeFixture.Root, "base.txt"), "base");
+                mergeFixture.Commit();
+                string mainBranch = mergeFixture.Git("branch", "--show-current");
+                mergeFixture.Git("branch", "side");
+                File.WriteAllText(Path.Combine(mergeFixture.Root, "main.txt"), "main");
+                mergeFixture.Commit();
+                mergeFixture.Git("checkout", "--quiet", "side");
+                File.WriteAllText(Path.Combine(mergeFixture.Root, "side.txt"), "side");
+                mergeFixture.Commit();
+                mergeFixture.Git("checkout", "--quiet", mainBranch);
+                mergeFixture.Git("merge", "--quiet", "--no-ff", "-m", "fixture merge", "side");
+                string mergeClone = Path.Combine(Path.GetTempPath(), "gitfacts-merge-shallow-" + Guid.NewGuid().ToString("N"));
+                try
+                {
+                    string mergeUri = new Uri(mergeFixture.Root + Path.DirectorySeparatorChar).AbsoluteUri;
+                    (await facts.RunAsync(Path.GetTempPath(), ["clone", "--quiet", "--depth", "1", mergeUri, mergeClone],
+                        TestContext.Current.CancellationToken)).Value!.ExitCode.ShouldBe(0);
+                    (await facts.ResolveRevisionAsync(mergeClone, "HEAD^2", TestContext.Current.CancellationToken))
+                        .Status.ShouldBe(GitFactStatus.Unavailable);
+                    (await facts.ResolveRevisionAsync(mergeClone, "HEAD^3", TestContext.Current.CancellationToken))
+                        .Status.ShouldBe(GitFactStatus.Invalid);
+                }
+                finally { if (Directory.Exists(mergeClone)) Directory.Delete(mergeClone, recursive: true); }
+            }
             fixture.Git("config", "uploadpack.allowFilter", "true");
             GitFact<GitCommandResult> partialClone = await facts.RunAsync(Path.GetTempPath(),
                 ["clone", "--quiet", "--no-checkout", "--filter=blob:none", "--no-local", sourceUri, partialPath], TestContext.Current.CancellationToken);

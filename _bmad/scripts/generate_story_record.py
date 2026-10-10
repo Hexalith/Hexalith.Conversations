@@ -5416,44 +5416,45 @@ def v2_10_1_artifact_bytes(repository: Path, relative: str) -> bytes:
 
 
 def v2_10_1_project_boundary(repository: Path, relative: str, helper: bool) -> None:
-    """Check evaluated Release MSBuild properties and every declared dependency item."""
-    command = ["dotnet", "msbuild", relative, "-p:Configuration=Release",
-               "-getProperty:IsPackable,IsPublishable",
-               "-getItem:ProjectReference,PackageReference,Reference,FrameworkReference", "-nologo"]
-    try:
-        result = subprocess.run(command, cwd=repository, capture_output=True, text=True,
-                                timeout=30, check=False)
-    except (OSError, subprocess.TimeoutExpired) as error:
-        raise ValueError(f"MSBuild evaluation unavailable: {error}") from error
-    if result.returncode:
-        raise ValueError(f"MSBuild evaluation failed: {result.stderr.strip()}")
-    try:
-        evaluated = json.loads(result.stdout)
-        properties = evaluated["Properties"]
-        items = evaluated["Items"]
-        if properties["IsPackable"].lower() != "false" or properties["IsPublishable"].lower() != "false":
-            raise ValueError("a TestSupport project is packable or publishable")
-        identities = {key: [row["Identity"] for row in items[key]]
-                      for key in ("ProjectReference", "PackageReference", "Reference", "FrameworkReference")}
-        if identities["Reference"]:
-            raise ValueError("an assembly reference is declared")
-        if items["FrameworkReference"] != [] and any(
-                row["Identity"] != "Microsoft.NETCore.App" or row.get("IsImplicitlyDefined", "").lower() != "true"
-                for row in items["FrameworkReference"]):
-            raise ValueError("an additional framework dependency is declared")
-        if helper:
-            if identities["ProjectReference"] or identities["PackageReference"]:
-                raise ValueError("the neutral helper has a package or project dependency")
-        else:
-            expected_project = "../Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj"
-            projects = [value.replace("\\", "/") for value in identities["ProjectReference"]]
-            expected_packages = {"Microsoft.NET.Test.Sdk", "Shouldly", "xunit.v3",
-                                 "xunit.runner.visualstudio", "coverlet.collector"}
-            if projects != [expected_project] or set(identities["PackageReference"]) != expected_packages \
-                    or len(identities["PackageReference"]) != len(expected_packages):
-                raise ValueError("the test project's declared dependencies changed")
-    except (KeyError, TypeError, AttributeError, json.JSONDecodeError) as error:
-        raise ValueError(f"malformed MSBuild evaluation: {error}") from error
+    """Check Debug and Release MSBuild properties and every declared dependency item."""
+    for configuration in ("Debug", "Release"):
+        command = ["dotnet", "msbuild", relative, f"-p:Configuration={configuration}",
+                   "-getProperty:IsPackable,IsPublishable",
+                   "-getItem:ProjectReference,PackageReference,Reference,FrameworkReference", "-nologo"]
+        try:
+            result = subprocess.run(command, cwd=repository, capture_output=True, text=True,
+                                    timeout=30, check=False)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise ValueError(f"MSBuild evaluation unavailable: {error}") from error
+        if result.returncode:
+            raise ValueError(f"MSBuild evaluation failed: {result.stderr.strip()}")
+        try:
+            evaluated = json.loads(result.stdout)
+            properties = evaluated["Properties"]
+            items = evaluated["Items"]
+            if properties["IsPackable"].lower() != "false" or properties["IsPublishable"].lower() != "false":
+                raise ValueError("a TestSupport project is packable or publishable")
+            identities = {key: [row["Identity"] for row in items[key]]
+                          for key in ("ProjectReference", "PackageReference", "Reference", "FrameworkReference")}
+            if identities["Reference"]:
+                raise ValueError("an assembly reference is declared")
+            if items["FrameworkReference"] != [] and any(
+                    row["Identity"] != "Microsoft.NETCore.App" or row.get("IsImplicitlyDefined", "").lower() != "true"
+                    for row in items["FrameworkReference"]):
+                raise ValueError("an additional framework dependency is declared")
+            if helper:
+                if identities["ProjectReference"] or identities["PackageReference"]:
+                    raise ValueError("the neutral helper has a package or project dependency")
+            else:
+                expected_project = "../Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj"
+                projects = [value.replace("\\", "/") for value in identities["ProjectReference"]]
+                expected_packages = {"Microsoft.NET.Test.Sdk", "Shouldly", "xunit.v3",
+                                     "xunit.runner.visualstudio", "coverlet.collector"}
+                if projects != [expected_project] or set(identities["PackageReference"]) != expected_packages \
+                        or len(identities["PackageReference"]) != len(expected_packages):
+                    raise ValueError("the test project's declared dependencies changed")
+        except (KeyError, TypeError, AttributeError, json.JSONDecodeError) as error:
+            raise ValueError(f"malformed {configuration} MSBuild evaluation: {error}") from error
 
 
 def v2_10_1_facts(
@@ -5481,7 +5482,9 @@ def v2_10_1_facts(
         predecessor_candidate = previous["candidate"]["commit"]
         if (summary["passed"] != summary["required"] or any(summary[key] for key in
                 ("failed", "blocked", "skipped", "notRun"))
-                or any(row["result"] != "PASS" for row in previous["scenarios"])
+                or any(row["result"] != "PASS" or not row.get("assertionLedger")
+                       or any(assertion.get("state") != "PASS" for assertion in row["assertionLedger"])
+                       for row in previous["scenarios"])
                 or not compatible_authority
                 or try_resolve_commit(repository, predecessor_candidate) != predecessor_candidate):
             findings.append(v2_finding("AUTHORITY_BINDING_INVALID", json_path,
@@ -7849,7 +7852,8 @@ def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> b
 
     allowed_dirt = {output_json, output_markdown, *result_paths}
     if verify_spec is not None:
-        designated_spec = {"8.2": V2_8_2_SPEC_PATH, "9.2": V2_9_2_SPEC_PATH}.get(story_id)
+        designated_spec = {"8.2": V2_8_2_SPEC_PATH, "9.2": V2_9_2_SPEC_PATH,
+                           "10.1": retained[1] if retained is not None else None}.get(story_id)
         if verify_spec != designated_spec:
             raise V2Stop([v2_finding("ARGUMENT_INVALID", "verification", "read-only rederivation requires this story's designated spec")], story_id)
         allowed_dirt.add(verify_spec)
@@ -7938,7 +7942,7 @@ def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> b
         scenario_record, category, scenario_findings = v2_successor_scenario_from_results(
             repository, scenario, command, candidate, candidate_time * 1_000_000_000,
             gitlink_paths, stamped, allowed_dirt,
-            **({"execute_commands": False} if story_id == "9.2" and verify_spec is not None else {}),
+            **({"execute_commands": False} if story_id in ("9.2", "10.1") and verify_spec is not None else {}),
         )
         scenario_records[scenario["id"]] = scenario_record
         categories[scenario["id"]] = category
@@ -8310,7 +8314,7 @@ def v2_verify_inserted(options: dict[str, str]) -> bytes:
             "the inserted record region differs from the committed Markdown and its "
             "renderedMarkdownSha256",
         )
-    if story_id in ("8.2", "9.2"):
+    if story_id in ("8.2", "9.2", "10.1"):
         rederived = v2_generate({"--repository": str(repository), "--contract": contract_path,
                                 "--format": "bundle", "--output-json": json_path,
                                 "--output-markdown": markdown_path}, verify_spec=spec_relative)

@@ -30,6 +30,11 @@ public sealed class GitFacts
     /// <summary>Runs Git with both streams drained concurrently and a 30-second maximum.</summary>
     public async Task<GitFact<GitCommandResult>> RunAsync(string repository, IEnumerable<string> arguments, CancellationToken cancellationToken = default, TimeSpan? timeout = null)
     {
+        if (arguments is null || arguments.Any(argument => argument is null))
+        {
+            return GitFact<GitCommandResult>.Fail(GitFactStatus.Invalid, "GIT_ARGUMENT_INVALID", "Git arguments must be non-null.");
+        }
+
         if (cancellationToken.IsCancellationRequested)
         {
             return GitFact<GitCommandResult>.Fail(GitFactStatus.Cancelled, "GIT_CANCELLED", "The caller cancelled execution.");
@@ -83,6 +88,8 @@ public sealed class GitFacts
             start.ArgumentList.Add("core.quotepath=false");
             start.ArgumentList.Add("-c");
             start.ArgumentList.Add("diff.ignoreSubmodules=none");
+            start.ArgumentList.Add("-c");
+            start.ArgumentList.Add("diff.renames=true");
         }
         foreach (string argument in arguments)
         {
@@ -300,6 +307,7 @@ public sealed class GitFacts
         {
             string[] tokens = DecodeTokens(result.Value.Stdout);
             List<GitDiffEntry> entries = [];
+            HashSet<string> paths = new(StringComparer.Ordinal);
             for (int i = 0; i < tokens.Length - 1;)
             {
                 string header = tokens[i++];
@@ -320,7 +328,7 @@ public sealed class GitFacts
                     || !IsDiffStatus(fields[4]) || !IsDiffRelation(fields) || string.IsNullOrEmpty(original) || string.IsNullOrEmpty(path)
                     || !RepositoryLocator.ResolveHistoricalPath(repository, original).IsSuccess
                     || !RepositoryLocator.ResolveHistoricalPath(repository, path).IsSuccess
-                    || entries.Any(item => item.Path == path)) throw new FormatException("Malformed raw diff mode, status, object, or path.");
+                    || !paths.Add(path)) throw new FormatException("Malformed raw diff mode, status, object, or path.");
                 entries.Add(new(fields[0], fields[1], fields[2], fields[3], fields[4], path, sourcePath));
             }
 
@@ -342,26 +350,31 @@ public sealed class GitFacts
         if (result.Value!.ExitCode != 0) return GitFact<IReadOnlyList<GitTreeEntry>>.Fail(GitFactStatus.Unavailable, "HISTORY_UNAVAILABLE", "Git could not read the requested tree.");
         try
         {
-            List<GitTreeEntry> entries = [];
-            foreach (string token in DecodeTokens(result.Value.Stdout)[..^1])
-            {
-                int tab = token.IndexOf('\t');
-                if (tab < 0) throw new FormatException("Malformed tree entry.");
-                string[] fields = token[..tab].Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                string path = token[(tab + 1)..];
-                if (fields.Length != 3 || !IsTreeMode(fields[0], fields[1]) || !IsObjectId(fields[2])
-                    || string.IsNullOrEmpty(path) || !RepositoryLocator.ResolveHistoricalPath(repository, path).IsSuccess
-                    || entries.Any(item => item.Path == path))
-                    throw new FormatException("Malformed or duplicate tree entry.");
-                entries.Add(new(fields[0], fields[1], fields[2], path));
-            }
-
-            return GitFact<IReadOnlyList<GitTreeEntry>>.Ok(entries);
+            return GitFact<IReadOnlyList<GitTreeEntry>>.Ok(ParseTree(repository, result.Value.Stdout));
         }
         catch (Exception exception) when (exception is DecoderFallbackException or FormatException)
         {
             return GitFact<IReadOnlyList<GitTreeEntry>>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", exception.Message);
         }
+    }
+
+    private static IReadOnlyList<GitTreeEntry> ParseTree(string repository, byte[] bytes)
+    {
+        List<GitTreeEntry> entries = [];
+        HashSet<string> paths = new(StringComparer.Ordinal);
+        foreach (string token in DecodeTokens(bytes)[..^1])
+        {
+            int tab = token.IndexOf('\t');
+            if (tab < 0) throw new FormatException("Malformed tree entry.");
+            string[] fields = token[..tab].Split(' ', StringSplitOptions.None);
+            string path = token[(tab + 1)..];
+            if (fields.Length != 3 || !IsTreeMode(fields[0], fields[1]) || !IsObjectId(fields[2])
+                || fields[2].All(character => character == '0') || string.IsNullOrEmpty(path)
+                || !RepositoryLocator.ResolveHistoricalPath(repository, path).IsSuccess || !paths.Add(path))
+                throw new FormatException("Malformed or duplicate tree entry.");
+            entries.Add(new(fields[0], fields[1], fields[2], path));
+        }
+        return entries;
     }
 
     /// <summary>Reads exact historical blob bytes and computes SHA-256.</summary>
@@ -371,10 +384,23 @@ public sealed class GitFacts
         if (!contained.IsSuccess) return Forward<GitBlob>(contained);
         GitFact<string> commit = await ResolveRevisionAsync(repository, revision, cancellationToken).ConfigureAwait(false);
         if (!commit.IsSuccess) return Forward<GitBlob>(commit);
-        GitFact<IReadOnlyList<GitTreeEntry>> tree = await ReadTreeAsync(repository, commit.Value!, cancellationToken).ConfigureAwait(false);
+        GitFact<GitCommandResult> tree = await RunAsync(repository,
+            ["ls-tree", "-z", "--full-tree", commit.Value!, "--", ":(literal)" + path], cancellationToken).ConfigureAwait(false);
         if (!tree.IsSuccess) return Forward<GitBlob>(tree);
-        GitTreeEntry? entry = tree.Value!.FirstOrDefault(item => item.Path == path);
-        if (entry is null || entry.Type != "blob") return GitFact<GitBlob>.Fail(GitFactStatus.Invalid, "BLOB_INVALID", path);
+        if (tree.Value!.ExitCode != 0)
+            return GitFact<GitBlob>.Fail(GitFactStatus.Unavailable, "HISTORY_UNAVAILABLE", path);
+        GitTreeEntry entry;
+        try
+        {
+            IReadOnlyList<GitTreeEntry> entries = ParseTree(repository, tree.Value.Stdout);
+            if (entries.Count != 1 || entries[0].Path != path || entries[0].Type != "blob")
+                return GitFact<GitBlob>.Fail(GitFactStatus.Invalid, "BLOB_INVALID", path);
+            entry = entries[0];
+        }
+        catch (Exception exception) when (exception is DecoderFallbackException or FormatException)
+        {
+            return GitFact<GitBlob>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", exception.Message);
+        }
         GitFact<GitCommandResult> result = await RunAsync(repository, ["cat-file", "blob", entry.ObjectId], cancellationToken).ConfigureAwait(false);
         if (!result.IsSuccess) return Forward<GitBlob>(result);
         if (result.Value!.ExitCode != 0) return GitFact<GitBlob>.Fail(GitFactStatus.Unavailable, "HISTORY_UNAVAILABLE", path);
@@ -387,18 +413,25 @@ public sealed class GitFacts
     private static GitFact<T> Forward<T>(GitFact<IReadOnlyList<GitTreeEntry>> source) => GitFact<T>.Fail(source.Status, source.Code!, source.Message ?? string.Empty);
     private async Task<GitFact<bool>> IsProvenShallowAncestorAsync(string root, string revision, CancellationToken cancellationToken)
     {
-        int depth;
+        int depth = 0;
+        int parentNumber = 1;
         bool objectRevision = IsObjectId(revision);
-        if (objectRevision) depth = 0;
+        bool secondParent = revision == "HEAD^2";
+        if (objectRevision) { }
+        else if (secondParent) parentNumber = 2;
         else if (revision.StartsWith("HEAD~", StringComparison.Ordinal))
         {
             string count = revision[5..];
             if (count.Length == 0 || count[0] == '0' || !count.All(char.IsAsciiDigit)
                 || !int.TryParse(count, out depth) || depth == 0) return GitFact<bool>.Ok(false);
         }
-        else if (revision.StartsWith("HEAD^", StringComparison.Ordinal) && revision[4..].All(character => character == '^'))
+        else if (revision.StartsWith("HEAD^", StringComparison.Ordinal))
         {
-            depth = revision.Length - 4;
+            string suffix = revision[5..];
+            if (suffix.Length == 0) depth = 1;
+            else if (suffix.All(character => character == '^')) depth = suffix.Length + 1;
+            else if (suffix == "1") depth = 1;
+            else return GitFact<bool>.Ok(false);
         }
         else return GitFact<bool>.Ok(false);
 
@@ -410,7 +443,8 @@ public sealed class GitFacts
         string[] commits = chainText[..^1].Split('\n');
         if (commits.Length == 0 || commits.Any(commit => !IsObjectId(commit)))
             return GitFact<bool>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", "Git returned a malformed ancestor chain.");
-        if (!objectRevision && depth < commits.Length) return GitFact<bool>.Ok(false);
+        if (!objectRevision && !secondParent && depth < commits.Length) return GitFact<bool>.Ok(false);
+        string boundaryId = secondParent ? commits[0] : commits[^1];
 
         GitFact<GitCommandResult> location = await RunAsync(root, ["rev-parse", "--git-path", "shallow"], cancellationToken).ConfigureAwait(false);
         if (!location.IsSuccess) return Forward<bool>(location);
@@ -421,20 +455,26 @@ public sealed class GitFacts
         {
             string shallowPath = Path.GetFullPath(locationText[..^1], root);
             string[] boundaries = StrictUtf8.GetString(File.ReadAllBytes(shallowPath)).Split('\n', StringSplitOptions.RemoveEmptyEntries);
-            if (!boundaries.Contains(commits[^1], StringComparer.Ordinal)) return GitFact<bool>.Ok(false);
+            if (!boundaries.Contains(boundaryId, StringComparer.Ordinal)) return GitFact<bool>.Ok(false);
         }
         catch (Exception exception) when (exception is ArgumentException or IOException or UnauthorizedAccessException or DecoderFallbackException)
         {
             return GitFact<bool>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", exception.Message);
         }
-        if (!objectRevision) return GitFact<bool>.Ok(true);
-        GitFact<GitCommandResult> boundary = await RunAsync(root, ["cat-file", "-p", commits[^1]], cancellationToken).ConfigureAwait(false);
+        GitFact<GitCommandResult> boundary = await RunAsync(root, ["cat-file", "-p", boundaryId], cancellationToken).ConfigureAwait(false);
         if (!boundary.IsSuccess) return Forward<bool>(boundary);
         if (boundary.Value!.ExitCode != 0 || !TryDecode(boundary.Value.Stdout, out string? commitText) || commitText is null)
             return GitFact<bool>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", "Git returned a malformed shallow commit.");
-        string? parent = commitText.Split('\n').TakeWhile(line => line.Length != 0)
-            .FirstOrDefault(line => line.StartsWith("parent ", StringComparison.Ordinal));
-        return GitFact<bool>.Ok(parent is not null && parent[7..] == revision);
+        List<string> parents = [];
+        foreach (string line in commitText.Split('\n').TakeWhile(line => line.Length != 0))
+        {
+            if (!line.StartsWith("parent ", StringComparison.Ordinal)) continue;
+            if (!IsObjectId(line[7..]))
+                return GitFact<bool>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", "Git returned a malformed parent header.");
+            parents.Add(line[7..]);
+        }
+        if (objectRevision) return GitFact<bool>.Ok(parents.Contains(revision, StringComparer.Ordinal));
+        return GitFact<bool>.Ok(parents.Count >= parentNumber);
     }
     private static bool TryDecode(byte[] bytes, out string? value)
     {
@@ -460,14 +500,25 @@ public sealed class GitFacts
         if (fields[2].Length != fields[3].Length) return false;
         if ((fields[0] == "000000") != fields[2].All(character => character == '0')
             || (fields[1] == "000000") != fields[3].All(character => character == '0')) return false;
+        int sourceType = DiffType(fields[0]);
+        int destinationType = DiffType(fields[1]);
         return fields[4][0] switch
         {
             'A' => sourceAbsent && !destinationAbsent,
             'D' => !sourceAbsent && destinationAbsent,
-            'M' or 'T' or 'R' or 'C' => !sourceAbsent && !destinationAbsent,
+            'M' => !sourceAbsent && !destinationAbsent && sourceType == destinationType,
+            'T' => !sourceAbsent && !destinationAbsent && sourceType != destinationType,
+            'R' or 'C' => !sourceAbsent && !destinationAbsent && sourceType == destinationType,
             _ => false,
         };
     }
+    private static int DiffType(string mode) => mode switch
+    {
+        "100644" or "100755" => 1,
+        "120000" => 2,
+        "160000" => 3,
+        _ => 0,
+    };
     private static bool IsObjectId(string value) => (value.Length == 40 || value.Length == 64)
         && value.All(character => character is >= '0' and <= '9' or >= 'a' and <= 'f');
 }

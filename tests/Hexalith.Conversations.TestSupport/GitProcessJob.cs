@@ -15,16 +15,31 @@ internal sealed class GitProcessJob : IDisposable
         _handle = CreateJobObject(nint.Zero, null);
         if (_handle == nint.Zero)
         {
-            process.Kill(entireProcessTree: true);
-            throw new Win32Exception(Marshal.GetLastWin32Error());
-        }
-        if (!AssignProcessToJobObject(_handle, process.Handle))
-        {
             int error = Marshal.GetLastWin32Error();
-            process.Kill(entireProcessTree: true);
-            _ = CloseHandle(_handle);
+            TryKill(process);
             throw new Win32Exception(error);
         }
+        try
+        {
+            if (!AssignProcessToJobObject(_handle, process.Handle))
+            {
+                int error = Marshal.GetLastWin32Error();
+                TryKill(process);
+                throw new Win32Exception(error);
+            }
+        }
+        catch
+        {
+            _ = CloseHandle(_handle);
+            throw;
+        }
+    }
+
+    private static void TryKill(Process process)
+    {
+        try { process.Kill(entireProcessTree: true); }
+        catch (InvalidOperationException) { }
+        catch (Win32Exception) { }
     }
 
     /// <summary>Terminates all enrolled descendants, including after the parent exits.</summary>

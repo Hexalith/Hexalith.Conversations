@@ -10081,7 +10081,8 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
     authority = {"epic": "epic-v10", "architecture": "architecture-v10", "planningCandidate": "c" * 40, "bundleDigest": "d" * 64}
     previous = {
         "summary": {"required": 1, "passed": 1, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0},
-        "scenarios": [{"result": "PASS"}], "candidate": {"commit": "b" * 40}, "authority": authority.copy(),
+        "scenarios": [{"result": "PASS", "assertionLedger": [{"state": "PASS"}]}],
+        "candidate": {"commit": "b" * 40}, "authority": authority.copy(),
     }
     monkeypatch.setattr(generator, "v2_parse_json", lambda content: previous)
     monkeypatch.setattr(generator, "try_resolve_commit", lambda _repo, revision: revision)
@@ -10119,6 +10120,18 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
         generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
     assert "AUTHORITY_BINDING_INVALID" in {row["code"] for row in error.value.findings}
     previous["authority"] = authority.copy()
+    previous["scenarios"][0]["assertionLedger"][0]["state"] = "FAIL"
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "AUTHORITY_BINDING_INVALID" in {row["code"] for row in error.value.findings}
+    previous["scenarios"][0]["assertionLedger"][0]["state"] = "PASS"
+    (tmp_path / f"tests/{helper}/bin/Release/net10.0/{helper}.dll").write_bytes(b"stale binary")
+    monkeypatch.setattr(generator, "dotnet_source_revisions", lambda binary: [candidate] if binary == b"candidate binary" else [])
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "TEST_SUPPORT_BOUNDARY_INVALID" in {row["code"] for row in error.value.findings}
+    (tmp_path / f"tests/{helper}/bin/Release/net10.0/{helper}.dll").write_bytes(b"candidate binary")
+    previous["authority"] = authority.copy()
     monkeypatch.setattr(generator, "try_resolve_commit", lambda *_: None)
     with pytest.raises(generator.V2Stop) as error:
         generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
@@ -10137,6 +10150,12 @@ def test_story101_evaluated_project_boundary_rejects_overrides_and_references(tm
     <IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>
     </PropertyGroup><PropertyGroup><IsPackable>true</IsPackable></PropertyGroup></Project>""", encoding="utf-8")
     with pytest.raises(ValueError, match="packable"):
+        generator.v2_10_1_project_boundary(tmp_path, path, True)
+    project.write_text("""<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>
+    <IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>
+    </PropertyGroup><PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <IsPublishable>true</IsPublishable></PropertyGroup></Project>""", encoding="utf-8")
+    with pytest.raises(ValueError, match="publishable"):
         generator.v2_10_1_project_boundary(tmp_path, path, True)
     project.write_text("""<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>
     <IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>
@@ -10216,6 +10235,69 @@ def test_story101_pair_rejects_revision_and_artifact_path_conflicts(monkeypatch)
     assert not generator.v2_10_1_exact_paths(support)
     _, json_bytes, markdown_bytes = generator.v2_finalize(record)
     assert any("artifact paths" in value for value in generator.v2_verify_pair(json_bytes, markdown_bytes))
+
+
+def test_story101_inserted_verification_rederives_stale_artifact_binding(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    contract_path = "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"
+    spec_path = "_bmad-output/implementation-artifacts/spec-10-1-neutral-testsupport-and-safe-git-facts.md"
+    json_path = "docs/release-evidence/story-10.1-final-record-v2.json"
+    markdown_path = "docs/release-evidence/story-10.1-final-record-v2.md"
+    names = ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests")
+    artifact_path = f"tests/{names[0]}/bin/Release/net10.0/{names[0]}.dll"
+    support = {
+        "sourceRevisionId": candidate,
+        "projects": [{"project": {"path": f"tests/{name}/{name}.csproj"},
+                      "assembly": {"path": f"tests/{name}/bin/Release/net10.0/{name}.dll",
+                                   "sha256": module.v2_sha256(b"old")}}
+                     for name in names],
+        "results": [{"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx"}
+                    for number in range(2, 7)],
+    }
+    record = {
+        "storyId": "10.1", "candidate": {"commit": candidate},
+        "testSupportExecution": support,
+        "outputs": {"json": {"path": json_path, "sha256": module.V2_ZERO_DIGEST},
+                    "markdown": {"path": markdown_path, "sha256": module.V2_ZERO_DIGEST}},
+        "renderedMarkdownSha256": module.V2_ZERO_DIGEST,
+    }
+    monkeypatch.setattr(module, "v2_render_markdown", lambda *_: "self-consistent record\n")
+    _, json_bytes, markdown_bytes = module.v2_finalize(record)
+    assert module.v2_verify_pair(json_bytes, markdown_bytes) == []
+    (tmp_path / artifact_path).parent.mkdir(parents=True)
+    (tmp_path / artifact_path).write_bytes(b"new")
+    contract = {"storyId": "10.1", "finalRecord": {"paths": [json_path, markdown_path]}}
+    blobs = {contract_path: b"contract", json_path: json_bytes, markdown_path: markdown_bytes}
+    spec = (b"---\nstatus: in-progress\n---\n\n" + module.RECORD_BEGIN_MARKER.encode()
+            + b"\n" + markdown_bytes + module.RECORD_END_MARKER.encode() + b"\n")
+    for path, data in {**blobs, spec_path: spec}.items():
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+    monkeypatch.setattr(module, "validate_repository", lambda *_: tmp_path)
+    monkeypatch.setattr(module, "v2_load_schemas", lambda: (None, {"contract": None, "contract_v14": None, "record": None}))
+    monkeypatch.setattr(module, "v2_validate_contract", lambda *_: contract)
+    monkeypatch.setattr(module, "v2_schema_errors", lambda *_: [])
+    monkeypatch.setattr(module, "resolve_commit", lambda *_: candidate)
+    monkeypatch.setattr(module, "v2_retention_config", lambda *_: ("10.1", spec_path, "10-1-neutral-testsupport-and-safe-git-facts", True))
+    monkeypatch.setattr(module, "v2_retained_candidate", lambda *_: candidate)
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
+    monkeypatch.setattr(module, "worktree_path_status", lambda *_: {})
+    monkeypatch.setattr(module, "v2_working_spec_lifecycle_only_change", lambda *_args, **_kwargs: True)
+    calls = []
+    def rederive(options, *, verify_spec):
+        calls.append(verify_spec)
+        current = deepcopy(record)
+        current["testSupportExecution"]["projects"][0]["assembly"]["sha256"] = module.v2_sha256(
+            (tmp_path / artifact_path).read_bytes())
+        return module.v2_finalize(current)[1]
+    monkeypatch.setattr(module, "v2_generate", rederive)
+    with pytest.raises(module.V2Stop) as error:
+        module.v2_verify_inserted({"--repository": str(tmp_path), "--contract": contract_path,
+                                   module.V2_VERIFY_OPTION: spec_path})
+    assert error.value.findings[0]["code"] == "RECORD_CONTENT_DRIFT"
+    assert calls == [spec_path]
 
 
 if __name__ == "__main__":
