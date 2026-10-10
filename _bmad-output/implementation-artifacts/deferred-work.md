@@ -550,3 +550,9 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `/tmp/story92-candidate-Rbx7zt/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
   summary: Match the TRX contract test by exact identity.
   evidence: Current Blind 10; Test-TrxResult uses a wildcard substring match, allowing a different test with a longer name to satisfy the contract guard.
+
+## Deferred from: code review of spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md (2026-10-10)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: The AC-09 `approval-missing` fault deletes the v3 approval and calls the current-tree verifier, but the accepted AC-08 command auto-routes to the committed v4 scope and v7 Quality route. That route reports a missing v7 approval as `SUCCESSOR_INPUT_MISSING`, so the final record's `approval-missing` → `TIER_APPROVAL_MISSING` row describes a route acceptance did not use.
+  evidence: Chunk A review, Acceptance Auditor finding 3, medium. The owner chose to record and defer it and keep the accepted `af51d8f` record. A missing v7 approval still blocks AC-08 through `pinned()` (`_bmad/scripts/verify_story92_successor_v2_acceptance.py:81`). Settle by adding a v7-approval-missing fault on the v4 route, mapped to `TIER_APPROVAL_MISSING`, the next time Story 9.2 evidence is regenerated or the tier verifier is extended.

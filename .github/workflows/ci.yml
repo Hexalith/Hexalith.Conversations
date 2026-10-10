@@ -186,8 +186,12 @@ jobs:
           mkdir -p TestResults/conformance
           portable="tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll"
           internal="tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll"
-          # Retain historical exclusions and all frozen definitions. The old Story 9.1
-          # controls inspect their original assembly; separate live controls cover both tiers.
+          # Retain historical exclusions and all frozen definitions. Each tier's
+          # ConformanceOracleTieringValidationTest compares the live tree with a story
+          # freeze (Story 9.1 in the portable tier, Story 9.2 AC-04/AC-05 in the internal
+          # tier), so routine CI excludes both. The Story 9.2 tier verifier and fault
+          # fixtures retired from CI with them; run them by name to reproduce acceptance.
+          # The portable compile-surface control (AC-02) stays a live guard.
           uv run --frozen --no-sync dotnet "$portable" -failSkips \
             -class- "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest" \
             -class- "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest" \
@@ -205,25 +209,10 @@ jobs:
             -result-trx TestResults/conformance/portable.trx \
             -noLogo
           uv run --frozen --no-sync dotnet "$internal" -failSkips \
+            -class- "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest" \
             -parallelMode none \
             -result-trx TestResults/conformance/internal.trx \
             -noLogo
-
-      - name: Verify complete monotonic tier execution
-        run: >-
-          uv run --frozen --no-sync python3 _bmad/scripts/verify_conformance_tiering.py
-          --repository .
-          --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json
-          --current-tree
-          --portable-result TestResults/conformance/portable.trx
-          --internal-result TestResults/conformance/internal.trx
-          --output TestResults/conformance/tiering.json
-
-      - name: Prove structural and execution faults
-        run: >-
-          uv run --frozen --no-sync python3 -m pytest -q
-          _bmad/scripts/tests/test_conformance_tiering.py -k "structural_and_execution_faults or current_tree"
-          --junitxml=TestResults/conformance/faults.xml
 
       - name: Upload conformance evidence
         if: always()

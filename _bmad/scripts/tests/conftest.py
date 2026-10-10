@@ -20,7 +20,9 @@ Directory collection leaves them out, so they are not reported as skipped tests.
 
 collect_ignore = [
     "test_check_lifecycle_gate_preflight.py",
-    "test_conformance_tiering.py",  # Story 9.1 freeze evidence, retired by owner decision 2026-10-07; still runs when named explicitly.
+    # Story 9.1 freeze evidence and Story 9.2 acceptance faults, retired from CI by owner decisions
+    # 2026-10-07 and 2026-10-10; hermetic Story 9.2 verifier regressions live in test_generate_story_record.py.
+    "test_conformance_tiering.py",
     "test_generate_preservation_traceability_manifest.py",
     "test_publish_story_7_1_committed_candidate_test_correction.py",
     "test_publish_story_7_1_entry_authority.py",
@@ -35,4 +37,8 @@ collect_ignore = [
     "test_publish_v9_planning_authority.py",
     "test_resolve_current_planning_authority.py",
     "test_verify_evidence_boundary.py",
+    # Story 9.2 v3/v4 successor acceptance needs built tiers and submodules, so it
+    # cannot pass in the Python-only lane (owner decision 2026-10-10).
+    "test_verify_story92_successor_v3_scope.py",
+    "test_verify_story92_successor_v4_acceptance.py",
 ]

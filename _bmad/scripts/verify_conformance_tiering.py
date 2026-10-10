@@ -156,15 +156,14 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
     """Reject non-packable modules in evaluated project graph, assets, and ReferencePath."""
     portable = evaluated["portable"]
     initial = portable["Items"]["ProjectReference"]
-    direct = sorted(Path(item["FullPath"]).resolve() for item in initial)
-    # The SDK contributes the packable domain project through package-dependency
-    # resolution in addition to the three references declared by this project.
+    project_file = (root / PROJECTS["portable"]).resolve()
+    declared = sorted(Path(item["FullPath"]).resolve() for item in initial
+                      if Path(item.get("DefiningProjectFullPath") or root).resolve() == project_file)
     approved = sorted((root / "src" / name / f"{name}.csproj").resolve() for name in (
-        "Hexalith.Conversations", "Hexalith.Conversations.Client",
-        "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Testing"))
-    require(direct == approved,
-            "PORTABLE_TIER_NONPORTABLE_REFERENCE", "Portable evaluated direct references differ from the approved set.")
-    queue = [Path(item["FullPath"]) for item in initial]
+        "Hexalith.Conversations.Client", "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Testing"))
+    require(declared == approved,
+            "PORTABLE_TIER_NONPORTABLE_REFERENCE", "Portable declared references must be the three approved shipped surfaces.")
+    queue = list(declared)
     seen: dict[str, dict[str, Any]] = {}
     project_outputs: dict[str, set[Path]] = {}
     package_roots = {item["Identity"] for item in portable["Items"].get("PackageReference", [])}
@@ -185,6 +184,13 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
             Path(properties[key]).resolve() for key in ("TargetPath", "TargetRefPath") if properties.get(key))
         queue.extend(Path(item["FullPath"]) for item in graph["Items"]["ProjectReference"])
         package_roots.update(item["Identity"] for item in graph["Items"].get("PackageReference", []))
+    # The SDK copies transitive project references from the restore, which differ between
+    # package and source-reference restores. Any reference this project did not declare,
+    # including one imported by a props file, must lie in the approved surfaces' closure.
+    reached = {(root / relative).resolve() for relative in seen}
+    require(all(Path(item["FullPath"]).resolve() in reached for item in initial),
+            "PORTABLE_TIER_NONPORTABLE_REFERENCE",
+            "A portable evaluated reference is neither declared nor reachable from the approved surfaces.")
     allowed = {row["assembly"] for row in seen.values() if row["packable"]}
 
     assets_path = Path(portable["Properties"]["ProjectAssetsFile"])
@@ -968,7 +974,8 @@ def verify_approved_successor_v2(root: Path, candidate: str, portable_result: st
                                  internal_result: str | None = None, *, mode: str = "complete") -> dict[str, Any]:
     """Run the additive ec5c9be/v5 route after exact committed authority checks.
 
-    The original v3 ``verify`` API and its default CLI behavior are unchanged.
+    The original v3 ``verify`` API is unchanged. Without ``--current-tree``, the CLI
+    sends complete and structure runs to the newest committed successor route.
     Current-tree structural/execution guards still run; the v5 material adds an
     exact candidate, migration, and genuine Quality binding.
     """

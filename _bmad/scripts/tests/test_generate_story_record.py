@@ -9353,6 +9353,13 @@ def _story92_write_json(path: Path, value) -> None:
     path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+def _story92_accepted_bytes(path: str) -> bytes:
+    """Read a file at the accepted Story 9.2 candidate rather than the evolving tree."""
+    record = json.loads((WORKSPACE / "docs/release-evidence/story-9.2-final-record-v2.json").read_bytes())
+    return subprocess.run(["git", "show", f"{record['candidate']['commit']}:{path}"], cwd=WORKSPACE,
+                          capture_output=True, check=True).stdout
+
+
 def _story92_managed_binary_fixture(assembly: str, methods: set[str]) -> bytes:
     """Synthetic CLI identity tables for hermetic parser tests, never real execution evidence."""
     strings = bytearray(b"\0")
@@ -9456,6 +9463,9 @@ def _story92_portable_model(root: Path):
             if row["assembly"] in ("Hexalith.Conversations.Client", "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Testing")]
     domain = next(row for row in rows if row["assembly"] == "Hexalith.Conversations")
     graphs["src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj"]["Items"]["ProjectReference"] = [{"FullPath": str(root / domain["project"])}]
+    # ResolveReferences adds the restored transitive domain project from an SDK target.
+    refs.append({"FullPath": str(root / domain["project"]),
+                 "DefiningProjectFullPath": str(root / "sdk/Microsoft.PackageDependencyResolution.targets")})
     references = []
     framework_pack = root / "framework/Microsoft.NETCore.App.Ref/10.0.0"
     for name in approved["referencePathAssemblies"]:
@@ -9493,12 +9503,30 @@ def _story92_portable_model(root: Path):
     return approved, evaluated, graphs, assets_path, assets
 
 
-@pytest.mark.parametrize("mutation", [None, "unprefixed-nonpackable", "foreign-binary", "foreign-asset", "mismatched-package-asset",
-                                      "unprefixed-binary", "project-path", "package-path", "unreached-package",
-                                      "framework-path", "framework-package", "undeclared-framework"])
+_STORY92_SURFACE_BLOCKERS = {
+    "extra-declared-reference": "Portable declared references must be the three approved shipped surfaces.",
+    "imported-extra-reference": "neither declared nor reachable from the approved surfaces",
+    "unprefixed-nonpackable": "Evaluated non-packable module reference: RenamedInternal",
+    "foreign-binary": "Nonportable resolved ReferencePath: Hexalith.Foreign.Server",
+    "foreign-asset": "Nonportable transitive compile asset: Hexalith.Foreign.Server",
+    "mismatched-package-asset": "Nonportable transitive compile asset: Hexalith.Foreign.Server",
+    **{mutation: "Resolved reference is outside evaluated packable projects" for mutation in (
+        "unprefixed-binary", "project-path", "package-path", "unreached-package",
+        "framework-path", "framework-package", "undeclared-framework")},
+}
+
+
+@pytest.mark.parametrize("mutation", [None, *_STORY92_SURFACE_BLOCKERS])
 def test_story92_portable_surface_guards_python_only(tmp_path: Path, monkeypatch, mutation) -> None:
     approved, evaluated, graphs, assets_path, assets = _story92_portable_model(tmp_path)
-    if mutation == "unprefixed-nonpackable":
+    if mutation in ("extra-declared-reference", "imported-extra-reference"):
+        path = "src/Hexalith.Extra/Hexalith.Extra.csproj"
+        project = tmp_path / path; project.parent.mkdir(parents=True); project.write_text("<Project />")
+        graphs[path] = {"Properties": {"AssemblyName": "Hexalith.Extra", "IsPackable": "true"}, "Items": {"ProjectReference": []}}
+        defining = (tmp_path / story92.PROJECTS["portable"] if mutation == "extra-declared-reference"
+                    else tmp_path / "Directory.Build.props")
+        evaluated["portable"]["Items"]["ProjectReference"].append({"FullPath": str(project), "DefiningProjectFullPath": str(defining)})
+    elif mutation == "unprefixed-nonpackable":
         path = "src/RenamedInternal/RenamedInternal.csproj"
         project = tmp_path / path; project.parent.mkdir(parents=True); project.write_text("<Project />")
         graphs[path] = {"Properties": {"AssemblyName": "RenamedInternal", "IsPackable": "false"}, "Items": {"ProjectReference": []}}
@@ -9540,8 +9568,41 @@ def test_story92_portable_surface_guards_python_only(tmp_path: Path, monkeypatch
         with pytest.raises(story92.VerificationError) as error:
             story92.portable_surface(tmp_path, evaluated)
         assert error.value.code == "PORTABLE_TIER_NONPORTABLE_REFERENCE"
+        assert _STORY92_SURFACE_BLOCKERS[mutation] in str(error.value)
     else:
         assert story92.portable_surface(tmp_path, evaluated) == approved
+
+
+def test_story92_portable_surface_accepts_source_reference_closure(tmp_path: Path, monkeypatch) -> None:
+    """A Debug source-reference restore adds packable submodule projects reached through the approved surfaces."""
+    approved, evaluated, graphs, _, _ = _story92_portable_model(tmp_path)
+    path = "references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj"
+    project = tmp_path / path; project.parent.mkdir(parents=True); project.write_text("<Project />")
+    serialization = next(row for row in evaluated["portable"]["Items"]["ReferencePath"]
+                         if row["FusionName"].startswith("Hexalith.Commons.Serialization,"))
+    graphs[path] = {"Properties": {"AssemblyName": "Hexalith.Commons.Serialization", "IsPackable": "true",
+                                   "TargetPath": serialization["FullPath"]},
+                    "Items": {"ProjectReference": []}}
+    graphs["src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj"]["Items"]["ProjectReference"].append(
+        {"FullPath": str(project)})
+    evaluated["portable"]["Items"]["ProjectReference"].append(
+        {"FullPath": str(project), "DefiningProjectFullPath": str(tmp_path / "sdk/Microsoft.PackageDependencyResolution.targets")})
+    monkeypatch.setattr(story92, "msbuild", lambda _root, name, *_args, **_kwargs: graphs[name])
+    surface = story92.portable_surface(tmp_path, evaluated)
+    assert {"project": path, "assembly": "Hexalith.Commons.Serialization", "packable": True} in surface["evaluatedProjects"]
+    assert surface["referencePathAssemblies"] == approved["referencePathAssemblies"]
+
+
+def test_story92_verifier_output_rejects_unrelated_tracked_file(tmp_path: Path) -> None:
+    protected = tmp_path / ".github/workflows/release.yml"
+    protected.parent.mkdir(parents=True)
+    protected.write_bytes(b"protected workflow\n")
+    with pytest.raises(story92.VerificationError) as failure:
+        story92.write_json(tmp_path, ".github/workflows/release.yml", {"result": "PASS"})
+    assert failure.value.code == "OUTPUT_PATH_INVALID"
+    assert protected.read_bytes() == b"protected workflow\n"
+    story92.write_json(tmp_path, "TestResults/conformance/tiering.json", {"result": "PASS"})
+    assert json.loads((tmp_path / "TestResults/conformance/tiering.json").read_bytes()) == {"result": "PASS"}
 
 
 @pytest.mark.parametrize("mutation", [None, "echo", "comment", "assignment", "assignment-comment", "build-echo",
@@ -9555,13 +9616,14 @@ def test_story92_portable_surface_guards_python_only(tmp_path: Path, monkeypatch
                                       "job-continue-on-error", "step-continue-on-error", "workflow-default-shell",
                                       "step-false-portable", "step-false-internal", "step-false-execution", "step-false-verifier", "step-false-fault"])
 def test_story92_declarations_require_executable_ci_tiers(tmp_path: Path, mutation) -> None:
+    # Routine CI no longer runs the frozen tier checks, so the accepted candidate supplies the declared shape.
     paths = ["Hexalith.Conversations.slnx", story92.AMENDMENT, story92.TIERING.CI_WORKFLOW_PATH, *story92.PROJECTS.values()]
     for path in paths:
-        target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes((WORKSPACE / path).read_bytes())
-    for project in story92.RECORD.ElementTree.fromstring((WORKSPACE / "Hexalith.Conversations.slnx").read_bytes()).findall('.//Project'):
+        target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(_story92_accepted_bytes(path))
+    for project in story92.RECORD.ElementTree.fromstring(_story92_accepted_bytes("Hexalith.Conversations.slnx")).findall('.//Project'):
         path = project.get("Path", "")
         if path.startswith("tests/"):
-            target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes((WORKSPACE / path).read_bytes())
+            target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(_story92_accepted_bytes(path))
     workflow = tmp_path / story92.TIERING.CI_WORKFLOW_PATH
     before = workflow.read_bytes()
     text = before.decode()
@@ -9831,6 +9893,24 @@ def test_story92_execution_requires_managed_tier_and_method_identity(tmp_path: P
     finally:
         binary.write_bytes(before_binary); result.write_bytes(before_result)
     assert binary.read_bytes() == before_binary and result.read_bytes() == before_result
+    assert story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")["completePassingExecution"]
+
+
+@pytest.mark.parametrize("tier", ["portable", "module-internal"])
+def test_story92_execution_rejects_assembly_newer_than_result(tmp_path: Path, tier: str) -> None:
+    frozen = _story92_execution_fixture(tmp_path)
+    project = Path(story92.PROJECTS[tier])
+    binary = tmp_path / project.parent / "bin/Release/net10.0" / (project.stem + ".dll")
+    result = tmp_path / f"artifacts/v9/9.2/{'portable' if tier == 'portable' else 'internal'}.trx"
+    before = binary.stat()
+    rebuilt = result.stat().st_mtime_ns + 1_000_000_000
+    os.utime(binary, ns=(rebuilt, rebuilt))
+    try:
+        with pytest.raises(story92.VerificationError) as error:
+            story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")
+        assert error.value.code == "TEST_RESULTS_STALE"
+    finally:
+        os.utime(binary, ns=(before.st_atime_ns, before.st_mtime_ns))
     assert story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")["completePassingExecution"]
 
 

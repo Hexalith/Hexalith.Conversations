@@ -614,32 +614,6 @@ story92 = importlib.util.module_from_spec(live_spec)
 live_spec.loader.exec_module(story92)
 
 
-def test_portable_surface_rejects_imported_extra_direct_reference() -> None:
-    project = ROOT / story92.PROJECTS["portable"]
-    approved = ("Hexalith.Conversations", "Hexalith.Conversations.Client",
-                "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Testing")
-    references = [{"FullPath": str(ROOT / "src" / name / f"{name}.csproj"),
-                   "DefiningProjectFullPath": str(project)} for name in approved]
-    references.append({"FullPath": str(ROOT / "src/Hexalith.Extra/Hexalith.Extra.csproj"),
-                       "DefiningProjectFullPath": str(ROOT / "Directory.Build.props")})
-    with patch.object(story92, "msbuild", side_effect=AssertionError("direct references must be checked first")):
-        with pytest.raises(story92.VerificationError) as failure:
-            story92.portable_surface(ROOT, {"portable": {"Items": {"ProjectReference": references}}})
-    assert failure.value.code == "PORTABLE_TIER_NONPORTABLE_REFERENCE"
-
-
-def test_verifier_output_rejects_protected_file_and_preserves_bytes(tmp_path: Path) -> None:
-    protected = tmp_path / ".github/workflows/release.yml"
-    protected.parent.mkdir(parents=True)
-    protected.write_bytes(b"protected workflow\n")
-    with pytest.raises(story92.VerificationError) as failure:
-        story92.write_json(tmp_path, ".github/workflows/release.yml", {"result": "PASS"})
-    assert failure.value.code == "OUTPUT_PATH_INVALID"
-    assert protected.read_bytes() == b"protected workflow\n"
-    story92.write_json(tmp_path, "TestResults/conformance/tiering.json", {"result": "PASS"})
-    assert json.loads((tmp_path / "TestResults/conformance/tiering.json").read_bytes()) == {"result": "PASS"}
-
-
 def _write_json(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

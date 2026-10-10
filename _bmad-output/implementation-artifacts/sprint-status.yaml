@@ -97,7 +97,7 @@ development_status:
   epic-8-retrospective: done
   epic-9: in-progress
   9-1-freeze-the-conformance-assertion-inventory-tier-decisions-digest-and-approvals: done
-  9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution: review
+  9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution: done
   epic-9-retrospective: optional
   epic-10: backlog
   10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner: backlog
