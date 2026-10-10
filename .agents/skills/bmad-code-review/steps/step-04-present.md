@@ -7,7 +7,7 @@ deferred_work_file: '{implementation_artifacts}/deferred-work.md'
 ## RULES
 
 - YOU MUST ALWAYS SPEAK OUTPUT in your Agent communication style with the config `{communication_language}`
-- When `spec_file` is set, always write findings to the story file before offering action choices. Exception: when section 2's required record-only retraction is not authorized or fails, list the findings in the conversation without writing them and HALT.
+- When `spec_file` is set, always write findings to the story file before offering action choices.
 - `decision-needed` findings must be resolved before handling `patch` findings.
 
 ## INSTRUCTIONS
@@ -17,8 +17,6 @@ deferred_work_file: '{implementation_artifacts}/deferred-work.md'
 If zero findings remain after triage (all rejected or none raised): state that and proceed to section 6 (Sprint Status Update).
 
 ### 2. Write findings to the story file
-
-Before this step writes any finding, checkbox, or deferral reason to `{spec_file}`, any entry to `{deferred_work_file}`, or any source patch, in this section or in sections 4 and 5, retract a committed final record: when `_bmad-output/planning-artifacts/v9/story-contracts/<story-id>.json` exists for the story, where `<story-id>` is the story's dotted `<epic>.<story>` number, and both files named by its `finalRecord.paths` are already committed, remove both and commit only those removals as a record-only retraction. Candidate retention masks neither `### Review Findings` nor `{deferred_work_file}`, so even a findings-only commit after a committed pair stops the completion gate with `CANDIDATE_NOT_FINAL` and returns the story to `in-progress`. Use the task's existing commit authorization. If that required commit is not authorized or fails, list the findings in the conversation without writing them, follow the completion gate's blocker branch, and HALT.
 
 If `{spec_file}` exists and contains a Tasks/Subtasks section, append a `### Review Findings` subsection. Write all findings in this order:
 
@@ -88,55 +86,12 @@ If `spec_file` is **not** set, present only options 1 and 2 (omit "Leave as acti
 
 Skip this section if `spec_file` is not set.
 
-#### Prepare committed review candidate
-
-When the story's v9 contract output pair is already committed, its record-only retraction must precede this review's first finding, ledger, or source write (section 2). Never stage or commit review findings, `{deferred_work_file}` entries, or source patches while that pair is still committed; if the retraction is still missing, first remove both files named by the contract's `finalRecord.paths` and commit only those removals as a record-only retraction. A review that wrote nothing keeps the committed pair, and the completion gate below reruns against its retained candidate. Use the task's existing commit authorization. If that required commit is not authorized or fails, follow the completion gate's blocker branch and HALT before staging or committing the replacement source candidate.
-
-Only when the spec explicitly requires a generated final record or the story's v9 contract exists, stage the exact review-patch candidate paths, including the review findings written to `{spec_file}` and the new `{deferred_work_file}` entries, and create a validated Conventional Commit if the user's request authorizes a commit. Resolve committed `HEAD` once into `{candidate_revision}`. Never stage unrelated paths. If a required commit is not authorized, leave the patches uncommitted and report their state without asking for repeat authorization.
-
-#### Current change validation
-
-For new work under `docs/runbooks/current-change-validation.md`, run `python3 {project-root}/scripts/check-root-submodules.py --repository {project-root}` and focused tests for the change. Record failures honestly and do not mark a failing change complete. Run historical promotion or evidence-boundary verifiers only when the spec explicitly requires them.
-
-#### Final record generation gate
-
-If any `decision-needed` or `patch` finding remains unresolved, this review cannot reach `done`: skip this whole section, including the story completion gate, so that no record pair is generated, committed, or inserted for a story that stays `in-progress`. When `_bmad-output/planning-artifacts/v9/story-contracts/<story-id>.json` exists for the story, where `<story-id>` is the story's dotted `<epic>.<story>` number (for example `7.3` for story key `7-3-…`), skip the legacy procedure below and run the story completion gate at the end of this section before any `review` or `done` transition; the spec cannot opt out. Otherwise, for new routine work, record the change and test results in the story and skip this section unless the spec explicitly requires a generated final record. Set `record_gate_failed` to false when this section is skipped or the story completion gate passes. The legacy procedure below applies only to an explicit requirement.
-
-Clean-rebuild the committed candidate with `dotnet build <root-solution> -c Release -t:Rebuild -p:SourceRevisionId={candidate_revision}` and rerun every root-owned test project into fresh TRX artifacts. Invoke `python3 {project-root}/_bmad/scripts/generate_story_record.py --repository {project-root} --story {spec_file} --candidate {candidate_revision} --format bundle`, with the trustworthy baseline, all declared test-result artifacts, and the exact submodule scope. Require `TEST_BUILD_NOT_BOUND` and `RECORD_NOT_DERIVED` to block the gate. Any nonzero exit or nested result other than `pass` sets `record_gate_failed`, forces `{new_status}` = `in-progress`; never write or synchronize `done`, and HALT with the stable diagnostics.
-
-On success, insert bundle field `markdown` VERBATIM into the story's final-record region and retain `markdown_sha256`. Run the generator again with `--verify-record-sha256 <markdown_sha256> --format json`. Any nonzero exit, result other than `pass`, or `RECORD_CONTENT_DRIFT` sets `record_gate_failed`, returns lifecycle state to `in-progress`, and HALTs. Only a candidate-bound, digest-verified final record permits status determination.
-
-<!-- STORY-COMPLETION-GATE:BEGIN v1 -->
-**Story completion gate (v9 contract).** Run this gate before any `review` or `done` transition whenever `_bmad-output/planning-artifacts/v9/story-contracts/<story-id>.json` exists for the story, where `<story-id>` is the story's dotted `<epic>.<story>` number (for example `7.3` for story key `7-3-…`); the spec cannot opt out, and the legacy procedure above does not replace it. Routine work without such a contract skips this gate under the current-change policy. This gate runs only when this workflow invokes it: no CI job or hook enforces it.
-
-1. Make the committed story candidate `HEAD`, with no other dirt. From the repository root, run every other scenario `command` of the contract through `uv run --frozen --no-sync`. Then run the generator, with the contract path as `<contract>` and its two `finalRecord.paths` entries as `<json>` and `<md>`:
-
-   ```bash
-   uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . --contract <contract> --format bundle --output-json <json> --output-markdown <md>
-   ```
-
-   Require exit `0`, and require the `summary` of the record printed on stdout to equal the contract's `finalRecord.summary` exactly.
-2. Unless `<json>` and `<md>` both already equal their committed `HEAD` bytes, commit exactly those two files as a record-only commit. Insert the bytes of `<md>` verbatim between the `<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->` lines of `{spec_file}`, replacing anything already between them. When the spec has no such pair, append a blank line, the begin line, the Markdown, and the end line at its end. Then require exit `0` from:
-
-   ```bash
-   uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . --contract <contract> --verify-inserted-record {spec_file}
-   ```
-
-   After the record-only commit, commit no source or gitlink change; a source change requires first committing the removal of both `<json>` and `<md>`, then restarting this gate from the new candidate.
-3. Blocker branch: on any nonzero exit, summary mismatch, required commit that is not authorized, commit failure, or verification failure, keep or return `{spec_file}` and the story's sprint-status row to `in-progress`, and never write `review` or `done`. Report the exact command, its exit, and every stable blocker code, then HALT. Remediate the named condition and rerun; never hand-edit the pair, a result file, or the inserted region into agreement.
-<!-- STORY-COMPLETION-GATE:END v1 -->
-
-#### Completion scope
-
-Identify the exact task-owned review-patch, completion-record, and lifecycle-status paths. Use commit authorization already given for the task; do not request separate per-commit approval. If the task does not authorize a commit, leave the paths uncommitted and report them. Keep unrelated paths out of the commit.
-
 #### Determine new status based on review outcome
 
-- If `record_gate_failed` is not true, all `decision-needed` and `patch` findings were resolved (fixed or rejected), AND no unresolved `high`/`medium` findings remain: set `new_status` = `done`.
-- If `patch` findings were left as action items, or unresolved issues remain: set `new_status` = `in-progress`.
-- If `record_gate_failed` is true, preserve `new_status` = `in-progress`; never write or synchronize `done`.
+- If all `decision-needed` and `patch` findings were resolved (fixed or rejected) AND no unresolved `high`/`medium` findings remain: set `new_status` = `done`. Update the story file Status section to `done`.
+- If `patch` findings were left as action items, or unresolved issues remain: set `new_status` = `in-progress`. Update the story file Status section to `in-progress`.
 
-Set the story file's frontmatter `status` to `{new_status}` when that field exists. For a legacy story without frontmatter `status`, update its Status section to `{new_status}` instead. Save the story file.
+Save the story file.
 
 #### Sync sprint-status.yaml
 
@@ -146,14 +101,10 @@ If `{sprint_status}` file exists:
 
 1. Load the FULL `{sprint_status}` file.
 2. Find the `development_status` entry matching `{story_key}`.
-3. If found and its value already equals `{new_status}`, leave `{sprint_status}` unchanged, including `last_updated`. Otherwise, if found: update `development_status[{story_key}]` to `{new_status}`. Update `last_updated` to current date. Save the file, preserving ALL comments and structure including STATUS DEFINITIONS.
+3. If found: update `development_status[{story_key}]` to `{new_status}`. Update `last_updated` to current date. Save the file, preserving ALL comments and structure including STATUS DEFINITIONS.
 4. If `{story_key}` not found in sprint status: warn the user that the story file was updated but sprint-status sync failed.
 
 If `{sprint_status}` file does not exist, note that story status was updated in the story file only.
-
-When the task authorizes a commit, stage and commit only the identified task-owned paths with a validated Conventional Commit. Verify every intended path is committed and no unrelated path entered. Any commit failure restores story and sprint state to `in-progress` and HALTs before completion.
-
-After that commit, when `{new_status}` is `done` and the story completion gate ran, rerun its `--verify-inserted-record` command at the new `HEAD` and require exit `0`. On any other exit, apply the gate's blocker branch, committing the return to `in-progress` as a new validated Conventional Commit.
 
 #### Completion summary
 

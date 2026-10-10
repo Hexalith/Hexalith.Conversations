@@ -8,10 +8,6 @@
 
 ## INSTRUCTIONS
 
-### Current change validation
-
-For new work under `docs/runbooks/current-change-validation.md`, run `python3 {project-root}/scripts/check-root-submodules.py --repository {project-root}` and focused tests for the change. Record failures honestly and do not mark a failing change complete. Run historical promotion or evidence-boundary verifiers only when the spec explicitly requires them.
-
 Change `{spec_file}` status to `in-review` in the frontmatter before continuing.
 
 ### Stage the Diff
