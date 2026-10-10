@@ -28,6 +28,24 @@ public sealed class GitFactsTests
     }
 
     [Fact]
+    public async Task RunnerShouldConsumeOneShotArgumentsOnce()
+    {
+        Queue<string> pending = new(["first", "second"]);
+        IEnumerable<string> OneShot()
+        {
+            while (pending.TryDequeue(out string? argument))
+                yield return argument;
+        }
+
+        GitFact<GitCommandResult> result = await PythonFacts("import sys\nsys.stdout.write('|'.join(sys.argv[1:]))")
+            .RunAsync(Path.GetTempPath(), OneShot(), TestContext.Current.CancellationToken);
+        result.IsSuccess.ShouldBeTrue(result.Message);
+        result.Value!.ExitCode.ShouldBe(0);
+        result.Value.Stdout.ShouldBe(Encoding.UTF8.GetBytes("first|second"));
+        pending.ShouldBeEmpty();
+    }
+
+    [Fact]
     public async Task RunnerShouldBoundAndCancelExecution()
     {
         typeof(GitFacts).GetField("CommandLimit", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!

@@ -30,7 +30,12 @@ public sealed class GitFacts
     /// <summary>Runs Git with both streams drained concurrently and a 30-second maximum.</summary>
     public async Task<GitFact<GitCommandResult>> RunAsync(string repository, IEnumerable<string> arguments, CancellationToken cancellationToken = default, TimeSpan? timeout = null)
     {
-        if (arguments is null || arguments.Any(argument => argument is null))
+        if (arguments is null)
+        {
+            return GitFact<GitCommandResult>.Fail(GitFactStatus.Invalid, "GIT_ARGUMENT_INVALID", "Git arguments must be non-null.");
+        }
+        string[] commandArguments = arguments.ToArray();
+        if (commandArguments.Any(argument => argument is null))
         {
             return GitFact<GitCommandResult>.Fail(GitFactStatus.Invalid, "GIT_ARGUMENT_INVALID", "Git arguments must be non-null.");
         }
@@ -91,7 +96,7 @@ public sealed class GitFacts
             start.ArgumentList.Add("-c");
             start.ArgumentList.Add("diff.renames=true");
         }
-        foreach (string argument in arguments)
+        foreach (string argument in commandArguments)
         {
             start.ArgumentList.Add(argument);
         }
