@@ -528,3 +528,25 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `/home/administrator/projects/hexalith/conversations-story92-guards-8y20scx2/checkout/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
   summary: Retained Story 9.2 generation lacks a regression test for suppressing commands through the real generator-to-scenario-reader boundary.
   evidence: The verification reviewer removed the execute_commands=False argument in a disposable mutant and the existing tests still passed. The generator and those tests predate the guard successor; add a boundary regression that fails on command launch and changed binary/result bytes or timestamps.
+
+- source_spec: `/tmp/story92-candidate-Rbx7zt/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: Verify an authenticated command reaches a projected result through the production AppHost.
+  evidence: Current Blind 4; the runtime boundary test intentionally expects fail-closed 422 without a command authority provider, while a separate gateway fixture tests admission. The integrated production AppHost path remains unverified.
+- source_spec: `/tmp/story92-candidate-Rbx7zt/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: Exercise a Keycloak-issued EventStore workload token against a protected Conversations route.
+  evidence: Current Blind 5 and Verification Gap 1; the live AppHost test disables Keycloak and the enabled topology test checks references without a client-credentials exchange, so a realm secret mismatch could escape testing.
+- source_spec: `/tmp/story92-candidate-Rbx7zt/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: Register and test the configured deletion receipt verifier in the production host.
+  evidence: Current Blind 6; ConversationAgentServiceCollectionExtensions registers UnavailableConversationDeletionReceiptVerifier, so production deletion receipts cannot be accepted through that composition.
+- source_spec: `/tmp/story92-candidate-Rbx7zt/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: Wire the deletion delivery pump and publication delivery to a production receiver and hosted execution path.
+  evidence: Current Blind 7; the source types exist, but repository registration searches show no production host path invoking them.
+- source_spec: `/tmp/story92-candidate-Rbx7zt/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: Recheck the requested semantic release version immediately before publication.
+  evidence: Current Blind 8; release.yml runs verify:release-plan in the early job but the release job reruns only verify-release-source, which checks source and destination state, before semantic-release.
+- source_spec: `/tmp/story92-candidate-Rbx7zt/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: Compute each TRX status from failures added while validating that TRX.
+  evidence: Current Blind 9; Test-TrxResult reads the caller's shared Failures.Count, so an earlier unrelated failure marks a later green TRX as failed.
+- source_spec: `/tmp/story92-candidate-Rbx7zt/_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md`
+  summary: Match the TRX contract test by exact identity.
+  evidence: Current Blind 10; Test-TrxResult uses a wildcard substring match, allowing a different test with a longer name to satisfy the contract guard.
