@@ -37,7 +37,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 2026-10-10
+last_updated: 10-10-2026 20:06
 # V14 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-18-v14 and conversations-architecture-2026-08-18-v14 are candidate-bound by v9-authority-bundle-v1.json. GLOBAL IMPLEMENTATION HOLD remains ACTIVE; IR-0 was not run, A2 and A3 are done, A4-A6 remain open, and all successor stories including Epic 16 remain backlog.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
 project: Conversations
@@ -98,7 +98,7 @@ development_status:
   epic-9: in-progress
   9-1-freeze-the-conformance-assertion-inventory-tier-decisions-digest-and-approvals: done
   9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution: done
-  epic-9-retrospective: optional
+  epic-9-retrospective: done
   epic-10: backlog
   10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner: backlog
   10-2-implement-manifest-hash-ledger-exact-diff-and-gitlink-invariants: backlog
@@ -331,3 +331,9 @@ action_items:
     owner: "Dev workflow / Successor story implementers"
     status: open
     ref: "_bmad-output/implementation-artifacts/epic-8-retro-2026-10-06.md"
+  - id: "epic-9-retro-item-40-add-a-routine-current-tree-conformance-c"
+    epic: 9
+    action: "Add a routine current-tree conformance check that fails when an approved assertion is absent from both tiers, duplicated, or moved without a reviewed disposition; repair the verifier for the current CI form and prove the missing-linked-file fault fails after a clean Release restore."
+    owner: "Quality / CI owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-9-retro-2026-10-10.md"
