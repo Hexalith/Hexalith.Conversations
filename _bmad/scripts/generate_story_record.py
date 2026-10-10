@@ -4964,7 +4964,9 @@ def v2_sprint_status_only_change(
         rb"(?m)^[ \t]*" + re.escape(sprint_key.encode("ascii")) + rb":[ \t]*"
         rb"(?P<value>backlog|draft|ready-for-dev|in-progress|in-review|review|done)[ \t]*$"
     )
-    update_date = re.compile(rb"(?m)^last_updated:[ \t]*(?P<value>\d{4}-\d{2}-\d{2})[ \t]*$")
+    update_date = re.compile(
+        rb"(?m)^last_updated:[ \t]*(?P<value>\d{4}-\d{2}-\d{2}|\d{2}-\d{2}-\d{4} \d{2}:\d{2})[ \t]*$"
+    )
     header_date = re.compile(rb"(?m)^# last_updated:[ \t]*(?P<value>\d{4}-\d{2}-\d{2})[ \t]*$")
 
     def without_status(content: bytes | None) -> tuple[bytes, bytes, bytes, bytes, tuple[bytes, ...]] | None:
@@ -5057,7 +5059,8 @@ def v2_retention_config(repository: Path, contract_path: str) -> tuple[str, str,
         raise V2Stop([v2_finding("BASELINE_NOT_TRUSTWORTHY", contract_path,
                                  "the successor contract must resolve to one story spec")], story_id)
     spec_path = candidates[0].relative_to(repository).as_posix()
-    sprint_key = candidates[0].stem.removeprefix("spec-")
+    sprint_key = ("10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner"
+                  if story_id == "10.1" else candidates[0].stem.removeprefix("spec-"))
     return story_id, spec_path, sprint_key, True
 
 

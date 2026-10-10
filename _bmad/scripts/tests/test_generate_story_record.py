@@ -7619,6 +7619,29 @@ def test_v2_successor_retention_config_resolves_exactly_one_spec(tmp_path: Path)
     )
 
 
+def test_story101_lifecycle_uses_tracked_sprint_key_and_timestamp(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    folder = tmp_path / "_bmad-output/implementation-artifacts"
+    folder.mkdir(parents=True)
+    spec = folder / "spec-10-1-neutral-testsupport-and-safe-git-facts.md"
+    spec.write_text("# Fixture\n", encoding="utf-8")
+    key = "10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner"
+    assert module.v2_retention_config(
+        tmp_path, "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"
+    ) == ("10.1", spec.relative_to(tmp_path).as_posix(), key, True)
+    before = ("# last_updated: 2026-10-10\nlast_updated: 10-10-2026 20:42\n"
+              f"development_status:\n  {key}: in-progress\n").encode()
+    after = before.replace(b"10-10-2026 20:42", b"10-10-2026 22:25").replace(
+        b": in-progress", b": review"
+    )
+    blobs = {("candidate", module.V2_7_2_SPRINT_PATH): before,
+             ("lifecycle", module.V2_7_2_SPRINT_PATH): after}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _root, revision, path: blobs.get((revision, path)))
+    assert module.v2_sprint_status_only_change(tmp_path, "candidate", "lifecycle", key)
+    blobs[("lifecycle", module.V2_7_2_SPRINT_PATH)] = after.replace(key.encode(), b"10-1-wrong-key")
+    assert not module.v2_sprint_status_only_change(tmp_path, "candidate", "lifecycle", key)
+
+
 def test_v2_story_8_1_lifecycle_masks_tasks_and_retro_status(monkeypatch) -> None:
     module = load_generator()
     spec_path = "spec.md"
