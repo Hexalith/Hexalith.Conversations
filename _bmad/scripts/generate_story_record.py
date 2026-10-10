@@ -7330,7 +7330,11 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
             stop("TIER_APPROVAL_MISSING", path, "migration and genuine Quality decision must be committed at SC-9.2")
     if approval["approver"] == "SYNTHETIC-FIXTURE" or approval["approvalId"] == "SYNTHETIC-FIXTURE-NOT-AN-APPROVAL":
         stop("TIER_APPROVAL_MISSING", approval_path, "disposable fixture approval cannot authorize acceptance")
-    frozen, amendment = module.inputs(repository)
+    try:
+        frozen, amendment = module.inputs(repository, current_tree=successor_v2 or successor_v3)
+    except module.VerificationError as error:
+        stop(error.code if error.code in V2_CODES else "TEST_RESULTS_FAILED",
+             "tier inputs", str(error))
     protected = frozen["supersedes"]["v1Artifacts"] + frozen["supersedes"]["tieringLineage"] + [frozen["publicContract"]["reviewedClientBaseline"]]
     return {"bindingRule": V2_9_2_BINDING_RULE, "sourceRevisionId": candidate, "baselineCommit": baseline,
             "contract": module.bound(repository, V2_9_2_CONTRACT_PATH), "executionAmendment": module.bound(repository, V2_9_2_AMENDMENT_PATH),
