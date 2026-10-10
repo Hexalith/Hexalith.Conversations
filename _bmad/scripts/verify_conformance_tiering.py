@@ -156,9 +156,10 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
     """Reject non-packable modules in evaluated project graph, assets, and ReferencePath."""
     portable = evaluated["portable"]
     initial = portable["Items"]["ProjectReference"]
-    direct = [item for item in initial if Path(item["DefiningProjectFullPath"]).resolve() == (root / PROJECTS["portable"]).resolve()]
-    require(sorted(Path(item["FullPath"]).stem for item in direct) ==
-            ["Hexalith.Conversations.Client", "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Testing"],
+    direct = sorted(Path(item["FullPath"]).resolve() for item in initial)
+    approved = sorted((root / "src" / name / f"{name}.csproj").resolve() for name in (
+        "Hexalith.Conversations.Client", "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Testing"))
+    require(direct == approved,
             "PORTABLE_TIER_NONPORTABLE_REFERENCE", "Portable direct references must be the three approved shipped surfaces.")
     queue = [Path(item["FullPath"]) for item in initial]
     seen: dict[str, dict[str, Any]] = {}
@@ -1083,9 +1084,10 @@ def write_json(root: Path, path: str, value: dict[str, Any], *, result_inputs: t
                  *ROOT_CONFIGURATION_PATHS,
                  "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx", *result_inputs}
     resolved = target.resolve().relative_to(root).as_posix()
-    require(not resolved.startswith(("docs/release-evidence/", "_bmad-output/", "src/", "tests/", "_bmad/scripts/", "_bmad/schemas/",
-                                     "references/", ".git/", "artifacts/v9/9.2/retained/"))
-            and not {"obj", "bin"}.intersection(Path(resolved).parts)
+    parts = Path(resolved).parts
+    require(len(parts) > 1 and parts[0] in ("artifacts", "TestResults")
+            and not resolved.startswith("artifacts/v9/9.2/retained/")
+            and not {"obj", "bin"}.intersection(parts)
             and Path(resolved).suffix.lower() not in (".trx", ".xml", ".dll", ".cs", ".csproj", ".props", ".targets")
             and resolved not in protected
             and resolved != TIERING.CI_WORKFLOW_PATH,

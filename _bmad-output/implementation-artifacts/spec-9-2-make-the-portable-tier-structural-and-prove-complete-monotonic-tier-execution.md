@@ -2,7 +2,7 @@
 title: 'Story 9.2 portable conformance tiers'
 type: 'feature'
 created: '2026-10-07'
-status: 'in-progress'
+status: 'in-review'
 baseline_commit: '51aa06b856bcb0aaf22013153cfe02a51b046156'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -184,6 +184,33 @@ The [refreshed machine audit](../../artifacts/v9/9.2/resume-2026-10-08/guard-cor
 Historical structure verification still exits `1` with `PUBLIC_CONTRACT_WIDENED` for later production source bytes; the actual current-candidate environment API still rejects the changed environment with `AUTHORITY_BINDING_INVALID`. These measurements supply no new exported-API or acceptance claim. The local Aspire baseline attempt ran after the Python edits and exits `2`: the existing deletion-publication delivery/projector/pump code has seven `CS0246` errors for missing publication interfaces/result types. No AppHost started; [startup](../../artifacts/v9/9.2/resume-2026-10-08/authorized-patches/aspire-run.log) and [state](../../artifacts/v9/9.2/resume-2026-10-08/authorized-patches/aspire-describe.log) receipts retain the exact check.
 
 The optional current-main proposal distinguishes source/environment scope authorization from a later genuine Quality decision on exact changed successor proposal, row, and public-drift digests. An original-source successor must independently reproduce every existing approval binding; changed bindings also require a genuine decision. No unseen migration evidence has been approved, and no new committed candidate, pair publication/retraction, AC01–10 acceptance, or completion transition has been produced. The frozen intent, original baseline, original accepted evidence and embedded final record remain preserved; the spec and sprint lifecycle stay `in-progress`.
+
+### Replacement candidate review — 2026-10-10
+
+The three independent layers reviewed the full diff from the preserved Story 9.2 baseline. Findings about changes owned by other stories are classified individually and routed outside this build. The two Story 9.2 patches below require a replacement committed candidate and fresh AC01–10 evidence before publication.
+
+| Finding | Verdict | Route | Evidence |
+|---|---|---|---|
+| Blind 1 — imported fourth direct project | medium | patch | `portable_surface` filters the exact three-reference comparison by `DefiningProjectFullPath`; an imported packable fourth project remains in the evaluated queue but escapes that comparison. Compare all evaluated direct references. |
+| Blind 2 — arbitrary reached Hexalith package | false | reject | A reached NuGet package with matching assembly identity is a shipped compile asset, and the v4 final gate compares the complete derived migration, including portable surface, with the digest-bound v7 Quality material. The reviewer did not demonstrate an unapproved package passing candidate acceptance. |
+| Blind 3 — unrelated tracked output target | medium | patch | `write_json` can resolve `.github/workflows/release.yml` or `scripts/verify-release-source.py` and overwrite it because neither path is protected. Confine result output to contained evidence directories. |
+| Blind 4 — npm transitive lock graph | medium | defer | `validate_graph` compares only seven direct npm lock rows, whereas a changed transitive node or edge is not checked; this package refresh helper is not part of Story 9.2. |
+| Blind 5 — conditional catalog updates | medium | defer | `catalog_versions` reads literal catalog entries rather than MSBuild's evaluated `Update` and imports; the package refresh helper is separately owned. |
+| Blind 6 — worker-only quarantine | maybe-false | defer | The verifier allows a currently authorized worker to request quarantine without a receiver conflict, but whether worker authority is sufficient is an unresolved deletion-delivery policy decision outside this story. Verify the intended quarantine authorization contract. |
+| Blind 7 — stale signal quarantines source | medium | defer | The receipt verifier checks supplied signal address/revision, while the aggregate quarantines a signal unequal to persisted state; a stale authorized direct command can reach that path. Deletion delivery owns the correction. |
+| Blind 8 — acknowledgement without durable attempt | medium | defer | The aggregate's `DeliveryAttemptTarget` check allows null before recording an otherwise valid acknowledgement. Deletion delivery owns the durable attempt invariant. |
+| Blind 9 — unbounded direct delivery strings | low | reject | Direct commands admit nonblank attempt and target strings without the pump's target bound, but reaching harmful lengths requires an authorized non-pump caller; adding admission and aggregate limits exceeds a direct correction for this uncommon case. |
+| Blind 10 — live-main race during packaging | low | reject | The release job rechecks exact source after the environment wait, but a later push during packaging remains possible. Closing that short race requires release coordination beyond a direct correction and is unlikely in normal use. |
+| Blind 11 — semantic plan after environment wait | medium | defer | The plan check runs in `verify-source`, while the release job repeats source verification but not the semantic plan after the production wait. Release workflow ownership is outside Story 9.2. |
+| Blind 12 — symbol publication proof | medium | defer | Publication verification checks downloaded `.snupkg` bytes against GitHub's digest but does not independently validate a symbol archive or symbol destination. Release verification owns this claim. |
+| Blind 13 — sprint row remains in-progress | false | reject | A passing record proves acceptance, while review and lifecycle completion are still active; the `in-progress` sprint row is not a false completion claim. It will transition after review. |
+| Edge 1 — later Client or Testing API | false | reject | The current-tree source freeze intentionally checks Contracts; accepted v4 execution additionally compares fresh migration and public-drift digests with v7 Quality material, so an unreviewed changed candidate cannot pass the final gate. |
+| Edge 2 — release workflow output overwrite | medium | patch | The concrete `.github/workflows/release.yml` destination reproduces Blind 3's missing output-directory boundary and receives the same fix. |
+| Edge 3 — source revision bytes outside CLI metadata | medium | defer | Carried from Resume Blind 2: `dotnet_source_revisions` still scans raw bytes for version-shaped text; a stale managed DLL with appended candidate bytes can satisfy that pre-existing parser. The accepted record's full tier identity checks remain separate. |
+| Verification gap 1 — original recovery attempt ID | medium | defer | The receiver fixture looks up receipts by target only; changing the pump's persisted attempt ID argument would leave the rollover test green. Deletion delivery tests own the missing assertion. |
+| Verification gap 2 — secured AppHost runtime path | medium | defer | The AppHost runtime test disables Keycloak and the gateway fixture supplies its own credentials; neither exercises the configured workload token path. AppHost integration owns that check. |
+
+The surviving Story 9.2 findings group into two patches: the full evaluated direct-reference set and a contained verifier-output destination. All other surviving entries are independently owned deferred work; the existing raw source-revision entry is carried without duplicate deferral. The deferred ledger draft is retained under `artifacts/v9/9.2/9228dc1782d04b50458491ccd0552ea4d3b88e62/retracted-pair/`; its path is outside the exact v4 authorized post-source change set, so this replacement candidate records the findings here without modifying that ledger.
 
 ## Verification
 
