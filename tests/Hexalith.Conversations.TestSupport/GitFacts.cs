@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -10,11 +11,21 @@ public sealed class GitFacts
 {
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
     private static readonly TimeSpan CommandLimit = TimeSpan.FromSeconds(30);
+    private const int OutputByteLimit = 16 * 1024 * 1024;
     private readonly string _gitExecutable;
+    private readonly IReadOnlyList<string> _executablePrefixArguments;
+    private readonly bool _includeGitPreamble;
 
     /// <summary>Constructs a Git facts reader.</summary>
     /// <param name="gitExecutable">The Git executable; a fixture executable may be supplied by tests.</param>
-    public GitFacts(string gitExecutable = "git") => _gitExecutable = gitExecutable;
+    /// <param name="executablePrefixArguments">Arguments placed before the requested command for process fixtures.</param>
+    /// <param name="includeGitPreamble">Whether to add isolated Git working-directory and configuration arguments.</param>
+    public GitFacts(string gitExecutable = "git", IReadOnlyList<string>? executablePrefixArguments = null, bool includeGitPreamble = true)
+    {
+        _gitExecutable = gitExecutable;
+        _executablePrefixArguments = executablePrefixArguments ?? [];
+        _includeGitPreamble = includeGitPreamble;
+    }
 
     /// <summary>Runs Git with both streams drained concurrently and a 30-second maximum.</summary>
     public async Task<GitFact<GitCommandResult>> RunAsync(string repository, IEnumerable<string> arguments, CancellationToken cancellationToken = default, TimeSpan? timeout = null)
@@ -29,14 +40,22 @@ public sealed class GitFacts
             return GitFact<GitCommandResult>.Fail(GitFactStatus.Invalid, "GIT_TIMEOUT_INVALID", "The timeout must be positive and at most 30 seconds.");
         }
 
-        if (string.IsNullOrWhiteSpace(repository) || !Directory.Exists(repository))
+        if (string.IsNullOrWhiteSpace(repository) || repository.Contains('\0') || !Directory.Exists(repository))
         {
             return GitFact<GitCommandResult>.Fail(GitFactStatus.Unavailable, "REPOSITORY_UNAVAILABLE", repository ?? string.Empty);
         }
 
-        ProcessStartInfo start = new(_gitExecutable)
+        // setsid makes the command and all descendants one killable Unix process group.
+        // A Git process may exit while a child still holds its redirected pipes open.
+        string workingDirectory;
+        try { workingDirectory = Path.GetFullPath(repository); }
+        catch (Exception exception) when (exception is ArgumentException or IOException or UnauthorizedAccessException)
         {
-            WorkingDirectory = Path.GetFullPath(repository),
+            return GitFact<GitCommandResult>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", exception.Message);
+        }
+        ProcessStartInfo start = new(OperatingSystem.IsWindows() ? _gitExecutable : "setsid")
+        {
+            WorkingDirectory = workingDirectory,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -52,13 +71,19 @@ public sealed class GitFacts
         start.Environment["GIT_CONFIG_COUNT"] = "0";
         start.Environment["GIT_TERMINAL_PROMPT"] = "0";
         start.Environment["GIT_NO_REPLACE_OBJECTS"] = "1";
+        start.Environment["GIT_NO_LAZY_FETCH"] = "1";
         start.Environment["GIT_OPTIONAL_LOCKS"] = "0";
-        start.ArgumentList.Add("-C");
-        start.ArgumentList.Add(start.WorkingDirectory);
-        start.ArgumentList.Add("-c");
-        start.ArgumentList.Add("core.quotepath=false");
-        start.ArgumentList.Add("-c");
-        start.ArgumentList.Add("diff.ignoreSubmodules=none");
+        if (!OperatingSystem.IsWindows()) start.ArgumentList.Add(_gitExecutable);
+        foreach (string prefixArgument in _executablePrefixArguments) start.ArgumentList.Add(prefixArgument);
+        if (_includeGitPreamble)
+        {
+            start.ArgumentList.Add("-C");
+            start.ArgumentList.Add(start.WorkingDirectory);
+            start.ArgumentList.Add("-c");
+            start.ArgumentList.Add("core.quotepath=false");
+            start.ArgumentList.Add("-c");
+            start.ArgumentList.Add("diff.ignoreSubmodules=none");
+        }
         foreach (string argument in arguments)
         {
             start.ArgumentList.Add(argument);
@@ -67,45 +92,74 @@ public sealed class GitFacts
         try
         {
             using Process process = Process.Start(start) ?? throw new Win32Exception("Git did not start.");
+            using GitProcessJob? job = OperatingSystem.IsWindows() ? new GitProcessJob(process) : null;
             using MemoryStream stdout = new();
             using MemoryStream stderr = new();
             using CancellationTokenSource limit = new(timeout ?? CommandLimit);
             using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, limit.Token);
-            Task outTask = process.StandardOutput.BaseStream.CopyToAsync(stdout, linked.Token);
-            Task errTask = process.StandardError.BaseStream.CopyToAsync(stderr, linked.Token);
+            int remaining = OutputByteLimit;
+            int overflow = 0;
+            Task outTask = CaptureAsync(process.StandardOutput.BaseStream, stdout);
+            Task errTask = CaptureAsync(process.StandardError.BaseStream, stderr);
             try
             {
                 await Task.WhenAll(outTask, errTask, process.WaitForExitAsync(linked.Token)).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
-                if (!process.HasExited)
-                {
-                    try
-                    {
-                        process.Kill(entireProcessTree: true);
-                    }
-                    catch (InvalidOperationException) when (process.HasExited)
-                    {
-                        // The child exited between the check and the kill request.
-                    }
-                }
-
+                TerminateTree(process, job);
                 await process.WaitForExitAsync(CancellationToken.None).ConfigureAwait(false);
-
-                // Cancellation of pipe copies is independent of child pipe closure.
+                try { await Task.WhenAll(outTask, errTask).WaitAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false); }
+                catch (OperationCanceledException) { }
+                catch (TimeoutException) { }
+                if (Volatile.Read(ref overflow) != 0)
+                    return GitFact<GitCommandResult>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_LIMIT_EXCEEDED", "Git output exceeded 16 MiB.");
                 return cancellationToken.IsCancellationRequested
                     ? GitFact<GitCommandResult>.Fail(GitFactStatus.Cancelled, "GIT_CANCELLED", "The caller cancelled execution.")
                     : GitFact<GitCommandResult>.Fail(GitFactStatus.Timeout, "GIT_TIMEOUT", "Git exceeded its execution limit.");
             }
 
             return GitFact<GitCommandResult>.Ok(new(process.ExitCode, stdout.ToArray(), stderr.ToArray()));
+
+            async Task CaptureAsync(Stream input, Stream output)
+            {
+                byte[] buffer = new byte[8192];
+                while (true)
+                {
+                    int count = await input.ReadAsync(buffer, linked.Token).ConfigureAwait(false);
+                    if (count == 0) return;
+                    if (Interlocked.Add(ref remaining, -count) < 0)
+                    {
+                        Interlocked.Exchange(ref overflow, 1);
+                        linked.Cancel();
+                        return;
+                    }
+                    await output.WriteAsync(buffer.AsMemory(0, count), linked.Token).ConfigureAwait(false);
+                }
+            }
         }
-        catch (Exception exception) when (exception is Win32Exception or FileNotFoundException or DirectoryNotFoundException)
+        catch (Exception exception) when (exception is Win32Exception or FileNotFoundException or DirectoryNotFoundException or ArgumentException or UnauthorizedAccessException)
         {
             return GitFact<GitCommandResult>.Fail(GitFactStatus.Unavailable, "GIT_UNAVAILABLE", exception.Message);
         }
     }
+
+    private static void TerminateTree(Process process, GitProcessJob? job)
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            // Negative PID targets the session's process group even when its leader exited.
+            _ = KillProcessGroup(-process.Id, 9);
+            return;
+        }
+        job?.Terminate();
+        try { process.Kill(entireProcessTree: true); }
+        catch (InvalidOperationException) { }
+        catch (Win32Exception) { }
+    }
+
+    [DllImport("libc", EntryPoint = "kill", SetLastError = true)]
+    private static extern int KillProcessGroup(int pid, int signal);
 
     /// <summary>Confirms that a directory is the exact Git worktree requested.</summary>
     public async Task<GitFact<string>> ResolveRepositoryAsync(string repository, CancellationToken cancellationToken = default)
@@ -116,13 +170,26 @@ public sealed class GitFacts
             return Forward<string>(result);
         }
 
-        if (result.Value!.ExitCode != 0 || !TryDecode(result.Value.Stdout, out string? root))
+        if (result.Value!.ExitCode != 0)
         {
             return GitFact<string>.Fail(GitFactStatus.Unavailable, "REPOSITORY_UNAVAILABLE", "Git could not identify an exact worktree.");
         }
+        if (!TryDecode(result.Value.Stdout, out string? root) || root is null || !root.EndsWith('\n'))
+            return GitFact<string>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", "Git returned a malformed worktree path.");
 
-        string requested = Path.TrimEndingDirectorySeparator(Path.GetFullPath(repository));
-        string reported = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root!.Trim()));
+        string requested;
+        string reported;
+        try
+        {
+            requested = Path.TrimEndingDirectorySeparator(Path.GetFullPath(repository));
+            reported = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root[..^1]));
+            if (new DirectoryInfo(requested).LinkTarget is not null)
+                return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", "A symbolic repository root is not accepted.");
+        }
+        catch (Exception exception) when (exception is ArgumentException or IOException or UnauthorizedAccessException)
+        {
+            return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", exception.Message);
+        }
         if (!string.Equals(requested, reported, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
         {
             return GitFact<string>.Fail(GitFactStatus.Unavailable, "REPOSITORY_UNAVAILABLE", "Git resolved an enclosing repository instead of the requested root.");
@@ -151,12 +218,20 @@ public sealed class GitFacts
             return Forward<string>(result);
         }
 
-        if (result.Value!.ExitCode != 0 || !TryDecode(result.Value.Stdout, out string? resolved))
+        if (result.Value!.ExitCode != 0)
         {
             GitFact<GitCommandResult> shallow = await RunAsync(root.Value!, ["rev-parse", "--is-shallow-repository"], cancellationToken).ConfigureAwait(false);
-            bool isShallow = shallow.IsSuccess && TryDecode(shallow.Value!.Stdout, out string? text) && text!.Trim() == "true";
+            if (!shallow.IsSuccess) return Forward<string>(shallow);
+            bool isShallow = shallow.Value!.ExitCode == 0 && TryDecode(shallow.Value.Stdout, out string? text) && text!.Trim() == "true";
+            // A misspelled name remains invalid even when this repository is shallow.
+            bool plausibleMissingAncestor = IsObjectId(revision) || revision.StartsWith("HEAD~", StringComparison.Ordinal)
+                || revision.StartsWith("HEAD^", StringComparison.Ordinal);
+            isShallow &= plausibleMissingAncestor;
             return GitFact<string>.Fail(isShallow ? GitFactStatus.Unavailable : GitFactStatus.Invalid, isShallow ? "HISTORY_UNAVAILABLE" : "REVISION_INVALID", revision);
         }
+
+        if (!TryDecode(result.Value.Stdout, out string? resolved))
+            return GitFact<string>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", "Git returned malformed revision bytes.");
 
         string value = resolved!.Trim();
         return IsObjectId(value) ? GitFact<string>.Ok(value) : GitFact<string>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", "Git returned a malformed revision.");
@@ -178,7 +253,9 @@ public sealed class GitFacts
             List<GitDiffEntry> entries = [];
             for (int i = 0; i < tokens.Length - 1;)
             {
-                string[] fields = tokens[i++].TrimStart(':').Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                string header = tokens[i++];
+                if (!header.StartsWith(':') || header.StartsWith("::", StringComparison.Ordinal)) throw new FormatException("Malformed raw diff header.");
+                string[] fields = header[1..].Split(' ', StringSplitOptions.None);
                 if (fields.Length != 5 || i >= tokens.Length - 1) throw new FormatException("Malformed raw diff header.");
                 string original = tokens[i++];
                 string? sourcePath = null;
@@ -190,7 +267,9 @@ public sealed class GitFacts
                     path = tokens[i++];
                 }
 
-                if (!IsMode(fields[0]) || !IsMode(fields[1]) || !IsObjectId(fields[2]) || !IsObjectId(fields[3])) throw new FormatException("Malformed raw diff mode or object.");
+                if (!IsDiffMode(fields[0]) || !IsDiffMode(fields[1]) || !IsObjectId(fields[2]) || !IsObjectId(fields[3])
+                    || !IsDiffStatus(fields[4]) || string.IsNullOrEmpty(original) || string.IsNullOrEmpty(path)
+                    || entries.Any(item => item.Path == path)) throw new FormatException("Malformed raw diff mode, status, object, or path.");
                 entries.Add(new(fields[0], fields[1], fields[2], fields[3], fields[4], path, sourcePath));
             }
 
@@ -218,8 +297,11 @@ public sealed class GitFacts
                 int tab = token.IndexOf('\t');
                 if (tab < 0) throw new FormatException("Malformed tree entry.");
                 string[] fields = token[..tab].Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                if (fields.Length != 3 || !IsMode(fields[0]) || !IsObjectId(fields[2])) throw new FormatException("Malformed tree mode or object.");
-                entries.Add(new(fields[0], fields[1], fields[2], token[(tab + 1)..]));
+                string path = token[(tab + 1)..];
+                if (fields.Length != 3 || !IsTreeMode(fields[0], fields[1]) || !IsObjectId(fields[2])
+                    || string.IsNullOrEmpty(path) || entries.Any(item => item.Path == path))
+                    throw new FormatException("Malformed or duplicate tree entry.");
+                entries.Add(new(fields[0], fields[1], fields[2], path));
             }
 
             return GitFact<IReadOnlyList<GitTreeEntry>>.Ok(entries);
@@ -233,13 +315,13 @@ public sealed class GitFacts
     /// <summary>Reads exact historical blob bytes and computes SHA-256.</summary>
     public async Task<GitFact<GitBlob>> ReadBlobAsync(string repository, string revision, string path, CancellationToken cancellationToken = default)
     {
-        GitFact<string> contained = RepositoryLocator.ResolveContainedPath(repository, path);
+        GitFact<string> contained = RepositoryLocator.ResolveHistoricalPath(repository, path);
         if (!contained.IsSuccess) return Forward<GitBlob>(contained);
         GitFact<string> commit = await ResolveRevisionAsync(repository, revision, cancellationToken).ConfigureAwait(false);
         if (!commit.IsSuccess) return Forward<GitBlob>(commit);
         GitFact<IReadOnlyList<GitTreeEntry>> tree = await ReadTreeAsync(repository, commit.Value!, cancellationToken).ConfigureAwait(false);
         if (!tree.IsSuccess) return Forward<GitBlob>(tree);
-        GitTreeEntry? entry = tree.Value!.SingleOrDefault(item => item.Path == path);
+        GitTreeEntry? entry = tree.Value!.FirstOrDefault(item => item.Path == path);
         if (entry is null || entry.Type != "blob") return GitFact<GitBlob>.Fail(GitFactStatus.Invalid, "BLOB_INVALID", path);
         GitFact<GitCommandResult> result = await RunAsync(repository, ["cat-file", "blob", entry.ObjectId], cancellationToken).ConfigureAwait(false);
         if (!result.IsSuccess) return Forward<GitBlob>(result);
@@ -262,6 +344,10 @@ public sealed class GitFacts
         if (bytes[^1] != 0) throw new FormatException("NUL-terminated Git output was incomplete.");
         return StrictUtf8.GetString(bytes).Split('\0');
     }
-    private static bool IsMode(string value) => value.Length == 6 && value.All(character => character is >= '0' and <= '7');
+    private static bool IsDiffMode(string value) => value is "000000" or "100644" or "100755" or "120000" or "160000";
+    private static bool IsTreeMode(string mode, string type) => ((mode is "100644" or "100755" or "120000") && type == "blob")
+        || (mode == "160000" && type == "commit");
+    private static bool IsDiffStatus(string value) => value is "A" or "D" or "M" or "T" or "U" or "X" or "B"
+        || (value.Length is >= 2 and <= 4 && (value[0] is 'R' or 'C' or 'M') && value[1..].All(char.IsDigit));
     private static bool IsObjectId(string value) => (value.Length == 40 || value.Length == 64) && value.All(Uri.IsHexDigit);
 }

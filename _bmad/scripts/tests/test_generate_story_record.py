@@ -10070,6 +10070,9 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
         ),
     }
     for name in (helper, tests):
+        project_file = tmp_path / f"tests/{name}/{name}.csproj"
+        project_file.parent.mkdir(parents=True, exist_ok=True)
+        project_file.write_bytes(blobs[f"tests/{name}/{name}.csproj"])
         binary = tmp_path / f"tests/{name}/bin/Release/net10.0/{name}.dll"
         binary.parent.mkdir(parents=True)
         binary.write_bytes(b"candidate binary")
@@ -10080,12 +10083,16 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
         "scenarios": [{"result": "PASS"}], "candidate": {"commit": "b" * 40},
     })
     monkeypatch.setattr(generator, "is_ancestor", lambda *_: True)
+    monkeypatch.setattr(generator, "v2_10_1_project_boundary", lambda *_: None)
     monkeypatch.setattr(generator, "dotnet_source_revisions", lambda _bytes: [candidate])
-    scenario_records = {
-        f"AC-10.1-0{number}": {"result": "PASS", "resultFile": {
-            "path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx", "sha256": "c" * 64}}
-        for number in range(2, 7)
-    }
+    scenario_records = {}
+    for number in range(2, 7):
+        path = f"artifacts/v9/10.1/AC-10.1-0{number}.trx"
+        result_file = tmp_path / path
+        result_file.parent.mkdir(parents=True, exist_ok=True)
+        result_file.write_bytes(b"passing result")
+        scenario_records[f"AC-10.1-0{number}"] = {"result": "PASS", "resultFile": {
+            "path": path, "sha256": generator.v2_sha256(b"passing result")}}
     contract = {"inventory": {"id": "V9-10.1-ENTRY-v1", "sha256":
                 "74c4c5e9e70cb86648dc753c5edc97bdb8d598ad2a4aba55d3670794e990ca84"},
                 "predecessors": ["7.4", "9.2"]}
@@ -10098,6 +10105,70 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
     with pytest.raises(generator.V2Stop) as error:
         generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, scenario_records, None)
     assert "TEST_RESULTS_MISSING" in {row["code"] for row in error.value.findings}
+
+    scenario_records["AC-10.1-06"]["resultFile"]["path"] = "artifacts/v9/10.1/AC-10.1-06.trx"
+    monkeypatch.setattr(generator, "is_ancestor", lambda *_: False)
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, scenario_records, None)
+    assert "AUTHORITY_BINDING_INVALID" in {row["code"] for row in error.value.findings}
+
+
+def test_story101_evaluated_project_boundary_rejects_overrides_and_references(tmp_path: Path) -> None:
+    generator = load_generator()
+    path = "helper.csproj"
+    project = tmp_path / path
+    project.write_text("""<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>
+    <IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>
+    </PropertyGroup></Project>""", encoding="utf-8")
+    generator.v2_10_1_project_boundary(tmp_path, path, True)
+    project.write_text("""<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>
+    <IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>
+    </PropertyGroup><PropertyGroup><IsPackable>true</IsPackable></PropertyGroup></Project>""", encoding="utf-8")
+    with pytest.raises(ValueError, match="packable"):
+        generator.v2_10_1_project_boundary(tmp_path, path, True)
+    project.write_text("""<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>
+    <IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>
+    </PropertyGroup><ItemGroup><Reference Include="Hexalith.Conversations.Contracts" /></ItemGroup></Project>""",
+                       encoding="utf-8")
+    with pytest.raises(ValueError, match="assembly reference"):
+        generator.v2_10_1_project_boundary(tmp_path, path, True)
+
+
+def test_story101_artifact_linked_parent_is_rejected(tmp_path: Path) -> None:
+    generator = load_generator()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "result.trx").write_bytes(b"result")
+    (tmp_path / "linked").symlink_to(outside, target_is_directory=True)
+    with pytest.raises(ValueError, match="linked artifact path"):
+        generator.v2_10_1_artifact_bytes(tmp_path, "linked/result.trx")
+
+
+def test_story101_pair_rejects_revision_and_artifact_path_conflicts(monkeypatch) -> None:
+    generator = load_generator()
+    names = ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests")
+    support = {"projects": [{"project": {"path": f"tests/{name}/{name}.csproj"},
+                             "assembly": {"path": f"tests/{name}/bin/Release/net10.0/{name}.dll"}}
+                            for name in names],
+               "results": [{"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx"}
+                           for number in range(2, 7)]}
+    assert generator.v2_10_1_exact_paths(support)
+    support["sourceRevisionId"] = "a" * 40
+    record = {"storyId": "10.1", "candidate": {"commit": "a" * 40}, "testSupportExecution": support,
+              "outputs": {"json": {"sha256": generator.V2_ZERO_DIGEST},
+                          "markdown": {"sha256": generator.V2_ZERO_DIGEST}},
+              "renderedMarkdownSha256": generator.V2_ZERO_DIGEST}
+    monkeypatch.setattr(generator, "v2_render_markdown", lambda *_: "record\n")
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
+    record["testSupportExecution"]["sourceRevisionId"] = "b" * 40
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert any("source revision" in value for value in generator.v2_verify_pair(json_bytes, markdown_bytes))
+    support["sourceRevisionId"] = "a" * 40
+    support["results"][4]["path"] = support["results"][3]["path"]
+    assert not generator.v2_10_1_exact_paths(support)
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert any("artifact paths" in value for value in generator.v2_verify_pair(json_bytes, markdown_bytes))
 
 
 if __name__ == "__main__":

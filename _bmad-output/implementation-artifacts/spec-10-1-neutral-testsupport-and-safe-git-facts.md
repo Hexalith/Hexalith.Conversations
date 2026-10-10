@@ -5,7 +5,7 @@ created: '2026-10-10'
 status: 'in-progress'
 baseline_commit: '2f2621aa4b40b0d44c62bf5e1e98727e7a182fec'
 route: 'dispatch'
-review_loop_iteration: 0
+review_loop_iteration: 1
 context:
   - 'docs/runbooks/current-change-validation.md'
   - '_bmad-output/implementation-artifacts/epic-10-context.md'
@@ -48,10 +48,11 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj` and `RepositoryLocator.cs`, `GitFacts.cs`, `EvidenceManifest.cs`, `BoundaryAssertions.cs`, `AssertionLedger.cs` in that directory -- create the non-shipping project and five one-type-per-file helper surfaces; provide safe repository, process, revision, diff, tree, and blob facts and usable neutral manifest/assertion structures for later stories.
-- [ ] `tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj`, `TestSupportSurfaceTests.cs`, and `GitFactsTests.cs` -- add xUnit v3 fixtures for surface, stream pressure, cancellation/timeout, hostile config, raw UTF-8 facts, and typed unavailable/invalid cases; restore fixture bytes.
+- [ ] `tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj` and `RepositoryLocator.cs`, `GitFacts.cs`, `EvidenceManifest.cs`, `BoundaryAssertions.cs`, `AssertionLedger.cs` in that directory -- create the non-shipping project and five one-type-per-file helper surfaces; provide safe repository, process, revision, diff, tree, and blob facts and usable neutral manifest/assertion structures for later stories. Repository/path failures must be typed, including NUL, inaccessible paths, root symlinks, and escaping symlink parents; preserve valid path whitespace. Historical blob lookup must validate the committed tree rather than the current worktree. Reject malformed/duplicate raw records with typed invalid status, distinguish a bad revision from unavailable shallow history, and propagate cancellation/timeout through fallback probes.
+- [ ] `GitFacts.cs` and related process code -- enforce a fixed output byte budget while draining both streams, return typed failure on overflow, and terminate descendants within the 30-second bound even if the Git parent already exited and a child inherited its pipes. Disable promisor lazy fetching and object replacements as part of hostile-environment isolation.
+- [ ] `tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj`, `TestSupportSurfaceTests.cs`, and `GitFactsTests.cs` -- add xUnit v3 fixtures for surface, stream pressure, cancellation/timeout, hostile config, raw UTF-8 facts, and typed unavailable/invalid cases; restore fixture bytes. Prove a descendant started and exited after cancellation, replacement refs cannot alter historical bytes, no lazy fetch occurs in a partial clone, a current symlink does not block a historical blob, and malformed Git records return typed failures. Make fixtures portable across Windows and Unix; use a literal-backslash path only where the platform permits it.
 - [ ] `Hexalith.Conversations.slnx` and `.github/workflows/ci.yml` -- include both projects in the solution and run the new tests in CI.
-- [ ] `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/story-final-record-v2.schema.json`, and focused generator tests -- bind Story 10.1 predecessor digests and project/assembly/result hashes without changing prior record meanings.
+- [ ] `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/story-final-record-v2.schema.json`, and focused generator tests -- bind Story 10.1 predecessor digests and project/assembly/result hashes without changing prior record meanings. Validate evaluated MSBuild pack/publish properties and all declared production assembly/package/project dependencies; reject a linked parent directory for hashed artifacts. Require each predecessor candidate to be an ancestor of the Story 10.1 source revision. Require exact distinct project/result artifact paths and equality between `sourceRevisionId` and `candidate.commit` in both generation and pair verification.
 - [ ] `docs/release-evidence/story-10.1-final-record-v2.{json,md}` -- generate the deterministic pair from a committed local candidate after AC-01 through AC-06 pass; preserve the 7.4/9.2 records.
 
 **Acceptance Criteria:**
@@ -61,12 +62,50 @@ context:
 - Given hostile Git configuration and unusual paths, when AC-10.1-05 runs, then raw facts and hashes match fixture bytes.
 - Given unavailable or invalid Git inputs, when AC-10.1-06 runs, then no fixture reports success and root escape is explicit.
 - Given six passing results and compatible 7.4/9.2 records, when AC-10.1-07 generates the pair, then it is `PASS` with summary `7/7/0/0/0/0` and all required bindings.
+- Given a bad revision in a shallow repository or malformed raw Git output, when a helper reads it, then it returns typed invalid rather than successful or unavailable facts. Given cancelled fallback, its cancellation status survives.
+- Given a valid historical blob whose current worktree path is a symlink, when read by revision, then committed bytes and SHA-256 are returned. Given a root or artifact parent symlink that escapes the requested repository, it is rejected.
+- Given adversarial child processes and large concurrent output, when the process runner stops, then no started descendant remains and capture stays within the stated byte limit.
+- Given a release candidate and predecessor records, when generation or pair verification runs, then candidate ancestry, exact path/revision bindings, and evaluated non-shipping/dependency rules are checked; invalid bindings fail.
 
 ## Implementation Notes
 
+- Review loop 1: the earlier candidate and record passed the contracted commands but were withdrawn from the working tree after review exposed missing safeguards. Their commits remain in local history for traceability. Re-derive from the amended tasks and produce a new candidate-bound pair. Preserve the 7.4 and 9.2 record bytes.
+- The broad tooling-directory pytest run on the earlier candidate was interrupted after 92 failures and 251 passes (exit 130); shown failures were historical workflow assertions against untouched skill files. The Story 10.1 focused generator test, Release solution build, and AC commands passed on that earlier candidate, but must be rerun on the new one.
+
 ## Spec Change Log
 
+- **Review loop 1 (2026-10-10).** Trigger: B01-B02, B05, B09-B10, B12, V03, E01, E03-E04, and E10 exposed gaps in process-tree and capture limits, historical blob path authority, predecessor and artifact binding, evaluated project graph checks, and cross-platform fixtures. Amended the non-frozen execution tasks and acceptance criteria to require bounded descendant cleanup, committed-tree blob validation, ancestry and exact candidate/path checks, evaluated MSBuild/dependency checks, and portable fixtures; folded the other verified review findings into the same re-derivation. Avoid the known-bad state where AC-01..07 pass while a descendant survives, lazy fetch changes facts, a production dependency ships, or a contradictory final record verifies. **KEEP:** the five public helper names, two neutral test-only projects, CI and solution wiring, 30-second bound and strict UTF-8 raw facts, typed status model, AC-02..06 fixture coverage, deterministic candidate-bound record pair and predecessor digests, unchanged 7.4/9.2 records, and untouched conformance tiers/readers.
+
 ## Review Triage Log
+
+| Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- |
+| B01 exited parent, live child | high | bad_spec | `GitFacts.RunAsync` skips `Kill` when `HasExited` is true although inherited pipes can keep `CopyToAsync` open until timeout; the descendant survives. |
+| B02 unlimited capture | medium | bad_spec | Both streams copy into unbounded `MemoryStream`s; a large blob or hostile fixture can exhaust memory before the 30-second limit. |
+| B03 path exceptions | medium | patch | `RepositoryLocator` passes NUL and inaccessible path cases into `Path.GetFullPath`/`LinkTarget`, which can throw instead of returning typed failure. |
+| B04 symlink root | medium | patch | `RepositoryLocator` checks descendants only; calling it with a symlinked root returns a path outside the physical root. |
+| B05 historical blob/current symlink | medium | bad_spec | `ReadBlobAsync` calls the worktree link check before reading a committed tree; a current symlink rejects a valid historical blob. |
+| B06 shallow typo | medium | patch | Any unresolved revision in a shallow repository becomes `HISTORY_UNAVAILABLE`, even a non-object name that is invalid. |
+| B07 raw diff grammar | medium | patch | `TrimStart(':')` accepts a missing/extra colon, and status/path are not validated, allowing malformed output to become a fact. |
+| B08 raw tree grammar | medium | patch | Tree parsing accepts arbitrary octal mode/type combinations and empty paths from malformed output. |
+| B09 predecessor ancestry | high | bad_spec | `v2_verified_predecessor` checks pair/schema/digest but `v2_10_1_facts` never checks predecessor candidate ancestry to `SC-10.1`. |
+| B10 evaluated project graph | high | bad_spec | The generator reads literal first-group properties and `ProjectReference` only; later MSBuild overrides or other references can defeat the boundary. |
+| B11 symlinked artifact parent | medium | patch | `assembly_file.is_file()` follows parent links and `.is_symlink()` checks only the final DLL, so a linked `bin` directory can escape. |
+| B12 record schema bindings | medium | bad_spec | The new schema permits arbitrary/repeated artifact paths and a `sourceRevisionId` differing from `candidate.commit`; pair verification alone cannot reject that contradiction. |
+| V01 replacement-object fixture | medium | patch | Verified test gap: AC-05 never creates a replacement ref; removing `GIT_NO_REPLACE_OBJECTS` would preserve its pass while historical bytes change. |
+| V02 child-start fixture | medium | patch | Verified test gap: AC-04 checks only absence of a delayed marker and can pass when cancellation occurs before the child starts. |
+| V03 declared production references | high | bad_spec | Verified test gap: an unused `<Reference>` or `<PackageReference>` can be absent from compiled assembly metadata and evade the generator's `ProjectReference` check. |
+| V04 trailing-space root | low | patch | `root.Trim()` removes a valid trailing space from `git rev-parse` output before exact-root comparison. |
+| E01 exited parent, live child | high | bad_spec | The edge-case claim matches B01: `HasExited` prevents descendant termination after parent exit. |
+| E02 promisor lazy fetch | medium | patch | A local partial clone with reachable promisor remote returned missing blob bytes; setting `GIT_NO_LAZY_FETCH=1` made `cat-file` fail. |
+| E03 pack/publish override | high | bad_spec | The edge-case claim matches B10: later property groups can override the literal first-group values. |
+| E04 predecessor ancestry | high | bad_spec | The edge-case claim matches B09: no ancestry check follows pair verification. |
+| E05 fallback cancellation | medium | patch | `ResolveRevisionAsync` converts a cancelled/timed-out shallow-probe call into `REVISION_INVALID` instead of forwarding its status. |
+| E06 missing raw header | medium | patch | The edge-case claim matches B07: `TrimStart(':')` accepts a header with no colon. |
+| E07 trailing-space root | low | patch | The edge-case claim matches V04: `.Trim()` removes valid path whitespace. |
+| E08 NUL path | medium | patch | The edge-case claim matches B03: NUL reaches `Path.GetFullPath` and throws. |
+| E09 duplicate tree path | medium | patch | `ReadBlobAsync` uses `SingleOrDefault`; a malformed tree with duplicate paths throws instead of returning typed invalid output. |
+| E10 Windows fixtures | medium | bad_spec | AC-03/04 use Unix-executable Python scripts and AC-05 uses a literal backslash filename, so those tests fail before checking Git behavior on Windows. |
 
 ## Verification
 

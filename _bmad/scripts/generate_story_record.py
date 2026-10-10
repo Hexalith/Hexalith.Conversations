@@ -4600,7 +4600,33 @@ def v2_verify_pair(json_bytes: bytes, markdown_bytes: bytes) -> list[str]:
         problems.append("the Markdown is not the projection of the JSON record")
     if b"\r" in json_bytes or b"\r" in markdown_bytes:
         problems.append("the outputs are not LF-only")
+    if record.get("storyId") == "10.1":
+        support = record.get("testSupportExecution")
+        candidate_data = record.get("candidate")
+        if (not isinstance(support, dict) or not isinstance(candidate_data, dict)
+                or support.get("sourceRevisionId") != candidate_data.get("commit")):
+            problems.append("Story 10.1 source revision differs from its candidate")
+        elif not v2_10_1_exact_paths(support):
+            problems.append("Story 10.1 artifact paths are not exact and distinct")
     return problems
+
+
+def v2_10_1_exact_paths(support: dict[str, Any]) -> bool:
+    """Check the fixed Story 10.1 artifact order independently of schema validation."""
+    names = ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests")
+    try:
+        projects = support["projects"]
+        results = support["results"]
+        expected_projects = [
+            (f"tests/{name}/{name}.csproj", f"tests/{name}/bin/Release/net10.0/{name}.dll")
+            for name in names
+        ]
+        expected_results = [f"artifacts/v9/10.1/AC-10.1-0{number}.trx" for number in range(2, 7)]
+        return (len(projects) == 2 and len(results) == 5
+                and [(row["project"]["path"], row["assembly"]["path"]) for row in projects] == expected_projects
+                and [row["path"] for row in results] == expected_results)
+    except (KeyError, TypeError):
+        return False
 
 
 def v2_output_target(repository: Path, relative: str) -> Path:
@@ -5372,6 +5398,62 @@ def v2_verified_predecessor(
     return v2_sha256(json_bytes)
 
 
+def v2_10_1_artifact_bytes(repository: Path, relative: str) -> bytes:
+    """Read a regular candidate artifact without following any linked path component."""
+    path = repository
+    for component in PurePosixPath(relative).parts:
+        if component in ("", ".", ".."):
+            raise ValueError(f"invalid artifact path: {relative}")
+        path = path / component
+        if path.is_symlink():
+            raise ValueError(f"linked artifact path: {relative}")
+    if not path.is_file():
+        raise ValueError(f"missing regular artifact: {relative}")
+    path.resolve(strict=True).relative_to(repository.resolve(strict=True))
+    return read_file_snapshot(path)[0]
+
+
+def v2_10_1_project_boundary(repository: Path, relative: str, helper: bool) -> None:
+    """Check evaluated Release MSBuild properties and every declared dependency item."""
+    command = ["dotnet", "msbuild", relative, "-p:Configuration=Release",
+               "-getProperty:IsPackable,IsPublishable",
+               "-getItem:ProjectReference,PackageReference,Reference,FrameworkReference", "-nologo"]
+    try:
+        result = subprocess.run(command, cwd=repository, capture_output=True, text=True,
+                                timeout=30, check=False)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise ValueError(f"MSBuild evaluation unavailable: {error}") from error
+    if result.returncode:
+        raise ValueError(f"MSBuild evaluation failed: {result.stderr.strip()}")
+    try:
+        evaluated = json.loads(result.stdout)
+        properties = evaluated["Properties"]
+        items = evaluated["Items"]
+        if properties["IsPackable"].lower() != "false" or properties["IsPublishable"].lower() != "false":
+            raise ValueError("a TestSupport project is packable or publishable")
+        identities = {key: [row["Identity"] for row in items[key]]
+                      for key in ("ProjectReference", "PackageReference", "Reference", "FrameworkReference")}
+        if identities["Reference"]:
+            raise ValueError("an assembly reference is declared")
+        if items["FrameworkReference"] != [] and any(
+                row["Identity"] != "Microsoft.NETCore.App" or row.get("IsImplicitlyDefined", "").lower() != "true"
+                for row in items["FrameworkReference"]):
+            raise ValueError("an additional framework dependency is declared")
+        if helper:
+            if identities["ProjectReference"] or identities["PackageReference"]:
+                raise ValueError("the neutral helper has a package or project dependency")
+        else:
+            expected_project = "../Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj"
+            projects = [value.replace("\\", "/") for value in identities["ProjectReference"]]
+            expected_packages = {"Microsoft.NET.Test.Sdk", "Shouldly", "xunit.v3",
+                                 "xunit.runner.visualstudio", "coverlet.collector"}
+            if projects != [expected_project] or set(identities["PackageReference"]) != expected_packages \
+                    or len(identities["PackageReference"]) != len(expected_packages):
+                raise ValueError("the test project's declared dependencies changed")
+    except (KeyError, TypeError, AttributeError, json.JSONDecodeError) as error:
+        raise ValueError(f"malformed MSBuild evaluation: {error}") from error
+
+
 def v2_10_1_facts(
     repository: Path, candidate: str, contract_path: str,
     contract: dict[str, Any], scenario_records: dict[str, dict[str, Any]],
@@ -5393,9 +5475,11 @@ def v2_10_1_facts(
         summary = previous["summary"]
         if (summary["passed"] != summary["required"] or any(summary[key] for key in
                 ("failed", "blocked", "skipped", "notRun"))
-                or any(row["result"] != "PASS" for row in previous["scenarios"])):
+                or any(row["result"] != "PASS" for row in previous["scenarios"])
+                or not is_ancestor(repository, previous["candidate"]["commit"], candidate)
+                or previous["candidate"]["commit"] == candidate):
             findings.append(v2_finding("AUTHORITY_BINDING_INVALID", json_path,
-                                       "the predecessor is not passing"))
+                                       "the predecessor is not passing or is not an ancestor"))
         predecessors.append({"storyId": story_id, "path": json_path, "sha256": digest})
 
     inventory_digest = v2_sha256(b"V8-6.10-AC1\nV8-6.10-AC2\n")
@@ -5409,26 +5493,18 @@ def v2_10_1_facts(
         path = f"tests/{name}/{name}.csproj"
         assembly_path = f"tests/{name}/bin/Release/net10.0/{name}.dll"
         project = v2_committed_blob(repository, candidate, path)
-        assembly_file = repository / assembly_path
-        if project is None or not assembly_file.is_file() or assembly_file.is_symlink():
+        if project is None:
             findings.append(v2_finding("TEST_RESULTS_MISSING", path,
                                        "a TestSupport project or candidate assembly is missing"))
             continue
         try:
-            tree = ElementTree.fromstring(project)
-            if (tree.findtext("./PropertyGroup/IsPackable") != "false"
-                    or tree.findtext("./PropertyGroup/IsPublishable") != "false"):
-                raise ValueError("a TestSupport project is packable or publishable")
-            if name == "Hexalith.Conversations.TestSupport" and tree.findall(".//ProjectReference"):
-                raise ValueError("the neutral helper has a project dependency")
-            if name.endswith(".Tests"):
-                refs = [row.attrib.get("Include") for row in tree.findall(".//ProjectReference")]
-                if refs != [r"..\Hexalith.Conversations.TestSupport\Hexalith.Conversations.TestSupport.csproj"]:
-                    raise ValueError("the tests do not reference exactly the neutral helper")
-            binary, _ = read_file_snapshot(assembly_file)
+            if v2_10_1_artifact_bytes(repository, path) != project:
+                raise ValueError("the evaluated project differs from the committed candidate")
+            v2_10_1_project_boundary(repository, path, name == "Hexalith.Conversations.TestSupport")
+            binary = v2_10_1_artifact_bytes(repository, assembly_path)
             if dotnet_source_revisions(binary) != [candidate]:
                 raise ValueError("the assembly is not stamped by SC-10.1")
-        except (ElementTree.ParseError, ValueError, OSError) as error:
+        except (ValueError, OSError) as error:
             findings.append(v2_finding("TEST_SUPPORT_BOUNDARY_INVALID", path, str(error)))
             continue
         projects.append({
@@ -5445,6 +5521,12 @@ def v2_10_1_facts(
         if row.get("result") != "PASS" or not isinstance(result, dict) or result.get("path") != expected:
             findings.append(v2_finding("TEST_RESULTS_MISSING", scenario_id,
                                        "the exact passing TRX result was not measured"))
+            continue
+        try:
+            if v2_sha256(v2_10_1_artifact_bytes(repository, expected)) != result["sha256"]:
+                raise ValueError("result digest differs from the measured bytes")
+        except (KeyError, ValueError, OSError) as error:
+            findings.append(v2_finding("TEST_RESULTS_MISSING", scenario_id, str(error)))
             continue
         results.append(result)
     if findings:

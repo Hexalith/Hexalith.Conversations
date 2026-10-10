@@ -4540,15 +4540,26 @@
         "inventorySha256": {"const": "74c4c5e9e70cb86648dc753c5edc97bdb8d598ad2a4aba55d3670794e990ca84"},
         "projects": {
           "type": "array", "minItems": 2, "maxItems": 2,
-          "items": {
-            "type": "object", "additionalProperties": false,
-            "required": ["project", "assembly"],
-            "properties": {"project": {"$ref": "#/$defs/outputFile"}, "assembly": {"$ref": "#/$defs/outputFile"}}
-          }
+          "prefixItems": [
+            {"type": "object", "additionalProperties": false, "required": ["project", "assembly"],
+             "properties": {"project": {"allOf": [{"$ref": "#/$defs/outputFile"}, {"properties": {"path": {"const": "tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj"}}}]},
+                            "assembly": {"allOf": [{"$ref": "#/$defs/outputFile"}, {"properties": {"path": {"const": "tests/Hexalith.Conversations.TestSupport/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll"}}}]}}},
+            {"type": "object", "additionalProperties": false, "required": ["project", "assembly"],
+             "properties": {"project": {"allOf": [{"$ref": "#/$defs/outputFile"}, {"properties": {"path": {"const": "tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj"}}}]},
+                            "assembly": {"allOf": [{"$ref": "#/$defs/outputFile"}, {"properties": {"path": {"const": "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll"}}}]}}}
+          ],
+          "items": false
         },
         "results": {
           "type": "array", "minItems": 5, "maxItems": 5,
-          "items": {"$ref": "#/$defs/outputFile"}
+          "prefixItems": [
+            {"allOf": [{"$ref": "#/$defs/outputFile"}, {"properties": {"path": {"const": "artifacts/v9/10.1/AC-10.1-02.trx"}}}]},
+            {"allOf": [{"$ref": "#/$defs/outputFile"}, {"properties": {"path": {"const": "artifacts/v9/10.1/AC-10.1-03.trx"}}}]},
+            {"allOf": [{"$ref": "#/$defs/outputFile"}, {"properties": {"path": {"const": "artifacts/v9/10.1/AC-10.1-04.trx"}}}]},
+            {"allOf": [{"$ref": "#/$defs/outputFile"}, {"properties": {"path": {"const": "artifacts/v9/10.1/AC-10.1-05.trx"}}}]},
+            {"allOf": [{"$ref": "#/$defs/outputFile"}, {"properties": {"path": {"const": "artifacts/v9/10.1/AC-10.1-06.trx"}}}]}
+          ],
+          "items": false
         }
       }
     },

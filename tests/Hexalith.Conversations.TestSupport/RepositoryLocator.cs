@@ -8,38 +8,47 @@ public static class RepositoryLocator
     /// <param name="relativePath">A relative path using forward slashes.</param>
     /// <returns>The contained full path, or an explicit failure.</returns>
     public static GitFact<string> ResolveContainedPath(string root, string relativePath)
+        => Resolve(root, relativePath, checkWorktreeLinks: true);
+
+    /// <summary>Validates a committed path without consulting the current worktree entry.</summary>
+    internal static GitFact<string> ResolveHistoricalPath(string root, string relativePath)
+        => Resolve(root, relativePath, checkWorktreeLinks: false);
+
+    private static GitFact<string> Resolve(string root, string relativePath, bool checkWorktreeLinks)
     {
-        if (string.IsNullOrWhiteSpace(root) || string.IsNullOrWhiteSpace(relativePath) || Path.IsPathRooted(relativePath))
+        if (string.IsNullOrWhiteSpace(root) || string.IsNullOrEmpty(relativePath)
+            || root.Contains('\0') || relativePath.Contains('\0') || Path.IsPathRooted(relativePath)
+            || relativePath.Split('/').Any(segment => segment is "" or "." or "..")
+            || (OperatingSystem.IsWindows() && relativePath.Contains('\\')))
         {
             return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", "A nonempty relative path is required.");
         }
-
-        string normalized = relativePath.Replace('/', Path.DirectorySeparatorChar);
-        if (relativePath.Contains('\\') && Path.DirectorySeparatorChar != '\\')
+        try
         {
-            // Backslash is a valid literal filename on Unix, not a separator.
-            normalized = relativePath.Replace('/', Path.DirectorySeparatorChar);
-        }
-
-        string fullRoot = Path.GetFullPath(root);
-        string candidate = Path.GetFullPath(Path.Combine(fullRoot, normalized));
-        string prefix = Path.TrimEndingDirectorySeparator(fullRoot) + Path.DirectorySeparatorChar;
-        if (!candidate.StartsWith(prefix, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
-        {
-            return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", relativePath);
-        }
-
-        string current = fullRoot;
-        foreach (string segment in normalized.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries))
-        {
-            current = Path.Combine(current, segment);
-            FileSystemInfo item = Directory.Exists(current) ? new DirectoryInfo(current) : new FileInfo(current);
-            if (item.LinkTarget is not null)
+            string fullRoot = Path.GetFullPath(root);
+            if (!Directory.Exists(fullRoot) || new DirectoryInfo(fullRoot).LinkTarget is not null)
+                return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", "The repository root is missing or symbolic.");
+            string normalized = relativePath.Replace('/', Path.DirectorySeparatorChar);
+            string candidate = Path.GetFullPath(Path.Combine(fullRoot, normalized));
+            string prefix = Path.TrimEndingDirectorySeparator(fullRoot) + Path.DirectorySeparatorChar;
+            if (!candidate.StartsWith(prefix, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+                return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", relativePath);
+            if (checkWorktreeLinks)
             {
-                return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", "Symbolic links are not accepted in evidence paths.");
+                string current = fullRoot;
+                foreach (string segment in normalized.Split(Path.DirectorySeparatorChar))
+                {
+                    current = Path.Combine(current, segment);
+                    FileSystemInfo item = Directory.Exists(current) ? new DirectoryInfo(current) : new FileInfo(current);
+                    if (item.LinkTarget is not null)
+                        return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", "Symbolic links are not accepted in evidence paths.");
+                }
             }
+            return GitFact<string>.Ok(candidate);
         }
-
-        return GitFact<string>.Ok(candidate);
+        catch (Exception exception) when (exception is ArgumentException or IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {
+            return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", exception.Message);
+        }
     }
 }
