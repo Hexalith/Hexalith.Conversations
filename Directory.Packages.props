@@ -1,8 +1,6 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <!-- Keep every EventStore package on the same released platform version. -->
-    <HexalithEventStoreVersion>3.118.0</HexalithEventStoreVersion>
     <!-- Define paths of the Hexalith packages props. -->
     <Hexalith1BuildPackageProps>$(MSBuildThisFileDirectory)references/Hexalith.Builds/Props/Directory.Packages.props</Hexalith1BuildPackageProps>
     <Hexalith2BuildPackageProps>$(MSBuildThisFileDirectory)../references/Hexalith.Builds/Props/Directory.Packages.props</Hexalith2BuildPackageProps>
@@ -12,8 +10,4 @@
   <Import Project="$(Hexalith1BuildPackageProps)" Condition="Exists('$(Hexalith1BuildPackageProps)') And '$(HexalithVersionsLoaded)' != 'true'" />
   <Import Project="$(Hexalith2BuildPackageProps)" Condition="Exists('$(Hexalith2BuildPackageProps)') And '$(HexalithVersionsLoaded)' != 'true'" />
   <Import Project="$(Hexalith3BuildPackageProps)" Condition="'$(HexalithVersionsLoaded)' != 'true'" />
-  <ItemGroup>
-    <!-- EventStore.Aspire 3.117.1 requires Aspire.Hosting 13.6.1. -->
-    <PackageVersion Update="Aspire.Hosting;Aspire.Hosting.Testing" Version="13.6.1" />
-  </ItemGroup>
 </Project>
