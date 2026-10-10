@@ -1,0 +1,291 @@
+{
+  "schemaVersion": "hexalith.conversations.conformance-oracle-tiering-migration.v6",
+  "storyId": "9.2",
+  "status": "quality-review-pending",
+  "preparationOnly": true,
+  "qualityApprovalClaimed": false,
+  "acceptanceClaimed": false,
+  "successorMaterial": {
+    "approvedV3Scope": {
+      "authorization": {
+        "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v3.json",
+        "sha256": "54f3193f21d05ce6a769e0f6e6a9071091fbff60844f65f3b07fcae32ee9efe9"
+      },
+      "proposal": {
+        "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v3.json",
+        "sha256": "30cb277b1b549c13a7c06e380f5477f01843f9c665ce70855c21f28703c54811",
+        "proposalSha256": "81b73f5642f6fff1f155d0f4bdce6b76dfad25a7a80e5b8991bdc3df53253745"
+      },
+      "review": {
+        "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-review-v3.md",
+        "sha256": "52120291bb78df35b0ae8fe1eebf294172d2da0f4380b215a118eec2ecc08b9a"
+      },
+      "priorV1V2HistoryVerified": true
+    },
+    "priorQualityApproval": {
+      "path": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v5.json",
+      "sha256": "6a0218ea421ff448dee93e066b6bbc801498cecd28d95e7322a783a97ebbceb3",
+      "sourceCandidate": "ec5c9be52631b96793ab028febfbbfba4d362d48",
+      "coversV3Scope": false
+    },
+    "priorQualityProposal": {
+      "path": "docs/release-evidence/conformance-oracle-tiering-migration-v5-proposal.json",
+      "sha256": "0ce2f8a68fe91bea852bf66220259f6328858525b3ef05dcf86fc0699d90598f"
+    },
+    "currentSourceSnapshot": {
+      "candidate": "fbe2f502eed26df45edc12e4a12e9917bf97b438",
+      "tree": "ebbf83ea0d617232be5455da88b03cf267cd6586",
+      "rootGitlinks": [
+        {
+          "path": "references/Hexalith.AI.Tools",
+          "mode": "160000",
+          "type": "commit",
+          "object": "3f194e17174994d308ec84af9ee2b5aa68674d0d"
+        },
+        {
+          "path": "references/Hexalith.Builds",
+          "mode": "160000",
+          "type": "commit",
+          "object": "2cf00028bbe563d80d4d12b5fb2054914f14fcb6"
+        },
+        {
+          "path": "references/Hexalith.Commons",
+          "mode": "160000",
+          "type": "commit",
+          "object": "b247ed116c6523f8c596ec0a933eff8973d11568"
+        },
+        {
+          "path": "references/Hexalith.EventStore",
+          "mode": "160000",
+          "type": "commit",
+          "object": "37451b529ab21869fa4e2806968b5143ddeea14b"
+        },
+        {
+          "path": "references/Hexalith.Folders",
+          "mode": "160000",
+          "type": "commit",
+          "object": "31909333eb763f73275c4d3df4367f5d06219c2f"
+        },
+        {
+          "path": "references/Hexalith.FrontComposer",
+          "mode": "160000",
+          "type": "commit",
+          "object": "0e114214007c22f5cdbac21a6853cff4208340ee"
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "mode": "160000",
+          "type": "commit",
+          "object": "7b33e016a52907989181139298db18edef1a05d7"
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "mode": "160000",
+          "type": "commit",
+          "object": "926faa207bab55eeeed4bc7d5d5a50b3e6af917f"
+        },
+        {
+          "path": "references/Hexalith.Projects",
+          "mode": "160000",
+          "type": "commit",
+          "object": "fff5a5dbb74ff79bf56cd10527260178776eb060"
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "mode": "160000",
+          "type": "commit",
+          "object": "4b0cfa3440d2a0b623c4e9d4d1ba4b6aba9de100"
+        }
+      ],
+      "sourceFilesSha256": "d3fd6d44c3160fffe1cfdc9d6ff2508a83e6a2154d7a5cc32be14dfa48224c6c",
+      "actualProductionSurfaceSha256": "eb787e3a47eddeda8a6b38546aa5163fb903fe2886b94da6c3777f88a1434b09",
+      "packagePin": {
+        "path": "Directory.Packages.props",
+        "sha256": "62160d7c7855846a8cf0918018a9842fbdac831a16f1de92d0dc700b232bf748",
+        "eventStoreVersion": "3.118.0"
+      },
+      "scopeProposalSha256": "81b73f5642f6fff1f155d0f4bdce6b76dfad25a7a80e5b8991bdc3df53253745"
+    },
+    "migration": {
+      "proposalSha256": "8a192571a6660638731184fd1086f97c1d8bd585f68e4290ce16988dc110206a",
+      "equalsPriorV5Migration": true,
+      "changedAssertionRows": [
+        [
+          "Hexalith.Conversations.Conformance.Tests.GovernanceAuditPairingSafetyNetConformanceTest.AggregateGovernanceCommandSurfaceShouldMatchTheAuditPairedInventory",
+          "c04079b647f59c5f26e5e738b4c600e731d995e2a6b7a659777c964c848faffd"
+        ],
+        [
+          "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
+          "d2ff5d529caa31961ed04ef54ad40deea5b666edb0355640671eb9daf19579bf"
+        ],
+        [
+          "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.GenerateAndSaveContractShapeSnapshotFile",
+          "540f4f7071decfc6d26f91fcfa417d4a83417100cd0d4d49d5640ee18c8f650b"
+        ],
+        [
+          "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.SnapshotShouldBeContentSafe",
+          "0e6408fb2708ed2d466023176fbe62cf0c1330f70770429ba6715b1bddbf60b8"
+        ],
+        [
+          "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.SnapshotShouldCaptureExportedPublicTypesDeterministically",
+          "160bda151f562ff610d8c7a987d33d09549e64f3d6037f4ad4c0b54d661e1725"
+        ],
+        [
+          "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.SnapshotShouldCoverAllSixReleaseGateBehaviorAreas",
+          "311a3e56c2fbc835f15d95784bb3631db8e23122ad95f862f03a56347b5504e5"
+        ],
+        [
+          "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.BaselineCommitShouldBeAFullFortyCharacterHexShaOnMain",
+          "fabf5413c654c5b364de99cb295aa291044d07868559e232025d3a8cfc93070f"
+        ],
+        [
+          "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.BaselineEnumeratedSuiteClassesShouldMatchTheActualSuiteClassesInTheAssembly",
+          "172dce81104ef4d61da501780a30a5e27514a8ccce9d215a019c74e43c9f186f"
+        ],
+        [
+          "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.BaselineReportedTypeCountShouldAgreeWithTheCommittedSnapshotAndLiveSurface",
+          "e1bd1dbe2c65488a73b5b605321022fad62acf359dd9321f6942308ae3ebc4aa"
+        ],
+        [
+          "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.BaselineSurvivabilityClassificationShouldAccountForAllFourteenSuites",
+          "77a8500a8e609d5ad18056813fb303397572de97c77ee5a2f7b10484cd8a43ba"
+        ],
+        [
+          "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedBaselineRecordShouldExistAndDescribeAGreenAllPassOracle",
+          "3c32a8cc2658841addb3dc0e42117d7901ba98ada5f4aabfd8d549c53d418e93"
+        ],
+        [
+          "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedSnapshotCapturedSurfaceShouldPassContentSafetyScan",
+          "c9b3f6db8563709c5748e48a1f3b55a20c85269003fec2c6bc020290be79442f"
+        ],
+        [
+          "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedSnapshotShouldExistAndDeclareItsAssemblyAndTypeCount",
+          "9a96174beab84496b95d7f0471371a713892bd4e740123e260b15562b680de8a"
+        ],
+        [
+          "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedSnapshotTypeCountShouldMatchTheLiveExportedContractSurface",
+          "6fc850af46b626a9a1f9663504a3a991bf794fd7022249189f0569963cffca18"
+        ]
+      ],
+      "publicDriftSha256": "3357725bc7ebc039baca0bf928718f03f2ae037dbd130e37704bd3315480d2d1",
+      "frozenExecutedCaseFloor": 415,
+      "liveControls": 3
+    },
+    "releasedEventStoreApi": {
+      "releasedDiff": {
+        "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-released-api-diff-v1.json",
+        "sha256": "6a5e5d51f9ec9e5f5cd144b83b25a55547c3231110693e224d6db84fad978b7e"
+      },
+      "sdkApiCompat": {
+        "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-released-api-compat-v1.json",
+        "sha256": "ebe059f6e4d0213ad29fe1884f384d685beea4262bb1dafdf53ab71f8f2e302d"
+      },
+      "versions": {
+        "before": "3.117.1",
+        "after": "3.118.0"
+      },
+      "clientConfirmation": {
+        "command": [
+          "dnx",
+          "dotnet-inspect",
+          "-y",
+          "--",
+          "diff",
+          "--package",
+          "Hexalith.EventStore.Client@3.117.1..3.118.0",
+          "--table"
+        ],
+        "exitCode": 0,
+        "stdout": "Field     Value\nVersions  3.117.1 -> 3.118.0\nSummary   1 breaking, 28 additive across 25 types\n\nChange  Type                                       Detail\n~       AggregateReplayer                          1 additive\n~       EventStoreAggregate`1                      3 additive\n+       EventPayloadEvolutionException             added\n+       EventPayloadEvolutionRegistry              added\n+       IEventPayloadUpcaster                      added\n+       ResolvedEventPayload                       added\n~       EventEvolutionServiceCollectionExtensions  2 additive\n+       AuthoritativeStreamReadDeadline            added\n+       DirectoryAtomicAppendClient                added\n+       DirectoryAtomicAppendOutcome               added\n+       DirectoryAtomicAppendRequest               added\n+       DirectoryAtomicAppendState                 added\n+       IAtomicDirectoryAppendOwner                added\n+       IDirectoryAtomicAppendAuthority            added\n+       ISourcePublicationDelivery                 added\n+       ISourcePublicationIndexStore               added\n+       ISourcePublicationNamespaceSource          added\n+       ISourcePublicationProjector                added\n+       ISourcePublicationWriterRegistration       added\n+       SourceNamespaceSnapshotReader              added\n+       SourcePublicationDeliveryStatus            added\n+       SourcePublicationDispatchResult            added\n+       SourcePublicationDispatcher                added\n+       SourcePublicationFeed                      added\nx       EventStoreDomainEventProcessor             1 breaking, 1 additive\n",
+        "stdoutSha256": "8887d0552b0b9f4a7dc9d29003a9f7a82c6101762a6347d0b93877516b997883",
+        "stderr": "",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "findings": {
+        "client": "one binary-breaking constructor change and 28 additive changes across 25 types",
+        "contracts": "97 additive changes across 97 types in the prior exact receipt",
+        "domainService": "BothIncomplete metadata inspection before and after",
+        "serviceDefaults": "BothIncomplete metadata inspection before and after",
+        "sdkClient": "CP0002 for removed five-parameter constructor",
+        "sdkDomainServiceAndServiceDefaults": "RunApiCompat target passed",
+        "completeAdditiveReview": false
+      }
+    }
+  },
+  "proposalSha256": "eb6d91b7600b6916942f824ed8ba4fdfd8973c3197f5969f54b0a3f6ac7b60aa",
+  "requiredQualityBinding": {
+    "role": "Quality owner",
+    "proposalSha256": "eb6d91b7600b6916942f824ed8ba4fdfd8973c3197f5969f54b0a3f6ac7b60aa",
+    "scopeProposalSha256": "81b73f5642f6fff1f155d0f4bdce6b76dfad25a7a80e5b8991bdc3df53253745",
+    "sourceSnapshotSha256": "a52f067f7b6d7546677a7d888efa3a07a8bd039c6ed39c20d53cb511617770f9",
+    "migrationProposalSha256": "8a192571a6660638731184fd1086f97c1d8bd585f68e4290ce16988dc110206a",
+    "changedAssertionRows": [
+      [
+        "Hexalith.Conversations.Conformance.Tests.GovernanceAuditPairingSafetyNetConformanceTest.AggregateGovernanceCommandSurfaceShouldMatchTheAuditPairedInventory",
+        "c04079b647f59c5f26e5e738b4c600e731d995e2a6b7a659777c964c848faffd"
+      ],
+      [
+        "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
+        "d2ff5d529caa31961ed04ef54ad40deea5b666edb0355640671eb9daf19579bf"
+      ],
+      [
+        "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.GenerateAndSaveContractShapeSnapshotFile",
+        "540f4f7071decfc6d26f91fcfa417d4a83417100cd0d4d49d5640ee18c8f650b"
+      ],
+      [
+        "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.SnapshotShouldBeContentSafe",
+        "0e6408fb2708ed2d466023176fbe62cf0c1330f70770429ba6715b1bddbf60b8"
+      ],
+      [
+        "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.SnapshotShouldCaptureExportedPublicTypesDeterministically",
+        "160bda151f562ff610d8c7a987d33d09549e64f3d6037f4ad4c0b54d661e1725"
+      ],
+      [
+        "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.SnapshotShouldCoverAllSixReleaseGateBehaviorAreas",
+        "311a3e56c2fbc835f15d95784bb3631db8e23122ad95f862f03a56347b5504e5"
+      ],
+      [
+        "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.BaselineCommitShouldBeAFullFortyCharacterHexShaOnMain",
+        "fabf5413c654c5b364de99cb295aa291044d07868559e232025d3a8cfc93070f"
+      ],
+      [
+        "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.BaselineEnumeratedSuiteClassesShouldMatchTheActualSuiteClassesInTheAssembly",
+        "172dce81104ef4d61da501780a30a5e27514a8ccce9d215a019c74e43c9f186f"
+      ],
+      [
+        "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.BaselineReportedTypeCountShouldAgreeWithTheCommittedSnapshotAndLiveSurface",
+        "e1bd1dbe2c65488a73b5b605321022fad62acf359dd9321f6942308ae3ebc4aa"
+      ],
+      [
+        "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.BaselineSurvivabilityClassificationShouldAccountForAllFourteenSuites",
+        "77a8500a8e609d5ad18056813fb303397572de97c77ee5a2f7b10484cd8a43ba"
+      ],
+      [
+        "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedBaselineRecordShouldExistAndDescribeAGreenAllPassOracle",
+        "3c32a8cc2658841addb3dc0e42117d7901ba98ada5f4aabfd8d549c53d418e93"
+      ],
+      [
+        "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedSnapshotCapturedSurfaceShouldPassContentSafetyScan",
+        "c9b3f6db8563709c5748e48a1f3b55a20c85269003fec2c6bc020290be79442f"
+      ],
+      [
+        "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedSnapshotShouldExistAndDeclareItsAssemblyAndTypeCount",
+        "9a96174beab84496b95d7f0471371a713892bd4e740123e260b15562b680de8a"
+      ],
+      [
+        "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedSnapshotTypeCountShouldMatchTheLiveExportedContractSurface",
+        "6fc850af46b626a9a1f9663504a3a991bf794fd7022249189f0569963cffca18"
+      ]
+    ],
+    "publicDriftSha256": "3357725bc7ebc039baca0bf928718f03f2ae037dbd130e37704bd3315480d2d1",
+    "releasedEventStoreApiDiffSha256": "6a5e5d51f9ec9e5f5cd144b83b25a55547c3231110693e224d6db84fad978b7e",
+    "releasedEventStoreApiCompatSha256": "ebe059f6e4d0213ad29fe1884f384d685beea4262bb1dafdf53ab71f8f2e302d"
+  },
+  "acceptance": {
+    "state": "blocked",
+    "blockers": [
+      "SUCCESSOR_QUALITY_DECISION_REQUIRED",
+      "FRESH_CANDIDATE_ACCEPTANCE_REQUIRED"
+    ]
+  }
+}

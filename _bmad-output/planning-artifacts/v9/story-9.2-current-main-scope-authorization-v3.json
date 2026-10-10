@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "hexalith.conversations.story-9.2-current-main-scope-authorization.v3",
+  "storyId": "9.2",
+  "status": "authorized",
+  "authorization": {
+    "actor": "user",
+    "authorizedOn": "2026-10-10",
+    "statement": "authorize exact v3 scop",
+    "evidence": "Conversation response to the exact v3 scope packet and its canonical material digest; the final word is truncated in the user response but unambiguously names v3 scope. This authorizes successor preparation for the reviewed committed bytes, not new Quality material or candidate acceptance."
+  },
+  "proposal": {
+    "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v3.json",
+    "sha256": "30cb277b1b549c13a7c06e380f5477f01843f9c665ce70855c21f28703c54811",
+    "proposalSha256": "81b73f5642f6fff1f155d0f4bdce6b76dfad25a7a80e5b8991bdc3df53253745"
+  },
+  "review": {
+    "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-review-v3.md",
+    "sha256": "52120291bb78df35b0ae8fe1eebf294172d2da0f4380b215a118eec2ecc08b9a"
+  },
+  "measuredCommittedCandidate": "fbe2f502eed26df45edc12e4a12e9917bf97b438",
+  "priorAuthorizedCandidate": "ec5c9be52631b96793ab028febfbbfba4d362d48",
+  "originalBaseline": "51aa06b856bcb0aaf22013153cfe02a51b046156",
+  "workingTreeChangesIncluded": false,
+  "qualityDecisionIncluded": false,
+  "preserveOriginalBaselineFrozenContractsApprovalsAndAcceptedRecords": true
+}

@@ -1,0 +1,289 @@
+{
+  "schemaVersion": "hexalith.conversations.story-9.2-current-main-scope-proposal.v3",
+  "storyId": "9.2",
+  "status": "prepared-unapproved",
+  "authorizationClaimed": false,
+  "qualityApprovalClaimedForNewScope": false,
+  "originalBaseline": "51aa06b856bcb0aaf22013153cfe02a51b046156",
+  "priorAuthorizedCandidate": "ec5c9be52631b96793ab028febfbbfba4d362d48",
+  "priorScopeProposal": {
+    "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v2.json",
+    "sha256": "ea902b33ed0d35ad44922a7ba63b14e23b65058bcb3a47a11357c16d3f1fd083"
+  },
+  "priorScopeAuthorization": {
+    "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v2.json",
+    "sha256": "f5391b2f2d45023f8fc548a2ecbe5db18ce42380b4ffafa473f9dcf29df51438"
+  },
+  "existingQualityApproval": {
+    "path": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v5.json",
+    "sha256": "6a0218ea421ff448dee93e066b6bbc801498cecd28d95e7322a783a97ebbceb3",
+    "sourceCandidate": "ec5c9be52631b96793ab028febfbbfba4d362d48",
+    "coversNewScope": false
+  },
+  "measuredCommittedCandidate": "fbe2f502eed26df45edc12e4a12e9917bf97b438",
+  "workingTreeChangesIncluded": false,
+  "counts": {
+    "changedPaths": 17,
+    "changedRootGitlinks": 6,
+    "interveningCommits": 1
+  },
+  "interveningCommits": [
+    {
+      "commit": "fbe2f502eed26df45edc12e4a12e9917bf97b438",
+      "parent": "ec5c9be52631b96793ab028febfbbfba4d362d48",
+      "subject": "fix: add release evidence for EventStore API compatibility and migration review"
+    }
+  ],
+  "changesSincePriorAuthorizedCandidate": [
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "803aa146a38cf27706c6bf2fe47463794eed34ad",
+        "sha256": "29e86010138026a6ec90135a6bc8004086d021f386c4d6abf259d8b7cdce78d9",
+        "sizeBytes": 176802
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "49f3ec319a3032221ddccaef593d8bbafac0769d",
+        "sha256": "ca0a63016af114563c76fb1fc9eded855fcb63299c51f9e6ff022bf1302380e3",
+        "sizeBytes": 182655
+      }
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v2.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "616d4648e310fe9d9ed968f64f5af2c62cdfe3ea",
+        "sha256": "f5391b2f2d45023f8fc548a2ecbe5db18ce42380b4ffafa473f9dcf29df51438",
+        "sizeBytes": 1106
+      }
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v2.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "77964e34978eabb5e4dbe03ed9560b192befc8df",
+        "sha256": "ea902b33ed0d35ad44922a7ba63b14e23b65058bcb3a47a11357c16d3f1fd083",
+        "sizeBytes": 26692
+      }
+    },
+    {
+      "path": "_bmad/schemas/story-9.2-current-main-successor-proposal-v2.schema.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "1a21d22597aec8ef70e309a21e44170cbbf7b1fd",
+        "sha256": "d61609ca9781d973064b1de3bbbad2da3052be4264db2f9395451599fbbed682",
+        "sizeBytes": 52996
+      }
+    },
+    {
+      "path": "_bmad/scripts/prepare_story92_successor_v2.py",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "d029a68ce48f305eff068fd486d06631245d33b1",
+        "sha256": "38a80f9b631a77337b51a4aa446f676f2e1c8963551793fee539699a27f011d3",
+        "sizeBytes": 37819
+      }
+    },
+    {
+      "path": "_bmad/scripts/tests/test_prepare_story92_successor_v2.py",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "9ed3e7c1473311e4b51f3311e138221fdf5bbbe5",
+        "sha256": "82b94e8ae6eee3ea1418709c02ea49e5a9863f1b9bf411655535f3b20ff0e275",
+        "sizeBytes": 9425
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-released-api-compat-v1.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "c5c2614c423c44316dd73328c98a09682767d717",
+        "sha256": "ebe059f6e4d0213ad29fe1884f384d685beea4262bb1dafdf53ab71f8f2e302d",
+        "sizeBytes": 10411
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-eventstore-released-api-diff-v1.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "be86a6cb92d8a178b4fe2606c67564fd99d4fd27",
+        "sha256": "6a5e5d51f9ec9e5f5cd144b83b25a55547c3231110693e224d6db84fad978b7e",
+        "sizeBytes": 20338
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-migration-review-v5.md",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "775e3ebba1bc518c55d3c0dd84f1f8b46d064237",
+        "sha256": "68927548a2934d6fe5dd84f38eb20d867843b3d48f04cd285cd57d16876d3cc0",
+        "sizeBytes": 8619
+      }
+    },
+    {
+      "path": "docs/release-evidence/conformance-oracle-tiering-migration-v5-proposal.json",
+      "status": "A",
+      "before": null,
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "3009be39a6e2c92f5571664037b464d99750a9d7",
+        "sha256": "0ce2f8a68fe91bea852bf66220259f6328858525b3ef05dcf86fc0699d90598f",
+        "sizeBytes": 1602743
+      }
+    },
+    {
+      "path": "docs/runbooks/story-final-record-generation.md",
+      "status": "M",
+      "before": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "44495ecbd87618e2d951eaa7742708e67fbdcadf",
+        "sha256": "bf2b0bf2f25d40a160241ba59c1032a9dc82a88ac05989c9336667e0fe9badf8",
+        "sizeBytes": 115223
+      },
+      "after": {
+        "mode": "100644",
+        "type": "blob",
+        "object": "a7450a3463f4e8445d22f17bcbf8b8e54c6fe470",
+        "sha256": "5425aebfa6d81b01324b1d961f3ecdeb7636a365643b7d3ced9ac1bc33cd2732",
+        "sizeBytes": 119387
+      }
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "0d988cfc5ea123553f6961b6f3f04f375ff8ac3a"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "2cf00028bbe563d80d4d12b5fb2054914f14fcb6"
+      }
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "5e5d2305d870a03d6d63f52470ce9f7a1ec058da"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "37451b529ab21869fa4e2806968b5143ddeea14b"
+      }
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "17b5a70d2b4b91bbbf73ea63c8a214a0ad426759"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "31909333eb763f73275c4d3df4367f5d06219c2f"
+      }
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "858a828d7cdb648d18f07a4a568e8d8a52f92113"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "7b33e016a52907989181139298db18edef1a05d7"
+      }
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "eaf195b1c0a654127ca85d22069b6e1129911c86"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "fff5a5dbb74ff79bf56cd10527260178776eb060"
+      }
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "status": "M",
+      "before": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "42d1e30044c8aaa16627c87c197e6e1a17bedbe4"
+      },
+      "after": {
+        "mode": "160000",
+        "type": "commit",
+        "object": "4b0cfa3440d2a0b623c4e9d4d1ba4b6aba9de100"
+      }
+    }
+  ],
+  "observedCurrentTreeChecks": {
+    "portableReleaseBuild": "PASS",
+    "internalReleaseBuild": "PASS",
+    "structuralVerifier": "PASS",
+    "candidateBoundAcceptanceClaimed": false
+  },
+  "currentFinalRecordVerification": {
+    "result": "FAIL",
+    "blockers": [
+      "AUTHORITY_BINDING_INVALID"
+    ],
+    "detail": "The original candidate-environment amendment accepts a different seven-gitlink set and only its five exact promotion commits. The v5 Quality binding names the prior ec5c9be source snapshot."
+  },
+  "requestedScopeDecision": {
+    "status": "unapproved",
+    "action": "Authorize Story 9.2 successor preparation from precisely the committed paths and root gitlinks in this proposal, including the six gitlink changes in fbe2f50.",
+    "preserveOriginalBaselineFrozenContractsApprovalsAndAcceptedRecords": true,
+    "qualityDecisionIncluded": false,
+    "followOnQualityRequirement": "Remeasure successor material at the newly authorized source and request an exact Quality decision if its binding differs from the existing v5 approval.",
+    "acceptanceRequirement": "Fresh candidate-bound AC01-10, all 415 frozen cases and three controls, exact restored faults, deterministic final pair, and insertion verification."
+  },
+  "proposalSha256": "81b73f5642f6fff1f155d0f4bdce6b76dfad25a7a80e5b8991bdc3df53253745"
+}

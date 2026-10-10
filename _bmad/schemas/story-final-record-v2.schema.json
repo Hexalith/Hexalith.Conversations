@@ -4317,7 +4317,11 @@
           "$ref": "#/$defs/digest"
         },
         "candidateEnvironment": {
-          "$ref": "#/$defs/candidateEnvironment"
+          "oneOf": [
+            {"$ref": "#/$defs/candidateEnvironment"},
+            {"$ref": "#/$defs/candidateEnvironmentV2"},
+            {"$ref": "#/$defs/candidateEnvironmentV3"}
+          ]
         }
       }
     },
@@ -4383,6 +4387,92 @@
           "uniqueItems": true,
           "items": {
             "$ref": "#/$defs/candidateEnvironmentGitlink"
+          }
+        }
+      }
+    },
+    "candidateEnvironmentV2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["route", "approvedSourceCommit", "scopeAuthorization", "scopeProposal", "qualityApproval", "rootGitlinks"],
+      "properties": {
+        "route": {"const": "story-9.2-successor-v2"},
+        "approvedSourceCommit": {"const": "ec5c9be52631b96793ab028febfbbfba4d362d48"},
+        "scopeAuthorization": {
+          "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+          "properties": {
+            "path": {"const": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v2.json"},
+            "sha256": {"const": "f5391b2f2d45023f8fc548a2ecbe5db18ce42380b4ffafa473f9dcf29df51438"}
+          }
+        },
+        "scopeProposal": {
+          "type": "object", "additionalProperties": false, "required": ["path", "sha256", "proposalSha256"],
+          "properties": {
+            "path": {"const": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v2.json"},
+            "sha256": {"const": "ea902b33ed0d35ad44922a7ba63b14e23b65058bcb3a47a11357c16d3f1fd083"},
+            "proposalSha256": {"const": "925cf11a819e9412055f3d35ea85a0a4334f9371e7d1decdb8199bb7b6757672"}
+          }
+        },
+        "qualityApproval": {
+          "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+          "properties": {
+            "path": {"const": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v5.json"},
+            "sha256": {"const": "6a0218ea421ff448dee93e066b6bbc801498cecd28d95e7322a783a97ebbceb3"}
+          }
+        },
+        "rootGitlinks": {
+          "type": "array", "minItems": 10, "maxItems": 10, "uniqueItems": true,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["path", "mode", "type", "object"],
+            "properties": {
+              "path": {"type": "string", "pattern": "^references/Hexalith\\.[A-Za-z.]+$"},
+              "mode": {"const": "160000"},
+              "type": {"const": "commit"},
+              "object": {"$ref": "#/$defs/commit"}
+            }
+          }
+        }
+      }
+    },
+    "candidateEnvironmentV3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["route", "approvedSourceCommit", "scopeAuthorization", "scopeProposal", "qualityApproval", "rootGitlinks"],
+      "properties": {
+        "route": {"const": "story-9.2-successor-v3"},
+        "approvedSourceCommit": {"const": "fbe2f502eed26df45edc12e4a12e9917bf97b438"},
+        "scopeAuthorization": {
+          "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+          "properties": {
+            "path": {"const": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v3.json"},
+            "sha256": {"const": "54f3193f21d05ce6a769e0f6e6a9071091fbff60844f65f3b07fcae32ee9efe9"}
+          }
+        },
+        "scopeProposal": {
+          "type": "object", "additionalProperties": false, "required": ["path", "sha256", "proposalSha256"],
+          "properties": {
+            "path": {"const": "_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v3.json"},
+            "sha256": {"const": "30cb277b1b549c13a7c06e380f5477f01843f9c665ce70855c21f28703c54811"},
+            "proposalSha256": {"const": "81b73f5642f6fff1f155d0f4bdce6b76dfad25a7a80e5b8991bdc3df53253745"}
+          }
+        },
+        "qualityApproval": {
+          "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+          "properties": {
+            "path": {"const": "docs/release-evidence/conformance-oracle-tiering-migration-approval-v6.json"},
+            "sha256": {"$ref": "#/$defs/digest"}
+          }
+        },
+        "rootGitlinks": {
+          "type": "array", "minItems": 10, "maxItems": 10, "uniqueItems": true,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["path", "mode", "type", "object"],
+            "properties": {
+              "path": {"type": "string", "pattern": "^references/Hexalith\\.[A-Za-z.]+$"},
+              "mode": {"const": "160000"},
+              "type": {"const": "commit"},
+              "object": {"$ref": "#/$defs/commit"}
+            }
           }
         }
       }
