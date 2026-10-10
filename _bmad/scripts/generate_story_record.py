@@ -7156,10 +7156,11 @@ def v2_9_2_environment_successor_v3(repository: Path, candidate: str, module: An
     }
 
 
-def v2_9_2_environment_successor_v4(repository: Path, candidate: str, module: Any) -> dict[str, Any]:
+def v2_9_2_environment_successor_v4(repository: Path, candidate: str, module: Any, *,
+                                    require_head: bool = True) -> dict[str, Any]:
     """Bind the exact v4 scope and v7 Quality decision."""
     try:
-        binding = module.SUCCESSOR_V4.authority(repository, candidate)
+        binding = module.SUCCESSOR_V4.authority(repository, candidate, require_head=require_head)
         approval = module.SUCCESSOR_V4.approved_quality(repository, candidate)
     except module.SUCCESSOR_V4.AcceptanceError as error:
         raise V2Stop([v2_finding("AUTHORITY_BINDING_INVALID", error.code, str(error))], "9.2") from error
@@ -7249,7 +7250,8 @@ def v2_9_2_faults(repository: Path, candidate: str, validator: Any, module: Any 
     return rows
 
 
-def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], validator: Any) -> dict[str, Any]:
+def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], validator: Any, *,
+                 retained_record: bool = False) -> dict[str, Any]:
     """Re-derive full tier execution, migration, approval, retention, and predecessor facts."""
     def stop(code: str, subject: str, message: str) -> NoReturn:
         raise V2Stop([v2_finding(code if code in V2_CODES else "TEST_RESULTS_FAILED", subject, message)], "9.2")
@@ -7259,7 +7261,7 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
                     and v2_committed_blob(repository, candidate, v4_scope.AUTH) is not None)
     if successor_v4:
         try:
-            v4_scope.authority(repository, candidate)
+            v4_scope.authority(repository, candidate, require_head=not retained_record)
             v4_scope.approved_quality(repository, candidate)
         except v4_scope.AcceptanceError as error:
             stop("AUTHORITY_BINDING_INVALID", error.code, str(error))
@@ -7292,7 +7294,8 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
     if baseline != V2_9_2_BASELINE or not is_ancestor(repository, baseline, candidate):
         stop("BASELINE_NOT_TRUSTWORTHY", V2_9_2_SPEC_PATH, "the original Story 9.2 baseline must be preserved")
     if successor_v4:
-        environment = v2_9_2_environment_successor_v4(repository, candidate, module)
+        environment = v2_9_2_environment_successor_v4(repository, candidate, module,
+                                                      require_head=not retained_record)
         touched = set()
     elif successor_v3:
         environment = v2_9_2_environment_successor_v3(repository, candidate, module)
@@ -7331,7 +7334,8 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
         if dotnet_source_revisions(content) != [candidate]:
             stop("TEST_RESULTS_STALE", assembly, "retained tier assembly must be stamped by SC-9.2")
     report = (module.verify_authorized_successor_v4_scope(repository, candidate,
-              portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx")
+              portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx",
+              require_head=not retained_record)
               if successor_v4 else module.verify_authorized_successor_v3_scope(repository, candidate,
               portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx")
               if successor_v3 else module.verify_approved_successor_v2(repository, candidate,
@@ -7837,7 +7841,9 @@ def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> b
         record["conformanceTiering"] = v2_9_1_facts(repository, candidate, contract, validators["record"])
         record["faultInjection"]["results"] = v2_9_1_faults(repository, candidate, validators["record"])
     if story_id == "9.2":
-        record["conformanceExecution"] = v2_9_2_facts(repository, candidate, frozen_contract, validators["record"])
+        record["conformanceExecution"] = v2_9_2_facts(
+            repository, candidate, frozen_contract, validators["record"],
+            **({"retained_record": True} if verify_spec is not None and candidate != head else {}))
         record["faultInjection"]["results"] = v2_9_2_faults(repository, candidate, validators["record"])
     if story_id == "8.2":
         v2_8_2_positive(repository, candidate, scenario_records["AC-8.2-01"])

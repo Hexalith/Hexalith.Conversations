@@ -1032,13 +1032,14 @@ def verify_authorized_successor_v3_scope(root: Path, candidate: str, portable_re
 
 
 def verify_authorized_successor_v4_scope(root: Path, candidate: str, portable_result: str | None = None,
-                                         internal_result: str | None = None, *, mode: str = "complete") -> dict[str, Any]:
+                                         internal_result: str | None = None, *, mode: str = "complete",
+                                         require_head: bool = True) -> dict[str, Any]:
     """Run the exact v4 scope and v7 Quality route with live migration proof."""
     report: dict[str, Any] = {"schemaVersion": "hexalith.conversations.conformance-tier-execution.v1",
                               "storyId": "9.2", "result": "FAIL", "exitCode": 1, "blockers": []}
     try:
         require(mode in ("complete", "structure"), "TIERING_INPUT_INVALID", "Unsupported v4 successor mode")
-        scope = SUCCESSOR_V4.authority(root, candidate)
+        scope = SUCCESSOR_V4.authority(root, candidate, require_head=require_head)
         approval = SUCCESSOR_V4.approved_quality(root, candidate)
         report = verify(root, portable_result=portable_result, internal_result=internal_result,
                         mode=mode, current_tree=True, require_approval=False)
