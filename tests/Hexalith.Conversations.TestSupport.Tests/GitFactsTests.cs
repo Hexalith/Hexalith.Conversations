@@ -208,10 +208,11 @@ public sealed class GitFactsTests
         }
         string shallowPath = Path.Combine(Path.GetTempPath(), "gitfacts-shallow-" + Guid.NewGuid().ToString("N"));
         string partialPath = Path.Combine(Path.GetTempPath(), "gitfacts-partial-" + Guid.NewGuid().ToString("N"));
+        string sourceUri = new Uri(fixture.Root + Path.DirectorySeparatorChar).AbsoluteUri;
         try
         {
             GitFact<GitCommandResult> shallowClone = await facts.RunAsync(Path.GetTempPath(),
-                ["clone", "--quiet", "--depth", "1", "file://" + fixture.Root, shallowPath], TestContext.Current.CancellationToken);
+                ["clone", "--quiet", "--depth", "1", sourceUri, shallowPath], TestContext.Current.CancellationToken);
             shallowClone.Value!.ExitCode.ShouldBe(0);
             (await facts.ResolveRevisionAsync(shallowPath, first, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
             (await facts.ResolveRevisionAsync(shallowPath, "HEAD~1", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
@@ -220,7 +221,7 @@ public sealed class GitFactsTests
             (await facts.ResolveRevisionAsync(shallowPath, new string('f', 40), TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
             fixture.Git("config", "uploadpack.allowFilter", "true");
             GitFact<GitCommandResult> partialClone = await facts.RunAsync(Path.GetTempPath(),
-                ["clone", "--quiet", "--no-checkout", "--filter=blob:none", "--no-local", "file://" + fixture.Root, partialPath], TestContext.Current.CancellationToken);
+                ["clone", "--quiet", "--no-checkout", "--filter=blob:none", "--no-local", sourceUri, partialPath], TestContext.Current.CancellationToken);
             partialClone.Value!.ExitCode.ShouldBe(0);
             GitFact<GitBlob> partial = await facts.ReadBlobAsync(partialPath, "HEAD", "seed.txt", TestContext.Current.CancellationToken);
             partial.IsSuccess.ShouldBeFalse();
