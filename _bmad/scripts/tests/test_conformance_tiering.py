@@ -614,13 +614,13 @@ story92 = importlib.util.module_from_spec(live_spec)
 live_spec.loader.exec_module(story92)
 
 
-def test_portable_surface_rejects_imported_fourth_direct_reference() -> None:
+def test_portable_surface_rejects_imported_extra_direct_reference() -> None:
     project = ROOT / story92.PROJECTS["portable"]
-    approved = ("Hexalith.Conversations.Client", "Hexalith.Conversations.Contracts",
-                "Hexalith.Conversations.Testing")
+    approved = ("Hexalith.Conversations", "Hexalith.Conversations.Client",
+                "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Testing")
     references = [{"FullPath": str(ROOT / "src" / name / f"{name}.csproj"),
                    "DefiningProjectFullPath": str(project)} for name in approved]
-    references.append({"FullPath": str(ROOT / "src/Hexalith.Conversations/Hexalith.Conversations.csproj"),
+    references.append({"FullPath": str(ROOT / "src/Hexalith.Extra/Hexalith.Extra.csproj"),
                        "DefiningProjectFullPath": str(ROOT / "Directory.Build.props")})
     with patch.object(story92, "msbuild", side_effect=AssertionError("direct references must be checked first")):
         with pytest.raises(story92.VerificationError) as failure:

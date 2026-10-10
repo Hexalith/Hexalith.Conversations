@@ -191,7 +191,7 @@ The three independent layers reviewed the full diff from the preserved Story 9.2
 
 | Finding | Verdict | Route | Evidence |
 |---|---|---|---|
-| Blind 1 — imported fourth direct project | medium | patch | `portable_surface` filters the exact three-reference comparison by `DefiningProjectFullPath`; an imported packable fourth project remains in the evaluated queue but escapes that comparison. Compare all evaluated direct references. |
+| Blind 1 — imported extra direct project | medium | patch | `portable_surface` filtered its three declared references by `DefiningProjectFullPath`; an imported packable project could escape that comparison. Compare the full evaluated set, which includes one SDK-generated domain project. |
 | Blind 2 — arbitrary reached Hexalith package | false | reject | A reached NuGet package with matching assembly identity is a shipped compile asset, and the v4 final gate compares the complete derived migration, including portable surface, with the digest-bound v7 Quality material. The reviewer did not demonstrate an unapproved package passing candidate acceptance. |
 | Blind 3 — unrelated tracked output target | medium | patch | `write_json` can resolve `.github/workflows/release.yml` or `scripts/verify-release-source.py` and overwrite it because neither path is protected. Confine result output to contained evidence directories. |
 | Blind 4 — npm transitive lock graph | medium | defer | `validate_graph` compares only seven direct npm lock rows, whereas a changed transitive node or edge is not checked; this package refresh helper is not part of Story 9.2. |

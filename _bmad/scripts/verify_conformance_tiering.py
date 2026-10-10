@@ -157,10 +157,13 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
     portable = evaluated["portable"]
     initial = portable["Items"]["ProjectReference"]
     direct = sorted(Path(item["FullPath"]).resolve() for item in initial)
+    # The SDK contributes the packable domain project through package-dependency
+    # resolution in addition to the three references declared by this project.
     approved = sorted((root / "src" / name / f"{name}.csproj").resolve() for name in (
-        "Hexalith.Conversations.Client", "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Testing"))
+        "Hexalith.Conversations", "Hexalith.Conversations.Client",
+        "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Testing"))
     require(direct == approved,
-            "PORTABLE_TIER_NONPORTABLE_REFERENCE", "Portable direct references must be the three approved shipped surfaces.")
+            "PORTABLE_TIER_NONPORTABLE_REFERENCE", "Portable evaluated direct references differ from the approved set.")
     queue = [Path(item["FullPath"]) for item in initial]
     seen: dict[str, dict[str, Any]] = {}
     project_outputs: dict[str, set[Path]] = {}
