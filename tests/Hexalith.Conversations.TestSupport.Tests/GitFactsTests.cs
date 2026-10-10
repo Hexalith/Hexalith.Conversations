@@ -60,6 +60,8 @@ public sealed class GitFactsTests
         string? priorGitDir = Environment.GetEnvironmentVariable("GIT_DIR");
         string? priorCount = Environment.GetEnvironmentVariable("GIT_CONFIG_COUNT");
         string? priorGlobal = Environment.GetEnvironmentVariable("GIT_CONFIG_GLOBAL");
+        string? priorKey0 = Environment.GetEnvironmentVariable("GIT_CONFIG_KEY_0");
+        string? priorValue0 = Environment.GetEnvironmentVariable("GIT_CONFIG_VALUE_0");
         try
         {
             Environment.SetEnvironmentVariable("GIT_DIR", Path.Combine(Path.GetTempPath(), "wrong-repository"));
@@ -98,8 +100,8 @@ public sealed class GitFactsTests
         {
             Environment.SetEnvironmentVariable("GIT_DIR", priorGitDir);
             Environment.SetEnvironmentVariable("GIT_CONFIG_COUNT", priorCount);
-            Environment.SetEnvironmentVariable("GIT_CONFIG_KEY_0", null);
-            Environment.SetEnvironmentVariable("GIT_CONFIG_VALUE_0", null);
+            Environment.SetEnvironmentVariable("GIT_CONFIG_KEY_0", priorKey0);
+            Environment.SetEnvironmentVariable("GIT_CONFIG_VALUE_0", priorValue0);
             Environment.SetEnvironmentVariable("GIT_CONFIG_GLOBAL", priorGlobal);
         }
     }

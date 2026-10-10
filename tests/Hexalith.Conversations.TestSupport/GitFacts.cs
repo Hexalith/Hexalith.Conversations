@@ -81,8 +81,17 @@ public sealed class GitFacts
             {
                 if (!process.HasExited)
                 {
-                    process.Kill(entireProcessTree: true);
+                    try
+                    {
+                        process.Kill(entireProcessTree: true);
+                    }
+                    catch (InvalidOperationException) when (process.HasExited)
+                    {
+                        // The child exited between the check and the kill request.
+                    }
                 }
+
+                await process.WaitForExitAsync(CancellationToken.None).ConfigureAwait(false);
 
                 // Cancellation of pipe copies is independent of child pipe closure.
                 return cancellationToken.IsCancellationRequested
