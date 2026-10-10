@@ -426,6 +426,14 @@
           ]
         }
       }
+    },
+    {
+      "if": {
+        "properties": {"storyId": {"const": "10.1"}},
+        "required": ["storyId"]
+      },
+      "then": {"required": ["testSupportExecution"]},
+      "else": {"not": {"required": ["testSupportExecution"]}}
     }
   ],
   "properties": {
@@ -525,6 +533,9 @@
     },
     "conformanceExecution": {
       "$ref": "#/$defs/conformanceExecution"
+    },
+    "testSupportExecution": {
+      "$ref": "#/$defs/testSupportExecution"
     }
   },
   "$defs": {
@@ -4508,6 +4519,37 @@
           }
         },
         "rootGitlinks": {"$ref": "#/$defs/candidateEnvironmentV3/properties/rootGitlinks"}
+      }
+    },
+    "testSupportExecution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bindingRule", "sourceRevisionId", "contract", "predecessorRecords", "inventorySha256", "projects", "results"],
+      "properties": {
+        "bindingRule": {"const": "SC-10.1 is HEAD^{commit} at first final-record generation"},
+        "sourceRevisionId": {"$ref": "#/$defs/commit"},
+        "contract": {"$ref": "#/$defs/outputFile"},
+        "predecessorRecords": {
+          "type": "array", "minItems": 2, "maxItems": 2,
+          "prefixItems": [
+            {"allOf": [{"$ref": "#/$defs/predecessorRecord"}, {"properties": {"storyId": {"const": "7.4"}}}]},
+            {"allOf": [{"$ref": "#/$defs/predecessorRecord"}, {"properties": {"storyId": {"const": "9.2"}}}]}
+          ],
+          "items": false
+        },
+        "inventorySha256": {"const": "74c4c5e9e70cb86648dc753c5edc97bdb8d598ad2a4aba55d3670794e990ca84"},
+        "projects": {
+          "type": "array", "minItems": 2, "maxItems": 2,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["project", "assembly"],
+            "properties": {"project": {"$ref": "#/$defs/outputFile"}, "assembly": {"$ref": "#/$defs/outputFile"}}
+          }
+        },
+        "results": {
+          "type": "array", "minItems": 5, "maxItems": 5,
+          "items": {"$ref": "#/$defs/outputFile"}
+        }
       }
     },
     "candidateEnvironment": {

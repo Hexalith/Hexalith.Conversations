@@ -27,6 +27,8 @@
     <Project Path="tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj" />
+    <Project Path="tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj" />
+    <Project Path="tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj" />
   </Folder>
 </Solution>

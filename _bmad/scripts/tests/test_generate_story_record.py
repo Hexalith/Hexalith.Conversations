@@ -10050,5 +10050,55 @@ def test_story92_only_known_generated_metadata_is_exempt(tmp_path: Path) -> None
     assert not story92._known_generated_metadata(tmp_path, project, path)
 
 
+def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path, monkeypatch) -> None:
+    generator = load_generator()
+    candidate = "a" * 40
+    contract_path = "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"
+    helper = "Hexalith.Conversations.TestSupport"
+    tests = helper + ".Tests"
+    blobs = {
+        contract_path: b"contract",
+        f"tests/{helper}/{helper}.csproj": (
+            b'<Project><PropertyGroup><IsPackable>false</IsPackable>'
+            b'<IsPublishable>false</IsPublishable></PropertyGroup></Project>'
+        ),
+        f"tests/{tests}/{tests}.csproj": (
+            b'<Project><PropertyGroup><IsPackable>false</IsPackable>'
+            b'<IsPublishable>false</IsPublishable></PropertyGroup><ItemGroup>'
+            b'<ProjectReference Include="..\\Hexalith.Conversations.TestSupport\\'
+            b'Hexalith.Conversations.TestSupport.csproj" /></ItemGroup></Project>'
+        ),
+    }
+    for name in (helper, tests):
+        binary = tmp_path / f"tests/{name}/bin/Release/net10.0/{name}.dll"
+        binary.parent.mkdir(parents=True)
+        binary.write_bytes(b"candidate binary")
+    monkeypatch.setattr(generator, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
+    monkeypatch.setattr(generator, "v2_verified_predecessor", lambda _repo, _rev, story, *_: story * 32)
+    monkeypatch.setattr(generator, "v2_parse_json", lambda content: {
+        "summary": {"required": 1, "passed": 1, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0},
+        "scenarios": [{"result": "PASS"}], "candidate": {"commit": "b" * 40},
+    })
+    monkeypatch.setattr(generator, "is_ancestor", lambda *_: True)
+    monkeypatch.setattr(generator, "dotnet_source_revisions", lambda _bytes: [candidate])
+    scenario_records = {
+        f"AC-10.1-0{number}": {"result": "PASS", "resultFile": {
+            "path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx", "sha256": "c" * 64}}
+        for number in range(2, 7)
+    }
+    contract = {"inventory": {"id": "V9-10.1-ENTRY-v1", "sha256":
+                "74c4c5e9e70cb86648dc753c5edc97bdb8d598ad2a4aba55d3670794e990ca84"},
+                "predecessors": ["7.4", "9.2"]}
+    facts = generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, scenario_records, None)
+    assert facts["sourceRevisionId"] == candidate
+    assert len(facts["predecessorRecords"]) == 2
+    assert len(facts["projects"]) == 2
+    assert len(facts["results"]) == 5
+    scenario_records["AC-10.1-06"]["resultFile"]["path"] = "foreign.trx"
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, scenario_records, None)
+    assert "TEST_RESULTS_MISSING" in {row["code"] for row in error.value.findings}
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))

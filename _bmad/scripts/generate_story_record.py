@@ -3039,6 +3039,7 @@ V2_CALLER_FACT_OPTIONS = frozenset(
 # codes describe an environment that cannot support a trustworthy record;
 # everything else is a proven `FAIL`.
 V2_CODES = {
+    "TEST_SUPPORT_BOUNDARY_INVALID": "FAIL",
     "PORTABLE_TIER_NONPORTABLE_REFERENCE": "FAIL",
     "RESOLVED_COMPILE_SURFACE_INVALID": "FAIL",
     "ASSERTION_INVENTORY_DRIFT": "FAIL",
@@ -4493,6 +4494,24 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
             lines.extend("| " + " | ".join(code(value) for value in (
                 row["commit"], row["parent"], ", ".join(link["path"] for link in row["changedGitlinks"]))) + " |"
                          for row in environment["promotionCommits"])
+    if "testSupportExecution" in record:
+        support = record["testSupportExecution"]
+        lines.extend(["", "## Story 10.1 TestSupport execution", "",
+                      f"- Candidate: {code(support['sourceRevisionId'])}",
+                      f"- Candidate rule: {markdown_table_text(support['bindingRule'])}",
+                      f"- Frozen inventory SHA-256: {code(support['inventorySha256'])}",
+                      f"- Contract SHA-256: {code(support['contract']['sha256'])}",
+                      "", "| Predecessor | Record SHA-256 |", "| --- | --- |"])
+        lines.extend(f"| {code(row['storyId'])} | {code(row['sha256'])} |"
+                     for row in support["predecessorRecords"])
+        lines.extend(["", "| Project | Project SHA-256 | Assembly | Assembly SHA-256 |",
+                      "| --- | --- | --- | --- |"])
+        lines.extend(f"| {code(row['project']['path'])} | {code(row['project']['sha256'])} "
+                     f"| {code(row['assembly']['path'])} | {code(row['assembly']['sha256'])} |"
+                     for row in support["projects"])
+        lines.extend(["", "| Result | SHA-256 |", "| --- | --- |"])
+        lines.extend(f"| {code(row['path'])} | {code(row['sha256'])} |"
+                     for row in support["results"])
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
     if faults and record["storyId"] in ("7.4", "8.2", "9.1", "9.2"):
@@ -5351,6 +5370,95 @@ def v2_verified_predecessor(
     except (UnicodeDecodeError, ValueError, AttributeError, KeyError, TypeError):
         return None
     return v2_sha256(json_bytes)
+
+
+def v2_10_1_facts(
+    repository: Path, candidate: str, contract_path: str,
+    contract: dict[str, Any], scenario_records: dict[str, dict[str, Any]],
+    validator: Any,
+) -> dict[str, Any]:
+    """Bind the two neutral projects, five measured results, and hard entry records."""
+    findings: list[dict[str, str]] = []
+    predecessors = []
+    for story_id in ("7.4", "9.2"):
+        json_path = f"docs/release-evidence/story-{story_id}-final-record-v2.json"
+        markdown_path = f"docs/release-evidence/story-{story_id}-final-record-v2.md"
+        digest = v2_verified_predecessor(repository, candidate, story_id, json_path,
+                                         markdown_path, validator)
+        if digest is None:
+            findings.append(v2_finding("AUTHORITY_BINDING_INVALID", json_path,
+                                       "the committed predecessor pair is missing or invalid"))
+            continue
+        previous = v2_parse_json(v2_committed_blob(repository, candidate, json_path) or b"")
+        summary = previous["summary"]
+        if (summary["passed"] != summary["required"] or any(summary[key] for key in
+                ("failed", "blocked", "skipped", "notRun"))
+                or any(row["result"] != "PASS" for row in previous["scenarios"])):
+            findings.append(v2_finding("AUTHORITY_BINDING_INVALID", json_path,
+                                       "the predecessor is not passing"))
+        predecessors.append({"storyId": story_id, "path": json_path, "sha256": digest})
+
+    inventory_digest = v2_sha256(b"V8-6.10-AC1\nV8-6.10-AC2\n")
+    if (contract["inventory"] != {"id": "V9-10.1-ENTRY-v1", "sha256": inventory_digest}
+            or contract["predecessors"] != ["7.4", "9.2"]):
+        findings.append(v2_finding("ASSERTION_INVENTORY_DRIFT", contract_path,
+                                   "the frozen entry inventory or predecessor order changed"))
+
+    projects = []
+    for name in ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests"):
+        path = f"tests/{name}/{name}.csproj"
+        assembly_path = f"tests/{name}/bin/Release/net10.0/{name}.dll"
+        project = v2_committed_blob(repository, candidate, path)
+        assembly_file = repository / assembly_path
+        if project is None or not assembly_file.is_file() or assembly_file.is_symlink():
+            findings.append(v2_finding("TEST_RESULTS_MISSING", path,
+                                       "a TestSupport project or candidate assembly is missing"))
+            continue
+        try:
+            tree = ElementTree.fromstring(project)
+            if (tree.findtext("./PropertyGroup/IsPackable") != "false"
+                    or tree.findtext("./PropertyGroup/IsPublishable") != "false"):
+                raise ValueError("a TestSupport project is packable or publishable")
+            if name == "Hexalith.Conversations.TestSupport" and tree.findall(".//ProjectReference"):
+                raise ValueError("the neutral helper has a project dependency")
+            if name.endswith(".Tests"):
+                refs = [row.attrib.get("Include") for row in tree.findall(".//ProjectReference")]
+                if refs != [r"..\Hexalith.Conversations.TestSupport\Hexalith.Conversations.TestSupport.csproj"]:
+                    raise ValueError("the tests do not reference exactly the neutral helper")
+            binary, _ = read_file_snapshot(assembly_file)
+            if dotnet_source_revisions(binary) != [candidate]:
+                raise ValueError("the assembly is not stamped by SC-10.1")
+        except (ElementTree.ParseError, ValueError, OSError) as error:
+            findings.append(v2_finding("TEST_SUPPORT_BOUNDARY_INVALID", path, str(error)))
+            continue
+        projects.append({
+            "project": {"path": path, "sha256": v2_sha256(project)},
+            "assembly": {"path": assembly_path, "sha256": v2_sha256(binary)},
+        })
+
+    results = []
+    for number in range(2, 7):
+        scenario_id = f"AC-10.1-0{number}"
+        row = scenario_records.get(scenario_id, {})
+        expected = f"artifacts/v9/10.1/{scenario_id}.trx"
+        result = row.get("resultFile")
+        if row.get("result") != "PASS" or not isinstance(result, dict) or result.get("path") != expected:
+            findings.append(v2_finding("TEST_RESULTS_MISSING", scenario_id,
+                                       "the exact passing TRX result was not measured"))
+            continue
+        results.append(result)
+    if findings:
+        raise V2Stop(findings, "10.1")
+    contract_blob = v2_committed_blob(repository, candidate, contract_path) or b""
+    return {
+        "bindingRule": "SC-10.1 is HEAD^{commit} at first final-record generation",
+        "sourceRevisionId": candidate,
+        "contract": {"path": contract_path, "sha256": v2_sha256(contract_blob)},
+        "predecessorRecords": predecessors,
+        "inventorySha256": inventory_digest,
+        "projects": projects,
+        "results": results,
+    }
 
 
 def v2_story_7_3_workflow_integration(
@@ -7845,6 +7953,9 @@ def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> b
             repository, candidate, frozen_contract, validators["record"],
             **({"retained_record": True} if verify_spec is not None and candidate != head else {}))
         record["faultInjection"]["results"] = v2_9_2_faults(repository, candidate, validators["record"])
+    if story_id == "10.1":
+        record["testSupportExecution"] = v2_10_1_facts(
+            repository, candidate, contract_path, contract, scenario_records, validators["record"])
     if story_id == "8.2":
         v2_8_2_positive(repository, candidate, scenario_records["AC-8.2-01"])
         record["uxValidation"] = v2_8_2_facts(repository, candidate, contract, validators["record"])

@@ -1865,3 +1865,13 @@ The user approved the exact v6 packet on 2026-10-10. The [v6 Quality decision](.
 The user replied "I approve, apply recommended" to both decisions: the exact [v4 measured scope](../../_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-proposal-v4.json), material SHA-256 `f5dfa7f71b93bbb799559bbddef69464cd63d2a49dc8ffb127323c2e5e8f1c44`, for committed source `353e9dbf47a1472b29fe3f43d485a8ae3a03b884`, and the exact v7 Quality packet. The [v4 authorization](../../_bmad-output/planning-artifacts/v9/story-9.2-current-main-scope-authorization-v4.json) binds the exact six-commit chain, 28 net changed paths, seven root gitlinks, pair-only historical record retraction, and EventStore `3.119.0` catalog. The [v7 Quality approval](../release-evidence/conformance-oracle-tiering-migration-approval-v7.json) binds material SHA-256 `f23e3d3d005b82be76dbdc825cc7abf6da5e65cd98ef37a65674c035c4f7ec7b`. It expressly includes the incomplete dotnet-inspect additive comparisons for DomainService and ServiceDefaults; SDK binary compatibility checks pass for all four measured packages. Neither decision constitutes candidate acceptance.
 
 The additive `--successor-v4` verifier route remeasures v1 through v4 Git history, pins both decisions and the released API receipts, and compares live migration material with v7. The two changed portable compile assets name EventStore Client and Contracts `3.119.0`; all 14 assertion row digests and public drift remain bound. Until the decision and tooling files are committed into a source candidate, the explicit route must reject them with `SUCCESSOR_INPUT_NOT_COMMITTED`. After that commit, run the separate Release tier builds, AC01–09, the exact restored fault selector, and candidate-bound AC10 using the commands above. Publish the final pair and verify insertion only after all gates pass.
+
+### Story 10.1 TestSupport binding
+
+Story 10.1 derives `SC-10.1` from committed `HEAD`, verifies the passing
+Story 7.4 and 9.2 predecessor pairs, recomputes the frozen two-item inventory
+digest, and binds both TestSupport project and assembly hashes plus the five
+measured TRX hashes. `TEST_SUPPORT_BOUNDARY_INVALID` means a project is
+packable, publishable, references an unexpected project, or its assembly is not
+stamped by the candidate. Restore the neutral project boundary and rebuild the
+committed candidate before regenerating the pair.
