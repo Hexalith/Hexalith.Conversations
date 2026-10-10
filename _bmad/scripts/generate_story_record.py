@@ -4608,6 +4608,8 @@ def v2_verify_pair(json_bytes: bytes, markdown_bytes: bytes) -> list[str]:
             problems.append("Story 10.1 source revision differs from its candidate")
         elif not v2_10_1_exact_paths(support):
             problems.append("Story 10.1 artifact paths are not exact and distinct")
+        elif record.get("predecessors") != [row["storyId"] for row in support["predecessorRecords"]]:
+            problems.append("Story 10.1 predecessor list differs from the bound records")
     return problems
 
 
@@ -4622,10 +4624,16 @@ def v2_10_1_exact_paths(support: dict[str, Any]) -> bool:
             for name in names
         ]
         expected_results = [f"artifacts/v9/10.1/AC-10.1-0{number}.trx" for number in range(2, 7)]
+        expected_predecessors = [
+            (story, f"docs/release-evidence/story-{story}-final-record-v2.json")
+            for story in ("7.4", "9.2")
+        ]
         return (len(projects) == 2 and len(results) == 5
                 and [(row["project"]["path"], row["assembly"]["path"]) for row in projects] == expected_projects
-                and [row["path"] for row in results] == expected_results)
-    except (KeyError, TypeError):
+                and [row["path"] for row in results] == expected_results
+                and support["contract"]["path"] == "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"
+                and [(row["storyId"], row["path"]) for row in support["predecessorRecords"]] == expected_predecessors)
+    except (KeyError, TypeError, ValueError):
         return False
 
 

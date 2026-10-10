@@ -95,6 +95,8 @@ public sealed class GitFacts
             start.ArgumentList.Add("diff.ignoreSubmodules=none");
             start.ArgumentList.Add("-c");
             start.ArgumentList.Add("diff.renames=true");
+            start.ArgumentList.Add("-c");
+            start.ArgumentList.Add("diff.renameLimit=0");
         }
         foreach (string argument in commandArguments)
         {
@@ -168,7 +170,9 @@ public sealed class GitFacts
                     TerminateTree(process, job);
                     return GitFact<GitCommandResult>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_LIMIT_EXCEEDED", "Git output exceeded 16 MiB.");
                 }
-                return GitFact<GitCommandResult>.Ok(new(process.ExitCode, stdout.ToArray(), stderr.ToArray()));
+                GitCommandResult completed = new(process.ExitCode, stdout.ToArray(), stderr.ToArray());
+                TerminateTree(process, job);
+                return GitFact<GitCommandResult>.Ok(completed);
 
                 async Task CaptureAsync(Stream input, Stream output)
                 {
@@ -293,7 +297,7 @@ public sealed class GitFacts
             return GitFact<string>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", "Git returned malformed revision bytes.");
 
         string value = resolved!;
-        return value.EndsWith('\n') && IsObjectId(value[..^1])
+        return value.EndsWith('\n') && IsObjectId(value[..^1]) && !value[..^1].All(character => character == '0')
             ? GitFact<string>.Ok(value[..^1])
             : GitFact<string>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", "Git returned a malformed revision.");
     }
@@ -379,6 +383,13 @@ public sealed class GitFacts
                 throw new FormatException("Malformed or duplicate tree entry.");
             entries.Add(new(fields[0], fields[1], fields[2], path));
         }
+        foreach (string path in paths)
+        {
+            for (int slash = path.IndexOf('/'); slash >= 0; slash = path.IndexOf('/', slash + 1))
+            {
+                if (paths.Contains(path[..slash])) throw new FormatException("A tree file is the ancestor of another path.");
+            }
+        }
         return entries;
     }
 
@@ -421,9 +432,8 @@ public sealed class GitFacts
         int depth = 0;
         int parentNumber = 1;
         bool objectRevision = IsObjectId(revision);
-        bool secondParent = revision == "HEAD^2";
+        bool numberedParent = false;
         if (objectRevision) { }
-        else if (secondParent) parentNumber = 2;
         else if (revision.StartsWith("HEAD~", StringComparison.Ordinal))
         {
             string count = revision[5..];
@@ -435,7 +445,12 @@ public sealed class GitFacts
             string suffix = revision[5..];
             if (suffix.Length == 0) depth = 1;
             else if (suffix.All(character => character == '^')) depth = suffix.Length + 1;
-            else if (suffix == "1") depth = 1;
+            else if (suffix.Length > 0 && suffix[0] != '0' && suffix.All(char.IsAsciiDigit)
+                && int.TryParse(suffix, out int parsedParent) && parsedParent > 0)
+            {
+                if (parsedParent == 1) depth = 1;
+                else { parentNumber = parsedParent; numberedParent = true; }
+            }
             else return GitFact<bool>.Ok(false);
         }
         else return GitFact<bool>.Ok(false);
@@ -448,8 +463,8 @@ public sealed class GitFacts
         string[] commits = chainText[..^1].Split('\n');
         if (commits.Length == 0 || commits.Any(commit => !IsObjectId(commit)))
             return GitFact<bool>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", "Git returned a malformed ancestor chain.");
-        if (!objectRevision && !secondParent && depth < commits.Length) return GitFact<bool>.Ok(false);
-        string boundaryId = secondParent ? commits[0] : commits[^1];
+        if (!objectRevision && !numberedParent && depth < commits.Length) return GitFact<bool>.Ok(false);
+        string boundaryId = numberedParent ? commits[0] : commits[^1];
 
         GitFact<GitCommandResult> location = await RunAsync(root, ["rev-parse", "--git-path", "shallow"], cancellationToken).ConfigureAwait(false);
         if (!location.IsSuccess) return Forward<bool>(location);
@@ -511,9 +526,13 @@ public sealed class GitFacts
         {
             'A' => sourceAbsent && !destinationAbsent,
             'D' => !sourceAbsent && destinationAbsent,
-            'M' => !sourceAbsent && !destinationAbsent && sourceType == destinationType,
+            'M' => !sourceAbsent && !destinationAbsent && sourceType == destinationType
+                && (fields[0] != fields[1] || fields[2] != fields[3]),
             'T' => !sourceAbsent && !destinationAbsent && sourceType != destinationType,
-            'R' or 'C' => !sourceAbsent && !destinationAbsent && sourceType == destinationType,
+            'R' => !sourceAbsent && !destinationAbsent && sourceType == destinationType
+                && int.Parse(fields[4][1..], System.Globalization.CultureInfo.InvariantCulture) >= 50
+                && (fields[4] != "R100" || fields[2] == fields[3]),
+            'C' => !sourceAbsent && !destinationAbsent && sourceType == destinationType,
             _ => false,
         };
     }

@@ -46,6 +46,26 @@ public sealed class GitFactsTests
     }
 
     [Fact]
+    public async Task RunnerShouldTerminateDescendantAfterSuccessfulParentExit()
+    {
+        string pidFile = Path.Combine(Path.GetTempPath(), "gitfacts-success-child-" + Guid.NewGuid().ToString("N"));
+        string child = "import time\ntime.sleep(120)";
+        string script = "import os,subprocess,sys\np=subprocess.Popen([sys.executable,'-c'," + JsonSerializer.Serialize(child)
+            + "],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\nopen(" + JsonSerializer.Serialize(pidFile)
+            + ",'w').write(str(p.pid))";
+        try
+        {
+            GitFact<GitCommandResult> result = await PythonFacts(script).RunAsync(
+                Path.GetTempPath(), [], TestContext.Current.CancellationToken);
+            result.IsSuccess.ShouldBeTrue(result.Message);
+            result.Value!.ExitCode.ShouldBe(0);
+            await WaitForFileAsync(pidFile);
+            await WaitForExitAsync(ReadProcessIds(pidFile)[0]);
+        }
+        finally { File.Delete(pidFile); }
+    }
+
+    [Fact]
     public async Task RunnerShouldBoundAndCancelExecution()
     {
         typeof(GitFacts).GetField("CommandLimit", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
@@ -88,6 +108,8 @@ public sealed class GitFactsTests
         File.WriteAllText(Path.Combine(fixture.Root, "seed.txt"), "seed");
         string before = fixture.Commit();
         File.WriteAllBytes(Path.Combine(fixture.Root, unicode), bytes);
+        Directory.CreateDirectory(Path.Combine(fixture.Root, "nested"));
+        File.WriteAllBytes(Path.Combine(fixture.Root, "nested", "path.txt"), bytes);
         string? backslash = OperatingSystem.IsWindows() ? null : "literal\\backslash.txt";
         if (backslash is not null) File.WriteAllBytes(Path.Combine(fixture.Root, backslash), bytes);
         string after = fixture.Commit();
@@ -118,6 +140,7 @@ public sealed class GitFactsTests
             tree.IsSuccess.ShouldBeTrue(tree.Message);
             GitTreeEntry historical = tree.Value!.Single(item => item.Path == unicode);
             historical.Mode.ShouldBe("100644");
+            tree.Value!.Single(item => item.Path == "nested/path.txt").Mode.ShouldBe("100644");
             string replacementPath = Path.Combine(fixture.Root, "replacement.txt");
             File.WriteAllText(replacementPath, "replacement", Encoding.UTF8);
             string replacementId = fixture.Git("hash-object", "-w", replacementPath);
@@ -161,10 +184,17 @@ public sealed class GitFactsTests
                 + "sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode() if '--show-toplevel' in a else b' '+b'a'*40+b'\\n')";
             (await PythonFacts(malformedRevision).ResolveRevisionAsync(
                 fixture.Root, after, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
+            string zeroRevision = "import sys\na=sys.argv[1:]\n"
+                + "sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode() if '--show-toplevel' in a else b'0'*40+b'\\n')";
+            (await PythonFacts(zeroRevision).ResolveRevisionAsync(
+                fixture.Root, after, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
             foreach (string raw in new[]
             {
                 "b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R999\\0old\\0new\\0'",
                 "b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' A\\0path\\0'",
+                "b':100644 100644 '+b'a'*40+b' '+b'a'*40+b' M\\0path\\0'",
+                "b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R49\\0old\\0new\\0'",
+                "b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R100\\0old\\0new\\0'",
             })
             {
                 string malformedDiff = "import sys\na=sys.argv[1:]\n"
@@ -222,6 +252,7 @@ public sealed class GitFactsTests
             {
                 $"100644  blob {new string('a', 40)}\tpath\0",
                 $"100644 blob {new string('0', 40)}\tpath\0",
+                $"100644 blob {new string('a', 40)}\tpath\0100644 blob {new string('b', 40)}\tpath/child\0",
             })
             {
                 string treeScript = "import sys\na=sys.argv[1:]\n"
@@ -242,14 +273,23 @@ public sealed class GitFactsTests
             narrowBlob.Value!.Content.ShouldBe(Encoding.UTF8.GetBytes("small"));
             string renameSource = Path.Combine(fixture.Root, "rename-source.txt");
             File.WriteAllText(renameSource, "content to rename");
+            string secondRenameSource = Path.Combine(fixture.Root, "second-rename-source.txt");
+            File.WriteAllText(secondRenameSource, "second content to rename");
             string renameBefore = fixture.Commit();
             File.Move(renameSource, Path.Combine(fixture.Root, "rename-destination.txt"));
+            File.Move(secondRenameSource, Path.Combine(fixture.Root, "second-rename-destination.txt"));
             string renameAfter = fixture.Commit();
             fixture.Git("config", "diff.renames", "false");
+            fixture.Git("config", "diff.renameLimit", "1");
+            GitFact<GitCommandResult> pinnedLimit = await facts.RunAsync(
+                fixture.Root, ["config", "--get", "diff.renameLimit"], TestContext.Current.CancellationToken);
+            pinnedLimit.IsSuccess.ShouldBeTrue(pinnedLimit.Message);
+            pinnedLimit.Value!.Stdout.ShouldBe(Encoding.UTF8.GetBytes("0\n"));
             GitFact<IReadOnlyList<GitDiffEntry>> renamed = await facts.ReadDiffAsync(
                 fixture.Root, renameBefore, renameAfter, TestContext.Current.CancellationToken);
             renamed.IsSuccess.ShouldBeTrue(renamed.Message);
-            renamed.Value!.Single().Status.ShouldBe("R100");
+            renamed.Value!.Count.ShouldBe(2);
+            renamed.Value.All(item => item.Status == "R100").ShouldBeTrue();
         }
         finally
         {
@@ -347,6 +387,36 @@ public sealed class GitFactsTests
                         .Status.ShouldBe(GitFactStatus.Invalid);
                 }
                 finally { if (Directory.Exists(mergeClone)) Directory.Delete(mergeClone, recursive: true); }
+            }
+            using (GitFixture octopusFixture = new())
+            {
+                File.WriteAllText(Path.Combine(octopusFixture.Root, "base.txt"), "base");
+                octopusFixture.Commit();
+                string mainBranch = octopusFixture.Git("branch", "--show-current");
+                octopusFixture.Git("branch", "side-one");
+                octopusFixture.Git("branch", "side-two");
+                File.WriteAllText(Path.Combine(octopusFixture.Root, "main.txt"), "main");
+                octopusFixture.Commit();
+                octopusFixture.Git("checkout", "--quiet", "side-one");
+                File.WriteAllText(Path.Combine(octopusFixture.Root, "one.txt"), "one");
+                octopusFixture.Commit();
+                octopusFixture.Git("checkout", "--quiet", "side-two");
+                File.WriteAllText(Path.Combine(octopusFixture.Root, "two.txt"), "two");
+                octopusFixture.Commit();
+                octopusFixture.Git("checkout", "--quiet", mainBranch);
+                octopusFixture.Git("merge", "--quiet", "--no-ff", "-m", "octopus merge", "side-one", "side-two");
+                string octopusClone = Path.Combine(Path.GetTempPath(), "gitfacts-octopus-shallow-" + Guid.NewGuid().ToString("N"));
+                try
+                {
+                    string octopusUri = new Uri(octopusFixture.Root + Path.DirectorySeparatorChar).AbsoluteUri;
+                    (await facts.RunAsync(Path.GetTempPath(), ["clone", "--quiet", "--depth", "1", octopusUri, octopusClone],
+                        TestContext.Current.CancellationToken)).Value!.ExitCode.ShouldBe(0);
+                    (await facts.ResolveRevisionAsync(octopusClone, "HEAD^3", TestContext.Current.CancellationToken))
+                        .Status.ShouldBe(GitFactStatus.Unavailable);
+                    (await facts.ResolveRevisionAsync(octopusClone, "HEAD^4", TestContext.Current.CancellationToken))
+                        .Status.ShouldBe(GitFactStatus.Invalid);
+                }
+                finally { if (Directory.Exists(octopusClone)) Directory.Delete(octopusClone, recursive: true); }
             }
             fixture.Git("config", "uploadpack.allowFilter", "true");
             GitFact<GitCommandResult> partialClone = await facts.RunAsync(Path.GetTempPath(),

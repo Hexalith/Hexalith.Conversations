@@ -10205,7 +10205,12 @@ def test_story101_artifact_linked_parent_is_rejected(tmp_path: Path) -> None:
     outside = tmp_path / "outside"
     outside.mkdir()
     (outside / "result.trx").write_bytes(b"result")
-    (tmp_path / "linked").symlink_to(outside, target_is_directory=True)
+    try:
+        (tmp_path / "linked").symlink_to(outside, target_is_directory=True)
+    except (OSError, NotImplementedError) as error:
+        if os.name == "nt":
+            pytest.skip(f"Windows symlink privilege unavailable: {error}")
+        raise
     with pytest.raises(ValueError, match="linked artifact path"):
         generator.v2_10_1_artifact_bytes(tmp_path, "linked/result.trx")
 
@@ -10217,10 +10222,14 @@ def test_story101_pair_rejects_revision_and_artifact_path_conflicts(monkeypatch)
                              "assembly": {"path": f"tests/{name}/bin/Release/net10.0/{name}.dll"}}
                             for name in names],
                "results": [{"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx"}
-                           for number in range(2, 7)]}
+                           for number in range(2, 7)],
+               "contract": {"path": "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"},
+               "predecessorRecords": [{"storyId": story, "path": f"docs/release-evidence/story-{story}-final-record-v2.json"}
+                                      for story in ("7.4", "9.2")]}
     assert generator.v2_10_1_exact_paths(support)
     support["sourceRevisionId"] = "a" * 40
     record = {"storyId": "10.1", "candidate": {"commit": "a" * 40}, "testSupportExecution": support,
+              "predecessors": ["7.4", "9.2"],
               "outputs": {"json": {"sha256": generator.V2_ZERO_DIGEST},
                           "markdown": {"sha256": generator.V2_ZERO_DIGEST}},
               "renderedMarkdownSha256": generator.V2_ZERO_DIGEST}
@@ -10235,6 +10244,17 @@ def test_story101_pair_rejects_revision_and_artifact_path_conflicts(monkeypatch)
     assert not generator.v2_10_1_exact_paths(support)
     _, json_bytes, markdown_bytes = generator.v2_finalize(record)
     assert any("artifact paths" in value for value in generator.v2_verify_pair(json_bytes, markdown_bytes))
+    support["results"][4]["path"] = "artifacts/v9/10.1/AC-10.1-06.trx"
+    for changed, value in ((support["contract"], "other.json"),
+                           (support["predecessorRecords"][0], "other.json")):
+        original = changed["path"]
+        changed["path"] = value
+        _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+        assert any("artifact paths" in issue for issue in generator.v2_verify_pair(json_bytes, markdown_bytes))
+        changed["path"] = original
+    record["predecessors"] = ["9.2", "7.4"]
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert any("predecessor list" in issue for issue in generator.v2_verify_pair(json_bytes, markdown_bytes))
 
 
 def test_story101_inserted_verification_rederives_stale_artifact_binding(tmp_path: Path, monkeypatch) -> None:
@@ -10254,9 +10274,13 @@ def test_story101_inserted_verification_rederives_stale_artifact_binding(tmp_pat
                      for name in names],
         "results": [{"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx"}
                     for number in range(2, 7)],
+        "contract": {"path": contract_path},
+        "predecessorRecords": [{"storyId": story, "path": f"docs/release-evidence/story-{story}-final-record-v2.json"}
+                               for story in ("7.4", "9.2")],
     }
     record = {
         "storyId": "10.1", "candidate": {"commit": candidate},
+        "predecessors": ["7.4", "9.2"],
         "testSupportExecution": support,
         "outputs": {"json": {"path": json_path, "sha256": module.V2_ZERO_DIGEST},
                     "markdown": {"path": markdown_path, "sha256": module.V2_ZERO_DIGEST}},

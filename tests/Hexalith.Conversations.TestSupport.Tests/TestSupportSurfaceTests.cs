@@ -20,5 +20,7 @@ public sealed class TestSupportSurfaceTests
         AssertionLedger ledger = new();
         BoundaryAssertions.Equal(ledger, "proof", new string('a', 64), manifest.Digests["proof.json"]).ShouldBeTrue();
         ledger.Results.Count.ShouldBe(1);
+        ((IDictionary<string, string>)manifest.Digests).IsReadOnly.ShouldBeTrue();
+        ((IDictionary<string, bool>)ledger.Results).IsReadOnly.ShouldBeTrue();
     }
 }

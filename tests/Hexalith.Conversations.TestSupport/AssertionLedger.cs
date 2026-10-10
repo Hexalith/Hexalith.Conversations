@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+
 namespace Hexalith.Conversations.TestSupport;
 
 /// <summary>Records evaluated assertion identities and outcomes.</summary>
@@ -6,7 +8,7 @@ public sealed class AssertionLedger
     private readonly Dictionary<string, bool> _results = new(StringComparer.Ordinal);
 
     /// <summary>Evaluated assertion identities and pass states.</summary>
-    public IReadOnlyDictionary<string, bool> Results => _results;
+    public IReadOnlyDictionary<string, bool> Results => new ReadOnlyDictionary<string, bool>(_results);
 
     /// <summary>Adds exactly one evaluated assertion.</summary>
     public void Record(string identity, bool passed)

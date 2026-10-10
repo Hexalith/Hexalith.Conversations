@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+
 namespace Hexalith.Conversations.TestSupport;
 
 /// <summary>Neutral declaration of evidence paths and expected digests.</summary>
@@ -6,7 +8,7 @@ public sealed class EvidenceManifest
     private readonly Dictionary<string, string> _digests = new(StringComparer.Ordinal);
 
     /// <summary>Declared repository-relative paths and lowercase SHA-256 values.</summary>
-    public IReadOnlyDictionary<string, string> Digests => _digests;
+    public IReadOnlyDictionary<string, string> Digests => new ReadOnlyDictionary<string, string>(_digests);
 
     /// <summary>Adds a declaration without evaluating its evidence boundary.</summary>
     public void Add(string path, string sha256)
