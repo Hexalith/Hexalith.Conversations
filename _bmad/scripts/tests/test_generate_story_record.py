@@ -10104,7 +10104,7 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
     authority = {"epic": "epic-v10", "architecture": "architecture-v10", "planningCandidate": "c" * 40, "bundleDigest": "d" * 64}
     previous = {
         "summary": {"required": 1, "passed": 1, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0},
-        "scenarios": [{"result": "PASS", "assertionLedger": [{"state": "PASS"}]}],
+            "scenarios": [{"result": "PASS", "exitCode": 0, "assertionLedger": [{"state": "PASS"}]}],
         "candidate": {"commit": "b" * 40}, "authority": authority.copy(),
     }
     monkeypatch.setattr(generator, "v2_parse_json", lambda content: previous)
@@ -10247,12 +10247,17 @@ def test_story101_pair_rejects_revision_and_artifact_path_conflicts(monkeypatch)
                "results": [{"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx"}
                            for number in range(2, 7)],
                "contract": {"path": "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"},
+               "inventorySha256": "c" * 64,
                "predecessorRecords": [{"storyId": story, "path": f"docs/release-evidence/story-{story}-final-record-v2.json"}
                                       for story in ("7.4", "9.2")]}
     assert generator.v2_10_1_exact_paths(support)
     support["sourceRevisionId"] = "a" * 40
     record = {"storyId": "10.1", "candidate": {"commit": "a" * 40}, "testSupportExecution": support,
               "predecessors": ["7.4", "9.2"],
+              "inventory": {"sha256": "c" * 64},
+              "scenarios": [{"scenarioId": f"AC-10.1-0{number}", "result": "PASS", "exitCode": 0,
+                             "resultFile": {"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx"}}
+                            for number in range(2, 7)],
               "outputs": {"json": {"sha256": generator.V2_ZERO_DIGEST},
                           "markdown": {"sha256": generator.V2_ZERO_DIGEST}},
               "renderedMarkdownSha256": generator.V2_ZERO_DIGEST}
@@ -10280,6 +10285,57 @@ def test_story101_pair_rejects_revision_and_artifact_path_conflicts(monkeypatch)
     assert any("predecessor list" in issue for issue in generator.v2_verify_pair(json_bytes, markdown_bytes))
 
 
+def test_story101_pair_rejects_inventory_outcome_and_result_conflicts(monkeypatch) -> None:
+    generator = load_generator()
+    paths = [f"artifacts/v9/10.1/AC-10.1-0{number}.trx" for number in range(2, 7)]
+    names = ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests")
+    original = {
+        "storyId": "10.1", "candidate": {"commit": "a" * 40},
+        "inventory": {"sha256": "c" * 64},
+        "predecessors": ["7.4", "9.2"],
+        "scenarios": [{"scenarioId": f"AC-10.1-0{number}", "result": "PASS", "exitCode": 0,
+                       "resultFile": {"path": path}}
+                      for number, path in zip(range(2, 7), paths, strict=True)],
+        "testSupportExecution": {
+            "sourceRevisionId": "a" * 40,
+            "projects": [{"project": {"path": f"tests/{name}/{name}.csproj"},
+                          "assembly": {"path": f"tests/{name}/bin/Release/net10.0/{name}.dll"}}
+                         for name in names],
+            "results": [{"path": path} for path in paths],
+            "contract": {"path": "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"},
+            "inventorySha256": "c" * 64,
+            "predecessorRecords": [{"storyId": story, "path": f"docs/release-evidence/story-{story}-final-record-v2.json"}
+                                   for story in ("7.4", "9.2")],
+        },
+        "outputs": {"json": {"sha256": generator.V2_ZERO_DIGEST},
+                    "markdown": {"sha256": generator.V2_ZERO_DIGEST}},
+        "renderedMarkdownSha256": generator.V2_ZERO_DIGEST,
+    }
+    monkeypatch.setattr(generator, "v2_render_markdown", lambda *_: "record\n")
+    _, json_bytes, markdown_bytes = generator.v2_finalize(original)
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
+    for mutate, expected in (
+        (lambda row: row["inventory"].update(sha256="f" * 64), "inventory digest"),
+        (lambda row: row["scenarios"][1].update(exitCode=1), "nonzero exit"),
+        (lambda row: row["scenarios"][1]["resultFile"].update(path="other.trx"), "scenario result paths"),
+    ):
+        record = deepcopy(original)
+        mutate(record)
+        _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+        assert any(expected in problem for problem in generator.v2_verify_pair(json_bytes, markdown_bytes))
+
+
+def test_story101_predecessor_requires_positive_consistent_summary() -> None:
+    generator = load_generator()
+    previous = json.loads((WORKSPACE / "docs/release-evidence/story-7.4-final-record-v2.json").read_text())
+    assert generator.v2_10_1_predecessor_passes(previous)
+    previous["summary"]["required"] = previous["summary"]["passed"] = 0
+    assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["summary"]["required"] = previous["summary"]["passed"] = len(previous["scenarios"])
+    previous["scenarios"][0]["exitCode"] = 1
+    assert not generator.v2_10_1_predecessor_passes(previous)
+
+
 def test_story101_inserted_verification_rederives_stale_artifact_binding(tmp_path: Path, monkeypatch) -> None:
     module = load_generator()
     candidate = "a" * 40
@@ -10297,6 +10353,7 @@ def test_story101_inserted_verification_rederives_stale_artifact_binding(tmp_pat
                      for name in names],
         "results": [{"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx"}
                     for number in range(2, 7)],
+        "inventorySha256": "c" * 64,
         "contract": {"path": contract_path},
         "predecessorRecords": [{"storyId": story, "path": f"docs/release-evidence/story-{story}-final-record-v2.json"}
                                for story in ("7.4", "9.2")],
@@ -10304,6 +10361,10 @@ def test_story101_inserted_verification_rederives_stale_artifact_binding(tmp_pat
     record = {
         "storyId": "10.1", "candidate": {"commit": candidate},
         "predecessors": ["7.4", "9.2"],
+        "inventory": {"sha256": "c" * 64},
+        "scenarios": [{"scenarioId": f"AC-10.1-0{number}", "result": "PASS", "exitCode": 0,
+                       "resultFile": {"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx"}}
+                      for number in range(2, 7)],
         "testSupportExecution": support,
         "outputs": {"json": {"path": json_path, "sha256": module.V2_ZERO_DIGEST},
                     "markdown": {"path": markdown_path, "sha256": module.V2_ZERO_DIGEST}},

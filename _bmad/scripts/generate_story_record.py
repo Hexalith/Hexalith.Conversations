@@ -4610,6 +4610,20 @@ def v2_verify_pair(json_bytes: bytes, markdown_bytes: bytes) -> list[str]:
             problems.append("Story 10.1 artifact paths are not exact and distinct")
         elif record.get("predecessors") != [row["storyId"] for row in support["predecessorRecords"]]:
             problems.append("Story 10.1 predecessor list differs from the bound records")
+        inventory = record.get("inventory")
+        if not isinstance(support, dict) or not isinstance(inventory, dict) or inventory.get("sha256") != support.get("inventorySha256"):
+            problems.append("Story 10.1 inventory digest differs from the TestSupport binding")
+        scenarios = record.get("scenarios")
+        if not isinstance(scenarios, list) or not all(isinstance(row, dict) for row in scenarios):
+            problems.append("Story 10.1 scenarios are malformed")
+        else:
+            if any(row.get("result") == "PASS" and row.get("exitCode") != 0 for row in scenarios):
+                problems.append("Story 10.1 PASS scenario has a nonzero exit")
+            measured_paths = [(row.get("resultFile") or {}).get("path") for row in scenarios
+                              if row.get("scenarioId") in {f"AC-10.1-0{number}" for number in range(2, 7)}]
+            if (not isinstance(support, dict) or not isinstance(support.get("results"), list)
+                    or measured_paths != [row.get("path") for row in support["results"]]):
+                problems.append("Story 10.1 scenario result paths differ from the TestSupport binding")
     return problems
 
 
@@ -5468,6 +5482,19 @@ def v2_10_1_project_boundary(repository: Path, relative: str, helper: bool) -> N
             raise ValueError(f"malformed {configuration} MSBuild evaluation: {error}") from error
 
 
+def v2_10_1_predecessor_passes(record: dict[str, Any]) -> bool:
+    """Require nonempty, count-consistent passing predecessor scenarios."""
+    summary = record["summary"]
+    scenarios = record["scenarios"]
+    count = len(scenarios)
+    return (count > 0 and summary["required"] == summary["passed"] == count
+            and not any(summary[key] for key in ("failed", "blocked", "skipped", "notRun"))
+            and all(row["result"] == "PASS" and row["exitCode"] == 0
+                    and row.get("assertionLedger")
+                    and all(assertion.get("state") == "PASS" for assertion in row["assertionLedger"])
+                    for row in scenarios))
+
+
 def v2_10_1_facts(
     repository: Path, candidate: str, contract_path: str,
     contract: dict[str, Any], authority: dict[str, Any], scenario_records: dict[str, dict[str, Any]],
@@ -5491,11 +5518,7 @@ def v2_10_1_facts(
         compatible_authority = all(previous["authority"].get(key) == authority.get(key)
                                    for key in authority_keys)
         predecessor_candidate = previous["candidate"]["commit"]
-        if (summary["passed"] != summary["required"] or any(summary[key] for key in
-                ("failed", "blocked", "skipped", "notRun"))
-                or any(row["result"] != "PASS" or not row.get("assertionLedger")
-                       or any(assertion.get("state") != "PASS" for assertion in row["assertionLedger"])
-                       for row in previous["scenarios"])
+        if (not v2_10_1_predecessor_passes(previous)
                 or not compatible_authority
                 or try_resolve_commit(repository, predecessor_candidate) != predecessor_candidate):
             findings.append(v2_finding("AUTHORITY_BINDING_INVALID", json_path,

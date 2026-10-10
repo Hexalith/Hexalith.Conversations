@@ -95,6 +95,11 @@ public sealed class GitFactsTests
             GitFact<GitCommandResult> timedOut = await timingOut;
             timedOut.Status.ShouldBe(GitFactStatus.Timeout);
             await WaitForExitAsync(timedOutStarted[1]);
+            GitFact<GitCommandResult> defaultTimedOut = await PythonFacts("import time\ntime.sleep(120)")
+                .RunAsync(Path.GetTempPath(), [], TestContext.Current.CancellationToken)
+                .WaitAsync(TimeSpan.FromSeconds(45), TestContext.Current.CancellationToken);
+            defaultTimedOut.Status.ShouldBe(GitFactStatus.Timeout);
+            defaultTimedOut.Code.ShouldBe("GIT_TIMEOUT");
         }
         finally { File.Delete(pidFile); }
     }
@@ -120,6 +125,7 @@ public sealed class GitFactsTests
             ["GIT_CONFIG_KEY_0"] = Environment.GetEnvironmentVariable("GIT_CONFIG_KEY_0"),
             ["GIT_CONFIG_VALUE_0"] = Environment.GetEnvironmentVariable("GIT_CONFIG_VALUE_0"),
             ["GIT_CONFIG_GLOBAL"] = Environment.GetEnvironmentVariable("GIT_CONFIG_GLOBAL"),
+            ["GIT_OBJECT_DIRECTORY"] = Environment.GetEnvironmentVariable("GIT_OBJECT_DIRECTORY"),
         };
         try
         {
@@ -128,6 +134,7 @@ public sealed class GitFactsTests
             Environment.SetEnvironmentVariable("GIT_CONFIG_KEY_0", "core.quotePath");
             Environment.SetEnvironmentVariable("GIT_CONFIG_VALUE_0", "true");
             Environment.SetEnvironmentVariable("GIT_CONFIG_GLOBAL", Path.Combine(Path.GetTempPath(), "missing-git-config"));
+            Environment.SetEnvironmentVariable("GIT_OBJECT_DIRECTORY", Path.Combine(Path.GetTempPath(), "wrong-object-directory"));
             GitFacts facts = new();
             (await facts.ResolveRevisionAsync(fixture.Root, after, TestContext.Current.CancellationToken)).Value.ShouldBe(after);
             GitFact<IReadOnlyList<GitDiffEntry>> diff = await facts.ReadDiffAsync(fixture.Root, before, after, TestContext.Current.CancellationToken);
@@ -195,6 +202,9 @@ public sealed class GitFactsTests
                 "b':100644 100644 '+b'a'*40+b' '+b'a'*40+b' M\\0path\\0'",
                 "b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R49\\0old\\0new\\0'",
                 "b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R100\\0old\\0new\\0'",
+                "b':100644 100644 '+b'a'*40+b' '+b'a'*40+b' R75\\0old\\0new\\0'",
+                "b':100644 100644 '+b'a'*40+b' '+b'a'*40+b' R100\\0same\\0same\\0'",
+                "b':100644 100644 '+b'a'*40+b' '+b'a'*40+b' C100\\0old\\0copy\\0'",
             })
             {
                 string malformedDiff = "import sys\na=sys.argv[1:]\n"
@@ -347,6 +357,23 @@ public sealed class GitFactsTests
             (await facts.ResolveRevisionAsync(shallowPath, "misspelled", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
             (await facts.ResolveRevisionAsync(shallowPath, "HEAD~bogus", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
             (await facts.ResolveRevisionAsync(shallowPath, new string('f', 40), TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
+            string largeShallow = Path.Combine(Path.GetTempPath(), "gitfacts-large-shallow-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                using (FileStream file = File.Create(largeShallow)) file.SetLength(16 * 1024 * 1024 + 1);
+                string rootLiteral = JsonSerializer.Serialize(fixture.Root);
+                string fake = "import sys\na=sys.argv[1:]\n"
+                    + "if '--show-toplevel' in a: print(" + rootLiteral + ")\n"
+                    + "elif '--verify' in a: sys.exit(1)\n"
+                    + "elif '--is-shallow-repository' in a: print('true')\n"
+                    + "elif 'rev-list' in a: print('a'*40)\n"
+                    + "elif '--git-path' in a: print(" + JsonSerializer.Serialize(largeShallow) + ")\n";
+                GitFact<string> overLimit = await PythonFacts(fake).ResolveRevisionAsync(
+                    fixture.Root, "HEAD~1", TestContext.Current.CancellationToken);
+                overLimit.Status.ShouldBe(GitFactStatus.Invalid);
+                overLimit.Code.ShouldBe("GIT_OUTPUT_LIMIT_EXCEEDED");
+            }
+            finally { File.Delete(largeShallow); }
             using (GitFixture rootFixture = new())
             {
                 File.WriteAllText(Path.Combine(rootFixture.Root, "only.txt"), "only");

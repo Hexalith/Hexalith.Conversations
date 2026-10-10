@@ -33,6 +33,39 @@ jobs:
       aspire-continue-on-error: false
       aspire-timeout-minutes: 20
 
+  testsupport-windows:
+    name: ci / TestSupport Windows descendant cleanup
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+          submodules: false
+
+      - name: Initialize root-declared build dependency
+        run: git submodule update --init -- references/Hexalith.Builds
+
+      - name: Initialize .NET
+        uses: actions/setup-dotnet@v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Set up Python for the process fixture
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Build TestSupport tests
+        run: dotnet build tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj --configuration Release
+
+      - name: Prove successful-parent descendant cleanup
+        run: >-
+          dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll
+          -automated sync -failSkips
+          -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldTerminateDescendantAfterSuccessfulParentExit
+
   repository:
     name: ci / repository
     runs-on: ubuntu-latest

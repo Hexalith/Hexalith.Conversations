@@ -319,6 +319,7 @@ public sealed class GitFacts
             HashSet<string> paths = new(StringComparer.Ordinal);
             for (int i = 0; i < tokens.Length - 1;)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 string header = tokens[i++];
                 if (!header.StartsWith(':') || header.StartsWith("::", StringComparison.Ordinal)) throw new FormatException("Malformed raw diff header.");
                 string[] fields = header[1..].Split(' ', StringSplitOptions.None);
@@ -335,6 +336,7 @@ public sealed class GitFacts
 
                 if (!IsDiffMode(fields[0]) || !IsDiffMode(fields[1]) || !IsObjectId(fields[2]) || !IsObjectId(fields[3])
                     || !IsDiffStatus(fields[4]) || !IsDiffRelation(fields) || string.IsNullOrEmpty(original) || string.IsNullOrEmpty(path)
+                    || (sourcePath is not null && sourcePath == path)
                     || !RepositoryLocator.ResolveHistoricalPath(repository, original).IsSuccess
                     || !RepositoryLocator.ResolveHistoricalPath(repository, path).IsSuccess
                     || !paths.Add(path)) throw new FormatException("Malformed raw diff mode, status, object, or path.");
@@ -346,6 +348,10 @@ public sealed class GitFacts
         catch (Exception exception) when (exception is DecoderFallbackException or FormatException)
         {
             return GitFact<IReadOnlyList<GitDiffEntry>>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", exception.Message);
+        }
+        catch (OperationCanceledException)
+        {
+            return GitFact<IReadOnlyList<GitDiffEntry>>.Fail(GitFactStatus.Cancelled, "GIT_CANCELLED", "The caller cancelled diff parsing.");
         }
     }
 
@@ -359,20 +365,25 @@ public sealed class GitFacts
         if (result.Value!.ExitCode != 0) return GitFact<IReadOnlyList<GitTreeEntry>>.Fail(GitFactStatus.Unavailable, "HISTORY_UNAVAILABLE", "Git could not read the requested tree.");
         try
         {
-            return GitFact<IReadOnlyList<GitTreeEntry>>.Ok(ParseTree(repository, result.Value.Stdout));
+            return GitFact<IReadOnlyList<GitTreeEntry>>.Ok(ParseTree(repository, result.Value.Stdout, cancellationToken));
         }
         catch (Exception exception) when (exception is DecoderFallbackException or FormatException)
         {
             return GitFact<IReadOnlyList<GitTreeEntry>>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", exception.Message);
         }
+        catch (OperationCanceledException)
+        {
+            return GitFact<IReadOnlyList<GitTreeEntry>>.Fail(GitFactStatus.Cancelled, "GIT_CANCELLED", "The caller cancelled tree parsing.");
+        }
     }
 
-    private static IReadOnlyList<GitTreeEntry> ParseTree(string repository, byte[] bytes)
+    private static IReadOnlyList<GitTreeEntry> ParseTree(string repository, byte[] bytes, CancellationToken cancellationToken)
     {
         List<GitTreeEntry> entries = [];
         HashSet<string> paths = new(StringComparer.Ordinal);
         foreach (string token in DecodeTokens(bytes)[..^1])
         {
+            cancellationToken.ThrowIfCancellationRequested();
             int tab = token.IndexOf('\t');
             if (tab < 0) throw new FormatException("Malformed tree entry.");
             string[] fields = token[..tab].Split(' ', StringSplitOptions.None);
@@ -385,6 +396,7 @@ public sealed class GitFacts
         }
         foreach (string path in paths)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             for (int slash = path.IndexOf('/'); slash >= 0; slash = path.IndexOf('/', slash + 1))
             {
                 if (paths.Contains(path[..slash])) throw new FormatException("A tree file is the ancestor of another path.");
@@ -408,7 +420,7 @@ public sealed class GitFacts
         GitTreeEntry entry;
         try
         {
-            IReadOnlyList<GitTreeEntry> entries = ParseTree(repository, tree.Value.Stdout);
+            IReadOnlyList<GitTreeEntry> entries = ParseTree(repository, tree.Value.Stdout, cancellationToken);
             if (entries.Count != 1 || entries[0].Path != path || entries[0].Type != "blob")
                 return GitFact<GitBlob>.Fail(GitFactStatus.Invalid, "BLOB_INVALID", path);
             entry = entries[0];
@@ -416,6 +428,10 @@ public sealed class GitFacts
         catch (Exception exception) when (exception is DecoderFallbackException or FormatException)
         {
             return GitFact<GitBlob>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", exception.Message);
+        }
+        catch (OperationCanceledException)
+        {
+            return GitFact<GitBlob>.Fail(GitFactStatus.Cancelled, "GIT_CANCELLED", "The caller cancelled blob tree parsing.");
         }
         GitFact<GitCommandResult> result = await RunAsync(repository, ["cat-file", "blob", entry.ObjectId], cancellationToken).ConfigureAwait(false);
         if (!result.IsSuccess) return Forward<GitBlob>(result);
@@ -474,8 +490,22 @@ public sealed class GitFacts
         try
         {
             string shallowPath = Path.GetFullPath(locationText[..^1], root);
-            string[] boundaries = StrictUtf8.GetString(File.ReadAllBytes(shallowPath)).Split('\n', StringSplitOptions.RemoveEmptyEntries);
+            using FileStream shallow = File.OpenRead(shallowPath);
+            using MemoryStream buffer = new();
+            byte[] chunk = new byte[8192];
+            int count;
+            while ((count = await shallow.ReadAsync(chunk, cancellationToken).ConfigureAwait(false)) != 0)
+            {
+                if (buffer.Length + count > OutputByteLimit)
+                    return GitFact<bool>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_LIMIT_EXCEEDED", "The shallow boundary file exceeded 16 MiB.");
+                buffer.Write(chunk, 0, count);
+            }
+            string[] boundaries = StrictUtf8.GetString(buffer.ToArray()).Split('\n', StringSplitOptions.RemoveEmptyEntries);
             if (!boundaries.Contains(boundaryId, StringComparer.Ordinal)) return GitFact<bool>.Ok(false);
+        }
+        catch (OperationCanceledException)
+        {
+            return GitFact<bool>.Fail(GitFactStatus.Cancelled, "GIT_CANCELLED", "The caller cancelled the shallow boundary read.");
         }
         catch (Exception exception) when (exception is ArgumentException or IOException or UnauthorizedAccessException or DecoderFallbackException)
         {
@@ -511,7 +541,7 @@ public sealed class GitFacts
     private static bool IsTreeMode(string mode, string type) => ((mode is "100644" or "100755" or "120000") && type == "blob")
         || (mode == "160000" && type == "commit");
     private static bool IsDiffStatus(string value) => value is "A" or "D" or "M" or "T"
-        || (value.Length is >= 2 and <= 4 && (value[0] is 'R' or 'C' or 'M') && value[1..].All(char.IsAsciiDigit)
+        || (value.Length is >= 2 and <= 4 && (value[0] is 'R' or 'M') && value[1..].All(char.IsAsciiDigit)
             && int.Parse(value[1..], System.Globalization.CultureInfo.InvariantCulture) <= 100);
     private static bool IsDiffRelation(string[] fields)
     {
@@ -531,8 +561,7 @@ public sealed class GitFacts
             'T' => !sourceAbsent && !destinationAbsent && sourceType != destinationType,
             'R' => !sourceAbsent && !destinationAbsent && sourceType == destinationType
                 && int.Parse(fields[4][1..], System.Globalization.CultureInfo.InvariantCulture) >= 50
-                && (fields[4] != "R100" || fields[2] == fields[3]),
-            'C' => !sourceAbsent && !destinationAbsent && sourceType == destinationType,
+                && ((fields[4] == "R100") == (fields[2] == fields[3])),
             _ => false,
         };
     }
