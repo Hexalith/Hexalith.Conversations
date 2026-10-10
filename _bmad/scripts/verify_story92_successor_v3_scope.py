@@ -38,6 +38,10 @@ ALLOWED_LATER_PATHS = V2.ALLOWED_SUCCESSOR_PATHS | frozenset({
     "docs/release-evidence/conformance-oracle-tiering-migration-review-v6.md",
     "docs/release-evidence/conformance-oracle-tiering-migration-approval-v6.json",
 })
+RETAINED_RECORD_PAIR = frozenset({
+    "docs/release-evidence/story-9.2-final-record-v2.json",
+    "docs/release-evidence/story-9.2-final-record-v2.md",
+})
 QUALITY_PROPOSAL = "docs/release-evidence/conformance-oracle-tiering-migration-v6-proposal.json"
 QUALITY_PROPOSAL_SHA = "f07cf3dfbe526efad3a8965f6fe2b210b3e9368d852725c484ffc08018137503"
 QUALITY_REVIEW = "docs/release-evidence/conformance-oracle-tiering-migration-review-v6.md"
@@ -123,8 +127,16 @@ def validate(root: Path, candidate: str, *, committed: bool = True) -> dict[str,
     require(V2.root_gitlinks(root, candidate) == V2.root_gitlinks(root, BASE),
             "SUCCESSOR_SCOPE_DRIFT", "root gitlinks changed after the authorized v3 source")
     later = V2.touched_paths(root, BASE, candidate)
-    require(later <= ALLOWED_LATER_PATHS, "SUCCESSOR_SCOPE_DRIFT",
-            "unapproved post-v3 paths: " + ", ".join(sorted(later - ALLOWED_LATER_PATHS)))
+    require(later <= ALLOWED_LATER_PATHS | RETAINED_RECORD_PAIR, "SUCCESSOR_SCOPE_DRIFT",
+            "unapproved post-v3 paths: " + ", ".join(sorted(later - ALLOWED_LATER_PATHS - RETAINED_RECORD_PAIR)))
+    for revision in V2.git(root, "rev-list", "--reverse", f"{BASE}..{candidate}").splitlines():
+        parent = V2.git(root, "rev-parse", f"{revision}^1")
+        changed_paths = set(filter(None, V2.git(root, "diff", "--name-only", parent, revision).splitlines()))
+        if changed_paths & RETAINED_RECORD_PAIR:
+            require(changed_paths == RETAINED_RECORD_PAIR
+                    and all(V2.candidate_blob(root, parent, path) is not None for path in RETAINED_RECORD_PAIR)
+                    and all(V2.candidate_blob(root, revision, path) is None for path in RETAINED_RECORD_PAIR),
+                    "SUCCESSOR_SCOPE_DRIFT", "the historical final record must be retracted as a pair-only commit")
     package_pin = V2.candidate_blob(root, candidate, "Directory.Packages.props")
     require(package_pin is not None and b"<HexalithEventStoreVersion>3.118.0</HexalithEventStoreVersion>" in package_pin,
             "SUCCESSOR_ENVIRONMENT_DRIFT", "candidate released EventStore pin differs")
