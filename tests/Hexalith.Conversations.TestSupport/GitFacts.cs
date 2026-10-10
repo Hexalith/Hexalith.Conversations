@@ -269,6 +269,8 @@ public sealed class GitFacts
 
                 if (!IsDiffMode(fields[0]) || !IsDiffMode(fields[1]) || !IsObjectId(fields[2]) || !IsObjectId(fields[3])
                     || !IsDiffStatus(fields[4]) || string.IsNullOrEmpty(original) || string.IsNullOrEmpty(path)
+                    || !RepositoryLocator.ResolveHistoricalPath(repository, original).IsSuccess
+                    || !RepositoryLocator.ResolveHistoricalPath(repository, path).IsSuccess
                     || entries.Any(item => item.Path == path)) throw new FormatException("Malformed raw diff mode, status, object, or path.");
                 entries.Add(new(fields[0], fields[1], fields[2], fields[3], fields[4], path, sourcePath));
             }
@@ -299,7 +301,8 @@ public sealed class GitFacts
                 string[] fields = token[..tab].Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 string path = token[(tab + 1)..];
                 if (fields.Length != 3 || !IsTreeMode(fields[0], fields[1]) || !IsObjectId(fields[2])
-                    || string.IsNullOrEmpty(path) || entries.Any(item => item.Path == path))
+                    || string.IsNullOrEmpty(path) || !RepositoryLocator.ResolveHistoricalPath(repository, path).IsSuccess
+                    || entries.Any(item => item.Path == path))
                     throw new FormatException("Malformed or duplicate tree entry.");
                 entries.Add(new(fields[0], fields[1], fields[2], path));
             }

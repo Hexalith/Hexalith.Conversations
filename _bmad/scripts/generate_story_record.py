@@ -5473,13 +5473,17 @@ def v2_10_1_facts(
             continue
         previous = v2_parse_json(v2_committed_blob(repository, candidate, json_path) or b"")
         summary = previous["summary"]
+        authority_keys = ("epic", "architecture", "planningCandidate")
+        compatible_authority = all(previous["authority"].get(key) == contract["authority"].get(key)
+                                   for key in authority_keys)
+        predecessor_candidate = previous["candidate"]["commit"]
         if (summary["passed"] != summary["required"] or any(summary[key] for key in
                 ("failed", "blocked", "skipped", "notRun"))
                 or any(row["result"] != "PASS" for row in previous["scenarios"])
-                or not is_ancestor(repository, previous["candidate"]["commit"], candidate)
-                or previous["candidate"]["commit"] == candidate):
+                or not compatible_authority
+                or try_resolve_commit(repository, predecessor_candidate) != predecessor_candidate):
             findings.append(v2_finding("AUTHORITY_BINDING_INVALID", json_path,
-                                       "the predecessor is not passing or is not an ancestor"))
+                                       "the predecessor is not passing, has mismatched authority, or has an unresolvable candidate"))
         predecessors.append({"storyId": story_id, "path": json_path, "sha256": digest})
 
     inventory_digest = v2_sha256(b"V8-6.10-AC1\nV8-6.10-AC2\n")

@@ -32,25 +32,29 @@ public sealed class GitFactsTests
             .GetValue(null).ShouldBe(TimeSpan.FromSeconds(30));
         string pidFile = Path.Combine(Path.GetTempPath(), "gitfacts-pid-" + Guid.NewGuid().ToString("N"));
         string child = "import time\ntime.sleep(120)";
-        string script = "import subprocess,sys\np=subprocess.Popen([sys.executable,'-c'," + JsonSerializer.Serialize(child)
-            + "])\nopen(" + JsonSerializer.Serialize(pidFile) + ",'w').write(str(p.pid))";
+        string script = "import os,subprocess,sys\np=subprocess.Popen([sys.executable,'-c'," + JsonSerializer.Serialize(child)
+            + "])\nopen(" + JsonSerializer.Serialize(pidFile) + ",'w').write(str(os.getpid())+','+str(p.pid))";
         try
         {
             using CancellationTokenSource cancellation = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
             Task<GitFact<GitCommandResult>> running = PythonFacts(script).RunAsync(Path.GetTempPath(), [], cancellation.Token);
             await WaitForFileAsync(pidFile);
-            int childPid = int.Parse(File.ReadAllText(pidFile), System.Globalization.CultureInfo.InvariantCulture);
+            int[] started = ReadProcessIds(pidFile);
+            await WaitForExitAsync(started[0]);
             cancellation.Cancel();
             GitFact<GitCommandResult> cancelled = await running;
             cancelled.Status.ShouldBe(GitFactStatus.Cancelled);
             cancelled.Value.ShouldBeNull();
-            await WaitForExitAsync(childPid);
+            await WaitForExitAsync(started[1]);
             File.Delete(pidFile);
-            GitFact<GitCommandResult> timedOut = await PythonFacts(script).RunAsync(
-                Path.GetTempPath(), [], TestContext.Current.CancellationToken, TimeSpan.FromMilliseconds(400));
-            timedOut.Status.ShouldBe(GitFactStatus.Timeout);
+            Task<GitFact<GitCommandResult>> timingOut = PythonFacts(script).RunAsync(
+                Path.GetTempPath(), [], TestContext.Current.CancellationToken, TimeSpan.FromSeconds(2));
             await WaitForFileAsync(pidFile);
-            await WaitForExitAsync(int.Parse(File.ReadAllText(pidFile), System.Globalization.CultureInfo.InvariantCulture));
+            int[] timedOutStarted = ReadProcessIds(pidFile);
+            await WaitForExitAsync(timedOutStarted[0]);
+            GitFact<GitCommandResult> timedOut = await timingOut;
+            timedOut.Status.ShouldBe(GitFactStatus.Timeout);
+            await WaitForExitAsync(timedOutStarted[1]);
         }
         finally { File.Delete(pidFile); }
     }
@@ -213,6 +217,9 @@ public sealed class GitFactsTests
     }
 
     private static GitFacts PythonFacts(string source) => new(Python, ["-c", source], includeGitPreamble: false);
+
+    private static int[] ReadProcessIds(string path) => File.ReadAllText(path).Split(',')
+        .Select(value => int.Parse(value, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
 
     private static async Task WaitForFileAsync(string path)
     {

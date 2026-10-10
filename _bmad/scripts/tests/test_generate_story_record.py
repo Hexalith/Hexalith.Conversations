@@ -10078,11 +10078,13 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
         binary.write_bytes(b"candidate binary")
     monkeypatch.setattr(generator, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
     monkeypatch.setattr(generator, "v2_verified_predecessor", lambda _repo, _rev, story, *_: story * 32)
-    monkeypatch.setattr(generator, "v2_parse_json", lambda content: {
+    authority = {"epic": "epic-v10", "architecture": "architecture-v10", "planningCandidate": "c" * 40}
+    previous = {
         "summary": {"required": 1, "passed": 1, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0},
-        "scenarios": [{"result": "PASS"}], "candidate": {"commit": "b" * 40},
-    })
-    monkeypatch.setattr(generator, "is_ancestor", lambda *_: True)
+        "scenarios": [{"result": "PASS"}], "candidate": {"commit": "b" * 40}, "authority": authority.copy(),
+    }
+    monkeypatch.setattr(generator, "v2_parse_json", lambda content: previous)
+    monkeypatch.setattr(generator, "try_resolve_commit", lambda _repo, revision: revision)
     monkeypatch.setattr(generator, "v2_10_1_project_boundary", lambda *_: None)
     monkeypatch.setattr(generator, "dotnet_source_revisions", lambda _bytes: [candidate])
     scenario_records = {}
@@ -10095,7 +10097,7 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
             "path": path, "sha256": generator.v2_sha256(b"passing result")}}
     contract = {"inventory": {"id": "V9-10.1-ENTRY-v1", "sha256":
                 "74c4c5e9e70cb86648dc753c5edc97bdb8d598ad2a4aba55d3670794e990ca84"},
-                "predecessors": ["7.4", "9.2"]}
+                "predecessors": ["7.4", "9.2"], "authority": authority}
     facts = generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, scenario_records, None)
     assert facts["sourceRevisionId"] == candidate
     assert len(facts["predecessorRecords"]) == 2
@@ -10107,7 +10109,12 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
     assert "TEST_RESULTS_MISSING" in {row["code"] for row in error.value.findings}
 
     scenario_records["AC-10.1-06"]["resultFile"]["path"] = "artifacts/v9/10.1/AC-10.1-06.trx"
-    monkeypatch.setattr(generator, "is_ancestor", lambda *_: False)
+    previous["authority"] = {**authority, "architecture": "foreign-architecture"}
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, scenario_records, None)
+    assert "AUTHORITY_BINDING_INVALID" in {row["code"] for row in error.value.findings}
+    previous["authority"] = authority.copy()
+    monkeypatch.setattr(generator, "try_resolve_commit", lambda *_: None)
     with pytest.raises(generator.V2Stop) as error:
         generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, scenario_records, None)
     assert "AUTHORITY_BINDING_INVALID" in {row["code"] for row in error.value.findings}
