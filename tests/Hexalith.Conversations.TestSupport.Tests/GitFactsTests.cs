@@ -25,6 +25,13 @@ public sealed class GitFactsTests
             Path.GetTempPath(), [], TestContext.Current.CancellationToken);
         overflow.Status.ShouldBe(GitFactStatus.Invalid);
         overflow.Code.ShouldBe("GIT_OUTPUT_LIMIT_EXCEEDED");
+        string lateWriter = "import os,subprocess,sys\nsubprocess.Popen([sys.executable,'-c',"
+            + JsonSerializer.Serialize("import sys\nsys.stdout.buffer.write(b'x'*(17*1024*1024))\nsys.stdout.flush()")
+            + "],stderr=subprocess.DEVNULL)";
+        GitFact<GitCommandResult> afterParentExit = await PythonFacts(lateWriter).RunAsync(
+            Path.GetTempPath(), [], TestContext.Current.CancellationToken);
+        afterParentExit.Status.ShouldBe(GitFactStatus.Invalid);
+        afterParentExit.Code.ShouldBe("GIT_OUTPUT_LIMIT_EXCEEDED");
     }
 
     [Fact]
@@ -56,6 +63,31 @@ public sealed class GitFactsTests
         try
         {
             GitFact<GitCommandResult> result = await PythonFacts(script).RunAsync(
+                Path.GetTempPath(), [], TestContext.Current.CancellationToken);
+            result.IsSuccess.ShouldBeTrue(result.Message);
+            result.Value!.ExitCode.ShouldBe(0);
+            await WaitForFileAsync(pidFile);
+            await WaitForExitAsync(ReadProcessIds(pidFile)[0]);
+        }
+        finally { File.Delete(pidFile); }
+    }
+
+    [Fact]
+    public async Task RunnerShouldTerminateOrphanedGrandchildAfterSuccessfulParentExit()
+    {
+        string pidFile = Path.Combine(Path.GetTempPath(), "gitfacts-grandchild-" + Guid.NewGuid().ToString("N"));
+        string grandchild = "import time\ntime.sleep(120)";
+        string child = "import subprocess,sys\np=subprocess.Popen([sys.executable,'-c',"
+            + JsonSerializer.Serialize(grandchild)
+            + "],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\nopen("
+            + JsonSerializer.Serialize(pidFile) + ",'w').write(str(p.pid))";
+        string parent = "import os,subprocess,sys,time\nsubprocess.Popen([sys.executable,'-c',"
+            + JsonSerializer.Serialize(child)
+            + "],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\nfor _ in range(100):\n"
+            + " if os.path.exists(" + JsonSerializer.Serialize(pidFile) + "): break\n time.sleep(.01)";
+        try
+        {
+            GitFact<GitCommandResult> result = await PythonFacts(parent).RunAsync(
                 Path.GetTempPath(), [], TestContext.Current.CancellationToken);
             result.IsSuccess.ShouldBeTrue(result.Message);
             result.Value!.ExitCode.ShouldBe(0);
@@ -126,6 +158,7 @@ public sealed class GitFactsTests
             ["GIT_CONFIG_VALUE_0"] = Environment.GetEnvironmentVariable("GIT_CONFIG_VALUE_0"),
             ["GIT_CONFIG_GLOBAL"] = Environment.GetEnvironmentVariable("GIT_CONFIG_GLOBAL"),
             ["GIT_OBJECT_DIRECTORY"] = Environment.GetEnvironmentVariable("GIT_OBJECT_DIRECTORY"),
+            ["GIT_GRAFT_FILE"] = Environment.GetEnvironmentVariable("GIT_GRAFT_FILE"),
         };
         try
         {
@@ -135,8 +168,30 @@ public sealed class GitFactsTests
             Environment.SetEnvironmentVariable("GIT_CONFIG_VALUE_0", "true");
             Environment.SetEnvironmentVariable("GIT_CONFIG_GLOBAL", Path.Combine(Path.GetTempPath(), "missing-git-config"));
             Environment.SetEnvironmentVariable("GIT_OBJECT_DIRECTORY", Path.Combine(Path.GetTempPath(), "wrong-object-directory"));
+            Environment.SetEnvironmentVariable("GIT_GRAFT_FILE", Path.Combine(Path.GetTempPath(), "wrong-graft-file"));
             GitFacts facts = new();
+            string envScript = "import json,os,sys\nkeys=['GIT_DIR','GIT_OBJECT_DIRECTORY','GIT_CONFIG_COUNT','GIT_CONFIG_KEY_0','GIT_CONFIG_VALUE_0','GIT_CONFIG_GLOBAL','GIT_CONFIG_NOSYSTEM','GIT_TERMINAL_PROMPT','GIT_NO_REPLACE_OBJECTS','GIT_NO_LAZY_FETCH','GIT_GRAFT_FILE']\nprint(json.dumps({k:os.environ.get(k) for k in keys}))";
+            GitFact<GitCommandResult> isolated = await PythonFacts(envScript).RunAsync(
+                fixture.Root, [], TestContext.Current.CancellationToken);
+            isolated.IsSuccess.ShouldBeTrue(isolated.Message);
+            using (JsonDocument environment = JsonDocument.Parse(isolated.Value!.Stdout))
+            {
+                JsonElement values = environment.RootElement;
+                values.GetProperty("GIT_DIR").ValueKind.ShouldBe(JsonValueKind.Null);
+                values.GetProperty("GIT_OBJECT_DIRECTORY").ValueKind.ShouldBe(JsonValueKind.Null);
+                values.GetProperty("GIT_CONFIG_KEY_0").ValueKind.ShouldBe(JsonValueKind.Null);
+                values.GetProperty("GIT_CONFIG_VALUE_0").ValueKind.ShouldBe(JsonValueKind.Null);
+                values.GetProperty("GIT_CONFIG_COUNT").GetString().ShouldBe("0");
+                values.GetProperty("GIT_CONFIG_NOSYSTEM").GetString().ShouldBe("1");
+                values.GetProperty("GIT_TERMINAL_PROMPT").GetString().ShouldBe("0");
+                values.GetProperty("GIT_NO_REPLACE_OBJECTS").GetString().ShouldBe("1");
+                values.GetProperty("GIT_NO_LAZY_FETCH").GetString().ShouldBe("1");
+                values.GetProperty("GIT_GRAFT_FILE").GetString().ShouldBe(OperatingSystem.IsWindows() ? "NUL" : "/dev/null");
+                values.GetProperty("GIT_CONFIG_GLOBAL").GetString().ShouldBe(OperatingSystem.IsWindows() ? "NUL" : "/dev/null");
+            }
             (await facts.ResolveRevisionAsync(fixture.Root, after, TestContext.Current.CancellationToken)).Value.ShouldBe(after);
+            File.WriteAllText(Path.Combine(fixture.Root, ".git", "info", "grafts"), after + "\n");
+            (await facts.ResolveRevisionAsync(fixture.Root, "HEAD~1", TestContext.Current.CancellationToken)).Value.ShouldBe(before);
             GitFact<IReadOnlyList<GitDiffEntry>> diff = await facts.ReadDiffAsync(fixture.Root, before, after, TestContext.Current.CancellationToken);
             diff.IsSuccess.ShouldBeTrue(diff.Message);
             GitDiffEntry entry = diff.Value!.Single(item => item.Path == unicode);
@@ -201,10 +256,15 @@ public sealed class GitFactsTests
                 "b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' A\\0path\\0'",
                 "b':100644 100644 '+b'a'*40+b' '+b'a'*40+b' M\\0path\\0'",
                 "b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R49\\0old\\0new\\0'",
-                "b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R100\\0old\\0new\\0'",
-                "b':100644 100644 '+b'a'*40+b' '+b'a'*40+b' R75\\0old\\0new\\0'",
+                "b':100644 100644 '+b'a'*40+b' '+b'a'*40+b' R075\\0old\\0new\\0'",
+                "b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R75\\0old\\0new\\0'",
+                "b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' M075\\0old\\0'",
                 "b':100644 100644 '+b'a'*40+b' '+b'a'*40+b' R100\\0same\\0same\\0'",
                 "b':100644 100644 '+b'a'*40+b' '+b'a'*40+b' C100\\0old\\0copy\\0'",
+                "b':000000 100644 '+b'0'*40+b' '+b'a'*40+b' A\\0../escape\\0'",
+                "b':000000 100644 '+b'0'*40+b' '+b'a'*40+b' A\\0/absolute\\0'",
+                "b':000000 100644 '+b'0'*40+b' '+b'a'*40+b' A\\0empty//segment\\0'",
+                "(b':000000 100644 '+b'0'*40+b' '+b'a'*40+b' A\\0duplicate\\0')*2",
             })
             {
                 string malformedDiff = "import sys\na=sys.argv[1:]\n"
@@ -216,12 +276,18 @@ public sealed class GitFactsTests
             string scoredRename = "import sys\na=sys.argv[1:]\n"
                 + "sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode() if '--show-toplevel' in a else "
                 + "(b'a'*40+b'\\n' if '--verify' in a else "
-                + "(b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R75\\0old\\0new\\0' if 'diff' in a else b'')))";
+                + "(b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R075\\0old\\0new\\0' if 'diff' in a else b'')))";
             GitFact<IReadOnlyList<GitDiffEntry>> validScore = await PythonFacts(scoredRename).ReadDiffAsync(
                 fixture.Root, before, after, TestContext.Current.CancellationToken);
             validScore.IsSuccess.ShouldBeTrue(validScore.Message);
             GitDiffEntry scoredEntry = validScore.Value!.Single();
-            scoredEntry.Status.ShouldBe("R75");
+            scoredEntry.Status.ShouldBe("R075");
+            string exactRename = "import sys\na=sys.argv[1:]\n"
+                + "sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode() if '--show-toplevel' in a else "
+                + "(b'a'*40+b'\\n' if '--verify' in a else "
+                + "(b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R100\\0old\\0new\\0' if 'diff' in a else b'')))";
+            (await PythonFacts(exactRename).ReadDiffAsync(
+                fixture.Root, before, after, TestContext.Current.CancellationToken)).IsSuccess.ShouldBeTrue();
             scoredEntry.SourcePath.ShouldBe("old");
             scoredEntry.Path.ShouldBe("new");
             foreach ((string sourceMode, string destinationMode, string status) in new[]
@@ -263,6 +329,7 @@ public sealed class GitFactsTests
                 $"100644  blob {new string('a', 40)}\tpath\0",
                 $"100644 blob {new string('0', 40)}\tpath\0",
                 $"100644 blob {new string('a', 40)}\tpath\0100644 blob {new string('b', 40)}\tpath/child\0",
+                $"100644 blob {new string('a', 40)}\t../escape\0",
             })
             {
                 string treeScript = "import sys\na=sys.argv[1:]\n"
@@ -320,11 +387,17 @@ public sealed class GitFactsTests
         (await facts.RunAsync(fixture.Root, null!, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
         (await facts.ResolveRevisionAsync(fixture.Root, "missing-revision", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
         (await facts.ResolveRepositoryAsync(Path.Combine(fixture.Root, "absent"), TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
+        (await facts.ReadBlobAsync(Path.Combine(fixture.Root, "absent"), "HEAD", "../escape", TestContext.Current.CancellationToken))
+            .Code.ShouldBe("REPOSITORY_UNAVAILABLE");
         Directory.CreateDirectory(Path.Combine(fixture.Root, "nested"));
         (await facts.ResolveRepositoryAsync(Path.Combine(fixture.Root, "nested"), TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
         RepositoryLocator.ResolveContainedPath(fixture.Root, "../escape").Code.ShouldBe("REPOSITORY_PATH_ESCAPE");
         RepositoryLocator.ResolveContainedPath(fixture.Root, "bad\0path").Status.ShouldBe(GitFactStatus.Invalid);
-        (await new GitFacts(Path.Combine(fixture.Root, "missing-git")).ResolveRepositoryAsync(fixture.Root, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
+        GitFact<string> missingGit = await new GitFacts(Path.Combine(fixture.Root, "missing-git"))
+            .ResolveRepositoryAsync(fixture.Root, TestContext.Current.CancellationToken);
+        missingGit.Status.ShouldBe(GitFactStatus.Unavailable);
+        missingGit.Code.ShouldBe("GIT_UNAVAILABLE");
+        (await facts.RunAsync("bad\0root", [], TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
         (await facts.ReadBlobAsync(fixture.Root, "HEAD", "missing", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
         if (!OperatingSystem.IsWindows())
         {
@@ -353,7 +426,10 @@ public sealed class GitFactsTests
                 ["clone", "--quiet", "--depth", "1", sourceUri, shallowPath], TestContext.Current.CancellationToken);
             shallowClone.Value!.ExitCode.ShouldBe(0);
             (await facts.ResolveRevisionAsync(shallowPath, first, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
+            (await facts.ResolveRevisionAsync(shallowPath, first.ToUpperInvariant(), TestContext.Current.CancellationToken))
+                .Status.ShouldBe(GitFactStatus.Unavailable);
             (await facts.ResolveRevisionAsync(shallowPath, "HEAD~1", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
+            (await facts.ResolveRevisionAsync(shallowPath, "HEAD~", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
             (await facts.ResolveRevisionAsync(shallowPath, "misspelled", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
             (await facts.ResolveRevisionAsync(shallowPath, "HEAD~bogus", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
             (await facts.ResolveRevisionAsync(shallowPath, new string('f', 40), TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
@@ -387,7 +463,7 @@ public sealed class GitFactsTests
                     (await facts.ResolveRevisionAsync(rootClone, "HEAD~1", TestContext.Current.CancellationToken))
                         .Status.ShouldBe(GitFactStatus.Invalid);
                 }
-                finally { if (Directory.Exists(rootClone)) Directory.Delete(rootClone, recursive: true); }
+                finally { GitFixture.DeleteTree(rootClone); }
             }
             using (GitFixture mergeFixture = new())
             {
@@ -413,7 +489,7 @@ public sealed class GitFactsTests
                     (await facts.ResolveRevisionAsync(mergeClone, "HEAD^3", TestContext.Current.CancellationToken))
                         .Status.ShouldBe(GitFactStatus.Invalid);
                 }
-                finally { if (Directory.Exists(mergeClone)) Directory.Delete(mergeClone, recursive: true); }
+                finally { GitFixture.DeleteTree(mergeClone); }
             }
             using (GitFixture octopusFixture = new())
             {
@@ -443,7 +519,7 @@ public sealed class GitFactsTests
                     (await facts.ResolveRevisionAsync(octopusClone, "HEAD^4", TestContext.Current.CancellationToken))
                         .Status.ShouldBe(GitFactStatus.Invalid);
                 }
-                finally { if (Directory.Exists(octopusClone)) Directory.Delete(octopusClone, recursive: true); }
+                finally { GitFixture.DeleteTree(octopusClone); }
             }
             fixture.Git("config", "uploadpack.allowFilter", "true");
             GitFact<GitCommandResult> partialClone = await facts.RunAsync(Path.GetTempPath(),
@@ -472,8 +548,8 @@ public sealed class GitFactsTests
         }
         finally
         {
-            if (Directory.Exists(shallowPath)) Directory.Delete(shallowPath, recursive: true);
-            if (Directory.Exists(partialPath)) Directory.Delete(partialPath, recursive: true);
+            GitFixture.DeleteTree(shallowPath);
+            GitFixture.DeleteTree(partialPath);
         }
     }
 

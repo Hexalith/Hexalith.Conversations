@@ -32,5 +32,18 @@ internal sealed class GitFixture : IDisposable
         return Git("rev-parse", "HEAD");
     }
 
-    public void Dispose() => Directory.Delete(Root, recursive: true);
+    public void Dispose() => DeleteTree(Root);
+
+    internal static void DeleteTree(string path)
+    {
+        if (!Directory.Exists(path)) return;
+        EnumerationOptions options = new() { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
+        foreach (string file in Directory.EnumerateFiles(path, "*", options))
+        {
+            FileAttributes attributes = File.GetAttributes(file);
+            if ((attributes & FileAttributes.ReadOnly) != 0)
+                File.SetAttributes(file, attributes & ~FileAttributes.ReadOnly);
+        }
+        Directory.Delete(path, recursive: true);
+    }
 }

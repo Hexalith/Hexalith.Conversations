@@ -10154,6 +10154,12 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
         generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
     assert "TEST_SUPPORT_BOUNDARY_INVALID" in {row["code"] for row in error.value.findings}
     (tmp_path / f"tests/{helper}/bin/Release/net10.0/{helper}.dll").write_bytes(b"candidate binary")
+    helper_project = tmp_path / f"tests/{helper}/{helper}.csproj"
+    helper_project.write_bytes(blobs[f"tests/{helper}/{helper}.csproj"] + b"\n<!-- worktree drift -->\n")
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "TEST_SUPPORT_BOUNDARY_INVALID" in {row["code"] for row in error.value.findings}
+    helper_project.write_bytes(blobs[f"tests/{helper}/{helper}.csproj"])
     previous["authority"] = authority.copy()
     monkeypatch.setattr(generator, "try_resolve_commit", lambda *_: None)
     with pytest.raises(generator.V2Stop) as error:
@@ -10195,6 +10201,43 @@ def test_story101_evaluated_project_boundary_rejects_overrides_and_references(tm
                            f'</PropertyGroup><ItemGroup>{dependency}</ItemGroup></Project>', encoding="utf-8")
         with pytest.raises(ValueError, match="package or project dependency"):
             generator.v2_10_1_project_boundary(tmp_path, path, True)
+
+
+def test_story101_test_project_boundary_requires_exact_dependencies(tmp_path: Path) -> None:
+    generator = load_generator()
+    path = "tests.csproj"
+    project = tmp_path / path
+    expected_packages = ("Microsoft.NET.Test.Sdk", "Shouldly", "xunit.v3",
+                         "xunit.runner.visualstudio", "coverlet.collector")
+    expected_project = "../Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj"
+
+    def write_project(packages: tuple[str, ...], projects: tuple[str, ...]) -> None:
+        items = "".join(f'<PackageReference Include="{name}" />' for name in packages)
+        items += "".join(f'<ProjectReference Include="{name}" />' for name in projects)
+        project.write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>'
+                           '<IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>'
+                           f'</PropertyGroup><ItemGroup>{items}</ItemGroup></Project>', encoding="utf-8")
+
+    write_project(expected_packages, (expected_project,))
+    generator.v2_10_1_project_boundary(tmp_path, path, False)
+    for packages, projects in (
+        (expected_packages, (expected_project, "../Hexalith.Conversations.Contracts/Contracts.csproj")),
+        (expected_packages + ("Hexalith.Conversations.Contracts",), (expected_project,)),
+        (expected_packages[:-1], (expected_project,)),
+    ):
+        write_project(packages, projects)
+        with pytest.raises(ValueError, match="declared dependencies changed"):
+            generator.v2_10_1_project_boundary(tmp_path, path, False)
+
+
+def test_story101_committed_pair_still_verifies() -> None:
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    json_bytes = (WORKSPACE / "docs/release-evidence/story-10.1-final-record-v2.json").read_bytes()
+    markdown_bytes = (WORKSPACE / "docs/release-evidence/story-10.1-final-record-v2.md").read_bytes()
+    record = generator.v2_parse_json(json_bytes)
+    assert not generator.v2_schema_errors(validators["record"], record)
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
 
 
 def test_story101_committed_predecessor_requires_valid_pair(tmp_path: Path) -> None:
@@ -10242,9 +10285,10 @@ def test_story101_pair_rejects_revision_and_artifact_path_conflicts(monkeypatch)
     generator = load_generator()
     names = ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests")
     support = {"projects": [{"project": {"path": f"tests/{name}/{name}.csproj"},
-                             "assembly": {"path": f"tests/{name}/bin/Release/net10.0/{name}.dll"}}
-                            for name in names],
-               "results": [{"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx"}
+                             "assembly": {"path": f"tests/{name}/bin/Release/net10.0/{name}.dll",
+                                          "sha256": chr(97 + index) * 64}}
+                            for index, name in enumerate(names)],
+               "results": [{"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx", "sha256": str(number) * 64}
                            for number in range(2, 7)],
                "contract": {"path": "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"},
                "inventorySha256": "c" * 64,
@@ -10255,9 +10299,15 @@ def test_story101_pair_rejects_revision_and_artifact_path_conflicts(monkeypatch)
     record = {"storyId": "10.1", "candidate": {"commit": "a" * 40}, "testSupportExecution": support,
               "predecessors": ["7.4", "9.2"],
               "inventory": {"sha256": "c" * 64},
-              "scenarios": [{"scenarioId": f"AC-10.1-0{number}", "result": "PASS", "exitCode": 0,
-                             "resultFile": {"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx"}}
-                            for number in range(2, 7)],
+              "scenarios": [{"scenarioId": "AC-10.1-01", "result": "PASS", "exitCode": 0,
+                             "resultFile": support["projects"][0]["assembly"],
+                             "outputFiles": [support["projects"][0]["assembly"]]}]
+                           + [{"scenarioId": f"AC-10.1-0{number}", "result": "PASS", "exitCode": 0,
+                               "resultFile": support["results"][number - 2],
+                               "outputFiles": [support["results"][number - 2], support["projects"][1]["assembly"]]}
+                              for number in range(2, 7)]
+                           + [{"scenarioId": "AC-10.1-07", "result": "PASS", "exitCode": 0,
+                               "resultFile": None, "outputFiles": []}],
               "outputs": {"json": {"sha256": generator.V2_ZERO_DIGEST},
                           "markdown": {"sha256": generator.V2_ZERO_DIGEST}},
               "renderedMarkdownSha256": generator.V2_ZERO_DIGEST}
@@ -10293,15 +10343,15 @@ def test_story101_pair_rejects_inventory_outcome_and_result_conflicts(monkeypatc
         "storyId": "10.1", "candidate": {"commit": "a" * 40},
         "inventory": {"sha256": "c" * 64},
         "predecessors": ["7.4", "9.2"],
-        "scenarios": [{"scenarioId": f"AC-10.1-0{number}", "result": "PASS", "exitCode": 0,
-                       "resultFile": {"path": path}}
-                      for number, path in zip(range(2, 7), paths, strict=True)],
+        "scenarios": [],
         "testSupportExecution": {
             "sourceRevisionId": "a" * 40,
             "projects": [{"project": {"path": f"tests/{name}/{name}.csproj"},
-                          "assembly": {"path": f"tests/{name}/bin/Release/net10.0/{name}.dll"}}
-                         for name in names],
-            "results": [{"path": path} for path in paths],
+                          "assembly": {"path": f"tests/{name}/bin/Release/net10.0/{name}.dll",
+                                       "sha256": chr(97 + index) * 64}}
+                         for index, name in enumerate(names)],
+            "results": [{"path": path, "sha256": str(number) * 64}
+                        for number, path in zip(range(2, 7), paths, strict=True)],
             "contract": {"path": "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"},
             "inventorySha256": "c" * 64,
             "predecessorRecords": [{"storyId": story, "path": f"docs/release-evidence/story-{story}-final-record-v2.json"}
@@ -10311,6 +10361,19 @@ def test_story101_pair_rejects_inventory_outcome_and_result_conflicts(monkeypatc
                     "markdown": {"sha256": generator.V2_ZERO_DIGEST}},
         "renderedMarkdownSha256": generator.V2_ZERO_DIGEST,
     }
+    support = original["testSupportExecution"]
+    original["scenarios"] = [
+        {"scenarioId": "AC-10.1-01", "result": "PASS", "exitCode": 0,
+         "resultFile": deepcopy(support["projects"][0]["assembly"]),
+         "outputFiles": [deepcopy(support["projects"][0]["assembly"])]},
+        *({"scenarioId": f"AC-10.1-0{number}", "result": "PASS", "exitCode": 0,
+           "resultFile": deepcopy(support["results"][number - 2]),
+           "outputFiles": [deepcopy(support["results"][number - 2]),
+                           deepcopy(support["projects"][1]["assembly"])]}
+          for number in range(2, 7)),
+        {"scenarioId": "AC-10.1-07", "result": "PASS", "exitCode": 0,
+         "resultFile": None, "outputFiles": []},
+    ]
     monkeypatch.setattr(generator, "v2_render_markdown", lambda *_: "record\n")
     _, json_bytes, markdown_bytes = generator.v2_finalize(original)
     assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
@@ -10323,6 +10386,14 @@ def test_story101_pair_rejects_inventory_outcome_and_result_conflicts(monkeypatc
         mutate(record)
         _, json_bytes, markdown_bytes = generator.v2_finalize(record)
         assert any(expected in problem for problem in generator.v2_verify_pair(json_bytes, markdown_bytes))
+    for mutate in (
+        lambda row: row["testSupportExecution"]["results"][0].update(sha256="f" * 64),
+        lambda row: row["testSupportExecution"]["projects"][1]["assembly"].update(sha256="f" * 64),
+    ):
+        record = deepcopy(original)
+        mutate(record)
+        _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+        assert any("digests differ" in problem for problem in generator.v2_verify_pair(json_bytes, markdown_bytes))
 
 
 def test_story101_predecessor_requires_positive_consistent_summary() -> None:
@@ -10351,7 +10422,7 @@ def test_story101_inserted_verification_rederives_stale_artifact_binding(tmp_pat
                       "assembly": {"path": f"tests/{name}/bin/Release/net10.0/{name}.dll",
                                    "sha256": module.v2_sha256(b"old")}}
                      for name in names],
-        "results": [{"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx"}
+        "results": [{"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx", "sha256": str(number) * 64}
                     for number in range(2, 7)],
         "inventorySha256": "c" * 64,
         "contract": {"path": contract_path},
@@ -10362,9 +10433,16 @@ def test_story101_inserted_verification_rederives_stale_artifact_binding(tmp_pat
         "storyId": "10.1", "candidate": {"commit": candidate},
         "predecessors": ["7.4", "9.2"],
         "inventory": {"sha256": "c" * 64},
-        "scenarios": [{"scenarioId": f"AC-10.1-0{number}", "result": "PASS", "exitCode": 0,
-                       "resultFile": {"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx"}}
-                      for number in range(2, 7)],
+        "scenarios": [{"scenarioId": "AC-10.1-01", "result": "PASS", "exitCode": 0,
+                       "resultFile": deepcopy(support["projects"][0]["assembly"]),
+                       "outputFiles": [deepcopy(support["projects"][0]["assembly"])]}]
+                     + [{"scenarioId": f"AC-10.1-0{number}", "result": "PASS", "exitCode": 0,
+                         "resultFile": deepcopy(support["results"][number - 2]),
+                         "outputFiles": [deepcopy(support["results"][number - 2]),
+                                         deepcopy(support["projects"][1]["assembly"])]}
+                        for number in range(2, 7)]
+                     + [{"scenarioId": "AC-10.1-07", "result": "PASS", "exitCode": 0,
+                         "resultFile": None, "outputFiles": []}],
         "testSupportExecution": support,
         "outputs": {"json": {"path": json_path, "sha256": module.V2_ZERO_DIGEST},
                     "markdown": {"path": markdown_path, "sha256": module.V2_ZERO_DIGEST}},
@@ -10388,7 +10466,7 @@ def test_story101_inserted_verification_rederives_stale_artifact_binding(tmp_pat
     monkeypatch.setattr(module, "v2_validate_contract", lambda *_: contract)
     monkeypatch.setattr(module, "v2_schema_errors", lambda *_: [])
     monkeypatch.setattr(module, "resolve_commit", lambda *_: candidate)
-    monkeypatch.setattr(module, "v2_retention_config", lambda *_: ("10.1", spec_path, "10-1-neutral-testsupport-and-safe-git-facts", True))
+    monkeypatch.setattr(module, "v2_retention_config", lambda *_: ("10.1", spec_path, "10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner", True))
     monkeypatch.setattr(module, "v2_retained_candidate", lambda *_: candidate)
     monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
     monkeypatch.setattr(module, "worktree_path_status", lambda *_: {})
@@ -10406,6 +10484,84 @@ def test_story101_inserted_verification_rederives_stale_artifact_binding(tmp_pat
                                    module.V2_VERIFY_OPTION: spec_path})
     assert error.value.findings[0]["code"] == "RECORD_CONTENT_DRIFT"
     assert calls == [spec_path]
+
+
+def test_story101_inserted_verification_runs_real_generator_for_stale_artifact(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    contract_path = "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"
+    spec_path = "_bmad-output/implementation-artifacts/spec-10-1-neutral-testsupport-and-safe-git-facts.md"
+    json_path, markdown_path = module.v2_designated_successor_outputs("10.1")
+    contract_bytes = (WORKSPACE / contract_path).read_bytes()
+    contract = json.loads(contract_bytes)
+    names = ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests")
+    project_paths = [f"tests/{name}/{name}.csproj" for name in names]
+    assembly_paths = [f"tests/{name}/bin/Release/net10.0/{name}.dll" for name in names]
+    result_paths = [f"artifacts/v9/10.1/AC-10.1-0{number}.trx" for number in range(2, 7)]
+    blobs = {contract_path: contract_bytes}
+    artifacts = {path: (WORKSPACE / path).read_bytes() for path in project_paths}
+    artifacts.update({path: b"candidate binary" for path in assembly_paths})
+    artifacts.update({path: b"passing result" for path in result_paths})
+    blobs.update({path: artifacts[path] for path in project_paths})
+    for story in ("7.4", "9.2"):
+        for suffix in ("json", "md"):
+            path = f"docs/release-evidence/story-{story}-final-record-v2.{suffix}"
+            blobs[path] = (WORKSPACE / path).read_bytes()
+    authority = json.loads(blobs["docs/release-evidence/story-7.4-final-record-v2.json"])["authority"]
+    retention = ("10.1", spec_path,
+                 "10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner", True)
+
+    def measured_scenario(_repository, scenario, _command, *_args, **_kwargs):
+        number = int(scenario["id"].rsplit("-", 1)[1])
+        outputs = ([{"path": assembly_paths[0], "sha256": module.v2_sha256(artifacts[assembly_paths[0]])}]
+                   if number == 1 else [
+                       {"path": result_paths[number - 2], "sha256": module.v2_sha256(artifacts[result_paths[number - 2]])},
+                       {"path": assembly_paths[1], "sha256": module.v2_sha256(artifacts[assembly_paths[1]])},
+                   ])
+        return ({"scenarioId": scenario["id"], "command": scenario["command"], "exitCode": 0,
+                 "result": "PASS", "blockers": [], "resultFile": outputs[0], "outputFiles": outputs,
+                 "assertionLedger": [{"id": scenario["id"] + "#0001", "subject": "fixture", "state": "PASS"}]},
+                "passed", [])
+
+    monkeypatch.setattr(module, "validate_repository", lambda *_: tmp_path)
+    monkeypatch.setattr(module, "v2_load_schemas", lambda: (None, {name: None for name in
+                          ("contract", "contract_v14", "record", "bundle")}))
+    monkeypatch.setattr(module, "v2_schema_errors", lambda *_: [])
+    monkeypatch.setattr(module, "resolve_commit", lambda *_: candidate)
+    monkeypatch.setattr(module, "try_resolve_commit", lambda _repo, revision: revision)
+    monkeypatch.setattr(module, "v2_retention_config", lambda *_: retention)
+    monkeypatch.setattr(module, "v2_retained_candidate", lambda *_: candidate)
+    monkeypatch.setattr(module, "v2_validate_contract", lambda *_: contract)
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
+    monkeypatch.setattr(module, "v2_authority", lambda *_: authority)
+    monkeypatch.setattr(module, "v2_gitlinks", lambda *_: [{"path": "references/Hexalith.AI.Tools",
+                         "mode": "160000", "commit": "b" * 40}])
+    monkeypatch.setattr(module, "worktree_path_status", lambda *_: {})
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, stdout=b"1\n", stderr=b""))
+    monkeypatch.setattr(module, "v2_successor_scenario_from_results", measured_scenario)
+    monkeypatch.setattr(module, "v2_10_1_project_boundary", lambda *_: None)
+    monkeypatch.setattr(module, "v2_10_1_artifact_bytes", lambda _repo, path: artifacts[path])
+    monkeypatch.setattr(module, "dotnet_source_revisions", lambda _binary: [candidate])
+    monkeypatch.setattr(module, "v2_working_spec_lifecycle_only_change", lambda *_args, **_kwargs: True)
+    options = {"--repository": str(tmp_path), "--contract": contract_path, "--format": "bundle",
+               "--output-json": json_path, "--output-markdown": markdown_path}
+    json_bytes = module.v2_generate(options, verify_spec=spec_path)
+    record = module.v2_parse_json(json_bytes)
+    markdown_bytes = module.v2_render_markdown(module.v2_zero_digests(record),
+                                               module.v2_sha256(module.v2_render_json(module.v2_zero_digests(record)))).encode()
+    assert module.v2_verify_pair(json_bytes, markdown_bytes) == []
+    blobs[json_path], blobs[markdown_path] = json_bytes, markdown_bytes
+    spec = (b"---\nstatus: in-progress\n---\n\n" + module.RECORD_BEGIN_MARKER.encode()
+            + b"\n" + markdown_bytes + module.RECORD_END_MARKER.encode() + b"\n")
+    for path, data in {json_path: json_bytes, markdown_path: markdown_bytes, spec_path: spec}.items():
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+    artifacts[assembly_paths[0]] = b"changed candidate binary"
+    with pytest.raises(module.V2Stop) as error:
+        module.v2_verify_inserted({"--repository": str(tmp_path), "--contract": contract_path,
+                                   module.V2_VERIFY_OPTION: spec_path})
+    assert error.value.findings[0]["code"] == "RECORD_CONTENT_DRIFT"
 
 
 if __name__ == "__main__":

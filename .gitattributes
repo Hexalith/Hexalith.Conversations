@@ -14,6 +14,8 @@ _bmad-output/**/*.yaml text eol=lf
 _bmad-output/**/*.yml text eol=lf
 docs/release-evidence/**/*.md text eol=lf
 docs/release-evidence/**/*.json text eol=lf
+tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj text eol=lf
+tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj text eol=lf
 
 # Completion-gate body bytes must match the committed blobs and in-memory render twins.
 .agents/skills/bmad-build/step-05-present.md text eol=lf

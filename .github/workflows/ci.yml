@@ -45,7 +45,9 @@ jobs:
           submodules: false
 
       - name: Initialize root-declared build dependency
-        run: git submodule update --init -- references/Hexalith.Builds
+        run: |
+          git config --global core.longpaths true
+          git submodule update --init -- references/Hexalith.Builds
 
       - name: Initialize .NET
         uses: actions/setup-dotnet@v6.0.0
@@ -60,11 +62,10 @@ jobs:
       - name: Build TestSupport tests
         run: dotnet build tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj --configuration Release
 
-      - name: Prove successful-parent descendant cleanup
+      - name: Run TestSupport tests on Windows
         run: >-
           dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll
           -automated sync -failSkips
-          -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldTerminateDescendantAfterSuccessfulParentExit
 
   repository:
     name: ci / repository

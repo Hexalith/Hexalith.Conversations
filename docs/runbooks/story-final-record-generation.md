@@ -1871,7 +1871,18 @@ The additive `--successor-v4` verifier route remeasures v1 through v4 Git histor
 Story 10.1 derives `SC-10.1` from committed `HEAD`, verifies the passing
 Story 7.4 and 9.2 predecessor pairs, recomputes the frozen two-item inventory
 digest, and binds both TestSupport project and assembly hashes plus the five
-measured TRX hashes. `TEST_SUPPORT_BOUNDARY_INVALID` means a project is
-packable, publishable, references an unexpected project, or its assembly is not
-stamped by the candidate. Restore the neutral project boundary and rebuild the
-committed candidate before regenerating the pair.
+measured TRX hashes. The boundary evaluates both Debug and Release MSBuild
+properties and declared package, project, assembly, and framework references.
+`TEST_SUPPORT_BOUNDARY_INVALID` means a project is packable, publishable,
+declares an unexpected dependency, differs from the committed candidate, or has
+an assembly that is not stamped by that candidate. `AUTHORITY_BINDING_INVALID`
+means a predecessor pair, PASS ledger, candidate commit, or authority field did
+not verify. `TEST_RESULTS_MISSING` means a required passing result or bound
+artifact is absent or differs from its measured digest. `ASSERTION_INVENTORY_DRIFT`
+means the frozen entry inventory or predecessor order changed.
+
+Inserted-record verification re-derives the Story 10.1 candidate facts. Keep the
+candidate-stamped assemblies under each TestSupport project's `bin/Release`
+directory and the five measured TRX files under `artifacts/v9/10.1` available
+locally when running that route. Restore the neutral project boundary and rebuild
+the committed candidate before regenerating the pair.

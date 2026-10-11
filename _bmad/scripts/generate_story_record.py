@@ -4624,6 +4624,21 @@ def v2_verify_pair(json_bytes: bytes, markdown_bytes: bytes) -> list[str]:
             if (not isinstance(support, dict) or not isinstance(support.get("results"), list)
                     or measured_paths != [row.get("path") for row in support["results"]]):
                 problems.append("Story 10.1 scenario result paths differ from the TestSupport binding")
+            try:
+                by_id = {row["scenarioId"]: row for row in scenarios}
+                projects = support["projects"]
+                results = support["results"]
+                if (len(by_id) != len(scenarios)
+                        or set(by_id) != {f"AC-10.1-0{number}" for number in range(1, 8)}
+                        or by_id["AC-10.1-01"]["resultFile"] != projects[0]["assembly"]
+                        or by_id["AC-10.1-01"]["outputFiles"] != [projects[0]["assembly"]]
+                        or any(by_id[f"AC-10.1-0{number}"]["resultFile"] != results[number - 2]
+                               or by_id[f"AC-10.1-0{number}"]["outputFiles"]
+                               != [results[number - 2], projects[1]["assembly"]]
+                               for number in range(2, 7))):
+                    problems.append("Story 10.1 scenario result or assembly digests differ from the TestSupport binding")
+            except (KeyError, TypeError, IndexError):
+                problems.append("Story 10.1 scenario result or assembly digests are malformed")
     return problems
 
 
