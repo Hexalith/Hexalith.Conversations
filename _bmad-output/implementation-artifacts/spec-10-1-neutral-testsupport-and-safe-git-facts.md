@@ -2,7 +2,7 @@
 title: 'Story 10.1: Neutral TestSupport helpers and safe Git facts'
 type: 'feature'
 created: '2026-10-10'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '2f2621aa4b40b0d44c62bf5e1e98727e7a182fec'
 route: 'dispatch'
 review_loop_iteration: 4
@@ -73,6 +73,69 @@ context:
 - Given a shallow root or merge boundary, when a missing parent is requested, then only an actual parent header produces `HISTORY_UNAVAILABLE`; malformed or absent parents are invalid. A small historical blob remains readable despite a large unrelated tree.
 - Given Story 10.1's inserted final record, when verification runs, then its predecessor and artifact facts are freshly re-derived; a self-consistent pair with stale bindings fails.
 - Given Story 10.1 is moved to `review`, when inserted-record verification runs after the lifecycle commit, then the candidate is retained and the committed sprint change is accepted only for the tracked Story 10.1 row and update timestamp.
+
+### Review Findings
+
+Code review of `2f2621a..fb2426a` (2026-10-11), full mode, all four layers completed: 0 decision-needed, 18 patch, 1 defer, 43 rejected.
+
+- [ ] [Review][Patch] (high) Windows CI job never reaches its test: `git submodule update --init -- references/Hexalith.Builds` fails with "Filename too long" (CI run 38120973437); its single `-method` selector also exits 0 when it matches no test, and that test cannot distinguish job-object cleanup from `Kill(entireProcessTree)`. Enable `core.longpaths` before the submodule init, run the whole TestSupport test project on Windows, and add an orphaned-grandchild cleanup test [.github/workflows/ci.yml:47]
+- [ ] [Review][Patch] (medium) Git-backed fixtures cannot clean up on Windows: Git for Windows writes read-only object files and `Directory.Delete(recursive: true)` throws `UnauthorizedAccessException` (reproduced on .NET 10.0.12); clear read-only attributes before deleting in `GitFixture.Dispose` and the clone cleanups [tests/Hexalith.Conversations.TestSupport.Tests/GitFixture.cs:35]
+- [ ] [Review][Patch] (medium) Legacy `info/grafts` still rewrites history under the runner's isolation: a one-line grafts file changed `HEAD~1` with `GIT_NO_REPLACE_OBJECTS=1` (Git 2.53), and `GIT_GRAFT_FILE` set to the null device restored the real parent; add it to the isolated environment and add an AC-05 grafts fixture [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:83]
+- [ ] [Review][Patch] (medium) Valid `R100` renames with changed content are rejected: Git emitted `R100` for a renamed file with reordered lines and different object IDs, but `IsDiffRelation` requires `R100` if and only if the IDs are equal, so the whole diff becomes `GIT_OUTPUT_INVALID`; keep only "equal IDs imply R100" and make the different-ID `R100` fixture valid [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:562]
+- [ ] [Review][Patch] (medium) Raw status grammar accepts forms Git never emits: Git always prints three-digit scores (`R072`), but `IsDiffStatus` accepts `R75` and scored `M` records although `-B` is never passed, and the AC-05 valid-score fixture asserts `R75`; require `R` plus exactly three digits, drop scored `M`, and use `R075` in the fixture [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:543]
+- [ ] [Review][Patch] (medium) Missing Git on Unix is not `GIT_UNAVAILABLE`: `setsid` exits 127 ("failed to execute"), `RunAsync` returns success with that exit code, and `ResolveRepositoryAsync` reports `REPOSITORY_UNAVAILABLE`, so AC-06's missing-Git assertion passes on status alone; resolve the executable before launching through `setsid` and assert the code [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:66]
+- [ ] [Review][Patch] (medium) Hostile ambient-config fixture cannot detect a regression: the preamble's `-c core.quotepath=false` overrides the injected `GIT_CONFIG_COUNT` value (verified) and Git ignores a missing-file `GIT_CONFIG_GLOBAL`, so removing the runner's config overrides keeps AC-05 green; assert the child's exact isolated `GIT_*` environment through a Python fake [tests/Hexalith.Conversations.TestSupport.Tests/GitFactsTests.cs:121]
+- [ ] [Review][Patch] (medium) Pair verification compares duplicated Story 10.1 bindings by path only: `v2_verify_pair` never compares `results[*].sha256` with scenario `resultFile.sha256` or `projects[*].assembly.sha256` with the scenarios' bound assemblies, and two reviewers re-finalized a contradictory pair that verified and schema-validated; compare the digests too [_bmad/scripts/generate_story_record.py:4619]
+- [ ] [Review][Patch] (medium) Overflow check after normal completion is never exercised: the 17 MiB fixture always takes the cancellation branch, and deleting the post-completion check keeps every test green while a parent-exits-then-descendant-writes case returns truncated success; add that fixture [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:168]
+- [ ] [Review][Patch] (medium) Test-project boundary rules are untested: every direct `v2_10_1_project_boundary` call passes `helper=True`, and the "evaluated project differs from the committed candidate" path has no negative case; add `helper=False` fixtures for an added production `ProjectReference` and an extra or missing package, plus a differing worktree project [_bmad/scripts/tests/test_generate_story_record.py:10164]
+- [ ] [Review][Patch] (medium) The committed Story 10.1 pair is not pinned by a test: nothing runs `v2_verify_pair` and schema validation on `docs/release-evidence/story-10.1-final-record-v2.{json,md}`, so a render or schema change breaks it silently until Story 10.2 rejects the predecessor; add a committed-pair check like the preserved-pairs test [_bmad/scripts/tests/test_generate_story_record.py:9144]
+- [ ] [Review][Patch] (medium) Raw diff duplicate-path and containment rejection are untested: no malformed diff repeats a destination path or uses `../`, empty-segment, or absolute paths, and no tree fixture escapes, so deleting those conditions keeps tests green; add them to the existing malformed lists [tests/Hexalith.Conversations.TestSupport.Tests/GitFactsTests.cs:198]
+- [ ] [Review][Patch] (medium) The inserted-record stale-binding test replaces the re-derivation it proves: `v2_generate` is swapped for a hand-written `rederive`, so the real Story 10.1 route never runs in the negative case, and `v2_retention_config` is mocked with the superseded key `10-1-neutral-testsupport-and-safe-git-facts`; drive the real route, stubbing only artifact bytes, with the tracked key [_bmad/scripts/tests/test_generate_story_record.py:10339]
+- [ ] [Review][Patch] (low) `HEAD~` and uppercase full object IDs beyond a shallow boundary are typed `REVISION_INVALID`: Git treats `HEAD~` as `HEAD~1` and accepts uppercase hex (verified), but the shallow proof rejects an empty count and requires lowercase; treat an empty count as 1 and lowercase the ID first [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:450]
+- [ ] [Review][Patch] (low) Missing or NUL repository inputs are classified differently per entry point: `ReadBlobAsync` validates the path before resolving the repository, so a missing root is `Invalid`/`REPOSITORY_PATH_ESCAPE` where the other readers return `Unavailable`/`REPOSITORY_UNAVAILABLE`, and `RunAsync` returns `Unavailable` for a NUL path that `ResolveRepositoryAsync` calls `Invalid`; resolve the revision first and return `Invalid` for NUL [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:411]
+- [ ] [Review][Patch] (low) Git's stderr is dropped from unavailable-repository and history failures: "Git could not identify an exact worktree" hides a dubious-ownership refusal or corrupt repository; append the decoded stderr to these messages [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:235]
+- [ ] [Review][Patch] (low) A Windows `core.autocrlf=true` checkout breaks the generator's project comparison: both `.csproj` files are committed LF without an eol rule, so the worktree differs from the committed blob and raises `TEST_SUPPORT_BOUNDARY_INVALID`; pin them to `eol=lf` in `.gitattributes` [_bmad/scripts/generate_story_record.py:5544]
+- [ ] [Review][Patch] (low) The Story 10.1 runbook section is incomplete: it omits package, assembly, and framework references and Debug plus Release evaluation from `TEST_SUPPORT_BOUNDARY_INVALID`, omits `AUTHORITY_BINDING_INVALID`, `TEST_RESULTS_MISSING`, and `ASSERTION_INVENTORY_DRIFT`, and does not say inserted-record verification needs the local `bin/Release` and `artifacts/v9/10.1` outputs [docs/runbooks/story-final-record-generation.md:1869]
+- [x] [Review][Defer] (medium) Successor sprint keys are still derived from the spec filename for every story except 10.1 [_bmad/scripts/generate_story_record.py:5076] — deferred: pre-existing generic `removeprefix("spec-")` derivation; this change special-cased only 10.1, so Stories 10.2–10.4 will hit the same lifecycle failure unless the tracker row is resolved by story-number prefix in `sprint-status.yaml`.
+
+#### Rejected
+
+- BH4 (low): The 30-second limit is per Git process. Each fact call starts a bounded number of processes, and AC-04 contracts a per-execution 30-second timeout; one deadline across all processes would need threading through every reader.
+- BH5 (low): Per-entry root revalidation is linear, at a few `lstat` calls per entry, not quadratic. Removing it needs a separate lexical validator.
+- BH6 / ECH13 (low): A full object ID behind a non-first-parent boundary in a merge clone deeper than 1 fails closed as invalid. It is rare, and proving it needs one `cat-file` per shallow boundary (same rationale as L3-B07).
+- BH7 / AA8 (low): The contract's per-scenario failure codes are not emitted. A failing AC cannot yield a PASS pair and is diagnosed from its TRX, mapping each code adds per-scenario branches, and Story 9.2 also emitted its contract codes only partially.
+- BH9 (low): Binding gitignored local TRX and DLL outputs is the established v2 evidence model; the 7.4 record binds `artifacts/v9/7.4/*` the same way. The missing execution-time receipt is already deferred as L4-B10.
+- BH10 / AA2 (low): A packable or production-dependent helper stops AC-07 with `TEST_SUPPORT_BOUNDARY_INVALID`, so no PASS pair can exist. Listing that check in AC-01's ledger would need a generator restructure.
+- BH12 and AA7, short-path part / ECH10 (false): Reproduced on Windows. .NET 10 `Path.GetFullPath` expands `JEROME~1` short names, and the result equals Git's `--show-toplevel`.
+- BH13, inventory part (false): `ASSERTION_INVENTORY_DRIFT` is tested at `test_generate_story_record.py:10062`. Its dotnet-marker part (low): the boundary test evaluates a temporary project outside `global.json`, so any preinstalled SDK works.
+- BH16 / ECH22 (low): `GitFact`'s positional constructor and the mutable `byte[]` members can only be misused by a caller against its own results. Locking them down changes the public record shape.
+- BH17 / ECH24 / ECH25 (low): Manifest path and digest validation and ledger completeness are Story 10.2's manifest, hash, and ledger invariants, which this spec forbids implementing. `BoundaryAssertions.Equal` on arrays fails closed, and evidence digests are strings.
+- BH18 (rejected, spec edit): The status and notes mismatch would be fixed only by editing the spec under review; the lifecycle transition sets the status.
+- ECH1 (low, carried L1-B04): Hosts without `setsid` fail closed with `GIT_UNAVAILABLE`; the supported Linux hosts ship it.
+- ECH3 (low): Global `safe.directory` is deliberately unavailable under config isolation. Adding `-c safe.directory` would bypass Git's ownership protection against hostile repository config.
+- ECH4 / AA11 (low): Git older than 2.44 ignores `GIT_NO_LAZY_FETCH`. The hosts run 2.53 and 2.55, and the partial-clone fixture would catch a regression.
+- ECH5 (low): PID reuse between reaping and `kill(-pid)` needs PID wrap-around within microseconds, and a live process group keeps its ID reserved.
+- ECH6 (low): A Windows Git process that exits before job assignment yields a typed `GIT_UNAVAILABLE` failure, never success. It is rare, and fixing it needs a new guard.
+- ECH7 (low, carried L1-B01/L3-E02/L4-E02): The Windows pre-enrollment race was already rejected in those earlier reviews.
+- ECH8 (false): After cancellation, capture reads and writes observe the cancelled token and throw `OperationCanceledException`, which is caught, and a killed writer yields EOF. No `IOException` path was shown.
+- ECH9 (low): Late writes after the 2-second drain become unobserved task exceptions, which .NET swallows with no functional effect.
+- ECH11 (low): Rejecting linked root ancestors is spec-mandated. macOS `/var` temp roots are not a supported target, and a real-path temp helper is more than a direct correction.
+- ECH15 (low): A directory path is still typed `Invalid`, only under `GIT_OUTPUT_INVALID` instead of `BLOB_INVALID`.
+- ECH16 (low): For a committed symlink, the blob bytes are the link text, which is the faithful raw Git fact. Rejecting symlinked evidence is Story 10.2 policy.
+- ECH19 (low): Committed backslash paths read on Windows fail closed. They are rare, and the fixture already scopes them to Unix.
+- ECH20 (low, carried L1-E06): A path-swap TOCTOU needs a concurrent hostile local writer.
+- ECH21 (false): A null or empty executable is a caller programming error, and the loud exception is correct behavior.
+- ECH23 (low): `AssertionLedger` is a single-test helper like `Dictionary`, and no concurrent use was shown.
+- ECH28 (low): A missing `dotnet` cannot reach the boundary check after AC-01..06 were measured, and the 30-second MSBuild timeout is speculative.
+- ECH29 (low): CI checks out with `fetch-depth: 0`, so the predecessor candidate resolves. A shallow local generation fails closed.
+- ECH30 (false): A rebuild at a lifecycle commit changes the DLL bytes, so the recorded assembly digest no longer matches on either path.
+- ECH32 / ECH33 (false): Every `v2_verify_pair` caller validates the record schema first (lines 5102, 5153, 5390, 5418, 7246, 8117, and 8332), and the schema rejects those malformed or missing fields.
+- VG8 (low): `Process.Kill(entireProcessTree)` throws `AggregateException` only for non-access-denied termination errors, which were not shown, and the fix adds handlers at two sites.
+- AA5 (low): The spec requires the five helpers "once each", which the test enforces. Pinning the whole exported set would break when Story 10.2 adds TestSupport types.
+- AA6 (low): `includeGitPreamble` is a fixture hook with a safe default, and environment isolation still applies when it is false.
+- AA9 (low): Each mandatory fault is a fixture inside AC-03..06, which the record binds. The contract defines no separate fault-injection results.
+- AA10 (low): Synthetic raw records use Git's exact `--raw` grammar for every mode, and the missing-Git fixture already exercises the non-zero `rev-parse` branch.
+- AA12 (false): `validate_repository` returns the resolved root, so the root branch is harmless defense-in-depth. The in-repository component check is tested.
 
 ## Implementation Notes
 

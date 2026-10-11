@@ -559,3 +559,9 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-10-1-neutral-testsupport-and-safe-git-facts.md`
   summary: The generic xUnit/TRX evidence route does not capture the executed assembly's digest at test time.
   evidence: Story 10.1 review L4-B10; `v2_successor_scenario_from_results` binds a candidate-stamped assembly by path and modification time, then hashes its current bytes, while TRX has no execution-time assembly digest. A replacement candidate-stamped binary with an earlier timestamp could evade that generic check; an execution-time receipt protocol is needed to close the gap for all successor stories.
+
+## Deferred from: code review of spec-10-1-neutral-testsupport-and-safe-git-facts.md (2026-10-11)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-10-1-neutral-testsupport-and-safe-git-facts.md`
+  summary: Successor-story lifecycle verification still derives the sprint key from the spec filename for every story except 10.1.
+  evidence: Blind Hunter, medium. `v2_retention_config` (`_bmad/scripts/generate_story_record.py:5076`) hardcodes the Story 10.1 tracker key and otherwise keeps the pre-existing `candidates[0].stem.removeprefix("spec-")` derivation. Stories 10.2–10.4 have tracker keys that differ from their likely spec slugs, so their retained-candidate verification will fail the same way L4-P01 did. Settle by resolving the tracked `development_status` row by story-number prefix in `sprint-status.yaml`, requiring exactly one match.
