@@ -27,7 +27,7 @@ public sealed class GitFacts
         _includeGitPreamble = includeGitPreamble;
     }
 
-    /// <summary>Runs Git with both streams drained concurrently and a 30-second maximum.</summary>
+    /// <summary>Captures command completion with both streams drained concurrently and a 30-second maximum. A successful capture may have a nonzero exit code; callers must check <see cref="GitCommandResult.ExitCode"/> before treating its output as a Git fact.</summary>
     public async Task<GitFact<GitCommandResult>> RunAsync(string repository, IEnumerable<string> arguments, CancellationToken cancellationToken = default, TimeSpan? timeout = null)
     {
         if (arguments is null)
@@ -468,7 +468,7 @@ public sealed class GitFacts
         GitTreeEntry entry;
         try
         {
-            IReadOnlyList<GitTreeEntry> entries = ParseTree(repository, tree.Value.Stdout, cancellationToken);
+            IReadOnlyList<GitTreeEntry> entries = ParseTree(root.Value!, tree.Value.Stdout, cancellationToken);
             if (entries.Count != 1 || entries[0].Path != path || entries[0].Type != "blob")
                 return GitFact<GitBlob>.Fail(GitFactStatus.Invalid, "BLOB_INVALID", path);
             entry = entries[0];
@@ -481,7 +481,7 @@ public sealed class GitFacts
         {
             return GitFact<GitBlob>.Fail(GitFactStatus.Cancelled, "GIT_CANCELLED", "The caller cancelled blob tree parsing.");
         }
-        GitFact<GitCommandResult> result = await RunAsync(repository, ["cat-file", "blob", entry.ObjectId], cancellationToken).ConfigureAwait(false);
+        GitFact<GitCommandResult> result = await RunAsync(root.Value!, ["cat-file", "blob", entry.ObjectId], cancellationToken).ConfigureAwait(false);
         if (!result.IsSuccess) return Forward<GitBlob>(result);
         if (result.Value!.ExitCode != 0) return GitFact<GitBlob>.Fail(GitFactStatus.Unavailable, "HISTORY_UNAVAILABLE", path + ": " + ErrorText(result.Value.Stderr));
         byte[] bytes = result.Value.Stdout;

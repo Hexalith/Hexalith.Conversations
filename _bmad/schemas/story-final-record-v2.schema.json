@@ -4528,12 +4528,12 @@
       "properties": {
         "bindingRule": {"const": "SC-10.1 is HEAD^{commit} at first final-record generation"},
         "sourceRevisionId": {"$ref": "#/$defs/commit"},
-        "contract": {"$ref": "#/$defs/outputFile"},
+        "contract": {"allOf": [{"$ref": "#/$defs/outputFile"}, {"properties": {"path": {"const": "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"}}}]},
         "predecessorRecords": {
           "type": "array", "minItems": 2, "maxItems": 2,
           "prefixItems": [
-            {"allOf": [{"$ref": "#/$defs/predecessorRecord"}, {"properties": {"storyId": {"const": "7.4"}}}]},
-            {"allOf": [{"$ref": "#/$defs/predecessorRecord"}, {"properties": {"storyId": {"const": "9.2"}}}]}
+            {"allOf": [{"$ref": "#/$defs/predecessorRecord"}, {"properties": {"storyId": {"const": "7.4"}, "path": {"const": "docs/release-evidence/story-7.4-final-record-v2.json"}}}]},
+            {"allOf": [{"$ref": "#/$defs/predecessorRecord"}, {"properties": {"storyId": {"const": "9.2"}, "path": {"const": "docs/release-evidence/story-9.2-final-record-v2.json"}}}]}
           ],
           "items": false
         },

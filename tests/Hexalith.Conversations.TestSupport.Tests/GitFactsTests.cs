@@ -169,6 +169,11 @@ public sealed class GitFactsTests
             ["GIT_CONFIG_GLOBAL"] = Environment.GetEnvironmentVariable("GIT_CONFIG_GLOBAL"),
             ["GIT_OBJECT_DIRECTORY"] = Environment.GetEnvironmentVariable("GIT_OBJECT_DIRECTORY"),
             ["GIT_GRAFT_FILE"] = Environment.GetEnvironmentVariable("GIT_GRAFT_FILE"),
+            ["GIT_CONFIG_PARAMETERS"] = Environment.GetEnvironmentVariable("GIT_CONFIG_PARAMETERS"),
+            ["GIT_ALTERNATE_OBJECT_DIRECTORIES"] = Environment.GetEnvironmentVariable("GIT_ALTERNATE_OBJECT_DIRECTORIES"),
+            ["GIT_WORK_TREE"] = Environment.GetEnvironmentVariable("GIT_WORK_TREE"),
+            ["GIT_INDEX_FILE"] = Environment.GetEnvironmentVariable("GIT_INDEX_FILE"),
+            ["GIT_SHALLOW_FILE"] = Environment.GetEnvironmentVariable("GIT_SHALLOW_FILE"),
         };
         try
         {
@@ -179,25 +184,34 @@ public sealed class GitFactsTests
             Environment.SetEnvironmentVariable("GIT_CONFIG_GLOBAL", Path.Combine(Path.GetTempPath(), "missing-git-config"));
             Environment.SetEnvironmentVariable("GIT_OBJECT_DIRECTORY", Path.Combine(Path.GetTempPath(), "wrong-object-directory"));
             Environment.SetEnvironmentVariable("GIT_GRAFT_FILE", Path.Combine(Path.GetTempPath(), "wrong-graft-file"));
+            Environment.SetEnvironmentVariable("GIT_CONFIG_PARAMETERS", "'core.quotepath=true'");
+            Environment.SetEnvironmentVariable("GIT_ALTERNATE_OBJECT_DIRECTORIES", Path.Combine(Path.GetTempPath(), "wrong-alternates"));
+            Environment.SetEnvironmentVariable("GIT_WORK_TREE", Path.Combine(Path.GetTempPath(), "wrong-worktree"));
+            Environment.SetEnvironmentVariable("GIT_INDEX_FILE", Path.Combine(Path.GetTempPath(), "wrong-index"));
+            Environment.SetEnvironmentVariable("GIT_SHALLOW_FILE", Path.Combine(Path.GetTempPath(), "wrong-shallow"));
             GitFacts facts = new();
-            string envScript = "import json,os,sys\nkeys=['GIT_DIR','GIT_OBJECT_DIRECTORY','GIT_CONFIG_COUNT','GIT_CONFIG_KEY_0','GIT_CONFIG_VALUE_0','GIT_CONFIG_GLOBAL','GIT_CONFIG_NOSYSTEM','GIT_TERMINAL_PROMPT','GIT_NO_REPLACE_OBJECTS','GIT_NO_LAZY_FETCH','GIT_GRAFT_FILE']\nprint(json.dumps({k:os.environ.get(k) for k in keys}))";
+            string envScript = "import json,os,sys\nprint(json.dumps({k:v for k,v in os.environ.items() if k.startswith('GIT_')}))";
             GitFact<GitCommandResult> isolated = await PythonFacts(envScript).RunAsync(
                 fixture.Root, [], TestContext.Current.CancellationToken);
             isolated.IsSuccess.ShouldBeTrue(isolated.Message);
             using (JsonDocument environment = JsonDocument.Parse(isolated.Value!.Stdout))
             {
-                JsonElement values = environment.RootElement;
-                values.GetProperty("GIT_DIR").ValueKind.ShouldBe(JsonValueKind.Null);
-                values.GetProperty("GIT_OBJECT_DIRECTORY").ValueKind.ShouldBe(JsonValueKind.Null);
-                values.GetProperty("GIT_CONFIG_KEY_0").ValueKind.ShouldBe(JsonValueKind.Null);
-                values.GetProperty("GIT_CONFIG_VALUE_0").ValueKind.ShouldBe(JsonValueKind.Null);
-                values.GetProperty("GIT_CONFIG_COUNT").GetString().ShouldBe("0");
-                values.GetProperty("GIT_CONFIG_NOSYSTEM").GetString().ShouldBe("1");
-                values.GetProperty("GIT_TERMINAL_PROMPT").GetString().ShouldBe("0");
-                values.GetProperty("GIT_NO_REPLACE_OBJECTS").GetString().ShouldBe("1");
-                values.GetProperty("GIT_NO_LAZY_FETCH").GetString().ShouldBe("1");
-                values.GetProperty("GIT_GRAFT_FILE").GetString().ShouldBe(OperatingSystem.IsWindows() ? "NUL" : "/dev/null");
-                values.GetProperty("GIT_CONFIG_GLOBAL").GetString().ShouldBe(OperatingSystem.IsWindows() ? "NUL" : "/dev/null");
+                Dictionary<string, string> expected = new()
+                {
+                    ["GIT_CONFIG_NOSYSTEM"] = "1",
+                    ["GIT_CONFIG_GLOBAL"] = OperatingSystem.IsWindows() ? "NUL" : "/dev/null",
+                    ["GIT_CONFIG_COUNT"] = "0",
+                    ["GIT_TERMINAL_PROMPT"] = "0",
+                    ["GIT_NO_REPLACE_OBJECTS"] = "1",
+                    ["GIT_GRAFT_FILE"] = OperatingSystem.IsWindows() ? "NUL" : "/dev/null",
+                    ["GIT_NO_LAZY_FETCH"] = "1",
+                    ["GIT_OPTIONAL_LOCKS"] = "0",
+                };
+                Dictionary<string, string> actual = environment.RootElement.EnumerateObject()
+                    .ToDictionary(property => property.Name, property => property.Value.GetString()!, StringComparer.Ordinal);
+                actual.Count.ShouldBe(expected.Count);
+                foreach (KeyValuePair<string, string> pair in expected)
+                    actual[pair.Key].ShouldBe(pair.Value);
             }
             (await facts.ResolveRevisionAsync(fixture.Root, after, TestContext.Current.CancellationToken)).Value.ShouldBe(after);
             File.WriteAllText(Path.Combine(fixture.Root, ".git", "info", "grafts"), after + "\n");
@@ -431,6 +445,46 @@ public sealed class GitFactsTests
             foreach (KeyValuePair<string, string?> variable in ambient)
                 Environment.SetEnvironmentVariable(variable.Key, variable.Value);
         }
+    }
+
+    [Fact]
+    public async Task RealGitModesShouldIncludeGitlinkUnderHostileSubmoduleConfiguration()
+    {
+        using GitFixture fixture = new();
+        File.WriteAllText(Path.Combine(fixture.Root, "seed.txt"), "seed");
+        string baseCommit = fixture.Commit();
+        string scriptPath = Path.Combine(fixture.Root, "script-content");
+        string linkPath = Path.Combine(fixture.Root, "link-content");
+        File.WriteAllText(scriptPath, "#!/bin/sh\nexit 0\n");
+        File.WriteAllText(linkPath, "target.txt");
+        string scriptId = fixture.Git("hash-object", "-w", scriptPath);
+        string linkId = fixture.Git("hash-object", "-w", linkPath);
+        fixture.Git("update-index", "--add", "--cacheinfo", $"100755,{scriptId},bin/tool.sh");
+        fixture.Git("update-index", "--add", "--cacheinfo", $"120000,{linkId},link");
+        fixture.Git("update-index", "--add", "--cacheinfo", $"160000,{baseCommit},deps/module");
+        fixture.Git("commit", "--quiet", "-m", "raw modes");
+        string before = fixture.Git("rev-parse", "HEAD");
+        fixture.Git("update-index", "--cacheinfo", $"160000,{before},deps/module");
+        fixture.Git("commit", "--quiet", "-m", "gitlink bump");
+        string after = fixture.Git("rev-parse", "HEAD");
+        fixture.Git("config", "diff.ignoreSubmodules", "all");
+
+        GitFacts facts = new();
+        GitFact<IReadOnlyList<GitTreeEntry>> tree = await facts.ReadTreeAsync(
+            fixture.Root, before, TestContext.Current.CancellationToken);
+        tree.IsSuccess.ShouldBeTrue(tree.Message);
+        tree.Value!.Single(entry => entry.Path == "bin/tool.sh")
+            .ShouldBe(new GitTreeEntry("100755", "blob", scriptId, "bin/tool.sh"));
+        tree.Value!.Single(entry => entry.Path == "link")
+            .ShouldBe(new GitTreeEntry("120000", "blob", linkId, "link"));
+        tree.Value!.Single(entry => entry.Path == "deps/module")
+            .ShouldBe(new GitTreeEntry("160000", "commit", baseCommit, "deps/module"));
+        GitFact<IReadOnlyList<GitDiffEntry>> diff = await facts.ReadDiffAsync(
+            fixture.Root, before, after, TestContext.Current.CancellationToken);
+        diff.IsSuccess.ShouldBeTrue(diff.Message);
+        diff.Value!.ShouldHaveSingleItem();
+        diff.Value[0].ShouldBe(new GitDiffEntry("160000", "160000", baseCommit,
+            before, "M", "deps/module", null));
     }
 
     [Fact]

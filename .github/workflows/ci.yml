@@ -54,6 +54,14 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Set up Python for the process fixture
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Build TestSupport tests
+        run: dotnet build tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj --configuration Release
+
       - name: Check TestSupport project pack and publish properties
         shell: pwsh
         run: |
@@ -69,14 +77,6 @@ jobs:
               }
             }
           }
-
-      - name: Set up Python for the process fixture
-        uses: actions/setup-python@v7.0.0
-        with:
-          python-version: '3.11'
-
-      - name: Build TestSupport tests
-        run: dotnet build tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj --configuration Release
 
       - name: Run TestSupport tests on Windows
         run: >-

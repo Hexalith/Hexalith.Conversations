@@ -10127,6 +10127,28 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
     assert len(facts["predecessorRecords"]) == 2
     assert len(facts["projects"]) == 2
     assert len(facts["results"]) == 5
+    original_inventory = deepcopy(contract["inventory"])
+    contract["inventory"]["sha256"] = "0" * 64
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "ASSERTION_INVENTORY_DRIFT" in {row["code"] for row in error.value.findings}
+    contract["inventory"] = original_inventory
+
+    result = scenario_records["AC-10.1-06"]["resultFile"]
+    original_digest = result["sha256"]
+    result["sha256"] = "0" * 64
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "TEST_RESULTS_MISSING" in {row["code"] for row in error.value.findings}
+    result["sha256"] = original_digest
+
+    missing_project_path = f"tests/{tests}/{tests}.csproj"
+    missing_project = blobs.pop(missing_project_path)
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "TEST_RESULTS_MISSING" in {row["code"] for row in error.value.findings}
+    blobs[missing_project_path] = missing_project
+
     scenario_records["AC-10.1-06"]["resultFile"]["path"] = "foreign.trx"
     with pytest.raises(generator.V2Stop) as error:
         generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
@@ -10246,6 +10268,32 @@ def test_story101_committed_pair_still_verifies() -> None:
     assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
 
 
+def test_story101_schema_requires_exclusive_closed_support_binding() -> None:
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    story101 = generator.v2_parse_json(
+        (WORKSPACE / "docs/release-evidence/story-10.1-final-record-v2.json").read_bytes())
+    story92 = generator.v2_parse_json(
+        (WORKSPACE / "docs/release-evidence/story-9.2-final-record-v2.json").read_bytes())
+    assert not generator.v2_schema_errors(validators["record"], story101)
+    assert not generator.v2_schema_errors(validators["record"], story92)
+    without_block = deepcopy(story101)
+    without_block.pop("testSupportExecution")
+    assert generator.v2_schema_errors(validators["record"], without_block)
+    copied_block = deepcopy(story92)
+    copied_block["testSupportExecution"] = deepcopy(story101["testSupportExecution"])
+    assert generator.v2_schema_errors(validators["record"], copied_block)
+    extra_field = deepcopy(story101)
+    extra_field["testSupportExecution"]["unexpected"] = "value"
+    assert generator.v2_schema_errors(validators["record"], extra_field)
+    foreign_contract = deepcopy(story101)
+    foreign_contract["testSupportExecution"]["contract"]["path"] = "foreign-contract.json"
+    assert generator.v2_schema_errors(validators["record"], foreign_contract)
+    foreign_predecessor = deepcopy(story101)
+    foreign_predecessor["testSupportExecution"]["predecessorRecords"][0]["path"] = "foreign-record.json"
+    assert generator.v2_schema_errors(validators["record"], foreign_predecessor)
+
+
 def test_story101_committed_predecessor_requires_valid_pair(tmp_path: Path) -> None:
     generator = load_generator()
     _, validators = generator.v2_load_schemas()
@@ -10308,6 +10356,14 @@ def test_story101_artifact_linked_parent_is_rejected(tmp_path: Path) -> None:
         raise
     with pytest.raises(ValueError, match="linked artifact path"):
         generator.v2_10_1_artifact_bytes(tmp_path, "linked/result.trx")
+    tests_bin = tmp_path / "tests/Hexalith.Conversations.TestSupport.Tests/bin"
+    tests_bin.parent.mkdir(parents=True)
+    tests_bin.symlink_to(outside, target_is_directory=True)
+    with pytest.raises(ValueError, match="linked artifact path"):
+        generator.v2_10_1_artifact_bytes(
+            tmp_path,
+            "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll",
+        )
 
 
 def test_story101_pair_rejects_revision_and_artifact_path_conflicts(monkeypatch) -> None:
@@ -10434,6 +10490,14 @@ def test_story101_predecessor_requires_positive_consistent_summary() -> None:
     generator = load_generator()
     previous = json.loads((WORKSPACE / "docs/release-evidence/story-7.4-final-record-v2.json").read_text())
     assert generator.v2_10_1_predecessor_passes(previous)
+    saved_ledger = previous["scenarios"][0]["assertionLedger"]
+    previous["scenarios"][0]["assertionLedger"] = []
+    assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["scenarios"][0]["assertionLedger"] = saved_ledger
+    for field in ("skipped", "notRun"):
+        previous["summary"][field] = 1
+        assert not generator.v2_10_1_predecessor_passes(previous)
+        previous["summary"][field] = 0
     previous["summary"]["required"] = previous["summary"]["passed"] = 0
     assert not generator.v2_10_1_predecessor_passes(previous)
     previous["summary"]["required"] = previous["summary"]["passed"] = len(previous["scenarios"])
