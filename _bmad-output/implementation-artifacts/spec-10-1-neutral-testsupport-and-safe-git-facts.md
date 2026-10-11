@@ -194,6 +194,59 @@ Code review of `2f2621a..0687017` (2026-10-11), full mode, all four layers compl
 - R2-VG6 (low, carried BH13): The boundary tests evaluate a temporary project outside `global.json`, so any preinstalled SDK works; the step does not run today (see the deferred CI item).
 - R2-AA7 (rejected, contract edit): Removing both projects includes their solution and CI wiring, and changing the rollback text would edit the frozen contract.
 
+#### Third review pass
+
+Code review of `2f2621a..0b9251d` (2026-10-11), full mode, all four layers completed. As in the second pass, by owner choice the diff excluded this spec and the generated record pair. Result: 1 decision-needed, 11 patch, 1 defer, 37 rejected. Every patch changes a bound candidate input, so landing any of them requires a new committed candidate and a regenerated Story 10.1 pair.
+
+- [ ] [Review][Decision] (medium) The Windows TestSupport job has never passed, and the commits that fix its failures have never run in CI — run 38127833621 at `7eb1779`, the last pushed commit, failed `ci / TestSupport Windows descendant cleanup` with 2 of 9 tests failing: an `IOException` from the pid-file cleanup in `RunnerShouldBoundAndCancelExecution` (the old non-atomic `open(...).write` fixture) and `Unavailable` instead of `Invalid` at the large-shallow assertion (the `print()` CRLF fake). HEAD fixes both (`tmp` plus `os.replace`, and `sys.stdout.buffer.write`) only in the eight unpushed commits `a999560..0b9251d`. So the Windows `GitProcessJob` branch and the rest of AC-10.1-06 (root, merge, and octopus shallow clones, the partial clone, probe cancellation) have no passing Windows run, although the second pass marked the Windows patches done. Options: push the local commits and require a green Windows job before `done`, or accept the story with the Windows gap recorded [.github/workflows/ci.yml:36]
+- [ ] [Review][Patch] (medium) Real-Git raw modes and submodule-ignore isolation are untested: the AC-05 repository commits only `100644` files, so `ReadTreeAsync` never parses a real `160000 commit`, `120000`, or `100755` entry. Removing both `--ignore-submodules=none` and the preamble's `-c diff.ignoreSubmodules=none` keeps every test green, while a repository-config `diff.ignoreSubmodules=all` makes `git diff --raw` drop a gitlink bump (verified by the reviewer). Add a sibling `[Fact]` with a gitlink (`update-index --cacheinfo 160000,…`), an executable, and a symlink under hostile `diff.ignoreSubmodules=all`, asserting the tree entries and a `:160000 160000 … M` diff record [tests/Hexalith.Conversations.TestSupport.Tests/GitFactsTests.cs:217]
+- [ ] [Review][Patch] (medium) The hostile-environment check pins 11 named keys rather than the child's whole `GIT_*` environment: replacing the runner's prefix strip at `GitFacts.cs:86` with a list of the seven injected names keeps AC-05 green while `GIT_CONFIG_PARAMETERS` (the `git -c` channel), `GIT_ALTERNATE_OBJECT_DIRECTORIES`, `GIT_WORK_TREE`, `GIT_INDEX_FILE`, or `GIT_SHALLOW_FILE` leak through. Also inject `GIT_CONFIG_PARAMETERS`, dump every `GIT_*` key, and compare with the exact expected dictionary [tests/Hexalith.Conversations.TestSupport.Tests/GitFactsTests.cs:183]
+- [ ] [Review][Patch] (medium) Story 10.1 generator fail-closed branches have no negative test: the 10.1 `ASSERTION_INVENTORY_DRIFT` branch (the first pass's BH13 rejection cited `test_generate_story_record.py:10062`, which is a Story 9.2 test), the TRX "result digest differs" branch, the missing committed project `TEST_RESULTS_MISSING` branch, and `v2_10_1_predecessor_passes` with an empty `assertionLedger` or nonzero `skipped`/`notRun`. Deleting any of them keeps every `story101` test green, and the empty-ledger case is the epic's "zero assertions cannot pass" rule [_bmad/scripts/generate_story_record.py:5510]
+- [ ] [Review][Patch] (low) The schema's 10.1-only `testSupportExecution` rule and the block's closed shape are untested: deleting the `else` arm or `additionalProperties: false` keeps every committed pair valid, so a later story's record could carry a copied 10.1 block and render its section. Add the 8.2/9.2-style mutations (block removed from 10.1, block added to a prior record, extra property) [_bmad/schemas/story-final-record-v2.schema.json:435]
+- [ ] [Review][Patch] (low) The linked-artifact rule is tested only on the helper: replacing `v2_10_1_artifact_bytes(repository, assembly_path)` with a plain read keeps every test green. Add a symlinked `tests/Hexalith.Conversations.TestSupport.Tests/bin` case (Unix-only, like the helper test) to the bindings test, expecting `TEST_SUPPORT_BOUNDARY_INVALID` [_bmad/scripts/generate_story_record.py:5563]
+- [ ] [Review][Patch] (low) `ReadBlobAsync` mixes the validated root with the raw caller path: `ls-tree` runs on `root.Value`, but `ParseTree` and `cat-file` use `repository`, so a relative path with a working-directory change between steps could validate one directory and read another. Use `root.Value!` throughout the method [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:471]
+- [ ] [Review][Patch] (low) `RunAsync` returns `Success` for a nonzero Git exit, while `GitFactStatus.Success` says "the requested fact was established". The typed readers recheck `ExitCode`, but a Story 10.2 consumer trusting `IsSuccess` from `RunAsync` would read a failed command as a fact. Document on `RunAsync` that success means captured completion and that callers must check `ExitCode` [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:30]
+- [ ] [Review][Patch] (low) The schema pins project, assembly, and result paths with `const` but leaves `contract.path` and `predecessorRecords[].path` open, so only the Python `v2_10_1_exact_paths` rejects a foreign contract or predecessor file. Pin both [_bmad/schemas/story-final-record-v2.schema.json:4531]
+- [ ] [Review][Patch] (low) The Story 10.1 runbook understates the boundary rule and omits a prerequisite: `v2_10_1_artifact_bytes` rejects any linked path component and any linked repository ancestor, not only links "outside the repository", and inserted-record verification runs four `dotnet msbuild` evaluations (30 seconds each), so it needs the .NET SDK [docs/runbooks/story-final-record-generation.md:1878]
+- [ ] [Review][Patch] (low) The Windows CI pack/publish check evaluates the projects before any restore, so NuGet-imported props and targets are absent and the evaluated graph differs from the build two steps later. Move the step after "Build TestSupport tests" [.github/workflows/ci.yml:57]
+- [ ] [Review][Patch] (low) The Story 10.1 deferred-work heading follows the previous list item with no blank line, unlike every other section [_bmad-output/implementation-artifacts/deferred-work.md:559]
+- [x] [Review][Defer] (low) The `sprint-status.yaml` header comment still says the global implementation hold is active, IR-0 was not run, and all successor stories remain backlog, while the body now has `epic-10: in-progress` and Story 10.1 in `review` [_bmad-output/implementation-artifacts/sprint-status.yaml:41] — deferred: pre-existing; this change did not touch that comment, which already lagged the IR-0 state before Story 10.1.
+
+##### Rejected (third pass)
+
+- R3-BH1 (low, carried BH7/AA8): Per-scenario contract failure codes are not emitted.
+- R3-BH2 (low, carried AA5): Pinning the whole exported type set would break when Story 10.2 adds TestSupport types.
+- R3-BH3 / R3-ECH21 (low, carried ECH29): An unresolvable predecessor candidate is classified `AUTHORITY_BINDING_INVALID` rather than a BLOCKED code. It still fails closed; CI checks out with `fetch-depth: 0`, and the local repository holds the `evidence/story-7.4-candidate` tag.
+- R3-BH4 (low): The process-wide `GIT_*` and working-directory mutations run inside one class, and the only other class neither spawns Git nor uses relative paths. A non-parallel collection would guard future tests that do not exist yet.
+- R3-BH6 / R3-ECH31 (low, carried R2-VG6): SDK availability for the boundary tests in the repository job.
+- R3-ECH1 (low, carried L1-B04): Hosts without `setsid`.
+- R3-ECH2 (low, carried L1-B02): Intentionally detached Unix descendants.
+- R3-ECH3 (low, carried ECH5): PID reuse.
+- R3-ECH4 (low, carried L1-B01): Windows pre-enrollment race.
+- R3-ECH5 (low, carried ECH6): A Windows process that exits before job assignment yields typed `GIT_UNAVAILABLE`, never success.
+- R3-ECH6 (false, carried ECH21/L5-B02): A null executable or prefix argument is caller misuse.
+- R3-ECH7 (low): A NUL inside a raw `RunAsync` argument could truncate native argv, but every typed reader rejects NUL in its revision and path before calling `RunAsync`. Covering direct callers adds another guard.
+- R3-ECH8 (low, carried ECH9): Late task exceptions after bounded cleanup.
+- R3-ECH9 (false, carried BH12): 8.3 short names are expanded.
+- R3-ECH10 (low, carried ECH3): Global `safe.directory` is deliberately unavailable.
+- R3-ECH11 (low, carried L3-B07): General shallow expressions.
+- R3-ECH12 (low, carried ECH16): A committed symlink's blob is its link text.
+- R3-ECH13 (low, carried ECH19): Committed backslash paths on Windows.
+- R3-ECH14 (low, carried R2-BH9): Windows stream and device spellings.
+- R3-ECH15 / R3-ECH25 (low, carried L1-E06): Path-swap TOCTOU.
+- R3-ECH16 (low, carried BH17): `Equal` on arrays fails closed.
+- R3-ECH17 (low, carried BH17): Manifest digest validation is Story 10.2 scope.
+- R3-ECH18 (low, carried ECH23): `AssertionLedger` is a single-test helper.
+- R3-ECH19 (low, carried BH16): The public `GitFact` record shape.
+- R3-ECH20 (low, carried ECH28): A missing `dotnet` cannot reach the boundary check after AC-01..06 were measured.
+- R3-ECH22 (false, carried R2-ECH23): Ancestry is deliberately not required, because the accepted 7.4 record diverges.
+- R3-ECH23 (false, carried ECH30): A lifecycle rebuild changes the bound assembly digest on both routes.
+- R3-ECH24 (false): `v2_verify_pair` checks a pair's internal consistency for any result, so a valid FAIL pair must verify; predecessor PASS is enforced separately by `v2_10_1_predecessor_passes`.
+- R3-ECH26 / R3-ECH27 (low, carried R2-ECH18): Fixture startup and poll windows fail loudly on a slow host instead of producing a false pass.
+- R3-ECH28 (low): An unreaped zombie in an init-less container makes `WaitForExitAsync` fail loudly. CI and WSL reap their children, and handling it needs `/proc` state parsing.
+- R3-ECH29 / R3-ECH30 (low, carried R2-BH11): Temporary directories and links leak only after a failing test.
+- R3-AA4 (low): Leaders and descendants share one process-group or job termination path. The started-descendant assertions already catch a regression that skips termination, and a regression that spares only the leader would be contrived.
+
 ## Implementation Notes
 
 - Review loop 2: candidate `4f57a68a08b842b160c6b9c12fca6e82134da78f` and its pair at `40d0168` passed AC-01..07, exact solution restore and Release build, focused TestSupport 5/5, focused generator 4/4, and pair/schema checks. All five TRX files matched record digests; the 7.4/9.2 predecessor bytes were unchanged. That candidate was withdrawn from the working tree because the second review found further safeguards to derive. Its local commits remain for traceability.
