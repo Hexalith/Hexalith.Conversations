@@ -91,7 +91,10 @@ public interface IConversationClient
     /// <param name="cancellationToken">Cancellation.</param>
     /// <returns>A safe typed outcome; default implementors fail closed.</returns>
     Task<ConversationAgentReadResult> GetAgentConversationAsync(ConversationAgentReadQuery request, CancellationToken cancellationToken = default)
-        => Task.FromResult<ConversationAgentReadResult>(new(ConversationAgentsOutcome.Unavailable, request.TenantId, request.ConversationId));
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        return Task.FromResult<ConversationAgentReadResult>(new(ConversationAgentsOutcome.Unavailable, request.TenantId, request.ConversationId));
+    }
 
     /// <summary>Executes the restricted GetActiveConversationCountAsync owner seam through the existing gateway.</summary>
     /// <param name="request">Exact portable intent or current source query.</param>

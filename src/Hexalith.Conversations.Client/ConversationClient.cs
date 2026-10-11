@@ -340,7 +340,9 @@ public sealed class ConversationClient : IConversationClient
 
     /// <inheritdoc />
     public Task<ConversationAgentCommandResult> AddParticipantAsync(AddParticipantCommand request, CancellationToken cancellationToken = default)
-        => request.OperationTimestamp is { } occurrence ? SubmitAgentCommandAsync(request.Metadata, request.ConversationId,
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        return request.OperationTimestamp is { } occurrence ? SubmitAgentCommandAsync(request.Metadata, request.ConversationId,
             "AddAgentParticipant", new
             {
                 PublicCommand = request,
@@ -348,19 +350,25 @@ public sealed class ConversationClient : IConversationClient
                 EventId = IntentId(request.Metadata, request.ConversationId, "membership")
             },
             null, cancellationToken) : Task.FromResult(new ConversationAgentCommandResult(ConversationAgentsOutcome.Invalid));
+    }
 
     /// <inheritdoc />
     public Task<ConversationAgentCommandResult> RemoveAgentParticipantAsync(RemoveAgentParticipantCommand request, CancellationToken cancellationToken = default)
-        => SubmitAgentCommandAsync(request.Metadata, request.ConversationId, "RemoveAgentParticipant",
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        return SubmitAgentCommandAsync(request.Metadata, request.ConversationId, "RemoveAgentParticipant",
             new
             {
                 PublicCommand = request,
                 EventId = IntentId(request.Metadata, request.ConversationId, "removal")
             }, null, cancellationToken);
+    }
 
     /// <inheritdoc />
     public Task<ConversationAgentCommandResult> PostAgentMessageAsync(AppendMessageCommand request, CancellationToken cancellationToken = default)
-        => request.OperationTimestamp is { } occurrence ? SubmitAgentCommandAsync(request.Metadata, request.ConversationId,
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        return request.OperationTimestamp is { } occurrence ? SubmitAgentCommandAsync(request.Metadata, request.ConversationId,
             "AppendAgentMessage", new
             {
                 PublicCommand = request,
@@ -368,39 +376,55 @@ public sealed class ConversationClient : IConversationClient
                 EventId = IntentId(request.Metadata, request.ConversationId, "posting")
             },
             request.MessageId, cancellationToken) : Task.FromResult(new ConversationAgentCommandResult(ConversationAgentsOutcome.Invalid));
+    }
 
     /// <inheritdoc />
     public Task<ConversationAgentReadResult> GetAgentConversationAsync(ConversationAgentReadQuery request, CancellationToken cancellationToken = default)
-        => SubmitAgentQueryAsync(request.TenantId, request.ConversationId.Value, "conversation-agent-read", request,
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        return SubmitAgentQueryAsync(request.TenantId, request.ConversationId.Value, "conversation-agent-read", request,
             new ConversationAgentReadResult(ConversationAgentsOutcome.Unavailable, request.TenantId, request.ConversationId), cancellationToken);
+    }
 
     /// <inheritdoc />
     public Task<ConversationActiveCountResult> GetActiveConversationCountAsync(ConversationActiveCountQuery request, CancellationToken cancellationToken = default)
-        => SubmitAgentQueryAsync(request.TenantId, request.TenantId.Value, "conversation-active-count", request,
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        return SubmitAgentQueryAsync(request.TenantId, request.TenantId.Value, "conversation-active-count", request,
             new ConversationActiveCountResult(ConversationAgentsOutcome.Unavailable), cancellationToken);
+    }
 
     /// <inheritdoc />
     public Task<ConversationAgentCommandResult> ApproveConversationDeletionAsync(ApproveConversationDeletionCommand request, CancellationToken cancellationToken = default)
-        => SubmitAgentCommandAsync(request.Metadata, request.ConversationId, "ApproveConversationDeletion",
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        return SubmitAgentCommandAsync(request.Metadata, request.ConversationId, "ApproveConversationDeletion",
             new
             {
                 PublicCommand = request,
                 EventId = IntentId(request.Metadata, request.ConversationId, "approval")
             }, null, cancellationToken);
+    }
 
     /// <inheritdoc />
     public Task<ConversationAgentCommandResult> RecordConversationDeletionDeliveryAsync(RecordConversationDeletionDeliveryCommand request, CancellationToken cancellationToken = default)
-        => SubmitAgentCommandAsync(request.Metadata, request.ConversationId, "RecordConversationDeletionDelivery",
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        return SubmitAgentCommandAsync(request.Metadata, request.ConversationId, "RecordConversationDeletionDelivery",
             new
             {
                 PublicCommand = request,
                 EventId = IntentId(request.Metadata, request.ConversationId, "delivery")
             }, null, cancellationToken);
+    }
 
     /// <inheritdoc />
     public Task<ConversationDeletionSourceResult> GetConversationDeletionSourceAsync(ConversationDeletionSourceQuery request, CancellationToken cancellationToken = default)
-        => SubmitAgentQueryAsync(request.TenantId, request.ConversationId.Value, "conversation-deletion-source", request,
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        return SubmitAgentQueryAsync(request.TenantId, request.ConversationId.Value, "conversation-deletion-source", request,
             new ConversationDeletionSourceResult(ConversationAgentsOutcome.Unavailable), cancellationToken);
+    }
 
     private async Task<ConversationAgentCommandResult> SubmitAgentCommandAsync<T>(ConversationCommandMetadata metadata,
         ConversationId conversation, string commandType, T intent, MessageId? requestedMessageId, CancellationToken cancellationToken)
