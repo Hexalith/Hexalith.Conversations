@@ -535,7 +535,7 @@ public sealed class GitFacts
             || chainText is null || !chainText.EndsWith('\n'))
             return GitFact<bool>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", "Git returned a malformed ancestor chain.");
         string[] commits = chainText[..^1].Split('\n');
-        if (commits.Length == 0 || commits.Any(commit => !IsObjectId(commit)))
+        if (commits.Length == 0 || commits.Any(commit => !IsObjectId(commit) || commit.All(character => character == '0')))
             return GitFact<bool>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", "Git returned a malformed ancestor chain.");
         if (!objectRevision && !numberedParent && depth < commits.Length) return GitFact<bool>.Ok(false);
         string boundaryId = numberedParent ? commits[0] : commits[^1];

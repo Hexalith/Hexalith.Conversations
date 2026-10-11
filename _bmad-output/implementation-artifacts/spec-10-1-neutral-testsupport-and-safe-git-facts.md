@@ -466,6 +466,21 @@ Every patch below changes a path outside the retained-candidate whitelist. Landi
 | R4-E02 Windows enrollment race | low | rejected | carried: L1-B01 and L6-B01 record the pre-enrollment child race; raw Git fact commands do not spawn descendants, and closing a fixture-only race needs native suspended startup. |
 | R4-E03 successor sprint keys | medium | defer | carried: L5-B13 records the same generic later-story key issue, already present in deferred-work.md. |
 | R4-V01 CI generator lane | medium | defer | carried: the second review recorded the same pre-existing CI completion-gate failure; the Story 10.1 generator tests pass locally but cannot run in that job until its earlier gate is repaired or separated. |
+| R5-V01 CI generator lane | medium | defer | carried: the second and fourth reviews recorded the pre-existing completion-gate failure before the Python tooling lane. The focused Story 10.1 tests pass locally. |
+| R5-E01 Windows enrollment race | low | rejected | carried: L1-B01 and R4-E02 cover process start before job enrollment; raw Git facts do not spawn descendants, and suspended native startup is more than a direct correction. |
+| R5-E02 all-zero shallow ancestor | medium | patch | `IsProvenShallowAncestorAsync` accepts an all-zero `rev-list` line because `IsObjectId` checks shape only. A malformed probe can reach the boundary check and be classified as unavailable instead of invalid; reject zero IDs and test that output. |
+| R5-B01 CI generator lane | medium | defer | carried: R5-V01 and earlier reviews record the same pre-existing completion-gate failure before the Python tooling lane. |
+| R5-B02 successor sprint keys | medium | defer | carried: L5-B13 and deferred-work.md record the pre-existing 10.2–10.4 key mismatch; the 10.1 key is resolved. |
+| R5-B03 execution-time assembly receipt | medium | defer | carried: L4-B10 records that the generic TRX route lacks an execution-time binary digest; closing it requires a shared receipt protocol. |
+| R5-B04 copied helper assembly | low | rejected | carried: R2-BH3 records that tests load a copied helper DLL and a deterministic build copies the same candidate bytes; execution-time binding is covered by L4-B10. |
+| R5-B05 blocking argument iterator | low | rejected | carried: L3-B01 records that synchronous caller enumeration precedes the timer, while ordinary callers pass finite arrays; stopping arbitrary iterator code requires a separate execution model. |
+| R5-B06 Windows enrollment race | low | rejected | carried: R5-E01 and L1-B01 cover the same pre-enrollment race. |
+| R5-B07 detached Unix descendant | low | rejected | carried: L1-B02 records that a child creating a new session can evade its original group; raw Git facts do not intentionally detach children, and tracking them needs platform-specific machinery. |
+| R5-B08 repository path-swap race | low | rejected | carried: L1-E06 records that a concurrent hostile local writer can replace a checked parent before use; an atomic handle-based path protocol is more than a direct correction. |
+| R5-B09 artifact path-swap race | low | rejected | carried: L1-E06 and R5-B08 cover the same concurrent parent replacement premise at the artifact reader; it is outside the ordinary local candidate flow. |
+| R5-B10 general shallow expressions | low | rejected | carried: L3-B07 records that unsupported side-branch expressions remain invalid rather than successful; full revision-expression proof exceeds the demonstrated HEAD forms. |
+| R5-B11 Windows junction coverage | low | rejected | carried: L5-B12 records that Unix tests cover link containment and Windows CI covers process cleanup; privileged junction setup is more than a direct test correction. |
+| R5-B12 stale sprint header | low | defer | carried: the third review recorded the pre-existing stale comment separately from the correctly tracked Story 10.1 status row. |
 
 ## Verification
 
