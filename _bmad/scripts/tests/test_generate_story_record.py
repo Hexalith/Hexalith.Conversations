@@ -10266,6 +10266,29 @@ def test_story101_committed_predecessor_requires_valid_pair(tmp_path: Path) -> N
                                              markdown_path, validators["record"]) is None
 
 
+@pytest.mark.parametrize("output", ("json", "markdown"))
+def test_story101_committed_predecessor_requires_exact_output_paths(tmp_path: Path, output: str) -> None:
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    json_path = "docs/release-evidence/story-7.4-final-record-v2.json"
+    markdown_path = "docs/release-evidence/story-7.4-final-record-v2.md"
+    record = generator.v2_parse_json((WORKSPACE / json_path).read_bytes())
+    record["outputs"][output]["path"] = "docs/release-evidence/other-record-v2." + ("json" if output == "json" else "md")
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    for path, content in ((json_path, json_bytes), (markdown_path, markdown_bytes)):
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+    subprocess.run(["git", "-C", str(tmp_path), "add", "--", json_path, markdown_path], check=True)
+    subprocess.run(["git", "-C", str(tmp_path), "-c", "user.name=Fixture", "-c",
+                    "user.email=fixture@example.invalid", "commit", "-qm", "test: add mismatched predecessor fixture"], check=True)
+    candidate = subprocess.check_output(["git", "-C", str(tmp_path), "rev-parse", "HEAD"], text=True).strip()
+    assert generator.v2_verified_predecessor(tmp_path, candidate, "7.4", json_path,
+                                             markdown_path, validators["record"]) is None
+
+
 def test_story101_artifact_linked_parent_is_rejected(tmp_path: Path) -> None:
     generator = load_generator()
     outside = tmp_path / "outside"
@@ -10404,6 +10427,9 @@ def test_story101_predecessor_requires_positive_consistent_summary() -> None:
     assert not generator.v2_10_1_predecessor_passes(previous)
     previous["summary"]["required"] = previous["summary"]["passed"] = len(previous["scenarios"])
     previous["scenarios"][0]["exitCode"] = 1
+    assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["scenarios"][0]["exitCode"] = 0
+    previous["scenarios"][0]["blockers"] = ["unexpected blocker"]
     assert not generator.v2_10_1_predecessor_passes(previous)
 
 

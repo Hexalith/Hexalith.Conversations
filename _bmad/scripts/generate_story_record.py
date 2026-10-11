@@ -5429,6 +5429,8 @@ def v2_verified_predecessor(
         if (
             not isinstance(record, dict)
             or record.get("storyId") != story_id
+            or record.get("outputs", {}).get("json", {}).get("path") != json_path
+            or record.get("outputs", {}).get("markdown", {}).get("path") != markdown_path
             or v2_schema_errors(validator, record)
             or v2_verify_pair(json_bytes, markdown_bytes)
         ):
@@ -5504,7 +5506,7 @@ def v2_10_1_predecessor_passes(record: dict[str, Any]) -> bool:
     count = len(scenarios)
     return (count > 0 and summary["required"] == summary["passed"] == count
             and not any(summary[key] for key in ("failed", "blocked", "skipped", "notRun"))
-            and all(row["result"] == "PASS" and row["exitCode"] == 0
+            and all(row["result"] == "PASS" and row["exitCode"] == 0 and not row.get("blockers")
                     and row.get("assertionLedger")
                     and all(assertion.get("state") == "PASS" for assertion in row["assertionLedger"])
                     for row in scenarios))

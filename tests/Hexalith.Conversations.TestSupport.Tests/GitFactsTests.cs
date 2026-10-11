@@ -339,15 +339,22 @@ public sealed class GitFactsTests
                 (await PythonFacts(treeScript).ReadTreeAsync(
                     fixture.Root, after, TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
             }
-            string narrowTreeScript = "import sys\na=sys.argv[1:]\n"
+            byte[] gitObject = [.. Encoding.ASCII.GetBytes("blob 5\0"), .. Encoding.UTF8.GetBytes("small")];
+            string blobObjectId = Convert.ToHexStringLower(SHA1.HashData(gitObject));
+            string BlobScript(string content) => "import sys\na=sys.argv[1:]\n"
                 + "sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode() if '--show-toplevel' in a else "
                 + "(b'a'*40+b'\\n' if '--verify' in a else "
-                + "(b'100644 blob '+b'1'*40+b'\\tsmall.txt\\0' if 'ls-tree' in a and ':(literal)small.txt' in a "
-                + "else (b'x'*(17*1024*1024) if 'ls-tree' in a else b'small' if 'cat-file' in a else b''))))";
-            GitFact<GitBlob> narrowBlob = await PythonFacts(narrowTreeScript).ReadBlobAsync(
+                + "(b'100644 blob " + blobObjectId + "\\tsmall.txt\\0' if 'ls-tree' in a and ':(literal)small.txt' in a "
+                + "else (b'x'*(17*1024*1024) if 'ls-tree' in a else "
+                + JsonSerializer.Serialize(content) + ".encode() if 'cat-file' in a else b''))))";
+            GitFact<GitBlob> narrowBlob = await PythonFacts(BlobScript("small")).ReadBlobAsync(
                 fixture.Root, after, "small.txt", TestContext.Current.CancellationToken);
             narrowBlob.IsSuccess.ShouldBeTrue(narrowBlob.Message);
             narrowBlob.Value!.Content.ShouldBe(Encoding.UTF8.GetBytes("small"));
+            GitFact<GitBlob> corruptBlob = await PythonFacts(BlobScript("wrong")).ReadBlobAsync(
+                fixture.Root, after, "small.txt", TestContext.Current.CancellationToken);
+            corruptBlob.Status.ShouldBe(GitFactStatus.Invalid);
+            corruptBlob.Code.ShouldBe("GIT_OUTPUT_INVALID");
             string renameSource = Path.Combine(fixture.Root, "rename-source.txt");
             File.WriteAllText(renameSource, "content to rename");
             string secondRenameSource = Path.Combine(fixture.Root, "second-rename-source.txt");
@@ -401,6 +408,13 @@ public sealed class GitFactsTests
         (await facts.ReadBlobAsync(fixture.Root, "HEAD", "missing", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
         if (!OperatingSystem.IsWindows())
         {
+            string nonExecutable = Path.Combine(fixture.Root, "non-executable-git");
+            File.WriteAllText(nonExecutable, "#!/bin/sh\nexit 0\n");
+            File.SetUnixFileMode(nonExecutable, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+            GitFact<string> nonExecutableGit = await new GitFacts(nonExecutable)
+                .ResolveRepositoryAsync(fixture.Root, TestContext.Current.CancellationToken);
+            nonExecutableGit.Status.ShouldBe(GitFactStatus.Unavailable);
+            nonExecutableGit.Code.ShouldBe("GIT_UNAVAILABLE");
             string outside = Path.Combine(Path.GetTempPath(), "gitfacts-outside-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(outside);
             string link = Path.Combine(fixture.Root, "escape");

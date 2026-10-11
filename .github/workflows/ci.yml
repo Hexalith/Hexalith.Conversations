@@ -54,6 +54,22 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Check TestSupport project pack and publish properties
+        shell: pwsh
+        run: |
+          $projects = @(
+            'tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj',
+            'tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj'
+          )
+          foreach ($project in $projects) {
+            foreach ($configuration in @('Debug', 'Release')) {
+              $evaluation = dotnet msbuild $project "-p:Configuration=$configuration" '-getProperty:IsPackable,IsPublishable' -nologo | ConvertFrom-Json
+              if ($LASTEXITCODE -ne 0 -or $evaluation.Properties.IsPackable -ne 'false' -or $evaluation.Properties.IsPublishable -ne 'false') {
+                throw "$project ($configuration) must have IsPackable=false and IsPublishable=false"
+              }
+            }
+          }
+
       - name: Set up Python for the process fixture
         uses: actions/setup-python@v7.0.0
         with:

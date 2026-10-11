@@ -23,4 +23,13 @@ public sealed class TestSupportSurfaceTests
         ((IDictionary<string, string>)manifest.Digests).IsReadOnly.ShouldBeTrue();
         ((IDictionary<string, bool>)ledger.Results).IsReadOnly.ShouldBeTrue();
     }
+
+    [Fact]
+    public void FilesystemRootShouldContainRelativeChildren()
+    {
+        string root = Path.GetPathRoot(Path.GetTempPath())!;
+        GitFact<string> contained = RepositoryLocator.ResolveContainedPath(root, "story101-root-probe");
+        contained.IsSuccess.ShouldBeTrue(contained.Message);
+        contained.Value.ShouldBe(Path.GetFullPath(Path.Combine(root, "story101-root-probe")));
+    }
 }

@@ -228,14 +228,28 @@ public sealed class GitFacts
     private static string? ResolveUnixExecutable(string executable)
     {
         if (executable.Contains(Path.DirectorySeparatorChar))
-            return File.Exists(executable) ? Path.GetFullPath(executable) : null;
+            return IsUnixExecutable(executable) ? Path.GetFullPath(executable) : null;
         foreach (string directory in (Environment.GetEnvironmentVariable("PATH") ?? string.Empty).Split(Path.PathSeparator))
         {
             if (directory.Length == 0) continue;
             string candidate = Path.Combine(directory, executable);
-            if (File.Exists(candidate)) return Path.GetFullPath(candidate);
+            if (IsUnixExecutable(candidate)) return Path.GetFullPath(candidate);
         }
         return null;
+    }
+
+    private static bool IsUnixExecutable(string path)
+    {
+        if (OperatingSystem.IsWindows()) return false;
+        try
+        {
+            return File.Exists(path)
+                && (File.GetUnixFileMode(path) & (UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute)) != 0;
+        }
+        catch (Exception exception) when (exception is ArgumentException or IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
     }
 
     [DllImport("libc", EntryPoint = "kill", SetLastError = true)]
@@ -463,6 +477,11 @@ public sealed class GitFacts
         if (!result.IsSuccess) return Forward<GitBlob>(result);
         if (result.Value!.ExitCode != 0) return GitFact<GitBlob>.Fail(GitFactStatus.Unavailable, "HISTORY_UNAVAILABLE", path + ": " + ErrorText(result.Value.Stderr));
         byte[] bytes = result.Value.Stdout;
+        using IncrementalHash objectHash = IncrementalHash.CreateHash(entry.ObjectId.Length == 40 ? HashAlgorithmName.SHA1 : HashAlgorithmName.SHA256);
+        objectHash.AppendData(Encoding.ASCII.GetBytes("blob " + bytes.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + "\0"));
+        objectHash.AppendData(bytes);
+        if (!string.Equals(Convert.ToHexStringLower(objectHash.GetHashAndReset()), entry.ObjectId, StringComparison.Ordinal))
+            return GitFact<GitBlob>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", "Historical blob bytes do not match the committed object ID.");
         return GitFact<GitBlob>.Ok(new(commit.Value!, path, bytes, Convert.ToHexStringLower(SHA256.HashData(bytes))));
     }
 

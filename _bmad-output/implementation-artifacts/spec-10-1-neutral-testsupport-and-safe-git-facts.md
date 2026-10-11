@@ -2,7 +2,7 @@
 title: 'Story 10.1: Neutral TestSupport helpers and safe Git facts'
 type: 'feature'
 created: '2026-10-10'
-status: 'in-progress'
+status: 'in-review'
 baseline_commit: '2f2621aa4b40b0d44c62bf5e1e98727e7a182fec'
 route: 'dispatch'
 review_loop_iteration: 4
@@ -267,6 +267,24 @@ Code review of `2f2621a..fb2426a` (2026-10-11), full mode, all four layers compl
 | L4-V01 default timeout coverage | medium | patch | The test checks the 30-second constant and an explicit two-second timeout, but no hanging call exercises the default deadline used by fact readers. |
 | L4-V02 Windows cleanup CI | medium | patch | The successful-parent descendant test runs in Ubuntu CI while `GitProcessJob.Terminate` is Windows-only; a Windows smoke job is needed to keep that branch checked. |
 | L4-V03 object-directory isolation fixture | medium | patch | The hostile environment fixture sets `GIT_DIR` but not `GIT_OBJECT_DIRECTORY`; removal of the latter from the runner's ambient cleanup would go undetected. |
+| L5-B01 blocking argument iterator | low | rejected | carried: L3-B01 and L4-E01 already reject bounding a caller's synchronous blocking enumerable; ordinary Git fact callers pass finite arrays. |
+| L5-B02 null executable prefix | low | rejected | A constructor caller can supply a list containing null, but this is misuse of the test-only fixture prefix surface; adding another guard does not change normal Git facts. |
+| L5-B03 non-executable Unix Git path | medium | patch | `ResolveUnixExecutable` accepts an existing non-executable file, then `setsid` exits 127 and repository resolution reports the wrong `REPOSITORY_UNAVAILABLE` code. |
+| L5-B04 corrupt loose blob object | medium | patch | A real corrupt loose Git object can make `cat-file blob` exit zero with bytes different from the requested tree object ID; `ReadBlobAsync` must check the Git blob hash before reporting success. This differs from L3-B03's forged executable premise. |
+| L5-B05 mixed object-ID width | low | rejected | carried: L4-B04 already considered foreign-width IDs in forged output; real Git emits its repository object format, and format probing throughout the parser adds disproportionate machinery. |
+| L5-B06 success without value | low | rejected | carried: the prior BH16/ECH22 review rejected changing the public `GitFact` record shape for a caller-created inconsistent result; the runner uses `Ok` and typed failures. |
+| L5-B07 mutable blob bytes | low | rejected | carried: the prior BH16/ECH22 review rejected changing the public `GitBlob` record shape for caller mutation after receipt; the runner computes the digest before returning. |
+| L5-B08 Windows job termination failure | low | rejected | carried: L2-B06 already considered a failed OS job termination; the runner reports timeout/cancellation and ordinary Git behavior has no demonstrated recoverable fallback. |
+| L5-B09 resolved compiler references | low | rejected | The accepted boundary checks declared project, package, assembly, and framework items. `ReferencePath` is a resolved compiler output, not another declared dependency; the current projects have no target that adds a production reference. |
+| L5-B10 status regression retention | false | rejected | Lifecycle verification intentionally permits a review loop to move a story back to implementation while retaining its candidate; status alone is not a record assertion. |
+| L5-B11 task checkbox regression retention | false | rejected | Review work may reopen tasks without changing the candidate facts; the lifecycle mask does not assert task completion and the final record binds measured scenarios. |
+| L5-B12 Windows junction fixture | low | rejected | The Windows CI lane tests the Windows process-tree branch. Root/ancestor link containment is tested on Unix; adding privileged junction setup only for redundant platform coverage is more than a direct correction. |
+| L5-B13 successor sprint key | medium | defer | carried: the same generic post-10.1 key issue is already recorded in deferred-work.md for Stories 10.2–10.4; it is pre-existing outside this candidate's tracked key. |
+| L5-E01 filesystem-root repository | low | patch | `Path.TrimEndingDirectorySeparator` preserves a filesystem root, then the added separator yields `//` on Unix, rejecting a valid child path. |
+| L5-E02 multi-target conditional reference | low | rejected | The checked-in TestSupport projects target one framework and declare no such conditional references. This is a hypothetical future project change, analogous to L3-B08/L4-E04, requiring its own candidate review. |
+| L5-E03 predecessor output paths | medium | patch | `v2_verified_predecessor` validates the committed pair but does not require its declared JSON/Markdown output paths to match their committed locations. |
+| L5-E04 PASS predecessor with blocker | medium | patch | `v2_10_1_predecessor_passes` checks PASS result and assertion states but allows a nonempty blockers list, a contradictory passing predecessor. |
+| L5-V01 live CI project boundary | medium | patch | The focused generator tests evaluate temporary projects, while normal CI never evaluates both checked-in TestSupport projects' Debug and Release pack/publish properties. |
 
 ## Verification
 
@@ -274,203 +292,3 @@ Code review of `2f2621a..fb2426a` (2026-10-11), full mode, all four layers compl
 - `dotnet restore Hexalith.Conversations.slnx` and `dotnet build Hexalith.Conversations.slnx --configuration Release` -- both new projects build.
 - Run the exact AC-10.1-01 through AC-10.1-07 commands in `_bmad-output/planning-artifacts/v9/story-contracts/10.1.json` -- each exits `0` with the contracted evidence.
 - `uv run --frozen --no-sync python3 -m pytest -q -p no:cacheprovider _bmad/scripts/tests/test_generate_story_record.py -k story101` -- focused Story 10.1 generator behavior passes.
-
-<!-- STORY-FINAL-RECORD:BEGIN -->
-# Story 10.1 Final Record
-
-<!-- hexalith.conversations.story-final-record.v2 markdown projection -->
-
-Generated by `_bmad/scripts/generate_story_record.py` from the committed candidate and measured scenario results. The JSON record is authoritative; this rendering is bound to it by digest.
-
-- Schema: `hexalith.conversations.story-final-record.v2`
-- Result: `PASS`
-- Story: `10.1`
-- Candidate: `17c7814d8e20ba85358e8fc3cdb44fc94fa2ec9c`
-- JSON content SHA-256 (all three digest fields zeroed): `8b5103ad873fb27569b681d51b12494bec24a8532aaa7fc9ebb4bb69afcbb7b4`
-
-## Authority
-
-| Field | Value |
-| --- | --- |
-| Epic | `epic-6-authority-2026-08-03-v10` |
-| Architecture | `conversations-architecture-2026-08-03-v10` |
-| Planning candidate | `1e9a61126d3b7a55b514b7c7c8942d5af03355e5` |
-| Bundle digest | `159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055` |
-
-## Root gitlinks
-
-| Path | Mode | Commit |
-| --- | --- | --- |
-| `references/Hexalith.AI.Tools` | `160000` | `3f194e17174994d308ec84af9ee2b5aa68674d0d` |
-| `references/Hexalith.Builds` | `160000` | `9e6b6ca3e8b4e22e6642d4f0d70d25edbf2db08b` |
-| `references/Hexalith.Commons` | `160000` | `b247ed116c6523f8c596ec0a933eff8973d11568` |
-| `references/Hexalith.EventStore` | `160000` | `80be7deb8167e89e76284eda14853b4cd9c9c4aa` |
-| `references/Hexalith.Folders` | `160000` | `4d2d7d820431cb354804583ee5c217ec9ce11fb6` |
-| `references/Hexalith.FrontComposer` | `160000` | `0e114214007c22f5cdbac21a6853cff4208340ee` |
-| `references/Hexalith.Memories` | `160000` | `499b7a838a36a4cd500ab517d86acf07b1d74ad4` |
-| `references/Hexalith.Parties` | `160000` | `56cb4401c4179d431385ad3d931fefa402e4fc5a` |
-| `references/Hexalith.Projects` | `160000` | `c7f9f8b67062ff5a3a927900a943b456c39a4dd5` |
-| `references/Hexalith.Tenants` | `160000` | `1c165899457d9950bc8bc10cb2d29dff101ab386` |
-
-## Inventory
-
-| Inventory | SHA-256 |
-| --- | --- |
-| `V9-10.1-ENTRY-v1` | `74c4c5e9e70cb86648dc753c5edc97bdb8d598ad2a4aba55d3670794e990ca84` |
-
-## Predecessors
-
-- `7.4`
-- `9.2`
-
-## Scenarios
-
-| Scenario | Exit | Result | Blockers | Assertions | Result file | Result file SHA-256 |
-| --- | --- | --- | --- | --- | --- | --- |
-| `AC-10.1-01` | `0` | `PASS` | `none` | `1` | `tests/Hexalith.Conversations.TestSupport/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll` | `a199a395d321b81c2826682497058ba741a5db7bcd63d304193bd18f7ea9c20d` |
-| `AC-10.1-02` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.1/AC-10.1-02.trx` | `ae2649bbad43b5f2cf0e4d2cc0d15c2f8200a16443ff019af6db5916d2b5090d` |
-| `AC-10.1-03` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.1/AC-10.1-03.trx` | `8ab1cd7e95d1ba389df44c196b05a6ed851797f02915576c19f4b537c9872fd6` |
-| `AC-10.1-04` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.1/AC-10.1-04.trx` | `72ff317c888f81a1b2f92c42bbf5208115d2f59eedbacc5f02cfcdb3bf9b7185` |
-| `AC-10.1-05` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.1/AC-10.1-05.trx` | `064930d6ca79ac98b78c0e6e4a388b07541a52b20508695978e9e9d522bef249` |
-| `AC-10.1-06` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.1/AC-10.1-06.trx` | `31d09b1f1b7c14de43d345bc6c8c78a1f0aaf80d06c5e8c33bbb363ca587ae1f` |
-| `AC-10.1-07` | `0` | `PASS` | `none` | `9` | none | none |
-
-### `AC-10.1-01`
-
-Command: `dotnet build tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj --configuration Release --no-restore`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `tests/Hexalith.Conversations.TestSupport/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll` | `a199a395d321b81c2826682497058ba741a5db7bcd63d304193bd18f7ea9c20d` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.1-01#0001` | `build::tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj` | `PASS` |
-
-### `AC-10.1-02`
-
-Command: `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.TestSupportSurfaceTests.RequiredHelpersShouldExistExactlyOnce -trx artifacts/v9/10.1/AC-10.1-02.trx`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.1/AC-10.1-02.trx` | `ae2649bbad43b5f2cf0e4d2cc0d15c2f8200a16443ff019af6db5916d2b5090d` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `42317d0c17c66801d15b93e14ac4999125c84f6b9471766008a974124f9074ab` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.1-02#0001` | `Hexalith.Conversations.TestSupport.Tests.TestSupportSurfaceTests.RequiredHelpersShouldExistExactlyOnce` | `PASS` |
-
-### `AC-10.1-03`
-
-Command: `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldDrainStdoutAndStderrConcurrently -trx artifacts/v9/10.1/AC-10.1-03.trx`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.1/AC-10.1-03.trx` | `8ab1cd7e95d1ba389df44c196b05a6ed851797f02915576c19f4b537c9872fd6` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `42317d0c17c66801d15b93e14ac4999125c84f6b9471766008a974124f9074ab` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.1-03#0001` | `Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldDrainStdoutAndStderrConcurrently` | `PASS` |
-
-### `AC-10.1-04`
-
-Command: `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldBoundAndCancelExecution -trx artifacts/v9/10.1/AC-10.1-04.trx`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.1/AC-10.1-04.trx` | `72ff317c888f81a1b2f92c42bbf5208115d2f59eedbacc5f02cfcdb3bf9b7185` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `42317d0c17c66801d15b93e14ac4999125c84f6b9471766008a974124f9074ab` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.1-04#0001` | `Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldBoundAndCancelExecution` | `PASS` |
-
-### `AC-10.1-05`
-
-Command: `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldUseHardenedEncodingAndRawFacts -trx artifacts/v9/10.1/AC-10.1-05.trx`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.1/AC-10.1-05.trx` | `064930d6ca79ac98b78c0e6e4a388b07541a52b20508695978e9e9d522bef249` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `42317d0c17c66801d15b93e14ac4999125c84f6b9471766008a974124f9074ab` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.1-05#0001` | `Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldUseHardenedEncodingAndRawFacts` | `PASS` |
-
-### `AC-10.1-06`
-
-Command: `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.UnavailableHistoryShouldBeTypedNotSuccessful -trx artifacts/v9/10.1/AC-10.1-06.trx`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.1/AC-10.1-06.trx` | `31d09b1f1b7c14de43d345bc6c8c78a1f0aaf80d06c5e8c33bbb363ca587ae1f` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `42317d0c17c66801d15b93e14ac4999125c84f6b9471766008a974124f9074ab` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.1-06#0001` | `Hexalith.Conversations.TestSupport.Tests.GitFactsTests.UnavailableHistoryShouldBeTypedNotSuccessful` | `PASS` |
-
-### `AC-10.1-07`
-
-Command: `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/10.1.json --format bundle --output-json docs/release-evidence/story-10.1-final-record-v2.json --output-markdown docs/release-evidence/story-10.1-final-record-v2.md`
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.1-07#0001` | `generator::contract-schema-and-identity` | `PASS` |
-| `AC-10.1-07#0002` | `generator::authority-bundle-digest-recomputed` | `PASS` |
-| `AC-10.1-07#0003` | `generator::raw-gitlinks-equal-root-gitmodules` | `PASS` |
-| `AC-10.1-07#0004` | `generator::committed-candidate-worktree-clean` | `PASS` |
-| `AC-10.1-07#0005` | `generator::predecessor-scenarios-pass-with-ledgers` | `PASS` |
-| `AC-10.1-07#0006` | `generator::declared-output-paths` | `PASS` |
-| `AC-10.1-07#0007` | `generator::record-schema-valid` | `PASS` |
-| `AC-10.1-07#0008` | `generator::deterministic-rendering` | `PASS` |
-| `AC-10.1-07#0009` | `generator::json-markdown-digest-cross-binding` | `PASS` |
-
-## Story 10.1 TestSupport execution
-
-- Candidate: `17c7814d8e20ba85358e8fc3cdb44fc94fa2ec9c`
-- Candidate rule: SC-10.1 is HEAD^{commit} at first final-record generation
-- Frozen inventory SHA-256: `74c4c5e9e70cb86648dc753c5edc97bdb8d598ad2a4aba55d3670794e990ca84`
-- Contract SHA-256: `7db86e53754b7f917435663639a65b3953f0cf9083d436334d67f7f14c105331`
-
-| Predecessor | Record SHA-256 |
-| --- | --- |
-| `7.4` | `1739a8daf93955fe31050b659151f1d45a8555ff58fe3a130b8a389c049d8290` |
-| `9.2` | `46d2e2df3ca74e1dad7eafa782ac1e294e1eafcd4e43b14177ddf8a411bf0453` |
-
-| Project | Project SHA-256 | Assembly | Assembly SHA-256 |
-| --- | --- | --- | --- |
-| `tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj` | `9f885c50d869285e6b280b0c135b2c1449cda6f8e863271ff6420924443be925` | `tests/Hexalith.Conversations.TestSupport/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll` | `a199a395d321b81c2826682497058ba741a5db7bcd63d304193bd18f7ea9c20d` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj` | `6d93f6ea2dbca4fb89047836f9f10ea633f2996e257830c46eaba2aaef646bf2` | `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `42317d0c17c66801d15b93e14ac4999125c84f6b9471766008a974124f9074ab` |
-
-| Result | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.1/AC-10.1-02.trx` | `ae2649bbad43b5f2cf0e4d2cc0d15c2f8200a16443ff019af6db5916d2b5090d` |
-| `artifacts/v9/10.1/AC-10.1-03.trx` | `8ab1cd7e95d1ba389df44c196b05a6ed851797f02915576c19f4b537c9872fd6` |
-| `artifacts/v9/10.1/AC-10.1-04.trx` | `72ff317c888f81a1b2f92c42bbf5208115d2f59eedbacc5f02cfcdb3bf9b7185` |
-| `artifacts/v9/10.1/AC-10.1-05.trx` | `064930d6ca79ac98b78c0e6e4a388b07541a52b20508695978e9e9d522bef249` |
-| `artifacts/v9/10.1/AC-10.1-06.trx` | `31d09b1f1b7c14de43d345bc6c8c78a1f0aaf80d06c5e8c33bbb363ca587ae1f` |
-
-## Fault injection
-
-No fault-injection result is bound to this record.
-
-## Outputs
-
-| Output | Path |
-| --- | --- |
-| JSON | `docs/release-evidence/story-10.1-final-record-v2.json` |
-| Markdown | `docs/release-evidence/story-10.1-final-record-v2.md` |
-
-## Rollback boundary
-
-remove only both TestSupport projects, Story 10.1 results, and record; preserve both conformance tiers and every evidence reader.
-
-## Summary
-
-| Required | Passed | Failed | Blocked | Skipped | Not run |
-| --- | --- | --- | --- | --- | --- |
-| `7` | `7` | `0` | `0` | `0` | `0` |
-<!-- STORY-FINAL-RECORD:END -->

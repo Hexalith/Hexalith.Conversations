@@ -30,7 +30,7 @@ public static class RepositoryLocator
                 return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", "The repository root is missing or symbolic.");
             string normalized = relativePath.Replace('/', Path.DirectorySeparatorChar);
             string candidate = Path.GetFullPath(Path.Combine(fullRoot, normalized));
-            string prefix = Path.TrimEndingDirectorySeparator(fullRoot) + Path.DirectorySeparatorChar;
+            string prefix = Path.EndsInDirectorySeparator(fullRoot) ? fullRoot : fullRoot + Path.DirectorySeparatorChar;
             if (!candidate.StartsWith(prefix, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
                 return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", relativePath);
             if (checkWorktreeLinks)
