@@ -2,7 +2,7 @@
 title: 'Story 10.1: Neutral TestSupport helpers and safe Git facts'
 type: 'feature'
 created: '2026-10-10'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '2f2621aa4b40b0d44c62bf5e1e98727e7a182fec'
 route: 'dispatch'
 review_loop_iteration: 4
@@ -136,6 +136,63 @@ Code review of `2f2621a..fb2426a` (2026-10-11), full mode, all four layers compl
 - AA9 (low): Each mandatory fault is a fixture inside AC-03..06, which the record binds. The contract defines no separate fault-injection results.
 - AA10 (low): Synthetic raw records use Git's exact `--raw` grammar for every mode, and the missing-Git fixture already exercises the non-zero `rev-parse` branch.
 - AA12 (false): `validate_repository` returns the resolved root, so the root branch is harmless defense-in-depth. The in-repository component check is tested.
+
+#### Second review pass
+
+Code review of `2f2621a..0687017` (2026-10-11), full mode, all four layers completed. By owner choice the diff excluded this spec and the generated record pair, which remain a separate follow-up chunk. Result: 1 decision-needed (resolved to patch by the owner), 17 patch, 1 defer, 31 rejected. Commit `da73f49` landed after the diff was built; it is outside the range and is cited only by the first patch below.
+
+- [ ] [Review][Patch] (high) Inserted-record verification no longer retains the Story 10.1 candidate: owner commit `da73f49` (`build: sync local changes via /pushall`) moved five root gitlinks (Builds, EventStore, Folders, Parties, Projects) after candidate `a7a6c51`, and `--verify-inserted-record` now exits 1 with `CANDIDATE_NOT_FINAL` and `GITLINK_DRIFT` (reproduced). Owner decision: after the other patches land, regenerate the pair from a new committed candidate that includes `da73f49`, rerun AC-10.1-01 through AC-10.1-07, and reinsert the record [_bmad/scripts/generate_story_record.py:5205]
+- [ ] [Review][Patch] (high) Windows CI fails AC-10.1-06: the large-shallow and probe-cancellation fakes use Python `print()`, which writes `\r\n` on Windows; `ResolveRepositoryAsync` strips only `\n`, so the reported root keeps `\r` and resolves `REPOSITORY_UNAVAILABLE`, and line 461 sees `Unavailable` instead of `Invalid` (CI run 38125974793, `ci / TestSupport Windows descendant cleanup`, 8 passed and 1 failed; the job has not passed in any run). Write those outputs with `sys.stdout.buffer.write(...)` like the other fakes [tests/Hexalith.Conversations.TestSupport.Tests/GitFactsTests.cs:455]
+- [ ] [Review][Patch] (medium) The runner trusts `objects/info/commit-graph`: with a forged HEAD tree entry in the graph, `git diff --raw` (the `ReadDiffAsync` command) reported the root commit's blob for HEAD, and a forged parent entry changed `rev-list --first-parent` and `log %P` (reproduced on Git 2.53 with the runner's environment and preamble); `-c core.commitGraph=false` restored the real facts. Add it to the preamble beside the graft and replace-object isolation, and pin it in AC-05 like the `diff.renameLimit` check [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:101]
+- [ ] [Review][Patch] (low) `GIT_GRAFT_FILE` set to the null device makes every successful command write a 311-byte grafts deprecation hint to stderr (verified with `rev-parse --verify`), so `GitCommandResult.Stderr` never holds only the command's own bytes and every `ErrorText` diagnostic starts with the hint; add `-c advice.graftFileDeprecated=false` to the preamble (verified to silence it) and assert empty stderr for a real successful command in AC-05 [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:96]
+- [ ] [Review][Patch] (medium) AC-05 compares only modes for real-repository diff and tree entries: `Status`, object IDs, and the exact entry set (`évidence.txt`, `nested/path.txt`, and the Unix backslash path) are never checked against the fixture, so a reader reporting a wrong status, a wrong object ID, or an extra entry stays green; assert the full entries against `git rev-parse <commit>:<path>` [tests/Hexalith.Conversations.TestSupport.Tests/GitFactsTests.cs:197]
+- [ ] [Review][Patch] (medium) Story 10.1's read-only verify route is not pinned to `execute_commands=False`: changing `story_id in ("9.2", "10.1")` to `== "9.2"` at `generate_story_record.py:7996` keeps all 14 `story101` tests green, and the route would then rerun the AC-10.1-01 `dotnet build` and rewrite the bound helper assembly; record the kwargs in `measured_scenario` and assert `execute_commands is False` [_bmad/scripts/tests/test_generate_story_record.py:10540]
+- [ ] [Review][Patch] (medium) Pair verification's AC-10.1-01 assembly binding and scenario-ID set checks are unexercised: removing all four clauses at `generate_story_record.py:4631-4639` keeps every `story101` test green; add `projects[0].assembly.sha256` drift, a dropped `AC-10.1-07` row, and a duplicated scenario ID to the mutation list [_bmad/scripts/tests/test_generate_story_record.py:10361]
+- [ ] [Review][Patch] (medium) The `FrameworkReference` boundary rule is untested: deleting it at `generate_story_record.py:5483-5486` keeps every `story101` test green; add an extra `<FrameworkReference Include="Microsoft.AspNetCore.App" />` case that expects "framework dependency" [_bmad/scripts/tests/test_generate_story_record.py:10170]
+- [ ] [Review][Patch] (medium) The neutral helpers' failure and duplicate paths are untested: making `BoundaryAssertions.Equal` always record `true`, or letting `AssertionLedger.Record` overwrite an identity, keeps `RequiredHelpersShouldExistExactlyOnce` green; add a separate test method, outside the frozen AC-10.1-02 selector, proving that a mismatch records `false` and that a duplicate `Record` or `Add` throws [tests/Hexalith.Conversations.TestSupport.Tests/TestSupportSurfaceTests.cs:21]
+- [ ] [Review][Patch] (medium) The 30-second cap on caller timeouts is untested: dropping `|| timeout.Value > CommandLimit` lets `TimeSpan.FromMinutes(10)` run with every test green; assert that `TimeSpan.FromSeconds(31)` and `TimeSpan.Zero` return `Invalid` with `GIT_TIMEOUT_INVALID` [tests/Hexalith.Conversations.TestSupport.Tests/GitFactsTests.cs:101]
+- [ ] [Review][Patch] (low) The partial-clone fixture asserts only `Unavailable`, so an earlier `REPOSITORY_UNAVAILABLE` would pass without reaching the no-lazy-fetch `cat-file` path; also assert `HISTORY_UNAVAILABLE` [tests/Hexalith.Conversations.TestSupport.Tests/GitFactsTests.cs:544]
+- [ ] [Review][Patch] (low) AC-06 names a non-repository fixture, but the cases are an absent path and a directory nested in a repository, so the non-zero `rev-parse --show-toplevel` branch of `ResolveRepositoryAsync` is never reached; add a fresh temporary directory outside any repository that expects `REPOSITORY_UNAVAILABLE` [tests/Hexalith.Conversations.TestSupport.Tests/GitFactsTests.cs:400]
+- [ ] [Review][Patch] (low) Missing TestSupport artifacts contradict the message and the runbook: a missing committed project emits `TEST_RESULTS_MISSING` saying "a TestSupport project or candidate assembly is missing", but a missing assembly raises "missing regular artifact" and becomes `TEST_SUPPORT_BOUNDARY_INVALID`, while the runbook maps an absent bound artifact to `TEST_RESULTS_MISSING`; narrow the message to the project and document that a missing or linked assembly reports `TEST_SUPPORT_BOUNDARY_INVALID` [_bmad/scripts/generate_story_record.py:5557]
+- [ ] [Review][Patch] (low) `summary = previous["summary"]` is assigned and never read in `v2_10_1_facts`; delete it [_bmad/scripts/generate_story_record.py:5533]
+- [ ] [Review][Patch] (low) The Story 10.1 L4-B10 deferred item sits under the Story 9.2 review heading; move it under the Story 10.1 heading that follows it [_bmad-output/implementation-artifacts/deferred-work.md:559]
+- [ ] [Review][Patch] (low) Descendant fixtures can read a created but unwritten PID file: `WaitForFileAsync` returns as soon as the file exists, while Python's `open(..., 'w').write(...)` creates it before writing, so `int.Parse` can see an empty string; in the grandchild test the parent's existence check also lets the runner kill the child mid-write. Write to a temporary name and `os.replace` it into place [tests/Hexalith.Conversations.TestSupport.Tests/GitFactsTests.cs:572]
+- [ ] [Review][Patch] (low) The startup comment says one deadline covers startup, execution, and cleanup, but after the limit the cleanup adds two fresh 2-second waits, so `RunAsync` can return about 34 seconds after start; state that cleanup waits are bounded separately [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:121]
+- [x] [Review][Defer] The Story 10.1 generator tests never run in CI [.github/workflows/ci.yml:117] — deferred: pre-existing. The `ci / repository` job fails at "Verify story completion gate surfaces" (AC-7.3-01 `WORKFLOW_INTEGRATION_MISSING` on untouched `.agents` and `.claude` skill surfaces) before "Test BMAD repository tooling", both in run 38125974793 and at baseline `2f2621a` (run 38074926653), so `test_story101_*`, including `test_story101_committed_pair_still_verifies`, run only locally. Settle by restoring the completion-gate blocks or by running the tooling tests independently of that step.
+
+##### Rejected (second pass)
+
+- R2-BH3 (low): The test host loads its own copy of the helper DLL, but an ordinary deterministic build from one candidate copies identical bytes. Binding execution-time binaries is the deferred L4-B10 receipt protocol.
+- R2-BH4 / R2-AA4 (low): `329bfa1` is a routine owner gitlink sync, and the record faithfully binds the gitlinks the candidate had. Splitting pushed linear history would need a force push, which is banned.
+- R2-BH6 (low): Python is already a repository-wide tooling prerequisite, and the missing-`setsid` case was rejected as L1-B04. The contract JSON is the single command authority, so copying its commands into the runbook would create a second source.
+- R2-BH7 / R2-ECH20 (low, carried L3-B08): Environment-specific MSBuild overrides are a hypothetical future environment, not a present violation, and scrubbing them needs a new allow-list.
+- R2-BH9 / R2-ECH14 (low): Windows trailing-dot, stream, and device spellings still resolve inside the root. Canonicalizing manifest keys is Story 10.2 policy, and the fix needs Windows-specific guards.
+- R2-BH10 (low): The Windows job log carries the full xUnit failure, which is how the AC-06 failure above was diagnosed. The generator enforces the dependency rule.
+- R2-BH11 (low): Processes and links leak only after a failing test, and the sleepers stop after 120 seconds. Adding `finally` cleanup is more than a direct correction.
+- R2-BH12 (false): A renamed `CommandLimit` fails the test loudly. The 30-second default-timeout run was added deliberately by L4-V01.
+- R2-ECH1 (low, carried L1-B01/L3-E02/L4-E02): Windows pre-enrollment race.
+- R2-ECH2 (maybe-false, low if true): No exception path between job construction and `TerminateTree` was shown, so `KILL_ON_JOB_CLOSE` would guard an undemonstrated state.
+- R2-ECH3 (false, carried ECH8): After cancellation, reads observe the cancelled token or a killed writer's EOF. No `IOException` path was shown.
+- R2-ECH4 (low): An exec failure inside `setsid` still returns a typed `Unavailable` result with the stderr appended. Mapping exit codes 126 and 127 could misclassify real Git exits.
+- R2-ECH5 (low, carried L1-B04): Hosts without `setsid`.
+- R2-ECH6 (low, carried L3-B03): A planted executable in the host's current directory is outside the hostile-configuration boundary.
+- R2-ECH7 (low, carried ECH5): PID reuse.
+- R2-ECH8 (low, carried BH4): The 30-second limit applies per process.
+- R2-ECH9 (low, carried ECH4/AA11): Git older than 2.44.
+- R2-ECH10 (low, carried ECH3): Global `safe.directory` is deliberately unavailable.
+- R2-ECH11 (false, carried BH12): 8.3 short names are expanded.
+- R2-ECH12 (low, carried L3-B07/BH6): General shallow expressions.
+- R2-ECH13 (low, carried ECH16): A committed symlink's blob is its link text.
+- R2-ECH15 (low, carried BH17): Manifest digest validation is Story 10.2 scope.
+- R2-ECH16 (low, carried BH17): `Equal` on arrays fails closed.
+- R2-ECH18 (low): One second is ample for a single Python startup, and a slow host fails the test loudly rather than producing a false pass.
+- R2-ECH19 (low, carried ECH28): A missing `dotnet` cannot reach the boundary check.
+- R2-ECH21 (low, carried L5-E02): A multi-target conditional reference is a hypothetical future project change.
+- R2-ECH22 (low, carried L1-E06): Path-swap TOCTOU.
+- R2-ECH23 (false): The compatibility correction deliberately replaced ancestry with committed-pair and authority checks, because the accepted 7.4 record diverges.
+- R2-ECH26 (low, carried L1-B02): Intentionally detached Unix descendants.
+- R2-VG6 (low, carried BH13): The boundary tests evaluate a temporary project outside `global.json`, so any preinstalled SDK works; the step does not run today (see the deferred CI item).
+- R2-AA7 (rejected, contract edit): Removing both projects includes their solution and CI wiring, and changing the rollback text would edit the frozen contract.
 
 ## Implementation Notes
 
