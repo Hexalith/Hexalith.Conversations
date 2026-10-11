@@ -25,6 +25,19 @@ public sealed class TestSupportSurfaceTests
     }
 
     [Fact]
+    public void NeutralHelpersShouldRecordFailuresAndRejectDuplicates()
+    {
+        AssertionLedger ledger = new();
+        BoundaryAssertions.Equal(ledger, "mismatch", "expected", "observed").ShouldBeFalse();
+        ledger.Results["mismatch"].ShouldBeFalse();
+        Should.Throw<ArgumentException>(() => ledger.Record("mismatch", true));
+
+        EvidenceManifest manifest = new();
+        manifest.Add("proof.json", new string('a', 64));
+        Should.Throw<ArgumentException>(() => manifest.Add("proof.json", new string('b', 64)));
+    }
+
+    [Fact]
     public void FilesystemRootShouldContainRelativeChildren()
     {
         string root = Path.GetPathRoot(Path.GetTempPath())!;

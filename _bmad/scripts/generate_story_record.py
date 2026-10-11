@@ -5530,7 +5530,6 @@ def v2_10_1_facts(
                                        "the committed predecessor pair is missing or invalid"))
             continue
         previous = v2_parse_json(v2_committed_blob(repository, candidate, json_path) or b"")
-        summary = previous["summary"]
         authority_keys = ("epic", "architecture", "planningCandidate", "bundleDigest")
         compatible_authority = all(previous["authority"].get(key) == authority.get(key)
                                    for key in authority_keys)
@@ -5555,7 +5554,7 @@ def v2_10_1_facts(
         project = v2_committed_blob(repository, candidate, path)
         if project is None:
             findings.append(v2_finding("TEST_RESULTS_MISSING", path,
-                                       "a TestSupport project or candidate assembly is missing"))
+                                       "a committed TestSupport project is missing"))
             continue
         try:
             if v2_10_1_artifact_bytes(repository, path) != project:

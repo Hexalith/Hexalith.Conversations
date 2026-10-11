@@ -110,6 +110,10 @@ public sealed class GitFacts
             start.ArgumentList.Add("diff.renames=true");
             start.ArgumentList.Add("-c");
             start.ArgumentList.Add("diff.renameLimit=0");
+            start.ArgumentList.Add("-c");
+            start.ArgumentList.Add("core.commitGraph=false");
+            start.ArgumentList.Add("-c");
+            start.ArgumentList.Add("advice.graftFileDeprecated=false");
         }
         foreach (string argument in commandArguments)
         {
@@ -118,8 +122,8 @@ public sealed class GitFacts
 
         try
         {
-            // Start can be delayed by an executable fixture. Keep the same deadline around startup,
-            // execution and cleanup, and kill a process that starts after the caller has timed out.
+            // Start can be delayed by an executable fixture. One deadline covers startup and
+            // execution; cleanup uses separate bounded waits. Kill late starts after a timeout.
             using CancellationTokenSource limit = new(timeout ?? CommandLimit);
             using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, limit.Token);
             Task<Process?> startup = Task.Run(() => Process.Start(start));

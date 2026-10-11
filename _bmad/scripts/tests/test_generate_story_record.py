@@ -10192,6 +10192,12 @@ def test_story101_evaluated_project_boundary_rejects_overrides_and_references(tm
                        encoding="utf-8")
     with pytest.raises(ValueError, match="assembly reference"):
         generator.v2_10_1_project_boundary(tmp_path, path, True)
+    project.write_text("""<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>
+    <IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>
+    </PropertyGroup><ItemGroup><FrameworkReference Include="Microsoft.AspNetCore.App" /></ItemGroup></Project>""",
+                       encoding="utf-8")
+    with pytest.raises(ValueError, match="framework dependency"):
+        generator.v2_10_1_project_boundary(tmp_path, path, True)
     for dependency in (
         '<PackageReference Include="Hexalith.Conversations.Contracts" Version="1.0.0" />',
         '<ProjectReference Include="../Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj" />',
@@ -10404,6 +10410,11 @@ def test_story101_pair_rejects_inventory_outcome_and_result_conflicts(monkeypatc
         (lambda row: row["inventory"].update(sha256="f" * 64), "inventory digest"),
         (lambda row: row["scenarios"][1].update(exitCode=1), "nonzero exit"),
         (lambda row: row["scenarios"][1]["resultFile"].update(path="other.trx"), "scenario result paths"),
+        (lambda row: row["testSupportExecution"]["projects"][0]["assembly"].update(sha256="f" * 64),
+         "scenario result or assembly digests"),
+        (lambda row: row["scenarios"].pop(), "scenario result or assembly digests"),
+        (lambda row: row["scenarios"][-1].update(scenarioId="AC-10.1-06"),
+         "scenario result or assembly digests"),
     ):
         record = deepcopy(original)
         mutate(record)
@@ -10536,8 +10547,10 @@ def test_story101_inserted_verification_runs_real_generator_for_stale_artifact(t
     authority = json.loads(blobs["docs/release-evidence/story-7.4-final-record-v2.json"])["authority"]
     retention = ("10.1", spec_path,
                  "10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner", True)
+    measured_calls = []
 
-    def measured_scenario(_repository, scenario, _command, *_args, **_kwargs):
+    def measured_scenario(_repository, scenario, _command, *_args, **kwargs):
+        measured_calls.append(kwargs.get("execute_commands"))
         number = int(scenario["id"].rsplit("-", 1)[1])
         outputs = ([{"path": assembly_paths[0], "sha256": module.v2_sha256(artifacts[assembly_paths[0]])}]
                    if number == 1 else [
@@ -10588,6 +10601,7 @@ def test_story101_inserted_verification_runs_real_generator_for_stale_artifact(t
         module.v2_verify_inserted({"--repository": str(tmp_path), "--contract": contract_path,
                                    module.V2_VERIFY_OPTION: spec_path})
     assert error.value.findings[0]["code"] == "RECORD_CONTENT_DRIFT"
+    assert measured_calls and all(execute is False for execute in measured_calls)
 
 
 if __name__ == "__main__":

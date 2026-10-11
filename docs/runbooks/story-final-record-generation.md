@@ -1875,10 +1875,11 @@ measured TRX hashes. The boundary evaluates both Debug and Release MSBuild
 properties and declared package, project, assembly, and framework references.
 `TEST_SUPPORT_BOUNDARY_INVALID` means a project is packable, publishable,
 declares an unexpected dependency, differs from the committed candidate, or has
-an assembly that is not stamped by that candidate. `AUTHORITY_BINDING_INVALID`
+an assembly that is missing, linked outside the repository, or not stamped by
+that candidate. `AUTHORITY_BINDING_INVALID`
 means a predecessor pair, PASS ledger, candidate commit, or authority field did
-not verify. `TEST_RESULTS_MISSING` means a required passing result or bound
-artifact is absent or differs from its measured digest. `ASSERTION_INVENTORY_DRIFT`
+not verify. `TEST_RESULTS_MISSING` means a committed project or required passing
+result is absent, or a measured result differs from its digest. `ASSERTION_INVENTORY_DRIFT`
 means the frozen entry inventory or predecessor order changed.
 
 Inserted-record verification re-derives the Story 10.1 candidate facts. Keep the

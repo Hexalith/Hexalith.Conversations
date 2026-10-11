@@ -58,8 +58,8 @@ public sealed class GitFactsTests
         string pidFile = Path.Combine(Path.GetTempPath(), "gitfacts-success-child-" + Guid.NewGuid().ToString("N"));
         string child = "import time\ntime.sleep(120)";
         string script = "import os,subprocess,sys\np=subprocess.Popen([sys.executable,'-c'," + JsonSerializer.Serialize(child)
-            + "],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\nopen(" + JsonSerializer.Serialize(pidFile)
-            + ",'w').write(str(p.pid))";
+            + "],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\ntmp=" + JsonSerializer.Serialize(pidFile + ".tmp")
+            + "\nwith open(tmp,'w') as output: output.write(str(p.pid))\nos.replace(tmp," + JsonSerializer.Serialize(pidFile) + ")";
         try
         {
             GitFact<GitCommandResult> result = await PythonFacts(script).RunAsync(
@@ -77,10 +77,10 @@ public sealed class GitFactsTests
     {
         string pidFile = Path.Combine(Path.GetTempPath(), "gitfacts-grandchild-" + Guid.NewGuid().ToString("N"));
         string grandchild = "import time\ntime.sleep(120)";
-        string child = "import subprocess,sys\np=subprocess.Popen([sys.executable,'-c',"
+        string child = "import os,subprocess,sys\np=subprocess.Popen([sys.executable,'-c',"
             + JsonSerializer.Serialize(grandchild)
-            + "],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\nopen("
-            + JsonSerializer.Serialize(pidFile) + ",'w').write(str(p.pid))";
+            + "],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\ntmp=" + JsonSerializer.Serialize(pidFile + ".tmp")
+            + "\nwith open(tmp,'w') as output: output.write(str(p.pid))\nos.replace(tmp," + JsonSerializer.Serialize(pidFile) + ")";
         string parent = "import os,subprocess,sys,time\nsubprocess.Popen([sys.executable,'-c',"
             + JsonSerializer.Serialize(child)
             + "],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\nfor _ in range(100):\n"
@@ -102,10 +102,18 @@ public sealed class GitFactsTests
     {
         typeof(GitFacts).GetField("CommandLimit", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
             .GetValue(null).ShouldBe(TimeSpan.FromSeconds(30));
+        foreach (TimeSpan invalidTimeout in new[] { TimeSpan.Zero, TimeSpan.FromSeconds(31) })
+        {
+            GitFact<GitCommandResult> invalid = await PythonFacts("import sys\nsys.exit(0)").RunAsync(
+                Path.GetTempPath(), [], TestContext.Current.CancellationToken, invalidTimeout);
+            invalid.Status.ShouldBe(GitFactStatus.Invalid);
+            invalid.Code.ShouldBe("GIT_TIMEOUT_INVALID");
+        }
         string pidFile = Path.Combine(Path.GetTempPath(), "gitfacts-pid-" + Guid.NewGuid().ToString("N"));
         string child = "import time\ntime.sleep(120)";
         string script = "import os,subprocess,sys\np=subprocess.Popen([sys.executable,'-c'," + JsonSerializer.Serialize(child)
-            + "])\nopen(" + JsonSerializer.Serialize(pidFile) + ",'w').write(str(os.getpid())+','+str(p.pid))";
+            + "])\ntmp=" + JsonSerializer.Serialize(pidFile + ".tmp")
+            + "\nwith open(tmp,'w') as output: output.write(str(os.getpid())+','+str(p.pid))\nos.replace(tmp," + JsonSerializer.Serialize(pidFile) + ")";
         try
         {
             using CancellationTokenSource cancellation = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
@@ -194,15 +202,28 @@ public sealed class GitFactsTests
             (await facts.ResolveRevisionAsync(fixture.Root, "HEAD~1", TestContext.Current.CancellationToken)).Value.ShouldBe(before);
             GitFact<IReadOnlyList<GitDiffEntry>> diff = await facts.ReadDiffAsync(fixture.Root, before, after, TestContext.Current.CancellationToken);
             diff.IsSuccess.ShouldBeTrue(diff.Message);
-            GitDiffEntry entry = diff.Value!.Single(item => item.Path == unicode);
-            entry.SourceMode.ShouldBe("000000");
-            entry.DestinationMode.ShouldBe("100644");
-            if (backslash is not null) diff.Value!.Single(item => item.Path == backslash).DestinationMode.ShouldBe("100644");
+            string[] addedPaths = backslash is null ? [unicode, "nested/path.txt"] : [unicode, "nested/path.txt", backslash];
+            IReadOnlyList<GitDiffEntry> diffEntries = diff.Value!;
+            diffEntries.Select(item => item.Path).ToHashSet(StringComparer.Ordinal).SetEquals(addedPaths).ShouldBeTrue();
+            diffEntries.Count.ShouldBe(addedPaths.Length);
+            foreach (string path in addedPaths)
+            {
+                GitDiffEntry entry = diffEntries.Single(item => item.Path == path);
+                entry.ShouldBe(new GitDiffEntry("000000", "100644", new string('0', 40),
+                    fixture.Git("rev-parse", after + ":" + path), "A", path, null));
+            }
             GitFact<IReadOnlyList<GitTreeEntry>> tree = await facts.ReadTreeAsync(fixture.Root, after, TestContext.Current.CancellationToken);
             tree.IsSuccess.ShouldBeTrue(tree.Message);
-            GitTreeEntry historical = tree.Value!.Single(item => item.Path == unicode);
-            historical.Mode.ShouldBe("100644");
-            tree.Value!.Single(item => item.Path == "nested/path.txt").Mode.ShouldBe("100644");
+            string[] treePaths = ["seed.txt", .. addedPaths];
+            IReadOnlyList<GitTreeEntry> treeEntries = tree.Value!;
+            treeEntries.Select(item => item.Path).ToHashSet(StringComparer.Ordinal).SetEquals(treePaths).ShouldBeTrue();
+            treeEntries.Count.ShouldBe(treePaths.Length);
+            foreach (string path in treePaths)
+            {
+                GitTreeEntry item = treeEntries.Single(row => row.Path == path);
+                item.ShouldBe(new GitTreeEntry("100644", "blob", fixture.Git("rev-parse", after + ":" + path), path));
+            }
+            GitTreeEntry historical = treeEntries.Single(item => item.Path == unicode);
             string replacementPath = Path.Combine(fixture.Root, "replacement.txt");
             File.WriteAllText(replacementPath, "replacement", Encoding.UTF8);
             string replacementId = fixture.Git("hash-object", "-w", replacementPath);
@@ -365,10 +386,17 @@ public sealed class GitFactsTests
             string renameAfter = fixture.Commit();
             fixture.Git("config", "diff.renames", "false");
             fixture.Git("config", "diff.renameLimit", "1");
+            fixture.Git("config", "core.commitGraph", "true");
+            GitFact<GitCommandResult> pinnedGraph = await facts.RunAsync(
+                fixture.Root, ["config", "--get", "core.commitGraph"], TestContext.Current.CancellationToken);
+            pinnedGraph.IsSuccess.ShouldBeTrue(pinnedGraph.Message);
+            pinnedGraph.Value!.Stdout.ShouldBe(Encoding.UTF8.GetBytes("false\n"));
+            pinnedGraph.Value.Stderr.ShouldBeEmpty();
             GitFact<GitCommandResult> pinnedLimit = await facts.RunAsync(
                 fixture.Root, ["config", "--get", "diff.renameLimit"], TestContext.Current.CancellationToken);
             pinnedLimit.IsSuccess.ShouldBeTrue(pinnedLimit.Message);
             pinnedLimit.Value!.Stdout.ShouldBe(Encoding.UTF8.GetBytes("0\n"));
+            pinnedLimit.Value.Stderr.ShouldBeEmpty();
             GitFact<IReadOnlyList<GitDiffEntry>> renamed = await facts.ReadDiffAsync(
                 fixture.Root, renameBefore, renameAfter, TestContext.Current.CancellationToken);
             renamed.IsSuccess.ShouldBeTrue(renamed.Message);
@@ -398,6 +426,15 @@ public sealed class GitFactsTests
             .Code.ShouldBe("REPOSITORY_UNAVAILABLE");
         Directory.CreateDirectory(Path.Combine(fixture.Root, "nested"));
         (await facts.ResolveRepositoryAsync(Path.Combine(fixture.Root, "nested"), TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
+        string nonRepository = Path.Combine(Path.GetTempPath(), "gitfacts-not-repository-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(nonRepository);
+        try
+        {
+            GitFact<string> unrelated = await facts.ResolveRepositoryAsync(nonRepository, TestContext.Current.CancellationToken);
+            unrelated.Status.ShouldBe(GitFactStatus.Unavailable);
+            unrelated.Code.ShouldBe("REPOSITORY_UNAVAILABLE");
+        }
+        finally { Directory.Delete(nonRepository); }
         RepositoryLocator.ResolveContainedPath(fixture.Root, "../escape").Code.ShouldBe("REPOSITORY_PATH_ESCAPE");
         RepositoryLocator.ResolveContainedPath(fixture.Root, "bad\0path").Status.ShouldBe(GitFactStatus.Invalid);
         GitFact<string> missingGit = await new GitFacts(Path.Combine(fixture.Root, "missing-git"))
@@ -453,11 +490,11 @@ public sealed class GitFactsTests
                 using (FileStream file = File.Create(largeShallow)) file.SetLength(16 * 1024 * 1024 + 1);
                 string rootLiteral = JsonSerializer.Serialize(fixture.Root);
                 string fake = "import sys\na=sys.argv[1:]\n"
-                    + "if '--show-toplevel' in a: print(" + rootLiteral + ")\n"
+                    + "if '--show-toplevel' in a: sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode())\n"
                     + "elif '--verify' in a: sys.exit(1)\n"
-                    + "elif '--is-shallow-repository' in a: print('true')\n"
-                    + "elif 'rev-list' in a: print('a'*40)\n"
-                    + "elif '--git-path' in a: print(" + JsonSerializer.Serialize(largeShallow) + ")\n";
+                    + "elif '--is-shallow-repository' in a: sys.stdout.buffer.write(b'true\\n')\n"
+                    + "elif 'rev-list' in a: sys.stdout.buffer.write(b'a'*40+b'\\n')\n"
+                    + "elif '--git-path' in a: sys.stdout.buffer.write((" + JsonSerializer.Serialize(largeShallow) + "+'\\n').encode())\n";
                 GitFact<string> overLimit = await PythonFacts(fake).ResolveRevisionAsync(
                     fixture.Root, "HEAD~1", TestContext.Current.CancellationToken);
                 overLimit.Status.ShouldBe(GitFactStatus.Invalid);
@@ -542,13 +579,14 @@ public sealed class GitFactsTests
             GitFact<GitBlob> partial = await facts.ReadBlobAsync(partialPath, "HEAD", "seed.txt", TestContext.Current.CancellationToken);
             partial.IsSuccess.ShouldBeFalse();
             partial.Status.ShouldBe(GitFactStatus.Unavailable);
+            partial.Code.ShouldBe("HISTORY_UNAVAILABLE");
 
             string probeFile = Path.Combine(Path.GetTempPath(), "gitfacts-probe-" + Guid.NewGuid().ToString("N"));
             try
             {
                 string rootLiteral = JsonSerializer.Serialize(fixture.Root);
                 string fake = "import sys,time\na=sys.argv[1:]\n"
-                    + "if '--show-toplevel' in a: print(" + rootLiteral + ")\n"
+                    + "if '--show-toplevel' in a: sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode())\n"
                     + "elif '--verify' in a: sys.exit(1)\n"
                     + "elif '--is-shallow-repository' in a: open(" + JsonSerializer.Serialize(probeFile)
                     + ",'w').close(); time.sleep(120)";
