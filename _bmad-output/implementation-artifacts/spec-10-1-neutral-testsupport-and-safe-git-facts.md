@@ -2,7 +2,7 @@
 title: 'Story 10.1: Neutral TestSupport helpers and safe Git facts'
 type: 'feature'
 created: '2026-10-10'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '2f2621aa4b40b0d44c62bf5e1e98727e7a182fec'
 route: 'dispatch'
 review_loop_iteration: 4
@@ -246,6 +246,46 @@ Code review of `2f2621a..0b9251d` (2026-10-11), full mode, all four layers compl
 - R3-ECH28 (low): An unreaped zombie in an init-less container makes `WaitForExitAsync` fail loudly. CI and WSL reap their children, and handling it needs `/proc` state parsing.
 - R3-ECH29 / R3-ECH30 (low, carried R2-BH11): Temporary directories and links leak only after a failing test.
 - R3-AA4 (low): Leaders and descendants share one process-group or job termination path. The started-descendant assertions already catch a regression that skips termination, and a regression that spares only the leader would be contrived.
+
+#### Fourth review pass
+
+Code review of `0b9251d..f9f659a` (2026-10-11), full mode, all four layers completed. By owner choice the diff covered the third-pass delta, without this spec or the unrelated `references/*` gitlink syncs, plus the full current `story-10.1-final-record-v2.{json,md}` pair. That pair was last reviewed in the first pass. Result: 0 decision-needed, 5 patch, 1 defer, 8 rejected.
+
+Checked at HEAD:
+- `--verify-inserted-record` exits 0.
+- All 12 bound project, assembly, TRX, contract, and predecessor digests match.
+- Run 38155896856 at `f9f659a`: `ci / TestSupport Windows descendant cleanup` passed 11 of 11.
+- `ci / repository` still fails at the deferred completion-gate step.
+
+Every patch below changes a path outside the retained-candidate whitelist. Landing any of them requires a new committed candidate, AC-10.1-01 through AC-10.1-07, and a regenerated pair. Committing this findings section alone also breaks retention of the `a9497e9` pair, because the spec's lifecycle-only rule does not cover `### Review Findings`.
+
+- [ ] [Review][Patch] (medium) The new hostile-submodule fixture does not need `--ignore-submodules=none`. It plants only repository config `diff.ignoreSubmodules=all`, which the preamble's `-c diff.ignoreSubmodules=none` already defeats. A committed `.gitmodules` entry (or `submodule.<name>.ignore`) set to `ignore = all` drops the gitlink `M` record despite the preamble, and only the CLI flag at `GitFacts.cs:356` restores it (verified with Git 2.53 by three reviewers). So deleting that flag keeps every test green while repository content can hide gitlink bumps. Commit a `.gitmodules` mapping `deps/module` with `ignore = all` before the bump and keep the single-`M` assertion [tests/Hexalith.Conversations.TestSupport.Tests/GitFactsTests.cs:470]
+- [ ] [Review][Patch] (low) `ReadDiffAsync` and `ReadTreeAsync` still pass the raw caller path after validation. They validate through `ResolveRevisionAsync`, then hand the unvalidated `repository` to `RunAsync`, `ResolveHistoricalPath`, and `ParseTree`, the same relative-path and working-directory mix the third pass fixed only in `ReadBlobAsync`. Resolve the root once and use `root.Value!` throughout, mirroring `ReadBlobAsync` [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:352]
+- [ ] [Review][Patch] (low) The third-pass negative tests mutate only one member of each multi-part rule:
+  - Deleting `or contract["predecessors"] != ["7.4", "9.2"]` from the `ASSERTION_INVENTORY_DRIFT` check keeps every `story101` test green (verified by two reviewers).
+  - Dropping `failed` or `blocked` from `v2_10_1_predecessor_passes` stays green, because the summary loop covers only `skipped` and `notRun`.
+  - The schema test mutates only `predecessorRecords[0].path`, so the new 9.2 path `const` is unpinned.
+
+  Add a reordered-predecessors case, loop over all four summary fields, and mutate `predecessorRecords[1].path` [_bmad/scripts/tests/test_generate_story_record.py:10131]
+- [ ] [Review][Patch] (low) The runbook states a repository-ancestor link rule that the generator never enforces. Both generator routes pass `validate_repository`'s resolved root into `v2_10_1_facts`, so the `repository.parents` symlink check in `v2_10_1_artifact_bytes` is unreachable, and deleting it keeps every test green. Drop the sentence "The repository path and its ancestors must also contain no links." [docs/runbooks/story-final-record-generation.md:1879]
+- [ ] [Review][Patch] (low) The runbook's Story 10.1 code definitions miss three generator paths:
+  - An unavailable, timed-out (30 seconds), failed, or malformed Debug/Release MSBuild evaluation reports `TEST_SUPPORT_BOUNDARY_INVALID`.
+  - A linked or non-regular `artifacts/v9/10.1/*.trx` reports `TEST_RESULTS_MISSING`.
+  - AC-10.1-07 generation runs the same four evaluations, not only inserted-record verification.
+
+  Add each to its definition [docs/runbooks/story-final-record-generation.md:1876]
+- [x] [Review][Defer] (medium) This pass's schema path constants and the committed 10.1 pair are pinned only by pytest that CI never reaches. In run 38155896856 at `f9f659a`, `ci / repository` failed at "Verify story completion gate surfaces", and "Test BMAD repository tooling" was skipped [.github/workflows/ci.yml:117] — deferred: pre-existing and already tracked by the Story 10.1 ledger entry "The Story 10.1 generator tests, including the committed-pair pin, never run in CI" (`deferred-work.md:569`); no duplicate entry was added.
+
+##### Rejected (fourth pass)
+
+- R4-AA3 / R4-BH3 (low): The new gitlink `[Fact]` sits outside the AC-10.1-05 selector, so the bound TRX does not include it. The third-pass patch explicitly required a sibling `[Fact]`, and CI runs it (Windows 11 of 11, plus the Linux lane). Folding it into the frozen selector's method would restructure AC-05 for no named consumer.
+- R4-BH2 (low, carried AA10): Real-Git `A` records for `100755` and `120000` are not asserted through `ReadDiffAsync`. Synthetic records already use Git's exact `--raw` grammar for every mode, and the new fixture covers the real `160000` diff record and all three tree modes.
+- R4-BH4 (false): The finding says the linked-`bin` call site is still unpinned. Replacing `v2_10_1_artifact_bytes` with a plain read at the assembly call site now fails `test_story101_inserted_verification_runs_real_generator_for_stale_artifact`, because any read that bypasses the helper hits the disk. The helper's own test pins the `TestSupport.Tests/bin` link case.
+- R4-BH8 (false): For `RunAsync`, the fact is a `GitCommandResult`, which its own docs define as complete raw output carrying an exit code. `IsSuccess` therefore means that capture was established, which is what the new `RunAsync` summary says.
+- R4-BH11 (false): Every mutation starts from a state the test first proves valid, so each code can only come from that mutation. A failed assertion ends the pytest function before any unrestored state is read.
+- R4-BH12 (low, carried R2-BH10): The CI step order is now what the third-pass patch required. Dependency neutrality is enforced by the generator, and its missing CI lane is the deferred item above.
+- R4-BH13 (low): The new sprint-header deferral names the line and the contradiction. Recording the current IR-0 and hold facts would need research beyond a direct correction.
+- R4-BH9, vacuity part (false): The schema mutations start from a record asserted valid, so an unrelated schema error cannot satisfy them. The unpinned 9.2 path is the patch above.
 
 ## Implementation Notes
 
