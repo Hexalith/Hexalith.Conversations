@@ -54,7 +54,7 @@ public sealed class GitFacts
         {
             return GitFact<GitCommandResult>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", "The repository path contains NUL.");
         }
-        if (string.IsNullOrWhiteSpace(repository) || !Directory.Exists(repository))
+        if (string.IsNullOrEmpty(repository) || !Directory.Exists(repository))
         {
             return GitFact<GitCommandResult>.Fail(GitFactStatus.Unavailable, "REPOSITORY_UNAVAILABLE", repository ?? string.Empty);
         }
@@ -264,7 +264,7 @@ public sealed class GitFacts
     {
         if (repository is not null && repository.Contains('\0'))
             return GitFact<string>.Fail(GitFactStatus.Invalid, "REPOSITORY_PATH_ESCAPE", "The repository path contains NUL.");
-        if (string.IsNullOrWhiteSpace(repository) || !Directory.Exists(repository))
+        if (string.IsNullOrEmpty(repository) || !Directory.Exists(repository))
             return GitFact<string>.Fail(GitFactStatus.Unavailable, "REPOSITORY_UNAVAILABLE", repository ?? string.Empty);
         GitFact<string> safeRoot = RepositoryLocator.ResolveHistoricalPath(repository, "repository-root-probe");
         if (!safeRoot.IsSuccess) return Forward<string>(safeRoot);
@@ -361,6 +361,7 @@ public sealed class GitFacts
             string[] tokens = DecodeTokens(result.Value.Stdout);
             List<GitDiffEntry> entries = [];
             HashSet<string> paths = new(StringComparer.Ordinal);
+            HashSet<string> sources = new(StringComparer.Ordinal);
             for (int i = 0; i < tokens.Length - 1;)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -383,6 +384,7 @@ public sealed class GitFacts
                     || (sourcePath is not null && sourcePath == path)
                     || !RepositoryLocator.ResolveHistoricalPath(repository, original).IsSuccess
                     || !RepositoryLocator.ResolveHistoricalPath(repository, path).IsSuccess
+                    || (fields[0] != "000000" && !sources.Add(original))
                     || !paths.Add(path)) throw new FormatException("Malformed raw diff mode, status, object, or path.");
                 entries.Add(new(fields[0], fields[1], fields[2], fields[3], fields[4], path, sourcePath));
             }
@@ -452,11 +454,13 @@ public sealed class GitFacts
     /// <summary>Reads exact historical blob bytes and computes SHA-256.</summary>
     public async Task<GitFact<GitBlob>> ReadBlobAsync(string repository, string revision, string path, CancellationToken cancellationToken = default)
     {
-        GitFact<string> commit = await ResolveRevisionAsync(repository, revision, cancellationToken).ConfigureAwait(false);
-        if (!commit.IsSuccess) return Forward<GitBlob>(commit);
-        GitFact<string> contained = RepositoryLocator.ResolveHistoricalPath(repository, path);
+        GitFact<string> root = await ResolveRepositoryAsync(repository, cancellationToken).ConfigureAwait(false);
+        if (!root.IsSuccess) return Forward<GitBlob>(root);
+        GitFact<string> contained = RepositoryLocator.ResolveHistoricalPath(root.Value!, path);
         if (!contained.IsSuccess) return Forward<GitBlob>(contained);
-        GitFact<GitCommandResult> tree = await RunAsync(repository,
+        GitFact<string> commit = await ResolveRevisionAsync(root.Value!, revision, cancellationToken).ConfigureAwait(false);
+        if (!commit.IsSuccess) return Forward<GitBlob>(commit);
+        GitFact<GitCommandResult> tree = await RunAsync(root.Value!,
             ["ls-tree", "-z", "--full-tree", commit.Value!, "--", ":(literal)" + path], cancellationToken).ConfigureAwait(false);
         if (!tree.IsSuccess) return Forward<GitBlob>(tree);
         if (tree.Value!.ExitCode != 0)

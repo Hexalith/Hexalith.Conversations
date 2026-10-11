@@ -149,10 +149,12 @@ public sealed class GitFactsTests
     {
         using GitFixture fixture = new();
         const string unicode = "évidence.txt";
+        const string spaced = "file with space.txt";
         byte[] bytes = [0, 1, 2, 255, 13, 10];
         File.WriteAllText(Path.Combine(fixture.Root, "seed.txt"), "seed");
         string before = fixture.Commit();
         File.WriteAllBytes(Path.Combine(fixture.Root, unicode), bytes);
+        File.WriteAllBytes(Path.Combine(fixture.Root, spaced), bytes);
         Directory.CreateDirectory(Path.Combine(fixture.Root, "nested"));
         File.WriteAllBytes(Path.Combine(fixture.Root, "nested", "path.txt"), bytes);
         string? backslash = OperatingSystem.IsWindows() ? null : "literal\\backslash.txt";
@@ -202,7 +204,7 @@ public sealed class GitFactsTests
             (await facts.ResolveRevisionAsync(fixture.Root, "HEAD~1", TestContext.Current.CancellationToken)).Value.ShouldBe(before);
             GitFact<IReadOnlyList<GitDiffEntry>> diff = await facts.ReadDiffAsync(fixture.Root, before, after, TestContext.Current.CancellationToken);
             diff.IsSuccess.ShouldBeTrue(diff.Message);
-            string[] addedPaths = backslash is null ? [unicode, "nested/path.txt"] : [unicode, "nested/path.txt", backslash];
+            string[] addedPaths = backslash is null ? [unicode, spaced, "nested/path.txt"] : [unicode, spaced, "nested/path.txt", backslash];
             IReadOnlyList<GitDiffEntry> diffEntries = diff.Value!;
             diffEntries.Select(item => item.Path).ToHashSet(StringComparer.Ordinal).SetEquals(addedPaths).ShouldBeTrue();
             diffEntries.Count.ShouldBe(addedPaths.Length);
@@ -232,6 +234,12 @@ public sealed class GitFactsTests
             blob.IsSuccess.ShouldBeTrue(blob.Message);
             blob.Value!.Content.ShouldBe(bytes);
             blob.Value.Sha256.ShouldBe(Convert.ToHexStringLower(SHA256.HashData(bytes)));
+            GitFact<GitBlob> spacedBlob = await facts.ReadBlobAsync(fixture.Root, after, spaced, TestContext.Current.CancellationToken);
+            spacedBlob.IsSuccess.ShouldBeTrue(spacedBlob.Message);
+            spacedBlob.Value!.Revision.ShouldBe(after);
+            spacedBlob.Value.Path.ShouldBe(spaced);
+            spacedBlob.Value.Content.ShouldBe(bytes);
+            spacedBlob.Value.Sha256.ShouldBe(Convert.ToHexStringLower(SHA256.HashData(bytes)));
             if (!OperatingSystem.IsWindows())
             {
                 File.Delete(Path.Combine(fixture.Root, unicode));
@@ -286,6 +294,8 @@ public sealed class GitFactsTests
                 "b':000000 100644 '+b'0'*40+b' '+b'a'*40+b' A\\0/absolute\\0'",
                 "b':000000 100644 '+b'0'*40+b' '+b'a'*40+b' A\\0empty//segment\\0'",
                 "(b':000000 100644 '+b'0'*40+b' '+b'a'*40+b' A\\0duplicate\\0')*2",
+                "(b':100644 100644 '+b'a'*40+b' '+b'a'*40+b' R100\\0old\\0first\\0'"
+                    + "+b':100644 100644 '+b'a'*40+b' '+b'a'*40+b' R100\\0old\\0second\\0')",
             })
             {
                 string malformedDiff = "import sys\na=sys.argv[1:]\n"
@@ -309,6 +319,19 @@ public sealed class GitFactsTests
                 + "(b':100644 100644 '+b'a'*40+b' '+b'b'*40+b' R100\\0old\\0new\\0' if 'diff' in a else b'')))";
             (await PythonFacts(exactRename).ReadDiffAsync(
                 fixture.Root, before, after, TestContext.Current.CancellationToken)).IsSuccess.ShouldBeTrue();
+            string renameSwap = "import sys\na=sys.argv[1:]\n"
+                + "sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode() if '--show-toplevel' in a else "
+                + "(b'a'*40+b'\\n' if '--verify' in a else "
+                + "(b':100644 100644 '+b'a'*40+b' '+b'a'*40+b' R100\\0left\\0right\\0'"
+                + "+b':100644 100644 '+b'b'*40+b' '+b'b'*40+b' R100\\0right\\0left\\0' if 'diff' in a else b'')))";
+            GitFact<IReadOnlyList<GitDiffEntry>> swapped = await PythonFacts(renameSwap).ReadDiffAsync(
+                fixture.Root, before, after, TestContext.Current.CancellationToken);
+            swapped.IsSuccess.ShouldBeTrue(swapped.Message);
+            swapped.Value!.Count.ShouldBe(2);
+            swapped.Value[0].SourcePath.ShouldBe("left");
+            swapped.Value[0].Path.ShouldBe("right");
+            swapped.Value[1].SourcePath.ShouldBe("right");
+            swapped.Value[1].Path.ShouldBe("left");
             scoredEntry.SourcePath.ShouldBe("old");
             scoredEntry.Path.ShouldBe("new");
             foreach ((string sourceMode, string destinationMode, string status) in new[]
@@ -424,6 +447,8 @@ public sealed class GitFactsTests
         (await facts.ResolveRepositoryAsync(Path.Combine(fixture.Root, "absent"), TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
         (await facts.ReadBlobAsync(Path.Combine(fixture.Root, "absent"), "HEAD", "../escape", TestContext.Current.CancellationToken))
             .Code.ShouldBe("REPOSITORY_UNAVAILABLE");
+        (await facts.ReadBlobAsync(fixture.Root, "bad-revision", "../escape", TestContext.Current.CancellationToken))
+            .Code.ShouldBe("REPOSITORY_PATH_ESCAPE");
         Directory.CreateDirectory(Path.Combine(fixture.Root, "nested"));
         (await facts.ResolveRepositoryAsync(Path.Combine(fixture.Root, "nested"), TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Unavailable);
         string nonRepository = Path.Combine(Path.GetTempPath(), "gitfacts-not-repository-" + Guid.NewGuid().ToString("N"));
@@ -445,6 +470,22 @@ public sealed class GitFactsTests
         (await facts.ReadBlobAsync(fixture.Root, "HEAD", "missing", TestContext.Current.CancellationToken)).Status.ShouldBe(GitFactStatus.Invalid);
         if (!OperatingSystem.IsWindows())
         {
+            string spaceParent = Path.Combine(Path.GetTempPath(), "gitfacts-space-root-" + Guid.NewGuid().ToString("N"));
+            string spaceRoot = Path.Combine(spaceParent, "   ");
+            Directory.CreateDirectory(spaceRoot);
+            try
+            {
+                (await facts.RunAsync(spaceRoot, ["init", "--quiet"], TestContext.Current.CancellationToken)).Value!.ExitCode.ShouldBe(0);
+                string originalDirectory = Environment.CurrentDirectory;
+                try
+                {
+                    Environment.CurrentDirectory = spaceParent;
+                    (await facts.ResolveRepositoryAsync("   ", TestContext.Current.CancellationToken)).Value.ShouldBe(spaceRoot);
+                    RepositoryLocator.ResolveContainedPath("   ", "file.txt").IsSuccess.ShouldBeTrue();
+                }
+                finally { Environment.CurrentDirectory = originalDirectory; }
+            }
+            finally { GitFixture.DeleteTree(spaceParent); }
             string nonExecutable = Path.Combine(fixture.Root, "non-executable-git");
             File.WriteAllText(nonExecutable, "#!/bin/sh\nexit 0\n");
             File.SetUnixFileMode(nonExecutable, UnixFileMode.UserRead | UnixFileMode.UserWrite);

@@ -16,7 +16,7 @@ public static class RepositoryLocator
 
     private static GitFact<string> Resolve(string root, string relativePath, bool checkWorktreeLinks)
     {
-        if (string.IsNullOrWhiteSpace(root) || string.IsNullOrEmpty(relativePath)
+        if (string.IsNullOrEmpty(root) || string.IsNullOrEmpty(relativePath)
             || root.Contains('\0') || relativePath.Contains('\0') || Path.IsPathRooted(relativePath)
             || relativePath.Split('/').Any(segment => segment is "" or "." or "..")
             || (OperatingSystem.IsWindows() && relativePath.Contains('\\')))
