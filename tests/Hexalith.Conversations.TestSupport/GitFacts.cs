@@ -349,11 +349,13 @@ public sealed class GitFacts
     /// <summary>Reads raw, NUL-delimited diff entries between two resolved commits.</summary>
     public async Task<GitFact<IReadOnlyList<GitDiffEntry>>> ReadDiffAsync(string repository, string before, string after, CancellationToken cancellationToken = default)
     {
-        GitFact<string> source = await ResolveRevisionAsync(repository, before, cancellationToken).ConfigureAwait(false);
+        GitFact<string> root = await ResolveRepositoryAsync(repository, cancellationToken).ConfigureAwait(false);
+        if (!root.IsSuccess) return Forward<IReadOnlyList<GitDiffEntry>>(root);
+        GitFact<string> source = await ResolveRevisionAsync(root.Value!, before, cancellationToken).ConfigureAwait(false);
         if (!source.IsSuccess) return Forward<IReadOnlyList<GitDiffEntry>>(source);
-        GitFact<string> destination = await ResolveRevisionAsync(repository, after, cancellationToken).ConfigureAwait(false);
+        GitFact<string> destination = await ResolveRevisionAsync(root.Value!, after, cancellationToken).ConfigureAwait(false);
         if (!destination.IsSuccess) return Forward<IReadOnlyList<GitDiffEntry>>(destination);
-        GitFact<GitCommandResult> result = await RunAsync(repository, ["diff", "--raw", "--no-abbrev", "-z", "--no-ext-diff", "--no-textconv", "--ignore-submodules=none", "--find-renames=50%", source.Value!, destination.Value!, "--"], cancellationToken).ConfigureAwait(false);
+        GitFact<GitCommandResult> result = await RunAsync(root.Value!, ["diff", "--raw", "--no-abbrev", "-z", "--no-ext-diff", "--no-textconv", "--ignore-submodules=none", "--find-renames=50%", source.Value!, destination.Value!, "--"], cancellationToken).ConfigureAwait(false);
         if (!result.IsSuccess) return Forward<IReadOnlyList<GitDiffEntry>>(result);
         if (result.Value!.ExitCode != 0) return GitFact<IReadOnlyList<GitDiffEntry>>.Fail(GitFactStatus.Unavailable, "HISTORY_UNAVAILABLE", "Git could not read the requested diff. " + ErrorText(result.Value.Stderr));
         try
@@ -382,8 +384,8 @@ public sealed class GitFacts
                 if (!IsDiffMode(fields[0]) || !IsDiffMode(fields[1]) || !IsObjectId(fields[2]) || !IsObjectId(fields[3])
                     || !IsDiffStatus(fields[4]) || !IsDiffRelation(fields) || string.IsNullOrEmpty(original) || string.IsNullOrEmpty(path)
                     || (sourcePath is not null && sourcePath == path)
-                    || !RepositoryLocator.ResolveHistoricalPath(repository, original).IsSuccess
-                    || !RepositoryLocator.ResolveHistoricalPath(repository, path).IsSuccess
+                    || !RepositoryLocator.ResolveHistoricalPath(root.Value!, original).IsSuccess
+                    || !RepositoryLocator.ResolveHistoricalPath(root.Value!, path).IsSuccess
                     || (fields[0] != "000000" && !sources.Add(original))
                     || !paths.Add(path)) throw new FormatException("Malformed raw diff mode, status, object, or path.");
                 entries.Add(new(fields[0], fields[1], fields[2], fields[3], fields[4], path, sourcePath));
@@ -404,14 +406,16 @@ public sealed class GitFacts
     /// <summary>Reads a commit's recursive raw tree entries.</summary>
     public async Task<GitFact<IReadOnlyList<GitTreeEntry>>> ReadTreeAsync(string repository, string revision, CancellationToken cancellationToken = default)
     {
-        GitFact<string> commit = await ResolveRevisionAsync(repository, revision, cancellationToken).ConfigureAwait(false);
+        GitFact<string> root = await ResolveRepositoryAsync(repository, cancellationToken).ConfigureAwait(false);
+        if (!root.IsSuccess) return Forward<IReadOnlyList<GitTreeEntry>>(root);
+        GitFact<string> commit = await ResolveRevisionAsync(root.Value!, revision, cancellationToken).ConfigureAwait(false);
         if (!commit.IsSuccess) return Forward<IReadOnlyList<GitTreeEntry>>(commit);
-        GitFact<GitCommandResult> result = await RunAsync(repository, ["ls-tree", "-rz", "--full-tree", commit.Value!, "--"], cancellationToken).ConfigureAwait(false);
+        GitFact<GitCommandResult> result = await RunAsync(root.Value!, ["ls-tree", "-rz", "--full-tree", commit.Value!, "--"], cancellationToken).ConfigureAwait(false);
         if (!result.IsSuccess) return Forward<IReadOnlyList<GitTreeEntry>>(result);
         if (result.Value!.ExitCode != 0) return GitFact<IReadOnlyList<GitTreeEntry>>.Fail(GitFactStatus.Unavailable, "HISTORY_UNAVAILABLE", "Git could not read the requested tree. " + ErrorText(result.Value.Stderr));
         try
         {
-            return GitFact<IReadOnlyList<GitTreeEntry>>.Ok(ParseTree(repository, result.Value.Stdout, cancellationToken));
+            return GitFact<IReadOnlyList<GitTreeEntry>>.Ok(ParseTree(root.Value!, result.Value.Stdout, cancellationToken));
         }
         catch (Exception exception) when (exception is DecoderFallbackException or FormatException)
         {

@@ -10134,6 +10134,12 @@ def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path
     assert "ASSERTION_INVENTORY_DRIFT" in {row["code"] for row in error.value.findings}
     contract["inventory"] = original_inventory
 
+    contract["predecessors"] = ["9.2", "7.4"]
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "ASSERTION_INVENTORY_DRIFT" in {row["code"] for row in error.value.findings}
+    contract["predecessors"] = ["7.4", "9.2"]
+
     result = scenario_records["AC-10.1-06"]["resultFile"]
     original_digest = result["sha256"]
     result["sha256"] = "0" * 64
@@ -10292,6 +10298,9 @@ def test_story101_schema_requires_exclusive_closed_support_binding() -> None:
     foreign_predecessor = deepcopy(story101)
     foreign_predecessor["testSupportExecution"]["predecessorRecords"][0]["path"] = "foreign-record.json"
     assert generator.v2_schema_errors(validators["record"], foreign_predecessor)
+    foreign_second_predecessor = deepcopy(story101)
+    foreign_second_predecessor["testSupportExecution"]["predecessorRecords"][1]["path"] = "foreign-record.json"
+    assert generator.v2_schema_errors(validators["record"], foreign_second_predecessor)
 
 
 def test_story101_committed_predecessor_requires_valid_pair(tmp_path: Path) -> None:
@@ -10494,7 +10503,7 @@ def test_story101_predecessor_requires_positive_consistent_summary() -> None:
     previous["scenarios"][0]["assertionLedger"] = []
     assert not generator.v2_10_1_predecessor_passes(previous)
     previous["scenarios"][0]["assertionLedger"] = saved_ledger
-    for field in ("skipped", "notRun"):
+    for field in ("failed", "blocked", "skipped", "notRun"):
         previous["summary"][field] = 1
         assert not generator.v2_10_1_predecessor_passes(previous)
         previous["summary"][field] = 0

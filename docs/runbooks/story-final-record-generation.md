@@ -1876,16 +1876,19 @@ properties and declared package, project, assembly, and framework references.
 `TEST_SUPPORT_BOUNDARY_INVALID` means a project is packable, publishable,
 declares an unexpected dependency, differs from the committed candidate, or has
 an assembly that is missing, has any linked path component, or is not stamped by
-that candidate. The repository path and its ancestors must also contain no links.
+that candidate. An unavailable, timed-out (30 seconds), failed, or malformed
+Debug or Release MSBuild evaluation also produces this code.
 `AUTHORITY_BINDING_INVALID` means a predecessor pair, PASS ledger, candidate
 commit, or authority field did not verify. `TEST_RESULTS_MISSING` means a
-committed project or required passing result is absent, or a measured result
-differs from its digest. `ASSERTION_INVENTORY_DRIFT` means the frozen entry
+committed project or required passing result is absent, a measured result
+differs from its digest, or a result under `artifacts/v9/10.1` is linked or
+non-regular. `ASSERTION_INVENTORY_DRIFT` means the frozen entry
 inventory or predecessor order changed.
 
 Inserted-record verification re-derives the Story 10.1 candidate facts. Keep the
 candidate-stamped assemblies under each TestSupport project's `bin/Release`
 directory and the five measured TRX files under `artifacts/v9/10.1` available
 locally when running that route. It also requires the .NET SDK to run four bounded
-MSBuild evaluations of the Debug and Release project graphs. Restore the neutral
+MSBuild evaluations of the Debug and Release project graphs. AC-10.1-07
+generation runs those four evaluations too. Restore the neutral
 project boundary and rebuild the committed candidate before regenerating the pair.

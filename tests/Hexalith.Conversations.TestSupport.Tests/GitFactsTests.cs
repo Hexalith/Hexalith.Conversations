@@ -459,6 +459,9 @@ public sealed class GitFactsTests
         File.WriteAllText(linkPath, "target.txt");
         string scriptId = fixture.Git("hash-object", "-w", scriptPath);
         string linkId = fixture.Git("hash-object", "-w", linkPath);
+        File.WriteAllText(Path.Combine(fixture.Root, ".gitmodules"),
+            "[submodule \"deps/module\"]\n\tpath = deps/module\n\turl = https://example.invalid/module.git\n\tignore = all\n");
+        fixture.Git("add", ".gitmodules");
         fixture.Git("update-index", "--add", "--cacheinfo", $"100755,{scriptId},bin/tool.sh");
         fixture.Git("update-index", "--add", "--cacheinfo", $"120000,{linkId},link");
         fixture.Git("update-index", "--add", "--cacheinfo", $"160000,{baseCommit},deps/module");
