@@ -2,7 +2,7 @@
 title: 'Story 10.1: Neutral TestSupport helpers and safe Git facts'
 type: 'feature'
 created: '2026-10-10'
-status: 'in-review'
+status: 'done'
 baseline_commit: '2f2621aa4b40b0d44c62bf5e1e98727e7a182fec'
 route: 'dispatch'
 review_loop_iteration: 4
