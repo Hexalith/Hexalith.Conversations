@@ -293,7 +293,7 @@ Code review of `f9f659a..7a7332a` (2026-10-12), full mode, all four layers compl
 
 Every patch below changes a path outside the retained-candidate whitelist. Committing this section alone also breaks retention of the `02fe077` pair, as the fourth pass noted. Decision 1 needs a new candidate anyway.
 
-- [ ] [Review][Patch] (high, decision resolved by the owner 2026-10-12: option 1) The refreshed pair cannot reach `origin/main` without failing retention — Local `main` is 8 commits ahead of `origin/main` and 1 behind. The missing commit is `697032c fix(client): validate conversation request arguments`, which changes `ConversationClient.cs` and `IConversationClient.cs`. It was authored at 18:55 on 2026-10-11, before candidate `02fe077` (21:00), and `git ls-remote` still shows it as the remote head.
+- [x] [Review][Patch] (high, decision resolved by the owner 2026-10-12: option 1) The refreshed pair cannot reach `origin/main` without failing retention — Local `main` is 8 commits ahead of `origin/main` and 1 behind. The missing commit is `697032c fix(client): validate conversation request arguments`, which changes `ConversationClient.cs` and `IConversationClient.cs`. It was authored at 18:55 on 2026-10-11, before candidate `02fe077` (21:00), and `git ls-remote` still shows it as the remote head.
   - `v2_retained_candidate` (`_bmad/scripts/generate_story_record.py:5125-5205`) rejects any commit in `candidate..HEAD` that changes a path other than the pair, lifecycle-only spec text, or the Story 10.1 sprint row.
   - A merge puts `697032c` in that range, giving `CANDIDATE_NOT_FINAL`. The Acceptance Auditor reproduced this in a scratch clone, and the code path confirms it.
   - A rebase rewrites `02fe077` so it is no longer an ancestor of HEAD, which gives the same code.
@@ -303,7 +303,7 @@ Every patch below changes a path outside the retained-candidate whitelist. Commi
   2. Keep the pair local and integrate later. Story 10.1 then stays unpublishable, and Story 10.2 cannot consume it from `main`.
 
   Update (2026-10-12): during triage, owner commit `48edcd7` (`build: sync local changes via /pushall`) rebased the delta onto `697032c`, moved eight root gitlinks, and pushed `main`. The committed pair still names candidate `02fe077`, which `git merge-base --is-ancestor` now reports is not an ancestor of HEAD (exit 1). Integration is done, but the new candidate and the regenerated pair are still required.
-- [ ] [Review][Patch] (medium, decision resolved by the owner 2026-10-12: option 1) The fifth-pass code and fixtures have no CI run, Windows included — The last pushed run, 38164886497 at `7970ad1`, predates `7864280` and `eab14fb`. Those commits add:
+- [x] [Review][Patch] (medium, decision resolved by the owner 2026-10-12: option 1) The fifth-pass code and fixtures have no CI run, Windows included — The last pushed run, 38164886497 at `7970ad1`, predates `7864280` and `eab14fb`. Those commits add:
   - root resolution in `ReadDiffAsync` and `ReadTreeAsync`;
   - the committed `.gitmodules` `ignore = all` fixture;
   - the zero-ID check and `AllZeroShallowAncestorShouldBeInvalid`.
@@ -530,6 +530,9 @@ Every patch below changes a path outside the retained-candidate whitelist. Commi
 | R5-B10 general shallow expressions | low | rejected | carried: L3-B07 records that unsupported side-branch expressions remain invalid rather than successful; full revision-expression proof exceeds the demonstrated HEAD forms. |
 | R5-B11 Windows junction coverage | low | rejected | carried: L5-B12 records that Unix tests cover link containment and Windows CI covers process cleanup; privileged junction setup is more than a direct test correction. |
 | R5-B12 stale sprint header | low | defer | carried: the third review recorded the pre-existing stale comment separately from the correctly tracked Story 10.1 status row. |
+| CR5-D1 upstream integration | high | patch | Owner option 1. `48edcd7` rebased onto `697032c` and pushed. `6c46db4` retracted the `02fe077` pair. Candidate `79f4b12` passed AC-10.1-01 through AC-10.1-07 with summary `7/7/0/0/0/0`. The pair is `fd89b32` and the record was inserted at `34b827e`, where `--verify-inserted-record` exits 0. `48edcd7..34b827e` was pushed as a fast-forward. |
+| CR5-D2 pass-5 CI evidence | medium | patch | Owner option 1. In run 38263497965 at `34b827e`, `ci / TestSupport Windows descendant cleanup` (job 114859709432) passed 13 of 13 with none failed, skipped, or not run, and the `ci / build-and-test` TestSupport assembly passed. `ci / repository` still fails at the deferred completion-gate step. |
+| CR5-P1..P3 zero parent, predecessor conditions, runbook | low | patch | Applied in candidate `79f4b12`. The new zero-parent test fails without the guard. Each new predecessor case kills its mutant. `story101` passed 15 of 15. |
 
 ## Verification
 
