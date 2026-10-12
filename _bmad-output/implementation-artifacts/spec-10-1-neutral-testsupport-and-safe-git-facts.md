@@ -287,6 +287,50 @@ Every patch below changes a path outside the retained-candidate whitelist. Landi
 - R4-BH13 (low): The new sprint-header deferral names the line and the contradiction. Recording the current IR-0 and hold facts would need research beyond a direct correction.
 - R4-BH9, vacuity part (false): The schema mutations start from a record asserted valid, so an unrelated schema error cannot satisfy them. The unpinned 9.2 path is the patch above.
 
+#### Fifth review pass
+
+Code review of `f9f659a..7a7332a` (2026-10-12), full mode, all four layers completed. By owner choice the diff covered the fourth-pass delta without this spec: 7 files, 516 lines, including the regenerated `02fe077` pair. Result: 2 decision-needed, 3 patch, 1 defer, 8 rejected. All five fourth-pass patches are in place. The Acceptance Auditor reported that `--verify-inserted-record` exits 0 at HEAD and that `-k story101` passes 15 of 15.
+
+Every patch below changes a path outside the retained-candidate whitelist. Committing this section alone also breaks retention of the `02fe077` pair, as the fourth pass noted. Decision 1 needs a new candidate anyway.
+
+- [ ] [Review][Decision] (high) The refreshed pair cannot reach `origin/main` without failing retention — Local `main` is 8 commits ahead of `origin/main` and 1 behind. The missing commit is `697032c fix(client): validate conversation request arguments`, which changes `ConversationClient.cs` and `IConversationClient.cs`. It was authored at 18:55 on 2026-10-11, before candidate `02fe077` (21:00), and `git ls-remote` still shows it as the remote head.
+  - `v2_retained_candidate` (`_bmad/scripts/generate_story_record.py:5125-5205`) rejects any commit in `candidate..HEAD` that changes a path other than the pair, lifecycle-only spec text, or the Story 10.1 sprint row.
+  - A merge puts `697032c` in that range, giving `CANDIDATE_NOT_FINAL`. The Acceptance Auditor reproduced this in a scratch clone, and the code path confirms it.
+  - A rebase rewrites `02fe077` so it is no longer an ancestor of HEAD, which gives the same code.
+
+  Options:
+  1. Integrate `origin/main` first, land this pass's patches, commit a new candidate, rerun AC-10.1-01 through AC-10.1-07, regenerate and reinsert the pair, then push. This is the same remedy as the second-pass `da73f49` decision.
+  2. Keep the pair local and integrate later. Story 10.1 then stays unpublishable, and Story 10.2 cannot consume it from `main`.
+- [ ] [Review][Decision] (medium) The fifth-pass code and fixtures have no CI run, Windows included — The last pushed run, 38164886497 at `7970ad1`, predates `7864280` and `eab14fb`. Those commits add:
+  - root resolution in `ReadDiffAsync` and `ReadTreeAsync`;
+  - the committed `.gitmodules` `ignore = all` fixture;
+  - the zero-ID check and `AllZeroShallowAncestorShouldBeInvalid`.
+
+  The third pass closed the same gap by pushing and requiring `ci / TestSupport Windows descendant cleanup` to pass. A push waits on the first decision. Options:
+  1. After the first decision lands, push and require the Windows and Linux TestSupport lanes to pass before the sprint row moves to `done`.
+  2. Accept the story with the gap recorded.
+- [ ] [Review][Patch] (low) Zero `parent` IDs still prove a shallow ancestor. `IsProvenShallowAncestorAsync` checks parent headers with `IsObjectId`, which checks shape only. With a valid chain and a listed boundary whose commit has `parent 000…0`, both `HEAD~1` and the 40-zero object revision return `Unavailable`/`HISTORY_UNAVAILABLE` instead of `Invalid`; the Acceptance Auditor reproduced this with the candidate DLL and a Python fake. The R5-E02 fix at line 538 covers only the `rev-list` chain, although the acceptance criteria say malformed parents are invalid. Reject all-zero parent IDs in the same guard, and add a zero-parent case for both revision forms to `AllZeroShallowAncestorShouldBeInvalid` or a sibling `[Fact]` [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:580]
+- [ ] [Review][Patch] (low) Four conjuncts of `v2_10_1_predecessor_passes` are unpinned. The test never mutates `required` alone, a scenario `result`, an assertion `state`, or the scenario count, so deleting any of these keeps every `story101` test green:
+  - `summary["required"] ==`
+  - `count > 0`
+  - `row["result"] == "PASS"`
+  - the assertion-state check
+
+  This predicate is the only scenario-level PASS gate for the 7.4 and 9.2 records, because `v2_verify_pair` checks only digests for records other than 10.1. Add one mutation for each conjunct [_bmad/scripts/tests/test_generate_story_record.py:10498]
+- [ ] [Review][Patch] (low) The runbook omits working-tree project-file failures. A missing, linked, or non-regular `.csproj` in the working tree raises inside the `try` in `v2_10_1_facts` and reports `TEST_SUPPORT_BOUNDARY_INVALID`. Meanwhile the `TEST_RESULTS_MISSING` definition says "a committed project … is absent". Add the working-tree case to the `TEST_SUPPORT_BOUNDARY_INVALID` definition [docs/runbooks/story-final-record-generation.md:1876]
+- [x] [Review][Defer] (medium) The refreshed pair and the new pytest assertions never run in CI [.github/workflows/ci.yml:117] — deferred: carried. `ci / repository` still fails at "Verify story completion gate surfaces" before the Python tooling step. This is already tracked by `deferred-work.md:569` (R4-V01, R5-V01), so no duplicate entry was added.
+
+##### Rejected (fifth pass)
+
+- CR5-AA4 / CR5-BH6 (low, carried R4-AA3): The new zero-ID `[Fact]` is outside the AC-10.1-06 selector, so the bound TRX does not exercise the R5-E02 fix. The frozen contract decides which selectors are bound, and the whole project runs in both CI lanes (see the second decision). The duplicated fake and the temp-file placement, which is deleted in `finally`, cause no named harm.
+- CR5-BH5 (low): The new test uses a one-element chain, so a rewrite that zero-checked only the boundary ID would stay green. Deleting the real check turns the result into `Unavailable`, which the test catches, and this fake cannot reach any other `GIT_OUTPUT_INVALID` branch. Extra chain-position cases would guard an implementation that does not exist.
+- CR5-BH4, shallow-file part (low): An unvalidated shallow-file line can only leave the boundary unlisted, which still gives `REVISION_INVALID` (`Invalid`), or match a boundary Git itself recorded. Line validation would be a new guard on a Git-owned file.
+- CR5-BH4, helper part (low): An `IsNonZeroObjectId` helper for the four `All(c => c == '0')` sites is a refactor. The zero-parent patch needs only one clause.
+- CR5-ECH3 / CR5-BH2 (low): The schema test does not mutate 13 of the 15 `testSupportExecution` consts. Pair verification separately rechecks every path, the predecessor story IDs (`v2_10_1_exact_paths` and the predecessor list) and the inventory digest, and inserted-record verification re-derives the binding. A dropped const therefore cannot let a wrong record through the generator routes. A table-driven const test would be a new test structure.
+- CR5-BH3 (false): The `repository.parents` link check at `generate_story_record.py:5445` cannot be reached: both routes pass the resolved root from `validate_repository`, as the fourth pass found. With the sentence removed, the runbook describes only behavior that can occur, so docs and behavior agree.
+- CR5-BH7 (low): `ReadDiffAsync` and `ReadTreeAsync` each now spawn one more `rev-parse --show-toplevel`, which costs milliseconds in a test helper. A resolver that takes an already-validated root would be new surface.
+- CR5-BH9 (false): The reordered-predecessors case restores the literal the test first proved valid, and it uses the same membership assertion as the inventory case just above it. No wrong outcome follows.
+
 ## Implementation Notes
 
 - Review loop 2: candidate `4f57a68a08b842b160c6b9c12fca6e82134da78f` and its pair at `40d0168` passed AC-01..07, exact solution restore and Release build, focused TestSupport 5/5, focused generator 4/4, and pair/schema checks. All five TRX files matched record digests; the 7.4/9.2 predecessor bytes were unchanged. That candidate was withdrawn from the working tree because the second review found further safeguards to derive. Its local commits remain for traceability.
