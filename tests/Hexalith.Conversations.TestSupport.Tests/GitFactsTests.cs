@@ -516,6 +516,36 @@ public sealed class GitFactsTests
     }
 
     [Fact]
+    public async Task AllZeroShallowParentShouldBeInvalid()
+    {
+        using GitFixture fixture = new();
+        string boundary = new('b', 40);
+        string shallowPath = Path.Combine(Path.GetTempPath(), "gitfacts-zero-parent-" + Guid.NewGuid().ToString("N"));
+        File.WriteAllText(shallowPath, boundary + "\n");
+        try
+        {
+            string rootLiteral = JsonSerializer.Serialize(fixture.Root);
+            string shallowLiteral = JsonSerializer.Serialize(shallowPath);
+            string fake = "import sys\na=sys.argv[1:]\n"
+                + "if '--show-toplevel' in a: sys.stdout.buffer.write((" + rootLiteral + "+'\\n').encode())\n"
+                + "elif '--verify' in a: sys.exit(1)\n"
+                + "elif '--is-shallow-repository' in a: sys.stdout.buffer.write(b'true\\n')\n"
+                + "elif 'rev-list' in a: sys.stdout.buffer.write(b'b'*40+b'\\n')\n"
+                + "elif '--git-path' in a: sys.stdout.buffer.write((" + shallowLiteral + "+'\\n').encode())\n"
+                + "elif 'cat-file' in a: sys.stdout.buffer.write(b'parent '+b'0'*40+b'\\n\\n')\n";
+            foreach (string revision in new[] { "HEAD~1", new string('0', 40) })
+            {
+                GitFact<string> result = await PythonFacts(fake).ResolveRevisionAsync(
+                    fixture.Root, revision, TestContext.Current.CancellationToken);
+                result.Status.ShouldBe(GitFactStatus.Invalid);
+                result.Code.ShouldBe("GIT_OUTPUT_INVALID");
+                result.Message.ShouldBe("Git returned a malformed parent header.");
+            }
+        }
+        finally { File.Delete(shallowPath); }
+    }
+
+    [Fact]
     public async Task UnavailableHistoryShouldBeTypedNotSuccessful()
     {
         using GitFixture fixture = new();

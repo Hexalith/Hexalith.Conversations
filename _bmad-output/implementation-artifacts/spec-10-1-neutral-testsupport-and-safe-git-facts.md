@@ -289,11 +289,11 @@ Every patch below changes a path outside the retained-candidate whitelist. Landi
 
 #### Fifth review pass
 
-Code review of `f9f659a..7a7332a` (2026-10-12), full mode, all four layers completed. By owner choice the diff covered the fourth-pass delta without this spec: 7 files, 516 lines, including the regenerated `02fe077` pair. Result: 2 decision-needed, 3 patch, 1 defer, 8 rejected. All five fourth-pass patches are in place. The Acceptance Auditor reported that `--verify-inserted-record` exits 0 at HEAD and that `-k story101` passes 15 of 15.
+Code review of `f9f659a..7a7332a` (2026-10-12), full mode, all four layers completed. By owner choice the diff covered the fourth-pass delta without this spec: 7 files, 516 lines, including the regenerated `02fe077` pair. Result: 2 decision-needed (both resolved to patch by the owner), 3 patch, 1 defer, 8 rejected. All five fourth-pass patches are in place. The Acceptance Auditor reported that `--verify-inserted-record` exits 0 at HEAD and that `-k story101` passes 15 of 15.
 
 Every patch below changes a path outside the retained-candidate whitelist. Committing this section alone also breaks retention of the `02fe077` pair, as the fourth pass noted. Decision 1 needs a new candidate anyway.
 
-- [ ] [Review][Decision] (high) The refreshed pair cannot reach `origin/main` without failing retention — Local `main` is 8 commits ahead of `origin/main` and 1 behind. The missing commit is `697032c fix(client): validate conversation request arguments`, which changes `ConversationClient.cs` and `IConversationClient.cs`. It was authored at 18:55 on 2026-10-11, before candidate `02fe077` (21:00), and `git ls-remote` still shows it as the remote head.
+- [ ] [Review][Patch] (high, decision resolved by the owner 2026-10-12: option 1) The refreshed pair cannot reach `origin/main` without failing retention — Local `main` is 8 commits ahead of `origin/main` and 1 behind. The missing commit is `697032c fix(client): validate conversation request arguments`, which changes `ConversationClient.cs` and `IConversationClient.cs`. It was authored at 18:55 on 2026-10-11, before candidate `02fe077` (21:00), and `git ls-remote` still shows it as the remote head.
   - `v2_retained_candidate` (`_bmad/scripts/generate_story_record.py:5125-5205`) rejects any commit in `candidate..HEAD` that changes a path other than the pair, lifecycle-only spec text, or the Story 10.1 sprint row.
   - A merge puts `697032c` in that range, giving `CANDIDATE_NOT_FINAL`. The Acceptance Auditor reproduced this in a scratch clone, and the code path confirms it.
   - A rebase rewrites `02fe077` so it is no longer an ancestor of HEAD, which gives the same code.
@@ -301,7 +301,9 @@ Every patch below changes a path outside the retained-candidate whitelist. Commi
   Options:
   1. Integrate `origin/main` first, land this pass's patches, commit a new candidate, rerun AC-10.1-01 through AC-10.1-07, regenerate and reinsert the pair, then push. This is the same remedy as the second-pass `da73f49` decision.
   2. Keep the pair local and integrate later. Story 10.1 then stays unpublishable, and Story 10.2 cannot consume it from `main`.
-- [ ] [Review][Decision] (medium) The fifth-pass code and fixtures have no CI run, Windows included — The last pushed run, 38164886497 at `7970ad1`, predates `7864280` and `eab14fb`. Those commits add:
+
+  Update (2026-10-12): during triage, owner commit `48edcd7` (`build: sync local changes via /pushall`) rebased the delta onto `697032c`, moved eight root gitlinks, and pushed `main`. The committed pair still names candidate `02fe077`, which `git merge-base --is-ancestor` now reports is not an ancestor of HEAD (exit 1). Integration is done, but the new candidate and the regenerated pair are still required.
+- [ ] [Review][Patch] (medium, decision resolved by the owner 2026-10-12: option 1) The fifth-pass code and fixtures have no CI run, Windows included — The last pushed run, 38164886497 at `7970ad1`, predates `7864280` and `eab14fb`. Those commits add:
   - root resolution in `ReadDiffAsync` and `ReadTreeAsync`;
   - the committed `.gitmodules` `ignore = all` fixture;
   - the zero-ID check and `AllZeroShallowAncestorShouldBeInvalid`.
@@ -309,15 +311,17 @@ Every patch below changes a path outside the retained-candidate whitelist. Commi
   The third pass closed the same gap by pushing and requiring `ci / TestSupport Windows descendant cleanup` to pass. A push waits on the first decision. Options:
   1. After the first decision lands, push and require the Windows and Linux TestSupport lanes to pass before the sprint row moves to `done`.
   2. Accept the story with the gap recorded.
-- [ ] [Review][Patch] (low) Zero `parent` IDs still prove a shallow ancestor. `IsProvenShallowAncestorAsync` checks parent headers with `IsObjectId`, which checks shape only. With a valid chain and a listed boundary whose commit has `parent 000…0`, both `HEAD~1` and the 40-zero object revision return `Unavailable`/`HISTORY_UNAVAILABLE` instead of `Invalid`; the Acceptance Auditor reproduced this with the candidate DLL and a Python fake. The R5-E02 fix at line 538 covers only the `rev-list` chain, although the acceptance criteria say malformed parents are invalid. Reject all-zero parent IDs in the same guard, and add a zero-parent case for both revision forms to `AllZeroShallowAncestorShouldBeInvalid` or a sibling `[Fact]` [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:580]
-- [ ] [Review][Patch] (low) Four conjuncts of `v2_10_1_predecessor_passes` are unpinned. The test never mutates `required` alone, a scenario `result`, an assertion `state`, or the scenario count, so deleting any of these keeps every `story101` test green:
+
+  Update (2026-10-12): CI run 38258184425 started on `48edcd7` and covers the rebased pass-5 code. The patched candidate needs its own run.
+- [x] [Review][Patch] (low) Zero `parent` IDs still prove a shallow ancestor. `IsProvenShallowAncestorAsync` checks parent headers with `IsObjectId`, which checks shape only. With a valid chain and a listed boundary whose commit has `parent 000…0`, both `HEAD~1` and the 40-zero object revision return `Unavailable`/`HISTORY_UNAVAILABLE` instead of `Invalid`; the Acceptance Auditor reproduced this with the candidate DLL and a Python fake. The R5-E02 fix at line 538 covers only the `rev-list` chain, although the acceptance criteria say malformed parents are invalid. Reject all-zero parent IDs in the same guard, and add a zero-parent case for both revision forms to `AllZeroShallowAncestorShouldBeInvalid` or a sibling `[Fact]` [tests/Hexalith.Conversations.TestSupport/GitFacts.cs:580]
+- [x] [Review][Patch] (low) Four conjuncts of `v2_10_1_predecessor_passes` are unpinned. The test never mutates `required` alone, a scenario `result`, an assertion `state`, or the scenario count, so deleting any of these keeps every `story101` test green:
   - `summary["required"] ==`
   - `count > 0`
   - `row["result"] == "PASS"`
   - the assertion-state check
 
   This predicate is the only scenario-level PASS gate for the 7.4 and 9.2 records, because `v2_verify_pair` checks only digests for records other than 10.1. Add one mutation for each conjunct [_bmad/scripts/tests/test_generate_story_record.py:10498]
-- [ ] [Review][Patch] (low) The runbook omits working-tree project-file failures. A missing, linked, or non-regular `.csproj` in the working tree raises inside the `try` in `v2_10_1_facts` and reports `TEST_SUPPORT_BOUNDARY_INVALID`. Meanwhile the `TEST_RESULTS_MISSING` definition says "a committed project … is absent". Add the working-tree case to the `TEST_SUPPORT_BOUNDARY_INVALID` definition [docs/runbooks/story-final-record-generation.md:1876]
+- [x] [Review][Patch] (low) The runbook omits working-tree project-file failures. A missing, linked, or non-regular `.csproj` in the working tree raises inside the `try` in `v2_10_1_facts` and reports `TEST_SUPPORT_BOUNDARY_INVALID`. Meanwhile the `TEST_RESULTS_MISSING` definition says "a committed project … is absent". Add the working-tree case to the `TEST_SUPPORT_BOUNDARY_INVALID` definition [docs/runbooks/story-final-record-generation.md:1876]
 - [x] [Review][Defer] (medium) The refreshed pair and the new pytest assertions never run in CI [.github/workflows/ci.yml:117] — deferred: carried. `ci / repository` still fails at "Verify story completion gate surfaces" before the Python tooling step. This is already tracked by `deferred-work.md:569` (R4-V01, R5-V01), so no duplicate entry was added.
 
 ##### Rejected (fifth pass)
@@ -340,6 +344,7 @@ Every patch below changes a path outside the retained-candidate whitelist. Commi
 - The `583b7d9` source candidate and `f6aa0e2` record passed AC-01..07 and inserted verification before the final sprint transition. Lifecycle verification then exposed a sprint-key and timestamp mismatch in the generator; retract that pair and regenerate it from a corrected committed source candidate.
 
 - Review loop 4 patch: tightened impossible raw Git record rejection, capped shallow boundary reads, propagated parse cancellation, cross-checked the Story 10.1 pair and predecessor scenario counts, and added timeout, hostile object-directory, and Windows cleanup checks. The prior record was retracted so a new candidate can bind these changes.
+- Fifth review pass patch (2026-10-12): rejected all-zero shallow parent IDs, pinned the four remaining predecessor-pass conditions, and named working-tree project-file failures in the runbook. Owner commit `48edcd7` had already rebased the delta onto `697032c`, leaving the `02fe077` pair without an ancestor candidate. That pair was retracted, so a new candidate binds these changes. Debug TestSupport passed 13 of 13. Without the guard, the new zero-parent test fails. The focused `story101` generator tests passed 15 of 15, and each new predecessor case kills its mutant.
 
 ## Spec Change Log
 

@@ -10515,6 +10515,23 @@ def test_story101_predecessor_requires_positive_consistent_summary() -> None:
     previous["scenarios"][0]["exitCode"] = 0
     previous["scenarios"][0]["blockers"] = ["unexpected blocker"]
     assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["scenarios"][0]["blockers"] = []
+    assert generator.v2_10_1_predecessor_passes(previous)
+    count = len(previous["scenarios"])
+    previous["summary"]["required"] = count + 1
+    assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["summary"]["required"] = count
+    previous["scenarios"][0]["result"] = "FAIL"
+    assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["scenarios"][0]["result"] = "PASS"
+    previous["scenarios"][0]["assertionLedger"][0]["state"] = "FAIL"
+    assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["scenarios"][0]["assertionLedger"][0]["state"] = "PASS"
+    assert generator.v2_10_1_predecessor_passes(previous)
+    empty = deepcopy(previous)
+    empty["scenarios"] = []
+    empty["summary"]["required"] = empty["summary"]["passed"] = 0
+    assert not generator.v2_10_1_predecessor_passes(empty)
 
 
 def test_story101_inserted_verification_rederives_stale_artifact_binding(tmp_path: Path, monkeypatch) -> None:

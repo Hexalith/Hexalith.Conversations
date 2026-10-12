@@ -1874,7 +1874,8 @@ digest, and binds both TestSupport project and assembly hashes plus the five
 measured TRX hashes. The boundary evaluates both Debug and Release MSBuild
 properties and declared package, project, assembly, and framework references.
 `TEST_SUPPORT_BOUNDARY_INVALID` means a project is packable, publishable,
-declares an unexpected dependency, differs from the committed candidate, or has
+declares an unexpected dependency, differs from the committed candidate, has a
+working-tree project file that is missing, linked, or non-regular, or has
 an assembly that is missing, has any linked path component, or is not stamped by
 that candidate. An unavailable, timed-out (30 seconds), failed, or malformed
 Debug or Release MSBuild evaluation also produces this code.

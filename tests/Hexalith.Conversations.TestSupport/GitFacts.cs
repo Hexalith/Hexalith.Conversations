@@ -577,7 +577,7 @@ public sealed class GitFacts
         foreach (string line in commitText.Split('\n').TakeWhile(line => line.Length != 0))
         {
             if (!line.StartsWith("parent ", StringComparison.Ordinal)) continue;
-            if (!IsObjectId(line[7..]))
+            if (!IsObjectId(line[7..]) || line[7..].All(character => character == '0'))
                 return GitFact<bool>.Fail(GitFactStatus.Invalid, "GIT_OUTPUT_INVALID", "Git returned a malformed parent header.");
             parents.Add(line[7..]);
         }
