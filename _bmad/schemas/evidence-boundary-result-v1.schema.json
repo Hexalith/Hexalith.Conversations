@@ -199,6 +199,12 @@
       },
       "then": {
         "properties": {
+          "candidate": {
+            "type": "string"
+          },
+          "gitlinks": {
+            "maxItems": 0
+          },
           "assertionLedger": {
             "minItems": 1,
             "items": {

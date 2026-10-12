@@ -93,6 +93,49 @@ public sealed class BoundaryAssertionsTests
     }
 
     [Fact]
+    public void ConditionalSyntaxAndCSharpLineBoundariesShouldBeRejected()
+    {
+        Dictionary<string, string> roots = new() { ["Root"] = "abcdef" };
+        foreach (string newline in new[] { "\r\n", "\r", "\n", "\u0085", "\u2028", "\u2029" })
+        {
+            foreach (string whitespace in new[] { " ", "\t", "\v", "\f", "\u00a0", "\u2003", "\u3000" })
+            {
+                foreach (string directive in new[] { "if(false)", "if!true", "if" + whitespace + "false" })
+                {
+                    string source = "class C {" + newline + "// boundary" + newline
+                        + whitespace + "#" + whitespace + directive + newline
+                        + "const string Root = \"abcdef\";" + newline + "#endif" + newline + "}";
+                    AssertionLedger ledger = new();
+                    BoundaryAssertions.PinnedRoots(ledger, "roots", source, roots).ShouldBeFalse();
+                    ledger.Evaluate().Blockers.Single().Code.ShouldBe("ROOT_OF_TRUST_NOT_PINNED");
+                }
+            }
+            AssertionLedger active = new();
+            BoundaryAssertions.PinnedRoots(active, "roots", "// comment" + newline + "const string Root = \"abcdef\";", roots)
+                .ShouldBeTrue();
+        }
+    }
+
+    [Fact]
+    public void ConditionalRegionsShouldNotSpliceLiteralDeclarations()
+    {
+        const string compiledRoot = "abcdef"
+#if(true)
+            + "-changed"
+#endif
+            ;
+        compiledRoot.ShouldBe("abcdef-changed");
+        foreach (string newline in new[] { "\r\n", "\r", "\n", "\u0085", "\u2028", "\u2029" })
+        {
+            string source = "const string Root = \"abcdef\"" + newline
+                + "#if(true)" + newline + "+ \"-changed\"" + newline + "#endif" + newline + ";";
+            AssertionLedger ledger = new();
+            BoundaryAssertions.PinnedRoots(ledger, "roots", source, new Dictionary<string, string> { ["Root"] = "abcdef" })
+                .ShouldBeFalse();
+        }
+    }
+
+    [Fact]
     public async Task RootsOfTrustAndSignedEvidenceShouldRemainPinned()
     {
         string root = EvidenceFixture.FindRepositoryRoot();

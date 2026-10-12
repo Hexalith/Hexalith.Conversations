@@ -13,6 +13,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import unicodedata
 import xml.etree.ElementTree as ElementTree
 from importlib import util as importlib_util
 from pathlib import Path, PurePosixPath
@@ -5693,28 +5694,47 @@ V2_10_2_MUTATIONS = (
 )
 
 
+V2_CSHARP_LINE_TERMINATORS = "\r\n\u0085\u2028\u2029"
+
+
+def v2_csharp_whitespace(character: str) -> bool:
+    return character in "\t\v\f" or unicodedata.category(character) == "Zs"
+
+
+def v2_csharp_line_end(source: str, index: int) -> int:
+    while index < len(source) and source[index] not in V2_CSHARP_LINE_TERMINATORS:
+        index += 1
+    return index
+
+
 def v2_csharp_unconditional_tokens(source: str) -> list[str]:
     """Lex declarations, excluding comments, string contents, and every conditional region."""
     tokens, index, depth = [], 0, 0
     while index < len(source):
         current = source[index]
-        if current.isspace():
+        if v2_csharp_whitespace(current) or current in V2_CSHARP_LINE_TERMINATORS:
             index += 1
             continue
-        line_start = source.rfind("\n", 0, index) + 1
-        if current == "#" and not source[line_start:index].strip():
-            end = source.find("\n", index)
-            end = len(source) if end < 0 else end
-            directive = source[index + 1:end].split()
-            if directive and directive[0] == "if":
+        line_start = max(source.rfind(terminator, 0, index) for terminator in V2_CSHARP_LINE_TERMINATORS) + 1
+        if current == "#" and all(v2_csharp_whitespace(character) for character in source[line_start:index]):
+            end = v2_csharp_line_end(source, index)
+            name_start = index + 1
+            while name_start < end and v2_csharp_whitespace(source[name_start]):
+                name_start += 1
+            name_end = name_start
+            while name_end < end and (source[name_end].isalnum() or source[name_end] == "_"):
+                name_end += 1
+            directive = source[name_start:name_end]
+            if directive in {"if", "elif", "else", "endif"}:
+                tokens.append("<conditional>")
+            if directive == "if":
                 depth += 1
-            elif directive and directive[0] == "endif" and depth:
+            elif directive == "endif" and depth:
                 depth -= 1
             index = end
             continue
         if source.startswith("//", index):
-            end = source.find("\n", index + 2)
-            index = len(source) if end < 0 else end
+            index = v2_csharp_line_end(source, index + 2)
             continue
         if source.startswith("/*", index):
             end = source.find("*/", index + 2)
@@ -5806,7 +5826,7 @@ def v2_csharp_skip_interpolation(source: str, index: int, closing_braces: int) -
             continue
         if source.startswith("//", index) or source.startswith("/*", index):
             line = source.startswith("//", index)
-            end = source.find("\n" if line else "*/", index + 2)
+            end = v2_csharp_line_end(source, index + 2) if line else source.find("*/", index + 2)
             index = len(source) if end < 0 else end + (0 if line else 2)
             continue
         quote = index
@@ -5874,6 +5894,15 @@ def v2_10_2_repository_pair_errors(repository: Path, record: dict[str, Any], val
         constants = {"Story101RecordSha256": digest, "Story101CandidateCommit": previous["candidate"]["commit"]}
         problems = [row["message"] for row in v2_10_2_root_errors(support["rootConstants"], constants,
                      v2_committed_blob(repository, candidate, V2_10_2_ROOT_SOURCE))]
+        for row in support["projects"]:
+            project = row["project"]
+            project_bytes = v2_committed_blob(repository, candidate, project["path"])
+            if project_bytes is None or v2_sha256(project_bytes) != project["sha256"]:
+                problems.append("Story 10.2 project digest differs from its committed candidate blob")
+        gitlinks = [{"path": path, "mode": "160000", "commit": commit}
+                    for path, commit in v2_raw_gitlinks(repository, candidate)]
+        if record["candidate"]["gitlinks"] != gitlinks:
+            problems.append("Story 10.2 gitlink inventory differs from its committed candidate tree")
         contract_bytes = v2_committed_blob(repository, candidate, support["contract"]["path"])
         if contract_bytes is None or v2_sha256(contract_bytes) != support["contract"]["sha256"]:
             problems.append("Story 10.2 committed contract differs from its hash binding")
@@ -5947,6 +5976,7 @@ def v2_10_2_facts(
         findings.append(v2_finding("ASSERTION_INVENTORY_DRIFT", contract_path, "the frozen inventory or predecessor changed"))
 
     projects = []
+    helper_mtime_ns = 0
     for name in ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests"):
         path = f"tests/{name}/{name}.csproj"
         assembly_path = f"tests/{name}/bin/Release/net10.0/{name}.dll"
@@ -5963,6 +5993,8 @@ def v2_10_2_facts(
                 runtime = v2_10_1_artifact_bytes(repository, runtime_path)
                 if runtime != binary or dotnet_source_revisions(runtime) != [candidate]:
                     raise ValueError("the runtime helper copy differs from the bound assembly or candidate stamp")
+                helper_mtime_ns = max((repository / assembly_path).stat().st_mtime_ns,
+                                      (repository / runtime_path).stat().st_mtime_ns)
         except (ValueError, OSError) as error:
             findings.append(v2_finding("TEST_SUPPORT_BOUNDARY_INVALID", path, str(error)))
             continue
@@ -5978,6 +6010,10 @@ def v2_10_2_facts(
             if row.get("result") != "PASS" or not isinstance(result, dict) or result.get("path") != expected:
                 raise ValueError("the exact passing TRX receipt was not measured")
             content = v2_10_1_artifact_bytes(repository, expected)
+            if (repository / expected).stat().st_mtime_ns < helper_mtime_ns:
+                findings.append(v2_finding("TEST_RESULTS_STALE", identity,
+                                           "the acceptance receipt predates a bound or runtime helper assembly"))
+                continue
             if v2_sha256(content) != result.get("sha256"):
                 raise ValueError("the measured TRX digest differs from current bytes")
             parsed = parse_trx(content)

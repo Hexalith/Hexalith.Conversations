@@ -59,13 +59,17 @@ def test_evidence_boundary_result_schema_rejects_invalid_contract(fault):
         validate_result(document)
 
 
-@pytest.mark.parametrize("fault", ["empty-ledger", "failed-ledger", "skipped-ledger", "blocked-ledger", "blocker"])
+@pytest.mark.parametrize("fault", ["empty-ledger", "failed-ledger", "skipped-ledger", "blocked-ledger", "blocker", "null-candidate", "gitlink"])
 def test_evidence_boundary_result_pass_requires_evaluated_passing_assertions(fault):
     document = valid_result()
     if fault == "empty-ledger":
         document["assertionLedger"] = []
     elif fault == "blocker":
         document["blockers"] = ["EVIDENCE_HASH_MISMATCH"]
+    elif fault == "null-candidate":
+        document["candidate"] = None
+    elif fault == "gitlink":
+        document["gitlinks"] = [{"path": "deps/module", "sourceMode": "000000", "destinationMode": "160000"}]
     else:
         document["assertionLedger"][0]["state"] = {
             "failed-ledger": "FAIL", "skipped-ledger": "SKIPPED", "blocked-ledger": "BLOCKED"}[fault]

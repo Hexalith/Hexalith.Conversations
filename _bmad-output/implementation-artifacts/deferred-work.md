@@ -571,3 +571,7 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-10-1-neutral-testsupport-and-safe-git-facts.md`
   summary: The `sprint-status.yaml` header comment still describes the global implementation hold as active and every successor story as backlog.
   evidence: Third review pass, Blind Hunter, low, pre-existing. Line 41 says the hold remains `ACTIVE`, IR-0 was not run, and all successor stories remain backlog, while the body has `epic-10: in-progress` and Story 10.1 in `review`. Story 10.1 did not touch that comment. Settle by refreshing or retiring the header comment in a sprint-tracking change outside any story candidate.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-10-2-implement-manifest-hash-ledger-exact-diff-and-gitlink-invariants.md`
+  summary: Investigate concurrent symlink replacement between evidence containment checking and file reading (possible high impact, unverified).
+  evidence: Review E4 observed separate containment and read operations but supplied no deterministic race probe. A fixture that swaps and restores a symlink during hashing, then proves whether external bytes can establish PASS, would settle the claim. Existing static symlink rejection tests pass.

@@ -1,8 +1,12 @@
+using System.Globalization;
+
 namespace Hexalith.Conversations.TestSupport;
 
 /// <summary>Conservatively recognizes unconditional C# declaration tokens without evaluating code.</summary>
 internal static class CSharpSourceDeclarations
 {
+    private static readonly char[] LineTerminators = ['\r', '\n', '\u0085', '\u2028', '\u2029'];
+
     /// <summary>Omits comments, nonliteral strings, characters, and all conditional directive regions.</summary>
     internal static IReadOnlyList<string> UnconditionalTokens(string source)
     {
@@ -12,13 +16,17 @@ internal static class CSharpSourceDeclarations
         while (index < source.Length)
         {
             char current = source[index];
-            if (char.IsWhiteSpace(current)) { index++; continue; }
-            int lineStart = source.LastIndexOf('\n', Math.Max(0, index - 1)) + 1;
-            if (current == '#' && source.AsSpan(lineStart, index - lineStart).Trim().IsEmpty)
+            if (IsWhitespace(current) || LineTerminators.Contains(current)) { index++; continue; }
+            int lineStart = source.LastIndexOfAny(LineTerminators, Math.Max(0, index - 1)) + 1;
+            if (current == '#' && source[lineStart..index].All(IsWhitespace))
             {
-                int end = source.IndexOf('\n', index);
-                if (end < 0) end = source.Length;
-                string directive = source[(index + 1)..end].TrimStart().Split([' ', '\t', '\r'], 2)[0];
+                int end = LineEnd(source, index);
+                int nameStart = index + 1;
+                while (nameStart < end && IsWhitespace(source[nameStart])) nameStart++;
+                int nameEnd = nameStart;
+                while (nameEnd < end && (char.IsLetterOrDigit(source[nameEnd]) || source[nameEnd] == '_')) nameEnd++;
+                string directive = source[nameStart..nameEnd];
+                if (directive is "if" or "elif" or "else" or "endif") tokens.Add("<conditional>");
                 if (directive == "if") conditionalDepth++;
                 else if (directive == "endif" && conditionalDepth > 0) conditionalDepth--;
                 index = end;
@@ -26,8 +34,7 @@ internal static class CSharpSourceDeclarations
             }
             if (current == '/' && index + 1 < source.Length && source[index + 1] == '/')
             {
-                int end = source.IndexOf('\n', index + 2);
-                index = end < 0 ? source.Length : end;
+                index = LineEnd(source, index + 2);
                 continue;
             }
             if (current == '/' && index + 1 < source.Length && source[index + 1] == '*')
@@ -66,6 +73,15 @@ internal static class CSharpSourceDeclarations
             if (conditionalDepth == 0) tokens.Add(source[start..index]);
         }
         return tokens;
+    }
+
+    private static bool IsWhitespace(char character)
+        => character is '\t' or '\v' or '\f' || char.GetUnicodeCategory(character) == UnicodeCategory.SpaceSeparator;
+
+    private static int LineEnd(string source, int index)
+    {
+        int end = source.IndexOfAny(LineTerminators, index);
+        return end < 0 ? source.Length : end;
     }
 
     private static int ReadString(string source, int start, int quote, out bool literal)
@@ -130,7 +146,7 @@ internal static class CSharpSourceDeclarations
             if (source[index] == '/' && index + 1 < source.Length && source[index + 1] is '/' or '*')
             {
                 bool line = source[index + 1] == '/';
-                int end = line ? source.IndexOf('\n', index + 2) : source.IndexOf("*/", index + 2, StringComparison.Ordinal);
+                int end = line ? LineEnd(source, index + 2) : source.IndexOf("*/", index + 2, StringComparison.Ordinal);
                 index = end < 0 ? source.Length : end + (line ? 0 : 2);
                 continue;
             }

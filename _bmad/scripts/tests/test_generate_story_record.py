@@ -10923,7 +10923,8 @@ def test_story102_inserted_verification_rederives_candidate_bound_receipts(tmp_p
     assert calls == [spec_path]
 
 
-@pytest.mark.parametrize("fault", [None, "root-candidate", "command", "contract-hash", "raw-source", "inactive-source"])
+@pytest.mark.parametrize("fault", [None, "root-candidate", "command", "contract-hash", "raw-source", "inactive-source",
+                                  "helper-project-hash", "test-project-hash", "first-gitlink", "last-gitlink", "authority"])
 def test_story102_repository_consumption_reverifies_predecessor_and_commands(tmp_path: Path, monkeypatch, fault):
     generator, facts, marked, roots, _, blobs, _, candidate, contract = story102_fixture(tmp_path, monkeypatch)
     predecessor_path = "docs/release-evidence/story-10.1-final-record-v2.json"
@@ -10944,6 +10945,12 @@ def test_story102_repository_consumption_reverifies_predecessor_and_commands(tmp
             "result": "PASS", "resultFile": {"path": f"artifacts/v9/10.2/AC-10.2-0{number}.trx",
                 "sha256": generator.v2_sha256((tmp_path / f"artifacts/v9/10.2/AC-10.2-0{number}.trx").read_bytes())}}
         for number in range(1, 9)}, validators["record"]), contract, candidate)
+    raw_gitlinks = deepcopy(record["candidate"]["gitlinks"])
+    def raw_tree(_repository, *arguments, **_kwargs):
+        assert arguments == ("ls-tree", "-r", "-z", "--full-tree", candidate)
+        output = b"".join(f"160000 commit {row['commit']}\t{row['path']}\0".encode() for row in raw_gitlinks)
+        return subprocess.CompletedProcess([], 0, stdout=output, stderr=b"")
+    monkeypatch.setattr(generator, "run_git", raw_tree)
     if fault == "root-candidate":
         record["evidenceBoundaryExecution"]["rootConstants"]["constants"]["Story101CandidateCommit"] = "f" * 40
     elif fault == "command":
@@ -10954,6 +10961,13 @@ def test_story102_repository_consumption_reverifies_predecessor_and_commands(tmp
         blobs[generator.V2_10_2_ROOT_SOURCE] = b'var text = """\n' + blobs[generator.V2_10_2_ROOT_SOURCE] + b'\n""";'
     elif fault == "inactive-source":
         blobs[generator.V2_10_2_ROOT_SOURCE] = b"#if false\n" + blobs[generator.V2_10_2_ROOT_SOURCE] + b"\n#endif\n"
+    elif fault in {"helper-project-hash", "test-project-hash"}:
+        index = 0 if fault == "helper-project-hash" else 1
+        record["evidenceBoundaryExecution"]["projects"][index]["project"]["sha256"] = "f" * 64
+    elif fault in {"first-gitlink", "last-gitlink"}:
+        record["candidate"]["gitlinks"][0 if fault == "first-gitlink" else -1]["commit"] = "f" * 40
+    elif fault == "authority":
+        record["authority"]["bundleDigest"] = "f" * 64
     _, json_bytes, markdown_bytes = generator.v2_finalize(record)
     # Repository-free checking remains structural: it cannot inspect predecessor history or source.
     assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
@@ -10961,6 +10975,55 @@ def test_story102_repository_consumption_reverifies_predecessor_and_commands(tmp
     blobs.update({json_path: json_bytes, markdown_path: markdown_bytes})
     consumed = generator.v2_verified_predecessor(tmp_path, candidate, "10.2", json_path, markdown_path, validators["record"])
     assert consumed == (generator.v2_sha256(json_bytes) if fault is None else None)
+
+
+@pytest.mark.parametrize("newline", ["\r\n", "\r", "\n", "\u0085", "\u2028", "\u2029"])
+@pytest.mark.parametrize("whitespace", [" ", "\t", "\v", "\f", "\u00a0", "\u2003", "\u3000"])
+@pytest.mark.parametrize("directive", ["if(false)", "if!true", "if{whitespace}false"])
+def test_story102_root_lexer_recognizes_conditional_syntax_and_line_boundaries(newline, whitespace, directive):
+    generator = load_generator()
+    declaration = 'const string Root = "abcdef";'
+    expected = ["const", "string", "Root", "=", '"abcdef"', ";"]
+    source = ("class C {" + newline + "// boundary" + newline + whitespace + "#" + whitespace
+              + directive.format(whitespace=whitespace) + newline + declaration + newline + "#endif" + newline + "}")
+    assert not generator.v2_csharp_has_sequence(generator.v2_csharp_unconditional_tokens(source), expected)
+    assert generator.v2_csharp_has_sequence(generator.v2_csharp_unconditional_tokens("// comment" + newline + declaration), expected)
+
+
+@pytest.mark.parametrize("newline", ["\r\n", "\r", "\n", "\u0085", "\u2028", "\u2029"])
+def test_story102_root_lexer_does_not_splice_conditional_initializer(newline):
+    generator = load_generator()
+    source = ('const string Root = "abcdef"' + newline + "#if(true)" + newline
+              + '+ "-changed"' + newline + "#endif" + newline + ";")
+    assert not generator.v2_csharp_has_sequence(generator.v2_csharp_unconditional_tokens(source),
+                                               ["const", "string", "Root", "=", '"abcdef"', ";"])
+
+
+@pytest.mark.parametrize("copy", ["bound", "runtime"])
+@pytest.mark.parametrize("receipt", range(1, 9))
+@pytest.mark.parametrize("delta", [-1, 0, 1])
+def test_story102_each_receipt_must_be_current_for_both_helper_copies(tmp_path: Path, monkeypatch, copy, receipt, delta):
+    generator, facts, _, _, _, _, rows, candidate, _ = story102_fixture(tmp_path, monkeypatch)
+    directories = ["Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests"]
+    paths = [tmp_path / f"tests/{name}/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll" for name in directories]
+    # A changed helper still carrying the source stamp must require new receipts for both copies.
+    for path in paths:
+        path.write_bytes(b"changed but candidate-stamped helper")
+        os.utime(path, ns=(1_000_000_000, 1_000_000_000))
+    monkeypatch.setattr(generator, "dotnet_source_revisions", lambda _binary: [candidate])
+    receipt_ns = 2_000_000_000
+    for identity, row in rows.items():
+        modified = receipt_ns if identity == f"AC-10.2-0{receipt}" else receipt_ns + 2_000_000_000
+        os.utime(tmp_path / row["resultFile"]["path"], ns=(modified, modified))
+    modified = receipt_ns + delta * 1_000_000_000
+    os.utime(paths[0 if copy == "bound" else 1], ns=(modified, modified))
+    if delta <= 0:
+        assert len(facts()["results"]) == 8
+    else:
+        with pytest.raises(generator.V2Stop) as error:
+            facts()
+        stale = [row for row in error.value.findings if row["code"] == "TEST_RESULTS_STALE"]
+        assert [row["subject"] for row in stale] == [f"AC-10.2-0{receipt}"]
 
 
 @pytest.mark.parametrize("fault", [None, "runtime", "bound"])
