@@ -1,0 +1,383 @@
+{
+  "schemaVersion": "hexalith.conversations.story-final-record.v2",
+  "storyId": "10.1",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
+  },
+  "candidate": {
+    "commit": "79f4b126ca66d419a584855936ce56a1266cce67",
+    "gitlinks": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "commit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "commit": "608c164c3637240fed2dd92dbfdaaf581ba9846d",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "commit": "b247ed116c6523f8c596ec0a933eff8973d11568",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "commit": "03b7c93ed219cbabff17fe6c45a2699957ca5379",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "commit": "0286b1e2f5ee97744a1611f52d3903d1220406dc",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "commit": "69bbe5e541464cc9f04b6e3678fc233a9de96003",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "commit": "233677ff8c89363b164688d47c0fba684ea750ab",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "commit": "bc72cde536f9867bd923c6ed0966063f16b1a91c",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "commit": "89ea0861343e9bedd90c598e33cb87fecdd4f39c",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "commit": "44878a5856e4679879897aec63d73339991a28d8",
+        "mode": "160000"
+      }
+    ]
+  },
+  "predecessors": [
+    "7.4",
+    "9.2"
+  ],
+  "inventory": {
+    "id": "V9-10.1-ENTRY-v1",
+    "sha256": "74c4c5e9e70cb86648dc753c5edc97bdb8d598ad2a4aba55d3670794e990ca84"
+  },
+  "scenarios": [
+    {
+      "scenarioId": "AC-10.1-01",
+      "command": "dotnet build tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj --configuration Release --no-restore",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "tests/Hexalith.Conversations.TestSupport/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll",
+        "sha256": "4685892dc535ecc152fb26bee58c85a80f3caa4df6955193d21a6b06a3c9d5c1"
+      },
+      "outputFiles": [
+        {
+          "path": "tests/Hexalith.Conversations.TestSupport/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll",
+          "sha256": "4685892dc535ecc152fb26bee58c85a80f3caa4df6955193d21a6b06a3c9d5c1"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-10.1-01#0001",
+          "subject": "build::tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-10.1-02",
+      "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.TestSupportSurfaceTests.RequiredHelpersShouldExistExactlyOnce -trx artifacts/v9/10.1/AC-10.1-02.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/10.1/AC-10.1-02.trx",
+        "sha256": "afe08d457419b8e15a52b511714e49ae7e7c768068f08392a69b7fd79cf70126"
+      },
+      "outputFiles": [
+        {
+          "path": "artifacts/v9/10.1/AC-10.1-02.trx",
+          "sha256": "afe08d457419b8e15a52b511714e49ae7e7c768068f08392a69b7fd79cf70126"
+        },
+        {
+          "path": "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll",
+          "sha256": "4ba181fdbb3697d6842caf032afc160022ebbddc8007abbe82a6d4e5bc42f252"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-10.1-02#0001",
+          "subject": "Hexalith.Conversations.TestSupport.Tests.TestSupportSurfaceTests.RequiredHelpersShouldExistExactlyOnce",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-10.1-03",
+      "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldDrainStdoutAndStderrConcurrently -trx artifacts/v9/10.1/AC-10.1-03.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/10.1/AC-10.1-03.trx",
+        "sha256": "794c9b2442645583769ef86210ad7ea3a10046503f9d89c697667052414e2d70"
+      },
+      "outputFiles": [
+        {
+          "path": "artifacts/v9/10.1/AC-10.1-03.trx",
+          "sha256": "794c9b2442645583769ef86210ad7ea3a10046503f9d89c697667052414e2d70"
+        },
+        {
+          "path": "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll",
+          "sha256": "4ba181fdbb3697d6842caf032afc160022ebbddc8007abbe82a6d4e5bc42f252"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-10.1-03#0001",
+          "subject": "Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldDrainStdoutAndStderrConcurrently",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-10.1-04",
+      "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldBoundAndCancelExecution -trx artifacts/v9/10.1/AC-10.1-04.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/10.1/AC-10.1-04.trx",
+        "sha256": "f0e6bf92a04778c7de3660e98b83bf1de4c2cd69f580babe0829660142780eb0"
+      },
+      "outputFiles": [
+        {
+          "path": "artifacts/v9/10.1/AC-10.1-04.trx",
+          "sha256": "f0e6bf92a04778c7de3660e98b83bf1de4c2cd69f580babe0829660142780eb0"
+        },
+        {
+          "path": "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll",
+          "sha256": "4ba181fdbb3697d6842caf032afc160022ebbddc8007abbe82a6d4e5bc42f252"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-10.1-04#0001",
+          "subject": "Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldBoundAndCancelExecution",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-10.1-05",
+      "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldUseHardenedEncodingAndRawFacts -trx artifacts/v9/10.1/AC-10.1-05.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/10.1/AC-10.1-05.trx",
+        "sha256": "a91bef37e2dc9adfac78e5b6fc35162e745f489895237b67d85fe4af6e1cdd72"
+      },
+      "outputFiles": [
+        {
+          "path": "artifacts/v9/10.1/AC-10.1-05.trx",
+          "sha256": "a91bef37e2dc9adfac78e5b6fc35162e745f489895237b67d85fe4af6e1cdd72"
+        },
+        {
+          "path": "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll",
+          "sha256": "4ba181fdbb3697d6842caf032afc160022ebbddc8007abbe82a6d4e5bc42f252"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-10.1-05#0001",
+          "subject": "Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldUseHardenedEncodingAndRawFacts",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-10.1-06",
+      "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.UnavailableHistoryShouldBeTypedNotSuccessful -trx artifacts/v9/10.1/AC-10.1-06.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/10.1/AC-10.1-06.trx",
+        "sha256": "db8eec5eab21beb66d264cd8673e97c45900f54bb1b7fecb2aff6746673d0792"
+      },
+      "outputFiles": [
+        {
+          "path": "artifacts/v9/10.1/AC-10.1-06.trx",
+          "sha256": "db8eec5eab21beb66d264cd8673e97c45900f54bb1b7fecb2aff6746673d0792"
+        },
+        {
+          "path": "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll",
+          "sha256": "4ba181fdbb3697d6842caf032afc160022ebbddc8007abbe82a6d4e5bc42f252"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-10.1-06#0001",
+          "subject": "Hexalith.Conversations.TestSupport.Tests.GitFactsTests.UnavailableHistoryShouldBeTypedNotSuccessful",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-10.1-07",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/10.1.json --format bundle --output-json docs/release-evidence/story-10.1-final-record-v2.json --output-markdown docs/release-evidence/story-10.1-final-record-v2.md",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-10.1-07#0001",
+          "subject": "generator::contract-schema-and-identity",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-10.1-07#0002",
+          "subject": "generator::authority-bundle-digest-recomputed",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-10.1-07#0003",
+          "subject": "generator::raw-gitlinks-equal-root-gitmodules",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-10.1-07#0004",
+          "subject": "generator::committed-candidate-worktree-clean",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-10.1-07#0005",
+          "subject": "generator::predecessor-scenarios-pass-with-ledgers",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-10.1-07#0006",
+          "subject": "generator::declared-output-paths",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-10.1-07#0007",
+          "subject": "generator::record-schema-valid",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-10.1-07#0008",
+          "subject": "generator::deterministic-rendering",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-10.1-07#0009",
+          "subject": "generator::json-markdown-digest-cross-binding",
+          "state": "PASS"
+        }
+      ]
+    }
+  ],
+  "faultInjection": {
+    "results": []
+  },
+  "outputs": {
+    "json": {
+      "path": "docs/release-evidence/story-10.1-final-record-v2.json",
+      "sha256": "a53a46110128cdb2a2fb32af709856868fb873cb1ea09dd8baf39287bc85b846"
+    },
+    "markdown": {
+      "path": "docs/release-evidence/story-10.1-final-record-v2.md",
+      "sha256": "22b94bd8650c534cb68a41611528e1833c9f9ad45afb1feca268e2045c57aa6b"
+    }
+  },
+  "rollback": {
+    "boundary": "remove only both TestSupport projects, Story 10.1 results, and record; preserve both conformance tiers and every evidence reader."
+  },
+  "summary": {
+    "required": 7,
+    "passed": 7,
+    "failed": 0,
+    "blocked": 0,
+    "skipped": 0,
+    "notRun": 0
+  },
+  "renderedMarkdownSha256": "22b94bd8650c534cb68a41611528e1833c9f9ad45afb1feca268e2045c57aa6b",
+  "testSupportExecution": {
+    "bindingRule": "SC-10.1 is HEAD^{commit} at first final-record generation",
+    "sourceRevisionId": "79f4b126ca66d419a584855936ce56a1266cce67",
+    "contract": {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json",
+      "sha256": "7db86e53754b7f917435663639a65b3953f0cf9083d436334d67f7f14c105331"
+    },
+    "predecessorRecords": [
+      {
+        "storyId": "7.4",
+        "path": "docs/release-evidence/story-7.4-final-record-v2.json",
+        "sha256": "1739a8daf93955fe31050b659151f1d45a8555ff58fe3a130b8a389c049d8290"
+      },
+      {
+        "storyId": "9.2",
+        "path": "docs/release-evidence/story-9.2-final-record-v2.json",
+        "sha256": "46d2e2df3ca74e1dad7eafa782ac1e294e1eafcd4e43b14177ddf8a411bf0453"
+      }
+    ],
+    "inventorySha256": "74c4c5e9e70cb86648dc753c5edc97bdb8d598ad2a4aba55d3670794e990ca84",
+    "projects": [
+      {
+        "project": {
+          "path": "tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj",
+          "sha256": "9f885c50d869285e6b280b0c135b2c1449cda6f8e863271ff6420924443be925"
+        },
+        "assembly": {
+          "path": "tests/Hexalith.Conversations.TestSupport/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll",
+          "sha256": "4685892dc535ecc152fb26bee58c85a80f3caa4df6955193d21a6b06a3c9d5c1"
+        }
+      },
+      {
+        "project": {
+          "path": "tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj",
+          "sha256": "6d93f6ea2dbca4fb89047836f9f10ea633f2996e257830c46eaba2aaef646bf2"
+        },
+        "assembly": {
+          "path": "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll",
+          "sha256": "4ba181fdbb3697d6842caf032afc160022ebbddc8007abbe82a6d4e5bc42f252"
+        }
+      }
+    ],
+    "results": [
+      {
+        "path": "artifacts/v9/10.1/AC-10.1-02.trx",
+        "sha256": "afe08d457419b8e15a52b511714e49ae7e7c768068f08392a69b7fd79cf70126"
+      },
+      {
+        "path": "artifacts/v9/10.1/AC-10.1-03.trx",
+        "sha256": "794c9b2442645583769ef86210ad7ea3a10046503f9d89c697667052414e2d70"
+      },
+      {
+        "path": "artifacts/v9/10.1/AC-10.1-04.trx",
+        "sha256": "f0e6bf92a04778c7de3660e98b83bf1de4c2cd69f580babe0829660142780eb0"
+      },
+      {
+        "path": "artifacts/v9/10.1/AC-10.1-05.trx",
+        "sha256": "a91bef37e2dc9adfac78e5b6fc35162e745f489895237b67d85fe4af6e1cdd72"
+      },
+      {
+        "path": "artifacts/v9/10.1/AC-10.1-06.trx",
+        "sha256": "db8eec5eab21beb66d264cd8673e97c45900f54bb1b7fecb2aff6746673d0792"
+      }
+    ]
+  }
+}
