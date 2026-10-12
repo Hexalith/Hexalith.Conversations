@@ -354,7 +354,8 @@
               "enum": [
                 "7.4",
                 "9.1",
-                "9.2"
+                "9.2",
+                "10.2"
               ]
             }
           }
@@ -434,6 +435,39 @@
       },
       "then": {"required": ["testSupportExecution"]},
       "else": {"not": {"required": ["testSupportExecution"]}}
+    },
+    {
+      "if": {
+        "properties": {
+          "storyId": {
+            "const": "10.2"
+          }
+        },
+        "required": [
+          "storyId"
+        ]
+      },
+      "then": {
+        "required": [
+          "evidenceBoundaryExecution"
+        ],
+        "properties": {
+          "faultInjection": {
+            "properties": {
+              "results": {
+                "$ref": "#/$defs/evidenceBoundaryMutationLedger"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "evidenceBoundaryExecution"
+          ]
+        }
+      }
     }
   ],
   "properties": {
@@ -494,6 +528,9 @@
               },
               {
                 "$ref": "#/$defs/structuralObservedFault"
+              },
+              {
+                "$ref": "#/$defs/evidenceBoundaryMutation"
               }
             ]
           },
@@ -536,6 +573,9 @@
     },
     "testSupportExecution": {
       "$ref": "#/$defs/testSupportExecution"
+    },
+    "evidenceBoundaryExecution": {
+      "$ref": "#/$defs/evidenceBoundaryExecution"
     }
   },
   "$defs": {
@@ -4519,6 +4559,626 @@
           }
         },
         "rootGitlinks": {"$ref": "#/$defs/candidateEnvironmentV3/properties/rootGitlinks"}
+      }
+    },
+    "evidenceBoundaryMutation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "expectedBlocker",
+        "observedBlockers",
+        "beforeSha256",
+        "afterSha256",
+        "detected",
+        "restored"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expectedBlocker": {
+          "$ref": "#/$defs/blocker"
+        },
+        "observedBlockers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/blocker"
+          }
+        },
+        "beforeSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "afterSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "detected": {
+          "const": true
+        },
+        "restored": {
+          "const": true
+        }
+      }
+    },
+    "evidenceBoundaryMutationLedger": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": false,
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/evidenceBoundaryMutation"
+            },
+            {
+              "properties": {
+                "id": {
+                  "const": "AC-10.2-01-HASH"
+                },
+                "expectedBlocker": {
+                  "const": "EVIDENCE_HASH_MISMATCH"
+                },
+                "observedBlockers": {
+                  "contains": {
+                    "const": "EVIDENCE_HASH_MISMATCH"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/evidenceBoundaryMutation"
+            },
+            {
+              "properties": {
+                "id": {
+                  "const": "AC-10.2-01-PATH"
+                },
+                "expectedBlocker": {
+                  "const": "EVIDENCE_PATH_ESCAPE"
+                },
+                "observedBlockers": {
+                  "contains": {
+                    "const": "EVIDENCE_PATH_ESCAPE"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/evidenceBoundaryMutation"
+            },
+            {
+              "properties": {
+                "id": {
+                  "const": "AC-10.2-01-MISSING"
+                },
+                "expectedBlocker": {
+                  "const": "EVIDENCE_FILE_MISSING"
+                },
+                "observedBlockers": {
+                  "contains": {
+                    "const": "EVIDENCE_FILE_MISSING"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/evidenceBoundaryMutation"
+            },
+            {
+              "properties": {
+                "id": {
+                  "const": "AC-10.2-02-OUTPUT"
+                },
+                "expectedBlocker": {
+                  "const": "EVIDENCE_OUTPUT_FORBIDDEN"
+                },
+                "observedBlockers": {
+                  "contains": {
+                    "const": "EVIDENCE_OUTPUT_FORBIDDEN"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/evidenceBoundaryMutation"
+            },
+            {
+              "properties": {
+                "id": {
+                  "const": "AC-10.2-03-SIGNABLE"
+                },
+                "expectedBlocker": {
+                  "const": "SIGNABLE_PAYLOAD_MISMATCH"
+                },
+                "observedBlockers": {
+                  "contains": {
+                    "const": "SIGNABLE_PAYLOAD_MISMATCH"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/evidenceBoundaryMutation"
+            },
+            {
+              "properties": {
+                "id": {
+                  "const": "AC-10.2-04-SUBSET"
+                },
+                "expectedBlocker": {
+                  "const": "CHANGED_PATH_SET_MISMATCH"
+                },
+                "observedBlockers": {
+                  "contains": {
+                    "const": "CHANGED_PATH_SET_MISMATCH"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/evidenceBoundaryMutation"
+            },
+            {
+              "properties": {
+                "id": {
+                  "const": "AC-10.2-04-SUPERSET"
+                },
+                "expectedBlocker": {
+                  "const": "CHANGED_PATH_SET_MISMATCH"
+                },
+                "observedBlockers": {
+                  "contains": {
+                    "const": "CHANGED_PATH_SET_MISMATCH"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/evidenceBoundaryMutation"
+            },
+            {
+              "properties": {
+                "id": {
+                  "const": "AC-10.2-05-GITLINK"
+                },
+                "expectedBlocker": {
+                  "const": "EVIDENCE_BOUNDARY_GITLINK"
+                },
+                "observedBlockers": {
+                  "contains": {
+                    "const": "EVIDENCE_BOUNDARY_GITLINK"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/evidenceBoundaryMutation"
+            },
+            {
+              "properties": {
+                "id": {
+                  "const": "AC-10.2-06-HISTORY"
+                },
+                "expectedBlocker": {
+                  "const": "UNAVAILABLE_HISTORY_PASSED"
+                },
+                "observedBlockers": {
+                  "contains": {
+                    "const": "UNAVAILABLE_HISTORY_PASSED"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/evidenceBoundaryMutation"
+            },
+            {
+              "properties": {
+                "id": {
+                  "const": "AC-10.2-06-EMPTY"
+                },
+                "expectedBlocker": {
+                  "const": "ASSERTION_LEDGER_EMPTY"
+                },
+                "observedBlockers": {
+                  "contains": {
+                    "const": "ASSERTION_LEDGER_EMPTY"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/evidenceBoundaryMutation"
+            },
+            {
+              "properties": {
+                "id": {
+                  "const": "AC-10.2-07-ROOT"
+                },
+                "expectedBlocker": {
+                  "const": "ROOT_OF_TRUST_NOT_PINNED"
+                },
+                "observedBlockers": {
+                  "contains": {
+                    "const": "ROOT_OF_TRUST_NOT_PINNED"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/evidenceBoundaryMutation"
+            },
+            {
+              "properties": {
+                "id": {
+                  "const": "AC-10.2-07-ALLOWLIST"
+                },
+                "expectedBlocker": {
+                  "const": "SIGNED_EVIDENCE_ALLOWLISTED"
+                },
+                "observedBlockers": {
+                  "contains": {
+                    "const": "SIGNED_EVIDENCE_ALLOWLISTED"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "evidenceBoundaryExecution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindingRule",
+        "sourceRevisionId",
+        "contract",
+        "predecessorRecords",
+        "inventorySha256",
+        "projects",
+        "results",
+        "rootConstants",
+        "mutationLedger"
+      ],
+      "properties": {
+        "bindingRule": {
+          "const": "SC-10.2 is HEAD^{commit} at first final-record generation"
+        },
+        "sourceRevisionId": {
+          "$ref": "#/$defs/commit"
+        },
+        "contract": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/outputFile"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/v9/story-contracts/10.2.json"
+                }
+              }
+            }
+          ]
+        },
+        "predecessorRecords": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": false,
+          "prefixItems": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/predecessorRecord"
+                },
+                {
+                  "properties": {
+                    "storyId": {
+                      "const": "10.1"
+                    },
+                    "path": {
+                      "const": "docs/release-evidence/story-10.1-final-record-v2.json"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "inventorySha256": {
+          "const": "9195f98c90362ce4035ef2223fcf6eab1cc705d0c7cc7ace47b0de9dc809ca4c"
+        },
+        "projects": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "prefixItems": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "project",
+                "assembly"
+              ],
+              "properties": {
+                "project": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/outputFile"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "assembly": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/outputFile"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "tests/Hexalith.Conversations.TestSupport/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "project",
+                "assembly"
+              ],
+              "properties": {
+                "project": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/outputFile"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "assembly": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/outputFile"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "items": false
+        },
+        "results": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "items": false,
+          "prefixItems": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/outputFile"
+                },
+                {
+                  "properties": {
+                    "path": {
+                      "const": "artifacts/v9/10.2/AC-10.2-01.trx"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/outputFile"
+                },
+                {
+                  "properties": {
+                    "path": {
+                      "const": "artifacts/v9/10.2/AC-10.2-02.trx"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/outputFile"
+                },
+                {
+                  "properties": {
+                    "path": {
+                      "const": "artifacts/v9/10.2/AC-10.2-03.trx"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/outputFile"
+                },
+                {
+                  "properties": {
+                    "path": {
+                      "const": "artifacts/v9/10.2/AC-10.2-04.trx"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/outputFile"
+                },
+                {
+                  "properties": {
+                    "path": {
+                      "const": "artifacts/v9/10.2/AC-10.2-05.trx"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/outputFile"
+                },
+                {
+                  "properties": {
+                    "path": {
+                      "const": "artifacts/v9/10.2/AC-10.2-06.trx"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/outputFile"
+                },
+                {
+                  "properties": {
+                    "path": {
+                      "const": "artifacts/v9/10.2/AC-10.2-07.trx"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/outputFile"
+                },
+                {
+                  "properties": {
+                    "path": {
+                      "const": "artifacts/v9/10.2/AC-10.2-08.trx"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "rootConstants": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sourcePath",
+            "constants",
+            "allowlist"
+          ],
+          "properties": {
+            "sourcePath": {
+              "const": "tests/Hexalith.Conversations.TestSupport.Tests/BoundaryAssertionsTests.cs"
+            },
+            "constants": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "Story101RecordSha256",
+                "Story101CandidateCommit"
+              ],
+              "properties": {
+                "Story101RecordSha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "Story101CandidateCommit": {
+                  "$ref": "#/$defs/commit"
+                }
+              }
+            },
+            "allowlist": {
+              "type": "array",
+              "maxItems": 0
+            }
+          }
+        },
+        "mutationLedger": {
+          "$ref": "#/$defs/evidenceBoundaryMutationLedger"
+        }
       }
     },
     "testSupportExecution": {

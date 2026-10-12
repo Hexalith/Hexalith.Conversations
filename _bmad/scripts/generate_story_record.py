@@ -917,7 +917,9 @@ def parse_trx(content: bytes) -> dict[str, Any]:
     # <InnerResults>, which the summary counts once.
     results = root.findall("./{*}Results/{*}UnitTestResult")
     result_items = [
-        {"test": element.get("testName") or "", "outcome": element.get("outcome") or ""}
+        {"test": element.get("testName") or "", "outcome": element.get("outcome") or "",
+         "output": "\n".join(node.text or "" for node in element.findall("./{*}Output/{*}StdOut")
+                              + element.findall("./{*}Output/{*}TextMessages/{*}Message"))}
         for element in results
     ]
     outcomes = [item["outcome"] for item in result_items]
@@ -3039,6 +3041,19 @@ V2_CALLER_FACT_OPTIONS = frozenset(
 # codes describe an environment that cannot support a trustworthy record;
 # everything else is a proven `FAIL`.
 V2_CODES = {
+    "EVIDENCE_PATH_ESCAPE": "FAIL",
+    "EVIDENCE_FILE_MISSING": "FAIL",
+    "EVIDENCE_HASH_MISMATCH": "FAIL",
+    "EVIDENCE_OUTPUT_FORBIDDEN": "FAIL",
+    "SIGNABLE_PAYLOAD_MISMATCH": "FAIL",
+    "CHANGED_PATH_SET_MISMATCH": "FAIL",
+    "EVIDENCE_BOUNDARY_GITLINK": "FAIL",
+    "UNAVAILABLE_HISTORY_PASSED": "FAIL",
+    "ASSERTION_LEDGER_EMPTY": "FAIL",
+    "ROOT_OF_TRUST_NOT_PINNED": "FAIL",
+    "SIGNED_EVIDENCE_ALLOWLISTED": "FAIL",
+    "FAULT_NOT_DETECTED": "FAIL",
+    "FIXTURE_NOT_RESTORED": "FAIL",
     "TEST_SUPPORT_BOUNDARY_INVALID": "FAIL",
     "PORTABLE_TIER_NONPORTABLE_REFERENCE": "FAIL",
     "RESOLVED_COMPILE_SURFACE_INVALID": "FAIL",
@@ -4494,9 +4509,9 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
             lines.extend("| " + " | ".join(code(value) for value in (
                 row["commit"], row["parent"], ", ".join(link["path"] for link in row["changedGitlinks"]))) + " |"
                          for row in environment["promotionCommits"])
-    if "testSupportExecution" in record:
-        support = record["testSupportExecution"]
-        lines.extend(["", "## Story 10.1 TestSupport execution", "",
+    if "testSupportExecution" in record or "evidenceBoundaryExecution" in record:
+        support = record.get("testSupportExecution", record.get("evidenceBoundaryExecution"))
+        lines.extend(["", f"## Story {record['storyId']} TestSupport execution", "",
                       f"- Candidate: {code(support['sourceRevisionId'])}",
                       f"- Candidate rule: {markdown_table_text(support['bindingRule'])}",
                       f"- Frozen inventory SHA-256: {code(support['inventorySha256'])}",
@@ -4512,9 +4527,22 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
         lines.extend(["", "| Result | SHA-256 |", "| --- | --- |"])
         lines.extend(f"| {code(row['path'])} | {code(row['sha256'])} |"
                      for row in support["results"])
+        if "rootConstants" in support:
+            roots = support["rootConstants"]
+            lines.extend(["", f"- Consuming source: {code(roots['sourcePath'])}",
+                          "- Supersession allowlist: empty", "",
+                          "| Literal root | Value |", "| --- | --- |"])
+            lines.extend(f"| {code(name)} | {code(value)} |"
+                         for name, value in sorted(roots["constants"].items()))
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
-    if faults and record["storyId"] in ("7.4", "8.2", "9.1", "9.2"):
+    if faults and record["storyId"] == "10.2":
+        lines.extend(["| Fault | Expected blocker | Observed blockers | Before SHA-256 | After SHA-256 | Detected | Restored |",
+                      "| --- | --- | --- | --- | --- | --- | --- |"])
+        lines.extend("| " + " | ".join(code(value) for value in (
+            row["id"], row["expectedBlocker"], ", ".join(row["observedBlockers"]),
+            row["beforeSha256"], row["afterSha256"], row["detected"], row["restored"])) + " |" for row in faults)
+    elif faults and record["storyId"] in ("7.4", "8.2", "9.1", "9.2"):
         lines.extend(["| Fault | Expected blocker | Observed exit | Observed blockers | Before SHA-256 | After SHA-256 |",
                       "| --- | --- | --- | --- | --- | --- |"])
         lines.extend("| " + " | ".join(code(value) for value in (
@@ -4639,6 +4667,8 @@ def v2_verify_pair(json_bytes: bytes, markdown_bytes: bytes) -> list[str]:
                     problems.append("Story 10.1 scenario result or assembly digests differ from the TestSupport binding")
             except (KeyError, TypeError, IndexError):
                 problems.append("Story 10.1 scenario result or assembly digests are malformed")
+    if record.get("storyId") == "10.2":
+        problems.extend(v2_10_2_pair_errors(record))
     return problems
 
 
@@ -4664,6 +4694,48 @@ def v2_10_1_exact_paths(support: dict[str, Any]) -> bool:
                 and [(row["storyId"], row["path"]) for row in support["predecessorRecords"]] == expected_predecessors)
     except (KeyError, TypeError, ValueError):
         return False
+
+
+def v2_10_2_pair_errors(record: dict[str, Any]) -> list[str]:
+    """Check every cross-binding independently of JSON/Markdown digest agreement."""
+    problems = []
+    try:
+        support = record["evidenceBoundaryExecution"]
+        names = ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests")
+        expected_projects = [(f"tests/{name}/{name}.csproj", f"tests/{name}/bin/Release/net10.0/{name}.dll") for name in names]
+        expected_results = [f"artifacts/v9/10.2/AC-10.2-0{number}.trx" for number in range(1, 9)]
+        if (support["sourceRevisionId"] != record["candidate"]["commit"]
+                or support["bindingRule"] != "SC-10.2 is HEAD^{commit} at first final-record generation"
+                or support["contract"]["path"] != "_bmad-output/planning-artifacts/v9/story-contracts/10.2.json"
+                or support["inventorySha256"] != V2_10_2_INVENTORY
+                or record["inventory"] != {"id": "V9-10.2-ENTRY-v1", "sha256": V2_10_2_INVENTORY}
+                or record["predecessors"] != ["10.1"]
+                or [(row["storyId"], row["path"]) for row in support["predecessorRecords"]]
+                != [("10.1", "docs/release-evidence/story-10.1-final-record-v2.json")]
+                or [(row["project"]["path"], row["assembly"]["path"]) for row in support["projects"]] != expected_projects
+                or [row["path"] for row in support["results"]] != expected_results):
+            problems.append("Story 10.2 candidate, inventory, predecessor, or artifact paths differ from their bindings")
+        roots = support["rootConstants"]
+        if (set(roots) != {"sourcePath", "constants", "allowlist"}
+                or roots["sourcePath"] != V2_10_2_ROOT_SOURCE or roots["allowlist"] != []
+                or set(roots["constants"]) != {"Story101RecordSha256", "Story101CandidateCommit"}
+                or roots["constants"]["Story101RecordSha256"] != support["predecessorRecords"][0]["sha256"]):
+            problems.append("Story 10.2 root constants differ from the predecessor binding")
+        problems.extend(row["message"] for row in v2_10_2_mutation_errors(support["mutationLedger"]))
+        if record["faultInjection"]["results"] != support["mutationLedger"]:
+            problems.append("Story 10.2 fault table differs from its mutation ledger")
+        scenarios = record["scenarios"]
+        by_id = {row["scenarioId"]: row for row in scenarios}
+        if (len(by_id) != len(scenarios) or set(by_id) != {f"AC-10.2-0{number}" for number in range(1, 10)}
+                or any(by_id[f"AC-10.2-0{number}"]["resultFile"] != support["results"][number - 1]
+                       or by_id[f"AC-10.2-0{number}"]["outputFiles"] != [support["results"][number - 1], support["projects"][1]["assembly"]]
+                       for number in range(1, 9))
+                or not v2_10_1_predecessor_passes(record)
+                or record["summary"]["required"] != 9):
+            problems.append("Story 10.2 scenarios or receipt/assembly digests differ from the execution binding")
+    except (KeyError, TypeError, IndexError, AttributeError):
+        problems.append("Story 10.2 execution bindings are malformed")
+    return problems
 
 
 def v2_output_target(repository: Path, relative: str) -> Path:
@@ -5599,6 +5671,163 @@ def v2_10_1_facts(
         "inventorySha256": inventory_digest,
         "projects": projects,
         "results": results,
+    }
+
+
+V2_10_2_ROOT_SOURCE = "tests/Hexalith.Conversations.TestSupport.Tests/BoundaryAssertionsTests.cs"
+V2_10_2_INVENTORY = v2_sha256(b"V8-6.10-AC3\nV8-6.10-AC4\nV8-6.10-AC5\nV8-HR-BOUND-CONTENT-DRIFT\n")
+V2_10_2_MUTATIONS = (
+    ("AC-10.2-01-HASH", "EVIDENCE_HASH_MISMATCH"),
+    ("AC-10.2-01-PATH", "EVIDENCE_PATH_ESCAPE"),
+    ("AC-10.2-01-MISSING", "EVIDENCE_FILE_MISSING"),
+    ("AC-10.2-02-OUTPUT", "EVIDENCE_OUTPUT_FORBIDDEN"),
+    ("AC-10.2-03-SIGNABLE", "SIGNABLE_PAYLOAD_MISMATCH"),
+    ("AC-10.2-04-SUBSET", "CHANGED_PATH_SET_MISMATCH"),
+    ("AC-10.2-04-SUPERSET", "CHANGED_PATH_SET_MISMATCH"),
+    ("AC-10.2-05-GITLINK", "EVIDENCE_BOUNDARY_GITLINK"),
+    ("AC-10.2-06-HISTORY", "UNAVAILABLE_HISTORY_PASSED"),
+    ("AC-10.2-06-EMPTY", "ASSERTION_LEDGER_EMPTY"),
+    ("AC-10.2-07-ROOT", "ROOT_OF_TRUST_NOT_PINNED"),
+    ("AC-10.2-07-ALLOWLIST", "SIGNED_EVIDENCE_ALLOWLISTED"),
+)
+
+
+def v2_10_2_marked_output(content: bytes, marker: str) -> Any:
+    """Read one marked JSON line from the sole passing TRX row, never a side file."""
+    parsed = parse_trx(content)
+    if (count_disagreements(parsed) or parsed["reported"]["executed"] != 1
+            or parsed["reported"]["passed"] != 1 or len(parsed["results"]) != 1
+            or parsed["results"][0]["outcome"] not in TRX_PASSED_OUTCOMES):
+        raise ValueError("the marker must belong to exactly one passing result")
+    lines = [line[len(marker):] for line in parsed["results"][0].get("output", "").splitlines()
+             if line.startswith(marker)]
+    if len(lines) != 1:
+        raise ValueError(f"exactly one {marker} line is required")
+    return v2_parse_json(lines[0].encode("utf-8"))
+
+
+def v2_10_2_mutation_errors(rows: Any) -> list[dict[str, str]]:
+    """Require the contracted twelve observations, detections, and byte restorations."""
+    findings = []
+    keys = {"id", "expectedBlocker", "observedBlockers", "beforeSha256", "afterSha256", "detected", "restored"}
+    if (not isinstance(rows, list) or len(rows) != len(V2_10_2_MUTATIONS)
+            or not all(isinstance(row, dict) for row in rows)):
+        return [v2_finding("FAULT_NOT_DETECTED", "mutation ledger", "exactly twelve measured mutation rows are required")]
+    for row, (identity, expected) in zip(rows, V2_10_2_MUTATIONS):
+        observed = row.get("observedBlockers")
+        if (set(row) != keys or row.get("id") != identity or row.get("expectedBlocker") != expected
+                or row.get("detected") is not True or not isinstance(observed, list)
+                or not all(isinstance(code, str) and re.fullmatch(r"[A-Z][A-Z0-9_]*", code) for code in observed)
+                or observed != sorted(set(observed)) or expected not in observed):
+            findings.append(v2_finding("FAULT_NOT_DETECTED", identity, "the exact mutation and expected blocker were not observed"))
+        before, after = row.get("beforeSha256"), row.get("afterSha256")
+        if (row.get("restored") is not True or not isinstance(before, str)
+                or re.fullmatch(r"[0-9a-f]{64}", before) is None or before != after):
+            findings.append(v2_finding("FIXTURE_NOT_RESTORED", identity, "the before and restored byte hashes differ or are absent"))
+    return findings
+
+
+def v2_10_2_facts(
+    repository: Path, candidate: str, contract_path: str, contract: dict[str, Any],
+    authority: dict[str, Any], scenario_records: dict[str, dict[str, Any]], validator: Any,
+) -> dict[str, Any]:
+    """Recompute candidate, predecessor, projects, eight receipts, roots, and fault observations."""
+    findings = []
+    json_path = "docs/release-evidence/story-10.1-final-record-v2.json"
+    digest = v2_verified_predecessor(repository, candidate, "10.1", json_path,
+                                     "docs/release-evidence/story-10.1-final-record-v2.md", validator)
+    previous = None
+    if digest is None:
+        findings.append(v2_finding("AUTHORITY_BINDING_INVALID", json_path, "the committed Story 10.1 pair does not verify"))
+    else:
+        previous = v2_parse_json(v2_committed_blob(repository, candidate, json_path) or b"")
+        if (not v2_10_1_predecessor_passes(previous)
+                or any(previous["authority"].get(key) != authority.get(key)
+                       for key in ("epic", "architecture", "planningCandidate", "bundleDigest"))
+                or try_resolve_commit(repository, previous["candidate"]["commit"]) != previous["candidate"]["commit"]):
+            findings.append(v2_finding("AUTHORITY_BINDING_INVALID", json_path, "the predecessor is nonpassing, incompatible, or unresolvable"))
+    if (contract.get("inventory") != {"id": "V9-10.2-ENTRY-v1", "sha256": V2_10_2_INVENTORY}
+            or contract.get("predecessors") != ["10.1"]):
+        findings.append(v2_finding("ASSERTION_INVENTORY_DRIFT", contract_path, "the frozen inventory or predecessor changed"))
+
+    projects = []
+    for name in ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests"):
+        path = f"tests/{name}/{name}.csproj"
+        assembly_path = f"tests/{name}/bin/Release/net10.0/{name}.dll"
+        project = v2_committed_blob(repository, candidate, path)
+        try:
+            if project is None or v2_10_1_artifact_bytes(repository, path) != project:
+                raise ValueError("the evaluated project is missing or differs from the candidate")
+            v2_10_1_project_boundary(repository, path, name == "Hexalith.Conversations.TestSupport")
+            binary = v2_10_1_artifact_bytes(repository, assembly_path)
+            if dotnet_source_revisions(binary) != [candidate]:
+                raise ValueError("the assembly is not stamped by SC-10.2")
+        except (ValueError, OSError) as error:
+            findings.append(v2_finding("TEST_SUPPORT_BOUNDARY_INVALID", path, str(error)))
+            continue
+        projects.append({"project": {"path": path, "sha256": v2_sha256(project)},
+                         "assembly": {"path": assembly_path, "sha256": v2_sha256(binary)}})
+    results, receipts = [], {}
+    for number in range(1, 9):
+        identity = f"AC-10.2-0{number}"
+        expected = f"artifacts/v9/10.2/{identity}.trx"
+        row = scenario_records.get(identity, {})
+        result = row.get("resultFile")
+        try:
+            if row.get("result") != "PASS" or not isinstance(result, dict) or result.get("path") != expected:
+                raise ValueError("the exact passing TRX receipt was not measured")
+            content = v2_10_1_artifact_bytes(repository, expected)
+            if v2_sha256(content) != result.get("sha256"):
+                raise ValueError("the measured TRX digest differs from current bytes")
+            parsed = parse_trx(content)
+            if (count_disagreements(parsed) or parsed["reported"]["total"] != 1
+                    or parsed["reported"]["executed"] != 1 or parsed["reported"]["passed"] != 1):
+                raise ValueError("each acceptance receipt must contain exactly one passing row")
+        except (ValueError, OSError, ElementTree.ParseError) as error:
+            findings.append(v2_finding("TEST_RESULTS_MISSING", identity, str(error)))
+            continue
+        results.append(result)
+        receipts[identity] = content
+
+    roots, mutations = None, None
+    for identity, marker in (("AC-10.2-07", "STORY102_ROOTS:"), ("AC-10.2-08", "STORY102_MUTATIONS:")):
+        try:
+            marked = v2_10_2_marked_output(receipts[identity], marker)
+            if identity.endswith("07"):
+                roots = marked
+            else:
+                mutations = marked
+        except (KeyError, ValueError, ElementTree.ParseError) as error:
+            findings.append(v2_finding("TEST_RESULTS_MISSING", identity, str(error)))
+    if roots is not None:
+        expected_constants = None if previous is None else {
+            "Story101RecordSha256": digest, "Story101CandidateCommit": previous["candidate"]["commit"]}
+        source_bytes = v2_committed_blob(repository, candidate, V2_10_2_ROOT_SOURCE)
+        try:
+            if (not isinstance(roots, dict) or set(roots) != {"sourcePath", "constants", "allowlist"}
+                    or roots.get("sourcePath") != V2_10_2_ROOT_SOURCE
+                    or expected_constants is None or roots.get("constants") != expected_constants
+                    or source_bytes is None):
+                raise ValueError("root output differs from the independently verified predecessor")
+            source = re.sub(r"/\*[\s\S]*?\*/|//[^\r\n]*", "", source_bytes.decode("utf-8"))
+            for name, value in expected_constants.items():
+                if re.search(r'\bconst\s+string\s+' + re.escape(name) + r'\s*=\s*"' + re.escape(value) + r'"\s*;', source) is None:
+                    raise ValueError(f"{name} is not a literal in the committed consuming source")
+            if roots["allowlist"] != [] or re.search(r'\bSupersessionAllowlist\s*=\s*\[\s*\]\s*;', source) is None:
+                findings.append(v2_finding("SIGNED_EVIDENCE_ALLOWLISTED", V2_10_2_ROOT_SOURCE, "the real allowlist must start empty"))
+        except (ValueError, UnicodeDecodeError) as error:
+            findings.append(v2_finding("ROOT_OF_TRUST_NOT_PINNED", V2_10_2_ROOT_SOURCE, str(error)))
+    if mutations is not None:
+        findings.extend(v2_10_2_mutation_errors(mutations))
+    if findings:
+        raise V2Stop(findings, "10.2")
+    return {
+        "bindingRule": "SC-10.2 is HEAD^{commit} at first final-record generation",
+        "sourceRevisionId": candidate,
+        "contract": {"path": contract_path, "sha256": v2_sha256(v2_committed_blob(repository, candidate, contract_path) or b"")},
+        "predecessorRecords": [{"storyId": "10.1", "path": json_path, "sha256": digest}],
+        "inventorySha256": V2_10_2_INVENTORY, "projects": projects, "results": results,
+        "rootConstants": roots, "mutationLedger": mutations,
     }
 
 
@@ -7903,7 +8132,8 @@ def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> b
     allowed_dirt = {output_json, output_markdown, *result_paths}
     if verify_spec is not None:
         designated_spec = {"8.2": V2_8_2_SPEC_PATH, "9.2": V2_9_2_SPEC_PATH,
-                           "10.1": retained[1] if retained is not None else None}.get(story_id)
+                           "10.1": retained[1] if retained is not None else None,
+                           "10.2": retained[1] if retained is not None else None}.get(story_id)
         if verify_spec != designated_spec:
             raise V2Stop([v2_finding("ARGUMENT_INVALID", "verification", "read-only rederivation requires this story's designated spec")], story_id)
         allowed_dirt.add(verify_spec)
@@ -7992,7 +8222,7 @@ def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> b
         scenario_record, category, scenario_findings = v2_successor_scenario_from_results(
             repository, scenario, command, candidate, candidate_time * 1_000_000_000,
             gitlink_paths, stamped, allowed_dirt,
-            **({"execute_commands": False} if story_id in ("9.2", "10.1") and verify_spec is not None else {}),
+            **({"execute_commands": False} if story_id in ("9.2", "10.1", "10.2") and verify_spec is not None else {}),
         )
         scenario_records[scenario["id"]] = scenario_record
         categories[scenario["id"]] = category
@@ -8098,6 +8328,10 @@ def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> b
     if story_id == "10.1":
         record["testSupportExecution"] = v2_10_1_facts(
             repository, candidate, contract_path, contract, authority, scenario_records, validators["record"])
+    if story_id == "10.2":
+        record["evidenceBoundaryExecution"] = v2_10_2_facts(
+            repository, candidate, contract_path, contract, authority, scenario_records, validators["record"])
+        record["faultInjection"]["results"] = record["evidenceBoundaryExecution"]["mutationLedger"]
     if story_id == "8.2":
         v2_8_2_positive(repository, candidate, scenario_records["AC-8.2-01"])
         record["uxValidation"] = v2_8_2_facts(repository, candidate, contract, validators["record"])
@@ -8364,7 +8598,7 @@ def v2_verify_inserted(options: dict[str, str]) -> bytes:
             "the inserted record region differs from the committed Markdown and its "
             "renderedMarkdownSha256",
         )
-    if story_id in ("8.2", "9.2", "10.1"):
+    if story_id in ("8.2", "9.2", "10.1", "10.2"):
         rederived = v2_generate({"--repository": str(repository), "--contract": contract_path,
                                 "--format": "bundle", "--output-json": json_path,
                                 "--output-markdown": markdown_path}, verify_spec=spec_relative)

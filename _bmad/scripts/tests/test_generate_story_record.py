@@ -10696,3 +10696,212 @@ def test_story101_inserted_verification_runs_real_generator_for_stale_artifact(t
 
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))
+
+
+def story102_fixture(tmp_path: Path, monkeypatch):
+    generator = load_generator()
+    candidate = "a" * 40
+    contract_path = "_bmad-output/planning-artifacts/v9/story-contracts/10.2.json"
+    contract = json.loads((WORKSPACE / contract_path).read_bytes())
+    previous = json.loads((WORKSPACE / "docs/release-evidence/story-10.1-final-record-v2.json").read_bytes())
+    predecessor = json.dumps(previous).encode()
+    digest = generator.v2_sha256(predecessor)
+    roots = {"sourcePath": generator.V2_10_2_ROOT_SOURCE,
+             "constants": {"Story101RecordSha256": digest, "Story101CandidateCommit": previous["candidate"]["commit"]},
+             "allowlist": []}
+    source = "\n".join(f'private const string {name} = "{value}";' for name, value in roots["constants"].items())
+    source += "\nprivate static readonly string[] SupersessionAllowlist = [];\n"
+    blobs = {contract_path: json.dumps(contract).encode(), generator.V2_10_2_ROOT_SOURCE: source.encode(),
+             "docs/release-evidence/story-10.1-final-record-v2.json": predecessor}
+    for name in ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests"):
+        path = f"tests/{name}/{name}.csproj"
+        blobs[path] = b"project fixture"
+        for relative, content in ((path, blobs[path]), (f"tests/{name}/bin/Release/net10.0/{name}.dll", b"candidate binary")):
+            file = tmp_path / relative
+            file.parent.mkdir(parents=True, exist_ok=True)
+            file.write_bytes(content)
+    monkeypatch.setattr(generator, "v2_committed_blob", lambda _repo, _candidate, path: blobs.get(path))
+    monkeypatch.setattr(generator, "v2_verified_predecessor", lambda *_: digest)
+    monkeypatch.setattr(generator, "try_resolve_commit", lambda _repo, revision: revision)
+    monkeypatch.setattr(generator, "v2_10_1_project_boundary", lambda *_: None)
+    monkeypatch.setattr(generator, "dotnet_source_revisions", lambda binary: [candidate] if binary == b"candidate binary" else [])
+    mutations = [{"id": identity, "expectedBlocker": code, "observedBlockers": [code],
+                  "beforeSha256": "b" * 64, "afterSha256": "b" * 64, "detected": True, "restored": True}
+                 for identity, code in generator.V2_10_2_MUTATIONS]
+    rows = {}
+    for number in range(1, 9):
+        identity = f"AC-10.2-0{number}"
+        path = f"artifacts/v9/10.2/{identity}.trx"
+        write_trx(tmp_path / path, passed=1, project="Hexalith.Conversations.TestSupport.Tests")
+        rows[identity] = {"result": "PASS", "resultFile": {"path": path}}
+    def marked(identity, output, *, stdout=False):
+        path = tmp_path / rows[identity]["resultFile"]["path"]
+        tree = ElementTree.parse(path)
+        result = tree.find("./{*}Results/{*}UnitTestResult")
+        for old in result.findall("./{*}Output"):
+            result.remove(old)
+        node = ElementTree.SubElement(result, f"{{{TRX_NAMESPACE}}}Output")
+        if stdout:
+            ElementTree.SubElement(node, f"{{{TRX_NAMESPACE}}}StdOut").text = output
+        else:
+            messages = ElementTree.SubElement(node, f"{{{TRX_NAMESPACE}}}TextMessages")
+            ElementTree.SubElement(messages, f"{{{TRX_NAMESPACE}}}Message").text = output
+        tree.write(path, encoding="utf-8")
+        rows[identity]["resultFile"]["sha256"] = generator.v2_sha256(path.read_bytes())
+    for identity in rows:
+        rows[identity]["resultFile"]["sha256"] = generator.v2_sha256((tmp_path / rows[identity]["resultFile"]["path"]).read_bytes())
+    marked("AC-10.2-07", "STORY102_ROOTS:" + json.dumps(roots))
+    marked("AC-10.2-08", "STORY102_MUTATIONS:" + json.dumps(mutations))
+    def facts():
+        return generator.v2_10_2_facts(tmp_path, candidate, contract_path, contract, previous["authority"], rows, None)
+    return generator, facts, marked, roots, mutations, blobs, rows, candidate, contract
+
+
+def test_story102_bindings_recompute_roots_results_and_mutations(tmp_path: Path, monkeypatch):
+    generator, facts, marked, roots, mutations, blobs, rows, candidate, contract = story102_fixture(tmp_path, monkeypatch)
+    support = facts()
+    assert support["sourceRevisionId"] == candidate
+    assert support["inventorySha256"] == generator.V2_10_2_INVENTORY
+    assert len(support["projects"]) == 2 and len(support["results"]) == 8
+    assert support["rootConstants"] == roots
+    assert support["mutationLedger"] == mutations
+    assert support["predecessorRecords"][0]["sha256"] == roots["constants"]["Story101RecordSha256"]
+    marked("AC-10.2-07", "STORY102_ROOTS:" + json.dumps(roots), stdout=True)
+    assert facts()["rootConstants"] == roots  # Also accept the alternate StdOut transport.
+
+
+@pytest.mark.parametrize("fault,expected", [
+    ("missing-marker", "TEST_RESULTS_MISSING"), ("duplicate-marker", "TEST_RESULTS_MISSING"),
+    ("undetected", "FAULT_NOT_DETECTED"), ("unrestored", "FIXTURE_NOT_RESTORED"),
+    ("before-drift", "FIXTURE_NOT_RESTORED"), ("wrong-id", "FAULT_NOT_DETECTED"),
+    ("missing-row", "FAULT_NOT_DETECTED"), ("missing-code", "FAULT_NOT_DETECTED"),
+    ("wrong-root", "ROOT_OF_TRUST_NOT_PINNED"), ("comment-root", "ROOT_OF_TRUST_NOT_PINNED"),
+    ("allowlist", "SIGNED_EVIDENCE_ALLOWLISTED"), ("inventory", "ASSERTION_INVENTORY_DRIFT"),
+    ("stale-binary", "TEST_SUPPORT_BOUNDARY_INVALID"), ("receipt-drift", "TEST_RESULTS_MISSING"),
+    ("predecessor-fail", "AUTHORITY_BINDING_INVALID"),
+])
+def test_story102_faults_cannot_publish_pass(tmp_path: Path, monkeypatch, fault, expected):
+    generator, facts, marked, roots, mutations, blobs, rows, candidate, contract = story102_fixture(tmp_path, monkeypatch)
+    if fault == "missing-marker":
+        marked("AC-10.2-07", "unmarked output")
+    elif fault == "duplicate-marker":
+        marked("AC-10.2-07", ("STORY102_ROOTS:" + json.dumps(roots) + "\n") * 2)
+    elif fault in {"undetected", "unrestored", "before-drift", "wrong-id", "missing-row", "missing-code"}:
+        if fault == "undetected": mutations[0]["detected"] = False
+        elif fault == "unrestored": mutations[0]["restored"] = False
+        elif fault == "before-drift": mutations[0]["afterSha256"] = "c" * 64
+        elif fault == "wrong-id": mutations[0]["id"] = "unknown"
+        elif fault == "missing-row": mutations.pop()
+        else: mutations[0]["observedBlockers"] = ["OTHER_CODE"]
+        marked("AC-10.2-08", "STORY102_MUTATIONS:" + json.dumps(mutations))
+    elif fault == "wrong-root":
+        roots["constants"]["Story101RecordSha256"] = "0" * 64
+        marked("AC-10.2-07", "STORY102_ROOTS:" + json.dumps(roots))
+    elif fault == "comment-root":
+        blobs[generator.V2_10_2_ROOT_SOURCE] = b"/*" + blobs[generator.V2_10_2_ROOT_SOURCE] + b"*/"
+    elif fault == "allowlist":
+        roots["allowlist"] = ["DOCS\\Release-Evidence\\proof.json"]
+        marked("AC-10.2-07", "STORY102_ROOTS:" + json.dumps(roots))
+    elif fault == "inventory":
+        contract["inventory"]["sha256"] = "0" * 64
+    elif fault == "stale-binary":
+        (tmp_path / "tests/Hexalith.Conversations.TestSupport/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll").write_bytes(b"stale")
+    elif fault == "receipt-drift":
+        rows["AC-10.2-01"]["resultFile"]["sha256"] = "0" * 64
+    else:
+        path = "docs/release-evidence/story-10.1-final-record-v2.json"
+        previous = json.loads(blobs[path])
+        previous["scenarios"][0]["exitCode"] = 1
+        blobs[path] = json.dumps(previous).encode()
+    with pytest.raises(generator.V2Stop) as error:
+        facts()
+    assert expected in {row["code"] for row in error.value.findings}
+
+
+def story102_record(support, contract, candidate):
+    record = json.loads((WORKSPACE / "docs/release-evidence/story-10.1-final-record-v2.json").read_bytes())
+    record.pop("testSupportExecution")
+    record.update(storyId="10.2", predecessors=["10.1"], inventory=contract["inventory"],
+                  evidenceBoundaryExecution=support, faultInjection={"results": deepcopy(support["mutationLedger"])},
+                  summary={"required": 9, "passed": 9, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0})
+    record["candidate"]["commit"] = candidate
+    record["scenarios"] = []
+    for index, scenario in enumerate(contract["scenarios"]):
+        row = {"scenarioId": scenario["id"], "command": scenario["command"], "exitCode": 0, "result": "PASS", "blockers": [],
+               "assertionLedger": [{"id": scenario["id"] + "#0001", "subject": "fixture", "state": "PASS"}]}
+        if index < 8:
+            row["resultFile"] = deepcopy(support["results"][index])
+            row["outputFiles"] = [deepcopy(support["results"][index]), deepcopy(support["projects"][1]["assembly"])]
+        record["scenarios"].append(row)
+    for suffix in ("json", "markdown"):
+        record["outputs"][suffix]["path"] = f"docs/release-evidence/story-10.2-final-record-v2.{suffix if suffix == 'json' else 'md'}"
+    return record
+
+
+def test_story102_schema_render_and_pair_cross_bindings(tmp_path: Path, monkeypatch):
+    generator, facts, _, _, _, _, _, candidate, contract = story102_fixture(tmp_path, monkeypatch)
+    record = story102_record(facts(), contract, candidate)
+    final, json_bytes, markdown = generator.v2_finalize(record)
+    jsonschema.Draft202012Validator(json.loads(FINAL_RECORD_SCHEMA.read_bytes())).validate(final)
+    assert generator.v2_verify_pair(json_bytes, markdown) == []
+    assert b"334858" not in markdown  # Root values are fixture measurements, not generator literals.
+    assert b"## Story 10.2 TestSupport execution" in markdown
+    assert b"Literal root" in markdown and b"Detected | Restored" in markdown
+    for mutate in (
+        lambda row: row["evidenceBoundaryExecution"].update(sourceRevisionId="f" * 40),
+        lambda row: row["evidenceBoundaryExecution"]["results"][0].update(sha256="f" * 64),
+        lambda row: row["evidenceBoundaryExecution"]["rootConstants"]["constants"].update(Story101RecordSha256="f" * 64),
+        lambda row: row["faultInjection"]["results"][0].update(restored=False),
+        lambda row: row["scenarios"][0].update(exitCode=1),
+    ):
+        altered = deepcopy(record)
+        mutate(altered)
+        _, output, rendered = generator.v2_finalize(altered)
+        assert generator.v2_verify_pair(output, rendered)
+    for mutate in (
+        lambda row: row.pop("evidenceBoundaryExecution"),
+        lambda row: row["evidenceBoundaryExecution"].update(extra=True),
+        lambda row: row["evidenceBoundaryExecution"]["mutationLedger"].pop(),
+        lambda row: row["faultInjection"]["results"][0].update(detected=False),
+    ):
+        altered = deepcopy(final)
+        mutate(altered)
+        with pytest.raises(jsonschema.ValidationError):
+            jsonschema.Draft202012Validator(json.loads(FINAL_RECORD_SCHEMA.read_bytes())).validate(altered)
+
+
+def test_story102_inserted_verification_rederives_candidate_bound_receipts(tmp_path: Path, monkeypatch):
+    generator, facts, _, _, _, blobs, _, candidate, contract = story102_fixture(tmp_path, monkeypatch)
+    record = story102_record(facts(), contract, candidate)
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    spec_path = "_bmad-output/implementation-artifacts/spec-10-2-implement-manifest-hash-ledger-exact-diff-and-gitlink-invariants.md"
+    contract_path = record["evidenceBoundaryExecution"]["contract"]["path"]
+    json_path, markdown_path = contract["finalRecord"]["paths"]
+    spec = (b"---\nstatus: in-progress\n---\n\n" + generator.RECORD_BEGIN_MARKER.encode()
+            + b"\n" + markdown_bytes + generator.RECORD_END_MARKER.encode() + b"\n")
+    blobs.update({json_path: json_bytes, markdown_path: markdown_bytes, spec_path: spec})
+    for path in (json_path, markdown_path, spec_path, contract_path):
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(blobs[path])
+    _, validators = generator.v2_load_schemas()
+    monkeypatch.setattr(generator, "validate_repository", lambda *_: tmp_path)
+    monkeypatch.setattr(generator, "v2_load_schemas", lambda: (None, validators))
+    monkeypatch.setattr(generator, "v2_validate_contract", lambda *_: contract)
+    monkeypatch.setattr(generator, "resolve_commit", lambda *_: candidate)
+    monkeypatch.setattr(generator, "v2_retention_config", lambda *_: ("10.2", spec_path, "10-2-implement-manifest-hash-ledger-exact-diff-and-gitlink-invariants", True))
+    monkeypatch.setattr(generator, "v2_retained_candidate", lambda *_: candidate)
+    monkeypatch.setattr(generator, "worktree_path_status", lambda *_: {})
+    monkeypatch.setattr(generator, "v2_working_spec_lifecycle_only_change", lambda *_args, **_kwargs: True)
+    calls = []
+    def rederive(options, *, verify_spec):
+        calls.append(verify_spec)
+        current = deepcopy(record)
+        current["evidenceBoundaryExecution"]["results"][0]["sha256"] = "f" * 64
+        return generator.v2_finalize(current)[1]
+    monkeypatch.setattr(generator, "v2_generate", rederive)
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_verify_inserted({"--repository": str(tmp_path), "--contract": contract_path,
+                                     generator.V2_VERIFY_OPTION: spec_path})
+    assert error.value.findings[0]["code"] == "RECORD_CONTENT_DRIFT"
+    assert calls == [spec_path]
