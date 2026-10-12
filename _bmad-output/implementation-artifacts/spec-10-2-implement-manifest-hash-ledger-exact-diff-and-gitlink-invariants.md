@@ -101,6 +101,17 @@ context:
 - The exact AC-10.2-01..09 commands from `_bmad-output/planning-artifacts/v9/story-contracts/10.2.json` -- each exits `0`.
 - `TMPDIR=/var/tmp uv run --frozen --no-sync python3 -m pytest -q -p no:cacheprovider _bmad/scripts/tests/test_generate_story_record.py -k "story101 or story102"` -- passes.
 
+## Review Corrections — Iteration 1
+
+- [x] `tests/Hexalith.Conversations.TestSupport/EvidenceManifest.cs` and its tests — separate file and payload identities; reject malformed Unicode with strict UTF-8 encoding and retain the existing declared-order compatibility proof.
+- [x] `tests/Hexalith.Conversations.TestSupport/BoundaryAssertions.cs`, private supporting source parsing if needed, its tests, and `_bmad/scripts/generate_story_record.py` — recognize actual literal declarations outside comments and string/character literals, and conservatively reject roots inside preprocessor conditional regions. Keep real roots unconditional in their consuming source. Prove raw-string and inactive-branch decoys cannot pass in both implementations.
+- [x] `_bmad/schemas/evidence-boundary-result-v1.schema.json` and its focused tests — PASS requires a nonempty ledger containing only PASS states and no blockers. Make candidate/hash/code/path/role syntax reject trailing newlines while preserving all four result states and sorted unique code arrays.
+- [x] `_bmad/scripts/generate_story_record.py` and story102 tests — require the helper DLL copied beside the test executable to equal the bound helper assembly and carry the same candidate stamp. Missing/divergent copies fail. Reverify the root candidate and exact scenario commands from the committed predecessor/contract during repository-aware Story 10.2 pair consumption; keep repository-free pair checks as structural checks, with no undeclared root literals in Python.
+- [x] `_bmad/scripts/tests/test_generate_story_record.py` — add real-generator inserted verification coverage for a valid pair and a changed runtime/bound artifact, without replacing `v2_generate`; mutation of the designated-spec route must make the test fail.
+- [x] `.github/workflows/ci.yml` — give the Windows TestSupport checkout full root history with `fetch-depth: 0`.
+- [ ] Regenerate the pair and inserted record from the corrected committed candidate after withdrawing the superseded Story 10.2 outputs. Preserve all earlier story record bytes.
+
+
 ## Implementation Notes
 
 - Iteration 1 recognizes unconditional C# declaration tokens, including nested strings inside interpolations, and excludes every preprocessor conditional region. Repository-aware consumption rechecks committed predecessor roots and exact contract commands. The executed helper copy must equal the bound candidate-stamped assembly.
@@ -132,17 +143,6 @@ context:
 | E6 | false | reject | Each mutation row hashes and restores its mutated control/evidence file bytes. The auxiliary Git repository supplies raw diff facts and is disposed after the test; the contract does not declare the Git commit history to be the restored file represented by that row. |
 | V1 | medium | patch | The Story 10.2 inserted verification test mocks `v2_generate`. Removing the new designated-spec route still leaves all 18 tests green. Add a real-generator success and stale-artifact rejection test, as in Story 10.1. |
 | V2 | high | patch | The Windows TestSupport job omits full history, while the new root test resolves the historical Story 10.1 candidate. The review's disposable depth-one clone reproduces failure at the history assertion. Set that job's checkout `fetch-depth: 0`; shared domain CI already uses full history. |
-
-## Review Corrections — Iteration 1
-
-- [x] `tests/Hexalith.Conversations.TestSupport/EvidenceManifest.cs` and its tests — separate file and payload identities; reject malformed Unicode with strict UTF-8 encoding and retain the existing declared-order compatibility proof.
-- [x] `tests/Hexalith.Conversations.TestSupport/BoundaryAssertions.cs`, private supporting source parsing if needed, its tests, and `_bmad/scripts/generate_story_record.py` — recognize actual literal declarations outside comments and string/character literals, and conservatively reject roots inside preprocessor conditional regions. Keep real roots unconditional in their consuming source. Prove raw-string and inactive-branch decoys cannot pass in both implementations.
-- [x] `_bmad/schemas/evidence-boundary-result-v1.schema.json` and its focused tests — PASS requires a nonempty ledger containing only PASS states and no blockers. Make candidate/hash/code/path/role syntax reject trailing newlines while preserving all four result states and sorted unique code arrays.
-- [x] `_bmad/scripts/generate_story_record.py` and story102 tests — require the helper DLL copied beside the test executable to equal the bound helper assembly and carry the same candidate stamp. Missing/divergent copies fail. Reverify the root candidate and exact scenario commands from the committed predecessor/contract during repository-aware Story 10.2 pair consumption; keep repository-free pair checks as structural checks, with no undeclared root literals in Python.
-- [x] `_bmad/scripts/tests/test_generate_story_record.py` — add real-generator inserted verification coverage for a valid pair and a changed runtime/bound artifact, without replacing `v2_generate`; mutation of the designated-spec route must make the test fail.
-- [x] `.github/workflows/ci.yml` — give the Windows TestSupport checkout full root history with `fetch-depth: 0`.
-- [ ] Regenerate the pair and inserted record from the corrected committed candidate after withdrawing the superseded Story 10.2 outputs. Preserve all earlier story record bytes.
-
 
 ## Spec Change Log
 
