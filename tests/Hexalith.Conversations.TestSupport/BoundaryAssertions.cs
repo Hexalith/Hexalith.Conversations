@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 namespace Hexalith.Conversations.TestSupport;
 
 /// <summary>Small neutral assertion helpers that record their evaluation.</summary>
@@ -80,13 +78,11 @@ public static class BoundaryAssertions
         ArgumentNullException.ThrowIfNull(ledger);
         ArgumentNullException.ThrowIfNull(consumingSource);
         ArgumentNullException.ThrowIfNull(roots);
-        // Ignore comments so a removed declaration cannot be replaced by a comment containing the root.
-        string source = Regex.Replace(consumingSource, @"/\*[\s\S]*?\*/|//[^\r\n]*", "");
+        IReadOnlyList<string> tokens = CSharpSourceDeclarations.UnconditionalTokens(consumingSource);
         bool passed = roots.Count > 0;
         foreach (KeyValuePair<string, string> root in roots)
         {
-            string declaration = @"\bconst\s+string\s+" + Regex.Escape(root.Key) + @"\s*=\s*""" + Regex.Escape(root.Value) + @"""\s*;";
-            if (!Regex.IsMatch(source, declaration, RegexOptions.CultureInvariant))
+            if (!CSharpSourceDeclarations.ContainsSequence(tokens, ["const", "string", root.Key, "=", "\"" + root.Value + "\"", ";"]))
             {
                 ledger.Block("ROOT_OF_TRUST_NOT_PINNED", root.Key, "The consuming source does not declare the expected literal root.");
                 passed = false;

@@ -7,6 +7,7 @@ namespace Hexalith.Conversations.TestSupport;
 /// <summary>Declarations and recomputed verification of a signed evidence manifest.</summary>
 public sealed class EvidenceManifest
 {
+    private static readonly UTF8Encoding StrictUtf8 = new(false, true);
     private readonly Dictionary<string, string> _digests = new(StringComparer.Ordinal);
     private readonly List<EvidenceManifestRow> _rows = [];
 
@@ -28,6 +29,9 @@ public sealed class EvidenceManifest
         ArgumentException.ThrowIfNullOrWhiteSpace(role);
         if (path.IndexOfAny(['\t', '\r', '\n']) >= 0 || role.IndexOfAny(['\t', '\r', '\n']) >= 0)
             throw new ArgumentException("A signed path or role cannot contain row delimiters.");
+        // Reject ill-formed UTF-16 before it can become replacement bytes in a signed payload.
+        _ = StrictUtf8.GetByteCount(path);
+        _ = StrictUtf8.GetByteCount(role);
         if (sha256.Length != 64 || sha256.Any(character => character is not (>= '0' and <= '9' or >= 'a' and <= 'f')))
             throw new ArgumentException("A lowercase SHA-256 is required.", nameof(sha256));
         if (!_digests.TryAdd(path, sha256)) throw new ArgumentException("The evidence path was already declared.", nameof(path));
@@ -42,7 +46,7 @@ public sealed class EvidenceManifest
         IEnumerable<EvidenceManifestRow> rows = order == SignablePayloadOrder.Declared
             ? _rows : _rows.OrderBy(row => row.Path, StringComparer.Ordinal);
         string payload = string.Concat(rows.Select(row => $"{row.Path}\t{row.Sha256}\t{row.Role}\n"));
-        return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(payload)));
+        return Convert.ToHexStringLower(SHA256.HashData(StrictUtf8.GetBytes(payload)));
     }
 
     /// <summary>Recomputes each file digest and the signed row digest, recording every evaluation.</summary>
@@ -88,7 +92,7 @@ public sealed class EvidenceManifest
                     passed = false;
                 }
             }
-            ledger.Record("manifest:" + row.Path, row.Path, passed);
+            ledger.Record("manifest:file:" + row.Path, row.Path, passed);
         }
         string payloadHash = ComputeSignablePayloadHash(order);
         bool payloadPassed = string.Equals(payloadHash, signablePayloadHash, StringComparison.Ordinal);

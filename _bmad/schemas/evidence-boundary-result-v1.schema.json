@@ -4,48 +4,216 @@
   "title": "Evidence boundary result v1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "result", "candidate", "manifest", "changedPaths", "gitlinks", "assertionLedger", "warnings", "blockers"],
+  "required": [
+    "schemaVersion",
+    "result",
+    "candidate",
+    "manifest",
+    "changedPaths",
+    "gitlinks",
+    "assertionLedger",
+    "warnings",
+    "blockers"
+  ],
   "properties": {
-    "schemaVersion": {"const": "hexalith.conversations.evidence-boundary-result.v1"},
-    "result": {"enum": ["PASS", "FAIL", "BLOCKED", "not-applicable"]},
-    "candidate": {"type": ["string", "null"], "pattern": "^[0-9a-f]{40}$"},
-    "manifest": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/manifestRow"}},
-    "changedPaths": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-    "gitlinks": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/gitlink"}},
-    "assertionLedger": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/assertion"}},
-    "warnings": {"$ref": "#/$defs/codes"},
-    "blockers": {"$ref": "#/$defs/codes"}
+    "schemaVersion": {
+      "const": "hexalith.conversations.evidence-boundary-result.v1"
+    },
+    "result": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+        "not-applicable"
+      ]
+    },
+    "candidate": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{40}(?![\\s\\S])",
+      "minLength": 40,
+      "maxLength": 40
+    },
+    "manifest": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/manifestRow"
+      }
+    },
+    "changedPaths": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\t\\r\\n]+(?![\\s\\S])"
+      }
+    },
+    "gitlinks": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/gitlink"
+      }
+    },
+    "assertionLedger": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/assertion"
+      }
+    },
+    "warnings": {
+      "$ref": "#/$defs/codes"
+    },
+    "blockers": {
+      "$ref": "#/$defs/codes"
+    }
   },
   "$defs": {
     "codes": {
-      "type": "array", "uniqueItems": true,
-      "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"},
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_]*(?![\\s\\S])"
+      },
       "$comment": "Consumers must additionally require ordinal ascending order; generic JSON Schema cannot compare arbitrary array string values."
     },
     "manifestRow": {
-      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "role"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "role"
+      ],
       "properties": {
-        "path": {"type": "string", "minLength": 1, "pattern": "^[^\\t\\r\\n]+$"},
-        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-        "role": {"type": "string", "minLength": 1, "pattern": "^[^\\t\\r\\n]+$"}
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^\\t\\r\\n]+(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^\\t\\r\\n]+(?![\\s\\S])"
+        }
       }
     },
     "gitlink": {
-      "type": "object", "additionalProperties": false, "required": ["path", "sourceMode", "destinationMode"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sourceMode",
+        "destinationMode"
+      ],
       "properties": {
-        "path": {"type": "string", "minLength": 1},
-        "sourceMode": {"enum": ["000000", "100644", "100755", "120000", "160000"]},
-        "destinationMode": {"enum": ["000000", "100644", "100755", "120000", "160000"]}
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^\\t\\r\\n]+(?![\\s\\S])"
+        },
+        "sourceMode": {
+          "enum": [
+            "000000",
+            "100644",
+            "100755",
+            "120000",
+            "160000"
+          ]
+        },
+        "destinationMode": {
+          "enum": [
+            "000000",
+            "100644",
+            "100755",
+            "120000",
+            "160000"
+          ]
+        }
       },
-      "anyOf": [{"properties": {"sourceMode": {"const": "160000"}}}, {"properties": {"destinationMode": {"const": "160000"}}}]
+      "anyOf": [
+        {
+          "properties": {
+            "sourceMode": {
+              "const": "160000"
+            }
+          }
+        },
+        {
+          "properties": {
+            "destinationMode": {
+              "const": "160000"
+            }
+          }
+        }
+      ]
     },
     "assertion": {
-      "type": "object", "additionalProperties": false, "required": ["id", "subject", "state"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "subject",
+        "state"
+      ],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
-        "subject": {"type": "string", "minLength": 1},
-        "state": {"enum": ["PASS", "FAIL", "BLOCKED", "SKIPPED"]}
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED",
+            "SKIPPED"
+          ]
+        }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "PASS"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "assertionLedger": {
+            "minItems": 1,
+            "items": {
+              "properties": {
+                "state": {
+                  "const": "PASS"
+                }
+              }
+            }
+          },
+          "blockers": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ]
 }

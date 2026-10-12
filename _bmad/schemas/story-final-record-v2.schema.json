@@ -581,17 +581,21 @@
   "$defs": {
     "commit": {
       "type": "string",
-      "pattern": "^[0-9a-f]{40}$"
+      "minLength": 40,
+      "maxLength": 40,
+      "pattern": "^[0-9a-f]{40}(?![\\s\\S])"
     },
     "digest": {
       "type": "string",
-      "pattern": "^[0-9a-f]{64}$"
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
     },
     "path": {
       "type": "string",
       "minLength": 1,
       "maxLength": 400,
-      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[^\\u0000-\\u001f]+$"
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[^\\u0000-\\u001f]+(?![\\s\\S])"
     },
     "storyId": {
       "type": "string",
@@ -616,7 +620,7 @@
     },
     "blocker": {
       "type": "string",
-      "pattern": "^[A-Z][A-Z0-9_]*$"
+      "pattern": "^[A-Z][A-Z0-9_]*(?![\\s\\S])"
     },
     "blockers": {
       "type": "array",

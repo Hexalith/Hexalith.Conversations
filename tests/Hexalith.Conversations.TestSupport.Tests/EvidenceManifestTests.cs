@@ -110,6 +110,33 @@ public sealed class EvidenceManifestTests
     }
 
     [Fact]
+    public void FileAndPayloadAssertionsShouldHaveSeparateIdentities()
+    {
+        using EvidenceFixture fixture = new();
+        string path = fixture.Write("signable-payload", "proof");
+        EvidenceManifest manifest = new();
+        manifest.Add("signable-payload", EvidenceFixture.Hash(path));
+        AssertionLedger ledger = new();
+        manifest.Verify(fixture.Root, manifest.ComputeSignablePayloadHash(), ledger).Passed.ShouldBeTrue();
+        ledger.Results.Count.ShouldBe(2);
+        ledger.Results.Keys.ShouldContain("manifest:file:signable-payload");
+        ledger.Results.Keys.ShouldContain("manifest:signable-payload");
+    }
+
+    [Fact]
+    public void MalformedUnicodeDeclarationsShouldBeRejectedBeforeSigning()
+    {
+        foreach (string malformed in new[] { "\ud800", "\udfff", "proof\ud800suffix" })
+        {
+            EvidenceManifest manifest = new();
+            Should.Throw<EncoderFallbackException>(() => manifest.Add(malformed, new string('a', 64), "proof"));
+            Should.Throw<EncoderFallbackException>(() => manifest.Add("proof", new string('a', 64), malformed));
+            manifest.Rows.ShouldBeEmpty();
+            manifest.Digests.ShouldBeEmpty();
+        }
+    }
+
+    [Fact]
     public void SymbolicEvidencePathsShouldBeRejected()
     {
         using EvidenceFixture fixture = new();

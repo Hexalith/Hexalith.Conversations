@@ -64,6 +64,35 @@ public sealed class BoundaryAssertionsTests
     }
 
     [Fact]
+    public void InertRootDeclarationsShouldBeRejected()
+    {
+        const string declaration = "const string Root = \"abcdef\";";
+        Dictionary<string, string> roots = new() { ["Root"] = "abcdef" };
+        foreach (string decoy in new[]
+        {
+            "// " + declaration,
+            "/* " + declaration + " */",
+            "var text = \"\"\"\n" + declaration + "\n\"\"\";",
+            "var text = $\"\"\"\n" + declaration + "\n\"\"\";",
+            "var text = $\"{\"\"\"\n" + declaration + "\n\"\"\"}\";",
+            "var text = @\"" + declaration.Replace("\"", "\"\"") + "\";",
+            "#if false\n" + declaration + "\n#endif\n",
+            "#if ROOTS\n#if true\n" + declaration + "\n#endif\n#endif\n",
+            "#if false\n#else\n" + declaration + "\n#endif\n",
+            "var text = \"escaped \\\"const string Root = \\\"abcdef\\\";\";",
+        })
+        {
+            AssertionLedger ledger = new();
+            BoundaryAssertions.PinnedRoots(ledger, "roots", decoy, roots).ShouldBeFalse(decoy);
+            ledger.Evaluate().Blockers.Single().Code.ShouldBe("ROOT_OF_TRUST_NOT_PINNED");
+        }
+        AssertionLedger clean = new();
+        BoundaryAssertions.PinnedRoots(clean, "roots", "var text = $\"{\"\"\"decoy\"\"\"}\";\n#if false\nignored\n#endif\n" + declaration, roots)
+            .ShouldBeTrue();
+        clean.Evaluate().Passed.ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task RootsOfTrustAndSignedEvidenceShouldRemainPinned()
     {
         string root = EvidenceFixture.FindRepositoryRoot();

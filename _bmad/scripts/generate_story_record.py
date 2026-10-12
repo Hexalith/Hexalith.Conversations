@@ -5505,6 +5505,7 @@ def v2_verified_predecessor(
             or record.get("outputs", {}).get("markdown", {}).get("path") != markdown_path
             or v2_schema_errors(validator, record)
             or v2_verify_pair(json_bytes, markdown_bytes)
+            or (story_id == "10.2" and v2_10_2_repository_pair_errors(repository, record, validator))
         ):
             return None
     except (UnicodeDecodeError, ValueError, AttributeError, KeyError, TypeError):
@@ -5692,6 +5693,201 @@ V2_10_2_MUTATIONS = (
 )
 
 
+def v2_csharp_unconditional_tokens(source: str) -> list[str]:
+    """Lex declarations, excluding comments, string contents, and every conditional region."""
+    tokens, index, depth = [], 0, 0
+    while index < len(source):
+        current = source[index]
+        if current.isspace():
+            index += 1
+            continue
+        line_start = source.rfind("\n", 0, index) + 1
+        if current == "#" and not source[line_start:index].strip():
+            end = source.find("\n", index)
+            end = len(source) if end < 0 else end
+            directive = source[index + 1:end].split()
+            if directive and directive[0] == "if":
+                depth += 1
+            elif directive and directive[0] == "endif" and depth:
+                depth -= 1
+            index = end
+            continue
+        if source.startswith("//", index):
+            end = source.find("\n", index + 2)
+            index = len(source) if end < 0 else end
+            continue
+        if source.startswith("/*", index):
+            end = source.find("*/", index + 2)
+            index = len(source) if end < 0 else end + 2
+            continue
+        start, quote = index, index
+        while quote < len(source) and source[quote] in "$@":
+            quote += 1
+        if quote < len(source) and source[quote] == '"':
+            index, literal = v2_csharp_read_string(source, start, quote)
+            if not depth:
+                tokens.append(source[start:index] if literal else "<string>")
+            continue
+        if current == "'":
+            index += 1
+            while index < len(source):
+                character = source[index]
+                index += 1
+                if character == "\\":
+                    index = min(len(source), index + 1)
+                elif character == "'":
+                    break
+            if not depth:
+                tokens.append("<character>")
+            continue
+        index += 1
+        if current.isalpha() or current == "_":
+            while index < len(source) and (source[index].isalnum() or source[index] == "_"):
+                index += 1
+        if not depth:
+            tokens.append(source[start:index])
+    return tokens
+
+
+def v2_csharp_read_string(source: str, start: int, quote: int) -> tuple[int, bool]:
+    """Treat interpolated expressions and their nested literals as opaque string contents."""
+    verbatim, dollars = "@" in source[start:quote], source[start:quote].count("$")
+    quotes = 0
+    while quote + quotes < len(source) and source[quote + quotes] == '"':
+        quotes += 1
+    raw, literal = quotes >= 3, start == quote and quotes < 3
+    index = quote + (quotes if raw else 1)
+    while index < len(source):
+        if dollars and source[index] == "{":
+            braces = 0
+            while index + braces < len(source) and source[index + braces] == "{":
+                braces += 1
+            if raw and braces >= dollars or not raw and braces % 2:
+                index = v2_csharp_skip_interpolation(source, index + braces, dollars if raw else 1)
+            else:
+                index += braces
+            continue
+        if source[index] == '"':
+            if raw:
+                count = 0
+                while index + count < len(source) and source[index + count] == '"':
+                    count += 1
+                if count >= quotes:
+                    return index + quotes, literal
+                index += count
+                continue
+            if verbatim and source.startswith('""', index):
+                index += 2
+                continue
+            return index + 1, literal
+        if not raw and not verbatim and source[index] == "\\":
+            literal, index = False, min(len(source), index + 2)
+        else:
+            index += 1
+    return index, False
+
+
+def v2_csharp_skip_interpolation(source: str, index: int, closing_braces: int) -> int:
+    depth = 0
+    while index < len(source):
+        if source[index] == "{":
+            depth += 1
+            index += 1
+            continue
+        if source[index] == "}":
+            count = 0
+            while index + count < len(source) and source[index + count] == "}":
+                count += 1
+            if not depth and count >= closing_braces:
+                return index + closing_braces
+            if depth:
+                depth -= 1
+            index += 1
+            continue
+        if source.startswith("//", index) or source.startswith("/*", index):
+            line = source.startswith("//", index)
+            end = source.find("\n" if line else "*/", index + 2)
+            index = len(source) if end < 0 else end + (0 if line else 2)
+            continue
+        quote = index
+        while quote < len(source) and source[quote] in "$@":
+            quote += 1
+        if quote < len(source) and source[quote] == '"':
+            index, _ = v2_csharp_read_string(source, index, quote)
+            continue
+        if source[index] == "'":
+            index += 1
+            while index < len(source):
+                character = source[index]
+                index += 1
+                if character == "\\":
+                    index = min(len(source), index + 1)
+                elif character == "'":
+                    break
+            continue
+        index += 1
+    return index
+
+
+def v2_csharp_has_sequence(tokens: list[str], declaration: list[str]) -> bool:
+    return any(tokens[index:index + len(declaration)] == declaration
+               for index in range(len(tokens) - len(declaration) + 1))
+
+
+def v2_10_2_root_errors(roots: Any, constants: dict[str, str] | None, source_bytes: bytes | None) -> list[dict[str, str]]:
+    """Check measured roots against independently verified facts and active literal declarations."""
+    try:
+        if (not isinstance(roots, dict) or set(roots) != {"sourcePath", "constants", "allowlist"}
+                or roots.get("sourcePath") != V2_10_2_ROOT_SOURCE
+                or constants is None or roots.get("constants") != constants or source_bytes is None):
+            raise ValueError("root output differs from the independently verified predecessor")
+        tokens = v2_csharp_unconditional_tokens(source_bytes.decode("utf-8"))
+        for name, value in constants.items():
+            if not v2_csharp_has_sequence(tokens, ["const", "string", name, "=", f'"{value}"', ";"]):
+                raise ValueError(f"{name} is not an unconditional literal declaration in the committed consuming source")
+        if roots["allowlist"] != [] or not v2_csharp_has_sequence(
+                tokens, ["string", "[", "]", "SupersessionAllowlist", "=", "[", "]", ";"]):
+            return [v2_finding("SIGNED_EVIDENCE_ALLOWLISTED", V2_10_2_ROOT_SOURCE, "the real allowlist must start empty")]
+    except (ValueError, UnicodeDecodeError) as error:
+        return [v2_finding("ROOT_OF_TRUST_NOT_PINNED", V2_10_2_ROOT_SOURCE, str(error))]
+    return []
+
+
+def v2_10_2_repository_pair_errors(repository: Path, record: dict[str, Any], validator: Any) -> list[str]:
+    """Reverify a consumed pair against its committed predecessor, source, and measured commands."""
+    try:
+        candidate = record["candidate"]["commit"]
+        if try_resolve_commit(repository, candidate) != candidate:
+            return ["Story 10.2 candidate history is unavailable"]
+        support = record["evidenceBoundaryExecution"]
+        predecessor_path = "docs/release-evidence/story-10.1-final-record-v2.json"
+        digest = v2_verified_predecessor(repository, candidate, "10.1", predecessor_path,
+                                         "docs/release-evidence/story-10.1-final-record-v2.md", validator)
+        if digest is None or digest != support["predecessorRecords"][0]["sha256"]:
+            return ["Story 10.2 committed predecessor pair differs from its digest binding"]
+        previous = v2_parse_json(v2_committed_blob(repository, candidate, predecessor_path) or b"")
+        if (not v2_10_1_predecessor_passes(previous)
+                or try_resolve_commit(repository, previous["candidate"]["commit"]) != previous["candidate"]["commit"]
+                or any(previous["authority"].get(key) != record["authority"].get(key)
+                       for key in ("epic", "architecture", "planningCandidate", "bundleDigest"))):
+            return ["Story 10.2 committed predecessor is nonpassing, incompatible, or unresolvable"]
+        constants = {"Story101RecordSha256": digest, "Story101CandidateCommit": previous["candidate"]["commit"]}
+        problems = [row["message"] for row in v2_10_2_root_errors(support["rootConstants"], constants,
+                     v2_committed_blob(repository, candidate, V2_10_2_ROOT_SOURCE))]
+        contract_bytes = v2_committed_blob(repository, candidate, support["contract"]["path"])
+        if contract_bytes is None or v2_sha256(contract_bytes) != support["contract"]["sha256"]:
+            problems.append("Story 10.2 committed contract differs from its hash binding")
+        else:
+            contract = v2_parse_json(contract_bytes)
+            expected = [(row["id"], row["command"]) for row in contract["scenarios"]]
+            measured = [(row["scenarioId"], row["command"]) for row in record["scenarios"]]
+            if contract["storyId"] != "10.2" or measured != expected:
+                problems.append("Story 10.2 measured scenario commands differ from the committed contract")
+        return problems
+    except (ValueError, KeyError, TypeError, IndexError, AttributeError):
+        return ["Story 10.2 committed consumption bindings are malformed"]
+
+
 def v2_10_2_marked_output(content: bytes, marker: str) -> Any:
     """Read one marked JSON line from the sole passing TRX row, never a side file."""
     parsed = parse_trx(content)
@@ -5762,6 +5958,11 @@ def v2_10_2_facts(
             binary = v2_10_1_artifact_bytes(repository, assembly_path)
             if dotnet_source_revisions(binary) != [candidate]:
                 raise ValueError("the assembly is not stamped by SC-10.2")
+            if name == "Hexalith.Conversations.TestSupport":
+                runtime_path = "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll"
+                runtime = v2_10_1_artifact_bytes(repository, runtime_path)
+                if runtime != binary or dotnet_source_revisions(runtime) != [candidate]:
+                    raise ValueError("the runtime helper copy differs from the bound assembly or candidate stamp")
         except (ValueError, OSError) as error:
             findings.append(v2_finding("TEST_SUPPORT_BOUNDARY_INVALID", path, str(error)))
             continue
@@ -5802,21 +6003,8 @@ def v2_10_2_facts(
     if roots is not None:
         expected_constants = None if previous is None else {
             "Story101RecordSha256": digest, "Story101CandidateCommit": previous["candidate"]["commit"]}
-        source_bytes = v2_committed_blob(repository, candidate, V2_10_2_ROOT_SOURCE)
-        try:
-            if (not isinstance(roots, dict) or set(roots) != {"sourcePath", "constants", "allowlist"}
-                    or roots.get("sourcePath") != V2_10_2_ROOT_SOURCE
-                    or expected_constants is None or roots.get("constants") != expected_constants
-                    or source_bytes is None):
-                raise ValueError("root output differs from the independently verified predecessor")
-            source = re.sub(r"/\*[\s\S]*?\*/|//[^\r\n]*", "", source_bytes.decode("utf-8"))
-            for name, value in expected_constants.items():
-                if re.search(r'\bconst\s+string\s+' + re.escape(name) + r'\s*=\s*"' + re.escape(value) + r'"\s*;', source) is None:
-                    raise ValueError(f"{name} is not a literal in the committed consuming source")
-            if roots["allowlist"] != [] or re.search(r'\bSupersessionAllowlist\s*=\s*\[\s*\]\s*;', source) is None:
-                findings.append(v2_finding("SIGNED_EVIDENCE_ALLOWLISTED", V2_10_2_ROOT_SOURCE, "the real allowlist must start empty"))
-        except (ValueError, UnicodeDecodeError) as error:
-            findings.append(v2_finding("ROOT_OF_TRUST_NOT_PINNED", V2_10_2_ROOT_SOURCE, str(error)))
+        findings.extend(v2_10_2_root_errors(roots, expected_constants,
+                        v2_committed_blob(repository, candidate, V2_10_2_ROOT_SOURCE)))
     if mutations is not None:
         findings.extend(v2_10_2_mutation_errors(mutations))
     if findings:

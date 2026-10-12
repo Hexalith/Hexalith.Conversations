@@ -51,8 +51,43 @@ def test_evidence_boundary_result_schema_rejects_invalid_contract(fault):
     elif fault == "unknown-ledger":
         document["assertionLedger"][0]["state"] = "SUCCESS"
     elif fault == "duplicate-code":
+        document["result"] = "FAIL"
         document["blockers"] = ["EVIDENCE_HASH_MISMATCH"] * 2
     else:
         document["warnings"] = ["Z_CODE", "A_CODE"]
+    with pytest.raises(jsonschema.ValidationError):
+        validate_result(document)
+
+
+@pytest.mark.parametrize("fault", ["empty-ledger", "failed-ledger", "skipped-ledger", "blocked-ledger", "blocker"])
+def test_evidence_boundary_result_pass_requires_evaluated_passing_assertions(fault):
+    document = valid_result()
+    if fault == "empty-ledger":
+        document["assertionLedger"] = []
+    elif fault == "blocker":
+        document["blockers"] = ["EVIDENCE_HASH_MISMATCH"]
+    else:
+        document["assertionLedger"][0]["state"] = {
+            "failed-ledger": "FAIL", "skipped-ledger": "SKIPPED", "blocked-ledger": "BLOCKED"}[fault]
+    with pytest.raises(jsonschema.ValidationError):
+        validate_result(document)
+    for state in ("FAIL", "BLOCKED", "not-applicable"):
+        document["result"] = state
+        validate_result(document)
+
+
+@pytest.mark.parametrize("field", ["candidate", "hash", "code", "path", "role", "changed-path", "gitlink-path"])
+def test_evidence_boundary_result_schema_rejects_trailing_newline(field):
+    document = valid_result()
+    if field == "candidate":
+        document["candidate"] += "\n"
+    elif field == "code":
+        document["warnings"] = ["CODE\n"]
+    elif field == "changed-path":
+        document["changedPaths"][0] += "\n"
+    elif field == "gitlink-path":
+        document["gitlinks"] = [{"path": "deps/module\n", "sourceMode": "000000", "destinationMode": "160000"}]
+    else:
+        document["manifest"][0]["sha256" if field == "hash" else field] += "\n"
     with pytest.raises(jsonschema.ValidationError):
         validate_result(document)
