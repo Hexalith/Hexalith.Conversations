@@ -39,6 +39,12 @@ public sealed class AssertionLedgerTests
             ledger.Rows.Count(row => row.State == "SKIPPED").ShouldBe(2);
             ledger.Evaluate().Result.ShouldBe("BLOCKED");
         }
+        AssertionLedger uncoded = new();
+        uncoded.Record("evaluated", true);
+        BoundaryAssertions.HistoryAvailable(uncoded, "uncoded-history",
+            new GitFact<string>(GitFactStatus.Unavailable, null, null, null)).ShouldBeFalse();
+        uncoded.Rows.Single(row => row.Id == "uncoded-history").State.ShouldBe("SKIPPED");
+        uncoded.Evaluate().Blockers.Single().Code.ShouldBe("HISTORY_UNAVAILABLE");
         AssertionLedger failed = new();
         failed.Record("failed", false);
         failed.Evaluate().Result.ShouldBe("FAIL");

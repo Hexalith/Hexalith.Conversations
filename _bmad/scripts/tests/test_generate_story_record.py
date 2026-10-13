@@ -10716,21 +10716,23 @@ def story102_fixture(tmp_path: Path, monkeypatch):
              "docs/release-evidence/story-10.1-final-record-v2.json": predecessor}
     for name in ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests"):
         path = f"tests/{name}/{name}.csproj"
-        blobs[path] = b"project fixture"
-        for relative, content in ((path, blobs[path]), (f"tests/{name}/bin/Release/net10.0/{name}.dll", b"candidate binary")):
+        blobs[path] = f"project fixture for {name}".encode()
+        for relative, content in ((path, blobs[path]), (f"tests/{name}/bin/Release/net10.0/{name}.dll", f"candidate binary for {name}".encode())):
             file = tmp_path / relative
             file.parent.mkdir(parents=True, exist_ok=True)
             file.write_bytes(content)
     runtime = tmp_path / "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll"
-    runtime.write_bytes(b"candidate binary")
+    runtime.write_bytes(b"candidate binary for Hexalith.Conversations.TestSupport")
     monkeypatch.setattr(generator, "v2_committed_blob", lambda _repo, _candidate, path: blobs.get(path))
     monkeypatch.setattr(generator, "v2_verified_predecessor", lambda *_: digest)
     monkeypatch.setattr(generator, "try_resolve_commit", lambda _repo, revision: revision)
     monkeypatch.setattr(generator, "v2_10_1_project_boundary", lambda *_: None)
-    monkeypatch.setattr(generator, "dotnet_source_revisions", lambda binary: [candidate] if binary == b"candidate binary" else [])
+    monkeypatch.setattr(generator, "dotnet_source_revisions", lambda binary: [candidate] if binary in {b"candidate binary for Hexalith.Conversations.TestSupport",
+                                                                                         b"candidate binary for Hexalith.Conversations.TestSupport.Tests"} else [])
     mutations = [{"id": identity, "expectedBlocker": code, "observedBlockers": [code],
                   "beforeSha256": "b" * 64, "afterSha256": "b" * 64, "detected": True, "restored": True}
                  for identity, code in generator.V2_10_2_MUTATIONS]
+    mutations[8]["observedBlockers"] = ["REVISION_INVALID", "UNAVAILABLE_HISTORY_PASSED"]
     rows = {}
     for number in range(1, 9):
         identity = f"AC-10.2-0{number}"
@@ -10766,6 +10768,11 @@ def test_story102_bindings_recompute_roots_results_and_mutations(tmp_path: Path,
     assert support["sourceRevisionId"] == candidate
     assert support["inventorySha256"] == generator.V2_10_2_INVENTORY
     assert len(support["projects"]) == 2 and len(support["results"]) == 8
+    for row in support["projects"]:
+        for kind in ("project", "assembly"):
+            assert row[kind]["sha256"] == generator.v2_sha256((tmp_path / row[kind]["path"]).read_bytes())
+    assert support["projects"][0]["project"]["sha256"] != support["projects"][1]["project"]["sha256"]
+    assert support["projects"][0]["assembly"]["sha256"] != support["projects"][1]["assembly"]["sha256"]
     assert support["rootConstants"] == roots
     assert support["mutationLedger"] == mutations
     assert support["predecessorRecords"][0]["sha256"] == roots["constants"]["Story101RecordSha256"]
@@ -10784,7 +10791,10 @@ def test_story102_bindings_recompute_roots_results_and_mutations(tmp_path: Path,
     ("allowlist", "SIGNED_EVIDENCE_ALLOWLISTED"), ("inventory", "ASSERTION_INVENTORY_DRIFT"),
     ("stale-binary", "TEST_SUPPORT_BOUNDARY_INVALID"), ("receipt-drift", "TEST_RESULTS_MISSING"),
     ("runtime-missing", "TEST_SUPPORT_BOUNDARY_INVALID"), ("runtime-divergent", "TEST_SUPPORT_BOUNDARY_INVALID"),
-    ("predecessor-fail", "AUTHORITY_BINDING_INVALID"),
+    ("predecessor-fail", "AUTHORITY_BINDING_INVALID"), ("predecessor-authority", "AUTHORITY_BINDING_INVALID"),
+    ("source-allowlist-missing", "SIGNED_EVIDENCE_ALLOWLISTED"),
+    ("source-allowlist-nonempty", "SIGNED_EVIDENCE_ALLOWLISTED"),
+    ("bom-inactive-root", "ROOT_OF_TRUST_NOT_PINNED"),
 ])
 def test_story102_faults_cannot_publish_pass(tmp_path: Path, monkeypatch, fault, expected):
     generator, facts, marked, roots, mutations, blobs, rows, candidate, contract = story102_fixture(tmp_path, monkeypatch)
@@ -10811,6 +10821,12 @@ def test_story102_faults_cannot_publish_pass(tmp_path: Path, monkeypatch, fault,
         blobs[generator.V2_10_2_ROOT_SOURCE] = b'var text = $"{"""\n' + blobs[generator.V2_10_2_ROOT_SOURCE] + b'\n"""}";'
     elif fault == "inactive-root":
         blobs[generator.V2_10_2_ROOT_SOURCE] = b"#if false\n" + blobs[generator.V2_10_2_ROOT_SOURCE] + b"\n#endif\n"
+    elif fault in {"source-allowlist-missing", "source-allowlist-nonempty"}:
+        old = b"SupersessionAllowlist = []"
+        new = b"UnrelatedAllowlist = []" if fault.endswith("missing") else b'SupersessionAllowlist = ["other"]'
+        blobs[generator.V2_10_2_ROOT_SOURCE] = blobs[generator.V2_10_2_ROOT_SOURCE].replace(old, new)
+    elif fault == "bom-inactive-root":
+        blobs[generator.V2_10_2_ROOT_SOURCE] = b"\xef\xbb\xbf#if false\n" + blobs[generator.V2_10_2_ROOT_SOURCE] + b"\n#endif\n"
     elif fault == "allowlist":
         roots["allowlist"] = ["DOCS\\Release-Evidence\\proof.json"]
         marked("AC-10.2-07", "STORY102_ROOTS:" + json.dumps(roots))
@@ -10827,7 +10843,10 @@ def test_story102_faults_cannot_publish_pass(tmp_path: Path, monkeypatch, fault,
     else:
         path = "docs/release-evidence/story-10.1-final-record-v2.json"
         previous = json.loads(blobs[path])
-        previous["scenarios"][0]["exitCode"] = 1
+        if fault == "predecessor-authority":
+            previous["authority"]["bundleDigest"] = "f" * 64
+        else:
+            previous["scenarios"][0]["exitCode"] = 1
         blobs[path] = json.dumps(previous).encode()
     with pytest.raises(generator.V2Stop) as error:
         facts()
@@ -10869,6 +10888,8 @@ def test_story102_schema_render_and_pair_cross_bindings(tmp_path: Path, monkeypa
         lambda row: row["evidenceBoundaryExecution"]["rootConstants"]["constants"].update(Story101RecordSha256="f" * 64),
         lambda row: row["faultInjection"]["results"][0].update(restored=False),
         lambda row: row["scenarios"][0].update(exitCode=1),
+        lambda row: row["inventory"].update(sha256="f" * 64),
+        lambda row: row.update(predecessors=["9.2"]),
     ):
         altered = deepcopy(record)
         mutate(altered)
@@ -10978,7 +10999,7 @@ def test_story102_repository_consumption_reverifies_predecessor_and_commands(tmp
 
 
 @pytest.mark.parametrize("newline", ["\r\n", "\r", "\n", "\u0085", "\u2028", "\u2029"])
-@pytest.mark.parametrize("whitespace", [" ", "\t", "\v", "\f", "\u00a0", "\u2003", "\u3000"])
+@pytest.mark.parametrize("whitespace", [" ", "\t", "\v", "\f", "\u00a0", "\u2003", "\u3000", "\ufeff", "\u001a"])
 @pytest.mark.parametrize("directive", ["if(false)", "if!true", "if{whitespace}false"])
 def test_story102_root_lexer_recognizes_conditional_syntax_and_line_boundaries(newline, whitespace, directive):
     generator = load_generator()
@@ -11051,7 +11072,7 @@ def test_story102_inserted_verification_runs_real_generator(tmp_path: Path, monk
         measured_calls.append(kwargs.get("execute_commands"))
         receipt = deepcopy(rows[scenario["id"]]["resultFile"])
         assembly = {"path": "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll",
-                    "sha256": generator.v2_sha256(b"candidate binary")}
+                    "sha256": generator.v2_sha256(b"candidate binary for Hexalith.Conversations.TestSupport.Tests")}
         return ({"scenarioId": scenario["id"], "command": scenario["command"], "exitCode": 0,
                  "result": "PASS", "blockers": [], "resultFile": receipt, "outputFiles": [receipt, assembly],
                  "assertionLedger": [{"id": scenario["id"] + "#0001", "subject": "fixture", "state": "PASS"}]}, "passed", [])
@@ -11092,3 +11113,45 @@ def test_story102_record_syntax_rejects_trailing_newline(definition, value):
     validator.validate(value)
     with pytest.raises(jsonschema.ValidationError):
         validator.validate(value + "\n")
+
+
+@pytest.mark.parametrize("case", json.loads((WORKSPACE / "tests/Hexalith.Conversations.TestSupport.Tests/Fixtures/story102-root-declarations.json").read_bytes()), ids=lambda row: row["id"])
+def test_story102_root_lexers_share_literal_and_directive_decoys(case):
+    generator = load_generator()
+    tokens = generator.v2_csharp_unconditional_tokens(case["source"])
+    assert generator.v2_csharp_has_sequence(tokens, ["const", "string", "Root", "=", '"abcdef"', ";"]) == case["pinned"]
+
+
+def test_story102_root_consumer_accepts_a_file_leading_bom(tmp_path: Path, monkeypatch):
+    generator, facts, _, _, _, blobs, _, _, _ = story102_fixture(tmp_path, monkeypatch)
+    blobs[generator.V2_10_2_ROOT_SOURCE] = b"\xef\xbb\xbf" + blobs[generator.V2_10_2_ROOT_SOURCE]
+    assert facts()["rootConstants"]["allowlist"] == []
+
+
+@pytest.mark.parametrize("fault", ["restored", "hash", "row-order", "code-order"])
+def test_story102_pair_checks_consistent_mutation_ledger_faults(tmp_path: Path, monkeypatch, fault):
+    generator, facts, _, _, _, _, _, candidate, contract = story102_fixture(tmp_path, monkeypatch)
+    record = story102_record(facts(), contract, candidate)
+    mutations = record["evidenceBoundaryExecution"]["mutationLedger"]
+    if fault == "restored":
+        mutations[0]["restored"] = False
+    elif fault == "hash":
+        mutations[0]["afterSha256"] = "f" * 64
+    elif fault == "row-order":
+        # These rows share a blocker, so only their contracted identities establish the order.
+        mutations[5], mutations[6] = mutations[6], mutations[5]
+    else:
+        mutations[0]["observedBlockers"] = ["Z_CODE", mutations[0]["expectedBlocker"]]
+    record["faultInjection"]["results"] = deepcopy(mutations)
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes)
+
+
+def test_story102_committed_pair_still_verifies():
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    json_bytes = (WORKSPACE / "docs/release-evidence/story-10.2-final-record-v2.json").read_bytes()
+    markdown_bytes = (WORKSPACE / "docs/release-evidence/story-10.2-final-record-v2.md").read_bytes()
+    record = generator.v2_parse_json(json_bytes)
+    assert not generator.v2_schema_errors(validators["record"], record)
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []

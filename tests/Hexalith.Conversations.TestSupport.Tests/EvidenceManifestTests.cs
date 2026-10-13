@@ -56,6 +56,20 @@ public sealed class EvidenceManifestTests
             result.Passed.ShouldBeFalse();
             result.Blockers.Single().Code.ShouldBe("EVIDENCE_OUTPUT_FORBIDDEN");
         }
+        if (OperatingSystem.IsWindows())
+        {
+            foreach (string directory in new[] { "bin", "obj", "generated" })
+            {
+                string file = fixture.Write(directory + "/proof.json", "proof");
+                foreach (string suffix in new[] { ".", " " })
+                {
+                    EvidenceManifest alias = new();
+                    alias.Add(directory + suffix + "/proof.json", EvidenceFixture.Hash(file), "proof");
+                    alias.Verify(fixture.Root, alias.ComputeSignablePayloadHash(), new()).Blockers.Single().Code
+                        .ShouldBe("EVIDENCE_OUTPUT_FORBIDDEN");
+                }
+            }
+        }
         string allowed = fixture.Write("binary/generated-proof.json", "proof");
         EvidenceManifest clean = new();
         clean.Add("binary/generated-proof.json", EvidenceFixture.Hash(allowed), "proof");

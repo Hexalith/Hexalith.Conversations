@@ -1,0 +1,107 @@
+[
+  {
+    "id": "line-comment",
+    "source": "// const string Root = \"abcdef\";",
+    "pinned": false
+  },
+  {
+    "id": "block-comment",
+    "source": "/* const string Root = \"abcdef\"; */",
+    "pinned": false
+  },
+  {
+    "id": "raw-string",
+    "source": "var text = \"\"\"\nconst string Root = \"abcdef\";\n\"\"\";",
+    "pinned": false
+  },
+  {
+    "id": "interpolated-raw-string",
+    "source": "var text = $\"\"\"\nconst string Root = \"abcdef\";\n\"\"\";",
+    "pinned": false
+  },
+  {
+    "id": "nested-interpolation",
+    "source": "var text = $\"{\"\"\"\nconst string Root = \"abcdef\";\n\"\"\"}\";",
+    "pinned": false
+  },
+  {
+    "id": "verbatim-string",
+    "source": "var text = @\"const string Root = \"\"abcdef\"\";\";",
+    "pinned": false
+  },
+  {
+    "id": "inactive-branch",
+    "source": "#if false\nconst string Root = \"abcdef\";\n#endif\n",
+    "pinned": false
+  },
+  {
+    "id": "nested-conditional",
+    "source": "#if ROOTS\n#if true\nconst string Root = \"abcdef\";\n#endif\n#endif\n",
+    "pinned": false
+  },
+  {
+    "id": "else-branch",
+    "source": "#if false\n#else\nconst string Root = \"abcdef\";\n#endif\n",
+    "pinned": false
+  },
+  {
+    "id": "escaped-root",
+    "source": "var text = \"escaped \\\"const string Root = \\\"abcdef\\\";\";",
+    "pinned": false
+  },
+  {
+    "id": "escaped-quote-before-raw",
+    "source": "var s = \"\\\"\";\nvar text = \"\"\"\nconst string Root = \"abcdef\";\n\"\"\";",
+    "pinned": false
+  },
+  {
+    "id": "verbatim-quote-before-raw",
+    "source": "var s = @\"\"\"\";\nvar text = \"\"\"\nconst string Root = \"abcdef\";\n\"\"\";",
+    "pinned": false
+  },
+  {
+    "id": "active-after-verbatim-and-raw",
+    "source": "var s = @\"\"\"\";\nvar text = \"\"\"\nconst string Root = \"abcdef\";\n\"\"\";\nconst string Root = \"abcdef\";",
+    "pinned": true
+  },
+  {
+    "id": "disabled-apostrophe",
+    "source": "#if false\nit's\n#if X\n'\n#endif\nconst string Root = \"abcdef\";\n#endif\n",
+    "pinned": false
+  },
+  {
+    "id": "disabled-quote",
+    "source": "#if false\n\"\n#if X\n\"\n#endif\nconst string Root = \"abcdef\";\n#endif\n",
+    "pinned": false
+  },
+  {
+    "id": "disabled-comment",
+    "source": "#if false\n/*\n#if X\n*/\n#endif\nconst string Root = \"abcdef\";\n#endif\n",
+    "pinned": false
+  },
+  {
+    "id": "bom-directive",
+    "source": "\ufeff#if false\nconst string Root = \"abcdef\";\n#endif\n",
+    "pinned": false
+  },
+  {
+    "id": "control-directive",
+    "source": "\u001a#if false\nconst string Root = \"abcdef\";\n#endif\n",
+    "pinned": false
+  },
+  {
+    "id": "active-after-disabled-text",
+    "source": "#if false\nit's\n#if X\n/*\n#endif\n#endif\nconst string Root = \"abcdef\";",
+    "pinned": true
+  },
+  {
+    "id": "active-root",
+    "source": "const string Root = \"abcdef\";",
+    "pinned": true
+  },
+  {
+    "id": "active-after-interpolation",
+    "source": "var text = $\"{\"\"\"decoy\"\"\"}\";\n#if false\nignored\n#endif\nconst string Root = \"abcdef\";",
+    "pinned": true
+  }
+]

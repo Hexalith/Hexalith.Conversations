@@ -32,6 +32,8 @@ internal static class CSharpSourceDeclarations
                 index = end;
                 continue;
             }
+            // Disabled text is opaque: only directive lines can affect conditional depth.
+            if (conditionalDepth > 0) { index = LineEnd(source, index); continue; }
             if (current == '/' && index + 1 < source.Length && source[index + 1] == '/')
             {
                 index = LineEnd(source, index + 2);
@@ -76,7 +78,7 @@ internal static class CSharpSourceDeclarations
     }
 
     private static bool IsWhitespace(char character)
-        => character is '\t' or '\v' or '\f' || char.GetUnicodeCategory(character) == UnicodeCategory.SpaceSeparator;
+        => character is '\t' or '\v' or '\f' or '\ufeff' or '\u001a' || char.GetUnicodeCategory(character) == UnicodeCategory.SpaceSeparator;
 
     private static int LineEnd(string source, int index)
     {
@@ -90,7 +92,7 @@ internal static class CSharpSourceDeclarations
         int dollars = source.AsSpan(start, quote - start).Count('$');
         int quotes = 0;
         while (quote + quotes < source.Length && source[quote + quotes] == '"') quotes++;
-        bool raw = quotes >= 3;
+        bool raw = !verbatim && quotes >= 3;
         literal = start == quote && !raw;
         int index = quote + (raw ? quotes : 1);
         while (index < source.Length)

@@ -21,22 +21,25 @@ def validate_result(document):
             raise jsonschema.ValidationError(f"{name} must be ordinally sorted")
 
 
-def valid_result():
-    return {
+def valid_result(state="PASS"):
+    document = {
         "schemaVersion": "hexalith.conversations.evidence-boundary-result.v1",
-        "result": "PASS", "candidate": "a" * 40,
+        "result": state, "candidate": "a" * 40,
         "manifest": [{"path": "proof.json", "sha256": "b" * 64, "role": "proof"}],
         "changedPaths": ["proof.json"], "gitlinks": [],
         "assertionLedger": [{"id": "hash", "subject": "proof.json", "state": "PASS"}],
         "warnings": [], "blockers": [],
     }
+    if state == "FAIL":
+        document["blockers"] = ["EVIDENCE_HASH_MISMATCH"]
+    elif state == "BLOCKED":
+        document["assertionLedger"][0]["state"] = "SKIPPED"
+    return document
 
 
 def test_evidence_boundary_result_schema_accepts_all_result_states():
     for state in ("PASS", "FAIL", "BLOCKED", "not-applicable"):
-        document = valid_result()
-        document["result"] = state
-        validate_result(document)
+        validate_result(valid_result(state))
 
 
 @pytest.mark.parametrize("fault", ["missing", "extra", "unknown-result", "unknown-ledger", "duplicate-code", "unordered-code"])
@@ -77,12 +80,16 @@ def test_evidence_boundary_result_pass_requires_evaluated_passing_assertions(fau
         validate_result(document)
     for state in ("FAIL", "BLOCKED", "not-applicable"):
         document["result"] = state
+        if state == "FAIL":
+            document["blockers"] = ["EVIDENCE_HASH_MISMATCH"]
+        elif state == "BLOCKED" and not any(row["state"] == "SKIPPED" for row in document["assertionLedger"]):
+            document["assertionLedger"].append({"id": "history", "subject": "HEAD", "state": "SKIPPED"})
         validate_result(document)
 
 
 @pytest.mark.parametrize("field", ["candidate", "hash", "code", "path", "role", "changed-path", "gitlink-path"])
 def test_evidence_boundary_result_schema_rejects_trailing_newline(field):
-    document = valid_result()
+    document = valid_result("FAIL" if field == "gitlink-path" else "PASS")
     if field == "candidate":
         document["candidate"] += "\n"
     elif field == "code":
@@ -95,3 +102,37 @@ def test_evidence_boundary_result_schema_rejects_trailing_newline(field):
         document["manifest"][0]["sha256" if field == "hash" else field] += "\n"
     with pytest.raises(jsonschema.ValidationError):
         validate_result(document)
+
+
+@pytest.mark.parametrize("blockers", [[], ["EVIDENCE_HASH_MISMATCH"]])
+def test_evidence_boundary_result_fail_requires_a_blocker(blockers):
+    document = valid_result("FAIL")
+    document["blockers"] = blockers
+    if blockers:
+        validate_result(document)
+    else:
+        with pytest.raises(jsonschema.ValidationError):
+            validate_result(document)
+
+
+@pytest.mark.parametrize("states", [[], ["PASS"], ["FAIL"], ["BLOCKED"], ["SKIPPED"], ["PASS", "SKIPPED"]])
+def test_evidence_boundary_result_blocked_requires_a_skipped_assertion(states):
+    document = valid_result("BLOCKED")
+    document["assertionLedger"] = [{"id": str(index), "subject": "history", "state": state}
+                                   for index, state in enumerate(states)]
+    if "SKIPPED" in states:
+        validate_result(document)
+    else:
+        with pytest.raises(jsonschema.ValidationError):
+            validate_result(document)
+
+
+@pytest.mark.parametrize("source,destination", [("000000", "160000"), ("160000", "000000"), ("100644", "100755")])
+def test_evidence_boundary_result_gitlinks_require_a_raw_gitlink_mode(source, destination):
+    document = valid_result("FAIL")
+    document["gitlinks"] = [{"path": "deps/module", "sourceMode": source, "destinationMode": destination}]
+    if "160000" in (source, destination):
+        validate_result(document)
+    else:
+        with pytest.raises(jsonschema.ValidationError):
+            validate_result(document)

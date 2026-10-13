@@ -4,6 +4,7 @@
     <IsPublishable>false</IsPublishable>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Fixtures/story102-root-declarations.json" />
     <ProjectReference Include="..\Hexalith.Conversations.TestSupport\Hexalith.Conversations.TestSupport.csproj" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Shouldly" />

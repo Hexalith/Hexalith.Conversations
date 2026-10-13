@@ -220,6 +220,44 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "FAIL"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "blockers": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "BLOCKED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "assertionLedger": {
+            "contains": {
+              "properties": {
+                "state": {
+                  "const": "SKIPPED"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

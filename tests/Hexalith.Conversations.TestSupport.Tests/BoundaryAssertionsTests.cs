@@ -43,7 +43,9 @@ public sealed class BoundaryAssertionsTests
         File.WriteAllText(Path.Combine(fixture.Root, "seed.txt"), "seed");
         string before = fixture.Commit();
         File.WriteAllText(Path.Combine(fixture.Root, "decoy-160000.txt"), "content 160000");
-        fixture.Git("add", "decoy-160000.txt");
+        // This fixed blob has a real Git object ID containing 160000, independently of its mode.
+        File.WriteAllText(Path.Combine(fixture.Root, "object-id-decoy.txt"), "object id decoy 1265113\n");
+        fixture.Git("add", "decoy-160000.txt", "object-id-decoy.txt");
         fixture.Git("update-index", "--add", "--cacheinfo", $"160000,{before},deps/module");
         fixture.Git("commit", "--quiet", "-m", "fixture");
         string after = fixture.Git("rev-parse", "HEAD");
@@ -53,10 +55,11 @@ public sealed class BoundaryAssertionsTests
         BoundaryAssertions.NoGitlinks(ledger, "gitlinks", diff).ShouldBeFalse();
         ledger.Evaluate().Blockers.Single().ShouldBe(new BoundaryBlocker("EVIDENCE_BOUNDARY_GITLINK", "deps/module", "Raw modes 000000 -> 160000."));
 
-        // Object-ID decoys are valid hexadecimal field values; only a mode field establishes a gitlink.
-        GitDiffEntry decoy = new("100644", "100755", "160000" + new string('a', 34), new string('b', 34) + "160000", "M", "decoy-160000.txt", null);
+        GitDiffEntry decoy = diff.Value!.Single(row => row.Path == "object-id-decoy.txt");
+        decoy.DestinationObject.ShouldBe("f836126ebb131e3a160000a4f33e98866ec3ba4f");
         AssertionLedger clean = new();
-        BoundaryAssertions.NoGitlinks(clean, "decoys", GitFact<IReadOnlyList<GitDiffEntry>>.Ok([decoy])).ShouldBeTrue();
+        BoundaryAssertions.NoGitlinks(clean, "decoys", GitFact<IReadOnlyList<GitDiffEntry>>.Ok(
+            diff.Value!.Where(row => row.Path != "deps/module").ToArray())).ShouldBeTrue();
         clean.Evaluate().Passed.ShouldBeTrue();
         AssertionLedger deleted = new();
         BoundaryAssertions.NoGitlinks(deleted, "deleted", GitFact<IReadOnlyList<GitDiffEntry>>.Ok([
@@ -66,30 +69,19 @@ public sealed class BoundaryAssertionsTests
     [Fact]
     public void InertRootDeclarationsShouldBeRejected()
     {
-        const string declaration = "const string Root = \"abcdef\";";
+        using Stream fixture = typeof(BoundaryAssertionsTests).Assembly.GetManifestResourceStream(
+            "Hexalith.Conversations.TestSupport.Tests.Fixtures.story102-root-declarations.json")!;
+        using JsonDocument cases = JsonDocument.Parse(fixture);
         Dictionary<string, string> roots = new() { ["Root"] = "abcdef" };
-        foreach (string decoy in new[]
+        foreach (JsonElement row in cases.RootElement.EnumerateArray())
         {
-            "// " + declaration,
-            "/* " + declaration + " */",
-            "var text = \"\"\"\n" + declaration + "\n\"\"\";",
-            "var text = $\"\"\"\n" + declaration + "\n\"\"\";",
-            "var text = $\"{\"\"\"\n" + declaration + "\n\"\"\"}\";",
-            "var text = @\"" + declaration.Replace("\"", "\"\"") + "\";",
-            "#if false\n" + declaration + "\n#endif\n",
-            "#if ROOTS\n#if true\n" + declaration + "\n#endif\n#endif\n",
-            "#if false\n#else\n" + declaration + "\n#endif\n",
-            "var text = \"escaped \\\"const string Root = \\\"abcdef\\\";\";",
-        })
-        {
+            string source = row.GetProperty("source").GetString()!;
+            bool expected = row.GetProperty("pinned").GetBoolean();
             AssertionLedger ledger = new();
-            BoundaryAssertions.PinnedRoots(ledger, "roots", decoy, roots).ShouldBeFalse(decoy);
-            ledger.Evaluate().Blockers.Single().Code.ShouldBe("ROOT_OF_TRUST_NOT_PINNED");
+            BoundaryAssertions.PinnedRoots(ledger, "roots", source, roots).ShouldBe(expected, row.GetProperty("id").GetString());
+            ledger.Evaluate().Passed.ShouldBe(expected);
+            if (!expected) ledger.Evaluate().Blockers.Single().Code.ShouldBe("ROOT_OF_TRUST_NOT_PINNED");
         }
-        AssertionLedger clean = new();
-        BoundaryAssertions.PinnedRoots(clean, "roots", "var text = $\"{\"\"\"decoy\"\"\"}\";\n#if false\nignored\n#endif\n" + declaration, roots)
-            .ShouldBeTrue();
-        clean.Evaluate().Passed.ShouldBeTrue();
     }
 
     [Fact]
@@ -98,7 +90,7 @@ public sealed class BoundaryAssertionsTests
         Dictionary<string, string> roots = new() { ["Root"] = "abcdef" };
         foreach (string newline in new[] { "\r\n", "\r", "\n", "\u0085", "\u2028", "\u2029" })
         {
-            foreach (string whitespace in new[] { " ", "\t", "\v", "\f", "\u00a0", "\u2003", "\u3000" })
+            foreach (string whitespace in new[] { " ", "\t", "\v", "\f", "\u00a0", "\u2003", "\u3000", "\ufeff", "\u001a" })
             {
                 foreach (string directive in new[] { "if(false)", "if!true", "if" + whitespace + "false" })
                 {
@@ -165,7 +157,8 @@ public sealed class BoundaryAssertionsTests
         AssertionLedger removed = new();
         BoundaryAssertions.PinnedRoots(removed, "removed-root", "// const string Story101RecordSha256 = \"" + Story101RecordSha256 + "\";", constants).ShouldBeFalse();
         removed.Evaluate().Blockers.ShouldContain(row => row.Code == "ROOT_OF_TRUST_NOT_PINNED");
-        foreach (string path in new[] { "docs/release-evidence/proof.json", "DOCS\\Release-Evidence\\proof.json", "docs/other/../release-evidence/proof.json" })
+        foreach (string path in new[] { "docs/release-evidence/proof.json", "DOCS\\Release-Evidence\\proof.json", "docs/other/../release-evidence/proof.json",
+            "docs", "DOCS", "docs/other/..", ".", "docs/**", "docs/release-*/proof.json", "other/?", "other/[abc]" })
         {
             AssertionLedger exempted = new();
             BoundaryAssertions.SignedEvidenceIsNotAllowlisted(exempted, "exempted", fixture.Root, [path]).ShouldBeFalse();

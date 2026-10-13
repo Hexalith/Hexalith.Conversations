@@ -5698,7 +5698,7 @@ V2_CSHARP_LINE_TERMINATORS = "\r\n\u0085\u2028\u2029"
 
 
 def v2_csharp_whitespace(character: str) -> bool:
-    return character in "\t\v\f" or unicodedata.category(character) == "Zs"
+    return character in "\t\v\f\ufeff\u001a" or unicodedata.category(character) == "Zs"
 
 
 def v2_csharp_line_end(source: str, index: int) -> int:
@@ -5732,6 +5732,10 @@ def v2_csharp_unconditional_tokens(source: str) -> list[str]:
             elif directive == "endif" and depth:
                 depth -= 1
             index = end
+            continue
+        # Disabled text is opaque; quotes and comment markers cannot hide nested directives.
+        if depth:
+            index = v2_csharp_line_end(source, index)
             continue
         if source.startswith("//", index):
             index = v2_csharp_line_end(source, index + 2)
@@ -5775,7 +5779,8 @@ def v2_csharp_read_string(source: str, start: int, quote: int) -> tuple[int, boo
     quotes = 0
     while quote + quotes < len(source) and source[quote + quotes] == '"':
         quotes += 1
-    raw, literal = quotes >= 3, start == quote and quotes < 3
+    raw = not verbatim and quotes >= 3
+    literal = start == quote and not raw
     index = quote + (quotes if raw else 1)
     while index < len(source):
         if dollars and source[index] == "{":
@@ -5861,7 +5866,7 @@ def v2_10_2_root_errors(roots: Any, constants: dict[str, str] | None, source_byt
                 or roots.get("sourcePath") != V2_10_2_ROOT_SOURCE
                 or constants is None or roots.get("constants") != constants or source_bytes is None):
             raise ValueError("root output differs from the independently verified predecessor")
-        tokens = v2_csharp_unconditional_tokens(source_bytes.decode("utf-8"))
+        tokens = v2_csharp_unconditional_tokens(source_bytes.decode("utf-8-sig"))
         for name, value in constants.items():
             if not v2_csharp_has_sequence(tokens, ["const", "string", name, "=", f'"{value}"', ";"]):
                 raise ValueError(f"{name} is not an unconditional literal declaration in the committed consuming source")

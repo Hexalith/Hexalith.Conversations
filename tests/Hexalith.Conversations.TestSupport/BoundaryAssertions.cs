@@ -27,7 +27,7 @@ public static class BoundaryAssertions
         ArgumentNullException.ThrowIfNull(fact);
         if (!fact.IsSuccess)
         {
-            ledger.Skip(identity, identity, fact.Code ?? "UNAVAILABLE_HISTORY_PASSED", fact.Message ?? fact.Status.ToString());
+            ledger.Skip(identity, identity, fact.Code ?? "HISTORY_UNAVAILABLE", fact.Message ?? fact.Status.ToString());
             return false;
         }
         ledger.Record(identity, true);
@@ -102,12 +102,19 @@ public static class BoundaryAssertions
         bool passed = true;
         foreach (string entry in allowlist)
         {
+            if (entry.IndexOfAny(['*', '?', '[']) >= 0)
+            {
+                ledger.Block("SIGNED_EVIDENCE_ALLOWLISTED", entry, "Glob entries cannot exempt signed release evidence.");
+                passed = false;
+                continue;
+            }
             string path = entry.Replace('\\', '/');
             try
             {
                 string normalized = Path.GetRelativePath(Path.GetFullPath(root), Path.GetFullPath(Path.Combine(root, path))).Replace('\\', '/');
                 if (normalized.StartsWith("docs/release-evidence/", StringComparison.OrdinalIgnoreCase)
-                    || normalized.Equals("docs/release-evidence", StringComparison.OrdinalIgnoreCase))
+                    || normalized.Equals("docs/release-evidence", StringComparison.OrdinalIgnoreCase)
+                    || normalized.Equals("docs", StringComparison.OrdinalIgnoreCase) || normalized == ".")
                 {
                     ledger.Block("SIGNED_EVIDENCE_ALLOWLISTED", entry, "Signed release evidence cannot be exempted.");
                     passed = false;
