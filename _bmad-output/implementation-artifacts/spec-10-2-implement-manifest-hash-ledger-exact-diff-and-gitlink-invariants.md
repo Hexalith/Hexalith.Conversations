@@ -2,7 +2,7 @@
 title: 'Story 10.2: Manifest, hash, ledger, exact-diff, and gitlink invariants'
 type: 'feature'
 created: '2026-10-12'
-status: 'done'
+status: 'in-progress'
 baseline_commit: 'bba1119988de4736e1dc526abd3c025a785eb3a7'
 route: 'dispatch'
 review_loop_iteration: 1
@@ -158,6 +158,44 @@ context:
 | F-E2 | high | patch | The same valid non-LF directive boundary defect as F-B1 is reproduced in both implementations. Group with F-B1. |
 | F-E3 | high | patch | Omitting conditional tokens concatenates a literal prefix and semicolon across a conditional initializer suffix; the compiled value differs. Insert an opaque conditional-region barrier so declaration sequences cannot join across it. |
 | F-V1 | medium | patch | An in-memory removal of the predecessor authority comparison leaves all Story 10.2 tests green and accepts an incompatible re-finalized pair. Add a mismatched authority case to the repository-consumption regression. |
+
+### Review Findings
+
+Code review of `bba1119..674ce1b` on 2026-10-13. It ran four layers (Blind Hunter, Edge Case Hunter, Verification Gap, Acceptance Auditor), and none failed. This subsection sits inside `## Review Triage Log`, so committing it keeps the published pair's candidate retention.
+
+- [ ] [Review][Patch] A non-PASS result can name no blocker code. `Record(id, false)` and the 10.1 `Equal`/`True` helpers give `FAIL` with `Blockers = []`, and the result schema accepts that. Decided 2026-10-13: tighten the schema now. `FAIL` requires at least one blocker and `BLOCKED` requires a `SKIPPED` ledger row; no new code is added, so Story 10.3's verifier must give every failure a contracted code. Add focused pytest cases. [_bmad/schemas/evidence-boundary-result-v1.schema.json:191]
+- [ ] [Review][Patch] The signed-evidence allowlist check rejects only entries under `docs/release-evidence`, not entries that cover it. `docs`, `docs/**` and `docs/release-*/proof.json` all pass. Decided 2026-10-13: harden now. Return `SIGNED_EVIDENCE_ALLOWLISTED` for any entry that is an ancestor of `docs/release-evidence` or contains glob characters (`*`, `?`, `[`), in the C# helper and its tests. [tests/Hexalith.Conversations.TestSupport/BoundaryAssertions.cs:103]
+- [ ] [Review][Patch] The root lexers still read quotes, apostrophes and `/*` inside inactive `#if` regions, so a nested `#if` can be hidden and the depth goes out of sync. Input `#if false` / `it's` / `#if X` / `'` / `#endif` / root / `#endif` is accepted (Python probe confirmed; the C# lexer has the same structure). In disabled text, recognize directive lines only, as Roslyn does. [tests/Hexalith.Conversations.TestSupport/CSharpSourceDeclarations.cs:16; _bmad/scripts/generate_story_record.py:5710]
+- [ ] [Review][Patch] The root lexers treat a verbatim `@""""` (an escaped quote) as the start of a raw string. The text inside a later raw string is then read as code, and a real root after it is swallowed; the probe confirmed both effects. Set `raw` to false when the literal is verbatim, in both implementations. [tests/Hexalith.Conversations.TestSupport/CSharpSourceDeclarations.cs:93; _bmad/scripts/generate_story_record.py:5772]
+- [ ] [Review][Patch] The root lexers do not count U+FEFF and U+001A as whitespace before `#`, though Roslyn does. A root inside `﻿#if false` or `\u001A#if false` is accepted. Python also decodes with `utf-8`, not `utf-8-sig`, so a file-leading BOM hides a line-1 directive. Probes confirmed this in both implementations. [tests/Hexalith.Conversations.TestSupport/CSharpSourceDeclarations.cs:78; _bmad/scripts/generate_story_record.py:5700,5864]
+- [ ] [Review][Patch] The Python and C# lexer tests use different decoy lists, and escape handling is unverified. Python lacks the verbatim, nested-`#if`, `#else` and escaped decoys. The C# escaped decoy still rejects a lexer with its escape branch removed, and deleting the Python escape branch leaves all 236 tests green. Share one decoy list and add `var s = "\"";` followed by a raw string that contains the root. [tests/Hexalith.Conversations.TestSupport.Tests/BoundaryAssertionsTests.cs:67; _bmad/scripts/tests/test_generate_story_record.py:10983]
+- [ ] [Review][Patch] Several generator trust rules have no negative test, so deleting any one leaves all 236 tests green. They are: the predecessor authority comparison in `v2_10_2_facts`; the `inventory`, `predecessors` and mutation-ledger restoration/order rules in `v2_10_2_pair_errors` (changed consistently in both ledgers); and the committed-source `SupersessionAllowlist = []` sequence in `v2_10_2_root_errors`. Add fault cases for each. [_bmad/scripts/tests/test_generate_story_record.py:10789,10857,10928]
+- [ ] [Review][Patch] No test pins the committed Story 10.2 pair, and the synthetic mutation rows don't match the real record. Each synthetic row has one observed blocker, but the published `AC-10.2-06-HISTORY` row has two. Tightening the rule to `observed != [expected]` keeps every test green but breaks verification of the published pair. Add `test_story102_committed_pair_still_verifies`, mirroring the 10.1 test. [_bmad/scripts/tests/test_generate_story_record.py:10763]
+- [ ] [Review][Patch] `HistoryAvailable` reports a skip with no code as a false pass. `fact.Code ?? "UNAVAILABLE_HISTORY_PASSED"` labels a plain skip with the false-pass code, and the public `GitFact` constructor allows a null `Code`. Fall back to the existing GitFacts code `HISTORY_UNAVAILABLE` instead. [tests/Hexalith.Conversations.TestSupport/BoundaryAssertions.cs:30]
+- [ ] [Review][Patch] On Windows, a trailing dot or space on a path segment bypasses `EVIDENCE_OUTPUT_FORBIDDEN`. For `bin./proof.json`, `GetFullPath` reads `bin\proof.json`, but the forbidden-segment test looks at the unnormalized segment `bin.`. Check the segments of `Path.GetRelativePath(root, contained.Value)` instead. The Windows TestSupport CI job runs this helper. [tests/Hexalith.Conversations.TestSupport/EvidenceManifest.cs:67]
+- [ ] [Review][Patch] The AC-10.2-05 object-ID decoy is a hand-built `GitDiffEntry` and never goes through `ReadDiffAsync`. Commit a decoy blob whose real object ID contains `160000` (content found offline), so the raw-diff decoy row in the I/O matrix is proven end to end. [tests/Hexalith.Conversations.TestSupport.Tests/BoundaryAssertionsTests.cs:57]
+- [ ] [Review][Patch] The gitlink rules in the result schema are never really tested. The `gitlink-path` trailing-newline case runs under `PASS`, which already requires empty `gitlinks`, so it passes without the path pattern. No case checks the `anyOf` that requires a `160000` mode. Run both cases under `FAIL`. [_bmad/scripts/tests/test_evidence_boundary_result_schema.py:83]
+- [ ] [Review][Patch] The story102 generator fixture gives both `.csproj` files the same bytes and both DLLs the same bytes, so a swapped or misattributed project/assembly hash stays green. Use distinct bytes for each file. [_bmad/scripts/tests/test_generate_story_record.py:10719]
+
+**Rejected:**
+
+- `false` — The mutation ledger lacks a mutated hash (Blind Hunter). `EvidenceBoundaryFaultTests` asserts that the mutated hash differs, and the record requires a passing receipt, so a no-op mutation cannot publish.
+- `false` — Ledger `id`/`subject` accept trailing newlines (Blind Hunter). The contract leaves those fields free-form. Iteration 1 hardened only candidate/hash/code/path/role.
+- `false` — Spec `done` vs sprint `review` (Blind Hunter, Verification Gap). `review` is the expected state before code review, and this workflow syncs it.
+- `false` — story102 tests placed after the `__main__` guard (Blind Hunter). `pytest.main([__file__])` re-imports the module and collects every test. The guard was at the end at baseline.
+- `false` — A missing contract is hashed as empty bytes (Blind Hunter). `v2_generate` validates the committed contract blob at the same candidate before `v2_10_2_facts` runs.
+- `false` — A successful `GitFact` with a null value throws (Edge Case Hunter). It fails loudly, and `GitFacts` never returns `Ok(null)`.
+- `false` — Copy-status sources must be declared (Edge Case Hunter). `GitFacts` forces `diff.renames=true` with no `--find-copies`, so status `C` cannot occur.
+- `rejected` — The result class depends on unrelated rows (Blind Hunter). A skip-only ledger returning `ASSERTION_LEDGER_EMPTY` is what the I/O matrix specifies; changing it means renegotiating the spec.
+- `rejected` — Spec-only defects: the triage table broken by a blank line, stale test counts, missing iteration-2 correction tasks and `review_loop_iteration`, the `/tmp` KEEP path, candidate-rule wording, and the claim about code ordering (Blind Hunter, Acceptance Auditor, Verification Gap). The fix would edit the spec under review.
+- `low` — The same file declared twice through a `/` vs `\` spelling (Blind Hunter, Edge Case Hunter). Nobody writes this in practice, it gives no false pass for a bad file, and dedupe would change the 10.1 `Digests` keys.
+- `low` — The Markdown shows Python `True` and fixed allowlist text (Blind Hunter). This is cosmetic: the pair check requires an empty allowlist, and a renderer change would force the published pair to be republished.
+- `low` — mtime-based receipt freshness (Blind Hunter). Same-tick rebuilds need coarse timestamps, and the stale case fails closed.
+- `low` — Windows 8.3 short names under `docs/release-evidence` (Edge Case Hunter). This is unlikely, and the fix would mean expanding names on the filesystem.
+- `low` — `Verify` with an undefined `SignablePayloadOrder` leaves a partly filled ledger (Edge Case Hunter). This is caller misuse, and it already throws.
+- `low` — `Block` accepts a null or blank code (Edge Case Hunter). Callers pass literal codes, and the ledger still evaluates to `FAIL`.
+- `low` — The schema allows duplicate manifest paths (Edge Case Hunter). The `EvidenceManifest.Add` producer rejects duplicates, and a fix needs a procedural consumer rule.
+- `rejected` — The `96ddb61` commit message names candidate `8da53e2` (Edge Case Hunter). That is history; the published record and spec consistently bind `ea1aecd`.
 
 ## Spec Change Log
 
