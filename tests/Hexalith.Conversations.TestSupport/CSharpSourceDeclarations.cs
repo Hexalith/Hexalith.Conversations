@@ -133,8 +133,31 @@ internal static class CSharpSourceDeclarations
     private static int SkipInterpolation(string source, int index, int closingBraces)
     {
         int depth = 0;
+        int expressionGroups = 0;
+        bool format = false;
         while (index < source.Length)
         {
+            // After a top-level format colon, quotes and comment markers are ordinary text.
+            if (format)
+            {
+                if (source[index] == '}')
+                {
+                    int count = 0;
+                    while (index + count < source.Length && source[index + count] == '}') count++;
+                    if (count >= closingBraces) return index + closingBraces;
+                }
+                index++;
+                continue;
+            }
+            if (source[index] is '(' or '[') { expressionGroups++; index++; continue; }
+            if (source[index] is ')' or ']') { if (expressionGroups > 0) expressionGroups--; index++; continue; }
+            if (source[index] == ':' && depth == 0 && expressionGroups == 0)
+            {
+                if (index + 1 < source.Length && source[index + 1] == ':') { index += 2; continue; }
+                format = true;
+                index++;
+                continue;
+            }
             if (source[index] == '{') { depth++; index++; continue; }
             if (source[index] == '}')
             {

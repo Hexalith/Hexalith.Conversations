@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -110,6 +111,29 @@ public sealed class EvidenceManifestTests
         string signed = attestation.RootElement.GetProperty("attestation").GetProperty("signablePayloadHash").GetString()!;
         legacy.ComputeSignablePayloadHash(SignablePayloadOrder.Declared).ShouldBe(signed);
         legacy.ComputeSignablePayloadHash().ShouldNotBe(signed);
+    }
+
+    [Fact]
+    public void CanonicalPayloadOrderingShouldRemainOrdinalAcrossCultures()
+    {
+        using EvidenceFixture fixture = new();
+        string accent = fixture.Write("é.json", "accent");
+        string z = fixture.Write("z.json", "z");
+        EvidenceManifest manifest = new();
+        manifest.Add("é.json", EvidenceFixture.Hash(accent), "proof");
+        manifest.Add("z.json", EvidenceFixture.Hash(z), "proof");
+        string payload = $"z.json\t{EvidenceFixture.Hash(z)}\tproof\né.json\t{EvidenceFixture.Hash(accent)}\tproof\n";
+        string canonical = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(payload)));
+        CultureInfo previous = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+            StringComparer.CurrentCulture.Compare("é.json", "z.json").ShouldBeLessThan(0);
+            StringComparer.Ordinal.Compare("é.json", "z.json").ShouldBeGreaterThan(0);
+            manifest.ComputeSignablePayloadHash().ShouldBe(canonical);
+            manifest.Verify(fixture.Root, canonical, new()).Passed.ShouldBeTrue();
+        }
+        finally { CultureInfo.CurrentCulture = previous; }
     }
 
     [Fact]

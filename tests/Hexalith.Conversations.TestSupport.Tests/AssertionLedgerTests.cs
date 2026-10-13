@@ -26,6 +26,18 @@ public sealed class AssertionLedgerTests
     }
 
     [Fact]
+    public void DuplicateSkipShouldPreserveTheFirstDiagnostic()
+    {
+        AssertionLedger ledger = new();
+        ledger.Skip("history", "first revision", "HISTORY_UNAVAILABLE", "first diagnostic");
+        Should.Throw<ArgumentException>(() => ledger.Skip("history", "second revision", "REVISION_INVALID", "second diagnostic"));
+        ledger.Results.ShouldBeEmpty();
+        ledger.Rows.Single().ShouldBe(new AssertionLedgerRow("history", "first revision", "SKIPPED"));
+        ledger.Skips.Single().Value.ShouldBe(new BoundaryBlocker("HISTORY_UNAVAILABLE", "first revision", "first diagnostic"));
+        ledger.Evaluate().Blockers.ShouldContain(ledger.Skips["history"]);
+    }
+
+    [Fact]
     public void EveryNonSuccessGitStatusShouldRemainVisibleAndBlockFinalPass()
     {
         foreach (GitFactStatus status in Enum.GetValues<GitFactStatus>().Where(status => status != GitFactStatus.Success))

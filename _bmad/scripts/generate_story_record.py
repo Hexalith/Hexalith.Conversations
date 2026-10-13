@@ -5813,8 +5813,33 @@ def v2_csharp_read_string(source: str, start: int, quote: int) -> tuple[int, boo
 
 
 def v2_csharp_skip_interpolation(source: str, index: int, closing_braces: int) -> int:
-    depth = 0
+    depth, expression_groups, formatting = 0, 0, False
     while index < len(source):
+        # Format text is opaque: apostrophes, quotes, and comment markers cannot start expressions.
+        if formatting:
+            if source[index] == "}":
+                count = 0
+                while index + count < len(source) and source[index + count] == "}":
+                    count += 1
+                if count >= closing_braces:
+                    return index + closing_braces
+            index += 1
+            continue
+        if source[index] in "([":
+            expression_groups += 1
+            index += 1
+            continue
+        if source[index] in ")]":
+            expression_groups = max(0, expression_groups - 1)
+            index += 1
+            continue
+        if source[index] == ":" and not depth and not expression_groups:
+            if source.startswith("::", index):
+                index += 2
+                continue
+            formatting = True
+            index += 1
+            continue
         if source[index] == "{":
             depth += 1
             index += 1

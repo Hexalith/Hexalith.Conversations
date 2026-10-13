@@ -2,7 +2,7 @@
 title: 'Story 10.2: Manifest, hash, ledger, exact-diff, and gitlink invariants'
 type: 'feature'
 created: '2026-10-12'
-status: 'in-progress'
+status: 'in-review'
 baseline_commit: 'bba1119988de4736e1dc526abd3c025a785eb3a7'
 route: 'dispatch'
 review_loop_iteration: 1
@@ -198,6 +198,25 @@ Code review of `bba1119..674ce1b` on 2026-10-13. It ran four layers (Blind Hunte
 - `low` — `Block` accepts a null or blank code (Edge Case Hunter). Callers pass literal codes, and the ledger still evaluates to `FAIL`.
 - `low` — The schema allows duplicate manifest paths (Edge Case Hunter). The `EvidenceManifest.Add` producer rejects duplicates, and a fix needs a procedural consumer rule.
 - `rejected` — The `96ddb61` commit message names candidate `8da53e2` (Edge Case Hunter). That is history; the published record and spec consistently bind `ea1aecd`.
+
+### Workflow review — corrected candidate, 2026-10-13
+
+| ID | Verdict | Route | Evidence |
+| --- | --- | --- | --- |
+| R2-B1 | high | patch | A compiler-verified interpolated format containing an apostrophe exposes a later raw-string root; both scanners return a false pass. Keep format text opaque inside the existing interpolation scanner and add shared positive/negative cases. |
+| R2-B2 | low | reject | Escaped identifiers are valid C#, but the real consuming roots use ordinary non-keyword names and the contract matches their canonical declaration tokens. Supporting alternative identifier spellings adds parsing complexity for an unlikely caller. |
+| R2-B3 | low | reject | Verbatim/raw constant initializers are valid, but current consuming roots use ordinary quoted digest/commit literals. Supporting alternative initializer encodings adds parsing complexity without a current consumer failure. |
+| R2-B4 | false | reject | The retained Equal/True outcomes are BoundaryEvaluation values, not nine-field evidence-result documents. The owner explicitly chose schema-only enforcement and required Story 10.3 to attach contracted codes; Story 10.2 has no serializer that claims those outcomes conform. |
+| R2-B5 | low | reject | The shape schema permits mixed FAIL/SKIPPED rows under BLOCKED, but the actual ledger always gives evaluated failures precedence and there is no result producer in this story. Another schema guard adds complexity without a demonstrated caller masking a failure or producing PASS. |
+| R2-B6 | low | reject | A FIFO can hang verification, but all current manifest consumers verify controlled regular fixture files. This non-shipping helper has no caller that supplies special files; a portable regular-file guard adds platform-specific complexity for an unlikely input. |
+| R2-B7 | low | patch | Reading entire large files allocates an avoidable artifact-sized buffer. Hash a disposed read stream directly; this preserves the measured byte digest and public API. |
+| R2-B8 | low | patch | The a/z ordering fixture cannot distinguish ordinal from culture-sensitive ordering. Add Unicode paths whose comparer orders differ to protect the explicit canonical ordering rule. |
+| R2-B9 | low | patch | Skip rejects repeated identities, but no regression exercises that behavior. Add a duplicate-skip rejection test that preserves the original diagnostic. |
+| R2-B10 | low | patch | Synthetic consumption tests do not exercise the complete Git-backed consumer. Add a real committed-pair consumption check and a real unavailable-history case. |
+| R2-E1 | low | reject | The independently reproduced FIFO result is the same rare special-file input as R2-B6. Current manifest callers supply controlled regular files; adding platform-specific guards is not justified for this non-shipping caller set. |
+| R2-V1 | medium | patch | The pre-verified caller mutation accepts a forbidden production Reference when the new MSBuild boundary call is removed. Add a facts-level regression with actual project XML and the real reused boundary checker. |
+
+**Review patch verification:** The six accepted follow-ups are implemented. Both scanners keep top-level interpolation format text opaque while preserving grouped/nested expression parsing. The shared fixture now contains 31 cases, including the exact compiler-verified false-pass source. File hashing uses a disposed stream; ordinal culture-sensitive ordering and duplicate-skip behavior have explicit regressions. Actual MSBuild-caller tests reject forbidden production references in both projects, and a disposable local Git repository verifies candidate-bound pair consumption and rejects missing candidate history. Focused C# and Python checks passed; deleting the MSBuild caller made its regression fail as intended.
 
 ## Spec Change Log
 

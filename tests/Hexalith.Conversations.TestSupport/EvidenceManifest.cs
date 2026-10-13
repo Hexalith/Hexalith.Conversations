@@ -79,7 +79,8 @@ public sealed class EvidenceManifest
             {
                 try
                 {
-                    string actual = Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(contained.Value!)));
+                    using FileStream file = File.OpenRead(contained.Value!);
+                    string actual = Convert.ToHexStringLower(SHA256.HashData(file));
                     if (actual != row.Sha256)
                     {
                         ledger.Block("EVIDENCE_HASH_MISMATCH", row.Path, $"Expected {row.Sha256}; observed {actual}.");

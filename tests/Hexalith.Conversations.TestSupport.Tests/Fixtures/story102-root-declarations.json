@@ -103,5 +103,55 @@
     "id": "active-after-interpolation",
     "source": "var text = $\"{\"\"\"decoy\"\"\"}\";\n#if false\nignored\n#endif\nconst string Root = \"abcdef\";",
     "pinned": true
+  },
+  {
+    "id": "formatted-apostrophe-raw-decoy",
+    "source": "class C {\npublic string a = $@\"{0:'}\";\npublic string b = \"\"\"\n'\n}\"\n\"\"\";\npublic string c = \"\"\"\nconst string Root = \"abcdef\";\n\"\"\";\n}",
+    "pinned": false
+  },
+  {
+    "id": "after-formatted-verbatim-apostrophe",
+    "source": "var text = $@\"{0:'}\";\nconst string Root = \"abcdef\";",
+    "pinned": true
+  },
+  {
+    "id": "after-formatted-line-comment",
+    "source": "var text = $\"{0://}\";\nconst string Root = \"abcdef\";",
+    "pinned": true
+  },
+  {
+    "id": "after-formatted-block-comment",
+    "source": "var text = $@\"{0:/*}\";\nconst string Root = \"abcdef\";",
+    "pinned": true
+  },
+  {
+    "id": "after-formatted-raw",
+    "source": "var text = $\"\"\"{0:'}\"\"\";\nconst string Root = \"abcdef\";",
+    "pinned": true
+  },
+  {
+    "id": "after-formatted-multiple-dollar-raw",
+    "source": "var text = $$\"\"\"{{0:'}}\"\"\";\nconst string Root = \"abcdef\";",
+    "pinned": true
+  },
+  {
+    "id": "formatted-nested-conditional",
+    "source": "var text = $\"{(true ? \"x\" : \"}\"):D}\";\nconst string Root = \"abcdef\";",
+    "pinned": true
+  },
+  {
+    "id": "formatted-nested-tuple",
+    "source": "var text = $\"{(Key: \"}\", Value: 0):D}\";\nconst string Root = \"abcdef\";",
+    "pinned": true
+  },
+  {
+    "id": "formatted-nested-interpolation",
+    "source": "var text = $\"{$\"{0:'}\"}\";\nconst string Root = \"abcdef\";",
+    "pinned": true
+  },
+  {
+    "id": "formatted-nested-initializer",
+    "source": "var text = $\"{new { Value = \"}:\" }.Value:'}\";\nconst string Root = \"abcdef\";",
+    "pinned": true
   }
 ]

@@ -10701,6 +10701,7 @@ if __name__ == "__main__":
 def story102_fixture(tmp_path: Path, monkeypatch):
     generator = load_generator()
     generator._story102_real_verified_predecessor = generator.v2_verified_predecessor
+    generator._story102_real_project_boundary = generator.v2_10_1_project_boundary
     candidate = "a" * 40
     contract_path = "_bmad-output/planning-artifacts/v9/story-contracts/10.2.json"
     contract = json.loads((WORKSPACE / contract_path).read_bytes())
@@ -11155,3 +11156,95 @@ def test_story102_committed_pair_still_verifies():
     record = generator.v2_parse_json(json_bytes)
     assert not generator.v2_schema_errors(validators["record"], record)
     assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
+
+
+@pytest.mark.parametrize("project", ["Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests"])
+def test_story102_facts_enforce_evaluated_project_boundary(tmp_path: Path, monkeypatch, project):
+    generator, facts, _, _, _, blobs, _, _, _ = story102_fixture(tmp_path, monkeypatch)
+    monkeypatch.setattr(generator, "v2_10_1_project_boundary", generator._story102_real_project_boundary)
+    packages = ("Microsoft.NET.Test.Sdk", "Shouldly", "xunit.v3", "xunit.runner.visualstudio", "coverlet.collector")
+    for name in ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests"):
+        items = ""
+        if name.endswith(".Tests"):
+            items = '<ProjectReference Include="../Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj" />'
+            items += "".join(f'<PackageReference Include="{package}" />' for package in packages)
+        path = f"tests/{name}/{name}.csproj"
+        blobs[path] = ('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework>'
+                       '<IsPackable>false</IsPackable><IsPublishable>false</IsPublishable></PropertyGroup>'
+                       f'<ItemGroup>{items}</ItemGroup></Project>').encode()
+        (tmp_path / path).write_bytes(blobs[path])
+    assert len(facts()["projects"]) == 2
+    path = f"tests/{project}/{project}.csproj"
+    blobs[path] = blobs[path].replace(b"</ItemGroup>", b'<Reference Include="Hexalith.Conversations.Contracts" /></ItemGroup>')
+    (tmp_path / path).write_bytes(blobs[path])
+    with pytest.raises(generator.V2Stop) as error:
+        facts()
+    assert any(row["code"] == "TEST_SUPPORT_BOUNDARY_INVALID" and row["subject"] == path
+               and "assembly reference" in row["message"] for row in error.value.findings)
+
+
+def test_story102_real_git_consumption_verifies_pair_and_rejects_unavailable_candidate(tmp_path: Path):
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    repository = tmp_path / "repository"
+    repository.mkdir()
+    run_git(repository, "init", "--quiet")
+    (repository / "seed.txt").write_text("predecessor candidate\n", encoding="utf-8")
+    run_git(repository, "add", "--all")
+    run_git(repository, "commit", "--quiet", "-m", "test: seed predecessor candidate")
+    predecessor_candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    previous = json.loads((WORKSPACE / "docs/release-evidence/story-10.1-final-record-v2.json").read_bytes())
+    previous["candidate"]["commit"] = predecessor_candidate
+    previous["testSupportExecution"]["sourceRevisionId"] = predecessor_candidate
+    _, previous_json, previous_markdown = generator.v2_finalize(previous)
+    assert generator.v2_verify_pair(previous_json, previous_markdown) == []
+    predecessor_digest = generator.v2_sha256(previous_json)
+    record = json.loads((WORKSPACE / "docs/release-evidence/story-10.2-final-record-v2.json").read_bytes())
+    support = record["evidenceBoundaryExecution"]
+    for row in record["candidate"]["gitlinks"]:
+        row["commit"] = predecessor_candidate
+    constants = {"Story101RecordSha256": predecessor_digest, "Story101CandidateCommit": predecessor_candidate}
+    source = ("\n".join(f'private const string {name} = "{value}";' for name, value in constants.items())
+              + "\nprivate static readonly string[] SupersessionAllowlist = [];\n").encode()
+    files = {"docs/release-evidence/story-10.1-final-record-v2.json": previous_json,
+             "docs/release-evidence/story-10.1-final-record-v2.md": previous_markdown,
+             generator.V2_10_2_ROOT_SOURCE: source,
+             support["contract"]["path"]: (WORKSPACE / support["contract"]["path"]).read_bytes(),
+             ".gitmodules": "".join(f'[submodule "{row["path"]}"]\n\tpath = {row["path"]}\n'
+                                    '\turl = https://example.invalid/fixture.git\n'
+                                    for row in record["candidate"]["gitlinks"]).encode()}
+    for row in support["projects"]:
+        files[row["project"]["path"]] = (WORKSPACE / row["project"]["path"]).read_bytes()
+        row["project"]["sha256"] = generator.v2_sha256(files[row["project"]["path"]])
+    for path, content in files.items():
+        target = repository / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+    run_git(repository, "add", "--all")
+    for row in record["candidate"]["gitlinks"]:
+        run_git(repository, "update-index", "--add", "--cacheinfo", f"160000,{predecessor_candidate},{row['path']}")
+    run_git(repository, "commit", "--quiet", "-m", "test: commit story candidate facts")
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    record["candidate"]["commit"] = support["sourceRevisionId"] = candidate
+    support["contract"]["sha256"] = generator.v2_sha256(files[support["contract"]["path"]])
+    support["predecessorRecords"][0]["sha256"] = predecessor_digest
+    support["rootConstants"]["constants"] = constants
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert not generator.v2_schema_errors(validators["record"], generator.v2_parse_json(json_bytes))
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
+    json_path, markdown_path = record["outputs"]["json"]["path"], record["outputs"]["markdown"]["path"]
+    for path, content in ((json_path, json_bytes), (markdown_path, markdown_bytes)):
+        (repository / path).write_bytes(content)
+    run_git(repository, "add", "--", json_path, markdown_path)
+    run_git(repository, "commit", "--quiet", "-m", "test: publish candidate bound pair")
+    publication = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    assert generator.v2_verified_predecessor(repository, publication, "10.2", json_path, markdown_path,
+                                             validators["record"]) == generator.v2_sha256(json_bytes)
+    shallow = tmp_path / "shallow"
+    run_git(tmp_path, "clone", "--quiet", "--no-local", "--depth", "1", repository.as_uri(), str(shallow))
+    assert generator.try_resolve_commit(shallow, publication) == publication
+    assert generator.try_resolve_commit(shallow, candidate) is None
+    assert generator.v2_10_2_repository_pair_errors(shallow, record, validators["record"]) == [
+        "Story 10.2 candidate history is unavailable"]
+    assert generator.v2_verified_predecessor(shallow, publication, "10.2", json_path, markdown_path,
+                                             validators["record"]) is None
