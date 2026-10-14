@@ -8987,6 +8987,9 @@ def v2_10_3_source_errors(repository: Path, record: dict[str, Any], validator: A
         if [row['path'] for row in facts['sourceFiles']] != binding['expectedChangedPaths']:
             problems.append('Story 10.3 exact source-file inventory differs')
         current = v2_10_3_current_module()
+        provenance = current.historical_provenance_result(repository, binding['provenance'])
+        if provenance['result'] != 'PASS':
+            problems.append('Story 10.3 provenance differs from approved baseline blobs: ' + ', '.join(provenance['blockers']))
         raw = current.bridge(repository,dict(baseline=binding['baseline'],candidate=candidate,
             expectedPaths=binding['expectedChangedPaths']))
         if raw['result'] != 'PASS':
@@ -9052,7 +9055,11 @@ def v2_10_3_generate(options: dict[str, str], *, candidate: str | None = None,
             raise V2Stop([v2_finding('RECORD_NOT_DERIVED', path, 'a scoped source is not committed')], '10.3')
         source_files.append(dict(path=path, sha256=v2_sha256(blob)))
         installed = repository / path
-        if path != V2_10_3_SPEC and (installed.is_symlink() or not installed.is_file() or installed.read_bytes() != blob):
+        valid_spec = path == V2_10_3_SPEC and installed.is_file() and not installed.is_symlink() and v2_working_spec_lifecycle_only_change(
+            repository, candidate, path, installed.read_bytes(), record_region=True, task_checkboxes=True)
+        if (installed.is_symlink() or not installed.is_file()
+                or (path == V2_10_3_SPEC and not valid_spec)
+                or (path != V2_10_3_SPEC and installed.read_bytes() != blob)):
             raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN', path, 'a scoped source differs from the candidate')], '10.3')
     scenarios, receipts, mutations = [], [], []
     candidate_time_ns = int(decode(run_git(repository, 'show', '-s', '--format=%ct', candidate).stdout).strip()) * 1_000_000_000
@@ -9206,6 +9213,10 @@ def v2_10_3_verify_inserted(options: dict[str,str]) -> bytes:
     if spec_path != V2_10_3_SPEC:
         raise V2Stop([v2_finding('ARGUMENT_INVALID','spec','the designated Story 10.3 spec is required')], '10.3')
     spec = (repository/spec_path).read_bytes()
+    if not v2_working_spec_lifecycle_only_change(repository, head, spec_path, spec,
+            record_region=True, task_checkboxes=True):
+        raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT', 'spec',
+            'the working spec changes content outside lifecycle-owned fields, task checkboxes, or the final-record region')], '10.3')
     region = v2_record_region(spec)
     if region is None or spec[region[0]:region[1]] != markdown_bytes:
         raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT','spec','the inserted record differs from its committed Markdown')], '10.3')

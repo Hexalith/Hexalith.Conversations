@@ -333,6 +333,9 @@ def test_current_binding_inventory_digests_and_membership_fail_closed(tmp_path,m
         diff=[dict(path='_bmad/scripts/changed.py',sourcePath=None,sourceMode='100644',destinationMode='100644')],assertionLedger=[],blockers=[])
     def facts(root,request):
         if 'inspectChangedReaders' in request:return copy.deepcopy(initial)
+        if request.get('candidate') == current.BASELINE:
+            return dict(result='PASS',blobs=[dict(path=row['path'],sha256=row['sha256'],code=None)
+                for row in binding['provenance'] if row['path'] in current.HISTORICAL_PROVENANCE],assertionLedger=[],blockers=[])
         return dict(result='PASS',blobs=[],assertionLedger=[dict(id='neutral',subject='neutral',state='PASS')],blockers=[])
     monkeypatch.setattr(current,'bridge',facts)
     monkeypatch.setattr(current,'workflow_checks',lambda *args:None)
@@ -349,13 +352,14 @@ def test_current_reader_only_candidate_is_inspected_before_applicability(tmp_pat
     subprocess.run(['git','clone','--quiet','--local','--no-hardlinks',str(ROOT),str(root)],check=True,capture_output=True)
     subprocess.run(['git','-C',str(root),'config','user.email','fixture@example.invalid'],check=True)
     subprocess.run(['git','-C',str(root),'config','user.name','Fixture'],check=True)
-    before=subprocess.run(['git','-C',str(root),'rev-parse','HEAD'],check=True,capture_output=True,text=True).stdout.strip()
+    subprocess.run(['git','-C',str(root),'checkout','--quiet',current.BASELINE],check=True,capture_output=True)
     path=root/'tests/SomeEvidenceReader.cs'
     source='class Reader { void Read() { File.ReadAllText("docs/release-evidence/signed.json"); } }' if reader else '// EvidenceManifest docs/release-evidence/fake.json\nclass Ordinary { int Value = 1; }'
     path.write_text(source)
     subprocess.run(['git','-C',str(root),'add','tests/SomeEvidenceReader.cs'],check=True)
     subprocess.run(['git','-C',str(root),'commit','--quiet','-m','test: reader-only candidate'],check=True,capture_output=True)
-    observed=current.verify(root,before,'HEAD',authority_bundle='_bmad-output/planning-artifacts/v9-authority-bundle-v1.json')
+    (root/current.BINDING).write_bytes((ROOT/current.BINDING).read_bytes())
+    observed=current.verify(root,current.BASELINE,'HEAD',authority_bundle='_bmad-output/planning-artifacts/v9-authority-bundle-v1.json')
     if reader:
         assert observed['result']=='FAIL'
         assert 'EVIDENCE_READER_NOT_SHARED' in observed['blockers']
@@ -363,3 +367,47 @@ def test_current_reader_only_candidate_is_inspected_before_applicability(tmp_pat
     else:
         assert observed['result']=='not-applicable'
         assert observed['assertionLedger']==[]
+
+
+def test_current_cli_baseline_override_cannot_erase_scope(tmp_path,capsys):
+    root=tmp_path/'checkout'
+    subprocess.run(['git','clone','--quiet','--local','--no-hardlinks',str(ROOT),str(root)],check=True,capture_output=True)
+    observed_exit=current.main(['--repository',str(root),'--baseline','HEAD','--candidate','HEAD',
+        '--authority-bundle','_bmad-output/planning-artifacts/v9-authority-bundle-v1.json'])
+    observed=json.loads(capsys.readouterr().out)
+    assert observed_exit == 1
+    assert observed['result'] == 'FAIL'
+    assert observed['blockers'] == ['AUTHORITY_BINDING_INVALID']
+    assert observed['assertionLedger'] == [dict(id='binding:baseline',subject=current.BINDING,state='FAIL')]
+
+
+def test_current_historical_provenance_cannot_be_rebound_to_mutated_bytes(tmp_path):
+    root=tmp_path/'checkout'
+    subprocess.run(['git','clone','--quiet','--local','--no-hardlinks',str(ROOT),str(root)],check=True,capture_output=True)
+    subprocess.run(['git','-C',str(root),'config','user.email','fixture@example.invalid'],check=True)
+    subprocess.run(['git','-C',str(root),'config','user.name','Fixture'],check=True)
+    path=current.HISTORICAL_PROVENANCE[2]
+    target=root/path
+    original=target.read_bytes()
+    target.write_bytes(original+b' ')
+    binding=json.loads((root/current.BINDING).read_bytes())
+    for row in binding['provenance']:
+        if row['path']==path:row['sha256']=current.digest(target.read_bytes())
+    binding['expectedChangedPaths']=sorted([*binding['expectedChangedPaths'],path])
+    (root/current.BINDING).write_text(json.dumps(binding,indent=2)+'\n')
+    subprocess.run(['git','-C',str(root),'add','--',current.BINDING,path],check=True)
+    subprocess.run(['git','-C',str(root),'commit','--quiet','-m','test: rebind altered historical provenance'],check=True,capture_output=True)
+    observed=current.verify(root,current.BASELINE,'HEAD',authority_bundle=binding['authorityBundle']['path'],verify_workflows=True)
+    assert observed['result']=='FAIL'
+    assert 'EVIDENCE_HASH_MISMATCH' in observed['blockers']
+    assert dict(id='provenance:baseline:'+path,subject=path,state='FAIL') in observed['assertionLedger']
+    assert next(row['sha256'] for row in binding['provenance'] if row['path']==path)==current.digest(target.read_bytes())
+
+
+def test_current_historical_provenance_unavailable_is_blocked(tmp_path,monkeypatch):
+    binding=json.loads((ROOT/current.BINDING).read_bytes())
+    monkeypatch.setattr(current,'bridge',lambda *_args:dict(result='PASS',blobs=[],assertionLedger=[],blockers=[]))
+    observed=current.historical_provenance_result(tmp_path,binding['provenance'])
+    assert observed['result']=='BLOCKED'
+    assert observed['blockers']==['AUTHORITY_UNAVAILABLE']
+    assert any(row['state']=='SKIPPED' for row in observed['assertionLedger'])

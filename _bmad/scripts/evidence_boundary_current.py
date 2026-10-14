@@ -26,6 +26,15 @@ LOGICAL_ROUTES = ('bmad-build/step-04-review.md', *(route.path for route in comp
 WORKFLOWS = tuple(f'{tree}/{route}' for tree in completion.SKILL_TREES for route in LOGICAL_ROUTES)
 GUIDANCE = ('_bmad/custom/bmad-build.toml', '_bmad/custom/bmad-build-auto.toml', '_bmad/custom/bmad-review.toml', 'docs/runbooks/current-change-validation.md')
 RETIRED = tuple(f'{tree}/{name}' for tree in completion.SKILL_TREES for name in ('bmad-dev-story', 'bmad-quick-dev'))
+HISTORICAL_PROVENANCE = (
+    '_bmad-output/planning-artifacts/v9/story-contracts/10.3.json',
+    '_bmad-output/planning-artifacts/v9-authority-bundle-v1.json',
+    '_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json',
+    '_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json',
+    'docs/release-evidence/story-10.2-final-record-v2.json',
+    'docs/release-evidence/story-10.2-final-record-v2.md',
+)
+CURRENT_PROVENANCE = 'tests/Hexalith.Conversations.TestSupport.Runner/Program.cs'
 FAIL_CODES = frozenset({
     'EVIDENCE_HASH_MISMATCH', 'EVIDENCE_PATH_ESCAPE', 'EVIDENCE_OUTPUT_FORBIDDEN',
     'EVIDENCE_FILE_MISSING', 'SIGNABLE_PAYLOAD_MISMATCH', 'CHANGED_PATH_SET_MISMATCH',
@@ -101,6 +110,32 @@ def record(result: dict[str, Any], identity: str, subject: str, passed: bool, co
     result['assertionLedger'].append(dict(id=identity, subject=subject, state='PASS' if passed else 'FAIL'))
     if not passed:
         result['blockers'].append(code)
+
+
+def historical_provenance_result(repository: Path, rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Pin historical bytes to approved baseline blobs independently of candidate declarations."""
+    result = empty_result(BASELINE)
+    expected = set(HISTORICAL_PROVENANCE) | {CURRENT_PROVENANCE}
+    record(result, 'provenance:membership', 'historical provenance',
+        len(rows) == len(expected) and {row['path'] for row in rows} == expected,
+        'AUTHORITY_BINDING_INVALID')
+    if result['blockers']:
+        return finalize(result, applicable=True)
+    facts = bridge(repository, dict(baseline=BASELINE, candidate=BASELINE, blobPaths=list(HISTORICAL_PROVENANCE)))
+    if facts['result'] != 'PASS':
+        result['assertionLedger'].extend(dict(row, id='provenance:' + row['id']) for row in facts['assertionLedger'])
+        result['blockers'].extend(code if code in STABLE_CODES else 'HELPER_FAILURE' for code in facts['blockers'])
+        return finalize(result, applicable=True)
+    declared = {row['path']: row['sha256'] for row in rows}
+    measured = {row['path']: row for row in facts['blobs']}
+    for path in HISTORICAL_PROVENANCE:
+        row = measured.get(path)
+        if row is None or row.get('code') or row.get('sha256') is None:
+            result['assertionLedger'].append(dict(id='provenance:baseline:' + path, subject=path, state='SKIPPED'))
+            result['blockers'].append('AUTHORITY_UNAVAILABLE')
+        else:
+            record(result, 'provenance:baseline:' + path, path, declared[path] == row['sha256'], 'EVIDENCE_HASH_MISMATCH')
+    return finalize(result, applicable=True)
 
 
 def workflow_checks(repository: Path, result: dict[str, Any], binding: dict[str, Any]) -> None:
@@ -204,6 +239,9 @@ def verify(repository: Path, baseline: str, candidate: str, *, authority_bundle:
         result['changedPaths'] = paths
         result['gitlinks'] = [dict(path=entry['path'], sourceMode=entry['sourceMode'], destinationMode=entry['destinationMode'])
             for entry in entries if '160000' in (entry['sourceMode'], entry['destinationMode'])]
+        record(result, 'binding:baseline', binding_path, baseline == binding['baseline'] == BASELINE, 'AUTHORITY_BINDING_INVALID')
+        if 'AUTHORITY_BINDING_INVALID' in result['blockers']:
+            return finalize(result, applicable=True)
         applicable = verify_workflows or bool(initial['evidenceReaders']) or any(path.startswith(('docs/release-evidence/', '_bmad-output/planning-artifacts/',
             'tests/Hexalith.Conversations.TestSupport', '_bmad/scripts/')) or path in WORKFLOWS + GUIDANCE for path in paths)
         if not applicable:
@@ -232,7 +270,6 @@ def verify(repository: Path, baseline: str, candidate: str, *, authority_bundle:
                 expected_paths = sorted(set(expected_paths) | {published['outputs'][kind]['path'] for kind in ('json','markdown')}
                     | {row['path'] for row in published['evidenceWorkflowExecution']['receipts']}
                     | ({'_bmad-output/implementation-artifacts/sprint-status.yaml'} if '_bmad-output/implementation-artifacts/sprint-status.yaml' in paths else set()))
-        record(result, 'binding:baseline', binding_path, baseline == binding['baseline'] == BASELINE, 'AUTHORITY_BINDING_INVALID')
         record(result, 'binding:exemptions', binding_path, binding.get('exemptions') == [], 'SIGNED_EVIDENCE_ALLOWLISTED')
         for name, expected in (('workflowInventory', WORKFLOWS), ('guidanceInventory', GUIDANCE)):
             inventory = binding[name]
@@ -240,6 +277,11 @@ def verify(repository: Path, baseline: str, candidate: str, *, authority_bundle:
             valid = (len(rows) == len(expected) and {row['path'] for row in rows} == set(expected)
                 and len({row['path'] for row in rows}) == len(rows) and inventory['sha256'] == digest(canonical(rows)))
             record(result, 'binding:inventory:'+name, name, valid, 'AUTHORITY_BINDING_INVALID')
+        provenance = historical_provenance_result(repository, binding['provenance'])
+        result['assertionLedger'].extend(provenance['assertionLedger'])
+        result['blockers'].extend(provenance['blockers'])
+        if provenance['result'] == 'BLOCKED':
+            return finalize(result, applicable=True)
         manifest = binding['provenance'] + binding['workflowInventory']['rows'] + binding['guidanceInventory']['rows'] + publication_manifest
         manifest = [dict(path=row['path'], sha256=row['sha256'], role=row.get('role', 'evidence')) for row in manifest]
         payload = ''.join(f'{row["path"]}\t{row["sha256"]}\t{row["role"]}\n' for row in sorted(manifest, key=lambda row: row['path']))

@@ -10364,12 +10364,7 @@ def test_story101_artifact_linked_parent_is_rejected(tmp_path: Path) -> None:
     outside = tmp_path / "outside"
     outside.mkdir()
     (outside / "result.trx").write_bytes(b"result")
-    try:
-        (tmp_path / "linked").symlink_to(outside, target_is_directory=True)
-    except (OSError, NotImplementedError) as error:
-        if os.name == "nt":
-            pytest.skip(f"Windows symlink privilege unavailable: {error}")
-        raise
+    (tmp_path / "linked").symlink_to(outside, target_is_directory=True)
     with pytest.raises(ValueError, match="linked artifact path"):
         generator.v2_10_1_artifact_bytes(tmp_path, "linked/result.trx")
     tests_bin = tmp_path / "tests/Hexalith.Conversations.TestSupport.Tests/bin"
@@ -11394,3 +11389,52 @@ def test_story103_publication_scope_accepts_only_bound_outputs(tmp_path,fault):
         errors=generator.v2_10_3_descendant_errors(repository,final,head)
         assert errors
         if fault == 'gitlink': assert 'EVIDENCE_BOUNDARY_GITLINK' in errors[0]
+
+
+@pytest.mark.parametrize('change', ['none','checkbox','status','frozen','task-label','body'])
+def test_story103_inserted_verification_preserves_working_spec_intent(tmp_path,monkeypatch,change):
+    generator=load_generator()
+    repository=tmp_path/'repository';repository.mkdir()
+    run_git(repository,'init','--quiet')
+    spec=repository/generator.V2_10_3_SPEC;spec.parent.mkdir(parents=True)
+    original=(WORKSPACE/generator.V2_10_3_SPEC).read_bytes()
+    spec.write_bytes(original)
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: source spec')
+    record=story103_record_fixture(generator)
+    _,json_bytes,markdown_bytes=generator.v2_finalize(record)
+    for kind,content in (('json',json_bytes),('markdown',markdown_bytes)):
+        target=repository/record['outputs'][kind]['path'];target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: publish pair')
+    installed=original+b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\n'+markdown_bytes+generator.RECORD_END_MARKER.encode()+b'\n'
+    if change=='checkbox':installed=installed.replace(b'- [ ] ',b'- [x] ',1)
+    if change=='status':installed=installed.replace(b"status: 'in-progress'",b"status: 'in-review'",1)
+    if change=='frozen':installed=installed.replace(b'**Problem:**',b'**Unapproved problem:**',1)
+    if change=='task-label':installed=installed.replace(b'record approved baseline',b'record a different baseline',1)
+    if change=='body':installed=installed.replace(b'## Implementation Notes\n',b'## Implementation Notes\n\nUnapproved implementation scope.\n',1)
+    spec.write_bytes(installed)
+    monkeypatch.setattr(generator,'v2_10_3_source_errors',lambda *_args:[])
+    monkeypatch.setattr(generator,'v2_10_3_descendant_errors',lambda *_args:[])
+    monkeypatch.setattr(generator,'v2_10_3_generate',lambda *_args,**_kwargs:json_bytes)
+    options={'--repository':str(repository),generator.V2_VERIFY_OPTION:generator.V2_10_3_SPEC}
+    if change in ('none','checkbox','status'):
+        assert generator.v2_10_3_verify_inserted(options)==json_bytes
+    else:
+        with pytest.raises(generator.V2Stop) as failure:
+            generator.v2_10_3_verify_inserted(options)
+        assert failure.value.findings[0]['code']=='RECORD_CONTENT_DRIFT'
+
+
+def test_story103_generation_rejects_working_spec_intent_drift(tmp_path,monkeypatch):
+    generator=load_generator()
+    repository=tmp_path/'checkout'
+    run_git(tmp_path,'clone','--quiet','--local','--no-hardlinks',str(WORKSPACE),str(repository))
+    spec=repository/generator.V2_10_3_SPEC
+    spec.write_bytes(spec.read_bytes().replace(b'**Problem:**',b'**Unapproved problem:**',1))
+    current=generator.v2_10_3_current_module()
+    monkeypatch.setattr(current,'verify',lambda *_args,**_kwargs:{'result':'PASS'})
+    with pytest.raises(generator.V2Stop) as failure:
+        generator.v2_10_3_generate({'--repository':str(repository),'--contract':generator.V2_10_3_CONTRACT,
+            '--output-json':'docs/release-evidence/story-10.3-final-record-v2.json',
+            '--output-markdown':'docs/release-evidence/story-10.3-final-record-v2.md'})
+    assert failure.value.findings[0]['code']=='WORKTREE_NOT_CLEAN'
+    assert failure.value.findings[0]['subject']==generator.V2_10_3_SPEC

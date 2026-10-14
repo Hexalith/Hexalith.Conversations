@@ -72,6 +72,7 @@ context:
 - Added the current-policy binding and effective eight-AC contract; mirrored the scoped gate across ten surviving routes, restored Story 7.3 completion and post-done verification guards, and bound current project-owned guidance without changing installed defaults.
 - Added closed candidate-bound Story 10.3 generator facts, seven retained receipt paths, pair/inserted verification, and a checked publication scope that keeps actual HEAD diffs and gitlinks visible after record publication.
 - Updated current CI to install the pinned SDK and exercise the package-free bridge without initializing submodules. Focused regressions cover helper faults, reader spoofing/strength loss, workflow faults/parity, non-vacuity, lifecycle result/exit mismatches, and post-publication source/gitlink drift.
+- Pinned six historical provenance files independently to approved-baseline Git blobs, checked the baseline before non-applicability, and limited working-spec changes during generation/insertion verification to lifecycle-owned fields, task checkboxes, and the exact final-record region.
 
 ## Spec Change Log
 
@@ -83,3 +84,5 @@ context:
 
 - Run all eight effective contract commands, focused bridge/generator/schema/render tests, both Story 7.3 workflow scenarios, and the current Python lane.
 - Entry probes: original AC-10.3-01 exits 2 (required `--baseline`); `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k stable_code_contract -p no:cacheprovider` exits 5 (139 deselected). Read-only Story 7.3 `evaluate` returns `WORKFLOW_INTEGRATION_MISSING` for all eleven surfaces. Story 10.2 predecessor pair verification passes.
+- The first uninterrupted current Python lane measured 1627 passing tests and 55 passing subtests, with one failure in `test_python_tooling_lane_has_no_ambient_skip_constructs`: the pre-existing Windows symlink-privilege `pytest.skip` in `test_story101_artifact_linked_parent_is_rejected`. The symlink test now requires its containment assertion to execute, and the anti-skip guard is retained. A fresh lane on the final source candidate supplies the final pass evidence.
+- Earlier focused runs exposed and corrected `test_v2_schema_contract_hold_metaschema_and_identities` (stale exact regex expectation, replaced with valid/invalid value checks), `test_v2_every_code_is_documented_in_the_runbook` (inherited codes missing from the runbook), and `test_every_gate_route_reruns_inserted_record_verification_after_its_done_commit` (missing post-done verification clauses). The canonical blocker branch required by `test_v2_blocker_prevents_state_transition_on_every_surface` is restored across all eleven completion surfaces.
