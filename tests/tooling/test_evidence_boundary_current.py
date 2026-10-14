@@ -347,13 +347,14 @@ def test_current_binding_inventory_digests_and_membership_fail_closed(tmp_path,m
         diff=[dict(path='_bmad/scripts/changed.py',sourcePath=None,sourceMode='100644',destinationMode='100644')],assertionLedger=[],blockers=[])
     def facts(root,request):
         if 'inspectChangedReaders' in request:return copy.deepcopy(initial)
-        if request.get('candidate') == current.BASELINE:
+        if request.get('candidate') == current.PROVENANCE_BASELINE:
             return dict(result='PASS',blobs=[dict(path=row['path'],sha256=row['sha256'],code=None)
                 for row in binding['provenance'] if row['path'] in current.HISTORICAL_PROVENANCE],assertionLedger=[],blockers=[])
         return dict(result='PASS',blobs=[],assertionLedger=[dict(id='neutral',subject='neutral',state='PASS')],blockers=[])
     monkeypatch.setattr(current,'bridge',facts)
     monkeypatch.setattr(current,'workflow_checks',lambda *args:None)
     monkeypatch.setattr(current,'approved_roots',lambda *args:binding['rootConstants'])
+    monkeypatch.setattr(current,'approved_source_paths',lambda *_args:binding['sourcePaths'])
     import generate_story_record as generator
     monkeypatch.setattr(generator,'v2_verified_predecessor',lambda *args:binding['predecessor']['sha256'])
     observed=current.verify(tmp_path,current.BASELINE,'HEAD',authority_bundle=binding['authorityBundle']['path'])
@@ -387,6 +388,10 @@ def test_current_reader_only_candidate_is_inspected_before_applicability(tmp_pat
 def test_current_cli_baseline_override_cannot_erase_scope(tmp_path,capsys):
     root=tmp_path/'checkout'
     subprocess.run(['git','clone','--quiet','--local','--no-hardlinks',str(ROOT),str(root)],check=True,capture_output=True)
+    (root/'ordinary.txt').write_text('post-entry ordinary change\n')
+    subprocess.run(['git','-C',str(root),'add','ordinary.txt'],check=True)
+    subprocess.run(['git','-C',str(root),'-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','--quiet','-m','test: advance beyond approved entry'],check=True,capture_output=True)
+    (root/current.BINDING).write_bytes((ROOT/current.BINDING).read_bytes())
     observed_exit=current.main(['--repository',str(root),'--baseline','HEAD','--candidate','HEAD',
         '--authority-bundle','_bmad-output/planning-artifacts/v9-authority-bundle-v1.json'])
     observed=json.loads(capsys.readouterr().out)
@@ -405,10 +410,10 @@ def test_current_historical_provenance_cannot_be_rebound_to_mutated_bytes(tmp_pa
     target=root/path
     original=target.read_bytes()
     target.write_bytes(original+b' ')
-    binding=json.loads((root/current.BINDING).read_bytes())
+    binding=json.loads((ROOT/current.BINDING).read_bytes())
     for row in binding['provenance']:
         if row['path']==path:row['sha256']=current.digest(target.read_bytes())
-    binding['expectedChangedPaths']=sorted([*binding['expectedChangedPaths'],path])
+    binding['expectedChangedPaths']=sorted([current.BINDING,path])
     (root/current.BINDING).write_text(json.dumps(binding,indent=2)+'\n')
     subprocess.run(['git','-C',str(root),'add','--',current.BINDING,path],check=True)
     subprocess.run(['git','-C',str(root),'commit','--quiet','-m','test: rebind altered historical provenance'],check=True,capture_output=True)
@@ -556,11 +561,11 @@ def test_current_approved_roots_are_derived_from_verified_baseline():
 def test_current_roots_rebinding_is_rejected_independently(tmp_path,pin):
     root=tmp_path/'checkout'
     subprocess.run(['git','clone','--quiet','--local','--no-hardlinks',str(ROOT),str(root)],check=True,capture_output=True)
-    binding=json.loads((root/current.BINDING).read_bytes())
+    binding=json.loads((ROOT/current.BINDING).read_bytes())
     if pin=='source':
         binding['rootConstants']['sourcePath']='forged-roots.cs'
         (root/'forged-roots.cs').write_bytes((root/current.CURRENT_PROVENANCE).read_bytes())
-        binding['expectedChangedPaths']=sorted([*binding['expectedChangedPaths'],'forged-roots.cs'])
+        binding['expectedChangedPaths']=sorted([current.BINDING,'forged-roots.cs'])
     else:
         key='Story102RecordSha256' if pin=='digest' else 'Story102CandidateCommit'
         old=binding['rootConstants']['constants'][key];new='f'*len(old)
@@ -594,6 +599,7 @@ def test_current_verifier_carries_canonical_candidate_into_dependent_requests(tm
     monkeypatch.setattr(current,'bridge',bridge)
     monkeypatch.setattr(current,'historical_provenance_result',lambda *_args:dict(result='PASS',assertionLedger=[],blockers=[]))
     monkeypatch.setattr(current,'approved_roots',lambda *_args:binding['rootConstants'])
+    monkeypatch.setattr(current,'approved_source_paths',lambda *_args:binding['sourcePaths'])
     monkeypatch.setattr(current,'workflow_checks',lambda *_args:None)
     import generate_story_record as generator
     monkeypatch.setattr(generator,'v2_verified_predecessor',lambda *_args:binding['predecessor']['sha256'])
@@ -663,3 +669,35 @@ def test_current_cli_argument_failure_is_closed_blocked(tmp_path,capsys):
     result=json.loads(capsys.readouterr().out)
     assert exit_code==2 and result['result']=='BLOCKED'
     assert result['blockers']==['ARGUMENT_INVALID']
+
+
+@pytest.mark.parametrize('fault', [None,'omitted-source','unreviewed-source','unreviewed-diff','provenance-baseline'])
+def test_current_source_inventory_is_pinned_to_entry_independently_of_diff(monkeypatch,fault):
+    binding=json.loads((ROOT/current.BINDING).read_bytes())
+    approved=json.loads(subprocess.check_output(['git','-C',str(ROOT),'show',current.BASELINE+':'+current.BINDING]))['expectedChangedPaths']
+    assert len(approved)==34 and binding['sourcePaths']==approved
+    assert current.BASELINE != current.PROVENANCE_BASELINE
+    monkeypatch.setattr(current,'approved_source_paths',lambda *_args:approved)
+    if fault=='omitted-source':binding['sourcePaths'].remove('tests/Hexalith.Conversations.TestSupport.Runner/Program.cs')
+    if fault=='unreviewed-source':binding['sourcePaths']=sorted([*binding['sourcePaths'],'unreviewed.txt'])
+    if fault=='unreviewed-diff':binding['expectedChangedPaths']=sorted([*binding['expectedChangedPaths'],'unreviewed.txt'])
+    if fault=='provenance-baseline':binding['provenanceBaseline']=current.BASELINE
+    assert current.source_binding_valid(ROOT,binding) is (fault is None)
+
+
+def test_current_provenance_and_source_inventory_use_independent_approved_commits(monkeypatch):
+    import base64
+    binding=json.loads((ROOT/current.BINDING).read_bytes())
+    requests=[]
+    def facts(repository,request):
+        requests.append(copy.deepcopy(request))
+        blobs=[]
+        for path in request['blobPaths']:
+            content=subprocess.check_output(['git','-C',str(ROOT),'show',request['candidate']+':'+path])
+            blobs.append(dict(path=path,content=base64.b64encode(content).decode(),sha256=current.digest(content),code=None))
+        return dict(result='PASS',blobs=blobs,assertionLedger=[],blockers=[])
+    monkeypatch.setattr(current,'bridge',facts)
+    assert current.historical_provenance_result(ROOT,binding['provenance'])['result']=='PASS'
+    assert current.approved_source_paths(ROOT)==binding['sourcePaths']
+    assert requests[0]['baseline']==requests[0]['candidate']==current.PROVENANCE_BASELINE
+    assert requests[1]['baseline']==requests[1]['candidate']==current.BASELINE

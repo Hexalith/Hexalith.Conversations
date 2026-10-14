@@ -2,12 +2,14 @@
   "schemaVersion": "hexalith.conversations.story-10.3-current-binding.v1",
   "storyId": "10.3",
   "decisionDate": "2026-10-14",
-  "baseline": "7f24b72d57da65745cdecdea5b5e7c0da1313b4d",
+  "baseline": "10f395a690b3f581771891e5f69fc5858a5d1d12",
   "baselineAuthorization": {
-    "previousBaseline": "0056c9f0335094e7f5b253aba7ec257bd68b0b4f",
-    "approvedBaseline": "7f24b72d57da65745cdecdea5b5e7c0da1313b4d",
+    "previousBaseline": "7f24b72d57da65745cdecdea5b5e7c0da1313b4d",
+    "requestedBaseline": "02672d4ddd3c9bc54eed3f9f14c155c41f3834a2",
+    "approvedBaseline": "10f395a690b3f581771891e5f69fc5858a5d1d12",
     "decisionDate": "2026-10-14",
-    "decision": "Use entry commit 7f24b72 as the approved baseline (recommended)"
+    "decision": "I approve",
+    "chronology": "The owner approved the scope refresh and Story 10.3-only twelve-root schema adaptation. While approval was pending, the clean entry advanced to the approved baseline through the blocked-publication metadata commit and four additional root pointer updates. Preserve all committed pointers; historical provenance remains pinned to the previous baseline."
   },
   "originalContract": {
     "path": "_bmad-output/planning-artifacts/v9/story-contracts/10.3.json",
@@ -61,56 +63,56 @@
   },
   "workflowInventory": {
     "id": "STORY-10.3-CURRENT-WORKFLOWS-v1",
-    "sha256": "72a3ce5d6f4093aac0645feb4a82f2c2963d76ecbe25ab3f8f8851b180cc1462",
+    "sha256": "c2d8ba9fba141a088b4d1db061619722b30698775f6e4c1ce6898e7d07558a0b",
     "rows": [
       {
         "path": ".agents/skills/bmad-build/step-04-review.md",
-        "sha256": "7011b9db583dc94dd07baa7fb6994b81f9802b843b438d7f7c90c2425b9e64b8",
+        "sha256": "558bbcc964774064ebc65c73bf78b7aa0f3ece8665c89e8a98b3084c28168b8d",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-build/step-05-present.md",
-        "sha256": "5a36ea19d52be58d97ae950ab2c9165d1aa4f5db0460fd426de6d5598db843bc",
+        "sha256": "aaa484d692e4b70a6e898ff647e4d94e0f6e4bee76cd8daa6757b425d462d463",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-build/step-oneshot.md",
-        "sha256": "465cfc15beb4120170a24008253004db5e41ca2e4f536599128e52650e16afeb",
+        "sha256": "27d01409308800126421d864fcf621a62586b3af0b2bf831a751ace29812da5f",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-build-auto/step-04-review.md",
-        "sha256": "21bdbbfc9ad5e76c18ad721d13c87495d77653f99c7035cb1d2013f0af7c63a8",
+        "sha256": "e5602bc3ed90f826eee405bfc14a4978fbf0454d3aec4fc4b714db48ecc87135",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-code-review/steps/step-04-present.md",
-        "sha256": "11ac1902cc659d67b3433f1ff2b70f248008ddc0b0d92d5313590dc0c89029b4",
+        "sha256": "31909f5005adf9020411c8f9a99f74d7354a0f2bf9b9a10d17bb77a70fabc838",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-build/step-04-review.md",
-        "sha256": "7011b9db583dc94dd07baa7fb6994b81f9802b843b438d7f7c90c2425b9e64b8",
+        "sha256": "558bbcc964774064ebc65c73bf78b7aa0f3ece8665c89e8a98b3084c28168b8d",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-build/step-05-present.md",
-        "sha256": "5a36ea19d52be58d97ae950ab2c9165d1aa4f5db0460fd426de6d5598db843bc",
+        "sha256": "aaa484d692e4b70a6e898ff647e4d94e0f6e4bee76cd8daa6757b425d462d463",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-build/step-oneshot.md",
-        "sha256": "465cfc15beb4120170a24008253004db5e41ca2e4f536599128e52650e16afeb",
+        "sha256": "27d01409308800126421d864fcf621a62586b3af0b2bf831a751ace29812da5f",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-build-auto/step-04-review.md",
-        "sha256": "21bdbbfc9ad5e76c18ad721d13c87495d77653f99c7035cb1d2013f0af7c63a8",
+        "sha256": "e5602bc3ed90f826eee405bfc14a4978fbf0454d3aec4fc4b714db48ecc87135",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-code-review/steps/step-04-present.md",
-        "sha256": "11ac1902cc659d67b3433f1ff2b70f248008ddc0b0d92d5313590dc0c89029b4",
+        "sha256": "31909f5005adf9020411c8f9a99f74d7354a0f2bf9b9a10d17bb77a70fabc838",
         "role": "workflow"
       }
     ]
@@ -172,6 +174,36 @@
     ".claude/skills/bmad-build/step-05-present.md",
     ".claude/skills/bmad-build/step-oneshot.md",
     ".claude/skills/bmad-code-review/steps/step-04-present.md",
+    "_bmad-output/implementation-artifacts/spec-10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface.md",
+    "_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json",
+    "_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json",
+    "_bmad/schemas/story-final-record-v2.schema.json",
+    "_bmad/scripts/evidence_boundary_current.py",
+    "_bmad/scripts/generate_story_record.py",
+    "_bmad/scripts/tests/test_generate_story_record.py",
+    "tests/tooling/test_evidence_boundary_current.py"
+  ],
+  "effectiveContract": "_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json",
+  "provenanceBaseline": "7f24b72d57da65745cdecdea5b5e7c0da1313b4d",
+  "baselineAuthorizationHistory": [
+    {
+      "previousBaseline": "0056c9f0335094e7f5b253aba7ec257bd68b0b4f",
+      "approvedBaseline": "7f24b72d57da65745cdecdea5b5e7c0da1313b4d",
+      "decisionDate": "2026-10-14",
+      "decision": "Use entry commit 7f24b72 as the approved baseline (recommended)"
+    }
+  ],
+  "sourcePaths": [
+    ".agents/skills/bmad-build-auto/step-04-review.md",
+    ".agents/skills/bmad-build/step-04-review.md",
+    ".agents/skills/bmad-build/step-05-present.md",
+    ".agents/skills/bmad-build/step-oneshot.md",
+    ".agents/skills/bmad-code-review/steps/step-04-present.md",
+    ".claude/skills/bmad-build-auto/step-04-review.md",
+    ".claude/skills/bmad-build/step-04-review.md",
+    ".claude/skills/bmad-build/step-05-present.md",
+    ".claude/skills/bmad-build/step-oneshot.md",
+    ".claude/skills/bmad-code-review/steps/step-04-present.md",
     ".gitattributes",
     ".github/workflows/ci.yml",
     ".gitignore",
@@ -196,6 +228,5 @@
     "tests/Hexalith.Conversations.TestSupport/CSharpSourceDeclarations.cs",
     "tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj",
     "tests/tooling/test_evidence_boundary_current.py"
-  ],
-  "effectiveContract": "_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json"
+  ]
 }

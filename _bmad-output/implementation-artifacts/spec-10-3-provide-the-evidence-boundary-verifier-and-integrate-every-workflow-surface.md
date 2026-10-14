@@ -2,8 +2,8 @@
 title: 'Story 10.3: Evidence verifier and workflow enforcement'
 type: 'feature'
 created: '2026-10-14'
-status: 'in-progress'
-baseline_commit: '7f24b72d57da65745cdecdea5b5e7c0da1313b4d'
+status: 'in-review'
+baseline_commit: '10f395a690b3f581771891e5f69fc5858a5d1d12'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -25,7 +25,7 @@ context:
 
 **Never:** Filter gitlinks to manufacture a pass, rewrite historical authority/accepted records, migrate the 27 frozen readers reserved for 10.4, change production APIs or conformance membership, or edit installed customization defaults.
 
-**Owner decision, 2026-10-14:** Use current policy: ten surviving workflow routes, additive effective binding/contract, and entry baseline `7f24b72d57da65745cdecdea5b5e7c0da1313b4d`. Keep absent legacy routes/aliases retired and historical bundle bytes as provenance. Gate explicitly required evidence work; preserve routine validation and restore the existing Story 7.3 completion guard.
+**Owner decision, 2026-10-14:** Use current policy: ten surviving workflow routes, additive effective binding/contract, and entry baseline `10f395a690b3f581771891e5f69fc5858a5d1d12`. Keep absent legacy routes/aliases retired and historical bundle bytes as provenance. Gate explicitly required evidence work; preserve routine validation and restore the existing Story 7.3 completion guard.
 
 ## I/O & Edge-Case Matrix
 
@@ -78,6 +78,8 @@ context:
 
 - 2026-10-14 — The owner explicitly authorized “Use entry commit 7f24b72 as the approved baseline (recommended)”, identifying full revision `7f24b72d57da65745cdecdea5b5e7c0da1313b4d`. This replaces `0056c9f0335094e7f5b253aba7ec257bd68b0b4f`, whose diff already contained the EventStore and Folders gitlink updates in the specification commit. The frozen Owner decision and frontmatter baseline are amended only for this authorization. All pointers, accepted records, original contracts, and historical authority bytes are preserved.
 
+- 2026-10-14 — The owner replied “I approve” to the request to refresh the frozen baseline and adapt the current binding/schema for the twelve committed root gitlinks. That request named `02672d4ddd3c9bc54eed3f9f14c155c41f3834a2`. While approval was pending, the workspace advanced to clean entry `10f395a690b3f581771891e5f69fc5858a5d1d12`, changing only four additional submodule pointers after the blocked-publication metadata commit. The approved refresh is applied to that current entry, preserving all committed pointers. The current binding will separately name all 34 reviewed source files and the exact post-entry changed-path set; historical provenance remains pinned to `7f24b72d57da65745cdecdea5b5e7c0da1313b4d`. The Story 10.3-only final-record candidate shape will admit its twelve-root snapshot; accepted historical shapes and records remain unchanged.
+
 ## Review Triage Log
 
 | Finding | Verdict | Route | Evidence |
@@ -110,9 +112,9 @@ Review patches are implemented and independently checked. Focused verification p
 
 The full Python lane at committed source `02672d4ddd3c9bc54eed3f9f14c155c41f3834a2` passed 1,682 tests and 55 subtests in an isolated checkout. Its two environment failures were `ReleaseToolingTests::test_msbuild_dependency_mode_matrix_is_evaluated` (missing root build configuration) and `ReleaseToolingTests::test_semantic_release_planning_in_ci_preserves_repository_refs` (missing pinned Node dependencies). Both pass on rerun in the configured workspace; all 1,684 tests are covered by those runs.
 
-Publication is blocked because another session's `/pushall` committed the reviewed fixes with root submodule updates in `02672d4ddd3c9bc54eed3f9f14c155c41f3834a2`. The scoped verifier command with approved baseline `7f24b72d57da65745cdecdea5b5e7c0da1313b4d`, candidate `HEAD`, current binding, original authority bundle, `--verify-workflows`, and `--format json` exits `1` with `CHANGED_PATH_SET_MISMATCH` and `EVIDENCE_BOUNDARY_GITLINK`: 34 expected paths, 44 actual paths, and nine changed gitlinks. All external commits and pointers are preserved. The stale pair, seven receipts, and inserted region were withdrawn in `071d3e298e3ea13130c8b0d3124cb6cf4eb05558`.
+Historical blocked-publication finding: publication was blocked because another session's `/pushall` committed the reviewed fixes with root submodule updates in `02672d4ddd3c9bc54eed3f9f14c155c41f3834a2`. The scoped verifier command with approved baseline `7f24b72d57da65745cdecdea5b5e7c0da1313b4d`, candidate `HEAD`, current binding, original authority bundle, `--verify-workflows`, and `--format json` exits `1` with `CHANGED_PATH_SET_MISMATCH` and `EVIDENCE_BOUNDARY_GITLINK`: 34 expected paths, 44 actual paths, and nine changed gitlinks. All external commits and pointers are preserved. The stale pair, seven receipts, and inserted region were withdrawn in `071d3e298e3ea13130c8b0d3124cb6cf4eb05558`.
 
-Owner approval is pending to use `02672d4ddd3c9bc54eed3f9f14c155c41f3834a2` as the frozen baseline and adapt the current binding/schema for its 12 root gitlinks. No replacement acceptance publication or done transition is claimed. The publication task remains open and status returned to `in-progress` while this approval is pending.
+Historical pending-approval note: owner approval was pending to use `02672d4ddd3c9bc54eed3f9f14c155c41f3834a2` as the frozen baseline and adapt the current binding/schema for its 12 root gitlinks. No replacement acceptance publication or done transition is claimed. The publication task remains open and status returned to `in-progress` while this approval is pending.
 
 ## Verification
 
@@ -120,3 +122,5 @@ Owner approval is pending to use `02672d4ddd3c9bc54eed3f9f14c155c41f3834a2` as t
 - Entry probes: original AC-10.3-01 exits 2 (required `--baseline`); `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k stable_code_contract -p no:cacheprovider` exits 5 (139 deselected). Read-only Story 7.3 `evaluate` returns `WORKFLOW_INTEGRATION_MISSING` for all eleven surfaces. Story 10.2 predecessor pair verification passes.
 - The first uninterrupted current Python lane measured 1627 passing tests and 55 passing subtests, with one failure in `test_python_tooling_lane_has_no_ambient_skip_constructs`: the pre-existing Windows symlink-privilege `pytest.skip` in `test_story101_artifact_linked_parent_is_rejected`. The symlink test now requires its containment assertion to execute, and the anti-skip guard is retained. A fresh lane on the final source candidate supplies the final pass evidence.
 - Earlier focused runs exposed and corrected `test_v2_schema_contract_hold_metaschema_and_identities` (stale exact regex expectation, replaced with valid/invalid value checks), `test_v2_every_code_is_documented_in_the_runbook` (inherited codes missing from the runbook), and `test_every_gate_route_reruns_inserted_record_verification_after_its_done_commit` (missing post-done verification clauses). The canonical blocker branch required by `test_v2_blocker_prevents_state_transition_on_every_surface` is restored across all eleven completion surfaces.
+
+The owner approved the baseline refresh and Story 10.3-only twelve-root schema adaptation, as recorded in the Spec Change Log. The applied current scope baseline is `10f395a690b3f581771891e5f69fc5858a5d1d12`; the 34 reviewed source paths are retained independently of the exact post-entry diff, and historical provenance remains pinned to `7f24b72d57da65745cdecdea5b5e7c0da1313b4d`. Status is `in-review` for resumed independent verification. The publication task remains unchecked; fresh acceptance execution, publication, and inserted verification are pending.

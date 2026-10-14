@@ -483,13 +483,23 @@
       "then": {
         "required": [
           "evidenceWorkflowExecution"
-        ]
+        ],
+        "properties": {
+          "candidate": {
+            "$ref": "#/$defs/story103Candidate"
+          }
+        }
       },
       "else": {
         "not": {
           "required": [
             "evidenceWorkflowExecution"
           ]
+        },
+        "properties": {
+          "candidate": {
+            "$ref": "#/$defs/candidate"
+          }
         }
       }
     }
@@ -504,9 +514,7 @@
     "authority": {
       "$ref": "#/$defs/authority"
     },
-    "candidate": {
-      "$ref": "#/$defs/candidate"
-    },
+    "candidate": {},
     "predecessors": {
       "type": "array",
       "minItems": 1,
@@ -5336,7 +5344,7 @@
           "$ref": "#/$defs/commit"
         },
         "baseline": {
-          "const": "7f24b72d57da65745cdecdea5b5e7c0da1313b4d"
+          "const": "10f395a690b3f581771891e5f69fc5858a5d1d12"
         },
         "binding": {
           "$ref": "#/$defs/outputFile"
@@ -5611,6 +5619,127 @@
           "uniqueItems": true
         }
       }
+    },
+    "story103Candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "gitlinks"
+      ],
+      "properties": {
+        "commit": {
+          "$ref": "#/$defs/commit"
+        },
+        "gitlinks": {
+          "$ref": "#/$defs/story103Gitlinks"
+        }
+      }
+    },
+    "story103Gitlinks": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/gitlink",
+          "properties": {
+            "path": {
+              "const": "references/Hexalith.AI.Tools"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/gitlink",
+          "properties": {
+            "path": {
+              "const": "references/Hexalith.Builds"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/gitlink",
+          "properties": {
+            "path": {
+              "const": "references/Hexalith.Commons"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/gitlink",
+          "properties": {
+            "path": {
+              "const": "references/Hexalith.EventStore"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/gitlink",
+          "properties": {
+            "path": {
+              "const": "references/Hexalith.Folders"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/gitlink",
+          "properties": {
+            "path": {
+              "const": "references/Hexalith.FrontComposer"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/gitlink",
+          "properties": {
+            "path": {
+              "const": "references/Hexalith.McpCli"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/gitlink",
+          "properties": {
+            "path": {
+              "const": "references/Hexalith.Memories"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/gitlink",
+          "properties": {
+            "path": {
+              "const": "references/Hexalith.Parties"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/gitlink",
+          "properties": {
+            "path": {
+              "const": "references/Hexalith.Platform"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/gitlink",
+          "properties": {
+            "path": {
+              "const": "references/Hexalith.Projects"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/gitlink",
+          "properties": {
+            "path": {
+              "const": "references/Hexalith.Tenants"
+            }
+          }
+        }
+      ],
+      "items": false
     }
   }
 }

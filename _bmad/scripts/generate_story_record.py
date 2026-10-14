@@ -8996,9 +8996,11 @@ def v2_10_3_source_errors(repository: Path, record: dict[str, Any], validator: A
             problems.append('Story 10.3 original provenance differs from the approved binding')
         if facts['routeFacts'] != v2_10_3_route_facts(repository,candidate,[row['path'] for row in binding['workflowInventory']['rows']]):
             problems.append('Story 10.3 route insertion facts differ from committed byte spans')
-        if [row['path'] for row in facts['sourceFiles']] != binding['expectedChangedPaths']:
+        if [row['path'] for row in facts['sourceFiles']] != binding['sourcePaths']:
             problems.append('Story 10.3 exact source-file inventory differs')
         current = v2_10_3_current_module()
+        if not current.source_binding_valid(repository, binding):
+            problems.append('Story 10.3 source inventory or post-entry scope differs from the approved entry')
         provenance = current.historical_provenance_result(repository, binding['provenance'])
         if provenance['result'] != 'PASS':
             problems.append('Story 10.3 provenance differs from approved baseline blobs: ' + ', '.join(provenance['blockers']))
@@ -9122,6 +9124,9 @@ def v2_10_3_generate(options: dict[str, str], *, candidate: str | None = None,
     if binding_bytes is None or (repository / V2_10_3_BINDING).read_bytes() != binding_bytes:
         raise V2Stop([v2_finding('AUTHORITY_BINDING_INVALID', V2_10_3_BINDING, 'the current binding must equal its committed source')], '10.3')
     binding = v2_parse_json(binding_bytes)
+    if not current.source_binding_valid(repository, binding):
+        raise V2Stop([v2_finding('AUTHORITY_BINDING_INVALID', V2_10_3_BINDING,
+            'the source inventory and post-entry scope must match the approved entry')], '10.3')
     previous = v2_verified_predecessor(repository, candidate, '10.2', binding['predecessor']['path'],
         'docs/release-evidence/story-10.2-final-record-v2.md', validators['record'])
     if previous != binding['predecessor']['sha256']:
@@ -9134,7 +9139,7 @@ def v2_10_3_generate(options: dict[str, str], *, candidate: str | None = None,
     # Compare every reviewed source to its candidate blob; lifecycle insertion is
     # checked separately. Unrelated staged user changes are outside this scope.
     source_files = []
-    for path in binding['expectedChangedPaths']:
+    for path in binding['sourcePaths']:
         blob = v2_committed_blob(repository, candidate, path)
         if blob is None:
             raise V2Stop([v2_finding('RECORD_NOT_DERIVED', path, 'a scoped source is not committed')], '10.3')

@@ -20,12 +20,12 @@
   },
   "inventory": {
     "id": "STORY-10.3-CURRENT-WORKFLOWS-v1",
-    "sha256": "72a3ce5d6f4093aac0645feb4a82f2c2963d76ecbe25ab3f8f8851b180cc1462"
+    "sha256": "c2d8ba9fba141a088b4d1db061619722b30698775f6e4c1ce6898e7d07558a0b"
   },
   "scenarios": [
     {
       "id": "AC-10.3-01",
-      "command": "python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.3-current-binding-v1.json --baseline 7f24b72d57da65745cdecdea5b5e7c0da1313b4d --candidate HEAD --format json --output artifacts/v9/10.3/AC-10.3-01.json",
+      "command": "python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.3-current-binding-v1.json --baseline 10f395a690b3f581771891e5f69fc5858a5d1d12 --candidate HEAD --format json --output artifacts/v9/10.3/AC-10.3-01.json",
       "contract": "Run the verifier with bound `PC`, `SC-10.3`, baseline, evidence/test diff, and stable registry. Exit `0` only for `PASS` or explicit `not-applicable`; applicable failure is `1`; missing authority/history is `2`; the result is schema-valid and records evaluated paths/assertions.",
       "resultSemantics": {
         "expected": "PASS",
@@ -64,7 +64,7 @@
     },
     {
       "id": "AC-10.3-03",
-      "command": "python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.3-current-binding-v1.json --baseline 7f24b72d57da65745cdecdea5b5e7c0da1313b4d --candidate HEAD --verify-workflows --format json --output artifacts/v9/10.3/AC-10.3-03.json",
+      "command": "python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.3-current-binding-v1.json --baseline 10f395a690b3f581771891e5f69fc5858a5d1d12 --candidate HEAD --verify-workflows --format json --output artifacts/v9/10.3/AC-10.3-03.json",
       "contract": "Validate ten surviving current paths and exact scoped insertion spans; missing/displaced gates fail with EVIDENCE_GATE_NOT_USED/EVIDENCE_GATE_DISPLACED.",
       "resultSemantics": {
         "expected": "PASS",

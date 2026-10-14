@@ -11283,6 +11283,8 @@ def story103_record_fixture(generator):
     record = deepcopy(json.loads((WORKSPACE / 'docs/release-evidence/story-10.2-final-record-v2.json').read_bytes()))
     record.pop('evidenceBoundaryExecution')
     record['storyId'] = '10.3'
+    record['candidate']['gitlinks'] = [dict(path=path,mode='160000',commit=commit)
+        for path,commit in generator.v2_raw_gitlinks(WORKSPACE,binding['baseline'])]
     record['predecessors'] = ['10.2']
     record['inventory'] = contract['inventory']
     record['summary'] = contract['finalRecord']['summary']
@@ -11303,7 +11305,7 @@ def story103_record_fixture(generator):
         resolvedCustomization=binding['resolvedCustomization'],retiredRoutes=binding['retiredRoutes'],exemptions=[],
         routeFacts=[dict(path=row['path'],sha256=row['sha256'],gateStart=1,gateEnd=2) for row in binding['workflowInventory']['rows']],
         receipts=receipts,mutationLedger=[dict(id=f'mutation-{n}',expectedBlocker='EVIDENCE_HASH_MISMATCH',observedBlockers=['EVIDENCE_HASH_MISMATCH'],beforeSha256='d'*64,afterSha256='d'*64,restored=True,result='PASS') for n in range(17)],
-        sourceFiles=[dict(path=generator.V2_10_3_CONTRACT,sha256='b'*64)])
+        sourceFiles=[dict(path=path,sha256='b'*64) for path in binding['sourcePaths']])
     return record
 
 
@@ -11407,7 +11409,9 @@ def test_story103_inserted_verification_preserves_working_spec_intent(tmp_path,m
     run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: publish pair')
     installed=original+b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\n'+markdown_bytes+generator.RECORD_END_MARKER.encode()+b'\n'
     if change=='checkbox':installed=installed.replace(b'- [ ] ',b'- [x] ',1)
-    if change=='status':installed=installed.replace(b"status: 'in-progress'",b"status: 'in-review'",1)
+    if change=='status':
+        installed=installed.replace(b"status: 'in-review'",b"status: 'in-progress'",1)
+        assert installed != original+b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\n'+markdown_bytes+generator.RECORD_END_MARKER.encode()+b'\n'
     if change=='frozen':installed=installed.replace(b'**Problem:**',b'**Unapproved problem:**',1)
     if change=='task-label':installed=installed.replace(b'record approved baseline',b'record a different baseline',1)
     if change=='body':installed=installed.replace(b'## Implementation Notes\n',b'## Implementation Notes\n\nUnapproved implementation scope.\n',1)
@@ -11428,6 +11432,10 @@ def test_story103_generation_rejects_working_spec_intent_drift(tmp_path,monkeypa
     generator=load_generator()
     repository=tmp_path/'checkout'
     run_git(tmp_path,'clone','--quiet','--local','--no-hardlinks',str(WORKSPACE),str(repository))
+    binding=json.loads((WORKSPACE/generator.V2_10_3_BINDING).read_bytes())
+    for path in binding['sourcePaths']:
+        (repository/path).write_bytes((WORKSPACE/path).read_bytes())
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: commit reviewed source inventory')
     spec=repository/generator.V2_10_3_SPEC
     spec.write_bytes(spec.read_bytes().replace(b'**Problem:**',b'**Unapproved problem:**',1))
     current=generator.v2_10_3_current_module()
@@ -11447,17 +11455,19 @@ def story103_receipt_repository(tmp_path,monkeypatch):
     repository=tmp_path/'repository';repository.mkdir()
     binding=json.loads((WORKSPACE/generator.V2_10_3_BINDING).read_bytes())
     contract=json.loads((WORKSPACE/generator.V2_10_3_CONTRACT).read_bytes())
-    for path in set(binding['expectedChangedPaths'])|set(current.HISTORICAL_PROVENANCE)|{current.SCHEMA}:
+    for path in set(binding['sourcePaths'])|set(current.HISTORICAL_PROVENANCE)|{current.SCHEMA}:
         target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((WORKSPACE/path).read_bytes())
     run_git(repository,'init','--quiet');run_git(repository,'add','--all')
-    for link in json.loads((WORKSPACE/'docs/release-evidence/story-10.2-final-record-v2.json').read_bytes())['candidate']['gitlinks']:
-        run_git(repository,'update-index','--add','--cacheinfo','160000,'+link['commit']+','+link['path'])
+    for path,commit in generator.v2_raw_gitlinks(WORKSPACE,current.BASELINE):
+        run_git(repository,'update-index','--add','--cacheinfo','160000,'+commit+','+path)
     run_git(repository,'commit','--quiet','-m','test: source receipt fixture')
     candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
     measured=current.empty_result(candidate)
     measured.update(result='PASS',assertionLedger=[dict(id='measured',subject='shared facts',state='PASS')])
     monkeypatch.setattr(current,'verify',lambda *_args,**_kwargs:deepcopy(measured))
     monkeypatch.setattr(current,'historical_provenance_result',lambda *_args:dict(result='PASS',blockers=[],assertionLedger=[]))
+    approved=json.loads(run_git(WORKSPACE,'show',current.BASELINE+':'+current.BINDING).stdout)['expectedChangedPaths']
+    monkeypatch.setattr(current,'approved_source_paths',lambda *_args:approved)
     monkeypatch.setattr(current,'bridge',lambda *_args:dict(result='PASS',blockers=[]))
     monkeypatch.setattr(generator,'v2_verified_predecessor',lambda *_args:binding['predecessor']['sha256'])
     codes=['EVIDENCE_BOUNDARY_GITLINK','EVIDENCE_HASH_MISMATCH','EVIDENCE_PATH_ESCAPE','EVIDENCE_FILE_MISSING','EVIDENCE_OUTPUT_FORBIDDEN',
@@ -11548,3 +11558,60 @@ def test_story103_completion_instructions_publish_withdraw_and_verify_before_rep
             assert rerun<text.index(terminal)
             if route.path.startswith('bmad-code-review'):
                 assert 'Only when the spec requires a final record under the gate above' in text
+
+
+@pytest.mark.parametrize('story', ['10.1','10.2'])
+def test_story103_twelve_root_shape_cannot_expand_historical_candidates(story):
+    generator=load_generator()
+    _,validators=generator.v2_load_schemas()
+    record=generator.v2_parse_json((WORKSPACE/f'docs/release-evidence/story-{story}-final-record-v2.json').read_bytes())
+    assert generator.v2_schema_errors(validators['record'],record)==[]
+    roots=story103_record_fixture(generator)['candidate']['gitlinks']
+    record['candidate']['gitlinks']=sorted([*record['candidate']['gitlinks'],
+        *(row for row in roots if row['path'] in ('references/Hexalith.McpCli','references/Hexalith.Platform'))],key=lambda row:row['path'])
+    assert len(record['candidate']['gitlinks'])==12
+    assert generator.v2_schema_errors(validators['record'],record)
+
+
+@pytest.mark.parametrize('fault', [None,'missing-root','extra-root','root-reorder','root-mode','root-field','candidate-field'])
+def test_story103_twelve_root_candidate_is_exact_and_closed(fault):
+    generator=load_generator()
+    _,validators=generator.v2_load_schemas()
+    record=story103_record_fixture(generator)
+    candidate=record['candidate'];roots=candidate['gitlinks']
+    assert len(roots)==12
+    if fault=='missing-root':roots.pop()
+    if fault=='extra-root':roots.append(dict(path='references/Unapproved',mode='160000',commit='a'*40))
+    if fault=='root-reorder':roots[0],roots[1]=roots[1],roots[0]
+    if fault=='root-mode':roots[0]['mode']='100644'
+    if fault=='root-field':roots[0]['callerVerdict']='PASS'
+    if fault=='candidate-field':candidate['callerVerdict']='PASS'
+    assert bool(generator.v2_schema_errors(validators['record'],record)) is (fault is not None)
+
+
+def test_story103_generation_retains_full_source_inventory_beyond_diff(story103_receipt_repository):
+    generator,repository,candidate,options=story103_receipt_repository
+    record=generator.v2_parse_json(generator.v2_10_3_generate(options))
+    binding=generator.v2_parse_json((repository/generator.V2_10_3_BINDING).read_bytes())
+    files=record['evidenceWorkflowExecution']['sourceFiles']
+    assert [row['path'] for row in files]==binding['sourcePaths']
+    assert len(files)==34 and len(binding['expectedChangedPaths'])<34
+    unchanged='tests/Hexalith.Conversations.TestSupport.Runner/Program.cs'
+    assert unchanged not in binding['expectedChangedPaths']
+    assert next(row['sha256'] for row in files if row['path']==unchanged)==generator.v2_sha256((repository/unchanged).read_bytes())
+    (repository/unchanged).write_bytes((repository/unchanged).read_bytes()+b'// uncommitted change\r\n')
+    with pytest.raises(generator.V2Stop) as error:generator.v2_10_3_generate(options)
+    assert error.value.findings[0]['code']=='WORKTREE_NOT_CLEAN'
+    assert error.value.findings[0]['subject']==unchanged
+
+
+def test_story103_generation_rejects_omitted_reviewed_source(story103_receipt_repository):
+    generator,repository,candidate,options=story103_receipt_repository
+    binding_path=repository/generator.V2_10_3_BINDING
+    binding=generator.v2_parse_json(binding_path.read_bytes())
+    binding['sourcePaths'].remove('tests/Hexalith.Conversations.TestSupport.Runner/Program.cs')
+    binding_path.write_text(json.dumps(binding,indent=2)+'\n')
+    run_git(repository,'add','--',generator.V2_10_3_BINDING)
+    run_git(repository,'commit','--quiet','-m','test: omit reviewed source')
+    with pytest.raises(generator.V2Stop) as error:generator.v2_10_3_generate(options)
+    assert error.value.findings[0]['code']=='AUTHORITY_BINDING_INVALID'

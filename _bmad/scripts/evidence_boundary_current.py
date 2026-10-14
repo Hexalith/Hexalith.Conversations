@@ -14,7 +14,8 @@ import jsonschema
 from config_utils import load_customization
 import verify_story_completion_workflows as completion
 
-BASELINE = '7f24b72d57da65745cdecdea5b5e7c0da1313b4d'
+BASELINE = '10f395a690b3f581771891e5f69fc5858a5d1d12'
+PROVENANCE_BASELINE = '7f24b72d57da65745cdecdea5b5e7c0da1313b4d'
 BINDING = '_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json'
 CONTRACT = '_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json'
 SCHEMA = '_bmad/schemas/evidence-boundary-result-v1.schema.json'
@@ -135,14 +136,14 @@ def record(result: dict[str, Any], identity: str, subject: str, passed: bool, co
 
 def historical_provenance_result(repository: Path, rows: list[dict[str, Any]]) -> dict[str, Any]:
     """Pin historical bytes to approved baseline blobs independently of candidate declarations."""
-    result = empty_result(BASELINE)
+    result = empty_result(PROVENANCE_BASELINE)
     expected = set(HISTORICAL_PROVENANCE) | {CURRENT_PROVENANCE}
     record(result, 'provenance:membership', 'historical provenance',
         len(rows) == len(expected) and {row['path'] for row in rows} == expected,
         'AUTHORITY_BINDING_INVALID')
     if result['blockers']:
         return finalize(result, applicable=True)
-    facts = bridge(repository, dict(baseline=BASELINE, candidate=BASELINE, blobPaths=list(HISTORICAL_PROVENANCE)))
+    facts = bridge(repository, dict(baseline=PROVENANCE_BASELINE, candidate=PROVENANCE_BASELINE, blobPaths=list(HISTORICAL_PROVENANCE)))
     if facts['result'] != 'PASS':
         result['assertionLedger'].extend(dict(row, id='provenance:' + row['id']) for row in facts['assertionLedger'])
         result['blockers'].extend(code if code in STABLE_CODES else 'HELPER_FAILURE' for code in facts['blockers'])
@@ -163,18 +164,41 @@ def approved_roots(repository: Path) -> dict[str, Any]:
     """Derive the permitted consumer and pins from verified approved-baseline provenance."""
     import generate_story_record as generator
     path = HISTORICAL_PROVENANCE[4]
-    measured = bridge(repository, dict(baseline=BASELINE, candidate=BASELINE, blobPaths=[path]))
+    measured = bridge(repository, dict(baseline=PROVENANCE_BASELINE, candidate=PROVENANCE_BASELINE, blobPaths=[path]))
     row = measured['blobs'][0]
     if measured['result'] != 'PASS' or row.get('content') is None:
         raise RuntimeError('AUTHORITY_UNAVAILABLE')
     _, validators = generator.v2_load_schemas()
-    previous = generator.v2_verified_predecessor(repository, BASELINE, '10.2', path,
+    previous = generator.v2_verified_predecessor(repository, PROVENANCE_BASELINE, '10.2', path,
         HISTORICAL_PROVENANCE[5], validators['record'])
     if previous != row['sha256']:
         raise RuntimeError('ROOT_OF_TRUST_NOT_PINNED')
     record = generator.v2_parse_json(base64.b64decode(row['content']))
     return dict(sourcePath=CURRENT_PROVENANCE, constants=dict(Story102RecordSha256=previous,
         Story102CandidateCommit=record['candidate']['commit']), allowlist=[])
+
+
+def approved_source_paths(repository: Path) -> list[str]:
+    """Retain the reviewed inventory from the approved entry, independently of new diffs."""
+    import generate_story_record as generator
+    facts = bridge(repository, dict(baseline=BASELINE, candidate=BASELINE, blobPaths=[BINDING]))
+    row = next((row for row in facts.get('blobs', []) if row['path'] == BINDING), None)
+    if facts['result'] != 'PASS' or row is None or row.get('content') is None or row.get('code'):
+        raise RuntimeError('AUTHORITY_UNAVAILABLE')
+    approved = generator.v2_parse_json(base64.b64decode(row['content']))['expectedChangedPaths']
+    if len(approved) != 34 or not all(isinstance(path, str) for path in approved) or approved != sorted(set(approved)):
+        raise RuntimeError('AUTHORITY_BINDING_INVALID')
+    return approved
+
+
+def source_binding_valid(repository: Path, binding: dict[str, Any]) -> bool:
+    """Only reviewed sources may appear in the exact, unfiltered post-entry diff."""
+    approved = approved_source_paths(repository)
+    expected = binding['expectedChangedPaths']
+    return (binding['baseline'] == BASELINE and binding['provenanceBaseline'] == PROVENANCE_BASELINE
+        and binding['sourcePaths'] == approved and isinstance(expected, list)
+        and all(isinstance(path, str) for path in expected) and expected == sorted(set(expected))
+        and set(expected).issubset(approved))
 
 
 def workflow_checks(repository: Path, result: dict[str, Any], binding: dict[str, Any]) -> None:
@@ -280,12 +304,14 @@ def verify(repository: Path, baseline: str, candidate: str, *, authority_bundle:
         result['changedPaths'] = paths
         result['gitlinks'] = [dict(path=entry['path'], sourceMode=entry['sourceMode'], destinationMode=entry['destinationMode'])
             for entry in entries if '160000' in (entry['sourceMode'], entry['destinationMode'])]
-        record(result, 'binding:baseline', binding_path, baseline == binding['baseline'] == BASELINE, 'AUTHORITY_BINDING_INVALID')
+        record(result, 'binding:baseline', binding_path, baseline == binding['baseline'] == BASELINE
+            and binding['provenanceBaseline'] == PROVENANCE_BASELINE, 'AUTHORITY_BINDING_INVALID')
         if 'AUTHORITY_BINDING_INVALID' in result['blockers']:
             return finalize(result, applicable=True)
+        record(result, 'binding:source-paths', binding_path, source_binding_valid(repository, binding), 'AUTHORITY_BINDING_INVALID')
         applicable = verify_workflows or bool(initial['evidenceReaders']) or any(path.startswith(('docs/release-evidence/', '_bmad-output/planning-artifacts/',
             'tests/Hexalith.Conversations.TestSupport', '_bmad/scripts/')) or path in WORKFLOWS + GUIDANCE for path in paths)
-        if not applicable:
+        if not applicable and not result['blockers']:
             return finalize(result, applicable=False)
         result['assertionLedger'].extend(row for row in initial['assertionLedger'] if row['id'].startswith('reader:'))
         result['blockers'].extend(code for code in initial['blockers'] if code.startswith('EVIDENCE_READER_'))
