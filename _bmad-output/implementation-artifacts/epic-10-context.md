@@ -1,8 +1,3 @@
----
-overlay_version: 'epic-6-authority-2026-08-18-v14'
-architecture_version: 'conversations-architecture-2026-09-20-v22'
----
-
 # Epic 10 Context: Unified Evidence Boundary
 
 <!-- Compiled from planning artifacts. Edit freely. Regenerate with compile-epic-context if planning docs change. -->
@@ -24,16 +19,16 @@ Give release-evidence maintainers and reviewers one non-shipping integrity bound
 - Recompute evidence-file hashes and canonical signable-payload digests from contained, existing repository-relative files. Reject generated or build outputs, path escapes, and any attempt to exempt signed release evidence. Keep roots of trust pinned in consuming test source.
 - Compare the expected and Git-derived changed-path sets for exact equality. Detect submodule gitlinks from raw mode `160000`, never from text matches. An applicable check needs a nonempty evaluated assertion ledger; unavailable history and zero assertions cannot pass.
 - Preserve all 27 frozen evidence readers with the same assertion identities, pinned constants, counts, and strength. Start with zero exemptions. Keep the projection-proof obligation separate, and do not reduce the approved FR-20 conformance denominator or alter public contracts to simplify validation.
-- A machine-readable verifier must distinguish `PASS`, `FAIL`, `BLOCKED`, and `not-applicable`, emit stable unique blocker and warning codes, and record evaluated paths and assertions. Applicable failure or unavailable authority blocks review and completion; a valid `not-applicable` result remains explicit rather than being reported as a pass.
+- A machine-readable verifier must distinguish `PASS`, `FAIL`, `BLOCKED`, and `not-applicable`, emit stable unique blocker and warning codes, and record evaluated paths and assertions. Its explicit contract returns exit `0` for `PASS` or valid `not-applicable`, `1` for applicable failure, and `2` for unavailable authority/history. Applicable failure or unavailable authority blocks the scoped review and completion transition; `not-applicable` remains explicit.
 - Prove negative cases for hash, path, generated-output, gitlink, subset, signed-allowlist, Git-unavailable, workflow-removal, malformed-marker, reader-strength, and gate-span defects. Each injected fixture must trigger its expected blocker and restore its bytes.
 
 ## Technical Decisions
 
-- The governing backlog is Epic V14 and the last complete architecture marker is V22. The original Epic 10 contract survives from V9; V10 supersedes only the workflow and reusable-guidance projection for Stories 10.3 and 10.4. Use the V10 twelve-path active workflow inventory and separate four-path guidance inventory; the V9 workflow-path list is superseded.
+- The governing backlog is Epic V14 and the last complete architecture marker is V22. The original Epic 10 contract survives from V9; V10 supersedes only the workflow and reusable-guidance projection for Stories 10.3 and 10.4. That projection binds a twelve-path workflow inventory and separate four-path guidance inventory; the original V9 workflow-path list is superseded. On 2026-10-14 the owner chose a current-policy rebaseline for Story 10.3: ten surviving routes, explicitly required evidence work, an additive contract/baseline binding, and preservation of retired routes and historical authority bytes. The story spec records the exact decision and is approved and ready for development; implementation has not started.
 - Shared TestSupport owns neutral repository, Git, manifest, boundary, and assertion-ledger primitives. The verifier owns cross-reader and workflow enforcement; its result follows the closed evidence-boundary schema. Frozen inventories and candidate-bound final records provide identity, digest, predecessor, and rollback evidence for each story.
 - Six logical workflow bodies are mirrored across `.agents` and `.claude`; insertion spans and deterministic render parity are checked. Deprecated development aliases forward once to current governed routes. Project-owned customization resolves the same guidance for regular, one-shot, and unattended build and for review; installed defaults remain read-only.
-- Put the evidence gate after the promotion gate and before every governed review or done transition. A removed or displaced call, alias fork, guidance drift, empty applicable scope, or parity mismatch must fail closed. The inherited promotion-gate span guard remains independently effective.
-- Follow `docs/runbooks/current-change-validation.md` for routine current-tree validation. Its historical authority and evidence-boundary machinery is not a general prerequisite for later work; the explicit Epic 10 story contracts still require their named results and final records.
+- Within Epic 10's explicit workflow acceptance contract, place the evidence gate after the promotion gate and before the governed review or done transition. A removed or displaced call, alias fork, guidance drift, empty applicable scope, or parity mismatch must fail closed. The inherited promotion-gate span guard remains independently effective.
+- Follow `docs/runbooks/current-change-validation.md` for current-tree validation. Historical authority publication, hold, and evidence-boundary machinery are not general prerequisites for new work. Epic 10's explicit story contracts still require their named checks, results, and generated final records; this scoped requirement does not restore retired authority gates for unrelated changes. The older evidence-boundary runbook supplies invariant and fault-reproduction guidance without authorizing readiness, release, or changes to accepted historical evidence.
 
 ## Cross-Story Dependencies
 
