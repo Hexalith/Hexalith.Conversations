@@ -11438,3 +11438,113 @@ def test_story103_generation_rejects_working_spec_intent_drift(tmp_path,monkeypa
             '--output-markdown':'docs/release-evidence/story-10.3-final-record-v2.md'})
     assert failure.value.findings[0]['code']=='WORKTREE_NOT_CLEAN'
     assert failure.value.findings[0]['subject']==generator.V2_10_3_SPEC
+
+
+@pytest.fixture
+def story103_receipt_repository(tmp_path,monkeypatch):
+    generator=load_generator()
+    current=generator.v2_10_3_current_module()
+    repository=tmp_path/'repository';repository.mkdir()
+    binding=json.loads((WORKSPACE/generator.V2_10_3_BINDING).read_bytes())
+    contract=json.loads((WORKSPACE/generator.V2_10_3_CONTRACT).read_bytes())
+    for path in set(binding['expectedChangedPaths'])|set(current.HISTORICAL_PROVENANCE)|{current.SCHEMA}:
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((WORKSPACE/path).read_bytes())
+    run_git(repository,'init','--quiet');run_git(repository,'add','--all')
+    for link in json.loads((WORKSPACE/'docs/release-evidence/story-10.2-final-record-v2.json').read_bytes())['candidate']['gitlinks']:
+        run_git(repository,'update-index','--add','--cacheinfo','160000,'+link['commit']+','+link['path'])
+    run_git(repository,'commit','--quiet','-m','test: source receipt fixture')
+    candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    measured=current.empty_result(candidate)
+    measured.update(result='PASS',assertionLedger=[dict(id='measured',subject='shared facts',state='PASS')])
+    monkeypatch.setattr(current,'verify',lambda *_args,**_kwargs:deepcopy(measured))
+    monkeypatch.setattr(current,'historical_provenance_result',lambda *_args:dict(result='PASS',blockers=[],assertionLedger=[]))
+    monkeypatch.setattr(current,'bridge',lambda *_args:dict(result='PASS',blockers=[]))
+    monkeypatch.setattr(generator,'v2_verified_predecessor',lambda *_args:binding['predecessor']['sha256'])
+    codes=['EVIDENCE_BOUNDARY_GITLINK','EVIDENCE_HASH_MISMATCH','EVIDENCE_PATH_ESCAPE','EVIDENCE_FILE_MISSING','EVIDENCE_OUTPUT_FORBIDDEN',
+        'SIGNABLE_PAYLOAD_MISMATCH','CHANGED_PATH_SET_MISMATCH','ROOT_OF_TRUST_NOT_PINNED','SIGNED_EVIDENCE_ALLOWLISTED',
+        'REVISION_INVALID','EVIDENCE_READER_NOT_SHARED','EVIDENCE_READER_STRENGTH_REDUCED','EVIDENCE_GATE_NOT_USED','EVIDENCE_GATE_DISPLACED',
+        'EVIDENCE_ALIAS_ROUTE_BROKEN','EVIDENCE_GUIDANCE_NOT_BOUND','EVIDENCE_HASH_MISMATCH','CHANGED_PATH_SET_MISMATCH']
+    for scenario in contract['scenarios'][:-1]:
+        tokens=shlex.split(scenario['command'])
+        if scenario['id'] in ('AC-10.3-01','AC-10.3-03'):
+            path=tokens[tokens.index('--output')+1];content=json.dumps(measured,indent=2).encode()+b'\n'
+        else:
+            command=generator.v2_pytest_command(tokens);path=command['junit']
+            root=ElementTree.Element('testsuites')
+            faults=codes if scenario['id']=='AC-10.3-02' else [None]
+            suite=ElementTree.SubElement(root,'testsuite',tests=str(len(faults)),failures='0',errors='0',skipped='0')
+            for number,code in enumerate(faults):
+                case=ElementTree.SubElement(suite,'testcase',classname=command['target'][:-3].replace('/','.'),name='test_'+command['selector']+'_'+str(number))
+                props=ElementTree.SubElement(case,'properties')
+                values={'story103_source_revision':candidate}
+                if code:values.update(story103_expected_code=code,story103_observed_blockers=json.dumps([code]),story103_before_sha256='a'*64,story103_after_sha256='a'*64)
+                for key,value in values.items():ElementTree.SubElement(props,'property',name=key,value=value)
+            content=ElementTree.tostring(root)
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    options={'--repository':str(repository),'--contract':generator.V2_10_3_CONTRACT,'--format':'bundle',
+        '--output-json':contract['finalRecord']['paths'][0],'--output-markdown':contract['finalRecord']['paths'][1]}
+    return generator,repository,candidate,options
+
+
+def test_story103_valid_generation_then_wrong_candidate_junit_stamp_fails(story103_receipt_repository):
+    generator,repository,candidate,options=story103_receipt_repository
+    generated=generator.v2_parse_json(generator.v2_10_3_generate(options))
+    assert generated['summary']==dict(required=8,passed=8,failed=0,blocked=0,skipped=0,notRun=0)
+    assert len(generated['evidenceWorkflowExecution']['mutationLedger'])==18
+    target=repository/'artifacts/v9/10.3/AC-10.3-02.xml'
+    target.write_bytes(target.read_bytes().replace(candidate.encode(),b'f'*40,1))
+    with pytest.raises(generator.V2Stop) as error:generator.v2_10_3_generate(options)
+    assert error.value.findings[0]['code']=='TEST_RESULTS_STALE'
+
+
+@pytest.mark.parametrize('forgery', ['scenario','mutation','coverage'])
+def test_story103_committed_receipts_reject_digest_valid_forged_ledgers(story103_receipt_repository,forgery):
+    generator,repository,candidate,options=story103_receipt_repository
+    record=generator.v2_parse_json(generator.v2_10_3_generate(options))
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: publish retained receipt fixture')
+    _,validators=generator.v2_load_schemas()
+    assert generator.v2_10_3_source_errors(repository,record,validators['record'])==[]
+    retained=deepcopy(record['evidenceWorkflowExecution']['receipts'])
+    if forgery=='scenario':record['scenarios'][0]['assertionLedger'][0]['subject']='fabricated assertion'
+    elif forgery=='mutation':record['evidenceWorkflowExecution']['mutationLedger'][0]['id']='fabricated mutation'
+    else:
+        target=repository/'artifacts/v9/10.3/AC-10.3-02.xml'
+        root=ElementTree.fromstring(target.read_bytes())
+        for prop in root.findall('.//property'):
+            if prop.get('name')=='story103_expected_code':prop.set('value','EVIDENCE_HASH_MISMATCH')
+            if prop.get('name')=='story103_observed_blockers':prop.set('value','["EVIDENCE_HASH_MISMATCH"]')
+        target.write_bytes(ElementTree.tostring(root))
+        with pytest.raises(generator.V2Stop) as error:generator.v2_10_3_generate(options,candidate=candidate)
+        assert error.value.findings[0]['code']=='RECORD_NOT_DERIVED'
+        return
+    forged,json_bytes,markdown_bytes=generator.v2_finalize(record)
+    assert generator.v2_verify_pair(json_bytes,markdown_bytes)==[]
+    assert forged['evidenceWorkflowExecution']['receipts']==retained
+    assert 'Story 10.3 scenario or mutation ledgers differ from committed receipt derivation' in generator.v2_10_3_source_errors(repository,forged,validators['record'])
+
+
+def test_story103_markdown_projects_bound_mutations_and_preserves_prior_stories():
+    generator=load_generator()
+    record=story103_record_fixture(generator)
+    _,_,markdown=generator.v2_finalize(record)
+    assert b'17 observed mutation results are bound to the retained receipts.' in markdown
+    assert b'No fault-injection result is bound' not in markdown
+    for story in ('10.1','10.2'):
+        stored=(WORKSPACE/f'docs/release-evidence/story-{story}-final-record-v2.json').read_bytes()
+        projected=generator.v2_finalize(generator.v2_parse_json(stored))[2]
+        assert projected==(WORKSPACE/f'docs/release-evidence/story-{story}-final-record-v2.md').read_bytes()
+
+
+def test_story103_completion_instructions_publish_withdraw_and_verify_before_reporting():
+    for tree in COMPLETION_VERIFIER.SKILL_TREES:
+        for route in COMPLETION_VERIFIER.ROUTES:
+            text=(WORKSPACE/tree/route.path).read_text()
+            assert 'commit exactly those nine files together as a record-only commit' in text
+            assert 'all nine files for Story 10.3' in text
+            rerun=text.index(DONE_COMMIT_RERUN_CLAUSE)
+            terminal={'bmad-build/step-05-present.md':'### Display Summary',
+                'bmad-build/step-oneshot.md':'### Present','bmad-build-auto/step-04-review.md':'HALT with status `done`.',
+                'bmad-code-review/steps/step-04-present.md':'#### Completion summary'}[route.path]
+            assert rerun<text.index(terminal)
+            if route.path.startswith('bmad-code-review'):
+                assert 'Only when the spec requires a final record under the gate above' in text

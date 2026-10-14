@@ -28,3 +28,9 @@
 [submodule "references/Hexalith.Builds"]
 	path = references/Hexalith.Builds
 	url = https://github.com/Hexalith/Hexalith.Builds.git
+[submodule "references/Hexalith.Platform"]
+	path = references/Hexalith.Platform
+	url = https://github.com/Hexalith/Hexalith.Platform.git
+[submodule "references/Hexalith.McpCli"]
+	path = references/Hexalith.McpCli
+	url = https://github.com/Hexalith/Hexalith.McpCli.git

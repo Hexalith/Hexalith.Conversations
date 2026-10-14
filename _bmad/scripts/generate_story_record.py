@@ -4047,6 +4047,7 @@ def v2_scenario_from_results(
     scenario: dict[str, Any],
     command: dict[str, str | None],
     candidate_time_ns: int,
+    *, snapshot: tuple[bytes, int] | None = None,
 ) -> tuple[dict[str, Any], str, list[dict[str, str]]]:
     """Derive one pytest scenario from its measured JUnit file.
 
@@ -4069,36 +4070,39 @@ def v2_scenario_from_results(
         record["blockers"] = sorted({item["code"] for item in findings})
         return record, category, findings
 
-    lexical = repository / junit
-    try:
-        resolved = lexical.resolve(strict=True)
-    except FileNotFoundError:
-        record["exitCode"] = 5
-        return fail(
-            "TEST_RESULTS_MISSING",
-            f"the declared result file {junit} does not exist; the scenario was not run",
-            "notRun",
-        )
-    except OSError:
-        return fail(
-            "INPUT_SCHEMA_INVALID", f"the result file {junit} cannot be resolved", "failed"
-        )
-    try:
-        resolved.relative_to(repository)
-    except ValueError:
-        return fail(
-            "INPUT_SCHEMA_INVALID",
-            f"the result file {junit} resolves outside the repository",
-            "failed",
-        )
-    if not resolved.is_file():
-        return fail("INPUT_SCHEMA_INVALID", f"the result file {junit} is not a file", "failed")
-    try:
-        content, mtime_ns = read_file_snapshot(resolved)
-    except OSError:
-        return fail(
-            "INPUT_SCHEMA_INVALID", f"the result file {junit} could not be read stably", "failed"
-        )
+    if snapshot is not None:
+        content, mtime_ns = snapshot
+    else:
+        lexical = repository / junit
+        try:
+            resolved = lexical.resolve(strict=True)
+        except FileNotFoundError:
+            record["exitCode"] = 5
+            return fail(
+                "TEST_RESULTS_MISSING",
+                f"the declared result file {junit} does not exist; the scenario was not run",
+                "notRun",
+            )
+        except OSError:
+            return fail(
+                "INPUT_SCHEMA_INVALID", f"the result file {junit} cannot be resolved", "failed"
+            )
+        try:
+            resolved.relative_to(repository)
+        except ValueError:
+            return fail(
+                "INPUT_SCHEMA_INVALID",
+                f"the result file {junit} resolves outside the repository",
+                "failed",
+            )
+        if not resolved.is_file():
+            return fail("INPUT_SCHEMA_INVALID", f"the result file {junit} is not a file", "failed")
+        try:
+            content, mtime_ns = read_file_snapshot(resolved)
+        except OSError:
+            return fail(
+                "INPUT_SCHEMA_INVALID", f"the result file {junit} could not be read stably", "failed"
+            )
     try:
         parsed = v2_parse_junit(content)
     except (ValueError, ElementTree.ParseError):
@@ -4537,7 +4541,15 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
                          for name, value in sorted(roots["constants"].items()))
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
-    if faults and record["storyId"] == "10.2":
+    if record["storyId"] == "10.3" and "evidenceWorkflowExecution" in record:
+        faults = record["evidenceWorkflowExecution"]["mutationLedger"]
+        lines.extend([f"{len(faults)} observed mutation results are bound to the retained receipts.", "",
+                      "| Fault | Expected blocker | Observed blockers | Before SHA-256 | After SHA-256 | Restored |",
+                      "| --- | --- | --- | --- | --- | --- |"])
+        lines.extend("| " + " | ".join(code(value) for value in (
+            row["id"], row["expectedBlocker"], ", ".join(row["observedBlockers"]),
+            row["beforeSha256"], row["afterSha256"], row["restored"])) + " |" for row in faults)
+    elif faults and record["storyId"] == "10.2":
         lines.extend(["| Fault | Expected blocker | Observed blockers | Before SHA-256 | After SHA-256 | Detected | Restored |",
                       "| --- | --- | --- | --- | --- | --- | --- |"])
         lines.extend("| " + " | ".join(code(value) for value in (
@@ -9010,13 +9022,86 @@ def v2_10_3_source_errors(repository: Path, record: dict[str, Any], validator: A
         if [row['command'] for row in record['scenarios']] != [row['command'] for row in contract['scenarios']]:
             problems.append('Story 10.3 effective scenario commands differ')
         consumer_candidate = consumer_candidate or resolve_commit(repository, 'HEAD', 'CANDIDATE_UNRESOLVABLE')
+        def committed_receipt(path: str) -> bytes:
+            content = v2_committed_blob(repository, consumer_candidate, path)
+            if content is None:
+                raise ValueError('a committed receipt is unavailable')
+            return content
+        scenarios, receipts, mutations = v2_10_3_receipt_facts(repository, contract, candidate, read_receipt=committed_receipt)
+        if scenarios != record['scenarios'] or receipts != facts['receipts'] or mutations != facts['mutationLedger']:
+            problems.append('Story 10.3 scenario or mutation ledgers differ from committed receipt derivation')
         for receipt in facts['receipts']:
             committed = v2_committed_blob(repository, consumer_candidate, receipt['path'])
             if committed is None or v2_sha256(committed) != receipt['sha256']:
                 problems.append('Story 10.3 retained receipt digest differs: ' + receipt['path'])
+    except V2Stop as error:
+        problems.append('Story 10.3 committed receipt derivation failed: ' + '; '.join(item['message'] for item in error.findings))
     except (KeyError, TypeError, ValueError, OSError, UnicodeError):
         problems.append('Story 10.3 committed consumption bindings are unavailable')
     return problems
+
+
+def v2_10_3_receipt_facts(repository: Path, contract: dict[str, Any], candidate: str,
+                         observed: dict[str, Any] | None = None, read_receipt: Any = None) -> tuple[list, list, list]:
+    """Derive ledgers and required faults from live or committed receipts using shared parsers."""
+    current = v2_10_3_current_module()
+    scenarios, receipts, mutations = [], [], []
+    candidate_time_ns = int(decode(run_git(repository, 'show', '-s', '--format=%ct', candidate).stdout).strip()) * 1_000_000_000
+    for scenario in contract['scenarios'][:-1]:
+        identity = scenario['id']
+        if identity in ('AC-10.3-01','AC-10.3-03'):
+            tokens = shlex.split(scenario['command'])
+            receipt_path = tokens[tokens.index('--output')+1]
+            content = read_receipt(receipt_path) if read_receipt else v2_10_1_artifact_bytes(repository, receipt_path)
+            measured = v2_parse_json(content)
+            try:
+                import jsonschema
+                jsonschema.validate(measured, json.loads((repository / current.SCHEMA).read_bytes()))
+            except (ValueError, jsonschema.ValidationError):
+                raise V2Stop([v2_finding('SCENARIO_RESULT_MISMATCH', identity, 'the verifier receipt violates its closed schema')], '10.3') from None
+            if (observed is not None and measured != observed) or measured['candidate'] != candidate or measured['result'] != 'PASS':
+                raise V2Stop([v2_finding('SCENARIO_RESULT_MISMATCH', identity, 'the verifier receipt differs from candidate re-evaluation')], '10.3')
+            receipt = dict(path=receipt_path, sha256=v2_sha256(content))
+            row = dict(scenarioId=identity, command=scenario['command'], exitCode=0, result='PASS', blockers=[],
+                assertionLedger=[dict(id=f'{identity}#{n+1:04d}',subject=entry['id']+'::'+entry['subject'],state=entry['state'])
+                    for n,entry in enumerate(measured['assertionLedger'])], resultFile=receipt, outputFiles=[receipt])
+        else:
+            command = v2_pytest_command(shlex.split(scenario['command']))
+            if command is None:
+                raise V2Stop([v2_finding('SCENARIO_COMMAND_UNSUPPORTED', identity, 'the effective pytest selector is unsupported')], '10.3')
+            content = read_receipt(str(command['junit'])) if read_receipt else v2_10_1_artifact_bytes(repository, str(command['junit']))
+            row, category, findings = v2_scenario_from_results(repository, scenario, command, candidate_time_ns,
+                snapshot=(content, candidate_time_ns) if read_receipt else None)
+            if findings or category != 'passed':
+                raise V2Stop(findings or [v2_finding('TEST_RESULTS_FAILED', identity, 'the required selector did not pass')], '10.3')
+            receipt = row['resultFile']
+            row['outputFiles'] = [receipt]
+            cases = v2_parse_junit(content)['cases']
+            for case in cases:
+                properties = dict(case['properties'])
+                if len(properties) != len(case['properties']):
+                    raise V2Stop([v2_finding('TEST_RESULTS_STALE', identity, 'testcase properties must be unique')], '10.3')
+                if properties.get('story103_source_revision') != candidate:
+                    raise V2Stop([v2_finding('TEST_RESULTS_STALE', identity, 'a testcase does not bind this committed candidate')], '10.3')
+                if 'story103_expected_code' in properties:
+                    code = properties['story103_expected_code']
+                    blockers = json.loads(properties['story103_observed_blockers'])
+                    before, after = properties['story103_before_sha256'], properties['story103_after_sha256']
+                    if code not in blockers or before != after:
+                        raise V2Stop([v2_finding('RECORD_NOT_DERIVED', identity, 'fault observation or restoration failed')], '10.3')
+                    mutations.append(dict(id=case['name'], expectedBlocker=code, observedBlockers=blockers,
+                        beforeSha256=before, afterSha256=after, restored=True, result='PASS'))
+        scenarios.append(row); receipts.append(receipt)
+    required_faults = {'EVIDENCE_BOUNDARY_GITLINK','EVIDENCE_HASH_MISMATCH','EVIDENCE_PATH_ESCAPE','EVIDENCE_FILE_MISSING','EVIDENCE_OUTPUT_FORBIDDEN',
+        'SIGNABLE_PAYLOAD_MISMATCH','CHANGED_PATH_SET_MISMATCH','ROOT_OF_TRUST_NOT_PINNED','SIGNED_EVIDENCE_ALLOWLISTED',
+        'REVISION_INVALID','EVIDENCE_READER_NOT_SHARED','EVIDENCE_READER_STRENGTH_REDUCED','EVIDENCE_GATE_NOT_USED','EVIDENCE_GATE_DISPLACED','EVIDENCE_ALIAS_ROUTE_BROKEN','EVIDENCE_GUIDANCE_NOT_BOUND'}
+    if not required_faults.issubset({row['expectedBlocker'] for row in mutations}):
+        raise V2Stop([v2_finding('RECORD_NOT_DERIVED', 'faults', 'required observed faults are missing')], '10.3')
+    scenarios.append(dict(scenarioId='AC-10.3-08', command=contract['scenarios'][-1]['command'], exitCode=0, result='PASS', blockers=[],
+        assertionLedger=[dict(id=f'AC-10.3-08#{n+1:04d}', subject=subject, state='PASS') for n,subject in enumerate((
+            'effective-contract-and-original-provenance', 'shared-verifier-and-current-route-checks', 'verified-10.2-predecessor-pair',
+            'seven-candidate-bound-receipts', 'closed-schema-and-deterministic-pair'))]))
+    return scenarios, receipts, mutations
 
 
 def v2_10_3_generate(options: dict[str, str], *, candidate: str | None = None,
@@ -9061,58 +9146,7 @@ def v2_10_3_generate(options: dict[str, str], *, candidate: str | None = None,
                 or (path == V2_10_3_SPEC and not valid_spec)
                 or (path != V2_10_3_SPEC and installed.read_bytes() != blob)):
             raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN', path, 'a scoped source differs from the candidate')], '10.3')
-    scenarios, receipts, mutations = [], [], []
-    candidate_time_ns = int(decode(run_git(repository, 'show', '-s', '--format=%ct', candidate).stdout).strip()) * 1_000_000_000
-    for scenario in contract['scenarios'][:-1]:
-        identity = scenario['id']
-        if identity in ('AC-10.3-01','AC-10.3-03'):
-            tokens = shlex.split(scenario['command'])
-            receipt_path = tokens[tokens.index('--output')+1]
-            content = v2_10_1_artifact_bytes(repository, receipt_path)
-            measured = v2_parse_json(content)
-            try:
-                import jsonschema
-                jsonschema.validate(measured, json.loads((repository / current.SCHEMA).read_bytes()))
-            except (ValueError, jsonschema.ValidationError):
-                raise V2Stop([v2_finding('SCENARIO_RESULT_MISMATCH', identity, 'the verifier receipt violates its closed schema')], '10.3') from None
-            if measured != observed:
-                raise V2Stop([v2_finding('SCENARIO_RESULT_MISMATCH', identity, 'the verifier receipt differs from candidate re-evaluation')], '10.3')
-            receipt = dict(path=receipt_path, sha256=v2_sha256(content))
-            row = dict(scenarioId=identity, command=scenario['command'], exitCode=0, result='PASS', blockers=[],
-                assertionLedger=[dict(id=f'{identity}#{n+1:04d}',subject=entry['id']+'::'+entry['subject'],state=entry['state'])
-                    for n,entry in enumerate(measured['assertionLedger'])], resultFile=receipt, outputFiles=[receipt])
-        else:
-            command = v2_pytest_command(shlex.split(scenario['command']))
-            if command is None:
-                raise V2Stop([v2_finding('SCENARIO_COMMAND_UNSUPPORTED', identity, 'the effective pytest selector is unsupported')], '10.3')
-            row, category, findings = v2_scenario_from_results(repository, scenario, command, candidate_time_ns)
-            if findings or category != 'passed':
-                raise V2Stop(findings or [v2_finding('TEST_RESULTS_FAILED', identity, 'the required selector did not pass')], '10.3')
-            receipt = row['resultFile']
-            row['outputFiles'] = [receipt]
-            cases = v2_parse_junit(v2_10_1_artifact_bytes(repository, receipt['path']))['cases']
-            for case in cases:
-                properties = dict(case['properties'])
-                if properties.get('story103_source_revision') != candidate:
-                    raise V2Stop([v2_finding('TEST_RESULTS_STALE', identity, 'a testcase does not bind this committed candidate')], '10.3')
-                if 'story103_expected_code' in properties:
-                    code = properties['story103_expected_code']
-                    blockers = json.loads(properties['story103_observed_blockers'])
-                    before, after = properties['story103_before_sha256'], properties['story103_after_sha256']
-                    if code not in blockers or before != after:
-                        raise V2Stop([v2_finding('RECORD_NOT_DERIVED', identity, 'fault observation or restoration failed')], '10.3')
-                    mutations.append(dict(id=case['name'], expectedBlocker=code, observedBlockers=blockers,
-                        beforeSha256=before, afterSha256=after, restored=True, result='PASS'))
-        scenarios.append(row); receipts.append(receipt)
-    required_faults = {'EVIDENCE_HASH_MISMATCH','EVIDENCE_PATH_ESCAPE','EVIDENCE_FILE_MISSING','EVIDENCE_OUTPUT_FORBIDDEN',
-        'SIGNABLE_PAYLOAD_MISMATCH','CHANGED_PATH_SET_MISMATCH','ROOT_OF_TRUST_NOT_PINNED','SIGNED_EVIDENCE_ALLOWLISTED',
-        'REVISION_INVALID','EVIDENCE_READER_NOT_SHARED','EVIDENCE_READER_STRENGTH_REDUCED','EVIDENCE_GATE_NOT_USED','EVIDENCE_GATE_DISPLACED','EVIDENCE_ALIAS_ROUTE_BROKEN','EVIDENCE_GUIDANCE_NOT_BOUND'}
-    if not required_faults.issubset({row['expectedBlocker'] for row in mutations}):
-        raise V2Stop([v2_finding('RECORD_NOT_DERIVED', 'faults', 'required observed faults are missing')], '10.3')
-    scenarios.append(dict(scenarioId='AC-10.3-08', command=contract['scenarios'][-1]['command'], exitCode=0, result='PASS', blockers=[],
-        assertionLedger=[dict(id=f'AC-10.3-08#{n+1:04d}', subject=subject, state='PASS') for n,subject in enumerate((
-            'effective-contract-and-original-provenance', 'shared-verifier-and-current-route-checks', 'verified-10.2-predecessor-pair',
-            'seven-candidate-bound-receipts', 'closed-schema-and-deterministic-pair'))]))
+    scenarios, receipts, mutations = v2_10_3_receipt_facts(repository, contract, candidate, observed)
     route_facts = v2_10_3_route_facts(repository,candidate,current.WORKFLOWS)
     bundle = v2_parse_json(v2_committed_blob(repository, candidate, binding['authorityBundle']['path']))
     bundle_digest = v2_sha256(''.join(f'{row["sha256"]}  {row["path"]}\n' for row in bundle['artifacts']).encode())

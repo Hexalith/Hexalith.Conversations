@@ -50,7 +50,7 @@
     },
     {
       "path": "tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
-      "sha256": "27f279debdbbe0e9c98c1df6fdc38a0d15e90b6e9a79e55afa51a4f46823c679",
+      "sha256": "236b7a7fbcfcb2d693cc5e5c16357ee5f3ca83850e16a6317f49761508c80ce0",
       "role": "provenance"
     }
   ],
@@ -61,7 +61,7 @@
   },
   "workflowInventory": {
     "id": "STORY-10.3-CURRENT-WORKFLOWS-v1",
-    "sha256": "c4bdff5c212d0927d37a5b116d029438f94c4e3397c1d86029ac2adb063cca09",
+    "sha256": "72a3ce5d6f4093aac0645feb4a82f2c2963d76ecbe25ab3f8f8851b180cc1462",
     "rows": [
       {
         "path": ".agents/skills/bmad-build/step-04-review.md",
@@ -70,22 +70,22 @@
       },
       {
         "path": ".agents/skills/bmad-build/step-05-present.md",
-        "sha256": "b8e7f73ac67f17b2d6c7c73fad661e7c9e86c3ad1e6cdcad3a2882cbf12afa72",
+        "sha256": "5a36ea19d52be58d97ae950ab2c9165d1aa4f5db0460fd426de6d5598db843bc",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-build/step-oneshot.md",
-        "sha256": "5c1548757b9b26935c6c5dc6c286b314c898bd2851dface49930df5e87973c05",
+        "sha256": "465cfc15beb4120170a24008253004db5e41ca2e4f536599128e52650e16afeb",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-build-auto/step-04-review.md",
-        "sha256": "ef58db009be51c4e1a826e0586af636b5244b4b1c72562fc4c2de087050b4695",
+        "sha256": "21bdbbfc9ad5e76c18ad721d13c87495d77653f99c7035cb1d2013f0af7c63a8",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-code-review/steps/step-04-present.md",
-        "sha256": "cb540ba4de17fbf49d211f3ca493bfb838b3b7ae0756ec265e87e3f5d80f48fc",
+        "sha256": "11ac1902cc659d67b3433f1ff2b70f248008ddc0b0d92d5313590dc0c89029b4",
         "role": "workflow"
       },
       {
@@ -95,22 +95,22 @@
       },
       {
         "path": ".claude/skills/bmad-build/step-05-present.md",
-        "sha256": "b8e7f73ac67f17b2d6c7c73fad661e7c9e86c3ad1e6cdcad3a2882cbf12afa72",
+        "sha256": "5a36ea19d52be58d97ae950ab2c9165d1aa4f5db0460fd426de6d5598db843bc",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-build/step-oneshot.md",
-        "sha256": "5c1548757b9b26935c6c5dc6c286b314c898bd2851dface49930df5e87973c05",
+        "sha256": "465cfc15beb4120170a24008253004db5e41ca2e4f536599128e52650e16afeb",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-build-auto/step-04-review.md",
-        "sha256": "ef58db009be51c4e1a826e0586af636b5244b4b1c72562fc4c2de087050b4695",
+        "sha256": "21bdbbfc9ad5e76c18ad721d13c87495d77653f99c7035cb1d2013f0af7c63a8",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-code-review/steps/step-04-present.md",
-        "sha256": "cb540ba4de17fbf49d211f3ca493bfb838b3b7ae0756ec265e87e3f5d80f48fc",
+        "sha256": "11ac1902cc659d67b3433f1ff2b70f248008ddc0b0d92d5313590dc0c89029b4",
         "role": "workflow"
       }
     ]
@@ -193,6 +193,7 @@
     "docs/runbooks/story-final-record-generation.md",
     "tests/Hexalith.Conversations.TestSupport.Runner/Hexalith.Conversations.TestSupport.Runner.csproj",
     "tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
+    "tests/Hexalith.Conversations.TestSupport/CSharpSourceDeclarations.cs",
     "tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj",
     "tests/tooling/test_evidence_boundary_current.py"
   ],

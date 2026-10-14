@@ -63,14 +63,24 @@ def bridge(repository: Path, request: dict[str, Any]) -> dict[str, Any]:
     tool_root = Path(__file__).resolve().parents[2]
     assembly = tool_root / ASSEMBLY
     # Build on each entry so changed helper sources cannot use stale compiled facts.
-    build = subprocess.run(['dotnet', 'build', str(tool_root / PROJECT), '--configuration', 'Debug',
-        '--nologo', '-p:NuGetAudit=false', '-p:ImportDirectoryPackagesProps=false'], capture_output=True, timeout=120)
+    try:
+        build = subprocess.run(['dotnet', 'build', str(tool_root / PROJECT), '--configuration', 'Debug',
+            '--nologo', '-p:NuGetAudit=false', '-p:ImportDirectoryPackagesProps=false'], capture_output=True, timeout=120)
+    except FileNotFoundError:
+        raise RuntimeError('HELPER_UNAVAILABLE') from None
     if build.returncode:
-        raise RuntimeError('HELPER_UNAVAILABLE')
-    run = subprocess.run(['dotnet', str(assembly)], input=json.dumps({'repository': str(repository), **request}).encode(),
-        capture_output=True, timeout=60)
+        raise RuntimeError('HELPER_FAILURE')
+    try:
+        run = subprocess.run(['dotnet', str(assembly)], input=json.dumps({'repository': str(repository), **request}).encode(),
+            capture_output=True, timeout=60)
+    except FileNotFoundError:
+        raise RuntimeError('HELPER_UNAVAILABLE') from None
     try:
         response = json.loads(run.stdout)
+        if run.returncode and isinstance(response, dict):
+            codes = response.get('blockers', [])
+            if len(codes) == 1 and codes[0] in FAIL_CODES | BLOCKED_CODES:
+                raise RuntimeError(codes[0])
         if run.returncode or not isinstance(response, dict) or 'assertionLedger' not in response:
             raise ValueError('invalid helper envelope')
     except (ValueError, TypeError):
@@ -91,7 +101,7 @@ def finalize(result: dict[str, Any], *, applicable: bool) -> dict[str, Any]:
         if not any(row['state'] == 'SKIPPED' for row in rows):
             result['blockers'] = sorted(set(result['blockers']) | {'SCOPE_NOT_EVALUATED'})
             rows.append(dict(id='scope', subject='applicable-scope', state='FAIL'))
-    if any(row['state'] == 'SKIPPED' for row in rows) and not any(row['state'] == 'FAIL' for row in rows):
+    if any(row['state'] == 'SKIPPED' for row in rows) and not any(row['state'] == 'FAIL' for row in rows) and not set(result['blockers']) & FAIL_CODES:
         result['result'] = 'BLOCKED'
     elif result['blockers'] or any(row['state'] == 'FAIL' for row in rows):
         result['result'] = 'FAIL'
@@ -100,7 +110,18 @@ def finalize(result: dict[str, Any], *, applicable: bool) -> dict[str, Any]:
     if not applicable and not result['blockers']:
         result['assertionLedger'] = []
         result['warnings'] = ['EVIDENCE_SCOPE_NOT_APPLICABLE']
-    jsonschema.validate(result, json.loads((Path(__file__).resolve().parents[2] / SCHEMA).read_bytes()))
+    schema = json.loads((Path(__file__).resolve().parents[2] / SCHEMA).read_bytes())
+    try:
+        jsonschema.validate(result, schema)
+    except jsonschema.ValidationError:
+        raw = json.dumps(result, ensure_ascii=True, sort_keys=True, default=str)
+        candidate = result.get('candidate')
+        result = empty_result(candidate if isinstance(candidate, str) and len(candidate) == 40
+            and all(character in '0123456789abcdef' for character in candidate) else None)
+        result['result'] = 'FAIL'
+        result['blockers'] = ['RESULT_SCHEMA_INVALID']
+        result['assertionLedger'] = [dict(id='result:schema', subject=raw, state='FAIL')]
+        jsonschema.validate(result, schema)
     return result
 
 
@@ -136,6 +157,24 @@ def historical_provenance_result(repository: Path, rows: list[dict[str, Any]]) -
         else:
             record(result, 'provenance:baseline:' + path, path, declared[path] == row['sha256'], 'EVIDENCE_HASH_MISMATCH')
     return finalize(result, applicable=True)
+
+
+def approved_roots(repository: Path) -> dict[str, Any]:
+    """Derive the permitted consumer and pins from verified approved-baseline provenance."""
+    import generate_story_record as generator
+    path = HISTORICAL_PROVENANCE[4]
+    measured = bridge(repository, dict(baseline=BASELINE, candidate=BASELINE, blobPaths=[path]))
+    row = measured['blobs'][0]
+    if measured['result'] != 'PASS' or row.get('content') is None:
+        raise RuntimeError('AUTHORITY_UNAVAILABLE')
+    _, validators = generator.v2_load_schemas()
+    previous = generator.v2_verified_predecessor(repository, BASELINE, '10.2', path,
+        HISTORICAL_PROVENANCE[5], validators['record'])
+    if previous != row['sha256']:
+        raise RuntimeError('ROOT_OF_TRUST_NOT_PINNED')
+    record = generator.v2_parse_json(base64.b64decode(row['content']))
+    return dict(sourcePath=CURRENT_PROVENANCE, constants=dict(Story102RecordSha256=previous,
+        Story102CandidateCommit=record['candidate']['commit']), allowlist=[])
 
 
 def workflow_checks(repository: Path, result: dict[str, Any], binding: dict[str, Any]) -> None:
@@ -219,6 +258,12 @@ def verify(repository: Path, baseline: str, candidate: str, *, authority_bundle:
         initial = bridge(repository, dict(baseline=baseline, candidate=candidate,inspectChangedReaders=True,containedPaths=[binding_path,authority_bundle],blobPaths=[
             'docs/release-evidence/story-10.3-final-record-v2.json','docs/release-evidence/story-10.3-final-record-v2.md']))
         result['candidate'] = initial['candidate']
+        candidate = initial['candidate'] or candidate
+        baseline = initial.get('baseline') or baseline
+        if initial['result'] == 'BLOCKED':
+            result['blockers'] = [code for code in initial['blockers'] if code in BLOCKED_CODES] or ['HISTORY_UNAVAILABLE']
+            result['assertionLedger'] = initial['assertionLedger']
+            return finalize(result, applicable=True)
         if any(row['code'] for row in initial['containedPaths']):
             result['blockers'] = ['EVIDENCE_PATH_ESCAPE']
             result['assertionLedger'] = [dict(id='containment',subject=binding_path,state='FAIL')]
@@ -230,10 +275,6 @@ def verify(repository: Path, baseline: str, candidate: str, *, authority_bundle:
             raise FileNotFoundError(authority_bundle)
         import generate_story_record as generator
         binding = generator.v2_parse_json(binding_file.read_bytes())
-        if initial['result'] == 'BLOCKED':
-            result['blockers'] = [code for code in initial['blockers'] if code in BLOCKED_CODES] or ['HISTORY_UNAVAILABLE']
-            result['assertionLedger'] = initial['assertionLedger']
-            return finalize(result, applicable=True)
         entries = initial.get('diff') or []
         paths = sorted({entry['path'] for entry in entries} | {entry['sourcePath'] for entry in entries if entry['sourcePath']})
         result['changedPaths'] = paths
@@ -282,12 +323,14 @@ def verify(repository: Path, baseline: str, candidate: str, *, authority_bundle:
         result['blockers'].extend(provenance['blockers'])
         if provenance['result'] == 'BLOCKED':
             return finalize(result, applicable=True)
+        roots = approved_roots(repository)
+        record(result, 'roots:approved', CURRENT_PROVENANCE, binding['rootConstants'] == roots, 'ROOT_OF_TRUST_NOT_PINNED')
         manifest = binding['provenance'] + binding['workflowInventory']['rows'] + binding['guidanceInventory']['rows'] + publication_manifest
         manifest = [dict(path=row['path'], sha256=row['sha256'], role=row.get('role', 'evidence')) for row in manifest]
         payload = ''.join(f'{row["path"]}\t{row["sha256"]}\t{row["role"]}\n' for row in sorted(manifest, key=lambda row: row['path']))
         facts = bridge(repository, dict(baseline=baseline, candidate=candidate,
             expectedPaths=expected_paths, manifest=manifest,
-            signablePayloadHash=digest(payload.encode()), roots=binding['rootConstants'],
+            signablePayloadHash=digest(payload.encode()), roots=roots,
             blobPaths=[row['path'] for row in manifest] + [binding_path]))
         result['manifest'] = manifest
         result['assertionLedger'].extend(facts['assertionLedger'])
@@ -366,15 +409,28 @@ def main(arguments: list[str] | None = None) -> int:
     content = json.dumps(document, indent=2) + '\n'
     if args.output:
         try:
-            containment = bridge(repository,dict(baseline=args.baseline,candidate=args.candidate,containedPaths=[args.output]))
+            containment = bridge(repository,dict(baseline=BASELINE,candidate=document['candidate'] or args.candidate,
+                containedPaths=[args.output],includeTreePaths=True))
             path_fact = containment['containedPaths'][0]
             if path_fact['code']:
                 document['blockers'].append('EVIDENCE_PATH_ESCAPE')
                 document['assertionLedger'].append(dict(id='output:containment',subject=args.output,state='FAIL'))
             else:
                 target = Path(path_fact['fullPath'])
-                target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_text(content)
+                protected = set(containment.get('treePaths', [])) | set(document['changedPaths']) | set(WORKFLOWS + GUIDANCE + HISTORICAL_PROVENANCE)
+                protected |= {row['path'] for row in document['manifest']} | {args.authority_bundle,args.current_binding,CONTRACT,SCHEMA,PROJECT,CURRENT_PROVENANCE}
+                protected |= {path.relative_to(repository).as_posix() for path in (repository/'.git').rglob('*') if path.is_file()}
+                relative = target.relative_to(repository)
+                collision = any(part.casefold() == '.git' for part in relative.parts) or relative.as_posix() in protected or (target.exists() and any(
+                    (repository/path).is_file() and target.samefile(repository/path) for path in protected))
+                if collision:
+                    record(document, 'output:protected-input', args.output, False, 'EVIDENCE_OUTPUT_FORBIDDEN')
+                elif containment.get('result') == 'BLOCKED':
+                    document['blockers'].extend(containment['blockers'])
+                    document['assertionLedger'].append(dict(id='output:history',subject=args.output,state='SKIPPED'))
+                else:
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_text(content)
         except (RuntimeError, subprocess.TimeoutExpired) as error:
             code = str(error) if str(error) in STABLE_CODES else 'HELPER_UNAVAILABLE'
             document['blockers'].append(code)

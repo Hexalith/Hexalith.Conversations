@@ -7,8 +7,8 @@ internal static class CSharpSourceDeclarations
 {
     private static readonly char[] LineTerminators = ['\r', '\n', '\u0085', '\u2028', '\u2029'];
 
-    /// <summary>Omits comments, nonliteral strings, characters, and all conditional directive regions.</summary>
-    internal static IReadOnlyList<string> UnconditionalTokens(string source)
+    /// <summary>Omits comments, characters, and conditional regions; historical callers also omit nonliteral strings.</summary>
+    internal static IReadOnlyList<string> UnconditionalTokens(string source, bool includeStringSpelling = false)
     {
         List<string> tokens = [];
         int index = 0;
@@ -51,7 +51,7 @@ internal static class CSharpSourceDeclarations
             if (quote < source.Length && source[quote] == '"')
             {
                 index = ReadString(source, start, quote, out bool literal);
-                if (conditionalDepth == 0) tokens.Add(literal ? source[start..index] : "<string>");
+                if (conditionalDepth == 0) tokens.Add(literal || includeStringSpelling ? source[start..index] : "<string>");
                 continue;
             }
             if (current == '\'')

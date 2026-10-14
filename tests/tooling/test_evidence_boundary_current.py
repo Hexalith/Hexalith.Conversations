@@ -97,8 +97,8 @@ def test_stable_code_contract_bridge_faults(git_repository, fault, expected, rec
         observed = current.bridge(root, request)
         record_property('story103_observed_blockers', json.dumps(observed['blockers']))
         record_property('story103_expected_code', expected)
-        assert expected in observed['blockers']
-        assert observed['blockers'] == sorted(set(observed['blockers']))
+        expected_codes = {expected}
+        assert observed['blockers'] == sorted(expected_codes)
         assert observed['result'] != 'PASS'
     finally:
         (root / 'evidence.txt').write_bytes(original)
@@ -108,7 +108,7 @@ def test_stable_code_contract_bridge_faults(git_repository, fault, expected, rec
     assert (root / 'evidence.txt').read_bytes() == original
 
 
-def test_stable_code_contract_raw_gitlink_is_never_filtered(git_repository):
+def test_stable_code_contract_raw_gitlink_is_never_filtered(git_repository,record_property):
     root, before, candidate = git_repository
     index = root / '.git/index'
     original = index.read_bytes()
@@ -123,6 +123,10 @@ def test_stable_code_contract_raw_gitlink_is_never_filtered(git_repository):
     finally:
         index.write_bytes(original)
     assert index.read_bytes() == original
+    record_property('story103_expected_code','EVIDENCE_BOUNDARY_GITLINK')
+    record_property('story103_observed_blockers',json.dumps(observed['blockers']))
+    record_property('story103_before_sha256',hashlib.sha256(original).hexdigest())
+    record_property('story103_after_sha256',hashlib.sha256(index.read_bytes()).hexdigest())
 
 
 def test_workflow_tree_and_render_parity(surfaces):
@@ -174,8 +178,11 @@ def test_lifecycle_transition_semantics(surfaces,state,exit_code,allowed):
         decision = current.transition_decision(document,exit_code)
         assert decision['allowed'] is allowed
         assert decision['recordedResult'] == state
-        if exit_code != {'PASS':0,'FAIL':1,'BLOCKED':2,'not-applicable':0}[state]:
-            assert 'EVIDENCE_RESULT_EXIT_MISMATCH' in decision['blockers']
+        expected_codes = {('PASS',0):[],('PASS',1):['EVIDENCE_RESULT_EXIT_MISMATCH'],
+            ('FAIL',1):['EVIDENCE_HASH_MISMATCH'],('FAIL',0):['EVIDENCE_HASH_MISMATCH','EVIDENCE_RESULT_EXIT_MISMATCH'],
+            ('BLOCKED',2):['HISTORY_UNAVAILABLE'],('BLOCKED',0):['EVIDENCE_RESULT_EXIT_MISMATCH','HISTORY_UNAVAILABLE'],
+            ('not-applicable',0):[],('not-applicable',1):['EVIDENCE_RESULT_EXIT_MISMATCH']}
+        assert decision['blockers'] == expected_codes[(state,exit_code)]
         content = (root / path).read_text()
         block = content[content.index(current.BEGIN):content.index(current.END)]
         for clause in ('`FAIL`/`1`', '`BLOCKED`/`2`', 'halt review, completion, and unattended finalization',
@@ -208,7 +215,14 @@ def test_invocation_removal_and_displacement(surfaces, fault, expected, record_p
         observed = workflows(root, binding)
         record_property('story103_observed_blockers', json.dumps(observed['blockers']))
         record_property('story103_expected_code', expected)
-        assert expected in observed['blockers']
+        expected_codes = {
+            'remove':['EVIDENCE_GATE_NOT_USED','EVIDENCE_WORKFLOW_PARITY_DRIFT'],
+            'malformed':['EVIDENCE_GATE_NOT_USED','EVIDENCE_WORKFLOW_PARITY_DRIFT'],
+            'displace':['EVIDENCE_GATE_DISPLACED','EVIDENCE_WORKFLOW_PARITY_DRIFT'],
+            'retired':['EVIDENCE_ALIAS_ROUTE_BROKEN'],
+            'guidance':['EVIDENCE_GUIDANCE_NOT_BOUND'],
+        }
+        assert observed['blockers'] == expected_codes[fault]
     finally:
         path.write_bytes(original); guidance.write_bytes(original_guidance)
         if retired.exists(): shutil.rmtree(retired)
@@ -256,13 +270,13 @@ def test_stable_code_contract_changed_reader_requires_real_helpers(tmp_path,faul
     source = root/'tests/Reader.cs'; source.parent.mkdir()
     original = b'''class Reader { const string Trusted = "pinned";
     void Check() { GitFacts git = new(); EvidenceManifest manifest = new(); AssertionLedger ledger = new();
-    BoundaryAssertions.True(ledger, "identity", true); } }'''
+    BoundaryAssertions.True(ledger, "identity", valid); } }'''
     source.write_bytes(original); git('add','.'); git('commit','-qm','test: establish reader')
     before = git('rev-parse','HEAD')
     if fault == 'comment-spoof':
         source.write_bytes(b'// GitFacts git = new(); EvidenceManifest manifest = new(); AssertionLedger ledger = new(); BoundaryAssertions.True\nclass Reader { const string Trusted = "pinned"; }')
     else:
-        source.write_bytes(original.replace(b'BoundaryAssertions.True(ledger, "identity", true);',b'BoundaryAssertions.NoGitlinks(ledger, "identity", diff);'))
+        source.write_bytes(original.replace(b'BoundaryAssertions.True(ledger, "identity", valid);',b'BoundaryAssertions.NoGitlinks(ledger, "identity", diff);'))
     git('add','.'); git('commit','-qm','test: inject reader fault')
     observed = current.bridge(root,dict(baseline=before,candidate=git('rev-parse','HEAD'),readerPaths=['tests/Reader.cs']))
     record_property('story103_observed_blockers',json.dumps(observed['blockers']))
@@ -270,7 +284,7 @@ def test_stable_code_contract_changed_reader_requires_real_helpers(tmp_path,faul
     source.write_bytes(original)
     record_property('story103_before_sha256',hashlib.sha256(original).hexdigest())
     record_property('story103_after_sha256',hashlib.sha256(source.read_bytes()).hexdigest())
-    assert expected in observed['blockers']
+    assert observed['blockers'] == sorted({expected,'EVIDENCE_READER_STRENGTH_REDUCED'} if fault == 'comment-spoof' else {expected})
     assert source.read_bytes() == original
 
 
@@ -339,6 +353,7 @@ def test_current_binding_inventory_digests_and_membership_fail_closed(tmp_path,m
         return dict(result='PASS',blobs=[],assertionLedger=[dict(id='neutral',subject='neutral',state='PASS')],blockers=[])
     monkeypatch.setattr(current,'bridge',facts)
     monkeypatch.setattr(current,'workflow_checks',lambda *args:None)
+    monkeypatch.setattr(current,'approved_roots',lambda *args:binding['rootConstants'])
     import generate_story_record as generator
     monkeypatch.setattr(generator,'v2_verified_predecessor',lambda *args:binding['predecessor']['sha256'])
     observed=current.verify(tmp_path,current.BASELINE,'HEAD',authority_bundle=binding['authorityBundle']['path'])
@@ -411,3 +426,240 @@ def test_current_historical_provenance_unavailable_is_blocked(tmp_path,monkeypat
     assert observed['result']=='BLOCKED'
     assert observed['blockers']==['AUTHORITY_UNAVAILABLE']
     assert any(row['state']=='SKIPPED' for row in observed['assertionLedger'])
+
+
+def reader_fixture(root, old_source, new_source):
+    def git(*args):
+        return subprocess.run(['git','-C',str(root),*args],check=True,capture_output=True,text=True).stdout.strip()
+    git('init','-q');git('config','user.name','Fixture');git('config','user.email','fixture@example.invalid')
+    path=root/'tests/Reader.cs';path.parent.mkdir()
+    if old_source is not None:path.write_text(old_source)
+    else:(root/'ordinary.txt').write_text('baseline')
+    git('add','.');git('commit','-qm','test: establish reader fixture');before=git('rev-parse','HEAD')
+    if new_source is None:path.unlink()
+    else:path.write_text(new_source)
+    git('add','.');git('commit','-qm','test: change reader fixture')
+    return git,before,git('rev-parse','HEAD')
+
+
+@pytest.mark.parametrize('expression', [
+    '"docs/release-evidence/signed.json"', '@"docs\\release-evidence\\signed.json"',
+    '"""docs/release-evidence/signed.json"""', '$"docs/release-evidence/{name}.json"',
+    '$@"docs\\release-evidence\\{name}.json"', '$$"""docs/release-evidence/{{name}}.json"""',
+    '"docs\\\\release-evidence\\\\signed.json"', 'Path.Combine("docs", "release-evidence", "signed.json")',
+])
+def test_current_reader_literal_forms_are_inspected(tmp_path,expression):
+    source='class Reader { void Read() { File.ReadAllText('+expression+'); } }'
+    _,before,candidate=reader_fixture(tmp_path,None,source)
+    observed=current.bridge(tmp_path,dict(baseline=before,candidate=candidate,inspectChangedReaders=True))
+    assert observed['evidenceReaders']==['tests/Reader.cs']
+    assert observed['blockers']==['EVIDENCE_READER_NOT_SHARED']
+
+
+@pytest.mark.parametrize('construction', ['GitFacts git = new(); EvidenceManifest manifest = new(); AssertionLedger ledger = new();',
+    'var git = new GitFacts(); var manifest = new EvidenceManifest(); var ledger = new AssertionLedger();'])
+def test_current_shared_reader_construction_and_meaningful_predicate_pass(tmp_path,construction):
+    source='class Reader { void Read() { '+construction+' BoundaryAssertions.True(ledger, "stable-id", measured); } }'
+    _,before,candidate=reader_fixture(tmp_path,None,source)
+    observed=current.bridge(tmp_path,dict(baseline=before,candidate=candidate,inspectChangedReaders=True))
+    assert observed['result']=='PASS'
+    assert observed['blockers']==[]
+
+
+@pytest.mark.parametrize('change', ['identity','true','parenthesized-true','meaningful','delete'])
+def test_current_reader_assertion_identity_and_predicate_strength(tmp_path,change):
+    original='class Reader { void Read() { var git = new GitFacts(); var manifest = new EvidenceManifest(); var ledger = new AssertionLedger(); BoundaryAssertions.True(ledger, "stable-id", measured); } }'
+    changed=original
+    if change=='identity':changed=original.replace('stable-id','different-id')
+    if change=='true':changed=original.replace('measured','true')
+    if change=='parenthesized-true':changed=original.replace('measured','(true)')
+    if change=='meaningful':changed=original.replace('measured','otherMeasured')
+    if change=='delete':changed=None
+    _,before,candidate=reader_fixture(tmp_path,original,changed)
+    observed=current.bridge(tmp_path,dict(baseline=before,candidate=candidate,inspectChangedReaders=True))
+    expected=[] if change=='meaningful' else ['EVIDENCE_READER_STRENGTH_REDUCED']
+    if change=='delete':expected=['EVIDENCE_READER_NOT_SHARED','EVIDENCE_READER_STRENGTH_REDUCED']
+    assert observed['blockers']==expected
+    assert not any(row['state']=='SKIPPED' for row in observed['assertionLedger'])
+
+
+@pytest.mark.parametrize('failure', ['compiler','missing-tool','request','malformed-envelope'])
+def test_current_bridge_preserves_helper_failure_classification(tmp_path,monkeypatch,failure):
+    calls=[]
+    def run(*args,**kwargs):
+        calls.append(args[0])
+        if failure=='missing-tool':raise FileNotFoundError('dotnet')
+        if len(calls)==1:return subprocess.CompletedProcess(args[0],1 if failure=='compiler' else 0,b'error CS1002' if failure=='compiler' else b'',b'')
+        return subprocess.CompletedProcess(args[0],1,json.dumps(dict(result='FAIL',blockers=['HELPER_REQUEST_INVALID'])).encode() if failure=='request' else b'broken',b'')
+    monkeypatch.setattr(current.subprocess,'run',run)
+    code={'compiler':'HELPER_FAILURE','missing-tool':'HELPER_UNAVAILABLE','request':'HELPER_REQUEST_INVALID','malformed-envelope':'HELPER_FAILURE'}[failure]
+    observed=current.verify(tmp_path,current.BASELINE,'HEAD',authority_bundle='authority.json')
+    assert observed['blockers']==[code]
+    assert observed['result']==('BLOCKED' if failure=='missing-tool' else 'FAIL')
+
+
+@pytest.mark.parametrize('output', [current.BINDING,'authority.json','tracked.cs','.git/config','.git/index','alias.json','metadata-alias.json'])
+def test_current_output_collision_preserves_protected_bytes(tmp_path,monkeypatch,capsys,output):
+    subprocess.run(['git','init','--quiet',str(tmp_path)],check=True)
+    for path in (current.BINDING,'authority.json','tracked.cs'):
+        target=tmp_path/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_text('protected')
+    (tmp_path/'alias.json').hardlink_to(tmp_path/'tracked.cs')
+    (tmp_path/'metadata-alias.json').hardlink_to(tmp_path/'.git/config')
+    target=tmp_path/output
+    if not target.exists():target.write_bytes(b'disposable-index-fixture')
+    original=target.read_bytes()
+    document=current.empty_result('a'*40);document.update(result='PASS',assertionLedger=[dict(id='scope',subject='evaluated',state='PASS')])
+    monkeypatch.setattr(current,'verify',lambda *_args,**_kwargs:copy.deepcopy(document))
+    monkeypatch.setattr(current,'bridge',lambda *_args:dict(result='PASS',treePaths=['tracked.cs'],containedPaths=[dict(code=None,fullPath=str(target))]))
+    exit_code=current.main(['--repository',str(tmp_path),'--baseline',current.BASELINE,'--authority-bundle','authority.json','--output',output])
+    observed=json.loads(capsys.readouterr().out)
+    assert exit_code==1
+    assert observed['result']=='FAIL'
+    assert observed['blockers']==['EVIDENCE_OUTPUT_FORBIDDEN']
+    assert target.read_bytes()==original
+    assert (tmp_path/'tracked.cs').read_bytes()==b'protected'
+
+
+def test_current_public_cli_dispatch_emits_closed_scoped_failure(tmp_path):
+    subprocess.run(['git','clone','--quiet','--local','--no-hardlinks',str(ROOT),str(tmp_path/'checkout')],check=True,capture_output=True)
+    run=subprocess.run([sys.executable,str(ROOT/'_bmad/scripts/verify_evidence_boundary.py'),'--repository',str(tmp_path/'checkout'),
+        '--baseline','HEAD','--candidate','HEAD','--authority-bundle','_bmad-output/planning-artifacts/v9-authority-bundle-v1.json','--format','json'],capture_output=True,text=True)
+    observed=json.loads(run.stdout)
+    assert run.returncode==1 and observed['result']=='FAIL'
+    assert observed['blockers']==['AUTHORITY_BINDING_INVALID']
+    assert not current.transition_decision(observed,run.returncode)['allowed']
+
+
+def test_current_result_schema_failure_keeps_raw_filename_and_blocks_transition():
+    document=current.empty_result('a'*40)
+    document.update(result='PASS',changedPaths=['tests/line\nbreak.cs'],assertionLedger=[dict(id='scope',subject='measured',state='PASS')])
+    observed=current.finalize(document,applicable=True)
+    assert observed['result']=='FAIL' and observed['blockers']==['RESULT_SCHEMA_INVALID']
+    raw=json.loads(observed['assertionLedger'][0]['subject'])
+    assert raw['changedPaths']==['tests/line\nbreak.cs']
+    assert not current.transition_decision(observed,1)['allowed']
+
+
+def test_stable_code_contract_unavailable_history_cannot_pass():
+    document=current.empty_result('a'*40)
+    document.update(blockers=['UNAVAILABLE_HISTORY_PASSED'],assertionLedger=[dict(id='history',subject='missing authority',state='SKIPPED'),dict(id='history',subject='missing authority',state='PASS')])
+    observed=current.finalize(document,applicable=True)
+    assert observed['result']=='FAIL' and observed['blockers']==['UNAVAILABLE_HISTORY_PASSED']
+
+
+def test_current_approved_roots_are_derived_from_verified_baseline():
+    binding=json.loads((ROOT/current.BINDING).read_bytes())
+    assert current.approved_roots(ROOT)==binding['rootConstants']
+
+
+@pytest.mark.parametrize('pin', ['source','digest','candidate'])
+def test_current_roots_rebinding_is_rejected_independently(tmp_path,pin):
+    root=tmp_path/'checkout'
+    subprocess.run(['git','clone','--quiet','--local','--no-hardlinks',str(ROOT),str(root)],check=True,capture_output=True)
+    binding=json.loads((root/current.BINDING).read_bytes())
+    if pin=='source':
+        binding['rootConstants']['sourcePath']='forged-roots.cs'
+        (root/'forged-roots.cs').write_bytes((root/current.CURRENT_PROVENANCE).read_bytes())
+        binding['expectedChangedPaths']=sorted([*binding['expectedChangedPaths'],'forged-roots.cs'])
+    else:
+        key='Story102RecordSha256' if pin=='digest' else 'Story102CandidateCommit'
+        old=binding['rootConstants']['constants'][key];new='f'*len(old)
+        binding['rootConstants']['constants'][key]=new
+        source=root/current.CURRENT_PROVENANCE;source.write_bytes(source.read_bytes().replace(old.encode(),new.encode()))
+        for row in binding['provenance']:
+            if row['path']==current.CURRENT_PROVENANCE:row['sha256']=current.digest(source.read_bytes())
+    (root/current.BINDING).write_text(json.dumps(binding,indent=2)+'\n')
+    subprocess.run(['git','-C',str(root),'add','--',current.BINDING,current.CURRENT_PROVENANCE,*(['forged-roots.cs'] if pin=='source' else [])],check=True)
+    subprocess.run(['git','-C',str(root),'-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','--quiet','-m','test: rebind candidate roots'],check=True,capture_output=True)
+    observed=current.verify(root,current.BASELINE,'HEAD',authority_bundle=binding['authorityBundle']['path'],verify_workflows=True)
+    assert observed['result']=='FAIL' and 'ROOT_OF_TRUST_NOT_PINNED' in observed['blockers']
+    assert dict(id='roots:approved',subject=current.CURRENT_PROVENANCE,state='FAIL') in observed['assertionLedger']
+
+
+def test_current_verifier_carries_canonical_candidate_into_dependent_requests(tmp_path,monkeypatch,capsys):
+    binding=json.loads((ROOT/current.BINDING).read_bytes())
+    target=tmp_path/current.BINDING;target.parent.mkdir(parents=True);target.write_text(json.dumps(binding))
+    authority=tmp_path/binding['authorityBundle']['path'];authority.write_text('{}')
+    requests=[]
+    def bridge(root,request):
+        requests.append(copy.deepcopy(request))
+        if request.get('includeTreePaths'):
+            return dict(result='PASS',treePaths=[],containedPaths=[dict(code=None,fullPath=str(tmp_path/'result.json'))])
+        if request.get('inspectChangedReaders'):
+            return dict(result='PASS',candidate='a'*40,baseline=current.BASELINE,evidenceReaders=[],
+                containedPaths=[dict(code=None,fullPath=str(target)),dict(code=None,fullPath=str(authority))],
+                blobs=[dict(path=path,content=None) for path in ('docs/release-evidence/story-10.3-final-record-v2.json','docs/release-evidence/story-10.3-final-record-v2.md')],
+                diff=[dict(path='_bmad/scripts/changed.py',sourcePath=None,sourceMode='100644',destinationMode='100644')],assertionLedger=[],blockers=[])
+        return dict(result='PASS',blobs=[],assertionLedger=[dict(id='measured',subject='fixture',state='PASS')],blockers=[])
+    monkeypatch.setattr(current,'bridge',bridge)
+    monkeypatch.setattr(current,'historical_provenance_result',lambda *_args:dict(result='PASS',assertionLedger=[],blockers=[]))
+    monkeypatch.setattr(current,'approved_roots',lambda *_args:binding['rootConstants'])
+    monkeypatch.setattr(current,'workflow_checks',lambda *_args:None)
+    import generate_story_record as generator
+    monkeypatch.setattr(generator,'v2_verified_predecessor',lambda *_args:binding['predecessor']['sha256'])
+    assert current.main(['--repository',str(tmp_path),'--baseline',current.BASELINE,'--candidate','HEAD',
+        '--authority-bundle',binding['authorityBundle']['path'],'--output','result.json'])==0
+    assert json.loads(capsys.readouterr().out)['candidate']=='a'*40
+    assert requests[0]['candidate']=='HEAD'
+    assert all(request['candidate']=='a'*40 and request['baseline']==current.BASELINE for request in requests[1:])
+
+
+def test_current_public_cli_invalid_filename_is_schema_valid_fail(tmp_path):
+    root=tmp_path/'checkout'
+    subprocess.run(['git','clone','--quiet','--local','--no-hardlinks',str(ROOT),str(root)],check=True,capture_output=True)
+    subprocess.run(['git','-C',str(root),'checkout','--quiet',current.BASELINE],check=True,capture_output=True)
+    name='tests/line\nbreak.cs';(root/name).write_text('class Reader { void Read() { File.ReadAllText("docs/release-evidence/signed.json"); } }')
+    subprocess.run(['git','-C',str(root),'add','--',name],check=True)
+    subprocess.run(['git','-C',str(root),'-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','--quiet','-m','test: legal newline path'],check=True,capture_output=True)
+    (root/current.BINDING).write_bytes((ROOT/current.BINDING).read_bytes())
+    run=subprocess.run([sys.executable,str(ROOT/'_bmad/scripts/verify_evidence_boundary.py'),'--repository',str(root),
+        '--baseline',current.BASELINE,'--candidate','HEAD','--authority-bundle','_bmad-output/planning-artifacts/v9-authority-bundle-v1.json','--verify-workflows','--format','json'],capture_output=True,text=True)
+    observed=json.loads(run.stdout)
+    assert run.returncode==1 and observed['blockers']==['RESULT_SCHEMA_INVALID']
+    assert name in json.loads(observed['assertionLedger'][0]['subject'])['changedPaths']
+
+
+def install_git_fault_wrapper(root,tmp_path,monkeypatch,body):
+    wrapper=tmp_path/'tools';wrapper.mkdir()
+    actual=shutil.which('git')
+    script=wrapper/'git'
+    script.write_text('#!'+sys.executable+'\nimport os,sys,subprocess,json\nactual='+repr(actual)+'\nroot='+repr(str(root))+'\n'+body+'\nos.execv(actual,[actual,*sys.argv[1:]])\n')
+    script.chmod(0o755)
+    import os
+    monkeypatch.setenv('PATH',str(wrapper)+os.pathsep+os.environ['PATH'])
+
+
+@pytest.mark.parametrize('side', ['old','current'])
+def test_current_existing_reader_blob_failure_is_skipped_and_blocked(tmp_path,monkeypatch,side):
+    root=tmp_path/'repo';root.mkdir()
+    original='class Reader { void Read() { var git = new GitFacts(); var manifest = new EvidenceManifest(); var ledger = new AssertionLedger(); BoundaryAssertions.True(ledger,"id",measured); } }'
+    git,before,candidate=reader_fixture(root,original,original.replace('measured','otherMeasured'))
+    object_id=git('rev-parse',(before if side=='old' else candidate)+':tests/Reader.cs')
+    install_git_fault_wrapper(root,tmp_path,monkeypatch,'if os.getcwd()==root and "cat-file" in sys.argv and sys.argv[-1]=='+repr(object_id)+':\n    sys.stderr.write("fixture object unavailable");sys.exit(128)')
+    observed=current.bridge(root,dict(baseline=before,candidate=candidate,inspectChangedReaders=True))
+    assert observed['result']=='BLOCKED' and observed['blockers']==['HISTORY_UNAVAILABLE']
+    assert dict(id='reader:blob:'+side+':tests/Reader.cs',subject='tests/Reader.cs',state='SKIPPED') in observed['assertionLedger']
+
+
+def test_current_reader_reads_pin_the_first_resolved_head(tmp_path,monkeypatch):
+    root=tmp_path/'repo';root.mkdir()
+    source='class Reader { void Read() { var git = new GitFacts(); var manifest = new EvidenceManifest(); var ledger = new AssertionLedger(); BoundaryAssertions.True(ledger,"id",measured); } }'
+    git,before,candidate=reader_fixture(root,source,source.replace('measured','otherMeasured'))
+    (root/'tests/Reader.cs').write_text('class Reader { void Read() { File.ReadAllText("docs/release-evidence/signed.json"); } }')
+    git('add','.');git('commit','-qm','test: advance mutable head');advanced=git('rev-parse','HEAD');git('update-ref','HEAD',candidate)
+    install_git_fault_wrapper(root,tmp_path,monkeypatch,'if os.getcwd()==root and "rev-parse" in sys.argv and "HEAD^{commit}" in sys.argv:\n    result=subprocess.run([actual,*sys.argv[1:]],capture_output=True);subprocess.run([actual,"update-ref","HEAD",'+repr(advanced)+'],check=True);sys.stdout.buffer.write(result.stdout);sys.stderr.buffer.write(result.stderr);sys.exit(result.returncode)')
+    observed=current.bridge(root,dict(baseline=before,candidate='HEAD',inspectChangedReaders=True))
+    assert git('rev-parse','HEAD')==advanced
+    assert observed['candidate']==candidate and observed['result']=='PASS' and observed['blockers']==[]
+
+
+def test_current_runner_reports_registered_invalid_request(tmp_path):
+    with pytest.raises(RuntimeError,match='^HELPER_REQUEST_INVALID$'):
+        current.bridge(tmp_path,dict(baseline='a'*40))
+
+
+def test_current_cli_argument_failure_is_closed_blocked(tmp_path,capsys):
+    exit_code=current.main(['--repository',str(tmp_path)])
+    result=json.loads(capsys.readouterr().out)
+    assert exit_code==2 and result['result']=='BLOCKED'
+    assert result['blockers']==['ARGUMENT_INVALID']

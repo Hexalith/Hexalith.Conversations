@@ -129,13 +129,13 @@ checks the later `HEAD` and its complete raw diff, including every gitlink.
    ```
 
    Require exit `0`, and require the `summary` of the record printed on stdout to equal the contract's `finalRecord.summary` exactly.
-2. Unless `<json>` and `<md>` both already equal their committed `HEAD` bytes, commit exactly those two files as a record-only commit. Insert the bytes of `<md>` verbatim between the `<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->` lines of `{spec_file}`, replacing anything already between them. When the spec has no such pair, append a blank line, the begin line, the Markdown, and the end line at its end. Then require exit `0` from:
+2. For Story 10.3, the publication set is exactly nine files: `<json>`, `<md>`, and every one of the seven `evidenceWorkflowExecution.receipts` paths. Unless all nine equal their committed `HEAD` bytes, commit exactly those nine files together as a record-only commit. For other stories, unless `<json>` and `<md>` both already equal their committed `HEAD` bytes, commit exactly those two files as a record-only commit. Insert the bytes of `<md>` verbatim between the `<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->` lines of `{spec_file}`, replacing anything already between them. When the spec has no such pair, append a blank line, the begin line, the Markdown, and the end line at its end. Then require exit `0` from:
 
    ```bash
    uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . --contract <contract> --verify-inserted-record {spec_file}
    ```
 
-   After the record-only commit, commit no source or gitlink change; a source change requires first committing the removal of both `<json>` and `<md>`, then restarting this gate from the new candidate.
+   After the record-only commit, commit no source or gitlink change; a source change requires first withdrawing the inserted record region and committing removal of the entire publication set (all nine files for Story 10.3; both `<json>` and `<md>` for other stories), then restarting this gate from the new candidate.
 3. Blocker branch: on any nonzero exit, summary mismatch, required commit that is not authorized, commit failure, or verification failure, keep or return `{spec_file}` and the story's sprint-status row to `in-progress`, and never write `review` or `done`. Report the exact command, its exit, and every stable blocker code, then HALT. Remediate the named condition and rerun; never hand-edit the pair, a result file, or the inserted region into agreement.
 <!-- STORY-COMPLETION-GATE:END v1 -->
 
@@ -156,8 +156,9 @@ If version control is unavailable, set `{spec_file}` frontmatter `status: done`,
 If version control is available, write `status: done` into `{spec_file}` frontmatter, then:
 
 1. Commit any reviewed-diff files that remain uncommitted, including `{spec_file}` when it is tracked in that working copy. Keep commits already created during this run. Verify every reviewed-diff file appears in the change set after `{baseline_revision}` and none remains uncommitted. Do not push.
-2. Verify the version-controlled working copy is clean. Otherwise HALT with status `blocked` and blocking condition `finalization left repository dirty`.
 
 After committing a governed done transition, rerun its `--verify-inserted-record` command at the new `HEAD` and require exit `0`. On any other exit, apply the gate's blocker branch, committing the return to `in-progress` as a new validated Conventional Commit.
+
+2. Verify the version-controlled working copy is clean. Otherwise HALT with status `blocked` and blocking condition `finalization left repository dirty`.
 
 HALT with status `done`.

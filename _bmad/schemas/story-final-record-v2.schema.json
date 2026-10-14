@@ -5600,7 +5600,7 @@
           },
           "minItems": 17,
           "uniqueItems": true,
-          "maxItems": 17
+          "maxItems": 18
         },
         "sourceFiles": {
           "type": "array",
