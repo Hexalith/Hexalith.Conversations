@@ -9107,7 +9107,7 @@ def v2_10_3_receipt_facts(repository: Path, contract: dict[str, Any], candidate:
 
 
 def v2_10_3_generate(options: dict[str, str], *, candidate: str | None = None,
-                     verify_spec: str | None = None) -> bytes:
+                     verify_spec: str | None = None, consumer_candidate: str | None = None) -> bytes:
     """Generate from the approved current binding, shared verifier and measured receipts."""
     current = v2_10_3_current_module()
     repository = validate_repository(Path(options.get('--repository') or default_repository()))
@@ -9139,6 +9139,7 @@ def v2_10_3_generate(options: dict[str, str], *, candidate: str | None = None,
     # Compare every reviewed source to its candidate blob; lifecycle insertion is
     # checked separately. Unrelated staged user changes are outside this scope.
     source_files = []
+    consumer_head = (consumer_candidate or resolve_commit(repository, 'HEAD', 'CANDIDATE_UNRESOLVABLE')) if verify_spec is not None else None
     for path in binding['sourcePaths']:
         blob = v2_committed_blob(repository, candidate, path)
         if blob is None:
@@ -9147,9 +9148,14 @@ def v2_10_3_generate(options: dict[str, str], *, candidate: str | None = None,
         installed = repository / path
         valid_spec = path == V2_10_3_SPEC and installed.is_file() and not installed.is_symlink() and v2_working_spec_lifecycle_only_change(
             repository, candidate, path, installed.read_bytes(), record_region=True, task_checkboxes=True)
+        valid_sprint = (consumer_head is not None and path == '_bmad-output/implementation-artifacts/sprint-status.yaml'
+            and installed.is_file() and not installed.is_symlink()
+            and installed.read_bytes() == v2_committed_blob(repository, consumer_head, path)
+            and v2_sprint_status_only_change(repository, candidate, consumer_head,
+                '10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface'))
         if (installed.is_symlink() or not installed.is_file()
                 or (path == V2_10_3_SPEC and not valid_spec)
-                or (path != V2_10_3_SPEC and installed.read_bytes() != blob)):
+                or (path != V2_10_3_SPEC and installed.read_bytes() != blob and not valid_sprint)):
             raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN', path, 'a scoped source differs from the candidate')], '10.3')
     scenarios, receipts, mutations = v2_10_3_receipt_facts(repository, contract, candidate, observed)
     route_facts = v2_10_3_route_facts(repository,candidate,current.WORKFLOWS)
@@ -9241,7 +9247,7 @@ def v2_10_3_verify_inserted(options: dict[str,str]) -> bytes:
         raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT','outputs','the Story 10.3 pair must be committed first')], '10.3')
     record = v2_parse_json(json_bytes)
     problems = v2_schema_errors(validators['record'],record) + v2_verify_pair(json_bytes,markdown_bytes)
-    problems += v2_10_3_source_errors(repository,record,validators['record'])
+    problems += v2_10_3_source_errors(repository,record,validators['record'],head)
     if problems:
         raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT','10.3','; '.join(problems))], '10.3')
     candidate = record['candidate']['commit']
@@ -9263,7 +9269,7 @@ def v2_10_3_verify_inserted(options: dict[str,str]) -> bytes:
         if (repository/path).read_bytes() != content:
             raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT',path,'the installed pair differs from committed bytes')], '10.3')
     derived = v2_10_3_generate({'--repository':str(repository),'--contract':V2_10_3_CONTRACT,
-        '--format':'bundle','--output-json':json_path,'--output-markdown':markdown_path},candidate=candidate,verify_spec=spec_path)
+        '--format':'bundle','--output-json':json_path,'--output-markdown':markdown_path},candidate=candidate,verify_spec=spec_path,consumer_candidate=head)
     if derived != json_bytes:
         raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT','10.3','candidate rederivation differs from the pair')], '10.3')
     return json_bytes

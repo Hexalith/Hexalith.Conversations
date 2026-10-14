@@ -2,7 +2,7 @@
 title: 'Story 10.3: Evidence verifier and workflow enforcement'
 type: 'feature'
 created: '2026-10-14'
-status: 'in-progress'
+status: 'in-review'
 baseline_commit: '10f395a690b3f581771891e5f69fc5858a5d1d12'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -128,3 +128,5 @@ Post-done verification, 2026-10-14: `uv run --frozen --no-sync python3 _bmad/scr
 - Earlier focused runs exposed and corrected `test_v2_schema_contract_hold_metaschema_and_identities` (stale exact regex expectation, replaced with valid/invalid value checks), `test_v2_every_code_is_documented_in_the_runbook` (inherited codes missing from the runbook), and `test_every_gate_route_reruns_inserted_record_verification_after_its_done_commit` (missing post-done verification clauses). The canonical blocker branch required by `test_v2_blocker_prevents_state_transition_on_every_surface` is restored across all eleven completion surfaces.
 
 The owner approved the baseline refresh and Story 10.3-only twelve-root schema adaptation, as recorded in the Spec Change Log. The applied current scope baseline is `10f395a690b3f581771891e5f69fc5858a5d1d12`; the 34 reviewed source paths are retained independently of the exact post-entry diff, and historical provenance remains pinned to `7f24b72d57da65745cdecdea5b5e7c0da1313b4d`. Status is `in-review` for resumed independent verification. The publication task remains unchecked; fresh acceptance execution, publication, and inserted verification are pending.
+
+The attempted publication `90b8f1c87207acc612d5b2b35096223b1eed3852` and completion claim remain superseded by the post-done failure above. Withdrawal `297f9dfc294cb49eebf2f9258d5e448d01f6b30d` removed its exact nine files and inserted region before the source fix. Renewed verification starts from `in-review` with the final publication task unchecked. Story 10.3 inserted rederivation now permits only a committed consumer-HEAD sprint change limited to its owned story row and update dates; initial generation and uncommitted sprint changes remain strict. Fresh acceptance, publication, insertion and done verification are pending.

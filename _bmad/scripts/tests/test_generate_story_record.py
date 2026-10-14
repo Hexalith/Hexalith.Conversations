@@ -11470,7 +11470,9 @@ def story103_receipt_repository(tmp_path,monkeypatch):
     monkeypatch.setattr(current,'historical_provenance_result',lambda *_args:dict(result='PASS',blockers=[],assertionLedger=[]))
     approved=json.loads(run_git(WORKSPACE,'show',current.BASELINE+':'+current.BINDING).stdout)['expectedChangedPaths']
     monkeypatch.setattr(current,'approved_source_paths',lambda *_args:approved)
-    monkeypatch.setattr(current,'bridge',lambda *_args:dict(result='PASS',blockers=[]))
+    neutral_bridge=current.bridge
+    monkeypatch.setattr(current,'bridge',lambda repository,request:dict(result='PASS',blockers=[])
+        if 'expectedPaths' in request else neutral_bridge(repository,request))
     monkeypatch.setattr(generator,'v2_verified_predecessor',lambda *_args:binding['predecessor']['sha256'])
     codes=['EVIDENCE_BOUNDARY_GITLINK','EVIDENCE_HASH_MISMATCH','EVIDENCE_PATH_ESCAPE','EVIDENCE_FILE_MISSING','EVIDENCE_OUTPUT_FORBIDDEN',
         'SIGNABLE_PAYLOAD_MISMATCH','CHANGED_PATH_SET_MISMATCH','ROOT_OF_TRUST_NOT_PINNED','SIGNED_EVIDENCE_ALLOWLISTED',
@@ -11617,3 +11619,83 @@ def test_story103_generation_rejects_omitted_reviewed_source(story103_receipt_re
     run_git(repository,'commit','--quiet','-m','test: omit reviewed source')
     with pytest.raises(generator.V2Stop) as error:generator.v2_10_3_generate(options)
     assert error.value.findings[0]['code']=='AUTHORITY_BINDING_INVALID'
+
+
+@pytest.mark.parametrize('fault', ['none','unrelated-row','uncommitted-sprint'])
+def test_story103_inserted_rederivation_accepts_only_committed_owned_sprint_completion(story103_receipt_repository,monkeypatch,fault):
+    generator,repository,candidate,options=story103_receipt_repository
+    json_bytes=generator.v2_10_3_generate(options)
+    record=generator.v2_parse_json(json_bytes)
+    markdown=(repository/record['outputs']['markdown']['path']).read_bytes()
+    publication={record['outputs'][kind]['path'] for kind in ('json','markdown')}
+    publication.update(row['path'] for row in record['evidenceWorkflowExecution']['receipts'])
+    run_git(repository,'add','--all','--',*sorted(publication))
+    assert set(run_git(repository,'diff','--cached','--name-only').stdout.splitlines())==publication
+    run_git(repository,'commit','--quiet','-m','test: publish retained receipt fixture')
+    spec=repository/generator.V2_10_3_SPEC
+    original=spec.read_bytes()
+    completed=original.replace(b"status: 'in-review'",b"status: 'done'",1).replace(b'- [ ] ',b'- [x] ')
+    assert completed != original
+    spec.write_bytes(completed+b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\n'+markdown+generator.RECORD_END_MARKER.encode()+b'\n')
+    sprint_path='_bmad-output/implementation-artifacts/sprint-status.yaml'
+    sprint=repository/sprint_path
+    story_key='10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface'
+    initial_sprint=sprint.read_bytes()
+    completed_sprint=initial_sprint.replace((story_key+': in-progress').encode(),(story_key+': done').encode(),1)
+    completed_sprint=re.sub(rb'(?m)^last_updated: .+$',b'last_updated: 2026-10-15',completed_sprint)
+    completed_sprint=re.sub(rb'(?m)^# last_updated: .+$',b'# last_updated: 2026-10-15',completed_sprint)
+    assert completed_sprint != initial_sprint
+    sprint.write_bytes(completed_sprint)
+    run_git(repository,'add','--',generator.V2_10_3_SPEC,sprint_path)
+    run_git(repository,'commit','--quiet','-m','test: complete story 10.3 fixture lifecycle')
+    head=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    assert generator.v2_sprint_status_only_change(repository,candidate,head,story_key)
+    assert generator.v2_10_3_descendant_errors(repository,record,head)==[]
+    verify_options={'--repository':str(repository),generator.V2_VERIFY_OPTION:generator.V2_10_3_SPEC}
+    consumer_reads=[];resolutions=[]
+    generate=generator.v2_10_3_generate;source_errors=generator.v2_10_3_source_errors;resolve=generator.resolve_commit
+    def captured_generate(*args,**kwargs):
+        consumer_reads.append(('sprint',kwargs.get('consumer_candidate')))
+        return generate(*args,**kwargs)
+    def captured_source_errors(*args,**kwargs):
+        consumer_reads.append(('receipts',args[3] if len(args)>3 else kwargs.get('consumer_candidate')))
+        return source_errors(*args,**kwargs)
+    def captured_resolve(*args,**kwargs):
+        resolutions.append(args[1])
+        return resolve(*args,**kwargs)
+    with monkeypatch.context() as capture:
+        capture.setattr(generator,'v2_10_3_generate',captured_generate)
+        capture.setattr(generator,'v2_10_3_source_errors',captured_source_errors)
+        capture.setattr(generator,'resolve_commit',captured_resolve)
+        assert generator.v2_10_3_verify_inserted(verify_options)==json_bytes
+    assert consumer_reads==[('receipts',head),('sprint',head)]
+    assert resolutions.count('HEAD')==1
+    # The committed completion exception applies only to inserted rederivation.
+    with pytest.raises(generator.V2Stop) as strict:
+        generator.v2_10_3_generate(options,candidate=candidate)
+    assert strict.value.findings[0]['code']=='WORKTREE_NOT_CLEAN'
+    assert strict.value.findings[0]['subject']==sprint_path
+    if fault=='none':return
+    if fault=='unrelated-row':
+        other='10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection'
+        changed=sprint.read_bytes().replace((other+': backlog').encode(),(other+': done').encode(),1)
+        assert changed != sprint.read_bytes()
+        sprint.write_bytes(changed)
+        run_git(repository,'add','--',sprint_path)
+        run_git(repository,'commit','--quiet','-m','test: inject post-publication drift')
+        head=run_git(repository,'rev-parse','HEAD').stdout.strip()
+        assert not generator.v2_sprint_status_only_change(repository,candidate,head,story_key)
+        assert generator.v2_10_3_descendant_errors(repository,record,head)
+    else:
+        dirty=sprint.read_bytes().replace(b'last_updated: 2026-10-15',b'last_updated: 2026-10-16',1)
+        assert dirty != sprint.read_bytes()
+        sprint.write_bytes(dirty)
+        assert generator.v2_sprint_status_only_change(repository,candidate,head,story_key)
+        assert sprint.read_bytes()!=generator.v2_committed_blob(repository,head,sprint_path)
+    with pytest.raises(generator.V2Stop) as rederived:
+        generator.v2_10_3_generate(options,candidate=candidate,verify_spec=generator.V2_10_3_SPEC)
+    assert rederived.value.findings[0]['code']=='WORKTREE_NOT_CLEAN'
+    assert rederived.value.findings[0]['subject']==sprint_path
+    with pytest.raises(generator.V2Stop) as inserted:
+        generator.v2_10_3_verify_inserted(verify_options)
+    assert inserted.value.findings[0]['code']==('RECORD_CONTENT_DRIFT' if fault=='unrelated-row' else 'WORKTREE_NOT_CLEAN')
