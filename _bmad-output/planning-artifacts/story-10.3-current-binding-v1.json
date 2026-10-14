@@ -61,7 +61,7 @@
   },
   "workflowInventory": {
     "id": "STORY-10.3-CURRENT-WORKFLOWS-v1",
-    "sha256": "9e49013c1bd11893dbae67bb802e7e841551c6062e1d23f5cfc3aa0410808419",
+    "sha256": "c4bdff5c212d0927d37a5b116d029438f94c4e3397c1d86029ac2adb063cca09",
     "rows": [
       {
         "path": ".agents/skills/bmad-build/step-04-review.md",
@@ -70,22 +70,22 @@
       },
       {
         "path": ".agents/skills/bmad-build/step-05-present.md",
-        "sha256": "8c9bd08fd87757358f1f90049dbc88f8bbf82197f4f8781225405586c78a1a0b",
+        "sha256": "b8e7f73ac67f17b2d6c7c73fad661e7c9e86c3ad1e6cdcad3a2882cbf12afa72",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-build/step-oneshot.md",
-        "sha256": "26845755cfc4fae0362f6b3be286b42906758e434c26819ae0330047069b6696",
+        "sha256": "5c1548757b9b26935c6c5dc6c286b314c898bd2851dface49930df5e87973c05",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-build-auto/step-04-review.md",
-        "sha256": "a6c70510f472ae2e1f8971e51eb7a1b984280a47907a867d59d7e32abb536a49",
+        "sha256": "ef58db009be51c4e1a826e0586af636b5244b4b1c72562fc4c2de087050b4695",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-code-review/steps/step-04-present.md",
-        "sha256": "500ab6b8d9c91a9554aecb1e7300037546eb959c1a132a74667903271bc8c314",
+        "sha256": "cb540ba4de17fbf49d211f3ca493bfb838b3b7ae0756ec265e87e3f5d80f48fc",
         "role": "workflow"
       },
       {
@@ -95,22 +95,22 @@
       },
       {
         "path": ".claude/skills/bmad-build/step-05-present.md",
-        "sha256": "8c9bd08fd87757358f1f90049dbc88f8bbf82197f4f8781225405586c78a1a0b",
+        "sha256": "b8e7f73ac67f17b2d6c7c73fad661e7c9e86c3ad1e6cdcad3a2882cbf12afa72",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-build/step-oneshot.md",
-        "sha256": "26845755cfc4fae0362f6b3be286b42906758e434c26819ae0330047069b6696",
+        "sha256": "5c1548757b9b26935c6c5dc6c286b314c898bd2851dface49930df5e87973c05",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-build-auto/step-04-review.md",
-        "sha256": "a6c70510f472ae2e1f8971e51eb7a1b984280a47907a867d59d7e32abb536a49",
+        "sha256": "ef58db009be51c4e1a826e0586af636b5244b4b1c72562fc4c2de087050b4695",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-code-review/steps/step-04-present.md",
-        "sha256": "500ab6b8d9c91a9554aecb1e7300037546eb959c1a132a74667903271bc8c314",
+        "sha256": "cb540ba4de17fbf49d211f3ca493bfb838b3b7ae0756ec265e87e3f5d80f48fc",
         "role": "workflow"
       }
     ]
