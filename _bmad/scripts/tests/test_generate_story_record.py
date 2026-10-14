@@ -11435,7 +11435,9 @@ def test_story103_generation_rejects_working_spec_intent_drift(tmp_path,monkeypa
     binding=json.loads((WORKSPACE/generator.V2_10_3_BINDING).read_bytes())
     for path in binding['sourcePaths']:
         (repository/path).write_bytes((WORKSPACE/path).read_bytes())
-    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: commit reviewed source inventory')
+    run_git(repository,'add','--all')
+    if run_git(repository,'diff','--cached','--name-only').stdout.strip():
+        run_git(repository,'commit','--quiet','-m','test: commit reviewed source inventory')
     spec=repository/generator.V2_10_3_SPEC
     spec.write_bytes(spec.read_bytes().replace(b'**Problem:**',b'**Unapproved problem:**',1))
     current=generator.v2_10_3_current_module()
