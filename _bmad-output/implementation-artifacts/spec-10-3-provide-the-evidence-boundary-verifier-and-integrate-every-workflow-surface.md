@@ -2,7 +2,7 @@
 title: 'Story 10.3: Evidence verifier and workflow enforcement'
 type: 'feature'
 created: '2026-10-14'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '10f395a690b3f581771891e5f69fc5858a5d1d12'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -57,7 +57,7 @@ context:
 - [x] `_bmad/custom/bmad-{build,build-auto,review}.toml` and `docs/runbooks/current-change-validation.md` — bind approved scoped guidance and unchanged routine behavior.
 - [x] `_bmad/scripts/tests/test_verify_evidence_boundary.py` and `tests/tooling/test_evidence_boundary_current.py` — implement five contracted selectors and bridge/current regressions: stable codes, parity, anti-vacuity, transitions, gate/retired-route/guidance faults. Mutations restore bytes; historical suites stay outside routine CI.
 - [x] `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/story-final-record-v2.schema.json`, and `_bmad/scripts/tests/test_generate_story_record.py` — add closed 10.3 facts, receipt validation and candidate-aware pair/inserted verification; prove unchanged 10.1/10.2 consumption.
-- [x] `docs/release-evidence/story-10.3-final-record-v2.{json,md}` — generate from committed sources and AC-01..07, verify insertion, and retain outputs.
+- [ ] `docs/release-evidence/story-10.3-final-record-v2.{json,md}` — generate from committed sources and AC-01..07, verify insertion, and retain outputs.
 
 **Acceptance Criteria:**
 
@@ -117,6 +117,8 @@ Historical blocked-publication finding: publication was blocked because another 
 Historical pending-approval note: owner approval was pending to use `02672d4ddd3c9bc54eed3f9f14c155c41f3834a2` as the frozen baseline and adapt the current binding/schema for its 12 root gitlinks. No replacement acceptance publication or done transition is claimed. The publication task remains open and status returned to `in-progress` while this approval is pending.
 
 Final verification, 2026-10-14: the approved refresh is complete at evaluated source `5c315a24ca0187ba2b79642e8db081cbab11fb52`. The configured pinned Python lane passed 1,701 tests and 55 subtests with zero failures, errors, or skips; exact command/JUnit evidence is retained in `/tmp/story103-approved-full-5c315a24ca0187ba2b79642e8db081cbab11fb52/`. The first adapted-source lane found one fixture-only empty-commit error; the fixture now reuses an unchanged committed candidate, its focused and clean post-commit regressions pass, and the complete lane was rerun successfully. All eight effective acceptance commands exited `0`, producing summary `8/8/0/0/0/0`, seven candidate-bound receipts, 18 restored mutations, ten current routes, 34 source hashes, and twelve root gitlinks. The exact nine-file publication is `90b8f1c87207acc612d5b2b35096223b1eed3852`; its pair and inserted Markdown verify, and its full HEAD boundary returns PASS with zero gitlink changes. All 23 review findings are patched; nothing is deferred. The earlier pending-publication notes describe the retained pre-publication history. The spec is complete; the build workflow moves its sprint row to `review`.
+
+Post-done verification, 2026-10-14: `uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/story-10.3-current-contract-v1.json --verify-inserted-record _bmad-output/implementation-artifacts/spec-10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface.md` exited `1` with `WORKTREE_NOT_CLEAN`, subject `sprint-status.yaml`. The generator rechecks all 34 sources but permits lifecycle-only working changes only for the spec, so its accepted committed sprint-row transition is incorrectly rejected. This supersedes the preceding completion claim: the spec and sprint row return to `in-progress`, the publication task is reopened, and the nine-file publication and inserted region will be withdrawn before the source fix.
 
 ## Verification
 
