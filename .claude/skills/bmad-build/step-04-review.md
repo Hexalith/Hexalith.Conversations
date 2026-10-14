@@ -8,6 +8,20 @@
 
 ## INSTRUCTIONS
 
+<!-- EVIDENCE-BOUNDARY-GATE:BEGIN v1 -->
+When the spec explicitly requires evidence-boundary verification, run its effective
+contract command before this governed transition. Story 10.3 uses
+`python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.3-current-binding-v1.json --baseline 7f24b72d57da65745cdecdea5b5e7c0da1313b4d --candidate HEAD --verify-workflows --format json`.
+Use `_bmad/scripts/evidence_boundary_current.py::transition_decision` to interpret the recorded result and exit.
+Require the recorded result and exit to agree: `PASS`/`0` or explicit
+`not-applicable`/`0` continues; record `not-applicable` distinctly.
+`FAIL`/`1` and `BLOCKED`/`2` halt review, completion, and unattended finalization.
+Report the exact command, exit, and sorted unique blocker codes; keep the spec
+`in-progress` and never write `review` or `done` after failure.
+For routine work without an explicit evidence requirement, follow
+`docs/runbooks/current-change-validation.md` and its focused checks.
+<!-- EVIDENCE-BOUNDARY-GATE:END v1 -->
+
 Change `{spec_file}` status to `in-review` in the frontmatter before continuing.
 
 ### Stage the Diff

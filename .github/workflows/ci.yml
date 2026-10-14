@@ -129,10 +129,15 @@ jobs:
 
       # The Epic 6 supersession suite reads gitlink commit objects, which need
       # initialized submodules; it stays in the local lane only.
+      - name: Initialize .NET for the package-free evidence bridge
+        uses: actions/setup-dotnet@v6.0.0
+        with:
+          global-json-file: global.json
+
       - name: Test BMAD repository tooling
         run: >-
           uv run --frozen --no-sync python3 -m pytest -q -ra -p no:cacheprovider
-          _bmad/scripts/tests
+          _bmad/scripts/tests tests/tooling/test_evidence_boundary_current.py
           --ignore=_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py
           --junitxml=TestResults/bmad-scripts/bmad-scripts.xml
 

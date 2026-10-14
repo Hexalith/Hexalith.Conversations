@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Remove="Shouldly" />
+    <Using Remove="Xunit" />
+    <ProjectReference Include="../Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj" />
+  </ItemGroup>
+</Project>

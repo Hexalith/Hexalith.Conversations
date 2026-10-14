@@ -8,5 +8,5 @@ review_guidance = [
 code = "evidence-boundary"
 name = "Evidence Boundary"
 applies_to = "any"
-when = "The user explicitly requests reproduction or review of a historical evidence-boundary result."
-instruction = "Apply the historical evidence-boundary runbook to the named result and report its actual state without converting FAIL or BLOCKED to PASS."
+when = "The spec explicitly requires evidence-boundary verification, or the user requests reproduction or review of a historical result."
+instruction = "For explicitly required current evidence work, enforce the effective scoped evidence-boundary contract; FAIL and BLOCKED halt, and not-applicable is recorded distinctly. Apply the historical evidence-boundary runbook to the named result and report its actual state without converting FAIL or BLOCKED to PASS."

@@ -2,8 +2,8 @@
 title: 'Story 10.3: Evidence verifier and workflow enforcement'
 type: 'feature'
 created: '2026-10-14'
-status: 'ready-for-dev'
-baseline_commit: '0056c9f0335094e7f5b253aba7ec257bd68b0b4f'
+status: 'in-progress'
+baseline_commit: '7f24b72d57da65745cdecdea5b5e7c0da1313b4d'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -25,7 +25,7 @@ context:
 
 **Never:** Filter gitlinks to manufacture a pass, rewrite historical authority/accepted records, migrate the 27 frozen readers reserved for 10.4, change production APIs or conformance membership, or edit installed customization defaults.
 
-**Owner decision, 2026-10-14:** Use current policy: ten surviving workflow routes, additive effective binding/contract, and entry baseline `0056c9f0335094e7f5b253aba7ec257bd68b0b4f`. Keep absent legacy routes/aliases retired and historical bundle bytes as provenance. Gate explicitly required evidence work; preserve routine validation and restore the existing Story 7.3 completion guard.
+**Owner decision, 2026-10-14:** Use current policy: ten surviving workflow routes, additive effective binding/contract, and entry baseline `7f24b72d57da65745cdecdea5b5e7c0da1313b4d`. Keep absent legacy routes/aliases retired and historical bundle bytes as provenance. Gate explicitly required evidence work; preserve routine validation and restore the existing Story 7.3 completion guard.
 
 ## I/O & Edge-Case Matrix
 
@@ -68,7 +68,14 @@ context:
 
 ## Implementation Notes
 
+- Added a non-shipping JSON bridge over the neutral TestSupport helpers, including committed Git facts, exact diffs, raw gitlinks, manifest/hash/path checks, literal roots, assertion ledgers, and changed-reader declaration checks.
+- Added the current-policy binding and effective eight-AC contract; mirrored the scoped gate across ten surviving routes, restored Story 7.3 completion and post-done verification guards, and bound current project-owned guidance without changing installed defaults.
+- Added closed candidate-bound Story 10.3 generator facts, seven retained receipt paths, pair/inserted verification, and a checked publication scope that keeps actual HEAD diffs and gitlinks visible after record publication.
+- Updated current CI to install the pinned SDK and exercise the package-free bridge without initializing submodules. Focused regressions cover helper faults, reader spoofing/strength loss, workflow faults/parity, non-vacuity, lifecycle result/exit mismatches, and post-publication source/gitlink drift.
+
 ## Spec Change Log
+
+- 2026-10-14 — The owner explicitly authorized “Use entry commit 7f24b72 as the approved baseline (recommended)”, identifying full revision `7f24b72d57da65745cdecdea5b5e7c0da1313b4d`. This replaces `0056c9f0335094e7f5b253aba7ec257bd68b0b4f`, whose diff already contained the EventStore and Folders gitlink updates in the specification commit. The frozen Owner decision and frontmatter baseline are amended only for this authorization. All pointers, accepted records, original contracts, and historical authority bytes are preserved.
 
 ## Review Triage Log
 

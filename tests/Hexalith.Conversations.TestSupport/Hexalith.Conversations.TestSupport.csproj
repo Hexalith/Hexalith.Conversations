@@ -4,6 +4,7 @@
     <IsPublishable>false</IsPublishable>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Hexalith.Conversations.TestSupport.Runner" />
     <Using Remove="Shouldly" />
     <Using Remove="Xunit" />
   </ItemGroup>

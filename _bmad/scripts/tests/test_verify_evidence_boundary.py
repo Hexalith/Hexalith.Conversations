@@ -2218,3 +2218,16 @@ def test_v29_evidence_host_blocks_unavailable_history(tmp_path: Path, monkeypatc
         verifier.validate_v29_scope(root, c2, bootstrap)
     assert caught.value.code == "EVIDENCE_V29_HISTORY_UNAVAILABLE"
     assert caught.value.state == "BLOCKED"
+
+# Story 10.3 current-policy selectors reuse the hermetic regressions. This file's
+# historical tests remain explicit-only; routine CI collects tests/tooling.
+import importlib.util as _story103_importlib
+_story103_path = Path(__file__).resolve().parents[3] / 'tests/tooling/test_evidence_boundary_current.py'
+_story103_spec = _story103_importlib.spec_from_file_location('story103_current_regressions', _story103_path)
+_story103_module = _story103_importlib.module_from_spec(_story103_spec)
+_story103_spec.loader.exec_module(_story103_module)
+for _story103_name in dir(_story103_module):
+    if _story103_name.startswith(('test_stable_code_contract', 'test_workflow_tree_and_render_parity',
+        'test_not_applicable_is_not_pass', 'test_lifecycle_transition_semantics',
+        'test_invocation_removal_and_displacement')) or _story103_name in ('surfaces', 'git_repository', '_stamp_current_candidate'):
+        globals()[_story103_name] = getattr(_story103_module, _story103_name)

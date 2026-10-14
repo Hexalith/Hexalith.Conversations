@@ -1,0 +1,199 @@
+{
+  "schemaVersion": "hexalith.conversations.story-10.3-current-binding.v1",
+  "storyId": "10.3",
+  "decisionDate": "2026-10-14",
+  "baseline": "7f24b72d57da65745cdecdea5b5e7c0da1313b4d",
+  "baselineAuthorization": {
+    "previousBaseline": "0056c9f0335094e7f5b253aba7ec257bd68b0b4f",
+    "approvedBaseline": "7f24b72d57da65745cdecdea5b5e7c0da1313b4d",
+    "decisionDate": "2026-10-14",
+    "decision": "Use entry commit 7f24b72 as the approved baseline (recommended)"
+  },
+  "originalContract": {
+    "path": "_bmad-output/planning-artifacts/v9/story-contracts/10.3.json",
+    "sha256": "b83f9b97599b31aebcf9366188aa2a328a0dcaa6f5c7147f2805a286b4d12433"
+  },
+  "authorityBundle": {
+    "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+    "sha256": "8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3"
+  },
+  "provenance": [
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/10.3.json",
+      "sha256": "b83f9b97599b31aebcf9366188aa2a328a0dcaa6f5c7147f2805a286b4d12433",
+      "role": "provenance"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+      "sha256": "8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3",
+      "role": "provenance"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json",
+      "sha256": "6f01d0a738ceabd5b1411ab18d9328847a6aaa834d93e5b75bd4e183525b6641",
+      "role": "provenance"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json",
+      "sha256": "79eb51a10ae52557d563eda9d5a179062d6f3a35de0d4664318a2cdbb398b47a",
+      "role": "provenance"
+    },
+    {
+      "path": "docs/release-evidence/story-10.2-final-record-v2.json",
+      "sha256": "7bca69ff979b5ead9819da913933c13efbcb6e2076368202be92f256ef39d409",
+      "role": "provenance"
+    },
+    {
+      "path": "docs/release-evidence/story-10.2-final-record-v2.md",
+      "sha256": "567f13edb45156811837bda09945337a966cde2729d297c36f59006ee0014b5b",
+      "role": "provenance"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
+      "sha256": "183482a0c8822d72c6b8b1238124c6eaf9d5530e7efd127e6b3204a57b0d9fde",
+      "role": "provenance"
+    }
+  ],
+  "predecessor": {
+    "storyId": "10.2",
+    "path": "docs/release-evidence/story-10.2-final-record-v2.json",
+    "sha256": "7bca69ff979b5ead9819da913933c13efbcb6e2076368202be92f256ef39d409"
+  },
+  "workflowInventory": {
+    "id": "STORY-10.3-CURRENT-WORKFLOWS-v1",
+    "sha256": "9e49013c1bd11893dbae67bb802e7e841551c6062e1d23f5cfc3aa0410808419",
+    "rows": [
+      {
+        "path": ".agents/skills/bmad-build/step-04-review.md",
+        "sha256": "7011b9db583dc94dd07baa7fb6994b81f9802b843b438d7f7c90c2425b9e64b8",
+        "role": "workflow"
+      },
+      {
+        "path": ".agents/skills/bmad-build/step-05-present.md",
+        "sha256": "8c9bd08fd87757358f1f90049dbc88f8bbf82197f4f8781225405586c78a1a0b",
+        "role": "workflow"
+      },
+      {
+        "path": ".agents/skills/bmad-build/step-oneshot.md",
+        "sha256": "26845755cfc4fae0362f6b3be286b42906758e434c26819ae0330047069b6696",
+        "role": "workflow"
+      },
+      {
+        "path": ".agents/skills/bmad-build-auto/step-04-review.md",
+        "sha256": "a6c70510f472ae2e1f8971e51eb7a1b984280a47907a867d59d7e32abb536a49",
+        "role": "workflow"
+      },
+      {
+        "path": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+        "sha256": "500ab6b8d9c91a9554aecb1e7300037546eb959c1a132a74667903271bc8c314",
+        "role": "workflow"
+      },
+      {
+        "path": ".claude/skills/bmad-build/step-04-review.md",
+        "sha256": "7011b9db583dc94dd07baa7fb6994b81f9802b843b438d7f7c90c2425b9e64b8",
+        "role": "workflow"
+      },
+      {
+        "path": ".claude/skills/bmad-build/step-05-present.md",
+        "sha256": "8c9bd08fd87757358f1f90049dbc88f8bbf82197f4f8781225405586c78a1a0b",
+        "role": "workflow"
+      },
+      {
+        "path": ".claude/skills/bmad-build/step-oneshot.md",
+        "sha256": "26845755cfc4fae0362f6b3be286b42906758e434c26819ae0330047069b6696",
+        "role": "workflow"
+      },
+      {
+        "path": ".claude/skills/bmad-build-auto/step-04-review.md",
+        "sha256": "a6c70510f472ae2e1f8971e51eb7a1b984280a47907a867d59d7e32abb536a49",
+        "role": "workflow"
+      },
+      {
+        "path": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+        "sha256": "500ab6b8d9c91a9554aecb1e7300037546eb959c1a132a74667903271bc8c314",
+        "role": "workflow"
+      }
+    ]
+  },
+  "guidanceInventory": {
+    "id": "STORY-10.3-CURRENT-GUIDANCE-v1",
+    "sha256": "7b7f4c9fec1721267957f92ad05780242ea8dbfcb6863047ed31f6b6aea153bf",
+    "rows": [
+      {
+        "path": "_bmad/custom/bmad-build.toml",
+        "sha256": "f5b84feedd6c854c65d2b2279041a72e6a8de611701728ea29e909b99be92bdf",
+        "role": "guidance"
+      },
+      {
+        "path": "_bmad/custom/bmad-build-auto.toml",
+        "sha256": "f5b84feedd6c854c65d2b2279041a72e6a8de611701728ea29e909b99be92bdf",
+        "role": "guidance"
+      },
+      {
+        "path": "_bmad/custom/bmad-review.toml",
+        "sha256": "5da5208574b2ff75bfcf284cff44f0c99cf2feee83c2a8d52056a196b0d3fbe7",
+        "role": "guidance"
+      },
+      {
+        "path": "docs/runbooks/current-change-validation.md",
+        "sha256": "54cb71749300c6f4188999170b7c825fd97f181f2f4902b94c6245b2af2ce9d7",
+        "role": "guidance"
+      }
+    ]
+  },
+  "retiredRoutes": [
+    ".agents/skills/bmad-dev-story",
+    ".agents/skills/bmad-quick-dev",
+    ".claude/skills/bmad-dev-story",
+    ".claude/skills/bmad-quick-dev"
+  ],
+  "resolvedCustomization": {
+    "bmad-build": "afbda8c95ceca6295b4d5f0c42c9ad9627c07b2a9f2d513ec49a2512c3ec861b",
+    "bmad-build-auto": "1ce35e9f84693a3cc06096c4156140dfeb8be483d657d3501d3cd79dc21699e6",
+    "bmad-review": "b6fc35b2924bad20569bdaf2f6047078b16a48907c0c7fda5050b8dcde5cc7b7"
+  },
+  "rootConstants": {
+    "sourcePath": "tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
+    "constants": {
+      "Story102RecordSha256": "7bca69ff979b5ead9819da913933c13efbcb6e2076368202be92f256ef39d409",
+      "Story102CandidateCommit": "5a119ff283a8f81906a52d983e50b04b76fae0ed"
+    },
+    "allowlist": []
+  },
+  "exemptions": [],
+  "expectedChangedPaths": [
+    ".agents/skills/bmad-build-auto/step-04-review.md",
+    ".agents/skills/bmad-build/step-04-review.md",
+    ".agents/skills/bmad-build/step-05-present.md",
+    ".agents/skills/bmad-build/step-oneshot.md",
+    ".agents/skills/bmad-code-review/steps/step-04-present.md",
+    ".claude/skills/bmad-build-auto/step-04-review.md",
+    ".claude/skills/bmad-build/step-04-review.md",
+    ".claude/skills/bmad-build/step-05-present.md",
+    ".claude/skills/bmad-build/step-oneshot.md",
+    ".claude/skills/bmad-code-review/steps/step-04-present.md",
+    ".github/workflows/ci.yml",
+    ".gitignore",
+    "Hexalith.Conversations.slnx",
+    "_bmad-output/implementation-artifacts/spec-10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface.md",
+    "_bmad-output/implementation-artifacts/sprint-status.yaml",
+    "_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json",
+    "_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json",
+    "_bmad/custom/bmad-build-auto.toml",
+    "_bmad/custom/bmad-build.toml",
+    "_bmad/custom/bmad-review.toml",
+    "_bmad/schemas/story-final-record-v2.schema.json",
+    "_bmad/scripts/evidence_boundary_current.py",
+    "_bmad/scripts/generate_story_record.py",
+    "_bmad/scripts/tests/test_generate_story_record.py",
+    "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+    "_bmad/scripts/verify_evidence_boundary.py",
+    "docs/runbooks/current-change-validation.md",
+    "docs/runbooks/story-final-record-generation.md",
+    "tests/Hexalith.Conversations.TestSupport.Runner/Hexalith.Conversations.TestSupport.Runner.csproj",
+    "tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
+    "tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj",
+    "tests/tooling/test_evidence_boundary_current.py"
+  ],
+  "effectiveContract": "_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json"
+}

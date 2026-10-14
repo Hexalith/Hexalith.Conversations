@@ -3469,6 +3469,10 @@ def build_parser() -> argparse.ArgumentParser:
 def main(arguments: Sequence[str] | None = None) -> int:
     """Run the gate and preserve PASS/FAIL/BLOCKED/not-applicable semantics."""
 
+    raw = list(sys.argv[1:] if arguments is None else arguments)
+    if any(token.partition("=")[0] in ("--authority-bundle", "--current-binding", "--verify-workflows", "--format") for token in raw):
+        import evidence_boundary_current
+        return evidence_boundary_current.main(raw)
     args = build_parser().parse_args(arguments)
     repository = Path(args.repository)
     try:

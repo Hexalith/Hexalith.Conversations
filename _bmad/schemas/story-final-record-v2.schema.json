@@ -468,6 +468,30 @@
           ]
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "storyId": {
+            "const": "10.3"
+          }
+        },
+        "required": [
+          "storyId"
+        ]
+      },
+      "then": {
+        "required": [
+          "evidenceWorkflowExecution"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "evidenceWorkflowExecution"
+          ]
+        }
+      }
     }
   ],
   "properties": {
@@ -576,6 +600,9 @@
     },
     "evidenceBoundaryExecution": {
       "$ref": "#/$defs/evidenceBoundaryExecution"
+    },
+    "evidenceWorkflowExecution": {
+      "$ref": "#/$defs/evidenceWorkflowExecution"
     }
   },
   "$defs": {
@@ -5277,6 +5304,311 @@
           "items": {
             "$ref": "#/$defs/candidateEnvironmentPromotion"
           }
+        }
+      }
+    },
+    "evidenceWorkflowExecution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindingRule",
+        "sourceRevisionId",
+        "baseline",
+        "binding",
+        "contract",
+        "predecessorPair",
+        "provenance",
+        "workflowInventory",
+        "guidanceInventory",
+        "resolvedCustomization",
+        "retiredRoutes",
+        "exemptions",
+        "routeFacts",
+        "receipts",
+        "mutationLedger",
+        "sourceFiles"
+      ],
+      "properties": {
+        "bindingRule": {
+          "const": "SC-10.3 is the committed candidate evaluated under the approved current binding"
+        },
+        "sourceRevisionId": {
+          "$ref": "#/$defs/commit"
+        },
+        "baseline": {
+          "const": "7f24b72d57da65745cdecdea5b5e7c0da1313b4d"
+        },
+        "binding": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "contract": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "predecessorPair": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "json",
+            "markdown"
+          ],
+          "properties": {
+            "json": {
+              "$ref": "#/$defs/outputFile"
+            },
+            "markdown": {
+              "$ref": "#/$defs/outputFile"
+            }
+          }
+        },
+        "provenance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256",
+              "role"
+            ],
+            "properties": {
+              "path": {
+                "$ref": "#/$defs/path"
+              },
+              "sha256": {
+                "$ref": "#/$defs/digest"
+              },
+              "role": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "minItems": 7,
+          "uniqueItems": true,
+          "maxItems": 7
+        },
+        "workflowInventory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "sha256",
+            "rows"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "sha256",
+                  "role"
+                ],
+                "properties": {
+                  "path": {
+                    "$ref": "#/$defs/path"
+                  },
+                  "sha256": {
+                    "$ref": "#/$defs/digest"
+                  },
+                  "role": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "minItems": 10,
+              "uniqueItems": true,
+              "maxItems": 10
+            }
+          }
+        },
+        "guidanceInventory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "sha256",
+            "rows"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "sha256",
+                  "role"
+                ],
+                "properties": {
+                  "path": {
+                    "$ref": "#/$defs/path"
+                  },
+                  "sha256": {
+                    "$ref": "#/$defs/digest"
+                  },
+                  "role": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "minItems": 4,
+              "uniqueItems": true,
+              "maxItems": 4
+            }
+          }
+        },
+        "resolvedCustomization": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "bmad-build",
+            "bmad-build-auto",
+            "bmad-review"
+          ],
+          "properties": {
+            "bmad-build": {
+              "$ref": "#/$defs/digest"
+            },
+            "bmad-build-auto": {
+              "$ref": "#/$defs/digest"
+            },
+            "bmad-review": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        },
+        "retiredRoutes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 4,
+          "uniqueItems": true,
+          "maxItems": 4
+        },
+        "exemptions": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "routeFacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256",
+              "gateStart",
+              "gateEnd"
+            ],
+            "properties": {
+              "path": {
+                "$ref": "#/$defs/path"
+              },
+              "sha256": {
+                "$ref": "#/$defs/digest"
+              },
+              "gateStart": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "gateEnd": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "minItems": 10,
+          "uniqueItems": true,
+          "maxItems": 10
+        },
+        "receipts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/outputFile"
+          },
+          "minItems": 7,
+          "uniqueItems": true,
+          "maxItems": 7
+        },
+        "mutationLedger": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "expectedBlocker",
+              "observedBlockers",
+              "beforeSha256",
+              "afterSha256",
+              "restored",
+              "result"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedBlocker": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              },
+              "observedBlockers": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*$"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "beforeSha256": {
+                "$ref": "#/$defs/digest"
+              },
+              "afterSha256": {
+                "$ref": "#/$defs/digest"
+              },
+              "restored": {
+                "const": true
+              },
+              "result": {
+                "const": "PASS"
+              }
+            }
+          },
+          "minItems": 17,
+          "uniqueItems": true,
+          "maxItems": 17
+        },
+        "sourceFiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/outputFile"
+          },
+          "minItems": 1,
+          "uniqueItems": true
         }
       }
     }

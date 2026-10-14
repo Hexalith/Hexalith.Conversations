@@ -447,3 +447,18 @@ _bmad/render/
 !/_bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline/*.nupkg
 !/_bmad-output/implementation-artifacts/identitymodel-evidence/packages/candidate/
 !/_bmad-output/implementation-artifacts/identitymodel-evidence/packages/candidate/*.nupkg
+
+# Retain only Story 10.3's seven candidate-bound acceptance receipts.
+!/artifacts/
+/artifacts/*
+!/artifacts/v9/
+/artifacts/v9/*
+!/artifacts/v9/10.3/
+/artifacts/v9/10.3/*
+!/artifacts/v9/10.3/AC-10.3-01.json
+!/artifacts/v9/10.3/AC-10.3-02.xml
+!/artifacts/v9/10.3/AC-10.3-03.json
+!/artifacts/v9/10.3/AC-10.3-04.xml
+!/artifacts/v9/10.3/AC-10.3-05.xml
+!/artifacts/v9/10.3/AC-10.3-06.xml
+!/artifacts/v9/10.3/AC-10.3-07.xml

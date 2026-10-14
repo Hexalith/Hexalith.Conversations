@@ -4670,6 +4670,8 @@ def v2_verify_pair(json_bytes: bytes, markdown_bytes: bytes) -> list[str]:
                 problems.append("Story 10.1 scenario result or assembly digests are malformed")
     if record.get("storyId") == "10.2":
         problems.extend(v2_10_2_pair_errors(record))
+    if record.get("storyId") == "10.3":
+        problems.extend(v2_10_3_pair_errors(record))
     return problems
 
 
@@ -5507,6 +5509,7 @@ def v2_verified_predecessor(
             or v2_schema_errors(validator, record)
             or v2_verify_pair(json_bytes, markdown_bytes)
             or (story_id == "10.2" and v2_10_2_repository_pair_errors(repository, record, validator))
+            or (story_id == "10.3" and v2_10_3_source_errors(repository, record, validator, candidate))
         ):
             return None
     except (UnicodeDecodeError, ValueError, AttributeError, KeyError, TypeError):
@@ -8131,6 +8134,8 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
 
 def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> bytes:
     """Derive, validate, and atomically write the v2 pair; return the JSON bytes."""
+    if options.get("--contract") == V2_10_3_CONTRACT:
+        return v2_10_3_generate(options, verify_spec=verify_spec)
     try:
         repository = validate_repository(
             Path(options.get("--repository") or default_repository()).expanduser()
@@ -8895,13 +8900,320 @@ def v2_write_stdout(content: bytes) -> None:
     buffer.flush()
 
 
+# Story 10.3 is an additive current-policy binding. The original V9 authority
+# bundle is retained and hashed as provenance, never rewritten to enroll it.
+V2_10_3_CONTRACT = '_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json'
+V2_10_3_BINDING = '_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json'
+V2_10_3_SPEC = '_bmad-output/implementation-artifacts/spec-10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface.md'
+
+
+def v2_10_3_current_module() -> Any:
+    """Load this tool's sibling route even when the generator was imported by path."""
+    directory = str(Path(__file__).resolve().parent)
+    if directory not in sys.path:
+        sys.path.insert(0,directory)
+    import evidence_boundary_current
+    return evidence_boundary_current
+
+
+def v2_10_3_pair_errors(record: dict[str, Any]) -> list[str]:
+    """Check the closed cross-bindings independently of a pair's digest fields."""
+    try:
+        facts = record['evidenceWorkflowExecution']
+        scenarios = record['scenarios']
+        by_id = {row['scenarioId']: row for row in scenarios}
+        expected = [f'AC-10.3-0{number}' for number in range(1, 9)]
+        if (facts['sourceRevisionId'] != record['candidate']['commit']
+                or record['predecessors'] != ['10.2']
+                or [row['scenarioId'] for row in scenarios] != expected
+                or any(row['result'] != 'PASS' or row['exitCode'] != 0 or row['blockers']
+                       or not row.get('assertionLedger') for row in scenarios)
+                or record['summary'] != dict(required=8, passed=8, failed=0, blocked=0, skipped=0, notRun=0)
+                or record['inventory'] != {key:facts['workflowInventory'][key] for key in ('id','sha256')}
+                or facts['binding']['path'] != V2_10_3_BINDING
+                or facts['contract']['path'] != V2_10_3_CONTRACT
+                or facts['exemptions'] != []):
+            return ['Story 10.3 candidate, scenarios, inventory, or effective bindings differ']
+        receipts = facts['receipts']
+        if len(receipts) != 7 or any(by_id[identity]['resultFile'] != receipt
+               or by_id[identity]['outputFiles'] != [receipt]
+               for identity, receipt in zip(expected, receipts)):
+            return ['Story 10.3 receipt paths or digests differ from its scenarios']
+        if any(row['beforeSha256'] != row['afterSha256'] or row['expectedBlocker'] not in row['observedBlockers']
+               or row['result'] != 'PASS' or not row['restored'] for row in facts['mutationLedger']):
+            return ['Story 10.3 fault observations or restoration do not pass']
+        if len({row['path'] for row in facts['routeFacts']}) != 10:
+            return ['Story 10.3 current route identity count differs']
+        for inventory in (facts['workflowInventory'], facts['guidanceInventory']):
+            if v2_sha256(json.dumps(inventory['rows'], sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()) != inventory['sha256']:
+                return ['Story 10.3 inventory row digest differs']
+    except (KeyError, TypeError, ValueError):
+        return ['Story 10.3 execution bindings are malformed']
+    return []
+
+
+def v2_10_3_source_errors(repository: Path, record: dict[str, Any], validator: Any, consumer_candidate: str | None = None) -> list[str]:
+    """Recompute committed sources, provenance, predecessor pair and every receipt."""
+    problems = v2_10_3_pair_errors(record)
+    if problems:
+        return problems
+    facts = record['evidenceWorkflowExecution']
+    candidate = record['candidate']['commit']
+    try:
+        bound_files = [facts['binding'], facts['contract'], *facts['provenance'], *facts['sourceFiles']]
+        for row in bound_files:
+            blob = v2_committed_blob(repository, candidate, row['path'])
+            if blob is None or v2_sha256(blob) != row['sha256']:
+                problems.append('Story 10.3 committed source digest differs: ' + row['path'])
+        binding = v2_parse_json(v2_committed_blob(repository, candidate, V2_10_3_BINDING))
+        if [row['path'] for row in facts['sourceFiles']] != binding['expectedChangedPaths']:
+            problems.append('Story 10.3 exact source-file inventory differs')
+        current = v2_10_3_current_module()
+        raw = current.bridge(repository,dict(baseline=binding['baseline'],candidate=candidate,
+            expectedPaths=binding['expectedChangedPaths']))
+        if raw['result'] != 'PASS':
+            problems.append('Story 10.3 full raw source boundary does not pass: '+', '.join(raw['blockers']))
+        if record['candidate']['gitlinks'] != [dict(path=path,mode='160000',commit=commit) for path,commit in v2_raw_gitlinks(repository,candidate)]:
+            problems.append('Story 10.3 raw candidate gitlinks differ')
+        if (binding['workflowInventory'] != facts['workflowInventory']
+                or binding['guidanceInventory'] != facts['guidanceInventory']
+                or binding['resolvedCustomization'] != facts['resolvedCustomization']
+                or binding['retiredRoutes'] != facts['retiredRoutes']
+                or binding['baseline'] != facts['baseline']):
+            problems.append('Story 10.3 current binding facts differ')
+        previous = facts['predecessorPair']['json']
+        if v2_verified_predecessor(repository, candidate, '10.2', previous['path'],
+                facts['predecessorPair']['markdown']['path'], validator) != previous['sha256']:
+            problems.append('Story 10.3 verified predecessor pair differs')
+        contract = v2_parse_json(v2_committed_blob(repository, candidate, V2_10_3_CONTRACT))
+        if [row['command'] for row in record['scenarios']] != [row['command'] for row in contract['scenarios']]:
+            problems.append('Story 10.3 effective scenario commands differ')
+        consumer_candidate = consumer_candidate or resolve_commit(repository, 'HEAD', 'CANDIDATE_UNRESOLVABLE')
+        for receipt in facts['receipts']:
+            committed = v2_committed_blob(repository, consumer_candidate, receipt['path'])
+            if committed is None or v2_sha256(committed) != receipt['sha256']:
+                problems.append('Story 10.3 retained receipt digest differs: ' + receipt['path'])
+    except (KeyError, TypeError, ValueError, OSError, UnicodeError):
+        problems.append('Story 10.3 committed consumption bindings are unavailable')
+    return problems
+
+
+def v2_10_3_generate(options: dict[str, str], *, candidate: str | None = None,
+                     verify_spec: str | None = None) -> bytes:
+    """Generate from the approved current binding, shared verifier and measured receipts."""
+    current = v2_10_3_current_module()
+    repository = validate_repository(Path(options.get('--repository') or default_repository()))
+    _, validators = v2_load_schemas()
+    candidate = candidate or resolve_commit(repository, 'HEAD', 'CANDIDATE_UNRESOLVABLE')
+    contract_bytes = v2_committed_blob(repository, candidate, V2_10_3_CONTRACT)
+    contract = v2_validate_contract(contract_bytes, V2_10_3_CONTRACT, validators['contract'], validators['contract_v14'])
+    if contract['storyId'] != '10.3' or [row['id'] for row in contract['scenarios']] != [f'AC-10.3-0{n}' for n in range(1,9)]:
+        raise V2Stop([v2_finding('INPUT_SCHEMA_INVALID', '10.3', 'all eight ordered AC identities are required')], '10.3')
+    paths = contract['finalRecord']['paths']
+    if [options['--output-json'], options['--output-markdown']] != paths:
+        raise V2Stop([v2_finding('OUTPUT_PATH_INVALID', '10.3', 'output pair differs from the effective contract')], '10.3')
+    binding_bytes = v2_committed_blob(repository, candidate, V2_10_3_BINDING)
+    if binding_bytes is None or (repository / V2_10_3_BINDING).read_bytes() != binding_bytes:
+        raise V2Stop([v2_finding('AUTHORITY_BINDING_INVALID', V2_10_3_BINDING, 'the current binding must equal its committed source')], '10.3')
+    binding = v2_parse_json(binding_bytes)
+    previous = v2_verified_predecessor(repository, candidate, '10.2', binding['predecessor']['path'],
+        'docs/release-evidence/story-10.2-final-record-v2.md', validators['record'])
+    if previous != binding['predecessor']['sha256']:
+        raise V2Stop([v2_finding('AUTHORITY_BINDING_INVALID', '10.2', 'the committed predecessor pair does not verify')], '10.3')
+    observed = current.verify(repository, binding['baseline'], candidate,
+        authority_bundle=binding['authorityBundle']['path'], verify_workflows=True)
+    if observed['result'] != 'PASS':
+        raise V2Stop([v2_finding('RECORD_NOT_DERIVED', 'scoped-verifier',
+            'the current verifier did not pass: ' + ', '.join(observed['blockers']))], '10.3')
+    # Compare every reviewed source to its candidate blob; lifecycle insertion is
+    # checked separately. Unrelated staged user changes are outside this scope.
+    source_files = []
+    for path in binding['expectedChangedPaths']:
+        blob = v2_committed_blob(repository, candidate, path)
+        if blob is None:
+            raise V2Stop([v2_finding('RECORD_NOT_DERIVED', path, 'a scoped source is not committed')], '10.3')
+        source_files.append(dict(path=path, sha256=v2_sha256(blob)))
+        installed = repository / path
+        if path != V2_10_3_SPEC and (installed.is_symlink() or not installed.is_file() or installed.read_bytes() != blob):
+            raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN', path, 'a scoped source differs from the candidate')], '10.3')
+    scenarios, receipts, mutations = [], [], []
+    candidate_time_ns = int(decode(run_git(repository, 'show', '-s', '--format=%ct', candidate).stdout).strip()) * 1_000_000_000
+    for scenario in contract['scenarios'][:-1]:
+        identity = scenario['id']
+        if identity in ('AC-10.3-01','AC-10.3-03'):
+            tokens = shlex.split(scenario['command'])
+            receipt_path = tokens[tokens.index('--output')+1]
+            content = v2_10_1_artifact_bytes(repository, receipt_path)
+            measured = v2_parse_json(content)
+            try:
+                import jsonschema
+                jsonschema.validate(measured, json.loads((repository / current.SCHEMA).read_bytes()))
+            except (ValueError, jsonschema.ValidationError):
+                raise V2Stop([v2_finding('SCENARIO_RESULT_MISMATCH', identity, 'the verifier receipt violates its closed schema')], '10.3') from None
+            if measured != observed:
+                raise V2Stop([v2_finding('SCENARIO_RESULT_MISMATCH', identity, 'the verifier receipt differs from candidate re-evaluation')], '10.3')
+            receipt = dict(path=receipt_path, sha256=v2_sha256(content))
+            row = dict(scenarioId=identity, command=scenario['command'], exitCode=0, result='PASS', blockers=[],
+                assertionLedger=[dict(id=f'{identity}#{n+1:04d}',subject=entry['id']+'::'+entry['subject'],state=entry['state'])
+                    for n,entry in enumerate(measured['assertionLedger'])], resultFile=receipt, outputFiles=[receipt])
+        else:
+            command = v2_pytest_command(shlex.split(scenario['command']))
+            if command is None:
+                raise V2Stop([v2_finding('SCENARIO_COMMAND_UNSUPPORTED', identity, 'the effective pytest selector is unsupported')], '10.3')
+            row, category, findings = v2_scenario_from_results(repository, scenario, command, candidate_time_ns)
+            if findings or category != 'passed':
+                raise V2Stop(findings or [v2_finding('TEST_RESULTS_FAILED', identity, 'the required selector did not pass')], '10.3')
+            receipt = row['resultFile']
+            row['outputFiles'] = [receipt]
+            cases = v2_parse_junit(v2_10_1_artifact_bytes(repository, receipt['path']))['cases']
+            for case in cases:
+                properties = dict(case['properties'])
+                if properties.get('story103_source_revision') != candidate:
+                    raise V2Stop([v2_finding('TEST_RESULTS_STALE', identity, 'a testcase does not bind this committed candidate')], '10.3')
+                if 'story103_expected_code' in properties:
+                    code = properties['story103_expected_code']
+                    blockers = json.loads(properties['story103_observed_blockers'])
+                    before, after = properties['story103_before_sha256'], properties['story103_after_sha256']
+                    if code not in blockers or before != after:
+                        raise V2Stop([v2_finding('RECORD_NOT_DERIVED', identity, 'fault observation or restoration failed')], '10.3')
+                    mutations.append(dict(id=case['name'], expectedBlocker=code, observedBlockers=blockers,
+                        beforeSha256=before, afterSha256=after, restored=True, result='PASS'))
+        scenarios.append(row); receipts.append(receipt)
+    required_faults = {'EVIDENCE_HASH_MISMATCH','EVIDENCE_PATH_ESCAPE','EVIDENCE_FILE_MISSING','EVIDENCE_OUTPUT_FORBIDDEN',
+        'SIGNABLE_PAYLOAD_MISMATCH','CHANGED_PATH_SET_MISMATCH','ROOT_OF_TRUST_NOT_PINNED','SIGNED_EVIDENCE_ALLOWLISTED',
+        'REVISION_INVALID','EVIDENCE_READER_NOT_SHARED','EVIDENCE_READER_STRENGTH_REDUCED','EVIDENCE_GATE_NOT_USED','EVIDENCE_GATE_DISPLACED','EVIDENCE_ALIAS_ROUTE_BROKEN','EVIDENCE_GUIDANCE_NOT_BOUND'}
+    if not required_faults.issubset({row['expectedBlocker'] for row in mutations}):
+        raise V2Stop([v2_finding('RECORD_NOT_DERIVED', 'faults', 'required observed faults are missing')], '10.3')
+    scenarios.append(dict(scenarioId='AC-10.3-08', command=contract['scenarios'][-1]['command'], exitCode=0, result='PASS', blockers=[],
+        assertionLedger=[dict(id=f'AC-10.3-08#{n+1:04d}', subject=subject, state='PASS') for n,subject in enumerate((
+            'effective-contract-and-original-provenance', 'shared-verifier-and-current-route-checks', 'verified-10.2-predecessor-pair',
+            'seven-candidate-bound-receipts', 'closed-schema-and-deterministic-pair'))]))
+    route_facts = []
+    for path in current.WORKFLOWS:
+        content = v2_committed_blob(repository, candidate, path)
+        text = content.decode()
+        start = text.index(current.BEGIN); end = text.index(current.END) + len(current.END)
+        route_facts.append(dict(path=path, sha256=v2_sha256(content), gateStart=start, gateEnd=end))
+    bundle = v2_parse_json(v2_committed_blob(repository, candidate, binding['authorityBundle']['path']))
+    bundle_digest = v2_sha256(''.join(f'{row["sha256"]}  {row["path"]}\n' for row in bundle['artifacts']).encode())
+    if bundle_digest != bundle['bundleDigest']:
+        raise V2Stop([v2_finding('AUTHORITY_BINDING_INVALID', 'provenance', 'the original bundle row digest differs')], '10.3')
+    facts = dict(bindingRule='SC-10.3 is the committed candidate evaluated under the approved current binding',
+        sourceRevisionId=candidate, baseline=binding['baseline'], binding=dict(path=V2_10_3_BINDING,sha256=v2_sha256(binding_bytes)),
+        contract=dict(path=V2_10_3_CONTRACT,sha256=v2_sha256(contract_bytes)),
+        predecessorPair=dict(json=binding['predecessor'] | {}, markdown=dict(path='docs/release-evidence/story-10.2-final-record-v2.md',
+            sha256=v2_sha256(v2_committed_blob(repository,candidate,'docs/release-evidence/story-10.2-final-record-v2.md')))),
+        provenance=binding['provenance'], workflowInventory=binding['workflowInventory'], guidanceInventory=binding['guidanceInventory'],
+        resolvedCustomization=binding['resolvedCustomization'], retiredRoutes=binding['retiredRoutes'], exemptions=[],
+        routeFacts=route_facts, receipts=receipts, mutationLedger=mutations, sourceFiles=source_files)
+    facts['predecessorPair']['json'] = {key:facts['predecessorPair']['json'][key] for key in ('path','sha256')}
+    record = dict(schemaVersion=V2_RECORD_SCHEMA_VERSION, storyId='10.3',
+        authority=dict(epic=contract['authority']['epic'],architecture=contract['authority']['architecture'],
+            planningCandidate=contract['authority']['planningCandidate'],bundleDigest=bundle_digest),
+        candidate=dict(commit=candidate,gitlinks=[dict(path=path,mode='160000',commit=commit) for path,commit in v2_raw_gitlinks(repository,candidate)]),
+        predecessors=['10.2'], inventory=contract['inventory'], scenarios=scenarios, faultInjection=dict(results=[]),
+        outputs=dict(json=dict(path=paths[0],sha256=V2_ZERO_DIGEST),markdown=dict(path=paths[1],sha256=V2_ZERO_DIGEST)),
+        rollback=contract['rollback'],summary=dict(required=8,passed=8,failed=0,blocked=0,skipped=0,notRun=0),
+        renderedMarkdownSha256=V2_ZERO_DIGEST,evidenceWorkflowExecution=facts)
+    final, json_bytes, markdown_bytes = v2_finalize(record)
+    problems = v2_schema_errors(validators['record'], final) + v2_verify_pair(json_bytes,markdown_bytes)
+    if problems:
+        raise V2Stop([v2_finding('OUTPUT_SCHEMA_INVALID','10.3','; '.join(problems))], '10.3')
+    if verify_spec is not None:
+        return json_bytes
+    v2_write_outputs([(v2_output_target(repository,paths[0]),json_bytes),(v2_output_target(repository,paths[1]),markdown_bytes)])
+    return json_bytes
+
+
+def v2_10_3_descendant_errors(repository: Path, record: dict[str, Any], head: str) -> list[str]:
+    """Allow one exact pair/receipt publication followed only by checked lifecycle edits."""
+    current = v2_10_3_current_module()
+    candidate = record['candidate']['commit']
+    ancestry = run_git(repository, 'merge-base', '--is-ancestor', candidate, head, allowed_returncodes=(0,1))
+    if ancestry.returncode:
+        return ['the evaluated source candidate is not an ancestor of the gate candidate']
+    json_path, markdown_path = (record['outputs'][kind]['path'] for kind in ('json','markdown'))
+    receipts = record['evidenceWorkflowExecution']['receipts']
+    receipt_paths = {row['path'] for row in receipts}
+    publication_paths = {json_path,markdown_path} | receipt_paths
+    commits = decode(run_git(repository,'rev-list','--reverse',f'{candidate}..{head}').stdout).split()
+    parent, publications = candidate, 0
+    for commit in commits:
+        parents = decode(run_git(repository,'rev-list','--parents','-n','1',commit).stdout).split()[1:]
+        if parents != [parent]:
+            return ['a post-source commit is not the direct single-parent continuation']
+        facts = current.bridge(repository,dict(baseline=parent,candidate=commit))
+        if facts['result'] != 'PASS':
+            return ['post-source history or raw gitlinks do not pass: '+', '.join(facts['blockers'])]
+        changed = {entry['path'] for entry in facts['diff']} | {entry['sourcePath'] for entry in facts['diff'] if entry['sourcePath']}
+        if changed == publication_paths and publications == 0:
+            for row in receipts:
+                blob = v2_committed_blob(repository,commit,row['path'])
+                if blob is None or v2_sha256(blob) != row['sha256']:
+                    return ['a published receipt differs from its bound digest']
+            json_bytes, markdown_bytes = (v2_committed_blob(repository,commit,path) for path in (json_path,markdown_path))
+            if json_bytes is None or markdown_bytes is None or v2_verify_pair(json_bytes,markdown_bytes):
+                return ['the published final-record pair does not verify']
+            if v2_parse_json(json_bytes) != record:
+                return ['the published final record differs from the gate record']
+            publications += 1
+        elif publications == 1 and changed and changed.issubset({V2_10_3_SPEC,'_bmad-output/implementation-artifacts/sprint-status.yaml'}):
+            if V2_10_3_SPEC in changed and not v2_spec_lifecycle_only_change(repository,parent,commit,V2_10_3_SPEC,
+                    record_region=True,task_checkboxes=True):
+                return ['post-source spec changes exceed lifecycle ownership']
+            if '_bmad-output/implementation-artifacts/sprint-status.yaml' in changed and not v2_sprint_status_only_change(
+                    repository,parent,commit,'10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface'):
+                return ['post-source tracking changes exceed lifecycle ownership']
+        else:
+            return ['post-source source drift or output publication drift is not allowed']
+        parent = commit
+    return [] if publications == 1 else ['the candidate does not include exactly one bound pair/receipt publication']
+
+
+def v2_10_3_verify_inserted(options: dict[str,str]) -> bytes:
+    """Retain the evaluated candidate across pair publication and lifecycle insertion."""
+    repository = validate_repository(Path(options.get('--repository') or default_repository()))
+    head = resolve_commit(repository,'HEAD','CANDIDATE_UNRESOLVABLE')
+    _, validators = v2_load_schemas()
+    json_path, markdown_path = ('docs/release-evidence/story-10.3-final-record-v2.json','docs/release-evidence/story-10.3-final-record-v2.md')
+    json_bytes = v2_committed_blob(repository,head,json_path)
+    markdown_bytes = v2_committed_blob(repository,head,markdown_path)
+    if json_bytes is None or markdown_bytes is None:
+        raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT','outputs','the Story 10.3 pair must be committed first')], '10.3')
+    record = v2_parse_json(json_bytes)
+    problems = v2_schema_errors(validators['record'],record) + v2_verify_pair(json_bytes,markdown_bytes)
+    problems += v2_10_3_source_errors(repository,record,validators['record'])
+    if problems:
+        raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT','10.3','; '.join(problems))], '10.3')
+    candidate = record['candidate']['commit']
+    descendants = v2_10_3_descendant_errors(repository,record,head)
+    if descendants:
+        raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT','candidate','; '.join(descendants))], '10.3')
+    spec_path = safe_relative_path(options[V2_VERIFY_OPTION])
+    if spec_path != V2_10_3_SPEC:
+        raise V2Stop([v2_finding('ARGUMENT_INVALID','spec','the designated Story 10.3 spec is required')], '10.3')
+    spec = (repository/spec_path).read_bytes()
+    region = v2_record_region(spec)
+    if region is None or spec[region[0]:region[1]] != markdown_bytes:
+        raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT','spec','the inserted record differs from its committed Markdown')], '10.3')
+    for path,content in ((json_path,json_bytes),(markdown_path,markdown_bytes)):
+        if (repository/path).read_bytes() != content:
+            raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT',path,'the installed pair differs from committed bytes')], '10.3')
+    derived = v2_10_3_generate({'--repository':str(repository),'--contract':V2_10_3_CONTRACT,
+        '--format':'bundle','--output-json':json_path,'--output-markdown':markdown_path},candidate=candidate,verify_spec=spec_path)
+    if derived != json_bytes:
+        raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT','10.3','candidate rederivation differs from the pair')], '10.3')
+    return json_bytes
+
+
 def v2_main(raw_arguments: Sequence[str]) -> int:
     """Run the v2 route: exit 0 PASS, 1 FAIL, 2 BLOCKED; stdout is always schema-valid."""
     story_id: str | None = None
     try:
         options = v2_parse_arguments(raw_arguments)
         if V2_VERIFY_OPTION in options:
-            json_bytes = v2_verify_inserted(options)
+            json_bytes = (v2_10_3_verify_inserted(options) if options.get("--contract") == V2_10_3_CONTRACT
+                          else v2_verify_inserted(options))
         elif "--historical" in options:
             json_bytes, historical_exit = v2_historical(options)
             v2_write_stdout(json_bytes)

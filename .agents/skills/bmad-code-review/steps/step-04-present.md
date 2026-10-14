@@ -86,9 +86,40 @@ If `spec_file` is **not** set, present only options 1 and 2 (omit "Leave as acti
 
 Skip this section if `spec_file` is not set.
 
+<!-- EVIDENCE-BOUNDARY-GATE:BEGIN v1 -->
+When the spec explicitly requires evidence-boundary verification, run its effective
+contract command before this governed transition. Story 10.3 uses
+`python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.3-current-binding-v1.json --baseline 7f24b72d57da65745cdecdea5b5e7c0da1313b4d --candidate HEAD --verify-workflows --format json`.
+Use `_bmad/scripts/evidence_boundary_current.py::transition_decision` to interpret the recorded result and exit.
+Require the recorded result and exit to agree: `PASS`/`0` or explicit
+`not-applicable`/`0` continues; record `not-applicable` distinctly.
+`FAIL`/`1` and `BLOCKED`/`2` halt review, completion, and unattended finalization.
+Report the exact command, exit, and sorted unique blocker codes; keep the spec
+`in-progress` and never write `review` or `done` after failure.
+For routine work without an explicit evidence requirement, follow
+`docs/runbooks/current-change-validation.md` and its focused checks.
+<!-- EVIDENCE-BOUNDARY-GATE:END v1 -->
+
+#### Final record generation gate
+
+<!-- STORY-COMPLETION-GATE:BEGIN v1 -->
+For a story with `_bmad-output/planning-artifacts/v9/story-contracts/<story-id>.json`,
+the spec cannot opt out. For Story 10.3 use the additive effective contract
+`_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json`.
+Read `finalRecord.paths` and `finalRecord.summary` from the effective contract.
+Run `uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . --contract <contract> --format bundle --output-json <json> --output-markdown <md>`.
+Require exit `0` and the exact `finalRecord.summary` before completing the story.
+Retain the pair in a record-only commit. Insert its Markdown between
+`<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->` in `{spec_file}`.
+Run `uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . --contract <contract> --verify-inserted-record {spec_file}`.
+On any failure return the spec to `in-progress`; never write `review` or `done`.
+Report the exact command, its exit, and every stable blocker code, then HALT.
+This is a workflow guard; no CI job or hook enforces it.
+<!-- STORY-COMPLETION-GATE:END v1 -->
+
 #### Determine new status based on review outcome
 
-- If all `decision-needed` and `patch` findings were resolved (fixed or rejected) AND no unresolved `high`/`medium` findings remain: set `new_status` = `done`. Update the story file Status section to `done`.
+- If all `decision-needed` and `patch` findings were resolved (fixed or rejected) AND no unresolved `high`/`medium` findings remain AND `record_gate_failed` is not true: set `new_status` = `done`. Update the story file Status section to `done`.
 - If `patch` findings were left as action items, or unresolved issues remain: set `new_status` = `in-progress`. Update the story file Status section to `in-progress`.
 
 Save the story file.
@@ -126,6 +157,8 @@ Present the user with follow-up options:
 > 3. **Done** — end the workflow
 
 **HALT** — I am waiting for your choice. Do not proceed until the user selects an option.
+
+After committing a governed done transition, rerun its `--verify-inserted-record` command at the new `HEAD` and require exit `0`. On any other exit, apply the gate's blocker branch, committing the return to `in-progress` as a new validated Conventional Commit.
 
 ## On Complete
 

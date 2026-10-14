@@ -74,3 +74,18 @@ Keep the existing linear-history requirement, force-push ban, and deletion ban
 on `main`. Do not add a pull-request requirement or required status check while
 direct pushes are the normal workflow. CI failures require follow-up fixes but
 cannot prevent the push that triggered them.
+
+## Explicit evidence work
+
+Story 10.3 and later specs that explicitly require evidence-boundary verification
+use their effective scoped contract before review or completion. Story 10.3 is
+bound by `_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json` and
+`_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json`. Run the
+contract commands with its approved baseline and committed candidate. Preserve
+`PASS`, `FAIL`, `BLOCKED`, and `not-applicable` as distinct recorded states.
+`FAIL` and `BLOCKED` halt the transition; valid `not-applicable` continues and is
+recorded. This scoped gate does not change the routine path above.
+
+The ten surviving installed workflow routes and their in-memory renders share
+the scoped gate. Legacy `bmad-dev-story` and `bmad-quick-dev` aliases stay retired.
+The Story 7.3 final-record completion guard remains required independently.

@@ -1893,3 +1893,30 @@ locally when running that route. It also requires the .NET SDK to run four bound
 MSBuild evaluations of the Debug and Release project graphs. AC-10.1-07
 generation runs those four evaluations too. Restore the neutral
 project boundary and rebuild the committed candidate before regenerating the pair.
+
+### Story 10.3 current workflow binding
+
+Story 10.3 uses the additive current contract and binding named by the current-change
+runbook. The original V9 contract, authority bundle, and both v2 inventories remain
+byte-identical provenance. Generate from the committed source candidate after its
+seven exact acceptance receipts pass. Retain those receipts with the final JSON/Markdown
+pair in one record-only publication. Insert the Markdown verbatim in the designated
+spec and run inserted-record verification. Later gate candidates retain their own
+full changed-path set and raw gitlinks; only the independently verified pair/receipts
+publication and checked lifecycle changes extend the expected scope.
+
+The closed `evidenceWorkflowExecution` facts bind the approved baseline, source
+revision, effective and original contracts, verified Story 10.2 pair, current
+workflow/guidance inventories, resolved customization, retired routes, seven
+receipts, exact source files, route spans, and measured fault restoration.
+The summary is `8/8/0/0/0/0`. No historical reader migration or production API
+change is implied. Missing candidate history or authority remains unavailable;
+actual integrity, helper, gate, parity, or receipt faults block completion.
+
+The inherited neutral-helper generator blockers are `EVIDENCE_PATH_ESCAPE`,
+`EVIDENCE_OUTPUT_FORBIDDEN`, `EVIDENCE_FILE_MISSING`, `EVIDENCE_HASH_MISMATCH`,
+`SIGNABLE_PAYLOAD_MISMATCH`, `CHANGED_PATH_SET_MISMATCH`,
+`EVIDENCE_BOUNDARY_GITLINK`, `UNAVAILABLE_HISTORY_PASSED`,
+`ROOT_OF_TRUST_NOT_PINNED`, and `SIGNED_EVIDENCE_ALLOWLISTED`. Restore the
+contained original bytes, exact raw diff, available history, literal roots and
+empty exemption list before rerunning; never weaken a guard to satisfy a receipt.

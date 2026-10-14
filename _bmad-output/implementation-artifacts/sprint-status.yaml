@@ -102,7 +102,7 @@ development_status:
   epic-10: in-progress
   10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner: done
   10-2-implement-manifest-hash-ledger-exact-diff-and-gitlink-invariants: done
-  10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface: backlog
+  10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface: in-progress
   10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection: backlog
   epic-10-retrospective: optional
   epic-11: backlog

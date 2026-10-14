@@ -1829,8 +1829,15 @@ def test_v2_schema_contract_hold_metaschema_and_identities() -> None:
         v2_schema_contract_assert_closed(schema)
         assert schema["properties"]["schemaVersion"]["const"] == SCHEMA_IDENTITIES[path]
         assert schema["$id"].startswith("https://hexalith.io/schemas/conversations/")
-        assert schema["$defs"]["commit"]["pattern"] == "^[0-9a-f]{40}$"
-        assert schema["$defs"]["digest"]["pattern"] == "^[0-9a-f]{64}$"
+        for definition, length in (("commit", 40), ("digest", 64)):
+            validator = jsonschema.Draft202012Validator(schema["$defs"][definition])
+            assert validator.is_valid("a" * length)
+            for invalid in ("a" * (length - 1), "a" * (length + 1), "A" * length, "g" * length):
+                assert not validator.is_valid(invalid)
+            # The original frozen V9 schemas retain their historical $ anchor.
+            # The current final-record schema must also reject terminal newlines.
+            if path == FINAL_RECORD_SCHEMA:
+                assert not validator.is_valid("a" * length + "\n")
     empty_ledger = v2_schema_contract_acceptance_result(with_ledger=False)
     empty_ledger["assertionLedger"] = []
     v2_schema_contract_validator(
@@ -11272,3 +11279,118 @@ def test_story102_real_git_consumption_verifies_pair_and_rejects_unavailable_can
         "Story 10.2 committed predecessor is nonpassing, incompatible, or unresolvable"]
     assert generator.v2_verified_predecessor(shallow, publication, "10.2", json_path, markdown_path,
                                              validators["record"]) is None
+
+
+def story103_record_fixture(generator):
+    """A digest-valid Story 10.3 pair for independent cross-binding fault tests."""
+    binding = json.loads((WORKSPACE / generator.V2_10_3_BINDING).read_bytes())
+    contract = json.loads((WORKSPACE / generator.V2_10_3_CONTRACT).read_bytes())
+    record = deepcopy(json.loads((WORKSPACE / 'docs/release-evidence/story-10.2-final-record-v2.json').read_bytes()))
+    record.pop('evidenceBoundaryExecution')
+    record['storyId'] = '10.3'
+    record['predecessors'] = ['10.2']
+    record['inventory'] = contract['inventory']
+    record['summary'] = contract['finalRecord']['summary']
+    record['faultInjection'] = {'results':[]}
+    receipts = [dict(path=f'artifacts/v9/10.3/AC-10.3-0{n}.'+('json' if n in (1,3) else 'xml'),sha256='a'*64) for n in range(1,8)]
+    record['scenarios'] = [dict(scenarioId=row['id'],command=row['command'],exitCode=0,result='PASS',blockers=[],
+        assertionLedger=[dict(id=row['id']+'#0001',subject='executed-fixture',state='PASS')],
+        **(dict(resultFile=receipts[n],outputFiles=[receipts[n]]) if n < 7 else {})) for n,row in enumerate(contract['scenarios'])]
+    record['outputs'] = {kind:dict(path=path,sha256=generator.V2_ZERO_DIGEST)
+        for kind,path in zip(('json','markdown'),contract['finalRecord']['paths'])}
+    record['rollback'] = contract['rollback']
+    record['evidenceWorkflowExecution'] = dict(
+        bindingRule='SC-10.3 is the committed candidate evaluated under the approved current binding',
+        sourceRevisionId=record['candidate']['commit'],baseline=binding['baseline'],
+        binding=dict(path=generator.V2_10_3_BINDING,sha256='a'*64),contract=dict(path=generator.V2_10_3_CONTRACT,sha256='b'*64),
+        predecessorPair=dict(json={k:binding['predecessor'][k] for k in ('path','sha256')},markdown=dict(path='docs/release-evidence/story-10.2-final-record-v2.md',sha256='c'*64)),
+        provenance=binding['provenance'],workflowInventory=binding['workflowInventory'],guidanceInventory=binding['guidanceInventory'],
+        resolvedCustomization=binding['resolvedCustomization'],retiredRoutes=binding['retiredRoutes'],exemptions=[],
+        routeFacts=[dict(path=row['path'],sha256=row['sha256'],gateStart=1,gateEnd=2) for row in binding['workflowInventory']['rows']],
+        receipts=receipts,mutationLedger=[dict(id=f'mutation-{n}',expectedBlocker='EVIDENCE_HASH_MISMATCH',observedBlockers=['EVIDENCE_HASH_MISMATCH'],beforeSha256='d'*64,afterSha256='d'*64,restored=True,result='PASS') for n in range(17)],
+        sourceFiles=[dict(path=generator.V2_10_3_CONTRACT,sha256='b'*64)])
+    return record
+
+
+def test_story103_pair_and_closed_schema():
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    record = story103_record_fixture(generator)
+    final,json_bytes,markdown_bytes = generator.v2_finalize(record)
+    assert generator.v2_schema_errors(validators['record'],final) == []
+    assert generator.v2_verify_pair(json_bytes,markdown_bytes) == []
+    final['evidenceWorkflowExecution']['callerVerdict'] = 'PASS'
+    assert generator.v2_schema_errors(validators['record'],final)
+
+
+@pytest.mark.parametrize('fault', ['candidate','receipt','inventory','restoration','scenario','exemptions'])
+def test_story103_digest_valid_pair_rejects_binding_faults(fault):
+    generator = load_generator()
+    record = story103_record_fixture(generator)
+    facts = record['evidenceWorkflowExecution']
+    if fault == 'candidate': facts['sourceRevisionId'] = 'f'*40
+    if fault == 'receipt': facts['receipts'][0] = dict(path='artifacts/foreign.json',sha256='a'*64)
+    if fault == 'inventory': facts['guidanceInventory']['rows'][0]['sha256'] = 'f'*64
+    if fault == 'restoration': facts['mutationLedger'][0]['afterSha256'] = 'f'*64
+    if fault == 'scenario': record['scenarios'][0]['assertionLedger'] = []
+    if fault == 'exemptions': facts['exemptions'] = ['docs/release-evidence/signed.json']
+    _,json_bytes,markdown_bytes = generator.v2_finalize(record)
+    assert generator.v2_verify_pair(json_bytes,markdown_bytes)
+
+
+def test_story103_effective_contract_preserves_original_provenance():
+    generator = load_generator()
+    original = json.loads((WORKSPACE / '_bmad-output/planning-artifacts/v9/story-contracts/10.3.json').read_bytes())
+    effective = json.loads((WORKSPACE / generator.V2_10_3_CONTRACT).read_bytes())
+    binding = json.loads((WORKSPACE / generator.V2_10_3_BINDING).read_bytes())
+    assert [row['id'] for row in effective['scenarios']] == [row['id'] for row in original['scenarios']]
+    assert binding['originalContract']['sha256'] == generator.v2_sha256((WORKSPACE/binding['originalContract']['path']).read_bytes())
+    assert effective['finalRecord'] == original['finalRecord']
+
+
+def test_story103_schema_keeps_accepted_story101_and_story102_consumption():
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    for story in ('10.1','10.2'):
+        json_bytes = (WORKSPACE/f'docs/release-evidence/story-{story}-final-record-v2.json').read_bytes()
+        markdown_bytes = (WORKSPACE/f'docs/release-evidence/story-{story}-final-record-v2.md').read_bytes()
+        record = generator.v2_parse_json(json_bytes)
+        assert generator.v2_schema_errors(validators['record'],record) == []
+        assert generator.v2_verify_pair(json_bytes,markdown_bytes) == []
+
+
+@pytest.mark.parametrize('fault', ['none','source-drift','gitlink'])
+def test_story103_publication_scope_accepts_only_bound_outputs(tmp_path,fault):
+    generator = load_generator()
+    repository = tmp_path/'repository'
+    repository.mkdir()
+    run_git(repository,'init','--quiet')
+    spec = repository/generator.V2_10_3_SPEC
+    spec.parent.mkdir(parents=True)
+    spec.write_bytes((WORKSPACE/generator.V2_10_3_SPEC).read_bytes())
+    run_git(repository,'add','--all'); run_git(repository,'commit','--quiet','-m','test: source candidate')
+    source = run_git(repository,'rev-parse','HEAD').stdout.strip()
+    record = story103_record_fixture(generator)
+    record['candidate']['commit'] = record['evidenceWorkflowExecution']['sourceRevisionId'] = source
+    for number,row in enumerate(record['evidenceWorkflowExecution']['receipts']):
+        content = f'fixture-{number}\n'.encode()
+        target = repository/row['path'];target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+        row['sha256'] = generator.v2_sha256(content)
+        record['scenarios'][number]['resultFile'] = row
+        record['scenarios'][number]['outputFiles'] = [row]
+    final,json_bytes,markdown_bytes = generator.v2_finalize(record)
+    for kind,content in (('json',json_bytes),('markdown',markdown_bytes)):
+        target=repository/final['outputs'][kind]['path'];target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: publish bound pair and receipts')
+    head=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    assert generator.v2_10_3_descendant_errors(repository,final,head) == []
+    if fault != 'none':
+        if fault == 'source-drift':
+            (repository/'unexpected.txt').write_text('unapproved change');run_git(repository,'add','unexpected.txt')
+        else:
+            run_git(repository,'update-index','--add','--cacheinfo',f'160000,{source},references/fault')
+        run_git(repository,'commit','--quiet','-m','test: inject post-publication drift')
+        head=run_git(repository,'rev-parse','HEAD').stdout.strip()
+        errors=generator.v2_10_3_descendant_errors(repository,final,head)
+        assert errors
+        if fault == 'gitlink': assert 'EVIDENCE_BOUNDARY_GITLINK' in errors[0]

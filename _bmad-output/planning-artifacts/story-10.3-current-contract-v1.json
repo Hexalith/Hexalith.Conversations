@@ -1,0 +1,200 @@
+{
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
+  "storyId": "10.3",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "candidateBinding": "SC-10.3 is the committed candidate evaluated under the approved current binding; original V9 bundle and inventories remain provenance.",
+    "sectionSha256": "8f11fa49c6a649f7755d2cd41b01fd012e7788ac3b749f80383ac02115866efc"
+  },
+  "predecessors": [
+    "10.2"
+  ],
+  "outcome": {
+    "title": "Provide the evidence-boundary verifier and integrate every workflow surface",
+    "bounded": "one scoped machine verifier governs ten surviving installed workflow files and their deterministic renders."
+  },
+  "rollback": {
+    "boundary": "remove Story 10.3 scoped verifier, bridge, ten workflow insertions, current binding/contract, receipts and final record as one unit; retain Stories 10.1 and 10.2 and frozen provenance."
+  },
+  "inventory": {
+    "id": "STORY-10.3-CURRENT-WORKFLOWS-v1",
+    "sha256": "9e49013c1bd11893dbae67bb802e7e841551c6062e1d23f5cfc3aa0410808419"
+  },
+  "scenarios": [
+    {
+      "id": "AC-10.3-01",
+      "command": "python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.3-current-binding-v1.json --baseline 7f24b72d57da65745cdecdea5b5e7c0da1313b4d --candidate HEAD --format json --output artifacts/v9/10.3/AC-10.3-01.json",
+      "contract": "Run the verifier with bound `PC`, `SC-10.3`, baseline, evidence/test diff, and stable registry. Exit `0` only for `PASS` or explicit `not-applicable`; applicable failure is `1`; missing authority/history is `2`; the result is schema-valid and records evaluated paths/assertions.",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": true
+      }
+    },
+    {
+      "id": "AC-10.3-02",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k stable_code_contract --junitxml=artifacts/v9/10.3/AC-10.3-02.xml",
+      "contract": "Every stable blocker/warning fixture produces its exact unique code with zero synonyms.",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-10.3-03",
+      "command": "python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.3-current-binding-v1.json --baseline 7f24b72d57da65745cdecdea5b5e7c0da1313b4d --candidate HEAD --verify-workflows --format json --output artifacts/v9/10.3/AC-10.3-03.json",
+      "contract": "Validate ten surviving current paths and exact scoped insertion spans; missing/displaced gates fail with EVIDENCE_GATE_NOT_USED/EVIDENCE_GATE_DISPLACED.",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-10.3-04",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k workflow_tree_and_render_parity --junitxml=artifacts/v9/10.3/AC-10.3-04.xml",
+      "contract": "Validate five logical bodies across both trees, deterministic renders, and installed twins; drift is EVIDENCE_WORKFLOW_PARITY_DRIFT.",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-10.3-05",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k not_applicable_is_not_pass --junitxml=artifacts/v9/10.3/AC-10.3-05.xml",
+      "contract": "`not-applicable` remains distinct from `PASS`; applicable changes require a nonempty evaluated ledger. Empty applicable execution is `SCOPE_NOT_EVALUATED`.",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-10.3-06",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k lifecycle_transition_semantics --junitxml=artifacts/v9/10.3/AC-10.3-06.xml",
+      "contract": "`FAIL` and `BLOCKED` prevent every current review/done transition and unattended finalization; valid `not-applicable` continues but is recorded.",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-10.3-07",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k invocation_removal_and_displacement --junitxml=artifacts/v9/10.3/AC-10.3-07.xml",
+      "contract": "Remove/displace gates, resurrect a retired route, and remove resolved guidance. Emit exact gate, retired-route or guidance codes and restore bytes.",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-10.3-08",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/story-10.3-current-contract-v1.json --format bundle --output-json docs/release-evidence/story-10.3-final-record-v2.json --output-markdown docs/release-evidence/story-10.3-final-record-v2.md",
+      "contract": "The generated final record binds both v2 inventory digests, resolved customization digests, current route facts, all seven updated results, and summary `8/8/0/0/0/0`.",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    }
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-10.3-final-record-v2.json",
+      "docs/release-evidence/story-10.3-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 8,
+      "passed": 8,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
+}
