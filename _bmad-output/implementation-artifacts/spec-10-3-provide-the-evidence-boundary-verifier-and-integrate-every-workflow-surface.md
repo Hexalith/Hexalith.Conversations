@@ -2,7 +2,7 @@
 title: 'Story 10.3: Evidence verifier and workflow enforcement'
 type: 'feature'
 created: '2026-10-14'
-status: 'in-review'
+status: 'in-progress'
 baseline_commit: '7f24b72d57da65745cdecdea5b5e7c0da1313b4d'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -105,6 +105,14 @@ context:
 | V03 | high | patch | The verification reviewer independently confirmed vacuous shared helper assertions pass; same root cause as B01. |
 | P01 | medium | patch | Typed new() is recognized but var x = new GitFacts() is not, because new precedes the type; add the ordinary construction form and a positive regression. |
 | P02 | low | patch | The generated Markdown says no fault-injection result is bound although the Story 10.3 facts bind 17 mutations; render those facts accurately without changing prior story projections. |
+
+Review patches are implemented and independently checked. Focused verification passed 91 current CLI/reader tests, 44 generator/schema/route tests, and six affected historical neutral-helper tests. All 23 triage rows above are preserved.
+
+The full Python lane at committed source `02672d4ddd3c9bc54eed3f9f14c155c41f3834a2` passed 1,682 tests and 55 subtests in an isolated checkout. Its two environment failures were `ReleaseToolingTests::test_msbuild_dependency_mode_matrix_is_evaluated` (missing root build configuration) and `ReleaseToolingTests::test_semantic_release_planning_in_ci_preserves_repository_refs` (missing pinned Node dependencies). Both pass on rerun in the configured workspace; all 1,684 tests are covered by those runs.
+
+Publication is blocked because another session's `/pushall` committed the reviewed fixes with root submodule updates in `02672d4ddd3c9bc54eed3f9f14c155c41f3834a2`. The scoped verifier command with approved baseline `7f24b72d57da65745cdecdea5b5e7c0da1313b4d`, candidate `HEAD`, current binding, original authority bundle, `--verify-workflows`, and `--format json` exits `1` with `CHANGED_PATH_SET_MISMATCH` and `EVIDENCE_BOUNDARY_GITLINK`: 34 expected paths, 44 actual paths, and nine changed gitlinks. All external commits and pointers are preserved. The stale pair, seven receipts, and inserted region were withdrawn in `071d3e298e3ea13130c8b0d3124cb6cf4eb05558`.
+
+Owner approval is pending to use `02672d4ddd3c9bc54eed3f9f14c155c41f3834a2` as the frozen baseline and adapt the current binding/schema for its 12 root gitlinks. No replacement acceptance publication or done transition is claimed. The publication task remains open and status returned to `in-progress` while this approval is pending.
 
 ## Verification
 
