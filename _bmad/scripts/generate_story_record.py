@@ -8952,6 +8952,20 @@ def v2_10_3_pair_errors(record: dict[str, Any]) -> list[str]:
     return []
 
 
+def v2_10_3_route_facts(repository: Path, candidate: str, paths: Sequence[str]) -> list[dict[str, Any]]:
+    """Measure byte offsets and digests of the exact committed gate spans."""
+    current = v2_10_3_current_module()
+    facts = []
+    for path in paths:
+        content = v2_committed_blob(repository,candidate,path)
+        if content is None:
+            raise ValueError('a governed route is unavailable')
+        start = content.index(current.BEGIN.encode())
+        end = content.index(current.END.encode()) + len(current.END.encode())
+        facts.append(dict(path=path,sha256=v2_sha256(content),gateStart=start,gateEnd=end))
+    return facts
+
+
 def v2_10_3_source_errors(repository: Path, record: dict[str, Any], validator: Any, consumer_candidate: str | None = None) -> list[str]:
     """Recompute committed sources, provenance, predecessor pair and every receipt."""
     problems = v2_10_3_pair_errors(record)
@@ -8966,6 +8980,10 @@ def v2_10_3_source_errors(repository: Path, record: dict[str, Any], validator: A
             if blob is None or v2_sha256(blob) != row['sha256']:
                 problems.append('Story 10.3 committed source digest differs: ' + row['path'])
         binding = v2_parse_json(v2_committed_blob(repository, candidate, V2_10_3_BINDING))
+        if facts['provenance'] != binding['provenance']:
+            problems.append('Story 10.3 original provenance differs from the approved binding')
+        if facts['routeFacts'] != v2_10_3_route_facts(repository,candidate,[row['path'] for row in binding['workflowInventory']['rows']]):
+            problems.append('Story 10.3 route insertion facts differ from committed byte spans')
         if [row['path'] for row in facts['sourceFiles']] != binding['expectedChangedPaths']:
             problems.append('Story 10.3 exact source-file inventory differs')
         current = v2_10_3_current_module()
@@ -9088,12 +9106,7 @@ def v2_10_3_generate(options: dict[str, str], *, candidate: str | None = None,
         assertionLedger=[dict(id=f'AC-10.3-08#{n+1:04d}', subject=subject, state='PASS') for n,subject in enumerate((
             'effective-contract-and-original-provenance', 'shared-verifier-and-current-route-checks', 'verified-10.2-predecessor-pair',
             'seven-candidate-bound-receipts', 'closed-schema-and-deterministic-pair'))]))
-    route_facts = []
-    for path in current.WORKFLOWS:
-        content = v2_committed_blob(repository, candidate, path)
-        text = content.decode()
-        start = text.index(current.BEGIN); end = text.index(current.END) + len(current.END)
-        route_facts.append(dict(path=path, sha256=v2_sha256(content), gateStart=start, gateEnd=end))
+    route_facts = v2_10_3_route_facts(repository,candidate,current.WORKFLOWS)
     bundle = v2_parse_json(v2_committed_blob(repository, candidate, binding['authorityBundle']['path']))
     bundle_digest = v2_sha256(''.join(f'{row["sha256"]}  {row["path"]}\n' for row in bundle['artifacts']).encode())
     if bundle_digest != bundle['bundleDigest']:

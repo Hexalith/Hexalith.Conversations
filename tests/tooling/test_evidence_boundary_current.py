@@ -272,3 +272,94 @@ def test_stable_code_contract_changed_reader_requires_real_helpers(tmp_path,faul
     record_property('story103_after_sha256',hashlib.sha256(source.read_bytes()).hexdigest())
     assert expected in observed['blockers']
     assert source.read_bytes() == original
+
+
+@pytest.mark.parametrize('code,state,exit_code', [('HELPER_UNAVAILABLE','BLOCKED',2),('HELPER_FAILURE','FAIL',1)])
+def test_current_cli_output_preserves_helper_failure_json(tmp_path,monkeypatch,capsys,code,state,exit_code):
+    def fault(*args,**kwargs): raise RuntimeError(code)
+    monkeypatch.setattr(current,'bridge',fault)
+    observed_exit=current.main(['--repository',str(tmp_path),'--baseline',current.BASELINE,
+        '--authority-bundle','authority.json','--output','result.json'])
+    observed=json.loads(capsys.readouterr().out)
+    assert observed_exit == exit_code
+    assert observed['result'] == state
+    assert observed['blockers'] == [code]
+    assert not (tmp_path/'result.json').exists()
+
+
+def test_current_cli_output_write_failure_is_schema_valid_blocked(tmp_path,monkeypatch,capsys):
+    success=current.empty_result('a'*40)
+    success['result']='PASS';success['assertionLedger']=[dict(id='evaluated',subject='fixture',state='PASS')]
+    monkeypatch.setattr(current,'verify',lambda *args,**kwargs:copy.deepcopy(success))
+    monkeypatch.setattr(current,'bridge',lambda *args,**kwargs:dict(containedPaths=[dict(code=None,fullPath=str(tmp_path/'result.json'))]))
+    def unavailable(*args,**kwargs): raise OSError('write unavailable')
+    monkeypatch.setattr(Path,'write_text',unavailable)
+    observed_exit=current.main(['--repository',str(tmp_path),'--baseline',current.BASELINE,
+        '--authority-bundle','authority.json','--output','result.json'])
+    observed=json.loads(capsys.readouterr().out)
+    assert observed_exit == 2
+    assert observed['result']=='BLOCKED'
+    assert observed['blockers']==['OUTPUT_WRITE_FAILED']
+    assert any(row['state']=='SKIPPED' for row in observed['assertionLedger'])
+
+
+@pytest.mark.parametrize('fault', ['blockers','failed-row','skipped-row','unknown-code','non-object'])
+def test_lifecycle_transition_semantics_rejects_forged_not_applicable(fault):
+    document=current.empty_result('a'*40)
+    if fault=='blockers':document['blockers']=['EVIDENCE_HASH_MISMATCH']
+    if fault=='failed-row':document['assertionLedger']=[dict(id='forged',subject='forged',state='FAIL')]
+    if fault=='skipped-row':document['assertionLedger']=[dict(id='forged',subject='forged',state='SKIPPED')]
+    if fault=='unknown-code':document['warnings']=['UNKNOWN_CODE']
+    if fault=='non-object':document=[]
+    for path in current.WORKFLOWS:
+        observed=current.transition_decision(document,0)
+        assert not observed['allowed'],path
+        expected=['EVIDENCE_RESULT_EXIT_MISMATCH'] if fault!='blockers' else ['EVIDENCE_HASH_MISMATCH','EVIDENCE_RESULT_EXIT_MISMATCH']
+        assert observed['blockers']==expected
+
+
+@pytest.mark.parametrize('fault', ['workflow-digest','guidance-digest','workflow-row','guidance-row'])
+def test_current_binding_inventory_digests_and_membership_fail_closed(tmp_path,monkeypatch,fault):
+    binding=json.loads((ROOT/current.BINDING).read_bytes())
+    if fault=='workflow-digest':binding['workflowInventory']['sha256']='0'*64
+    if fault=='guidance-digest':binding['guidanceInventory']['sha256']='0'*64
+    if fault=='workflow-row':binding['workflowInventory']['rows'].pop()
+    if fault=='guidance-row':binding['guidanceInventory']['rows'].pop()
+    binding_file=tmp_path/current.BINDING;binding_file.parent.mkdir(parents=True);binding_file.write_text(json.dumps(binding))
+    authority=tmp_path/binding['authorityBundle']['path'];authority.write_text('{}')
+    initial=dict(result='PASS',candidate='a'*40,evidenceReaders=[],blobs=[dict(path=path,content=None) for path in (
+        'docs/release-evidence/story-10.3-final-record-v2.json','docs/release-evidence/story-10.3-final-record-v2.md')],
+        containedPaths=[dict(path=current.BINDING,fullPath=str(binding_file),code=None),dict(path=binding['authorityBundle']['path'],fullPath=str(authority),code=None)],
+        diff=[dict(path='_bmad/scripts/changed.py',sourcePath=None,sourceMode='100644',destinationMode='100644')],assertionLedger=[],blockers=[])
+    def facts(root,request):
+        if 'inspectChangedReaders' in request:return copy.deepcopy(initial)
+        return dict(result='PASS',blobs=[],assertionLedger=[dict(id='neutral',subject='neutral',state='PASS')],blockers=[])
+    monkeypatch.setattr(current,'bridge',facts)
+    monkeypatch.setattr(current,'workflow_checks',lambda *args:None)
+    import generate_story_record as generator
+    monkeypatch.setattr(generator,'v2_verified_predecessor',lambda *args:binding['predecessor']['sha256'])
+    observed=current.verify(tmp_path,current.BASELINE,'HEAD',authority_bundle=binding['authorityBundle']['path'])
+    assert observed['result']=='FAIL'
+    assert observed['blockers']==['AUTHORITY_BINDING_INVALID']
+
+
+@pytest.mark.parametrize('reader', [True,False])
+def test_current_reader_only_candidate_is_inspected_before_applicability(tmp_path,reader):
+    root=tmp_path/'checkout'
+    subprocess.run(['git','clone','--quiet','--local','--no-hardlinks',str(ROOT),str(root)],check=True,capture_output=True)
+    subprocess.run(['git','-C',str(root),'config','user.email','fixture@example.invalid'],check=True)
+    subprocess.run(['git','-C',str(root),'config','user.name','Fixture'],check=True)
+    before=subprocess.run(['git','-C',str(root),'rev-parse','HEAD'],check=True,capture_output=True,text=True).stdout.strip()
+    path=root/'tests/SomeEvidenceReader.cs'
+    source='class Reader { void Read() { File.ReadAllText("docs/release-evidence/signed.json"); } }' if reader else '// EvidenceManifest docs/release-evidence/fake.json\nclass Ordinary { int Value = 1; }'
+    path.write_text(source)
+    subprocess.run(['git','-C',str(root),'add','tests/SomeEvidenceReader.cs'],check=True)
+    subprocess.run(['git','-C',str(root),'commit','--quiet','-m','test: reader-only candidate'],check=True,capture_output=True)
+    observed=current.verify(root,before,'HEAD',authority_bundle='_bmad-output/planning-artifacts/v9-authority-bundle-v1.json')
+    if reader:
+        assert observed['result']=='FAIL'
+        assert 'EVIDENCE_READER_NOT_SHARED' in observed['blockers']
+        assert any(row['id'].startswith('reader:') for row in observed['assertionLedger'])
+    else:
+        assert observed['result']=='not-applicable'
+        assert observed['assertionLedger']==[]

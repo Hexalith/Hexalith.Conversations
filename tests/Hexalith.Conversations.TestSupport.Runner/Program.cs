@@ -69,19 +69,24 @@ internal static class Program
                 BoundaryAssertions.SignedEvidenceIsNotAllowlisted(ledger, "allowlist", root,
                     roots.GetProperty("allowlist").EnumerateArray().Select(row => row.GetString()!));
             }
-            if (input.TryGetProperty("readerPaths", out JsonElement readerPaths))
+            List<string> readerPaths = [];
+            List<string> evidenceReaders = [];
+            if (input.TryGetProperty("readerPaths", out JsonElement declaredReaders))
+                readerPaths.AddRange(declaredReaders.EnumerateArray().Select(item => item.GetString()!));
+            if (input.TryGetProperty("inspectChangedReaders", out JsonElement inspectReaders) && inspectReaders.GetBoolean() && diff.IsSuccess)
+                readerPaths.AddRange(diff.Value!.SelectMany(entry => entry.SourcePath is null ? new[] { entry.Path } : new[] { entry.Path, entry.SourcePath })
+                    .Where(path => path.StartsWith("tests/", StringComparison.Ordinal) && path.EndsWith(".cs", StringComparison.Ordinal)
+                        && !path.Contains("Hexalith.Conversations.TestSupport", StringComparison.Ordinal)));
+            foreach (string relative in readerPaths.Distinct(StringComparer.Ordinal))
             {
-                foreach (JsonElement item in readerPaths.EnumerateArray())
-                {
-                    string relative = item.GetString()!;
                     GitFact<GitBlob> old = await git.ReadBlobAsync(root, input.GetProperty("baseline").GetString()!, relative).ConfigureAwait(false);
                     GitFact<GitBlob> current = await git.ReadBlobAsync(root, input.GetProperty("candidate").GetString()!, relative).ConfigureAwait(false);
                     string oldSource = old.IsSuccess ? System.Text.Encoding.UTF8.GetString(old.Value!.Content) : string.Empty;
                     string source = current.IsSuccess ? System.Text.Encoding.UTF8.GetString(current.Value!.Content) : string.Empty;
-                    if (!source.Contains("docs/release-evidence/", StringComparison.Ordinal) && !source.Contains("EvidenceManifest", StringComparison.Ordinal)
-                        && !oldSource.Contains("docs/release-evidence/", StringComparison.Ordinal) && !oldSource.Contains("EvidenceManifest", StringComparison.Ordinal)) continue;
                     IReadOnlyList<string> tokens = CSharpSourceDeclarations.UnconditionalTokens(source);
                     IReadOnlyList<string> oldTokens = CSharpSourceDeclarations.UnconditionalTokens(oldSource);
+                    if (!tokens.Concat(oldTokens).Any(token => token == "EvidenceManifest" || token.Contains("docs/release-evidence/", StringComparison.Ordinal))) continue;
+                    evidenceReaders.Add(relative);
                     bool shared = new[] { "GitFacts", "EvidenceManifest", "AssertionLedger" }.All(name =>
                         tokens.Select((token, index) => (token, index)).Any(row => row.token == name
                             && tokens.Skip(row.index).TakeWhile(token => token != ";").Contains("new")))
@@ -100,7 +105,6 @@ internal static class Program
                     }
                     if (!strength) ledger.Block("EVIDENCE_READER_STRENGTH_REDUCED", relative, "Assertions or pinned roots were removed or replaced by vacuous assertions.");
                     ledger.Record("reader:strength:" + relative, relative, strength);
-                }
             }
             List<object> containedPaths = [];
             if (input.TryGetProperty("containedPaths", out JsonElement requestedPaths))
@@ -119,7 +123,7 @@ internal static class Program
                 && !ledger.Rows.Any(row => row.State == "FAIL") ? "BLOCKED" : evaluation.Result;
             Console.WriteLine(JsonSerializer.Serialize(new {
                 result = state, candidate = candidate.Value, baseline = baseline.Value, diff = diff.Value,
-                blobs, containedPaths, assertionLedger = ledger.Rows, blockers = evaluation.Blockers.Select(row => row.Code).Distinct().Order(StringComparer.Ordinal)
+                blobs, containedPaths, evidenceReaders, assertionLedger = ledger.Rows, blockers = evaluation.Blockers.Select(row => row.Code).Distinct().Order(StringComparer.Ordinal)
             }, options));
             return 0;
         }

@@ -36,7 +36,7 @@ FAIL_CODES = frozenset({
     'AUTHORITY_BINDING_INVALID', 'EVIDENCE_RESULT_EXIT_MISMATCH', 'HELPER_REQUEST_INVALID', 'HELPER_FAILURE', 'RESULT_SCHEMA_INVALID',
 })
 BLOCKED_CODES = frozenset({'GIT_UNAVAILABLE', 'HISTORY_UNAVAILABLE', 'REVISION_UNAVAILABLE', 'REVISION_INVALID',
-    'GIT_TIMEOUT', 'GIT_CANCELLED', 'AUTHORITY_UNAVAILABLE', 'HELPER_UNAVAILABLE', 'ARGUMENT_INVALID'})
+    'GIT_TIMEOUT', 'GIT_CANCELLED', 'AUTHORITY_UNAVAILABLE', 'HELPER_UNAVAILABLE', 'ARGUMENT_INVALID', 'OUTPUT_WRITE_FAILED'})
 WARNING_CODES = frozenset({'EVIDENCE_SCOPE_NOT_APPLICABLE'})
 STABLE_CODES = FAIL_CODES | BLOCKED_CODES | WARNING_CODES
 
@@ -181,7 +181,7 @@ def verify(repository: Path, baseline: str, candidate: str, *, authority_bundle:
            binding_path: str = BINDING, verify_workflows: bool = False) -> dict[str, Any]:
     result = empty_result()
     try:
-        initial = bridge(repository, dict(baseline=baseline, candidate=candidate,containedPaths=[binding_path,authority_bundle],blobPaths=[
+        initial = bridge(repository, dict(baseline=baseline, candidate=candidate,inspectChangedReaders=True,containedPaths=[binding_path,authority_bundle],blobPaths=[
             'docs/release-evidence/story-10.3-final-record-v2.json','docs/release-evidence/story-10.3-final-record-v2.md']))
         result['candidate'] = initial['candidate']
         if any(row['code'] for row in initial['containedPaths']):
@@ -204,10 +204,12 @@ def verify(repository: Path, baseline: str, candidate: str, *, authority_bundle:
         result['changedPaths'] = paths
         result['gitlinks'] = [dict(path=entry['path'], sourceMode=entry['sourceMode'], destinationMode=entry['destinationMode'])
             for entry in entries if '160000' in (entry['sourceMode'], entry['destinationMode'])]
-        applicable = verify_workflows or any(path.startswith(('docs/release-evidence/', '_bmad-output/planning-artifacts/',
+        applicable = verify_workflows or bool(initial['evidenceReaders']) or any(path.startswith(('docs/release-evidence/', '_bmad-output/planning-artifacts/',
             'tests/Hexalith.Conversations.TestSupport', '_bmad/scripts/')) or path in WORKFLOWS + GUIDANCE for path in paths)
         if not applicable:
             return finalize(result, applicable=False)
+        result['assertionLedger'].extend(row for row in initial['assertionLedger'] if row['id'].startswith('reader:'))
+        result['blockers'].extend(code for code in initial['blockers'] if code.startswith('EVIDENCE_READER_'))
         expected_paths = list(binding['expectedChangedPaths'])
         publication_manifest = []
         pair_blobs = {row['path']:row for row in initial['blobs']}
@@ -232,15 +234,19 @@ def verify(repository: Path, baseline: str, candidate: str, *, authority_bundle:
                     | ({'_bmad-output/implementation-artifacts/sprint-status.yaml'} if '_bmad-output/implementation-artifacts/sprint-status.yaml' in paths else set()))
         record(result, 'binding:baseline', binding_path, baseline == binding['baseline'] == BASELINE, 'AUTHORITY_BINDING_INVALID')
         record(result, 'binding:exemptions', binding_path, binding.get('exemptions') == [], 'SIGNED_EVIDENCE_ALLOWLISTED')
+        for name, expected in (('workflowInventory', WORKFLOWS), ('guidanceInventory', GUIDANCE)):
+            inventory = binding[name]
+            rows = inventory['rows']
+            valid = (len(rows) == len(expected) and {row['path'] for row in rows} == set(expected)
+                and len({row['path'] for row in rows}) == len(rows) and inventory['sha256'] == digest(canonical(rows)))
+            record(result, 'binding:inventory:'+name, name, valid, 'AUTHORITY_BINDING_INVALID')
         manifest = binding['provenance'] + binding['workflowInventory']['rows'] + binding['guidanceInventory']['rows'] + publication_manifest
         manifest = [dict(path=row['path'], sha256=row['sha256'], role=row.get('role', 'evidence')) for row in manifest]
         payload = ''.join(f'{row["path"]}\t{row["sha256"]}\t{row["role"]}\n' for row in sorted(manifest, key=lambda row: row['path']))
         facts = bridge(repository, dict(baseline=baseline, candidate=candidate,
             expectedPaths=expected_paths, manifest=manifest,
             signablePayloadHash=digest(payload.encode()), roots=binding['rootConstants'],
-            blobPaths=[row['path'] for row in manifest] + [binding_path],
-            readerPaths=[path for path in paths if path.startswith('tests/') and path.endswith('.cs')
-                and 'Hexalith.Conversations.TestSupport' not in path]))
+            blobPaths=[row['path'] for row in manifest] + [binding_path]))
         result['manifest'] = manifest
         result['assertionLedger'].extend(facts['assertionLedger'])
         result['blockers'].extend('SCOPE_NOT_EVALUATED' if code == 'ASSERTION_LEDGER_EMPTY' else
@@ -270,18 +276,26 @@ def verify(repository: Path, baseline: str, candidate: str, *, authority_bundle:
     return finalize(result, applicable=True)
 
 
-def transition_decision(document: dict[str, Any], observed_exit: int) -> dict[str, Any]:
-    """Interpret a recorded gate result; only a valid matching successful pair advances."""
+def transition_decision(document: Any, observed_exit: int) -> dict[str, Any]:
+    """Advance only a schema-valid, registered, matching PASS or empty non-applicable result."""
     expected_exit = {'PASS': 0, 'FAIL': 1, 'BLOCKED': 2, 'not-applicable': 0}
+    if not isinstance(document, dict):
+        return dict(allowed=False,recordedResult=None,blockers=['EVIDENCE_RESULT_EXIT_MISMATCH'])
+    state = document.get('result')
+    valid = False
     try:
         jsonschema.validate(document, json.loads((Path(__file__).resolve().parents[2] / SCHEMA).read_bytes()))
-        valid = document['blockers'] == sorted(set(document['blockers'])) and document['warnings'] == sorted(set(document['warnings']))
-    except (jsonschema.ValidationError, KeyError, TypeError):
-        valid = False
-    state = document.get('result')
+        valid = (document['blockers'] == sorted(set(document['blockers']))
+            and document['warnings'] == sorted(set(document['warnings']))
+            and set(document['blockers']).issubset(FAIL_CODES | BLOCKED_CODES)
+            and set(document['warnings']).issubset(WARNING_CODES)
+            and (state != 'not-applicable' or not document['assertionLedger'] and not document['blockers']))
+    except (jsonschema.ValidationError, KeyError, TypeError, ValueError):
+        pass
     matches = valid and expected_exit.get(state) == observed_exit
+    known = {code for code in document.get('blockers', []) if isinstance(code,str) and code in STABLE_CODES} if isinstance(document.get('blockers'),list) else set()
     return dict(allowed=matches and state in ('PASS', 'not-applicable'), recordedResult=state,
-        blockers=sorted(set(document.get('blockers', [])) | (set() if matches else {'EVIDENCE_RESULT_EXIT_MISMATCH'})))
+        blockers=sorted(known | (set() if matches else {'EVIDENCE_RESULT_EXIT_MISMATCH'})))
 
 
 def main(arguments: list[str] | None = None) -> int:
@@ -309,17 +323,29 @@ def main(arguments: list[str] | None = None) -> int:
         binding_path=args.current_binding, verify_workflows=args.verify_workflows)
     content = json.dumps(document, indent=2) + '\n'
     if args.output:
-        containment = bridge(repository,dict(baseline=args.baseline,candidate=args.candidate,containedPaths=[args.output]))
-        path_fact = containment['containedPaths'][0]
-        if path_fact['code']:
-            document['blockers'].append('EVIDENCE_PATH_ESCAPE')
-            document['assertionLedger'].append(dict(id='output:containment',subject=args.output,state='FAIL'))
-            document = finalize(document,applicable=True)
-            sys.stdout.write(json.dumps(document,indent=2)+'\n')
-            return 1
-        target = Path(path_fact['fullPath'])
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(content)
+        try:
+            containment = bridge(repository,dict(baseline=args.baseline,candidate=args.candidate,containedPaths=[args.output]))
+            path_fact = containment['containedPaths'][0]
+            if path_fact['code']:
+                document['blockers'].append('EVIDENCE_PATH_ESCAPE')
+                document['assertionLedger'].append(dict(id='output:containment',subject=args.output,state='FAIL'))
+            else:
+                target = Path(path_fact['fullPath'])
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(content)
+        except (RuntimeError, subprocess.TimeoutExpired) as error:
+            code = str(error) if str(error) in STABLE_CODES else 'HELPER_UNAVAILABLE'
+            document['blockers'].append(code)
+            document['assertionLedger'].append(dict(id='output:helper',subject=args.output,
+                state='FAIL' if code in FAIL_CODES else 'SKIPPED'))
+        except (ValueError, KeyError, TypeError):
+            document['blockers'].append('HELPER_FAILURE')
+            document['assertionLedger'].append(dict(id='output:malformed-helper',subject=args.output,state='FAIL'))
+        except OSError:
+            document['blockers'].append('OUTPUT_WRITE_FAILED')
+            document['assertionLedger'].append(dict(id='output:write',subject=args.output,state='SKIPPED'))
+        document = finalize(document,applicable=document['result'] != 'not-applicable' or bool(document['blockers']))
+        content = json.dumps(document,indent=2)+'\n'
     sys.stdout.write(content)
     exit_code = {'PASS': 0, 'FAIL': 1, 'BLOCKED': 2, 'not-applicable': 0}[document['result']]
     decision = transition_decision(document, exit_code)

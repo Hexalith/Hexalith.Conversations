@@ -50,7 +50,7 @@
     },
     {
       "path": "tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
-      "sha256": "183482a0c8822d72c6b8b1238124c6eaf9d5530e7efd127e6b3204a57b0d9fde",
+      "sha256": "27f279debdbbe0e9c98c1df6fdc38a0d15e90b6e9a79e55afa51a4f46823c679",
       "role": "provenance"
     }
   ],
@@ -172,6 +172,7 @@
     ".claude/skills/bmad-build/step-05-present.md",
     ".claude/skills/bmad-build/step-oneshot.md",
     ".claude/skills/bmad-code-review/steps/step-04-present.md",
+    ".gitattributes",
     ".github/workflows/ci.yml",
     ".gitignore",
     "Hexalith.Conversations.slnx",
