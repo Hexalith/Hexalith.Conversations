@@ -2,7 +2,7 @@
 title: 'Story 10.3: Evidence verifier and workflow enforcement'
 type: 'feature'
 created: '2026-10-14'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '10f395a690b3f581771891e5f69fc5858a5d1d12'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -107,6 +107,12 @@ context:
 | V03 | high | patch | The verification reviewer independently confirmed vacuous shared helper assertions pass; same root cause as B01. |
 | P01 | medium | patch | Typed new() is recognized but var x = new GitFacts() is not, because new precedes the type; add the ordinary construction form and a positive regression. |
 | P02 | low | patch | The generated Markdown says no fault-injection result is bound although the Story 10.3 facts bind 17 mutations; render those facts accurately without changing prior story projections. |
+| R01 | high | parked (owner chose park, 2026-10-14) | Code review 2026-10-14 (baseline `10f395a`..HEAD `3ab1c58`, chunk 1). Live `verify_evidence_boundary.py --verify-workflows --candidate HEAD` returns FAIL with EVIDENCE_BOUNDARY_GITLINK and CHANGED_PATH_SET_MISMATCH: `90ab316` (/pushall) moved EventStore `6394d05`->`210b90d`, FrontComposer `0e151a1`->`e0476b7`, Memories `e864054`->`379cb1a`; the scoped gate would block the done transition. Restore the pins or obtain an approved refresh. (blind-hunter+edge-case-hunter) Pins stay on the CI-fixed commits; story returns to in-progress until a new candidate rebinds (R02/R03 test patch to ride the same regeneration). |
+| R02 | medium | patch | Pre-verified regression gap: no test drives `verify()` with a faulted binding sourcePaths/expectedChangedPaths and asserts FAIL AUTHORITY_BINDING_INVALID plus the `binding:source-paths` row, or the `and not result['blockers']` non-applicable guard. (verification-gap) |
+| R03 | medium | defer | `v2_10_3_source_errors` source-inventory rejection (generate_story_record.py ~9002) is unasserted; `v2_10_3_generate` pins the same invariant. Settle by one parametrized case when R02 lands. (verification-gap) |
+| R04 | low | defer | Unverified mutation-ledger doubts: before==after hashes on all ten bridge faults, extra observed blockers on PASS rows, 17 fixture mutations vs 18 claimed. Settle by comparing the retained record's Fault injection table with the fixture. (blind-hunter) |
+| R05 | false | rejected | Crash on malformed binding: `verify()` catches RuntimeError/KeyError/TypeError and maps to AUTHORITY_BINDING_INVALID/HELPER_UNAVAILABLE; generator paths hit the catch-all at ~9301/9380. Schema `if` is keyed on `storyId` const `10.3`. Sprint exception accepts any story-row status change, so `review`->`done` is allowed. |
+| R06 | low | rejected | AC-01/AC-03 identical output (files byte-identical: docs/ paths make both applicable); hard-coded 34; baseline hash replicated in routes; no old-baseline schema test; test-fixture rewiring; valid_sprint without HEAD (still fails closed). Fixes add complexity or edit the spec; unlikely to hurt. Spec-prose, frozen-block, /tmp evidence and approval-commit notes rejected: fix is a spec edit. |
 
 Review patches are implemented and independently checked. Focused verification passed 91 current CLI/reader tests, 44 generator/schema/route tests, and six affected historical neutral-helper tests. All 23 triage rows above are preserved.
 
