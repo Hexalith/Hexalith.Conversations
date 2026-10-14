@@ -10896,6 +10896,16 @@ def test_story102_schema_render_and_pair_cross_bindings(tmp_path: Path, monkeypa
         mutate(altered)
         _, output, rendered = generator.v2_finalize(altered)
         assert generator.v2_verify_pair(output, rendered)
+    # Scenario rows and the execution binding must name the same test assembly.
+    for mutate in (
+        lambda row: row["evidenceBoundaryExecution"]["projects"][1]["assembly"].update(sha256="f" * 64),
+        lambda row: row["scenarios"][0]["outputFiles"][1].update(sha256="f" * 64),
+    ):
+        altered = deepcopy(record)
+        mutate(altered)
+        _, output, rendered = generator.v2_finalize(altered)
+        assert ("Story 10.2 scenarios or receipt/assembly digests differ from the execution binding"
+                in generator.v2_verify_pair(output, rendered))
     for mutate in (
         lambda row: row.pop("evidenceBoundaryExecution"),
         lambda row: row["evidenceBoundaryExecution"].update(extra=True),
@@ -10946,7 +10956,8 @@ def test_story102_inserted_verification_rederives_candidate_bound_receipts(tmp_p
 
 
 @pytest.mark.parametrize("fault", [None, "root-candidate", "command", "contract-hash", "raw-source", "inactive-source",
-                                  "helper-project-hash", "test-project-hash", "first-gitlink", "last-gitlink", "authority"])
+                                  "helper-project-hash", "test-project-hash", "first-gitlink", "last-gitlink", "authority",
+                                  "predecessor-fail", "predecessor-history"])
 def test_story102_repository_consumption_reverifies_predecessor_and_commands(tmp_path: Path, monkeypatch, fault):
     generator, facts, marked, roots, _, blobs, _, candidate, contract = story102_fixture(tmp_path, monkeypatch)
     predecessor_path = "docs/release-evidence/story-10.1-final-record-v2.json"
@@ -10990,6 +11001,12 @@ def test_story102_repository_consumption_reverifies_predecessor_and_commands(tmp
         record["candidate"]["gitlinks"][0 if fault == "first-gitlink" else -1]["commit"] = "f" * 40
     elif fault == "authority":
         record["authority"]["bundleDigest"] = "f" * 64
+    elif fault == "predecessor-fail":
+        # The committed 10.1 pair still verifies; only its passing summary is withdrawn.
+        monkeypatch.setattr(generator, "v2_10_1_predecessor_passes", lambda row: row["storyId"] != "10.1")
+    elif fault == "predecessor-history":
+        missing = json.loads(predecessor)["candidate"]["commit"]
+        monkeypatch.setattr(generator, "try_resolve_commit", lambda _repo, revision: None if revision == missing else revision)
     _, json_bytes, markdown_bytes = generator.v2_finalize(record)
     # Repository-free checking remains structural: it cannot inspect predecessor history or source.
     assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
@@ -11246,5 +11263,12 @@ def test_story102_real_git_consumption_verifies_pair_and_rejects_unavailable_can
     assert generator.try_resolve_commit(shallow, candidate) is None
     assert generator.v2_10_2_repository_pair_errors(shallow, record, validators["record"]) == [
         "Story 10.2 candidate history is unavailable"]
+    # The 10.2 candidate resolves here, but the pinned Story 10.1 candidate does not.
+    partial = tmp_path / "partial"
+    run_git(tmp_path, "clone", "--quiet", "--no-local", "--depth", "2", repository.as_uri(), str(partial))
+    assert generator.try_resolve_commit(partial, candidate) == candidate
+    assert generator.try_resolve_commit(partial, predecessor_candidate) is None
+    assert generator.v2_10_2_repository_pair_errors(partial, record, validators["record"]) == [
+        "Story 10.2 committed predecessor is nonpassing, incompatible, or unresolvable"]
     assert generator.v2_verified_predecessor(shallow, publication, "10.2", json_path, markdown_path,
                                              validators["record"]) is None

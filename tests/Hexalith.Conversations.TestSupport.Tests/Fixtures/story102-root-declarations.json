@@ -153,5 +153,15 @@
     "id": "formatted-nested-initializer",
     "source": "var text = $\"{new { Value = \"}:\" }.Value:'}\";\nconst string Root = \"abcdef\";",
     "pinned": true
+  },
+  {
+    "id": "quote-character-literal-comment",
+    "source": "char c = '\"'; /* \"; const string Root = \"abcdef\"; /* */",
+    "pinned": false
+  },
+  {
+    "id": "quote-character-literal-active-root",
+    "source": "char c = '\"';\nconst string Root = \"abcdef\";",
+    "pinned": true
   }
 ]

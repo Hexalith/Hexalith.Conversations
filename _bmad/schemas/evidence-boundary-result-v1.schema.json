@@ -181,7 +181,6 @@
           "enum": [
             "PASS",
             "FAIL",
-            "BLOCKED",
             "SKIPPED"
           ]
         }

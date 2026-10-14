@@ -158,7 +158,7 @@ public sealed class BoundaryAssertionsTests
         BoundaryAssertions.PinnedRoots(removed, "removed-root", "// const string Story101RecordSha256 = \"" + Story101RecordSha256 + "\";", constants).ShouldBeFalse();
         removed.Evaluate().Blockers.ShouldContain(row => row.Code == "ROOT_OF_TRUST_NOT_PINNED");
         foreach (string path in new[] { "docs/release-evidence/proof.json", "DOCS\\Release-Evidence\\proof.json", "docs/other/../release-evidence/proof.json",
-            "docs", "DOCS", "docs/other/..", ".", "docs/**", "docs/release-*/proof.json", "other/?", "other/[abc]" })
+            "docs/release-evidence", "DOCS\\Release-Evidence", "docs", "DOCS", "docs/other/..", ".", "docs/**", "docs/release-*/proof.json", "other/?", "other/[abc]" })
         {
             AssertionLedger exempted = new();
             BoundaryAssertions.SignedEvidenceIsNotAllowlisted(exempted, "exempted", fixture.Root, [path]).ShouldBeFalse();

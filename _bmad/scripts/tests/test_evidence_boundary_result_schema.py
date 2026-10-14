@@ -42,6 +42,18 @@ def test_evidence_boundary_result_schema_accepts_all_result_states():
         validate_result(valid_result(state))
 
 
+@pytest.mark.parametrize("state", ["PASS", "FAIL", "SKIPPED", "BLOCKED"])
+def test_evidence_boundary_result_ledger_states_match_the_helper_rows(state):
+    # AssertionLedgerRow emits only PASS, FAIL, and SKIPPED; BLOCKED is a result, never a row state.
+    document = valid_result("FAIL")
+    document["assertionLedger"].append({"id": "row", "subject": "proof.json", "state": state})
+    if state == "BLOCKED":
+        with pytest.raises(jsonschema.ValidationError):
+            validate_result(document)
+    else:
+        validate_result(document)
+
+
 @pytest.mark.parametrize("fault", ["missing", "extra", "unknown-result", "unknown-ledger", "duplicate-code", "unordered-code"])
 def test_evidence_boundary_result_schema_rejects_invalid_contract(fault):
     document = deepcopy(valid_result())
@@ -62,7 +74,7 @@ def test_evidence_boundary_result_schema_rejects_invalid_contract(fault):
         validate_result(document)
 
 
-@pytest.mark.parametrize("fault", ["empty-ledger", "failed-ledger", "skipped-ledger", "blocked-ledger", "blocker", "null-candidate", "gitlink"])
+@pytest.mark.parametrize("fault", ["empty-ledger", "failed-ledger", "skipped-ledger", "blocker", "null-candidate", "gitlink"])
 def test_evidence_boundary_result_pass_requires_evaluated_passing_assertions(fault):
     document = valid_result()
     if fault == "empty-ledger":
@@ -74,8 +86,7 @@ def test_evidence_boundary_result_pass_requires_evaluated_passing_assertions(fau
     elif fault == "gitlink":
         document["gitlinks"] = [{"path": "deps/module", "sourceMode": "000000", "destinationMode": "160000"}]
     else:
-        document["assertionLedger"][0]["state"] = {
-            "failed-ledger": "FAIL", "skipped-ledger": "SKIPPED", "blocked-ledger": "BLOCKED"}[fault]
+        document["assertionLedger"][0]["state"] = {"failed-ledger": "FAIL", "skipped-ledger": "SKIPPED"}[fault]
     with pytest.raises(jsonschema.ValidationError):
         validate_result(document)
     for state in ("FAIL", "BLOCKED", "not-applicable"):

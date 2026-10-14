@@ -2,7 +2,7 @@
 title: 'Story 10.2: Manifest, hash, ledger, exact-diff, and gitlink invariants'
 type: 'feature'
 created: '2026-10-12'
-status: 'done'
+status: 'in-review'
 baseline_commit: 'bba1119988de4736e1dc526abd3c025a785eb3a7'
 route: 'dispatch'
 review_loop_iteration: 1
@@ -114,6 +114,8 @@ context:
 
 ## Implementation Notes
 
+- 2026-10-14 third-pass review corrections: the shared lexer fixture now has 33 cases, including a `'"'` character literal before a comment-hidden root and before an active root. The allowlist loop rejects `docs/release-evidence` and `DOCS\Release-Evidence` themselves. Generator tests mutate the test-assembly binding and the committed Story 10.1 predecessor's passing and resolvability facts, including a real `--depth 2` clone. The result schema's assertion states are PASS, FAIL and SKIPPED, matching `AssertionLedgerRow`. Removing each guarded clause made its new case fail in both lexers and in the generator. All 31 TestSupport tests and 355 focused Python tests passed. The candidate includes the EventStore gitlink `e88553d`.
+
 - 2026-10-13 review corrections: completed all thirteen accepted patches. Both lexers use the same 21-case embedded fixture; disabled text, verbatim literals, escaped quotes, BOM, and Roslyn whitespace are covered. Allowlist ancestors/globs, uncoded history skips, resolved output segments, nonpassing schema conditions, real raw-diff object-ID decoys, distinct artifact hashes, committed-pair compatibility, and generator trust-rule negatives are verified. The serialized Release solution build passed with zero warnings/errors, all 29 TestSupport tests passed, and the focused Python suite passed 335 tests. Deliberate check-removal probes failed as expected. Windows trailing-dot/space regressions are included for the Windows CI job and were not exercised on this Linux host.
 
 - Iteration 1 recognizes unconditional C# declaration tokens, including nested strings inside interpolations, and excludes every preprocessor conditional region. Repository-aware consumption rechecks committed predecessor roots and exact contract commands. The executed helper copy must equal the bound candidate-stamped assembly.
@@ -220,258 +222,56 @@ Code review of `bba1119..674ce1b` on 2026-10-13. It ran four layers (Blind Hunte
 
 **Final verification:** Candidate `7d281e613d75eb5ed94e7d8b476971e4debc6e20` passed the serialized Release solution build with zero warnings/errors, all 31 TestSupport tests without skips, 348 focused Python tests, and the exact AC-10.2-01..09 commands with summary `9/9/0/0/0/0`. The six accepted review follow-ups are complete. No new work was deferred. Windows-only path-normalization cases remain for the Windows CI lane; all earlier accepted evidence pairs and the unrelated EventStore checkout were preserved.
 
+### Review Findings — third pass, 2026-10-13
+
+Code review of `bba1119..494df3e`, code only. Out of scope: the generated record pair, this spec, sprint/deferred bookkeeping, and the later EventStore bump `f440a07`. Four layers ran (Blind Hunter, Edge Case Hunter, Verification Gap, Acceptance Auditor), and none failed. Triage covered 45 findings: 1 decision, 5 patches, 2 defers, 37 rejected. Defers stay here until done, because a post-candidate change to `deferred-work.md` breaks candidate retention.
+
+- [x] [Review][Decision] The Story 10.2 record no longer verifies at HEAD — `f440a07` moved `references/Hexalith.EventStore` from `3d0b738` to `e88553d` after candidate `7d281e6`. `generate_story_record.py --repository . --contract …/10.2.json --verify-inserted-record <this spec>` exits 1 with `CANDIDATE_NOT_FINAL` and `GITLINK_DRIFT`; both name only that commit (reproduced). Repository-aware consumption by Story 10.3 reads the candidate tree, so 10.3 is not blocked; the completion gate at HEAD is. Every patch below is also a post-candidate source change. Decided 2026-10-14: rebind. Apply the patches, then regenerate the pair on a new candidate that includes the bump.
+- [ ] [Review][Patch] Rebind the record: after the patches below, withdraw the `7d281e6` pair, commit the candidate, run the exact AC-10.2-01..09 commands on it, and publish the regenerated pair and inserted record, binding the `e88553d` EventStore gitlink. Preserve all 7.4, 9.2 and 10.1 pair bytes. [docs/release-evidence/story-10.2-final-record-v2.{json,md}]
+- [x] [Review][Patch] The top-level character-literal branch of both root lexers is untested. Deleting it leaves all tests green and accepts `char c = '"'; /* "; const string Root = "abcdef"; /* */` as pinned. Add a hidden-in-comment negative case and an active-root positive case to the shared fixture (Verification Gap). [tests/Hexalith.Conversations.TestSupport.Tests/Fixtures/story102-root-declarations.json; lexers at tests/Hexalith.Conversations.TestSupport/CSharpSourceDeclarations.cs:57, _bmad/scripts/generate_story_record.py:5755]
+- [x] [Review][Patch] The allowlist's exact-directory clause is untested. Removing `Equals("docs/release-evidence")` keeps the tests green and lets the entries `docs/release-evidence` and `DOCS\Release-Evidence` PASS. Add both to the `exempted` loop (Verification Gap). [tests/Hexalith.Conversations.TestSupport.Tests/BoundaryAssertionsTests.cs:160]
+- [x] [Review][Patch] The scenario `outputFiles` and test-assembly binding is untested. Deleting the clause keeps all 316 story101/story102 tests green, and a re-finalized pair whose scenario rows and execution binding name different assemblies then verifies. Add mutations of `projects[1].assembly.sha256` and of one scenario's `outputFiles[1].sha256` (Verification Gap). [_bmad/scripts/tests/test_generate_story_record.py:10893; clause at _bmad/scripts/generate_story_record.py:4732]
+- [x] [Review][Patch] The predecessor-resolvability and predecessor-passing clauses of repository-aware consumption are untested. Deleting either keeps the tests green, and a `--depth 2` clone in which the 10.2 candidate resolves but the 10.1 candidate does not is then accepted. Add a `--depth 2` real-Git case and a `predecessor-fail` consumption fault (Verification Gap). [_bmad/scripts/tests/test_generate_story_record.py:10950,11186; clause at _bmad/scripts/generate_story_record.py:5920]
+- [x] [Review][Patch] The result schema's assertion `state` enum allows `BLOCKED`, a row state that `AssertionLedgerRow` never produces and that has no defined meaning. Align it with PASS, FAIL and SKIPPED and adjust the `blocked-ledger` schema test (Acceptance Auditor). [_bmad/schemas/evidence-boundary-result-v1.schema.json:184]
+- [x] [Review][Defer] The allowlist glob guard rejects `*`, `?` and `[` but not brace expansion such as `{docs,x}/release-evidence/proof.json` [tests/Hexalith.Conversations.TestSupport/BoundaryAssertions.cs:105] — deferred, maybe-false (unverified medium). No allowlist consumer exists yet; settle when Story 10.3 defines its allowlist matcher. If it expands braces, `{` must be rejected (Edge Case Hunter).
+- [x] [Review][Defer] Symlink swap between the containment check and `File.OpenRead` [tests/Hexalith.Conversations.TestSupport/EvidenceManifest.cs:82] — deferred, maybe-false. This is the same claim as E4, already in `deferred-work.md`; no new entry was added (Edge Case Hunter).
+
+**Rejected:**
+
+- `rejected` — Uncontracted skip codes (`REVISION_INVALID`, `HISTORY_UNAVAILABLE`) appear in blockers and the HISTORY ledger row (Acceptance Auditor). The `HISTORY_UNAVAILABLE` fallback was decided in pass 1. Defining a contracted skip code would edit this spec.
+- `low` — Ordinal blocker ordering is not schema-enforced (Acceptance Auditor). Standard JSON Schema cannot express it, Implementation Notes record that consumers must check it, and the procedural check belongs to Story 10.3's verifier.
+- `low` — No test uses a stale, as opposed to all-zero, signable digest (Acceptance Auditor). Both go through the same single ordinal comparison against the recomputed digest, and no plausible regression separates them.
+- `false` — The two-argument `Add` changed Story 10.1 semantics (Acceptance Auditor). The 10.1 doc already promised lowercase SHA-256 values, 10.1 surface tests pass, and the default role affects only the new payload API.
+- `false` — A decoy `const` in another type pins the root (Blind Hunter, Edge Case Hunter). This is F-B3. Any predecessor drift still requires editing a committed literal that the generator compares with the independently verified digest.
+- `false` — The allowlist leg is self-referential and decoy-able (Blind Hunter). The decoy part is F-B3. The contract defines the real allowlist as the empty literal in the consuming source, and its consumer is Story 10.3/10.4.
+- `false` — The mutation ledger lacks a mutated hash (Blind Hunter). Rejected in pass 1: the test asserts that the mutated bytes differ.
+- `false` — `restored` overstates restoration because GitFixture commits persist (Blind Hunter). This is E6. HISTORY resolves fixed revisions that later commits cannot change.
+- `low` — Markdown shows `True`, the heading is shared, and the allowlist text is fixed (Blind Hunter). Rejected in pass 1 as cosmetic.
+- `false` — A missing contract is hashed as empty bytes (Blind Hunter). Rejected in pass 1: `v2_generate` validates the committed contract blob first.
+- `low` — Schema `not-applicable` is unconstrained, and FAIL/BLOCKED row rules are incomplete (Blind Hunter, Edge Case Hunter ×2). Story 10.2 has no producer, the owner set the FAIL/BLOCKED rules in pass 1, and R2-B5 applies.
+- `low` — Duplicate ledger or manifest keys, and no id/subject pattern (Blind Hunter). Rejected in pass 1 (B6, and the trailing-newline and duplicate-path items).
+- `rejected` — Skip-only ledgers give FAIL rather than BLOCKED (Blind Hunter, Edge Case Hunter). Rejected in pass 1 per the I/O matrix.
+- `low` — `Block` does not validate codes (Blind Hunter, Edge Case Hunter). Rejected in pass 1: callers pass literals and the result still FAILs.
+- `low` — The same file is accepted under `/` and `\` spellings (Blind Hunter, Edge Case Hunter). Rejected in pass 1.
+- `low` — Generator logic and literals are duplicated (Blind Hunter). A refactor adds no protection, and divergence would surface through the shared 10.1 predecessor checks.
+- `false` — The fixture is underused and the `depth` guards are dead (Blind Hunter). The guards are unreachable but change no behavior; no caller diverges.
+- `false` — Pytest functions sit after the `__main__` guard (Blind Hunter). Rejected in pass 1.
+- `false` — The cross-binding tests use only truthy assertions (Blind Hunter). Probe: with `v2_10_2_pair_errors` disabled, all five tests fail, so generic checks do not mask the 10.2 bindings.
+- `low` — `.GetAwaiter().GetResult()` in an async test (Blind Hunter). No analyzer fires under warnings-as-errors and there is no deadlock under xUnit v3. The fix changes the helper signature.
+- `low` — A `null` marker payload crashes generation (Edge Case Hunter). It fails closed and is reachable only by editing the test's serializer.
+- `false` — `GateError` escapes predecessor consumption (Edge Case Hunter). `main` converts it into a parseable FAIL document, and the predecessor's unguarded blob reads already raise it.
+- `low` — Receipt mtime equal to helper mtime (Edge Case Hunter). Rejected in pass 1.
+- `false` — A blank `GitFact.Code` throws in `Skip` (Edge Case Hunter). This is a loud failure, and GitFacts never emits blank codes.
+- `false` — A successful `GitFact` with a null value (Edge Case Hunter). Rejected in pass 1.
+- `false` — A null allowlist entry throws (Edge Case Hunter). This is a loud failure on input that violates the non-nullable `string[]` signature.
+- `low` — Windows 8.3 short names (Edge Case Hunter). Rejected in pass 1.
+- `false` — An empty manifest passes (Edge Case Hunter). This is B2.
+- `false` — Reusing a ledger across `Verify` calls leaves it half-written (Edge Case Hunter). It throws on caller misuse, and combining manifests is not contracted (B1).
+- `low` — The macOS `/var` symlinked temp root fails the fixtures (Edge Case Hunter). This is 10.1's linked-ancestor rule, and CI runs only Linux and Windows.
+- `low` — Schema paths allow `../x`, absolute paths and backslashes (Edge Case Hunter). This is F-B9.
+- `low` — The helper assembly digest `projects[0].assembly` has no cross-binding (Verification Gap, other). Build outputs are not committed, so no independent post-hoc fact exists; binding it would change the scenario output route.
+
 ## Spec Change Log
 
 - **2026-10-12, iteration 1:** B4/E2 and B8 exposed incomplete non-frozen source-recognition and predecessor-consumption designs. The known-bad implementation accepted inactive/string-root text and a root candidate unsupported by the linked predecessor. The correction tasks above require lexical root checks and independent committed predecessor/contract checks. All other verified findings are retained as explicit regression tasks for the same rederivation.
 - **KEEP:** Reuse the reviewed implementation from commit `cc7b3b695bd77452b7402423fbc46fc515ef6304` for story-owned source/schema/tests as the starting point, then apply the correction tasks. Preserve role-bearing rows, canonical and declared signable ordering, containment/symlink checks, exact ordinal path equality including rename sources, raw mode gitlink detection, visible history skips, duplicate evaluation rejection, marked TRX transport, twelve restored mutations, closed output schemas, candidate stamping, prior-record verification, deterministic rendering, and current-record rederivation. Preserve Story 10.1 APIs/tests and all 7.4/9.2/10.1 pair bytes. The full reviewed diff is retained locally at `/tmp/story-10-2-diff-mcnhqaj0/changes.diff`; do not restore old generated Story 10.2 record outputs or old lifecycle metadata as source implementation.
-
-<!-- STORY-FINAL-RECORD:BEGIN -->
-# Story 10.2 Final Record
-
-<!-- hexalith.conversations.story-final-record.v2 markdown projection -->
-
-Generated by `_bmad/scripts/generate_story_record.py` from the committed candidate and measured scenario results. The JSON record is authoritative; this rendering is bound to it by digest.
-
-- Schema: `hexalith.conversations.story-final-record.v2`
-- Result: `PASS`
-- Story: `10.2`
-- Candidate: `7d281e613d75eb5ed94e7d8b476971e4debc6e20`
-- JSON content SHA-256 (all three digest fields zeroed): `cbc08043cad424f3b21e7175e585ea0fb7594456b699740206bcf8b9099a6225`
-
-## Authority
-
-| Field | Value |
-| --- | --- |
-| Epic | `epic-6-authority-2026-08-03-v10` |
-| Architecture | `conversations-architecture-2026-08-03-v10` |
-| Planning candidate | `1e9a61126d3b7a55b514b7c7c8942d5af03355e5` |
-| Bundle digest | `159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055` |
-
-## Root gitlinks
-
-| Path | Mode | Commit |
-| --- | --- | --- |
-| `references/Hexalith.AI.Tools` | `160000` | `3f194e17174994d308ec84af9ee2b5aa68674d0d` |
-| `references/Hexalith.Builds` | `160000` | `608c164c3637240fed2dd92dbfdaaf581ba9846d` |
-| `references/Hexalith.Commons` | `160000` | `b247ed116c6523f8c596ec0a933eff8973d11568` |
-| `references/Hexalith.EventStore` | `160000` | `3d0b738d23e51ff765004e3f76ee7863e83b5ee6` |
-| `references/Hexalith.Folders` | `160000` | `47e51c13c124a3a1b93d00c5f90aaecad62f182d` |
-| `references/Hexalith.FrontComposer` | `160000` | `985d3e70ac8e9d5492fa857bc3a31208a9543670` |
-| `references/Hexalith.Memories` | `160000` | `f4c7d68f619f376debca440387428139a61080cc` |
-| `references/Hexalith.Parties` | `160000` | `35fd52186209bfade0d43bda30dd1c684eba4085` |
-| `references/Hexalith.Projects` | `160000` | `89ea0861343e9bedd90c598e33cb87fecdd4f39c` |
-| `references/Hexalith.Tenants` | `160000` | `68682ee0515161bce0f206f98e671336369048d1` |
-
-## Inventory
-
-| Inventory | SHA-256 |
-| --- | --- |
-| `V9-10.2-ENTRY-v1` | `9195f98c90362ce4035ef2223fcf6eab1cc705d0c7cc7ace47b0de9dc809ca4c` |
-
-## Predecessors
-
-- `10.1`
-
-## Scenarios
-
-| Scenario | Exit | Result | Blockers | Assertions | Result file | Result file SHA-256 |
-| --- | --- | --- | --- | --- | --- | --- |
-| `AC-10.2-01` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.2/AC-10.2-01.trx` | `e97e45f88cf4503d2200e10d37e30568c6b205ebdcfa12c4f18b22372e307232` |
-| `AC-10.2-02` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.2/AC-10.2-02.trx` | `3975eda48e7418a12b0168af6166af84dc04e41c74a4056823108a80cb22c021` |
-| `AC-10.2-03` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.2/AC-10.2-03.trx` | `8d13b1a009d8be9aaeac5968a3d4610720dfcc575bae67030e50beadeb2c5109` |
-| `AC-10.2-04` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.2/AC-10.2-04.trx` | `183687ba1f3646375321b18fcf416d503f88da38fe2503c153c0b06b0a7e9769` |
-| `AC-10.2-05` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.2/AC-10.2-05.trx` | `e0061af7ca1a298d4c21d060682464274b411a09be52e334702753ac195e1026` |
-| `AC-10.2-06` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.2/AC-10.2-06.trx` | `f7bd505af9bf25f978df127fd6c3906835e981b8f843987fe99a19c1a0a52286` |
-| `AC-10.2-07` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.2/AC-10.2-07.trx` | `092765ccb21be90d8c706ff6ed9f84cd994255f923625ec1efc1048c83eb63de` |
-| `AC-10.2-08` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.2/AC-10.2-08.trx` | `db8902cedc2e7fc08bbda48abf06ac036a223013023dcf4e5ca24a3e0609bdcb` |
-| `AC-10.2-09` | `0` | `PASS` | `none` | `9` | none | none |
-
-### `AC-10.2-01`
-
-Command: `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.ManifestShouldRecomputeContainedFilesAndHashes -trx artifacts/v9/10.2/AC-10.2-01.trx`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.2/AC-10.2-01.trx` | `e97e45f88cf4503d2200e10d37e30568c6b205ebdcfa12c4f18b22372e307232` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `57b344044c6d6cd1df01a0a5bd3cdb89bf1386b8378eb8d9bd2c2e866e89f2bc` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.2-01#0001` | `Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.ManifestShouldRecomputeContainedFilesAndHashes` | `PASS` |
-
-### `AC-10.2-02`
-
-Command: `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.GeneratedAndBuildOutputsShouldBeRejected -trx artifacts/v9/10.2/AC-10.2-02.trx`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.2/AC-10.2-02.trx` | `3975eda48e7418a12b0168af6166af84dc04e41c74a4056823108a80cb22c021` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `57b344044c6d6cd1df01a0a5bd3cdb89bf1386b8378eb8d9bd2c2e866e89f2bc` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.2-02#0001` | `Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.GeneratedAndBuildOutputsShouldBeRejected` | `PASS` |
-
-### `AC-10.2-03`
-
-Command: `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.SignablePayloadShouldBeRecomputed -trx artifacts/v9/10.2/AC-10.2-03.trx`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.2/AC-10.2-03.trx` | `8d13b1a009d8be9aaeac5968a3d4610720dfcc575bae67030e50beadeb2c5109` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `57b344044c6d6cd1df01a0a5bd3cdb89bf1386b8378eb8d9bd2c2e866e89f2bc` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.2-03#0001` | `Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.SignablePayloadShouldBeRecomputed` | `PASS` |
-
-### `AC-10.2-04`
-
-Command: `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.ChangedPathsShouldUseExactSetEquality -trx artifacts/v9/10.2/AC-10.2-04.trx`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.2/AC-10.2-04.trx` | `183687ba1f3646375321b18fcf416d503f88da38fe2503c153c0b06b0a7e9769` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `57b344044c6d6cd1df01a0a5bd3cdb89bf1386b8378eb8d9bd2c2e866e89f2bc` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.2-04#0001` | `Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.ChangedPathsShouldUseExactSetEquality` | `PASS` |
-
-### `AC-10.2-05`
-
-Command: `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.GitlinksShouldBeDetectedFromRawModes -trx artifacts/v9/10.2/AC-10.2-05.trx`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.2/AC-10.2-05.trx` | `e0061af7ca1a298d4c21d060682464274b411a09be52e334702753ac195e1026` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `57b344044c6d6cd1df01a0a5bd3cdb89bf1386b8378eb8d9bd2c2e866e89f2bc` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.2-05#0001` | `Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.GitlinksShouldBeDetectedFromRawModes` | `PASS` |
-
-### `AC-10.2-06`
-
-Command: `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.AssertionLedgerTests.UnavailableHistoryShouldSkipAndNeverPass -trx artifacts/v9/10.2/AC-10.2-06.trx`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.2/AC-10.2-06.trx` | `f7bd505af9bf25f978df127fd6c3906835e981b8f843987fe99a19c1a0a52286` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `57b344044c6d6cd1df01a0a5bd3cdb89bf1386b8378eb8d9bd2c2e866e89f2bc` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.2-06#0001` | `Hexalith.Conversations.TestSupport.Tests.AssertionLedgerTests.UnavailableHistoryShouldSkipAndNeverPass` | `PASS` |
-
-### `AC-10.2-07`
-
-Command: `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.RootsOfTrustAndSignedEvidenceShouldRemainPinned -trx artifacts/v9/10.2/AC-10.2-07.trx`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.2/AC-10.2-07.trx` | `092765ccb21be90d8c706ff6ed9f84cd994255f923625ec1efc1048c83eb63de` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `57b344044c6d6cd1df01a0a5bd3cdb89bf1386b8378eb8d9bd2c2e866e89f2bc` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.2-07#0001` | `Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.RootsOfTrustAndSignedEvidenceShouldRemainPinned` | `PASS` |
-
-### `AC-10.2-08`
-
-Command: `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceBoundaryFaultTests.AllInvariantFaultsShouldFailAndRestore -trx artifacts/v9/10.2/AC-10.2-08.trx`
-
-| Bound output | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.2/AC-10.2-08.trx` | `db8902cedc2e7fc08bbda48abf06ac036a223013023dcf4e5ca24a3e0609bdcb` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `57b344044c6d6cd1df01a0a5bd3cdb89bf1386b8378eb8d9bd2c2e866e89f2bc` |
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.2-08#0001` | `Hexalith.Conversations.TestSupport.Tests.EvidenceBoundaryFaultTests.AllInvariantFaultsShouldFailAndRestore` | `PASS` |
-
-### `AC-10.2-09`
-
-Command: `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/10.2.json --format bundle --output-json docs/release-evidence/story-10.2-final-record-v2.json --output-markdown docs/release-evidence/story-10.2-final-record-v2.md`
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-10.2-09#0001` | `generator::contract-schema-and-identity` | `PASS` |
-| `AC-10.2-09#0002` | `generator::authority-bundle-digest-recomputed` | `PASS` |
-| `AC-10.2-09#0003` | `generator::raw-gitlinks-equal-root-gitmodules` | `PASS` |
-| `AC-10.2-09#0004` | `generator::committed-candidate-worktree-clean` | `PASS` |
-| `AC-10.2-09#0005` | `generator::predecessor-scenarios-pass-with-ledgers` | `PASS` |
-| `AC-10.2-09#0006` | `generator::declared-output-paths` | `PASS` |
-| `AC-10.2-09#0007` | `generator::record-schema-valid` | `PASS` |
-| `AC-10.2-09#0008` | `generator::deterministic-rendering` | `PASS` |
-| `AC-10.2-09#0009` | `generator::json-markdown-digest-cross-binding` | `PASS` |
-
-## Story 10.2 TestSupport execution
-
-- Candidate: `7d281e613d75eb5ed94e7d8b476971e4debc6e20`
-- Candidate rule: SC-10.2 is HEAD^{commit} at first final-record generation
-- Frozen inventory SHA-256: `9195f98c90362ce4035ef2223fcf6eab1cc705d0c7cc7ace47b0de9dc809ca4c`
-- Contract SHA-256: `42d040c19e781efede0fd8105b039cf8ecc92eaf6bec6c2e9c2b7d7fe75dcf44`
-
-| Predecessor | Record SHA-256 |
-| --- | --- |
-| `10.1` | `334858d730c96c0a5a6647c514e631cfe4907756846bf2e0147e11937e221404` |
-
-| Project | Project SHA-256 | Assembly | Assembly SHA-256 |
-| --- | --- | --- | --- |
-| `tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj` | `9f885c50d869285e6b280b0c135b2c1449cda6f8e863271ff6420924443be925` | `tests/Hexalith.Conversations.TestSupport/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll` | `7873a986e47f01dd53cd16c11b842f5dd660c7076ce2c119aefed084d3ed3355` |
-| `tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj` | `a4885745f3084ce9a53b5f136498dceaa16d33b240ee0639963d5338c131b9ec` | `tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll` | `57b344044c6d6cd1df01a0a5bd3cdb89bf1386b8378eb8d9bd2c2e866e89f2bc` |
-
-| Result | SHA-256 |
-| --- | --- |
-| `artifacts/v9/10.2/AC-10.2-01.trx` | `e97e45f88cf4503d2200e10d37e30568c6b205ebdcfa12c4f18b22372e307232` |
-| `artifacts/v9/10.2/AC-10.2-02.trx` | `3975eda48e7418a12b0168af6166af84dc04e41c74a4056823108a80cb22c021` |
-| `artifacts/v9/10.2/AC-10.2-03.trx` | `8d13b1a009d8be9aaeac5968a3d4610720dfcc575bae67030e50beadeb2c5109` |
-| `artifacts/v9/10.2/AC-10.2-04.trx` | `183687ba1f3646375321b18fcf416d503f88da38fe2503c153c0b06b0a7e9769` |
-| `artifacts/v9/10.2/AC-10.2-05.trx` | `e0061af7ca1a298d4c21d060682464274b411a09be52e334702753ac195e1026` |
-| `artifacts/v9/10.2/AC-10.2-06.trx` | `f7bd505af9bf25f978df127fd6c3906835e981b8f843987fe99a19c1a0a52286` |
-| `artifacts/v9/10.2/AC-10.2-07.trx` | `092765ccb21be90d8c706ff6ed9f84cd994255f923625ec1efc1048c83eb63de` |
-| `artifacts/v9/10.2/AC-10.2-08.trx` | `db8902cedc2e7fc08bbda48abf06ac036a223013023dcf4e5ca24a3e0609bdcb` |
-
-- Consuming source: `tests/Hexalith.Conversations.TestSupport.Tests/BoundaryAssertionsTests.cs`
-- Supersession allowlist: empty
-
-| Literal root | Value |
-| --- | --- |
-| `Story101CandidateCommit` | `79f4b126ca66d419a584855936ce56a1266cce67` |
-| `Story101RecordSha256` | `334858d730c96c0a5a6647c514e631cfe4907756846bf2e0147e11937e221404` |
-
-## Fault injection
-
-| Fault | Expected blocker | Observed blockers | Before SHA-256 | After SHA-256 | Detected | Restored |
-| --- | --- | --- | --- | --- | --- | --- |
-| `AC-10.2-01-HASH` | `EVIDENCE_HASH_MISMATCH` | `EVIDENCE_HASH_MISMATCH` | `50697a338ad3ccb5fa3868b9da1acc7806b37cd766b496c8f902eecff1dc8f68` | `50697a338ad3ccb5fa3868b9da1acc7806b37cd766b496c8f902eecff1dc8f68` | `True` | `True` |
-| `AC-10.2-01-PATH` | `EVIDENCE_PATH_ESCAPE` | `EVIDENCE_PATH_ESCAPE` | `182a7b5d91524ee51194a237617d74c218e659ca040c78207136223e2677b2da` | `182a7b5d91524ee51194a237617d74c218e659ca040c78207136223e2677b2da` | `True` | `True` |
-| `AC-10.2-01-MISSING` | `EVIDENCE_FILE_MISSING` | `EVIDENCE_FILE_MISSING` | `182a7b5d91524ee51194a237617d74c218e659ca040c78207136223e2677b2da` | `182a7b5d91524ee51194a237617d74c218e659ca040c78207136223e2677b2da` | `True` | `True` |
-| `AC-10.2-02-OUTPUT` | `EVIDENCE_OUTPUT_FORBIDDEN` | `EVIDENCE_OUTPUT_FORBIDDEN` | `182a7b5d91524ee51194a237617d74c218e659ca040c78207136223e2677b2da` | `182a7b5d91524ee51194a237617d74c218e659ca040c78207136223e2677b2da` | `True` | `True` |
-| `AC-10.2-03-SIGNABLE` | `SIGNABLE_PAYLOAD_MISMATCH` | `SIGNABLE_PAYLOAD_MISMATCH` | `aaaa66a2802a0bafdecfe58e767f98ca2e7c48b063ae102a1914959702804f41` | `aaaa66a2802a0bafdecfe58e767f98ca2e7c48b063ae102a1914959702804f41` | `True` | `True` |
-| `AC-10.2-04-SUBSET` | `CHANGED_PATH_SET_MISMATCH` | `CHANGED_PATH_SET_MISMATCH` | `6d0c9146e13f4b8f82cd059a43f97056e1303f0dca08b35f26225f2c5f5af793` | `6d0c9146e13f4b8f82cd059a43f97056e1303f0dca08b35f26225f2c5f5af793` | `True` | `True` |
-| `AC-10.2-04-SUPERSET` | `CHANGED_PATH_SET_MISMATCH` | `CHANGED_PATH_SET_MISMATCH` | `6d0c9146e13f4b8f82cd059a43f97056e1303f0dca08b35f26225f2c5f5af793` | `6d0c9146e13f4b8f82cd059a43f97056e1303f0dca08b35f26225f2c5f5af793` | `True` | `True` |
-| `AC-10.2-05-GITLINK` | `EVIDENCE_BOUNDARY_GITLINK` | `EVIDENCE_BOUNDARY_GITLINK` | `7a771c644d6ce76e2c28abc833739f7e4a0d608c249cf22b89a372fe892ee8a1` | `7a771c644d6ce76e2c28abc833739f7e4a0d608c249cf22b89a372fe892ee8a1` | `True` | `True` |
-| `AC-10.2-06-HISTORY` | `UNAVAILABLE_HISTORY_PASSED` | `REVISION_INVALID, UNAVAILABLE_HISTORY_PASSED` | `a22580bb8aec15a14195b2a5f431c39e2af42b8939800cfeaea15d3b15c759af` | `a22580bb8aec15a14195b2a5f431c39e2af42b8939800cfeaea15d3b15c759af` | `True` | `True` |
-| `AC-10.2-06-EMPTY` | `ASSERTION_LEDGER_EMPTY` | `ASSERTION_LEDGER_EMPTY` | `b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b` | `b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b` | `True` | `True` |
-| `AC-10.2-07-ROOT` | `ROOT_OF_TRUST_NOT_PINNED` | `ROOT_OF_TRUST_NOT_PINNED` | `c7827b2323833bde01cf2518ef646e51f12fd89b75c4230f084e971a62b59d2f` | `c7827b2323833bde01cf2518ef646e51f12fd89b75c4230f084e971a62b59d2f` | `True` | `True` |
-| `AC-10.2-07-ALLOWLIST` | `SIGNED_EVIDENCE_ALLOWLISTED` | `SIGNED_EVIDENCE_ALLOWLISTED` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` | `True` | `True` |
-
-## Outputs
-
-| Output | Path |
-| --- | --- |
-| JSON | `docs/release-evidence/story-10.2-final-record-v2.json` |
-| Markdown | `docs/release-evidence/story-10.2-final-record-v2.md` |
-
-## Rollback boundary
-
-remove only Story 10.2 invariant code/tests/results and record; retain Story 10.1 intact.
-
-## Summary
-
-| Required | Passed | Failed | Blocked | Skipped | Not run |
-| --- | --- | --- | --- | --- | --- |
-| `9` | `9` | `0` | `0` | `0` | `0` |
-<!-- STORY-FINAL-RECORD:END -->
