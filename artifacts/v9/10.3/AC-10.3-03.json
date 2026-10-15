@@ -1,0 +1,1306 @@
+{
+  "schemaVersion": "hexalith.conversations.evidence-boundary-result.v1",
+  "result": "PASS",
+  "candidate": "3f2e02a39755aba0a50210490830f3083d23f022",
+  "manifest": [
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/10.3.json",
+      "sha256": "b83f9b97599b31aebcf9366188aa2a328a0dcaa6f5c7147f2805a286b4d12433",
+      "role": "provenance"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+      "sha256": "8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3",
+      "role": "provenance"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json",
+      "sha256": "6f01d0a738ceabd5b1411ab18d9328847a6aaa834d93e5b75bd4e183525b6641",
+      "role": "provenance"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json",
+      "sha256": "79eb51a10ae52557d563eda9d5a179062d6f3a35de0d4664318a2cdbb398b47a",
+      "role": "provenance"
+    },
+    {
+      "path": "docs/release-evidence/story-10.2-final-record-v2.json",
+      "sha256": "7bca69ff979b5ead9819da913933c13efbcb6e2076368202be92f256ef39d409",
+      "role": "provenance"
+    },
+    {
+      "path": "docs/release-evidence/story-10.2-final-record-v2.md",
+      "sha256": "567f13edb45156811837bda09945337a966cde2729d297c36f59006ee0014b5b",
+      "role": "provenance"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
+      "sha256": "236b7a7fbcfcb2d693cc5e5c16357ee5f3ca83850e16a6317f49761508c80ce0",
+      "role": "provenance"
+    },
+    {
+      "path": ".agents/skills/bmad-build/step-04-review.md",
+      "sha256": "1db21b544bb705bcd2eb4c8b904e010d3b770b5905b7fa789a77a8b2b8bfb4e2",
+      "role": "workflow"
+    },
+    {
+      "path": ".agents/skills/bmad-build/step-05-present.md",
+      "sha256": "5683ecaad066e195f06ae2f93c587b65633f8df1a06cb82423f1885932ba0d28",
+      "role": "workflow"
+    },
+    {
+      "path": ".agents/skills/bmad-build/step-oneshot.md",
+      "sha256": "5d36c605dd699eef0223d693747b93bb1b122516f95a10a2038c7db518f97bdf",
+      "role": "workflow"
+    },
+    {
+      "path": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "sha256": "e13abcdda1c344d1e575658a26e3be07db9ba79ba1715b18134e8b27a062f61d",
+      "role": "workflow"
+    },
+    {
+      "path": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "sha256": "ac925deb9a6b4131a858f426b1cd28e6df0b24ac69544d9eb5ca3b0a64522827",
+      "role": "workflow"
+    },
+    {
+      "path": ".claude/skills/bmad-build/step-04-review.md",
+      "sha256": "1db21b544bb705bcd2eb4c8b904e010d3b770b5905b7fa789a77a8b2b8bfb4e2",
+      "role": "workflow"
+    },
+    {
+      "path": ".claude/skills/bmad-build/step-05-present.md",
+      "sha256": "5683ecaad066e195f06ae2f93c587b65633f8df1a06cb82423f1885932ba0d28",
+      "role": "workflow"
+    },
+    {
+      "path": ".claude/skills/bmad-build/step-oneshot.md",
+      "sha256": "5d36c605dd699eef0223d693747b93bb1b122516f95a10a2038c7db518f97bdf",
+      "role": "workflow"
+    },
+    {
+      "path": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "sha256": "e13abcdda1c344d1e575658a26e3be07db9ba79ba1715b18134e8b27a062f61d",
+      "role": "workflow"
+    },
+    {
+      "path": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "sha256": "ac925deb9a6b4131a858f426b1cd28e6df0b24ac69544d9eb5ca3b0a64522827",
+      "role": "workflow"
+    },
+    {
+      "path": "_bmad/custom/bmad-build.toml",
+      "sha256": "f5b84feedd6c854c65d2b2279041a72e6a8de611701728ea29e909b99be92bdf",
+      "role": "guidance"
+    },
+    {
+      "path": "_bmad/custom/bmad-build-auto.toml",
+      "sha256": "f5b84feedd6c854c65d2b2279041a72e6a8de611701728ea29e909b99be92bdf",
+      "role": "guidance"
+    },
+    {
+      "path": "_bmad/custom/bmad-review.toml",
+      "sha256": "5da5208574b2ff75bfcf284cff44f0c99cf2feee83c2a8d52056a196b0d3fbe7",
+      "role": "guidance"
+    },
+    {
+      "path": "docs/runbooks/current-change-validation.md",
+      "sha256": "54cb71749300c6f4188999170b7c825fd97f181f2f4902b94c6245b2af2ce9d7",
+      "role": "guidance"
+    }
+  ],
+  "changedPaths": [
+    ".agents/skills/bmad-build-auto/step-04-review.md",
+    ".agents/skills/bmad-build/step-04-review.md",
+    ".agents/skills/bmad-build/step-05-present.md",
+    ".agents/skills/bmad-build/step-oneshot.md",
+    ".agents/skills/bmad-code-review/steps/step-04-present.md",
+    ".claude/skills/bmad-build-auto/step-04-review.md",
+    ".claude/skills/bmad-build/step-04-review.md",
+    ".claude/skills/bmad-build/step-05-present.md",
+    ".claude/skills/bmad-build/step-oneshot.md",
+    ".claude/skills/bmad-code-review/steps/step-04-present.md",
+    "_bmad-output/implementation-artifacts/spec-10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface.md",
+    "_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json",
+    "_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json",
+    "_bmad/schemas/story-final-record-v2.schema.json",
+    "_bmad/scripts/evidence_boundary_current.py",
+    "_bmad/scripts/generate_story_record.py",
+    "_bmad/scripts/tests/test_generate_story_record.py",
+    "artifacts/v9/10.3/AC-10.3-01.json",
+    "artifacts/v9/10.3/AC-10.3-02.xml",
+    "artifacts/v9/10.3/AC-10.3-03.json",
+    "artifacts/v9/10.3/AC-10.3-04.xml",
+    "artifacts/v9/10.3/AC-10.3-05.xml",
+    "artifacts/v9/10.3/AC-10.3-06.xml",
+    "artifacts/v9/10.3/AC-10.3-07.xml",
+    "docs/release-evidence/story-10.3-final-record-v2.json",
+    "docs/release-evidence/story-10.3-final-record-v2.md",
+    "tests/tooling/test_evidence_boundary_current.py"
+  ],
+  "gitlinks": [],
+  "assertionLedger": [
+    {
+      "id": "binding:baseline",
+      "subject": "_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "binding:source-paths",
+      "subject": "_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "binding:withdrawal",
+      "subject": "prior publication",
+      "state": "PASS"
+    },
+    {
+      "id": "binding:exemptions",
+      "subject": "_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "binding:inventory:workflowInventory",
+      "subject": "workflowInventory",
+      "state": "PASS"
+    },
+    {
+      "id": "binding:inventory:guidanceInventory",
+      "subject": "guidanceInventory",
+      "state": "PASS"
+    },
+    {
+      "id": "provenance:membership",
+      "subject": "historical provenance",
+      "state": "PASS"
+    },
+    {
+      "id": "provenance:baseline:_bmad-output/planning-artifacts/v9/story-contracts/10.3.json",
+      "subject": "_bmad-output/planning-artifacts/v9/story-contracts/10.3.json",
+      "state": "PASS"
+    },
+    {
+      "id": "provenance:baseline:_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+      "subject": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "provenance:baseline:_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json",
+      "subject": "_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "provenance:baseline:_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json",
+      "subject": "_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "provenance:baseline:docs/release-evidence/story-10.2-final-record-v2.json",
+      "subject": "docs/release-evidence/story-10.2-final-record-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "provenance:baseline:docs/release-evidence/story-10.2-final-record-v2.md",
+      "subject": "docs/release-evidence/story-10.2-final-record-v2.md",
+      "state": "PASS"
+    },
+    {
+      "id": "roots:approved",
+      "subject": "tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "repository",
+      "subject": "repository",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate",
+      "subject": "candidate",
+      "state": "PASS"
+    },
+    {
+      "id": "baseline",
+      "subject": "baseline",
+      "state": "PASS"
+    },
+    {
+      "id": "diff",
+      "subject": "diff",
+      "state": "PASS"
+    },
+    {
+      "id": "changed-paths",
+      "subject": "changed-paths",
+      "state": "PASS"
+    },
+    {
+      "id": "gitlinks",
+      "subject": "gitlinks",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:_bmad-output/planning-artifacts/v9/story-contracts/10.3.json",
+      "subject": "_bmad-output/planning-artifacts/v9/story-contracts/10.3.json",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+      "subject": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json",
+      "subject": "_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json",
+      "subject": "_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:docs/release-evidence/story-10.2-final-record-v2.json",
+      "subject": "docs/release-evidence/story-10.2-final-record-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:docs/release-evidence/story-10.2-final-record-v2.md",
+      "subject": "docs/release-evidence/story-10.2-final-record-v2.md",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
+      "subject": "tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:.agents/skills/bmad-build/step-04-review.md",
+      "subject": ".agents/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:.agents/skills/bmad-build/step-05-present.md",
+      "subject": ".agents/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:.agents/skills/bmad-build/step-oneshot.md",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:.agents/skills/bmad-build-auto/step-04-review.md",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:.agents/skills/bmad-code-review/steps/step-04-present.md",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:.claude/skills/bmad-build/step-04-review.md",
+      "subject": ".claude/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:.claude/skills/bmad-build/step-05-present.md",
+      "subject": ".claude/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:.claude/skills/bmad-build/step-oneshot.md",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:.claude/skills/bmad-build-auto/step-04-review.md",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:.claude/skills/bmad-code-review/steps/step-04-present.md",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:_bmad/custom/bmad-build.toml",
+      "subject": "_bmad/custom/bmad-build.toml",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:_bmad/custom/bmad-build-auto.toml",
+      "subject": "_bmad/custom/bmad-build-auto.toml",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:_bmad/custom/bmad-review.toml",
+      "subject": "_bmad/custom/bmad-review.toml",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:file:docs/runbooks/current-change-validation.md",
+      "subject": "docs/runbooks/current-change-validation.md",
+      "state": "PASS"
+    },
+    {
+      "id": "manifest:signable-payload",
+      "subject": "manifest",
+      "state": "PASS"
+    },
+    {
+      "id": "roots:compiled",
+      "subject": "roots:compiled",
+      "state": "PASS"
+    },
+    {
+      "id": "roots",
+      "subject": "roots",
+      "state": "PASS"
+    },
+    {
+      "id": "allowlist",
+      "subject": "allowlist",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:_bmad-output/planning-artifacts/v9/story-contracts/10.3.json",
+      "subject": "_bmad-output/planning-artifacts/v9/story-contracts/10.3.json",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+      "subject": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json",
+      "subject": "_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json",
+      "subject": "_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:docs/release-evidence/story-10.2-final-record-v2.json",
+      "subject": "docs/release-evidence/story-10.2-final-record-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:docs/release-evidence/story-10.2-final-record-v2.md",
+      "subject": "docs/release-evidence/story-10.2-final-record-v2.md",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
+      "subject": "tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:.agents/skills/bmad-build/step-04-review.md",
+      "subject": ".agents/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:.agents/skills/bmad-build/step-05-present.md",
+      "subject": ".agents/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:.agents/skills/bmad-build/step-oneshot.md",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:.agents/skills/bmad-build-auto/step-04-review.md",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:.agents/skills/bmad-code-review/steps/step-04-present.md",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:.claude/skills/bmad-build/step-04-review.md",
+      "subject": ".claude/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:.claude/skills/bmad-build/step-05-present.md",
+      "subject": ".claude/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:.claude/skills/bmad-build/step-oneshot.md",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:.claude/skills/bmad-build-auto/step-04-review.md",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:.claude/skills/bmad-code-review/steps/step-04-present.md",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:_bmad/custom/bmad-build.toml",
+      "subject": "_bmad/custom/bmad-build.toml",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:_bmad/custom/bmad-build-auto.toml",
+      "subject": "_bmad/custom/bmad-build-auto.toml",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:_bmad/custom/bmad-review.toml",
+      "subject": "_bmad/custom/bmad-review.toml",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:docs/runbooks/current-change-validation.md",
+      "subject": "docs/runbooks/current-change-validation.md",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:blob:_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json",
+      "subject": "_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "authority:selection",
+      "subject": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "predecessor:10.2",
+      "subject": "10.2",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:presence:.agents/skills/bmad-build/step-04-review.md",
+      "subject": ".agents/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:span:.agents/skills/bmad-build/step-04-review.md",
+      "subject": ".agents/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-04-review.md:`FAIL`/`1`",
+      "subject": ".agents/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-04-review.md:`BLOCKED`/`2`",
+      "subject": ".agents/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-04-review.md:`not-applicable`/`0`",
+      "subject": ".agents/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-04-review.md:--verify-workflows",
+      "subject": ".agents/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-04-review.md:explicitly requires",
+      "subject": ".agents/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-04-review.md:never write `review` or `done`",
+      "subject": ".agents/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "render:deterministic:.agents/skills:bmad-build",
+      "subject": "bmad-build",
+      "state": "PASS"
+    },
+    {
+      "id": "render:gate:.agents/skills/bmad-build/step-04-review.md",
+      "subject": ".agents/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:presence:.agents/skills/bmad-build/step-05-present.md",
+      "subject": ".agents/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:span:.agents/skills/bmad-build/step-05-present.md",
+      "subject": ".agents/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-05-present.md:`FAIL`/`1`",
+      "subject": ".agents/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-05-present.md:`BLOCKED`/`2`",
+      "subject": ".agents/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-05-present.md:`not-applicable`/`0`",
+      "subject": ".agents/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-05-present.md:--verify-workflows",
+      "subject": ".agents/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-05-present.md:explicitly requires",
+      "subject": ".agents/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-05-present.md:never write `review` or `done`",
+      "subject": ".agents/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "render:gate:.agents/skills/bmad-build/step-05-present.md",
+      "subject": ".agents/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:presence:.agents/skills/bmad-build/step-oneshot.md",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:span:.agents/skills/bmad-build/step-oneshot.md",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-oneshot.md:`FAIL`/`1`",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-oneshot.md:`BLOCKED`/`2`",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-oneshot.md:`not-applicable`/`0`",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-oneshot.md:--verify-workflows",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-oneshot.md:explicitly requires",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build/step-oneshot.md:never write `review` or `done`",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "render:gate:.agents/skills/bmad-build/step-oneshot.md",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:presence:.agents/skills/bmad-build-auto/step-04-review.md",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:span:.agents/skills/bmad-build-auto/step-04-review.md",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:`FAIL`/`1`",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:`BLOCKED`/`2`",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:`not-applicable`/`0`",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:--verify-workflows",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:explicitly requires",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:never write `review` or `done`",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "render:deterministic:.agents/skills:bmad-build-auto",
+      "subject": "bmad-build-auto",
+      "state": "PASS"
+    },
+    {
+      "id": "render:gate:.agents/skills/bmad-build-auto/step-04-review.md",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:presence:.agents/skills/bmad-code-review/steps/step-04-present.md",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:span:.agents/skills/bmad-code-review/steps/step-04-present.md",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:`FAIL`/`1`",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:`BLOCKED`/`2`",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:`not-applicable`/`0`",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:--verify-workflows",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:explicitly requires",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:never write `review` or `done`",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:presence:.claude/skills/bmad-build/step-04-review.md",
+      "subject": ".claude/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:span:.claude/skills/bmad-build/step-04-review.md",
+      "subject": ".claude/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-04-review.md:`FAIL`/`1`",
+      "subject": ".claude/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-04-review.md:`BLOCKED`/`2`",
+      "subject": ".claude/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-04-review.md:`not-applicable`/`0`",
+      "subject": ".claude/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-04-review.md:--verify-workflows",
+      "subject": ".claude/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-04-review.md:explicitly requires",
+      "subject": ".claude/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-04-review.md:never write `review` or `done`",
+      "subject": ".claude/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "render:deterministic:.claude/skills:bmad-build",
+      "subject": "bmad-build",
+      "state": "PASS"
+    },
+    {
+      "id": "render:gate:.claude/skills/bmad-build/step-04-review.md",
+      "subject": ".claude/skills/bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:presence:.claude/skills/bmad-build/step-05-present.md",
+      "subject": ".claude/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:span:.claude/skills/bmad-build/step-05-present.md",
+      "subject": ".claude/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-05-present.md:`FAIL`/`1`",
+      "subject": ".claude/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-05-present.md:`BLOCKED`/`2`",
+      "subject": ".claude/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-05-present.md:`not-applicable`/`0`",
+      "subject": ".claude/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-05-present.md:--verify-workflows",
+      "subject": ".claude/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-05-present.md:explicitly requires",
+      "subject": ".claude/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-05-present.md:never write `review` or `done`",
+      "subject": ".claude/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "render:gate:.claude/skills/bmad-build/step-05-present.md",
+      "subject": ".claude/skills/bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:presence:.claude/skills/bmad-build/step-oneshot.md",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:span:.claude/skills/bmad-build/step-oneshot.md",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-oneshot.md:`FAIL`/`1`",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-oneshot.md:`BLOCKED`/`2`",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-oneshot.md:`not-applicable`/`0`",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-oneshot.md:--verify-workflows",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-oneshot.md:explicitly requires",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build/step-oneshot.md:never write `review` or `done`",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "render:gate:.claude/skills/bmad-build/step-oneshot.md",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:presence:.claude/skills/bmad-build-auto/step-04-review.md",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:span:.claude/skills/bmad-build-auto/step-04-review.md",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:`FAIL`/`1`",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:`BLOCKED`/`2`",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:`not-applicable`/`0`",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:--verify-workflows",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:explicitly requires",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:never write `review` or `done`",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "render:deterministic:.claude/skills:bmad-build-auto",
+      "subject": "bmad-build-auto",
+      "state": "PASS"
+    },
+    {
+      "id": "render:gate:.claude/skills/bmad-build-auto/step-04-review.md",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:presence:.claude/skills/bmad-code-review/steps/step-04-present.md",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:span:.claude/skills/bmad-code-review/steps/step-04-present.md",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:`FAIL`/`1`",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:`BLOCKED`/`2`",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:`not-applicable`/`0`",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:--verify-workflows",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:explicitly requires",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:never write `review` or `done`",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:twins:bmad-build/step-04-review.md",
+      "subject": "bmad-build/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:twins:bmad-build/step-05-present.md",
+      "subject": "bmad-build/step-05-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:twins:bmad-build/step-oneshot.md",
+      "subject": "bmad-build/step-oneshot.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:twins:bmad-build-auto/step-04-review.md",
+      "subject": "bmad-build-auto/step-04-review.md",
+      "state": "PASS"
+    },
+    {
+      "id": "workflow:twins:bmad-code-review/steps/step-04-present.md",
+      "subject": "bmad-code-review/steps/step-04-present.md",
+      "state": "PASS"
+    },
+    {
+      "id": "route:retired:.agents/skills/bmad-dev-story",
+      "subject": ".agents/skills/bmad-dev-story",
+      "state": "PASS"
+    },
+    {
+      "id": "route:retired:.agents/skills/bmad-quick-dev",
+      "subject": ".agents/skills/bmad-quick-dev",
+      "state": "PASS"
+    },
+    {
+      "id": "route:retired:.claude/skills/bmad-dev-story",
+      "subject": ".claude/skills/bmad-dev-story",
+      "state": "PASS"
+    },
+    {
+      "id": "route:retired:.claude/skills/bmad-quick-dev",
+      "subject": ".claude/skills/bmad-quick-dev",
+      "state": "PASS"
+    },
+    {
+      "id": "guidance:resolved:bmad-build",
+      "subject": "bmad-build",
+      "state": "PASS"
+    },
+    {
+      "id": "guidance:resolved:bmad-build-auto",
+      "subject": "bmad-build-auto",
+      "state": "PASS"
+    },
+    {
+      "id": "guidance:resolved:bmad-review",
+      "subject": "bmad-review",
+      "state": "PASS"
+    },
+    {
+      "id": "guidance:file:_bmad/custom/bmad-build.toml",
+      "subject": "_bmad/custom/bmad-build.toml",
+      "state": "PASS"
+    },
+    {
+      "id": "guidance:file:_bmad/custom/bmad-build-auto.toml",
+      "subject": "_bmad/custom/bmad-build-auto.toml",
+      "state": "PASS"
+    },
+    {
+      "id": "guidance:file:_bmad/custom/bmad-review.toml",
+      "subject": "_bmad/custom/bmad-review.toml",
+      "state": "PASS"
+    },
+    {
+      "id": "guidance:file:docs/runbooks/current-change-validation.md",
+      "subject": "docs/runbooks/current-change-validation.md",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:0",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:1",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:2",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:3",
+      "subject": ".agents/skills/bmad-build/step-05-present.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:4",
+      "subject": ".agents/skills/bmad-build/step-05-present.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:5",
+      "subject": ".agents/skills/bmad-build/step-05-present.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:6",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:7",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:8",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:9",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:10",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:11",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:12",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:13",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:14",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:15",
+      "subject": ".claude/skills/bmad-build/step-05-present.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:16",
+      "subject": ".claude/skills/bmad-build/step-05-present.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:17",
+      "subject": ".claude/skills/bmad-build/step-05-present.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:18",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:19",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:20",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:21",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:22",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:23",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:24",
+      "subject": "render:.claude/skills/bmad-build-auto/step-04-review.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:25",
+      "subject": "render:.claude/skills/bmad-build-auto/step-04-review.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:26",
+      "subject": "render:.claude/skills/bmad-build-auto/step-04-review.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:27",
+      "subject": "render:.claude/skills/bmad-build/step-05-present.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:28",
+      "subject": "render:.claude/skills/bmad-build/step-05-present.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:29",
+      "subject": "render:.claude/skills/bmad-build/step-05-present.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:30",
+      "subject": "render:.claude/skills/bmad-build/step-oneshot.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:31",
+      "subject": "render:.claude/skills/bmad-build/step-oneshot.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:presence_checks:32",
+      "subject": "render:.claude/skills/bmad-build/step-oneshot.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:0",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md::block-bytes-identical-across-surfaces",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:1",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md::block-states-gate-contract",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:2",
+      "subject": ".agents/skills/bmad-build/step-05-present.md::block-bytes-identical-across-surfaces",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:3",
+      "subject": ".agents/skills/bmad-build/step-05-present.md::block-states-gate-contract",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:4",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md::block-bytes-identical-across-surfaces",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:5",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md::block-states-gate-contract",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:6",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md::block-bytes-identical-across-surfaces",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:7",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md::block-states-gate-contract",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:8",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md::block-bytes-identical-across-surfaces",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:9",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md::block-states-gate-contract",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:10",
+      "subject": ".claude/skills/bmad-build/step-05-present.md::block-bytes-identical-across-surfaces",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:11",
+      "subject": ".claude/skills/bmad-build/step-05-present.md::block-states-gate-contract",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:12",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md::block-bytes-identical-across-surfaces",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:13",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md::block-states-gate-contract",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:14",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md::block-bytes-identical-across-surfaces",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:15",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md::block-states-gate-contract",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:16",
+      "subject": "render:.claude/skills/bmad-build-auto/step-04-review.md::block-bytes-identical-across-surfaces",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:17",
+      "subject": "render:.claude/skills/bmad-build-auto/step-04-review.md::block-states-gate-contract",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:18",
+      "subject": "render:.claude/skills/bmad-build/step-05-present.md::block-bytes-identical-across-surfaces",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:19",
+      "subject": "render:.claude/skills/bmad-build/step-05-present.md::block-states-gate-contract",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:20",
+      "subject": "render:.claude/skills/bmad-build/step-oneshot.md::block-bytes-identical-across-surfaces",
+      "state": "PASS"
+    },
+    {
+      "id": "completion:parity_checks:21",
+      "subject": "render:.claude/skills/bmad-build/step-oneshot.md::block-states-gate-contract",
+      "state": "PASS"
+    }
+  ],
+  "warnings": [],
+  "blockers": []
+}
