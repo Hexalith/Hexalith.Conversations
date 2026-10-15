@@ -575,15 +575,3 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-10-2-implement-manifest-hash-ledger-exact-diff-and-gitlink-invariants.md`
   summary: Investigate concurrent symlink replacement between evidence containment checking and file reading (possible high impact, unverified).
   evidence: Review E4 observed separate containment and read operations but supplied no deterministic race probe. A fixture that swaps and restores a symlink during hashing, then proves whether external bytes can establish PASS, would settle the claim. Existing static symlink rejection tests pass.
-
-## Deferred from: code review of spec-10-3 (2026-10-15)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface.md`
-  summary: No real-runner test covers `git ls-files -z` index-ownership parsing with a non-ASCII staged path (regression guard, patch carried to Story 10.4).
-  evidence: Verification Gap reviewer. `Program.cs:90-105` parses index ownership and `evidence_boundary_current.py:488` builds `owned` from it, but most tests mock `bridge` with empty `headPaths`/`indexPaths`. Failure paths already fail closed (`Program.cs:203`, `main` KeyError handler). A tested fixture (stage `artifacts/v9/10.3/réceipt-é.json`, assert it is in `indexPaths` and an `--output` to it yields `EVIDENCE_OUTPUT_FORBIDDEN`) passed locally but was reverted because the test file is bound by the 10.3 binding and committing it would force a publication withdrawal.
-- source_spec: `_bmad-output/implementation-artifacts/spec-10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface.md`
-  summary: `story-final-record-v2.schema.json` baseline enum accepts the superseded `10f395a` without a negative test (low).
-  evidence: Verification Gap reviewer. Settle by adding a schema case rejecting a third baseline value when the schema is next touched.
-- source_spec: `_bmad-output/implementation-artifacts/spec-10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface.md`
-  summary: `sprint-status.yaml` was dropped from `expectedChangedPaths` and is re-added only on the published branch (possible medium, unverified).
-  evidence: Acceptance Auditor / Blind Hunter, `evidence_boundary_current.py:375`. Run the verifier on a pre-publication candidate whose diff touches `sprint-status.yaml` to see whether path equality fails or the change goes unconstrained.
