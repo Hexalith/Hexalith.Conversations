@@ -11309,6 +11309,21 @@ def story103_record_fixture(generator):
     return record
 
 
+def story103_unpublished_spec_fixture(generator):
+    """Start disposable lifecycle tests before publication regardless of live state."""
+    source=(WORKSPACE/generator.V2_10_3_SPEC).read_bytes()
+    begin=source.find(generator.RECORD_BEGIN_MARKER.encode())
+    if begin>=0:
+        assert generator.v2_record_region(source) is not None
+        end=source.index(generator.RECORD_END_MARKER.encode(),begin)+len(generator.RECORD_END_MARKER.encode())
+        source=source[:begin]+source[end:]
+    source=re.sub(rb"(?m)^status: '[^'\r\n]+'$",b"status: 'in-review'",source,count=1)
+    source=re.sub(rb'(?m)^- \[[xX]\] ',b'- [ ] ',source)
+    assert b"status: 'in-review'" in source
+    assert generator.RECORD_BEGIN_MARKER.encode() not in source
+    return source
+
+
 def test_story103_pair_and_closed_schema():
     generator = load_generator()
     _, validators = generator.v2_load_schemas()
@@ -11399,7 +11414,7 @@ def test_story103_inserted_verification_preserves_working_spec_intent(tmp_path,m
     repository=tmp_path/'repository';repository.mkdir()
     run_git(repository,'init','--quiet')
     spec=repository/generator.V2_10_3_SPEC;spec.parent.mkdir(parents=True)
-    original=(WORKSPACE/generator.V2_10_3_SPEC).read_bytes()
+    original=story103_unpublished_spec_fixture(generator)
     spec.write_bytes(original)
     run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: source spec')
     record=story103_record_fixture(generator)
@@ -11459,6 +11474,7 @@ def story103_receipt_repository(tmp_path,monkeypatch):
     contract=json.loads((WORKSPACE/generator.V2_10_3_CONTRACT).read_bytes())
     for path in set(binding['sourcePaths'])|set(current.HISTORICAL_PROVENANCE)|{current.SCHEMA}:
         target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((WORKSPACE/path).read_bytes())
+    (repository/generator.V2_10_3_SPEC).write_bytes(story103_unpublished_spec_fixture(generator))
     run_git(repository,'init','--quiet');run_git(repository,'add','--all')
     for path,commit in generator.v2_raw_gitlinks(WORKSPACE,current.BASELINE):
         run_git(repository,'update-index','--add','--cacheinfo','160000,'+commit+','+path)
@@ -11468,10 +11484,12 @@ def story103_receipt_repository(tmp_path,monkeypatch):
     measured.update(result='PASS',assertionLedger=[dict(id='measured',subject='shared facts',state='PASS')])
     monkeypatch.setattr(current,'verify',lambda *_args,**_kwargs:deepcopy(measured))
     monkeypatch.setattr(current,'historical_provenance_result',lambda *_args:dict(result='PASS',blockers=[],assertionLedger=[]))
-    approved=json.loads(run_git(WORKSPACE,'show',current.BASELINE+':'+current.BINDING).stdout)['expectedChangedPaths']
+    approved=json.loads(run_git(WORKSPACE,'show',current.SOURCE_INVENTORY_BASELINE+':'+current.BINDING).stdout)['expectedChangedPaths']
     monkeypatch.setattr(current,'approved_source_paths',lambda *_args:approved)
+    monkeypatch.setattr(current,'approved_withdrawal',lambda *_args:binding['withdrawnPublication'])
     neutral_bridge=current.bridge
-    monkeypatch.setattr(current,'bridge',lambda repository,request:dict(result='PASS',blockers=[])
+    monkeypatch.setattr(current,'bridge',lambda repository,request:dict(result='PASS',blockers=[],
+        diff=[dict(path=path,sourcePath=None,sourceMode='100644',destinationMode='000000') for path in current.PUBLICATION_PATHS])
         if 'expectedPaths' in request else neutral_bridge(repository,request))
     monkeypatch.setattr(generator,'v2_verified_predecessor',lambda *_args:binding['predecessor']['sha256'])
     codes=['EVIDENCE_BOUNDARY_GITLINK','EVIDENCE_HASH_MISMATCH','EVIDENCE_PATH_ESCAPE','EVIDENCE_FILE_MISSING','EVIDENCE_OUTPUT_FORBIDDEN',
@@ -11609,16 +11627,52 @@ def test_story103_generation_retains_full_source_inventory_beyond_diff(story103_
     assert error.value.findings[0]['subject']==unchanged
 
 
-def test_story103_generation_rejects_omitted_reviewed_source(story103_receipt_repository):
+@pytest.mark.parametrize('fault', ['omitted-source','unreviewed-diff'])
+def test_story103_generation_and_source_rederivation_reject_invalid_binding_scope(story103_receipt_repository,fault):
     generator,repository,candidate,options=story103_receipt_repository
+    record=generator.v2_parse_json(generator.v2_10_3_generate(options))
     binding_path=repository/generator.V2_10_3_BINDING
     binding=generator.v2_parse_json(binding_path.read_bytes())
-    binding['sourcePaths'].remove('tests/Hexalith.Conversations.TestSupport.Runner/Program.cs')
+    if fault=='omitted-source':binding['sourcePaths'].remove('tests/Hexalith.Conversations.TestSupport.Runner/Program.cs')
+    if fault=='unreviewed-diff':binding['expectedChangedPaths']=sorted([*binding['expectedChangedPaths'],'unreviewed.txt'])
     binding_path.write_text(json.dumps(binding,indent=2)+'\n')
-    run_git(repository,'add','--',generator.V2_10_3_BINDING)
-    run_git(repository,'commit','--quiet','-m','test: omit reviewed source')
+    run_git(repository,'add','--all')
+    run_git(repository,'commit','--quiet','-m','test: commit invalid source binding')
     with pytest.raises(generator.V2Stop) as error:generator.v2_10_3_generate(options)
     assert error.value.findings[0]['code']=='AUTHORITY_BINDING_INVALID'
+    # Keep the pair internally consistent with the newly committed binding so
+    # consumption reaches the independent approved-entry inventory check.
+    candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    record['candidate']['commit']=candidate
+    facts=record['evidenceWorkflowExecution']
+    facts['sourceRevisionId']=candidate
+    for row in [facts['binding'],*facts['sourceFiles']]:
+        if row['path']==generator.V2_10_3_BINDING:row['sha256']=generator.v2_sha256(binding_path.read_bytes())
+    assert generator.v2_10_3_pair_errors(record)==[]
+    _,validators=generator.v2_load_schemas()
+    problems=generator.v2_10_3_source_errors(repository,record,validators['record'])
+    assert 'Story 10.3 source inventory or post-entry scope differs from the approved entry' in problems
+
+
+@pytest.mark.parametrize('fault', ['edit','partial','rename','gitlink'])
+def test_story103_source_rederivation_rejects_invalid_withdrawal(story103_receipt_repository,monkeypatch,fault):
+    generator,repository,candidate,options=story103_receipt_repository
+    record=generator.v2_parse_json(generator.v2_10_3_generate(options))
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: publish retained receipt fixture')
+    current=generator.v2_10_3_current_module()
+    neutral=current.bridge
+    def bridge(repository,request):
+        facts=neutral(repository,request)
+        if 'expectedPaths' in request:
+            if fault=='edit':facts['diff'][0]['destinationMode']='100644'
+            if fault=='partial':facts['diff'].pop()
+            if fault=='rename':facts['diff'][0]['sourcePath']=facts['diff'][0]['path'];facts['diff'][0]['path']='renamed.json'
+            if fault=='gitlink':facts['diff'][0]['sourceMode']='160000'
+        return facts
+    monkeypatch.setattr(current,'bridge',bridge)
+    _,validators=generator.v2_load_schemas()
+    assert generator.v2_10_3_source_errors(repository,record,validators['record'])==[
+        'Story 10.3 prior publication withdrawal is not nine exact deletions']
 
 
 @pytest.mark.parametrize('fault', ['none','unrelated-row','uncommitted-sprint'])

@@ -9008,6 +9008,8 @@ def v2_10_3_source_errors(repository: Path, record: dict[str, Any], validator: A
             expectedPaths=binding['expectedChangedPaths']))
         if raw['result'] != 'PASS':
             problems.append('Story 10.3 full raw source boundary does not pass: '+', '.join(raw['blockers']))
+        elif not current.withdrawal_valid(binding, raw['diff']):
+            problems.append('Story 10.3 prior publication withdrawal is not nine exact deletions')
         if record['candidate']['gitlinks'] != [dict(path=path,mode='160000',commit=commit) for path,commit in v2_raw_gitlinks(repository,candidate)]:
             problems.append('Story 10.3 raw candidate gitlinks differ')
         if (binding['workflowInventory'] != facts['workflowInventory']

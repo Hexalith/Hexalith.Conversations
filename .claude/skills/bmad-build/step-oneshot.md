@@ -72,7 +72,7 @@ For each group:
 <!-- EVIDENCE-BOUNDARY-GATE:BEGIN v1 -->
 When the spec explicitly requires evidence-boundary verification, run its effective
 contract command before this governed transition. Story 10.3 uses
-`python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.3-current-binding-v1.json --baseline 10f395a690b3f581771891e5f69fc5858a5d1d12 --candidate HEAD --verify-workflows --format json`.
+`python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.3-current-binding-v1.json --baseline 3319e062472bb44fda8389a2420af108da58da0a --candidate HEAD --verify-workflows --format json`.
 Use `_bmad/scripts/evidence_boundary_current.py::transition_decision` to interpret the recorded result and exit.
 Require the recorded result and exit to agree: `PASS`/`0` or explicit
 `not-applicable`/`0` continues; record `not-applicable` distinctly.

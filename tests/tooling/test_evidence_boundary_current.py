@@ -332,19 +332,26 @@ def test_lifecycle_transition_semantics_rejects_forged_not_applicable(fault):
         assert observed['blockers']==expected
 
 
-@pytest.mark.parametrize('fault', ['workflow-digest','guidance-digest','workflow-row','guidance-row'])
-def test_current_binding_inventory_digests_and_membership_fail_closed(tmp_path,monkeypatch,fault):
+@pytest.mark.parametrize('fault', ['workflow-digest','guidance-digest','workflow-row','guidance-row',
+    'omitted-source','unreviewed-source','unreviewed-diff','duplicate-diff'])
+def test_current_binding_inventory_and_source_scope_faults_fail_closed(tmp_path,monkeypatch,capsys,fault):
     binding=json.loads((ROOT/current.BINDING).read_bytes())
+    approved=list(binding['sourcePaths'])
+    scope_fault=fault in ('omitted-source','unreviewed-source','unreviewed-diff','duplicate-diff')
     if fault=='workflow-digest':binding['workflowInventory']['sha256']='0'*64
     if fault=='guidance-digest':binding['guidanceInventory']['sha256']='0'*64
     if fault=='workflow-row':binding['workflowInventory']['rows'].pop()
     if fault=='guidance-row':binding['guidanceInventory']['rows'].pop()
+    if fault=='omitted-source':binding['sourcePaths'].remove(current.CURRENT_PROVENANCE)
+    if fault=='unreviewed-source':binding['sourcePaths']=sorted([*approved,'unreviewed.txt'])
+    if fault=='unreviewed-diff':binding['expectedChangedPaths']=sorted([*binding['expectedChangedPaths'],'unreviewed.txt'])
+    if fault=='duplicate-diff':binding['expectedChangedPaths'].append(binding['expectedChangedPaths'][0])
     binding_file=tmp_path/current.BINDING;binding_file.parent.mkdir(parents=True);binding_file.write_text(json.dumps(binding))
     authority=tmp_path/binding['authorityBundle']['path'];authority.write_text('{}')
     initial=dict(result='PASS',candidate='a'*40,evidenceReaders=[],blobs=[dict(path=path,content=None) for path in (
         'docs/release-evidence/story-10.3-final-record-v2.json','docs/release-evidence/story-10.3-final-record-v2.md')],
         containedPaths=[dict(path=current.BINDING,fullPath=str(binding_file),code=None),dict(path=binding['authorityBundle']['path'],fullPath=str(authority),code=None)],
-        diff=[dict(path='_bmad/scripts/changed.py',sourcePath=None,sourceMode='100644',destinationMode='100644')],assertionLedger=[],blockers=[])
+        diff=[dict(path='ordinary.txt' if scope_fault else '_bmad/scripts/changed.py',sourcePath=None,sourceMode='100644',destinationMode='100644')],assertionLedger=[],blockers=[])
     def facts(root,request):
         if 'inspectChangedReaders' in request:return copy.deepcopy(initial)
         if request.get('candidate') == current.PROVENANCE_BASELINE:
@@ -354,12 +361,21 @@ def test_current_binding_inventory_digests_and_membership_fail_closed(tmp_path,m
     monkeypatch.setattr(current,'bridge',facts)
     monkeypatch.setattr(current,'workflow_checks',lambda *args:None)
     monkeypatch.setattr(current,'approved_roots',lambda *args:binding['rootConstants'])
-    monkeypatch.setattr(current,'approved_source_paths',lambda *_args:binding['sourcePaths'])
+    monkeypatch.setattr(current,'approved_source_paths',lambda *_args:approved)
+    monkeypatch.setattr(current,'approved_withdrawal',lambda *_args:binding['withdrawnPublication'])
     import generate_story_record as generator
     monkeypatch.setattr(generator,'v2_verified_predecessor',lambda *args:binding['predecessor']['sha256'])
-    observed=current.verify(tmp_path,current.BASELINE,'HEAD',authority_bundle=binding['authorityBundle']['path'])
+    exit_code=current.main(['--repository',str(tmp_path),'--baseline',current.BASELINE,'--candidate','HEAD',
+        '--authority-bundle',binding['authorityBundle']['path']])
+    observed=json.loads(capsys.readouterr().out)
+    assert exit_code==1
     assert observed['result']=='FAIL'
     assert observed['blockers']==['AUTHORITY_BINDING_INVALID']
+    if scope_fault:
+        assert observed['changedPaths']==['ordinary.txt']
+        assert dict(id='binding:source-paths',subject=current.BINDING,state='FAIL') in observed['assertionLedger']
+        assert dict(id='neutral',subject='neutral',state='PASS') in observed['assertionLedger']
+        assert observed['warnings']==[]
 
 
 @pytest.mark.parametrize('reader', [True,False])
@@ -594,12 +610,14 @@ def test_current_verifier_carries_canonical_candidate_into_dependent_requests(tm
             return dict(result='PASS',candidate='a'*40,baseline=current.BASELINE,evidenceReaders=[],
                 containedPaths=[dict(code=None,fullPath=str(target)),dict(code=None,fullPath=str(authority))],
                 blobs=[dict(path=path,content=None) for path in ('docs/release-evidence/story-10.3-final-record-v2.json','docs/release-evidence/story-10.3-final-record-v2.md')],
-                diff=[dict(path='_bmad/scripts/changed.py',sourcePath=None,sourceMode='100644',destinationMode='100644')],assertionLedger=[],blockers=[])
+                diff=[dict(path='_bmad/scripts/changed.py',sourcePath=None,sourceMode='100644',destinationMode='100644')]
+                    +[dict(path=path,sourcePath=None,sourceMode='100644',destinationMode='000000') for path in current.PUBLICATION_PATHS],assertionLedger=[],blockers=[])
         return dict(result='PASS',blobs=[],assertionLedger=[dict(id='measured',subject='fixture',state='PASS')],blockers=[])
     monkeypatch.setattr(current,'bridge',bridge)
     monkeypatch.setattr(current,'historical_provenance_result',lambda *_args:dict(result='PASS',assertionLedger=[],blockers=[]))
     monkeypatch.setattr(current,'approved_roots',lambda *_args:binding['rootConstants'])
     monkeypatch.setattr(current,'approved_source_paths',lambda *_args:binding['sourcePaths'])
+    monkeypatch.setattr(current,'approved_withdrawal',lambda *_args:binding['withdrawnPublication'])
     monkeypatch.setattr(current,'workflow_checks',lambda *_args:None)
     import generate_story_record as generator
     monkeypatch.setattr(generator,'v2_verified_predecessor',lambda *_args:binding['predecessor']['sha256'])
@@ -671,17 +689,25 @@ def test_current_cli_argument_failure_is_closed_blocked(tmp_path,capsys):
     assert result['blockers']==['ARGUMENT_INVALID']
 
 
-@pytest.mark.parametrize('fault', [None,'omitted-source','unreviewed-source','unreviewed-diff','provenance-baseline'])
+@pytest.mark.parametrize('fault', [None,'omitted-source','unreviewed-source','unreviewed-diff','provenance-baseline',
+    'source-inventory-baseline','withdrawal-digest','withdrawal-path','withdrawal-row','partial-withdrawal'])
 def test_current_source_inventory_is_pinned_to_entry_independently_of_diff(monkeypatch,fault):
     binding=json.loads((ROOT/current.BINDING).read_bytes())
-    approved=json.loads(subprocess.check_output(['git','-C',str(ROOT),'show',current.BASELINE+':'+current.BINDING]))['expectedChangedPaths']
+    approved=json.loads(subprocess.check_output(['git','-C',str(ROOT),'show',current.SOURCE_INVENTORY_BASELINE+':'+current.BINDING]))['expectedChangedPaths']
+    withdrawal=copy.deepcopy(binding['withdrawnPublication'])
     assert len(approved)==34 and binding['sourcePaths']==approved
     assert current.BASELINE != current.PROVENANCE_BASELINE
     monkeypatch.setattr(current,'approved_source_paths',lambda *_args:approved)
+    monkeypatch.setattr(current,'approved_withdrawal',lambda *_args:withdrawal)
     if fault=='omitted-source':binding['sourcePaths'].remove('tests/Hexalith.Conversations.TestSupport.Runner/Program.cs')
     if fault=='unreviewed-source':binding['sourcePaths']=sorted([*binding['sourcePaths'],'unreviewed.txt'])
     if fault=='unreviewed-diff':binding['expectedChangedPaths']=sorted([*binding['expectedChangedPaths'],'unreviewed.txt'])
     if fault=='provenance-baseline':binding['provenanceBaseline']=current.BASELINE
+    if fault=='source-inventory-baseline':binding['sourceInventoryBaseline']=current.BASELINE
+    if fault=='withdrawal-digest':binding['withdrawnPublication'][0]['sha256']='f'*64
+    if fault=='withdrawal-path':binding['withdrawnPublication'][0]['path']='unreviewed.txt'
+    if fault=='withdrawal-row':binding['withdrawnPublication'].pop()
+    if fault=='partial-withdrawal':binding['expectedChangedPaths'].remove(current.PUBLICATION_PATHS[0])
     assert current.source_binding_valid(ROOT,binding) is (fault is None)
 
 
@@ -699,5 +725,73 @@ def test_current_provenance_and_source_inventory_use_independent_approved_commit
     monkeypatch.setattr(current,'bridge',facts)
     assert current.historical_provenance_result(ROOT,binding['provenance'])['result']=='PASS'
     assert current.approved_source_paths(ROOT)==binding['sourcePaths']
+    assert current.approved_withdrawal(ROOT)==binding['withdrawnPublication']
     assert requests[0]['baseline']==requests[0]['candidate']==current.PROVENANCE_BASELINE
-    assert requests[1]['baseline']==requests[1]['candidate']==current.BASELINE
+    assert requests[1]['baseline']==requests[1]['candidate']==current.SOURCE_INVENTORY_BASELINE
+    assert requests[2]['baseline']==requests[2]['candidate']==current.BASELINE
+    assert requests[2]['blobPaths']==list(current.PUBLICATION_PATHS)
+
+
+@pytest.mark.parametrize('fault', [None,'missing','edit','rename','gitlink','duplicate','extra'])
+def test_current_withdrawal_requires_nine_exact_deletions(fault):
+    binding=json.loads((ROOT/current.BINDING).read_bytes())
+    rows=[dict(path=path,sourcePath=None,sourceMode='100644',destinationMode='000000') for path in current.PUBLICATION_PATHS]
+    if fault=='missing':rows.pop()
+    if fault=='edit':rows[0]['destinationMode']='100644'
+    if fault=='rename':rows[0]['sourcePath']=rows[0]['path'];rows[0]['path']='renamed.json'
+    if fault=='gitlink':rows[0]['sourceMode']='160000'
+    if fault=='duplicate':rows.append(copy.deepcopy(rows[0]))
+    if fault=='extra':rows.append(dict(path='other.json',sourcePath=current.PUBLICATION_PATHS[0],sourceMode='100644',destinationMode='100644'))
+    assert current.withdrawal_valid(binding,rows) is (fault is None)
+
+
+def test_current_refreshed_source_accepts_exact_withdrawal_and_writes_receipt(tmp_path,capsys):
+    root=tmp_path/'checkout'
+    subprocess.run(['git','clone','--quiet','--local','--no-hardlinks',str(ROOT),str(root)],check=True,capture_output=True)
+    subprocess.run(['git','-C',str(root),'checkout','--quiet',current.BASELINE],check=True,capture_output=True)
+    binding=json.loads((ROOT/current.BINDING).read_bytes())
+    for path in binding['sourcePaths']:
+        (root/path).write_bytes((ROOT/path).read_bytes())
+    import generate_story_record as generator
+    spec=root/generator.V2_10_3_SPEC
+    source=spec.read_bytes()
+    begin=source.find(generator.RECORD_BEGIN_MARKER.encode())
+    if begin>=0:
+        end=source.index(generator.RECORD_END_MARKER.encode(),begin)+len(generator.RECORD_END_MARKER.encode())
+        spec.write_bytes(source[:begin]+source[end:])
+    for path in current.PUBLICATION_PATHS:(root/path).unlink()
+    subprocess.run(['git','-C',str(root),'add','--all','--',*binding['expectedChangedPaths']],check=True)
+    changed=subprocess.check_output(['git','-C',str(root),'diff','--cached','--name-only'],text=True).splitlines()
+    assert changed==binding['expectedChangedPaths']
+    subprocess.run(['git','-C',str(root),'-c','user.name=Fixture','-c','user.email=fixture@example.invalid',
+        'commit','--quiet','-m','test: exercise approved evidence refresh'],check=True,capture_output=True)
+    receipt='artifacts/v9/10.3/AC-10.3-01.json'
+    exit_code=current.main(['--repository',str(root),'--baseline',current.BASELINE,'--candidate','HEAD',
+        '--authority-bundle',binding['authorityBundle']['path'],'--verify-workflows','--output',receipt])
+    observed=json.loads(capsys.readouterr().out)
+    assert exit_code==0 and observed['result']=='PASS' and observed['blockers']==[]
+    assert observed['changedPaths']==binding['expectedChangedPaths'] and observed['gitlinks']==[]
+    assert dict(id='binding:withdrawal',subject='prior publication',state='PASS') in observed['assertionLedger']
+    assert json.loads((root/receipt).read_bytes())==observed
+    binding['withdrawnPublication'][0]['sha256']='f'*64
+    (root/current.BINDING).write_text(json.dumps(binding))
+    rejected=current.verify(root,current.BASELINE,'HEAD',authority_bundle=binding['authorityBundle']['path'])
+    assert rejected['result']=='FAIL' and 'AUTHORITY_BINDING_INVALID' in rejected['blockers']
+    assert dict(id='binding:source-paths',subject=current.BINDING,state='FAIL') in rejected['assertionLedger']
+
+
+@pytest.mark.parametrize('fault', ['tracked-receipt','unproven-deletion','pair'])
+def test_current_withdrawal_output_exception_preserves_other_inputs(tmp_path,monkeypatch,capsys,fault):
+    output='docs/release-evidence/story-10.3-final-record-v2.json' if fault=='pair' else 'artifacts/v9/10.3/AC-10.3-01.json'
+    target=tmp_path/output;target.parent.mkdir(parents=True);target.write_bytes(b'protected')
+    document=current.empty_result('a'*40)
+    document.update(result='PASS',changedPaths=list(current.PUBLICATION_PATHS),
+        assertionLedger=[dict(id='scope',subject='measured',state='PASS')])
+    if fault!='unproven-deletion':document['assertionLedger'].append(dict(id='binding:withdrawal',subject='prior publication',state='PASS'))
+    monkeypatch.setattr(current,'verify',lambda *_args,**_kwargs:copy.deepcopy(document))
+    monkeypatch.setattr(current,'bridge',lambda *_args:dict(result='PASS',treePaths=[output] if fault=='tracked-receipt' else [],
+        containedPaths=[dict(code=None,fullPath=str(target))]))
+    exit_code=current.main(['--repository',str(tmp_path),'--baseline',current.BASELINE,'--authority-bundle','authority.json','--output',output])
+    observed=json.loads(capsys.readouterr().out)
+    assert exit_code==1 and observed['blockers']==['EVIDENCE_OUTPUT_FORBIDDEN']
+    assert target.read_bytes()==b'protected'

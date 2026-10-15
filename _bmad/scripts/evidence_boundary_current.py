@@ -14,7 +14,8 @@ import jsonschema
 from config_utils import load_customization
 import verify_story_completion_workflows as completion
 
-BASELINE = '10f395a690b3f581771891e5f69fc5858a5d1d12'
+BASELINE = '3319e062472bb44fda8389a2420af108da58da0a'
+SOURCE_INVENTORY_BASELINE = '10f395a690b3f581771891e5f69fc5858a5d1d12'
 PROVENANCE_BASELINE = '7f24b72d57da65745cdecdea5b5e7c0da1313b4d'
 BINDING = '_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json'
 CONTRACT = '_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json'
@@ -36,6 +37,11 @@ HISTORICAL_PROVENANCE = (
     'docs/release-evidence/story-10.2-final-record-v2.md',
 )
 CURRENT_PROVENANCE = 'tests/Hexalith.Conversations.TestSupport.Runner/Program.cs'
+PUBLICATION_PATHS = tuple(sorted((
+    'docs/release-evidence/story-10.3-final-record-v2.json',
+    'docs/release-evidence/story-10.3-final-record-v2.md',
+    *(f'artifacts/v9/10.3/AC-10.3-0{number}.' + ('json' if number in (1, 3) else 'xml') for number in range(1, 8)),
+)))
 FAIL_CODES = frozenset({
     'EVIDENCE_HASH_MISMATCH', 'EVIDENCE_PATH_ESCAPE', 'EVIDENCE_OUTPUT_FORBIDDEN',
     'EVIDENCE_FILE_MISSING', 'SIGNABLE_PAYLOAD_MISMATCH', 'CHANGED_PATH_SET_MISMATCH',
@@ -181,7 +187,7 @@ def approved_roots(repository: Path) -> dict[str, Any]:
 def approved_source_paths(repository: Path) -> list[str]:
     """Retain the reviewed inventory from the approved entry, independently of new diffs."""
     import generate_story_record as generator
-    facts = bridge(repository, dict(baseline=BASELINE, candidate=BASELINE, blobPaths=[BINDING]))
+    facts = bridge(repository, dict(baseline=SOURCE_INVENTORY_BASELINE, candidate=SOURCE_INVENTORY_BASELINE, blobPaths=[BINDING]))
     row = next((row for row in facts.get('blobs', []) if row['path'] == BINDING), None)
     if facts['result'] != 'PASS' or row is None or row.get('content') is None or row.get('code'):
         raise RuntimeError('AUTHORITY_UNAVAILABLE')
@@ -191,14 +197,36 @@ def approved_source_paths(repository: Path) -> list[str]:
     return approved
 
 
+def approved_withdrawal(repository: Path) -> list[dict[str, str]]:
+    """Pin the exact prior publication bytes to the approved entry's Git blobs."""
+    facts = bridge(repository, dict(baseline=BASELINE, candidate=BASELINE, blobPaths=list(PUBLICATION_PATHS)))
+    blobs = {row['path']: row for row in facts.get('blobs', [])}
+    if facts['result'] != 'PASS' or set(blobs) != set(PUBLICATION_PATHS) or any(
+            row.get('code') or row.get('content') is None or row.get('sha256') is None for row in blobs.values()):
+        raise RuntimeError('AUTHORITY_UNAVAILABLE')
+    return [dict(path=path, sha256=blobs[path]['sha256']) for path in PUBLICATION_PATHS]
+
+
 def source_binding_valid(repository: Path, binding: dict[str, Any]) -> bool:
-    """Only reviewed sources may appear in the exact, unfiltered post-entry diff."""
+    """Allow reviewed sources and only the pinned, complete publication withdrawal."""
     approved = approved_source_paths(repository)
     expected = binding['expectedChangedPaths']
     return (binding['baseline'] == BASELINE and binding['provenanceBaseline'] == PROVENANCE_BASELINE
+        and binding['sourceInventoryBaseline'] == SOURCE_INVENTORY_BASELINE
+        and binding['withdrawnPublication'] == approved_withdrawal(repository)
         and binding['sourcePaths'] == approved and isinstance(expected, list)
         and all(isinstance(path, str) for path in expected) and expected == sorted(set(expected))
-        and set(expected).issubset(approved))
+        and set(expected).issubset(set(approved) | set(PUBLICATION_PATHS))
+        and set(PUBLICATION_PATHS).issubset(expected))
+
+
+def withdrawal_valid(binding: dict[str, Any], diff: list[dict[str, Any]]) -> bool:
+    """The evaluated source must delete all nine prior files without rename or mode tricks."""
+    rows = [row for row in diff if row['path'] in PUBLICATION_PATHS or row.get('sourcePath') in PUBLICATION_PATHS]
+    return (set(PUBLICATION_PATHS).issubset(binding['expectedChangedPaths']) and len(rows) == len(PUBLICATION_PATHS)
+        and {row['path'] for row in rows} == set(PUBLICATION_PATHS)
+        and all(row['sourceMode'] == '100644' and row['destinationMode'] == '000000'
+            and row.get('sourcePath') is None for row in rows))
 
 
 def workflow_checks(repository: Path, result: dict[str, Any], binding: dict[str, Any]) -> None:
@@ -337,6 +365,8 @@ def verify(repository: Path, baseline: str, candidate: str, *, authority_bundle:
                 expected_paths = sorted(set(expected_paths) | {published['outputs'][kind]['path'] for kind in ('json','markdown')}
                     | {row['path'] for row in published['evidenceWorkflowExecution']['receipts']}
                     | ({'_bmad-output/implementation-artifacts/sprint-status.yaml'} if '_bmad-output/implementation-artifacts/sprint-status.yaml' in paths else set()))
+        else:
+            record(result, 'binding:withdrawal', 'prior publication', withdrawal_valid(binding, entries), 'AUTHORITY_BINDING_INVALID')
         record(result, 'binding:exemptions', binding_path, binding.get('exemptions') == [], 'SIGNED_EVIDENCE_ALLOWLISTED')
         for name, expected in (('workflowInventory', WORKFLOWS), ('guidanceInventory', GUIDANCE)):
             inventory = binding[name]
@@ -447,6 +477,13 @@ def main(arguments: list[str] | None = None) -> int:
                 protected |= {row['path'] for row in document['manifest']} | {args.authority_bundle,args.current_binding,CONTRACT,SCHEMA,PROJECT,CURRENT_PROVENANCE}
                 protected |= {path.relative_to(repository).as_posix() for path in (repository/'.git').rglob('*') if path.is_file()}
                 relative = target.relative_to(repository)
+                # Only the two contracted verifier receipts may replace their
+                # proven source-candidate deletions; published receipts stay protected.
+                receipt_outputs = {f'artifacts/v9/10.3/AC-10.3-0{number}.json' for number in (1, 3)}
+                if (document['result'] == 'PASS' and relative.as_posix() in receipt_outputs
+                        and relative.as_posix() not in containment.get('treePaths', [])
+                        and dict(id='binding:withdrawal', subject='prior publication', state='PASS') in document['assertionLedger']):
+                    protected.discard(relative.as_posix())
                 collision = any(part.casefold() == '.git' for part in relative.parts) or relative.as_posix() in protected or (target.exists() and any(
                     (repository/path).is_file() and target.samefile(repository/path) for path in protected))
                 if collision:

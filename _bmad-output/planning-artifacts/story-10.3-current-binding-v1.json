@@ -1,15 +1,15 @@
 {
   "schemaVersion": "hexalith.conversations.story-10.3-current-binding.v1",
   "storyId": "10.3",
-  "decisionDate": "2026-10-14",
-  "baseline": "10f395a690b3f581771891e5f69fc5858a5d1d12",
+  "decisionDate": "2026-10-15",
+  "baseline": "3319e062472bb44fda8389a2420af108da58da0a",
   "baselineAuthorization": {
-    "previousBaseline": "7f24b72d57da65745cdecdea5b5e7c0da1313b4d",
-    "requestedBaseline": "02672d4ddd3c9bc54eed3f9f14c155c41f3834a2",
-    "approvedBaseline": "10f395a690b3f581771891e5f69fc5858a5d1d12",
-    "decisionDate": "2026-10-14",
+    "previousBaseline": "10f395a690b3f581771891e5f69fc5858a5d1d12",
+    "requestedBaseline": "3319e062472bb44fda8389a2420af108da58da0a",
+    "approvedBaseline": "3319e062472bb44fda8389a2420af108da58da0a",
+    "decisionDate": "2026-10-15",
     "decision": "I approve",
-    "chronology": "The owner approved the scope refresh and Story 10.3-only twelve-root schema adaptation. While approval was pending, the clean entry advanced to the approved baseline through the blocked-publication metadata commit and four additional root pointer updates. Preserve all committed pointers; historical provenance remains pinned to the previous baseline."
+    "chronology": "Owner approved the exact current entry while preserving all twelve root pointers. Reviewed source membership remains independently pinned to the previous approved entry; historical provenance remains pinned separately. The prior nine-file publication is withdrawn by exact deletion before source acceptance and regenerated from the new committed candidate."
   },
   "originalContract": {
     "path": "_bmad-output/planning-artifacts/v9/story-contracts/10.3.json",
@@ -63,56 +63,56 @@
   },
   "workflowInventory": {
     "id": "STORY-10.3-CURRENT-WORKFLOWS-v1",
-    "sha256": "c2d8ba9fba141a088b4d1db061619722b30698775f6e4c1ce6898e7d07558a0b",
+    "sha256": "426f3b8f44cec8bfcd648dab26566db2d8bd560c25a4ac963f58394024dde1f1",
     "rows": [
       {
         "path": ".agents/skills/bmad-build/step-04-review.md",
-        "sha256": "558bbcc964774064ebc65c73bf78b7aa0f3ece8665c89e8a98b3084c28168b8d",
+        "sha256": "1db21b544bb705bcd2eb4c8b904e010d3b770b5905b7fa789a77a8b2b8bfb4e2",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-build/step-05-present.md",
-        "sha256": "aaa484d692e4b70a6e898ff647e4d94e0f6e4bee76cd8daa6757b425d462d463",
+        "sha256": "5683ecaad066e195f06ae2f93c587b65633f8df1a06cb82423f1885932ba0d28",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-build/step-oneshot.md",
-        "sha256": "27d01409308800126421d864fcf621a62586b3af0b2bf831a751ace29812da5f",
+        "sha256": "5d36c605dd699eef0223d693747b93bb1b122516f95a10a2038c7db518f97bdf",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-build-auto/step-04-review.md",
-        "sha256": "e5602bc3ed90f826eee405bfc14a4978fbf0454d3aec4fc4b714db48ecc87135",
+        "sha256": "e13abcdda1c344d1e575658a26e3be07db9ba79ba1715b18134e8b27a062f61d",
         "role": "workflow"
       },
       {
         "path": ".agents/skills/bmad-code-review/steps/step-04-present.md",
-        "sha256": "31909f5005adf9020411c8f9a99f74d7354a0f2bf9b9a10d17bb77a70fabc838",
+        "sha256": "ac925deb9a6b4131a858f426b1cd28e6df0b24ac69544d9eb5ca3b0a64522827",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-build/step-04-review.md",
-        "sha256": "558bbcc964774064ebc65c73bf78b7aa0f3ece8665c89e8a98b3084c28168b8d",
+        "sha256": "1db21b544bb705bcd2eb4c8b904e010d3b770b5905b7fa789a77a8b2b8bfb4e2",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-build/step-05-present.md",
-        "sha256": "aaa484d692e4b70a6e898ff647e4d94e0f6e4bee76cd8daa6757b425d462d463",
+        "sha256": "5683ecaad066e195f06ae2f93c587b65633f8df1a06cb82423f1885932ba0d28",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-build/step-oneshot.md",
-        "sha256": "27d01409308800126421d864fcf621a62586b3af0b2bf831a751ace29812da5f",
+        "sha256": "5d36c605dd699eef0223d693747b93bb1b122516f95a10a2038c7db518f97bdf",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-build-auto/step-04-review.md",
-        "sha256": "e5602bc3ed90f826eee405bfc14a4978fbf0454d3aec4fc4b714db48ecc87135",
+        "sha256": "e13abcdda1c344d1e575658a26e3be07db9ba79ba1715b18134e8b27a062f61d",
         "role": "workflow"
       },
       {
         "path": ".claude/skills/bmad-code-review/steps/step-04-present.md",
-        "sha256": "31909f5005adf9020411c8f9a99f74d7354a0f2bf9b9a10d17bb77a70fabc838",
+        "sha256": "ac925deb9a6b4131a858f426b1cd28e6df0b24ac69544d9eb5ca3b0a64522827",
         "role": "workflow"
       }
     ]
@@ -175,13 +175,21 @@
     ".claude/skills/bmad-build/step-oneshot.md",
     ".claude/skills/bmad-code-review/steps/step-04-present.md",
     "_bmad-output/implementation-artifacts/spec-10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface.md",
-    "_bmad-output/implementation-artifacts/sprint-status.yaml",
     "_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json",
     "_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json",
     "_bmad/schemas/story-final-record-v2.schema.json",
     "_bmad/scripts/evidence_boundary_current.py",
     "_bmad/scripts/generate_story_record.py",
     "_bmad/scripts/tests/test_generate_story_record.py",
+    "artifacts/v9/10.3/AC-10.3-01.json",
+    "artifacts/v9/10.3/AC-10.3-02.xml",
+    "artifacts/v9/10.3/AC-10.3-03.json",
+    "artifacts/v9/10.3/AC-10.3-04.xml",
+    "artifacts/v9/10.3/AC-10.3-05.xml",
+    "artifacts/v9/10.3/AC-10.3-06.xml",
+    "artifacts/v9/10.3/AC-10.3-07.xml",
+    "docs/release-evidence/story-10.3-final-record-v2.json",
+    "docs/release-evidence/story-10.3-final-record-v2.md",
     "tests/tooling/test_evidence_boundary_current.py"
   ],
   "effectiveContract": "_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json",
@@ -192,6 +200,14 @@
       "approvedBaseline": "7f24b72d57da65745cdecdea5b5e7c0da1313b4d",
       "decisionDate": "2026-10-14",
       "decision": "Use entry commit 7f24b72 as the approved baseline (recommended)"
+    },
+    {
+      "previousBaseline": "7f24b72d57da65745cdecdea5b5e7c0da1313b4d",
+      "requestedBaseline": "02672d4ddd3c9bc54eed3f9f14c155c41f3834a2",
+      "approvedBaseline": "10f395a690b3f581771891e5f69fc5858a5d1d12",
+      "decisionDate": "2026-10-14",
+      "decision": "I approve",
+      "chronology": "The owner approved the scope refresh and Story 10.3-only twelve-root schema adaptation. While approval was pending, the clean entry advanced to the approved baseline through the blocked-publication metadata commit and four additional root pointer updates. Preserve all committed pointers; historical provenance remains pinned to the previous baseline."
     }
   ],
   "sourcePaths": [
@@ -229,5 +245,44 @@
     "tests/Hexalith.Conversations.TestSupport/CSharpSourceDeclarations.cs",
     "tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj",
     "tests/tooling/test_evidence_boundary_current.py"
+  ],
+  "sourceInventoryBaseline": "10f395a690b3f581771891e5f69fc5858a5d1d12",
+  "withdrawnPublication": [
+    {
+      "path": "artifacts/v9/10.3/AC-10.3-01.json",
+      "sha256": "6dad3557f36df68aea77d52100ab58016590d4eff378e488c8a0396dc474e29e"
+    },
+    {
+      "path": "artifacts/v9/10.3/AC-10.3-02.xml",
+      "sha256": "8c384747c50a05c70b59e96b5c6622a985a145a0c53b8be45de59c497c5c5346"
+    },
+    {
+      "path": "artifacts/v9/10.3/AC-10.3-03.json",
+      "sha256": "6dad3557f36df68aea77d52100ab58016590d4eff378e488c8a0396dc474e29e"
+    },
+    {
+      "path": "artifacts/v9/10.3/AC-10.3-04.xml",
+      "sha256": "bf36cce1d5a38f75be739ed35e096cc9536a95a37deafaaee24f09286e193b48"
+    },
+    {
+      "path": "artifacts/v9/10.3/AC-10.3-05.xml",
+      "sha256": "a9269268ec19bac45f15b7d606c6503fdcba8e0b48902184ed8c091c7400e981"
+    },
+    {
+      "path": "artifacts/v9/10.3/AC-10.3-06.xml",
+      "sha256": "611d329e6d9d20cf6cb833c1c193d1ce08f0314789336c7209474762bf4aad36"
+    },
+    {
+      "path": "artifacts/v9/10.3/AC-10.3-07.xml",
+      "sha256": "ae4da0bf2e56ad9292d658a6edf3c6e954b72238a889e381a8501760105dd487"
+    },
+    {
+      "path": "docs/release-evidence/story-10.3-final-record-v2.json",
+      "sha256": "96467bdd555764402f320eefd373331b16975ee82a1a8bcdcd1fd964d9373d6f"
+    },
+    {
+      "path": "docs/release-evidence/story-10.3-final-record-v2.md",
+      "sha256": "ceea0517b821f759dbd962cce657220b12155963f2c1af222b3fb91dc3ddabb0"
+    }
   ]
 }

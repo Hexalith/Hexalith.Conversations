@@ -5344,7 +5344,10 @@
           "$ref": "#/$defs/commit"
         },
         "baseline": {
-          "const": "10f395a690b3f581771891e5f69fc5858a5d1d12"
+          "enum": [
+            "10f395a690b3f581771891e5f69fc5858a5d1d12",
+            "3319e062472bb44fda8389a2420af108da58da0a"
+          ]
         },
         "binding": {
           "$ref": "#/$defs/outputFile"
