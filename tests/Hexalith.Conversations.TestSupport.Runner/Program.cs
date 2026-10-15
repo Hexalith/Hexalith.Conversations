@@ -74,11 +74,37 @@ internal static class Program
                     roots.GetProperty("allowlist").EnumerateArray().Select(row => row.GetString()!));
             }
             List<string> treePaths = [];
+            List<string> headPaths = [];
+            List<string> indexPaths = [];
             if (input.TryGetProperty("includeTreePaths", out JsonElement includeTree) && includeTree.GetBoolean())
             {
                 GitFact<IReadOnlyList<GitTreeEntry>> tree = await git.ReadTreeAsync(root, candidate.Value ?? input.GetProperty("candidate").GetString()!).ConfigureAwait(false);
                 BoundaryAssertions.HistoryAvailable(ledger, "output:tree", tree);
                 if (tree.IsSuccess) treePaths.AddRange(tree.Value!.Select(entry => entry.Path));
+                GitFact<string> head = await git.ResolveRevisionAsync(root, "HEAD").ConfigureAwait(false);
+                BoundaryAssertions.HistoryAvailable(ledger, "output:head", head);
+                if (head.IsSuccess)
+                {
+                    GitFact<IReadOnlyList<GitTreeEntry>> headTree = await git.ReadTreeAsync(root, head.Value!).ConfigureAwait(false);
+                    BoundaryAssertions.HistoryAvailable(ledger, "output:head-tree", headTree);
+                    if (headTree.IsSuccess) headPaths.AddRange(headTree.Value!.Select(entry => entry.Path));
+                }
+                GitFact<GitCommandResult> index = await git.RunAsync(root, ["ls-files", "--cached", "-z", "--"]).ConfigureAwait(false);
+                BoundaryAssertions.HistoryAvailable(ledger, "output:index", index);
+                if (index.IsSuccess)
+                {
+                    bool completed = index.Value!.ExitCode == 0;
+                    if (!completed) ledger.Block("HELPER_FAILURE", "output:index", "Git could not read current index ownership.");
+                    ledger.Record("output:index-completed", completed);
+                    if (completed)
+                    {
+                        string names = new System.Text.UTF8Encoding(false, true).GetString(index.Value.Stdout);
+                        if (names.Length != 0 && (!names.EndsWith('\0') || names[..^1].Split('\0').Any(path =>
+                                path.Length == 0 || !RepositoryLocator.ResolveHistoricalPath(root, path).IsSuccess)))
+                            throw new InvalidOperationException("Malformed NUL-delimited index ownership.");
+                        indexPaths.AddRange(names.Split('\0', StringSplitOptions.RemoveEmptyEntries).Distinct(StringComparer.Ordinal));
+                    }
+                }
             }
             List<string> readerPaths = [];
             List<string> evidenceReaders = [];
@@ -170,7 +196,7 @@ internal static class Program
                 && !ledger.Rows.Any(row => row.State == "FAIL") && !evaluation.Blockers.Any(row => row.Code == "UNAVAILABLE_HISTORY_PASSED") ? "BLOCKED" : evaluation.Result;
             Console.WriteLine(JsonSerializer.Serialize(new {
                 result = state, candidate = candidate.Value, baseline = baseline.Value, diff = diff.Value,
-                blobs, containedPaths, treePaths, evidenceReaders, assertionLedger = ledger.Rows, blockers = evaluation.Blockers.Select(row => row.Code).Distinct().Order(StringComparer.Ordinal)
+                blobs, containedPaths, treePaths, headPaths, indexPaths, evidenceReaders, assertionLedger = ledger.Rows, blockers = evaluation.Blockers.Select(row => row.Code).Distinct().Order(StringComparer.Ordinal)
             }, options));
             return 0;
         }

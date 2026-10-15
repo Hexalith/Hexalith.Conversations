@@ -52,7 +52,7 @@
     },
     {
       "path": "tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
-      "sha256": "236b7a7fbcfcb2d693cc5e5c16357ee5f3ca83850e16a6317f49761508c80ce0",
+      "sha256": "d67b969f78e582e3f845bf2b1088a6bbf7e4a76dd63ec0baf290d343917964d7",
       "role": "provenance"
     }
   ],
@@ -190,6 +190,7 @@
     "artifacts/v9/10.3/AC-10.3-07.xml",
     "docs/release-evidence/story-10.3-final-record-v2.json",
     "docs/release-evidence/story-10.3-final-record-v2.md",
+    "tests/Hexalith.Conversations.TestSupport.Runner/Program.cs",
     "tests/tooling/test_evidence_boundary_current.py"
   ],
   "effectiveContract": "_bmad-output/planning-artifacts/story-10.3-current-contract-v1.json",

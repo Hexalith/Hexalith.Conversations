@@ -62,7 +62,15 @@ def digest(content: bytes) -> str:
 
 
 def canonical(value: Any) -> bytes:
-    return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+    return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode('utf-8')
+
+
+def write_stdout(content: bytes) -> None:
+    stream = getattr(sys.stdout, 'buffer', None)
+    if stream is None:
+        sys.stdout.write(content.decode('utf-8'))
+    else:
+        stream.write(content)
 
 
 def bridge(repository: Path, request: dict[str, Any]) -> dict[str, Any]:
@@ -457,23 +465,28 @@ def main(arguments: list[str] | None = None) -> int:
         failure = empty_result()
         failure['blockers'] = ['ARGUMENT_INVALID']
         failure['assertionLedger'] = [dict(id='arguments',subject='argv',state='SKIPPED')]
-        sys.stdout.write(json.dumps(finalize(failure,applicable=True),indent=2)+'\n')
+        write_stdout(canonical(finalize(failure,applicable=True))+b'\n')
         return 2
     repository = Path(args.repository).resolve()
     document = verify(repository, args.baseline, args.candidate, authority_bundle=args.authority_bundle,
         binding_path=args.current_binding, verify_workflows=args.verify_workflows)
-    content = json.dumps(document, indent=2) + '\n'
+    content = canonical(document) + b'\n'
     if args.output:
         try:
             containment = bridge(repository,dict(baseline=BASELINE,candidate=document['candidate'] or args.candidate,
                 containedPaths=[args.output],includeTreePaths=True))
+            if any(row['state'] != 'PASS' and row['id'].startswith(('output:head', 'output:index'))
+                    for row in containment.get('assertionLedger', [])):
+                raise RuntimeError(next((code for code in containment.get('blockers', [])
+                    if code in FAIL_CODES | BLOCKED_CODES), 'HELPER_FAILURE'))
             path_fact = containment['containedPaths'][0]
             if path_fact['code']:
                 document['blockers'].append('EVIDENCE_PATH_ESCAPE')
                 document['assertionLedger'].append(dict(id='output:containment',subject=args.output,state='FAIL'))
             else:
                 target = Path(path_fact['fullPath'])
-                protected = set(containment.get('treePaths', [])) | set(document['changedPaths']) | set(WORKFLOWS + GUIDANCE + HISTORICAL_PROVENANCE)
+                owned = set(containment['headPaths']) | set(containment['indexPaths'])
+                protected = owned | set(containment.get('treePaths', [])) | set(document['changedPaths']) | set(WORKFLOWS + GUIDANCE + HISTORICAL_PROVENANCE)
                 protected |= {row['path'] for row in document['manifest']} | {args.authority_bundle,args.current_binding,CONTRACT,SCHEMA,PROJECT,CURRENT_PROVENANCE}
                 protected |= {path.relative_to(repository).as_posix() for path in (repository/'.git').rglob('*') if path.is_file()}
                 relative = target.relative_to(repository)
@@ -481,7 +494,7 @@ def main(arguments: list[str] | None = None) -> int:
                 # proven source-candidate deletions; published receipts stay protected.
                 receipt_outputs = {f'artifacts/v9/10.3/AC-10.3-0{number}.json' for number in (1, 3)}
                 if (document['result'] == 'PASS' and relative.as_posix() in receipt_outputs
-                        and relative.as_posix() not in containment.get('treePaths', [])
+                        and relative.as_posix() not in owned | set(containment.get('treePaths', []))
                         and dict(id='binding:withdrawal', subject='prior publication', state='PASS') in document['assertionLedger']):
                     protected.discard(relative.as_posix())
                 collision = any(part.casefold() == '.git' for part in relative.parts) or relative.as_posix() in protected or (target.exists() and any(
@@ -493,7 +506,7 @@ def main(arguments: list[str] | None = None) -> int:
                     document['assertionLedger'].append(dict(id='output:history',subject=args.output,state='SKIPPED'))
                 else:
                     target.parent.mkdir(parents=True, exist_ok=True)
-                    target.write_text(content)
+                    target.write_bytes(content)
         except (RuntimeError, subprocess.TimeoutExpired) as error:
             code = str(error) if str(error) in STABLE_CODES else 'HELPER_UNAVAILABLE'
             document['blockers'].append(code)
@@ -506,8 +519,8 @@ def main(arguments: list[str] | None = None) -> int:
             document['blockers'].append('OUTPUT_WRITE_FAILED')
             document['assertionLedger'].append(dict(id='output:write',subject=args.output,state='SKIPPED'))
         document = finalize(document,applicable=document['result'] != 'not-applicable' or bool(document['blockers']))
-        content = json.dumps(document,indent=2)+'\n'
-    sys.stdout.write(content)
+        content = canonical(document)+b'\n'
+    write_stdout(content)
     exit_code = {'PASS': 0, 'FAIL': 1, 'BLOCKED': 2, 'not-applicable': 0}[document['result']]
     decision = transition_decision(document, exit_code)
     return exit_code if decision['allowed'] or exit_code != 0 else 1

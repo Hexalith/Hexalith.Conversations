@@ -301,13 +301,13 @@ def test_current_cli_output_preserves_helper_failure_json(tmp_path,monkeypatch,c
     assert not (tmp_path/'result.json').exists()
 
 
-def test_current_cli_output_write_failure_is_schema_valid_blocked(tmp_path,monkeypatch,capsys):
+def test_stable_code_contract_output_write_failure_is_schema_valid_blocked(tmp_path,monkeypatch,capsys):
     success=current.empty_result('a'*40)
     success['result']='PASS';success['assertionLedger']=[dict(id='evaluated',subject='fixture',state='PASS')]
     monkeypatch.setattr(current,'verify',lambda *args,**kwargs:copy.deepcopy(success))
-    monkeypatch.setattr(current,'bridge',lambda *args,**kwargs:dict(containedPaths=[dict(code=None,fullPath=str(tmp_path/'result.json'))]))
+    monkeypatch.setattr(current,'bridge',lambda *args,**kwargs:dict(headPaths=[],indexPaths=[],containedPaths=[dict(code=None,fullPath=str(tmp_path/'result.json'))]))
     def unavailable(*args,**kwargs): raise OSError('write unavailable')
-    monkeypatch.setattr(Path,'write_text',unavailable)
+    monkeypatch.setattr(Path,'write_bytes',unavailable)
     observed_exit=current.main(['--repository',str(tmp_path),'--baseline',current.BASELINE,
         '--authority-bundle','authority.json','--output','result.json'])
     observed=json.loads(capsys.readouterr().out)
@@ -531,7 +531,7 @@ def test_current_output_collision_preserves_protected_bytes(tmp_path,monkeypatch
     original=target.read_bytes()
     document=current.empty_result('a'*40);document.update(result='PASS',assertionLedger=[dict(id='scope',subject='evaluated',state='PASS')])
     monkeypatch.setattr(current,'verify',lambda *_args,**_kwargs:copy.deepcopy(document))
-    monkeypatch.setattr(current,'bridge',lambda *_args:dict(result='PASS',treePaths=['tracked.cs'],containedPaths=[dict(code=None,fullPath=str(target))]))
+    monkeypatch.setattr(current,'bridge',lambda *_args:dict(result='PASS',treePaths=['tracked.cs'],headPaths=[],indexPaths=[],containedPaths=[dict(code=None,fullPath=str(target))]))
     exit_code=current.main(['--repository',str(tmp_path),'--baseline',current.BASELINE,'--authority-bundle','authority.json','--output',output])
     observed=json.loads(capsys.readouterr().out)
     assert exit_code==1
@@ -605,7 +605,7 @@ def test_current_verifier_carries_canonical_candidate_into_dependent_requests(tm
     def bridge(root,request):
         requests.append(copy.deepcopy(request))
         if request.get('includeTreePaths'):
-            return dict(result='PASS',treePaths=[],containedPaths=[dict(code=None,fullPath=str(tmp_path/'result.json'))])
+            return dict(result='PASS',treePaths=[],headPaths=[],indexPaths=[],containedPaths=[dict(code=None,fullPath=str(tmp_path/'result.json'))])
         if request.get('inspectChangedReaders'):
             return dict(result='PASS',candidate='a'*40,baseline=current.BASELINE,evidenceReaders=[],
                 containedPaths=[dict(code=None,fullPath=str(target)),dict(code=None,fullPath=str(authority))],
@@ -745,7 +745,7 @@ def test_current_withdrawal_requires_nine_exact_deletions(fault):
     assert current.withdrawal_valid(binding,rows) is (fault is None)
 
 
-def test_current_refreshed_source_accepts_exact_withdrawal_and_writes_receipt(tmp_path,capsys):
+def withdrawn_source_repository(tmp_path, *, edited_xml=False):
     root=tmp_path/'checkout'
     subprocess.run(['git','clone','--quiet','--local','--no-hardlinks',str(ROOT),str(root)],check=True,capture_output=True)
     subprocess.run(['git','-C',str(root),'checkout','--quiet',current.BASELINE],check=True,capture_output=True)
@@ -760,11 +760,21 @@ def test_current_refreshed_source_accepts_exact_withdrawal_and_writes_receipt(tm
         end=source.index(generator.RECORD_END_MARKER.encode(),begin)+len(generator.RECORD_END_MARKER.encode())
         spec.write_bytes(source[:begin]+source[end:])
     for path in current.PUBLICATION_PATHS:(root/path).unlink()
+    if edited_xml:
+        path='artifacts/v9/10.3/AC-10.3-02.xml'
+        original=subprocess.check_output(['git','-C',str(root),'show',current.BASELINE+':'+path])
+        (root/path).write_bytes(original+b'\n<!-- edited withdrawal -->\n')
     subprocess.run(['git','-C',str(root),'add','--all','--',*binding['expectedChangedPaths']],check=True)
     changed=subprocess.check_output(['git','-C',str(root),'diff','--cached','--name-only'],text=True).splitlines()
     assert changed==binding['expectedChangedPaths']
     subprocess.run(['git','-C',str(root),'-c','user.name=Fixture','-c','user.email=fixture@example.invalid',
         'commit','--quiet','-m','test: exercise approved evidence refresh'],check=True,capture_output=True)
+    candidate=subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()
+    return root,binding,candidate
+
+
+def test_current_refreshed_source_accepts_exact_withdrawal_and_writes_receipt(tmp_path,capsys):
+    root,binding,candidate=withdrawn_source_repository(tmp_path)
     receipt='artifacts/v9/10.3/AC-10.3-01.json'
     exit_code=current.main(['--repository',str(root),'--baseline',current.BASELINE,'--candidate','HEAD',
         '--authority-bundle',binding['authorityBundle']['path'],'--verify-workflows','--output',receipt])
@@ -773,6 +783,7 @@ def test_current_refreshed_source_accepts_exact_withdrawal_and_writes_receipt(tm
     assert observed['changedPaths']==binding['expectedChangedPaths'] and observed['gitlinks']==[]
     assert dict(id='binding:withdrawal',subject='prior publication',state='PASS') in observed['assertionLedger']
     assert json.loads((root/receipt).read_bytes())==observed
+    assert (root/receipt).read_bytes()==current.canonical(observed)+b'\n'
     binding['withdrawnPublication'][0]['sha256']='f'*64
     (root/current.BINDING).write_text(json.dumps(binding))
     rejected=current.verify(root,current.BASELINE,'HEAD',authority_bundle=binding['authorityBundle']['path'])
@@ -789,9 +800,78 @@ def test_current_withdrawal_output_exception_preserves_other_inputs(tmp_path,mon
         assertionLedger=[dict(id='scope',subject='measured',state='PASS')])
     if fault!='unproven-deletion':document['assertionLedger'].append(dict(id='binding:withdrawal',subject='prior publication',state='PASS'))
     monkeypatch.setattr(current,'verify',lambda *_args,**_kwargs:copy.deepcopy(document))
-    monkeypatch.setattr(current,'bridge',lambda *_args:dict(result='PASS',treePaths=[output] if fault=='tracked-receipt' else [],
+    monkeypatch.setattr(current,'bridge',lambda *_args:dict(result='PASS',treePaths=[output] if fault=='tracked-receipt' else [],headPaths=[],indexPaths=[],
         containedPaths=[dict(code=None,fullPath=str(target))]))
     exit_code=current.main(['--repository',str(tmp_path),'--baseline',current.BASELINE,'--authority-bundle','authority.json','--output',output])
     observed=json.loads(capsys.readouterr().out)
     assert exit_code==1 and observed['blockers']==['EVIDENCE_OUTPUT_FORBIDDEN']
     assert target.read_bytes()==b'protected'
+
+
+@pytest.mark.parametrize('ownership', ['head','index'])
+def test_stable_code_contract_current_ownership_preserves_receipt(tmp_path,capsys,record_property,ownership):
+    root,binding,candidate=withdrawn_source_repository(tmp_path)
+    receipt='artifacts/v9/10.3/AC-10.3-01.json'
+    sentinel=b'protected ownership receipt\r\n'
+    target=root/receipt;target.write_bytes(sentinel)
+    subprocess.run(['git','-C',str(root),'add','--force','--',receipt],check=True)
+    if ownership=='head':
+        subprocess.run(['git','-C',str(root),'-c','user.name=Fixture','-c','user.email=fixture@example.invalid',
+            'commit','--quiet','-m','test: retain published receipt ownership'],check=True,capture_output=True)
+    exit_code=current.main(['--repository',str(root),'--baseline',current.BASELINE,'--candidate',candidate,
+        '--authority-bundle',binding['authorityBundle']['path'],'--output',receipt])
+    observed=json.loads(capsys.readouterr().out)
+    assert exit_code==1 and observed['result']=='FAIL'
+    assert observed['blockers']==['EVIDENCE_OUTPUT_FORBIDDEN']
+    assert dict(id='output:protected-input',subject=receipt,state='FAIL') in observed['assertionLedger']
+    assert target.read_bytes()==sentinel
+    record_property('story103_expected_code','EVIDENCE_OUTPUT_FORBIDDEN')
+    record_property('story103_observed_blockers',json.dumps(observed['blockers']))
+    record_property('story103_before_sha256',current.digest(sentinel))
+    record_property('story103_after_sha256',current.digest(target.read_bytes()))
+
+
+def test_stable_code_contract_committed_edited_xml_withdrawal_fails(tmp_path,capsys,record_property):
+    root,binding,candidate=withdrawn_source_repository(tmp_path,edited_xml=True)
+    target=root/'artifacts/v9/10.3/AC-10.3-02.xml';original=target.read_bytes()
+    exit_code=current.main(['--repository',str(root),'--baseline',current.BASELINE,'--candidate',candidate,
+        '--authority-bundle',binding['authorityBundle']['path']])
+    observed=json.loads(capsys.readouterr().out)
+    assert exit_code==1 and observed['result']=='FAIL' and observed['blockers']==['AUTHORITY_BINDING_INVALID']
+    assert dict(id='binding:source-paths',subject=current.BINDING,state='PASS') in observed['assertionLedger']
+    assert dict(id='changed-paths',subject='changed-paths',state='PASS') in observed['assertionLedger']
+    assert dict(id='binding:withdrawal',subject='prior publication',state='FAIL') in observed['assertionLedger']
+    assert target.read_bytes()==original
+    record_property('story103_expected_code','AUTHORITY_BINDING_INVALID')
+    record_property('story103_observed_blockers',json.dumps(observed['blockers']))
+    record_property('story103_before_sha256',current.digest(original))
+    record_property('story103_after_sha256',current.digest(target.read_bytes()))
+
+
+def test_stable_code_contract_receipt_is_canonical_utf8_bytes(tmp_path,monkeypatch,capsys):
+    document=current.empty_result('a'*40)
+    document.update(result='PASS',assertionLedger=[dict(id='scope',subject='measured é',state='PASS')])
+    target=tmp_path/'result.json'
+    monkeypatch.setattr(current,'verify',lambda *_args,**_kwargs:copy.deepcopy(document))
+    monkeypatch.setattr(current,'bridge',lambda *_args:dict(result='PASS',treePaths=[],headPaths=[],indexPaths=[],
+        containedPaths=[dict(code=None,fullPath=str(target))]))
+    def text_write(*_args,**_kwargs):raise AssertionError('receipt writes must use bytes')
+    monkeypatch.setattr(Path,'write_text',text_write)
+    assert current.main(['--repository',str(tmp_path),'--baseline',current.BASELINE,'--authority-bundle','authority.json','--output','result.json'])==0
+    observed=json.loads(capsys.readouterr().out)
+    assert target.read_bytes()==current.canonical(observed)+b'\n'
+    assert b'\xc3\xa9' in target.read_bytes() and b'\r\n' not in target.read_bytes()
+
+
+@pytest.mark.parametrize('code,state,exit_code', [('HELPER_FAILURE','FAIL',1),('HISTORY_UNAVAILABLE','SKIPPED',2)])
+def test_stable_code_contract_current_ownership_unavailable_cannot_write(tmp_path,monkeypatch,capsys,code,state,exit_code):
+    document=current.empty_result('a'*40)
+    document.update(result='PASS',assertionLedger=[dict(id='scope',subject='measured',state='PASS')])
+    target=tmp_path/'result.json'
+    monkeypatch.setattr(current,'verify',lambda *_args,**_kwargs:copy.deepcopy(document))
+    monkeypatch.setattr(current,'bridge',lambda *_args:dict(result='FAIL',treePaths=[],headPaths=[],indexPaths=[],
+        assertionLedger=[dict(id='output:index',subject='index',state=state)],blockers=[code],
+        containedPaths=[dict(code=None,fullPath=str(target))]))
+    assert current.main(['--repository',str(tmp_path),'--baseline',current.BASELINE,'--authority-bundle','authority.json','--output','result.json'])==exit_code
+    observed=json.loads(capsys.readouterr().out)
+    assert observed['blockers']==[code] and not target.exists()
