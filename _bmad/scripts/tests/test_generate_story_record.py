@@ -11618,10 +11618,10 @@ def test_story103_generation_retains_full_source_inventory_beyond_diff(story103_
     files=record['evidenceWorkflowExecution']['sourceFiles']
     assert [row['path'] for row in files]==binding['sourcePaths']
     assert len(files)==34 and len(binding['expectedChangedPaths'])<34
-    unchanged='tests/Hexalith.Conversations.TestSupport.Runner/Program.cs'
+    unchanged='tests/Hexalith.Conversations.TestSupport.Runner/Hexalith.Conversations.TestSupport.Runner.csproj'
     assert unchanged not in binding['expectedChangedPaths']
     assert next(row['sha256'] for row in files if row['path']==unchanged)==generator.v2_sha256((repository/unchanged).read_bytes())
-    (repository/unchanged).write_bytes((repository/unchanged).read_bytes()+b'// uncommitted change\r\n')
+    (repository/unchanged).write_bytes((repository/unchanged).read_bytes()+b'<!-- uncommitted change -->\n')
     with pytest.raises(generator.V2Stop) as error:generator.v2_10_3_generate(options)
     assert error.value.findings[0]['code']=='WORKTREE_NOT_CLEAN'
     assert error.value.findings[0]['subject']==unchanged
