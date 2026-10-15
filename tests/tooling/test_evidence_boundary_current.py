@@ -809,7 +809,7 @@ def test_current_withdrawal_output_exception_preserves_other_inputs(tmp_path,mon
 
 
 @pytest.mark.parametrize('ownership', ['head','index'])
-def test_stable_code_contract_current_ownership_preserves_receipt(tmp_path,capsys,record_property,ownership):
+def test_stable_code_contract_current_ownership_preserves_receipt(tmp_path,capsys,ownership):
     root,binding,candidate=withdrawn_source_repository(tmp_path)
     receipt='artifacts/v9/10.3/AC-10.3-01.json'
     sentinel=b'protected ownership receipt\r\n'
@@ -825,13 +825,9 @@ def test_stable_code_contract_current_ownership_preserves_receipt(tmp_path,capsy
     assert observed['blockers']==['EVIDENCE_OUTPUT_FORBIDDEN']
     assert dict(id='output:protected-input',subject=receipt,state='FAIL') in observed['assertionLedger']
     assert target.read_bytes()==sentinel
-    record_property('story103_expected_code','EVIDENCE_OUTPUT_FORBIDDEN')
-    record_property('story103_observed_blockers',json.dumps(observed['blockers']))
-    record_property('story103_before_sha256',current.digest(sentinel))
-    record_property('story103_after_sha256',current.digest(target.read_bytes()))
 
 
-def test_stable_code_contract_committed_edited_xml_withdrawal_fails(tmp_path,capsys,record_property):
+def test_stable_code_contract_committed_edited_xml_withdrawal_fails(tmp_path,capsys):
     root,binding,candidate=withdrawn_source_repository(tmp_path,edited_xml=True)
     target=root/'artifacts/v9/10.3/AC-10.3-02.xml';original=target.read_bytes()
     exit_code=current.main(['--repository',str(root),'--baseline',current.BASELINE,'--candidate',candidate,
@@ -842,10 +838,6 @@ def test_stable_code_contract_committed_edited_xml_withdrawal_fails(tmp_path,cap
     assert dict(id='changed-paths',subject='changed-paths',state='PASS') in observed['assertionLedger']
     assert dict(id='binding:withdrawal',subject='prior publication',state='FAIL') in observed['assertionLedger']
     assert target.read_bytes()==original
-    record_property('story103_expected_code','AUTHORITY_BINDING_INVALID')
-    record_property('story103_observed_blockers',json.dumps(observed['blockers']))
-    record_property('story103_before_sha256',current.digest(original))
-    record_property('story103_after_sha256',current.digest(target.read_bytes()))
 
 
 def test_stable_code_contract_receipt_is_canonical_utf8_bytes(tmp_path,monkeypatch,capsys):
