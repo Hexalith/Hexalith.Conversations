@@ -90,7 +90,7 @@
   },
   "entrySnapshot": {
     "path": "artifacts/v9/10.4/reader-entry-v1.json",
-    "sha256": "f6ea72f88076b969760a16209b2f12c4724dd7568abdeeb8c37a9f840e40f3cf"
+    "sha256": "b68c800223aa1866ccb0f1918c451a3fafedaa7dfcb93d3798553344bdaf72ad"
   },
   "workflowInventory": {
     "id": "STORY-10.4-CURRENT-WORKFLOWS-v1",

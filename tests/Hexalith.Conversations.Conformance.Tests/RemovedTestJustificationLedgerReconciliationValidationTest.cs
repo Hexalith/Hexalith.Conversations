@@ -269,7 +269,7 @@ public sealed class RemovedTestJustificationLedgerReconciliationValidationTest
 
         string[] liveServerUsingFiles = Directory
             .EnumerateFiles(Path.Combine(root, "tests", "Hexalith.Conversations.Conformance.Tests"), "*.cs", SearchOption.TopDirectoryOnly)
-            .Where(path => File.ReadLines(path).Any(line => line.TrimStart().StartsWith(ServerUsingPrefix, StringComparison.Ordinal)))
+            .Where(path => RepositoryLocator.ReadAllLines(path).Any(line => line.TrimStart().StartsWith(ServerUsingPrefix, StringComparison.Ordinal)))
             .Select(path => Path.GetRelativePath(root, path).Replace('\\', '/'))
             .Order(StringComparer.Ordinal)
             .ToArray();
@@ -279,7 +279,7 @@ public sealed class RemovedTestJustificationLedgerReconciliationValidationTest
             .Select(path => new
             {
                 File = Path.GetRelativePath(root, path).Replace('\\', '/'),
-                Namespaces = File.ReadLines(path)
+                Namespaces = RepositoryLocator.ReadAllLines(path)
                     .Select(line => line.Trim())
                     .Where(line => line.StartsWith(ServerUsingPrefix, StringComparison.Ordinal))
                     .Select(line => line["using ".Length..].TrimEnd(';'))

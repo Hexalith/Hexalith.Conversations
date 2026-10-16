@@ -17,7 +17,7 @@ CONTRACT = '_bmad-output/planning-artifacts/story-10.4-current-contract-v1.json'
 SPEC = '_bmad-output/implementation-artifacts/spec-10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection.md'
 SNAPSHOT = 'artifacts/v9/10.4/reader-entry-v1.json'
 # Independent consuming-source trust roots, never supplied by the manifest being checked.
-SNAPSHOT_SHA256 = 'f6ea72f88076b969760a16209b2f12c4724dd7568abdeeb8c37a9f840e40f3cf'
+SNAPSHOT_SHA256 = 'b68c800223aa1866ccb0f1918c451a3fafedaa7dfcb93d3798553344bdaf72ad'
 PREDECESSOR_SHA256 = '013416c7f819aafcad2528d4b6892a05707b5f3056830ee550f174048a9929d1'
 PREDECESSOR_CANDIDATE = '6908c5264c388cca1b094400c5abfa320482c5e3'
 READERS = '_bmad-output/planning-artifacts/v9/inventories/evidence-readers-v1.json'

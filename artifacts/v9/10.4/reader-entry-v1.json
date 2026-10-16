@@ -563,6 +563,12 @@
           "count": 4
         },
         {
+          "kind": "read",
+          "before": "File.ReadLines(",
+          "after": "RepositoryLocator.ReadAllLines(",
+          "count": 2
+        },
+        {
           "kind": "using",
           "before": "namespace Hexalith.Conversations.",
           "after": "using Hexalith.Conversations.TestSupport;\n\nnamespace Hexalith.Conversations.",
@@ -570,7 +576,7 @@
         }
       ],
       "indirectConsumers": [],
-      "afterSha256": "5ecb529a6ab9f1b444385acfff27f99942cb682a4554759c59e34cd72ab6ec57"
+      "afterSha256": "ea582a771d15ce2ea1e435c89c5786e48cc04e00e07fc717aed7ac4d85819dc8"
     },
     {
       "path": "tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs",
@@ -939,6 +945,12 @@
           "count": 2
         },
         {
+          "kind": "read",
+          "before": "File\n            .ReadLines(",
+          "after": "RepositoryLocator\n            .ReadAllLines(",
+          "count": 1
+        },
+        {
           "kind": "using",
           "before": "namespace Hexalith.Conversations.",
           "after": "using Hexalith.Conversations.TestSupport;\n\nnamespace Hexalith.Conversations.",
@@ -946,7 +958,7 @@
         }
       ],
       "indirectConsumers": [],
-      "afterSha256": "517ea9d2b55ddaf8c5fa4ccf1fecb25013e8f14a5aaeaa1203cdd0c82b77786a"
+      "afterSha256": "82a3170e7cc20b82ef944396b69f3f92007029a04db1913b722fc9e2991e7e10"
     }
   ]
 }

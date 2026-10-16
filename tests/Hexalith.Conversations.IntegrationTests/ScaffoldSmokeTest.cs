@@ -277,8 +277,8 @@ public sealed class ScaffoldSmokeTest
         string root = FindRepositoryRoot();
         string gitModulesPath = Path.Combine(root, ".gitmodules");
 
-        string[] submodulePaths = [.. File
-            .ReadLines(gitModulesPath)
+        string[] submodulePaths = [.. RepositoryLocator
+            .ReadAllLines(gitModulesPath)
             .Select(line => line.Trim())
             .Where(line => line.StartsWith("path = ", StringComparison.Ordinal))
             .Select(line => line["path = ".Length..])
