@@ -182,7 +182,7 @@ def test_adoption_output_hardlink_cannot_overwrite_a_source(adoption_git,monkeyp
     finally:output.unlink()
 
 
-@pytest.mark.parametrize('fault',['package','project','assembly','publish'])
+@pytest.mark.parametrize('fault',['package','project','assembly','publish','pack'])
 def test_neutral_helper_portable_surface_stays_closed(tmp_path,monkeypatch,fault):
     import verify_conformance_tiering as tiering
     project=tmp_path/tiering.PROJECTS['portable'];project.parent.mkdir(parents=True);project.write_text('<Project />')
@@ -192,6 +192,7 @@ def test_neutral_helper_portable_surface_stays_closed(tmp_path,monkeypatch,fault
     graph=dict(Properties=dict(AssemblyName='Hexalith.Conversations.TestSupport',IsPackable='false',IsPublishable='false'),
         Items=dict(ProjectReference=[],PackageReference=[],Reference=[],ReferencePath=[],FrameworkReference=[dict(Identity='Microsoft.NETCore.App',IsImplicitlyDefined='true')]))
     if fault=='publish':graph['Properties']['IsPublishable']='true'
+    elif fault=='pack':graph['Properties']['IsPackable']='true'
     else:graph['Items'][{'package':'PackageReference','project':'ProjectReference','assembly':'Reference'}[fault]]=[dict(Identity='forbidden')]
     monkeypatch.setattr(tiering,'msbuild',lambda *args,**kwargs:graph)
     with pytest.raises(tiering.VerificationError) as caught:

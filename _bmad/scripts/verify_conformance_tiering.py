@@ -189,7 +189,7 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
                 ("ProjectReference", "PackageReference", "Reference", "ReferencePath"))
             and all(item["Identity"] == "Microsoft.NETCore.App" and item.get("IsImplicitlyDefined", "").lower() == "true"
                 for item in graph["Items"].get("FrameworkReference", [])))
-        require(packable or neutral_helper,
+        require(neutral_helper if relative == helper_relative else packable,
                 "PORTABLE_TIER_NONPORTABLE_REFERENCE", f"Evaluated non-packable module reference: {name}")
         seen[relative] = {"project": relative, "assembly": name, "packable": packable}
         project_outputs.setdefault(name, set()).update(
