@@ -38,12 +38,12 @@ public sealed class AdoptionSeamTests
         fixture.Git("commit", "--quiet", "-m", "fixture");
         string symbolic = fixture.Git("rev-parse", "HEAD");
         GitFacts facts = new();
-        (await facts.ReadBlobAsync(fixture.Root, symbolic, "link.txt")).IsSuccess.ShouldBeTrue();
-        (await facts.ReadRegularBlobAsync(fixture.Root, symbolic, "link.txt")).Code.ShouldBe("BLOB_INVALID");
+        (await facts.ReadBlobAsync(fixture.Root, symbolic, "link.txt", TestContext.Current.CancellationToken)).IsSuccess.ShouldBeTrue();
+        (await facts.ReadRegularBlobAsync(fixture.Root, symbolic, "link.txt", TestContext.Current.CancellationToken)).Code.ShouldBe("BLOB_INVALID");
         fixture.Git("update-index", "--add", "--cacheinfo", $"160000,{regular},nested");
         fixture.Git("commit", "--quiet", "-m", "fixture");
-        (await facts.ReadRegularBlobAsync(fixture.Root, "HEAD", "nested")).Code.ShouldBe("BLOB_INVALID");
-        (await facts.ReadRegularBlobAsync(fixture.Root, regular, "regular.txt")).IsSuccess.ShouldBeTrue();
+        (await facts.ReadRegularBlobAsync(fixture.Root, "HEAD", "nested", TestContext.Current.CancellationToken)).Code.ShouldBe("BLOB_INVALID");
+        (await facts.ReadRegularBlobAsync(fixture.Root, regular, "regular.txt", TestContext.Current.CancellationToken)).IsSuccess.ShouldBeTrue();
     }
 
     /// <summary>Malformed chain regions fail with exact stable codes and nonempty ledgers.</summary>
