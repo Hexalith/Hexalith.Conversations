@@ -2,7 +2,7 @@
 title: 'Story 10.3: Evidence verifier and workflow enforcement'
 type: 'feature'
 created: '2026-10-14'
-status: 'in-progress'
+status: 'done'
 baseline_commit: 'f272a32e2a5fa334d0001da08caf1e55b6e142a7'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -140,7 +140,7 @@ context:
 | RZ06 | false/low | rejected | KeyError on missing `headPaths`/`sourceMode` (caught at the `except (ValueError, KeyError, TypeError)` → `HELPER_FAILURE`); published-pair branch skipping `binding:withdrawal` (by design, published receipts stay protected); AC-10.3-03 exemption untested (already parametrized in the working tree, RZ01); RY01 "not in diff" (tracked by RZ02 deferral); baseline enum, compact JSON, surrogate/stdout-fallback, non-UTF-8 index, hard-coded nine, shallow-clone fixtures, ten-file skill copies, atomic write, untracked stale receipt overwrite (already rejected, deliberate, or negligible). |
 | RZ03 | false/low | rejected | Schema baseline enum (deliberate, already deferred); identical AC-01/AC-03 receipts (verified byte-identical, closed earlier); decoder and `KeyError` crashes (caught at `Program.cs:203` and in `main`); hand-edited baselines, compact JSON, selector renames, three-baseline model, inline `ls-files`, fixture history dependence, mode `100644` (documented or by design). |
 | RZ07 | low | patch, 2026-10-16 (uncommitted) | Third code review of `3319e06..HEAD` (source chunk, 780 lines). `main()` blocks on any `output:index*` row but the ownership-unavailable test injected only `output:index`; parametrized it over `output:index-completed` too. Defer: malformed NUL index listing in the runner (extends RZ02); `AC-10.3-02` lane membership (RZ05). Rejected: KeyError on missing binding/`headPaths`/mode keys (caught at `verify()` and `main()`), published branch skipping `binding:withdrawal` (by design), untracked receipt overwrite (contracted receipts), schema enum, compact JSON, surrogate/stdout fallback, fixture regexes (deliberate or negligible). (all layers) |
-| RW01 | high | decision_needed, 2026-10-16 | Fourth code review of `3319e06..HEAD` (source chunk, 996 lines): all four layers raised no new actionable finding (rejected or already tracked as RZ02/RY02/RZ06). The completion gate nevertheless fails at HEAD: `verify_evidence_boundary.py --verify-workflows --candidate HEAD` exits `1` with `AUTHORITY_BINDING_INVALID`, `CHANGED_PATH_SET_MISMATCH` and `EVIDENCE_BOUNDARY_GITLINK`, and `--verify-inserted-record` exits `1` with `RECORD_CONTENT_DRIFT`. All eleven root gitlinks differ from the baseline after pushed `/pushall` commits `59868b0`, `e1a9fbe`, `88db9c3` and `9b2d8c3`; a restoring commit would itself be a post-candidate gitlink commit. Needs an owner-approved baseline refresh and republication; status returned to `in-progress`. (blind-hunter+edge-case-hunter+verification-gap+acceptance-auditor) |
+| RW01 | high | patched, 2026-10-16 (owner-approved baseline refresh to `f272a32`, publication withdrawn and regenerated at candidate `6908c52`; gate and inserted-record verification rerun) | Fourth code review of `3319e06..HEAD` (source chunk, 996 lines): all four layers raised no new actionable finding (rejected or already tracked as RZ02/RY02/RZ06). The completion gate nevertheless fails at HEAD: `verify_evidence_boundary.py --verify-workflows --candidate HEAD` exits `1` with `AUTHORITY_BINDING_INVALID`, `CHANGED_PATH_SET_MISMATCH` and `EVIDENCE_BOUNDARY_GITLINK`, and `--verify-inserted-record` exits `1` with `RECORD_CONTENT_DRIFT`. All eleven root gitlinks differ from the baseline after pushed `/pushall` commits `59868b0`, `e1a9fbe`, `88db9c3` and `9b2d8c3`; a restoring commit would itself be a post-candidate gitlink commit. Needs an owner-approved baseline refresh and republication; status returned to `in-progress`. (blind-hunter+edge-case-hunter+verification-gap+acceptance-auditor) |
 
 
 Review patches are implemented and independently checked. Focused verification passed 91 current CLI/reader tests, 44 generator/schema/route tests, and six affected historical neutral-helper tests. All 23 triage rows above are preserved.
@@ -202,3 +202,711 @@ Review patch preparation, 2026-10-15: RX01/RX02/RX12 now protect independently r
 Acceptance compatibility correction, 2026-10-15: the new ownership and withdrawal tests remain in the retained stable-code selector with their exact result, exit, blocker, ledger, and byte-preservation assertions. Their optional mutation properties are omitted so the independently closed seventeen-to-eighteen-row mutation contract remains unchanged. The first post-review current-CI run was interrupted during this correction; its partial log is retained as `review-current-ci-interrupted.log` and supplies no complete-lane claim. The parent reruns the current lane and all acceptance commands from the corrected committed source before publication.
 
 Post-review current-lane validation, 2026-10-15: the exact current CI command (the `_bmad/scripts/tests` directory plus `tests/tooling/test_evidence_boundary_current.py`, explicitly ignoring the retired Epic 6 supersession suite) completed with 1682 passes and one stale-fixture failure. Its raw exit remains `1` in `review-current-ci.{log,xml}`. The single failure assumed `Program.cs` was unchanged; the reviewed ownership fix now legitimately changes that source. The fixture now chooses the unchanged runner project file, retaining all thirty-four source hashes, explicit diff non-membership, and dirty-file rejection assertions. The parent independently reran that case successfully: one pass, exit `0`, in `review-fixture-rerun.{log,xml}`. A JUnit coverage audit confirms all 1683 current selected identities have a passing execution and zero unresolved, skipped, or errored identities across those runs; it is explicitly not a green complete-lane rerun. The only follow-up code difference is this fixture correction. All logs and the combined audit are retained under `/tmp/story103-approved-refresh-3319e062472bb44fda8389a2420af108da58da0a/`. The production verifier and reviewed bridge already passed all eight acceptance commands, deterministic generation, and both Story 7.3 guards; candidate-bound receipts are regenerated again after the fixture commit.
+
+<!-- STORY-FINAL-RECORD:BEGIN -->
+# Story 10.3 Final Record
+
+<!-- hexalith.conversations.story-final-record.v2 markdown projection -->
+
+Generated by `_bmad/scripts/generate_story_record.py` from the committed candidate and measured scenario results. The JSON record is authoritative; this rendering is bound to it by digest.
+
+- Schema: `hexalith.conversations.story-final-record.v2`
+- Result: `PASS`
+- Story: `10.3`
+- Candidate: `6908c5264c388cca1b094400c5abfa320482c5e3`
+- JSON content SHA-256 (all three digest fields zeroed): `8ec45bc2b193da50e8635f90ac32be17511198cd9a94d38783aa718202d4401c`
+
+## Authority
+
+| Field | Value |
+| --- | --- |
+| Epic | `epic-6-authority-2026-08-03-v10` |
+| Architecture | `conversations-architecture-2026-08-03-v10` |
+| Planning candidate | `1e9a61126d3b7a55b514b7c7c8942d5af03355e5` |
+| Bundle digest | `159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055` |
+
+## Root gitlinks
+
+| Path | Mode | Commit |
+| --- | --- | --- |
+| `references/Hexalith.AI.Tools` | `160000` | `3f194e17174994d308ec84af9ee2b5aa68674d0d` |
+| `references/Hexalith.Builds` | `160000` | `03e3711039346ac6c76f8b2c900dcaca6cacb40f` |
+| `references/Hexalith.Commons` | `160000` | `9e874b1a3c6e7b6ff07b6f40b81d36e4e1403798` |
+| `references/Hexalith.EventStore` | `160000` | `2444ffc49b6edc8de0676327338d5cc07a36ec08` |
+| `references/Hexalith.Folders` | `160000` | `6dee230850842dddfea81e81700e13bd0cb65367` |
+| `references/Hexalith.FrontComposer` | `160000` | `0129bd39095892283371f97836ade5768fef3809` |
+| `references/Hexalith.McpCli` | `160000` | `09655746f9373dbb5df4bcea46c5d155902f2208` |
+| `references/Hexalith.Memories` | `160000` | `61074e981bd92019488db19da0c8572bd4bf8b97` |
+| `references/Hexalith.Parties` | `160000` | `86d03a63d31b337cbcde8fc998dcde4396d48df4` |
+| `references/Hexalith.Platform` | `160000` | `c719b6422e53e9586ffa7c205ac1da7639366065` |
+| `references/Hexalith.Projects` | `160000` | `b97bb293df76a8dbc84503fa9ed5afabfdcb8106` |
+| `references/Hexalith.Tenants` | `160000` | `6ad5e502fa5d6e453e24610ef418007e1bd53298` |
+
+## Inventory
+
+| Inventory | SHA-256 |
+| --- | --- |
+| `STORY-10.3-CURRENT-WORKFLOWS-v1` | `8fa650c0c9e5832acc7c700f64ea960bea47a5a91751ddf9f107ea25a07d9545` |
+
+## Predecessors
+
+- `10.2`
+
+## Scenarios
+
+| Scenario | Exit | Result | Blockers | Assertions | Result file | Result file SHA-256 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `AC-10.3-01` | `0` | `PASS` | `none` | `232` | `artifacts/v9/10.3/AC-10.3-01.json` | `45d0660a2786aef27789d89f83382bb5d752c0034bd7309f6ee2eae7f5c3eb2e` |
+| `AC-10.3-02` | `0` | `PASS` | `none` | `29` | `artifacts/v9/10.3/AC-10.3-02.xml` | `e390763a12623cfc1ace07c5cc2b471d7cf5d4f3d9b5a0496f521e9ce8a0dfd6` |
+| `AC-10.3-03` | `0` | `PASS` | `none` | `232` | `artifacts/v9/10.3/AC-10.3-03.json` | `45d0660a2786aef27789d89f83382bb5d752c0034bd7309f6ee2eae7f5c3eb2e` |
+| `AC-10.3-04` | `0` | `PASS` | `none` | `1` | `artifacts/v9/10.3/AC-10.3-04.xml` | `88529ac63f6ca7f40eab4be648c068df2b761bee9c0e75e31ede874fd9187c15` |
+| `AC-10.3-05` | `0` | `PASS` | `none` | `2` | `artifacts/v9/10.3/AC-10.3-05.xml` | `1246d0f4cac6284034fa9dc92a008db1ce0a736618824aedd375fbd3084bceab` |
+| `AC-10.3-06` | `0` | `PASS` | `none` | `13` | `artifacts/v9/10.3/AC-10.3-06.xml` | `c008e8bfdb84a8ba3aa8914949579c8f85bf0af3ef01707af73c9d4c1bc16af2` |
+| `AC-10.3-07` | `0` | `PASS` | `none` | `5` | `artifacts/v9/10.3/AC-10.3-07.xml` | `60fcce9b025ca30e1391441b336faa1c938baed3fe840cb910699ce04f3ec134` |
+| `AC-10.3-08` | `0` | `PASS` | `none` | `5` | none | none |
+
+### `AC-10.3-01`
+
+Command: `python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.3-current-binding-v1.json --baseline f272a32e2a5fa334d0001da08caf1e55b6e142a7 --candidate HEAD --format json --output artifacts/v9/10.3/AC-10.3-01.json`
+
+| Bound output | SHA-256 |
+| --- | --- |
+| `artifacts/v9/10.3/AC-10.3-01.json` | `45d0660a2786aef27789d89f83382bb5d752c0034bd7309f6ee2eae7f5c3eb2e` |
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-10.3-01#0001` | `binding:baseline::_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json` | `PASS` |
+| `AC-10.3-01#0002` | `binding:source-paths::_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json` | `PASS` |
+| `AC-10.3-01#0003` | `binding:withdrawal::prior publication` | `PASS` |
+| `AC-10.3-01#0004` | `binding:exemptions::_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json` | `PASS` |
+| `AC-10.3-01#0005` | `binding:inventory:workflowInventory::workflowInventory` | `PASS` |
+| `AC-10.3-01#0006` | `binding:inventory:guidanceInventory::guidanceInventory` | `PASS` |
+| `AC-10.3-01#0007` | `provenance:membership::historical provenance` | `PASS` |
+| `AC-10.3-01#0008` | `provenance:baseline:_bmad-output/planning-artifacts/v9/story-contracts/10.3.json::_bmad-output/planning-artifacts/v9/story-contracts/10.3.json` | `PASS` |
+| `AC-10.3-01#0009` | `provenance:baseline:_bmad-output/planning-artifacts/v9-authority-bundle-v1.json::_bmad-output/planning-artifacts/v9-authority-bundle-v1.json` | `PASS` |
+| `AC-10.3-01#0010` | `provenance:baseline:_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json::_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json` | `PASS` |
+| `AC-10.3-01#0011` | `provenance:baseline:_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json::_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json` | `PASS` |
+| `AC-10.3-01#0012` | `provenance:baseline:docs/release-evidence/story-10.2-final-record-v2.json::docs/release-evidence/story-10.2-final-record-v2.json` | `PASS` |
+| `AC-10.3-01#0013` | `provenance:baseline:docs/release-evidence/story-10.2-final-record-v2.md::docs/release-evidence/story-10.2-final-record-v2.md` | `PASS` |
+| `AC-10.3-01#0014` | `roots:approved::tests/Hexalith.Conversations.TestSupport.Runner/Program.cs` | `PASS` |
+| `AC-10.3-01#0015` | `repository::repository` | `PASS` |
+| `AC-10.3-01#0016` | `candidate::candidate` | `PASS` |
+| `AC-10.3-01#0017` | `baseline::baseline` | `PASS` |
+| `AC-10.3-01#0018` | `diff::diff` | `PASS` |
+| `AC-10.3-01#0019` | `changed-paths::changed-paths` | `PASS` |
+| `AC-10.3-01#0020` | `gitlinks::gitlinks` | `PASS` |
+| `AC-10.3-01#0021` | `manifest:file:_bmad-output/planning-artifacts/v9/story-contracts/10.3.json::_bmad-output/planning-artifacts/v9/story-contracts/10.3.json` | `PASS` |
+| `AC-10.3-01#0022` | `manifest:file:_bmad-output/planning-artifacts/v9-authority-bundle-v1.json::_bmad-output/planning-artifacts/v9-authority-bundle-v1.json` | `PASS` |
+| `AC-10.3-01#0023` | `manifest:file:_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json::_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json` | `PASS` |
+| `AC-10.3-01#0024` | `manifest:file:_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json::_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json` | `PASS` |
+| `AC-10.3-01#0025` | `manifest:file:docs/release-evidence/story-10.2-final-record-v2.json::docs/release-evidence/story-10.2-final-record-v2.json` | `PASS` |
+| `AC-10.3-01#0026` | `manifest:file:docs/release-evidence/story-10.2-final-record-v2.md::docs/release-evidence/story-10.2-final-record-v2.md` | `PASS` |
+| `AC-10.3-01#0027` | `manifest:file:tests/Hexalith.Conversations.TestSupport.Runner/Program.cs::tests/Hexalith.Conversations.TestSupport.Runner/Program.cs` | `PASS` |
+| `AC-10.3-01#0028` | `manifest:file:.agents/skills/bmad-build/step-04-review.md::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0029` | `manifest:file:.agents/skills/bmad-build/step-05-present.md::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0030` | `manifest:file:.agents/skills/bmad-build/step-oneshot.md::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0031` | `manifest:file:.agents/skills/bmad-build-auto/step-04-review.md::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0032` | `manifest:file:.agents/skills/bmad-code-review/steps/step-04-present.md::.agents/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-01#0033` | `manifest:file:.claude/skills/bmad-build/step-04-review.md::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0034` | `manifest:file:.claude/skills/bmad-build/step-05-present.md::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0035` | `manifest:file:.claude/skills/bmad-build/step-oneshot.md::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0036` | `manifest:file:.claude/skills/bmad-build-auto/step-04-review.md::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0037` | `manifest:file:.claude/skills/bmad-code-review/steps/step-04-present.md::.claude/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-01#0038` | `manifest:file:_bmad/custom/bmad-build.toml::_bmad/custom/bmad-build.toml` | `PASS` |
+| `AC-10.3-01#0039` | `manifest:file:_bmad/custom/bmad-build-auto.toml::_bmad/custom/bmad-build-auto.toml` | `PASS` |
+| `AC-10.3-01#0040` | `manifest:file:_bmad/custom/bmad-review.toml::_bmad/custom/bmad-review.toml` | `PASS` |
+| `AC-10.3-01#0041` | `manifest:file:docs/runbooks/current-change-validation.md::docs/runbooks/current-change-validation.md` | `PASS` |
+| `AC-10.3-01#0042` | `manifest:signable-payload::manifest` | `PASS` |
+| `AC-10.3-01#0043` | `roots:compiled::roots:compiled` | `PASS` |
+| `AC-10.3-01#0044` | `roots::roots` | `PASS` |
+| `AC-10.3-01#0045` | `allowlist::allowlist` | `PASS` |
+| `AC-10.3-01#0046` | `candidate:blob:_bmad-output/planning-artifacts/v9/story-contracts/10.3.json::_bmad-output/planning-artifacts/v9/story-contracts/10.3.json` | `PASS` |
+| `AC-10.3-01#0047` | `candidate:blob:_bmad-output/planning-artifacts/v9-authority-bundle-v1.json::_bmad-output/planning-artifacts/v9-authority-bundle-v1.json` | `PASS` |
+| `AC-10.3-01#0048` | `candidate:blob:_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json::_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json` | `PASS` |
+| `AC-10.3-01#0049` | `candidate:blob:_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json::_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json` | `PASS` |
+| `AC-10.3-01#0050` | `candidate:blob:docs/release-evidence/story-10.2-final-record-v2.json::docs/release-evidence/story-10.2-final-record-v2.json` | `PASS` |
+| `AC-10.3-01#0051` | `candidate:blob:docs/release-evidence/story-10.2-final-record-v2.md::docs/release-evidence/story-10.2-final-record-v2.md` | `PASS` |
+| `AC-10.3-01#0052` | `candidate:blob:tests/Hexalith.Conversations.TestSupport.Runner/Program.cs::tests/Hexalith.Conversations.TestSupport.Runner/Program.cs` | `PASS` |
+| `AC-10.3-01#0053` | `candidate:blob:.agents/skills/bmad-build/step-04-review.md::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0054` | `candidate:blob:.agents/skills/bmad-build/step-05-present.md::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0055` | `candidate:blob:.agents/skills/bmad-build/step-oneshot.md::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0056` | `candidate:blob:.agents/skills/bmad-build-auto/step-04-review.md::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0057` | `candidate:blob:.agents/skills/bmad-code-review/steps/step-04-present.md::.agents/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-01#0058` | `candidate:blob:.claude/skills/bmad-build/step-04-review.md::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0059` | `candidate:blob:.claude/skills/bmad-build/step-05-present.md::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0060` | `candidate:blob:.claude/skills/bmad-build/step-oneshot.md::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0061` | `candidate:blob:.claude/skills/bmad-build-auto/step-04-review.md::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0062` | `candidate:blob:.claude/skills/bmad-code-review/steps/step-04-present.md::.claude/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-01#0063` | `candidate:blob:_bmad/custom/bmad-build.toml::_bmad/custom/bmad-build.toml` | `PASS` |
+| `AC-10.3-01#0064` | `candidate:blob:_bmad/custom/bmad-build-auto.toml::_bmad/custom/bmad-build-auto.toml` | `PASS` |
+| `AC-10.3-01#0065` | `candidate:blob:_bmad/custom/bmad-review.toml::_bmad/custom/bmad-review.toml` | `PASS` |
+| `AC-10.3-01#0066` | `candidate:blob:docs/runbooks/current-change-validation.md::docs/runbooks/current-change-validation.md` | `PASS` |
+| `AC-10.3-01#0067` | `candidate:blob:_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json::_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json` | `PASS` |
+| `AC-10.3-01#0068` | `authority:selection::_bmad-output/planning-artifacts/v9-authority-bundle-v1.json` | `PASS` |
+| `AC-10.3-01#0069` | `predecessor:10.2::10.2` | `PASS` |
+| `AC-10.3-01#0070` | `workflow:presence:.agents/skills/bmad-build/step-04-review.md::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0071` | `workflow:span:.agents/skills/bmad-build/step-04-review.md::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0072` | ``workflow:clause:.agents/skills/bmad-build/step-04-review.md:`FAIL`/`1`::.agents/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0073` | ``workflow:clause:.agents/skills/bmad-build/step-04-review.md:`BLOCKED`/`2`::.agents/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0074` | ``workflow:clause:.agents/skills/bmad-build/step-04-review.md:`not-applicable`/`0`::.agents/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0075` | `workflow:clause:.agents/skills/bmad-build/step-04-review.md:--verify-workflows::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0076` | `workflow:clause:.agents/skills/bmad-build/step-04-review.md:explicitly requires::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0077` | ``workflow:clause:.agents/skills/bmad-build/step-04-review.md:never write `review` or `done`::.agents/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0078` | `render:deterministic:.agents/skills:bmad-build::bmad-build` | `PASS` |
+| `AC-10.3-01#0079` | `render:gate:.agents/skills/bmad-build/step-04-review.md::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0080` | `workflow:presence:.agents/skills/bmad-build/step-05-present.md::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0081` | `workflow:span:.agents/skills/bmad-build/step-05-present.md::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0082` | ``workflow:clause:.agents/skills/bmad-build/step-05-present.md:`FAIL`/`1`::.agents/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-01#0083` | ``workflow:clause:.agents/skills/bmad-build/step-05-present.md:`BLOCKED`/`2`::.agents/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-01#0084` | ``workflow:clause:.agents/skills/bmad-build/step-05-present.md:`not-applicable`/`0`::.agents/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-01#0085` | `workflow:clause:.agents/skills/bmad-build/step-05-present.md:--verify-workflows::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0086` | `workflow:clause:.agents/skills/bmad-build/step-05-present.md:explicitly requires::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0087` | ``workflow:clause:.agents/skills/bmad-build/step-05-present.md:never write `review` or `done`::.agents/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-01#0088` | `render:gate:.agents/skills/bmad-build/step-05-present.md::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0089` | `workflow:presence:.agents/skills/bmad-build/step-oneshot.md::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0090` | `workflow:span:.agents/skills/bmad-build/step-oneshot.md::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0091` | ``workflow:clause:.agents/skills/bmad-build/step-oneshot.md:`FAIL`/`1`::.agents/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-01#0092` | ``workflow:clause:.agents/skills/bmad-build/step-oneshot.md:`BLOCKED`/`2`::.agents/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-01#0093` | ``workflow:clause:.agents/skills/bmad-build/step-oneshot.md:`not-applicable`/`0`::.agents/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-01#0094` | `workflow:clause:.agents/skills/bmad-build/step-oneshot.md:--verify-workflows::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0095` | `workflow:clause:.agents/skills/bmad-build/step-oneshot.md:explicitly requires::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0096` | ``workflow:clause:.agents/skills/bmad-build/step-oneshot.md:never write `review` or `done`::.agents/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-01#0097` | `render:gate:.agents/skills/bmad-build/step-oneshot.md::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0098` | `workflow:presence:.agents/skills/bmad-build-auto/step-04-review.md::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0099` | `workflow:span:.agents/skills/bmad-build-auto/step-04-review.md::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0100` | ``workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:`FAIL`/`1`::.agents/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0101` | ``workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:`BLOCKED`/`2`::.agents/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0102` | ``workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:`not-applicable`/`0`::.agents/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0103` | `workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:--verify-workflows::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0104` | `workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:explicitly requires::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0105` | ``workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:never write `review` or `done`::.agents/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0106` | `render:deterministic:.agents/skills:bmad-build-auto::bmad-build-auto` | `PASS` |
+| `AC-10.3-01#0107` | `render:gate:.agents/skills/bmad-build-auto/step-04-review.md::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0108` | `workflow:presence:.agents/skills/bmad-code-review/steps/step-04-present.md::.agents/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-01#0109` | `workflow:span:.agents/skills/bmad-code-review/steps/step-04-present.md::.agents/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-01#0110` | ``workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:`FAIL`/`1`::.agents/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-01#0111` | ``workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:`BLOCKED`/`2`::.agents/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-01#0112` | ``workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:`not-applicable`/`0`::.agents/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-01#0113` | `workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:--verify-workflows::.agents/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-01#0114` | `workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:explicitly requires::.agents/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-01#0115` | ``workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:never write `review` or `done`::.agents/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-01#0116` | `workflow:presence:.claude/skills/bmad-build/step-04-review.md::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0117` | `workflow:span:.claude/skills/bmad-build/step-04-review.md::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0118` | ``workflow:clause:.claude/skills/bmad-build/step-04-review.md:`FAIL`/`1`::.claude/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0119` | ``workflow:clause:.claude/skills/bmad-build/step-04-review.md:`BLOCKED`/`2`::.claude/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0120` | ``workflow:clause:.claude/skills/bmad-build/step-04-review.md:`not-applicable`/`0`::.claude/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0121` | `workflow:clause:.claude/skills/bmad-build/step-04-review.md:--verify-workflows::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0122` | `workflow:clause:.claude/skills/bmad-build/step-04-review.md:explicitly requires::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0123` | ``workflow:clause:.claude/skills/bmad-build/step-04-review.md:never write `review` or `done`::.claude/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0124` | `render:deterministic:.claude/skills:bmad-build::bmad-build` | `PASS` |
+| `AC-10.3-01#0125` | `render:gate:.claude/skills/bmad-build/step-04-review.md::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0126` | `workflow:presence:.claude/skills/bmad-build/step-05-present.md::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0127` | `workflow:span:.claude/skills/bmad-build/step-05-present.md::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0128` | ``workflow:clause:.claude/skills/bmad-build/step-05-present.md:`FAIL`/`1`::.claude/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-01#0129` | ``workflow:clause:.claude/skills/bmad-build/step-05-present.md:`BLOCKED`/`2`::.claude/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-01#0130` | ``workflow:clause:.claude/skills/bmad-build/step-05-present.md:`not-applicable`/`0`::.claude/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-01#0131` | `workflow:clause:.claude/skills/bmad-build/step-05-present.md:--verify-workflows::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0132` | `workflow:clause:.claude/skills/bmad-build/step-05-present.md:explicitly requires::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0133` | ``workflow:clause:.claude/skills/bmad-build/step-05-present.md:never write `review` or `done`::.claude/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-01#0134` | `render:gate:.claude/skills/bmad-build/step-05-present.md::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0135` | `workflow:presence:.claude/skills/bmad-build/step-oneshot.md::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0136` | `workflow:span:.claude/skills/bmad-build/step-oneshot.md::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0137` | ``workflow:clause:.claude/skills/bmad-build/step-oneshot.md:`FAIL`/`1`::.claude/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-01#0138` | ``workflow:clause:.claude/skills/bmad-build/step-oneshot.md:`BLOCKED`/`2`::.claude/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-01#0139` | ``workflow:clause:.claude/skills/bmad-build/step-oneshot.md:`not-applicable`/`0`::.claude/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-01#0140` | `workflow:clause:.claude/skills/bmad-build/step-oneshot.md:--verify-workflows::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0141` | `workflow:clause:.claude/skills/bmad-build/step-oneshot.md:explicitly requires::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0142` | ``workflow:clause:.claude/skills/bmad-build/step-oneshot.md:never write `review` or `done`::.claude/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-01#0143` | `render:gate:.claude/skills/bmad-build/step-oneshot.md::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0144` | `workflow:presence:.claude/skills/bmad-build-auto/step-04-review.md::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0145` | `workflow:span:.claude/skills/bmad-build-auto/step-04-review.md::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0146` | ``workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:`FAIL`/`1`::.claude/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0147` | ``workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:`BLOCKED`/`2`::.claude/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0148` | ``workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:`not-applicable`/`0`::.claude/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0149` | `workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:--verify-workflows::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0150` | `workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:explicitly requires::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0151` | ``workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:never write `review` or `done`::.claude/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-01#0152` | `render:deterministic:.claude/skills:bmad-build-auto::bmad-build-auto` | `PASS` |
+| `AC-10.3-01#0153` | `render:gate:.claude/skills/bmad-build-auto/step-04-review.md::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0154` | `workflow:presence:.claude/skills/bmad-code-review/steps/step-04-present.md::.claude/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-01#0155` | `workflow:span:.claude/skills/bmad-code-review/steps/step-04-present.md::.claude/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-01#0156` | ``workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:`FAIL`/`1`::.claude/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-01#0157` | ``workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:`BLOCKED`/`2`::.claude/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-01#0158` | ``workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:`not-applicable`/`0`::.claude/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-01#0159` | `workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:--verify-workflows::.claude/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-01#0160` | `workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:explicitly requires::.claude/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-01#0161` | ``workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:never write `review` or `done`::.claude/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-01#0162` | `workflow:twins:bmad-build/step-04-review.md::bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0163` | `workflow:twins:bmad-build/step-05-present.md::bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-01#0164` | `workflow:twins:bmad-build/step-oneshot.md::bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-01#0165` | `workflow:twins:bmad-build-auto/step-04-review.md::bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-01#0166` | `workflow:twins:bmad-code-review/steps/step-04-present.md::bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-01#0167` | `route:retired:.agents/skills/bmad-dev-story::.agents/skills/bmad-dev-story` | `PASS` |
+| `AC-10.3-01#0168` | `route:retired:.agents/skills/bmad-quick-dev::.agents/skills/bmad-quick-dev` | `PASS` |
+| `AC-10.3-01#0169` | `route:retired:.claude/skills/bmad-dev-story::.claude/skills/bmad-dev-story` | `PASS` |
+| `AC-10.3-01#0170` | `route:retired:.claude/skills/bmad-quick-dev::.claude/skills/bmad-quick-dev` | `PASS` |
+| `AC-10.3-01#0171` | `guidance:resolved:bmad-build::bmad-build` | `PASS` |
+| `AC-10.3-01#0172` | `guidance:resolved:bmad-build-auto::bmad-build-auto` | `PASS` |
+| `AC-10.3-01#0173` | `guidance:resolved:bmad-review::bmad-review` | `PASS` |
+| `AC-10.3-01#0174` | `guidance:file:_bmad/custom/bmad-build.toml::_bmad/custom/bmad-build.toml` | `PASS` |
+| `AC-10.3-01#0175` | `guidance:file:_bmad/custom/bmad-build-auto.toml::_bmad/custom/bmad-build-auto.toml` | `PASS` |
+| `AC-10.3-01#0176` | `guidance:file:_bmad/custom/bmad-review.toml::_bmad/custom/bmad-review.toml` | `PASS` |
+| `AC-10.3-01#0177` | `guidance:file:docs/runbooks/current-change-validation.md::docs/runbooks/current-change-validation.md` | `PASS` |
+| `AC-10.3-01#0178` | `completion:presence_checks:0::.agents/skills/bmad-build-auto/step-04-review.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-01#0179` | `completion:presence_checks:1::.agents/skills/bmad-build-auto/step-04-review.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-01#0180` | `completion:presence_checks:2::.agents/skills/bmad-build-auto/step-04-review.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-01#0181` | `completion:presence_checks:3::.agents/skills/bmad-build/step-05-present.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-01#0182` | `completion:presence_checks:4::.agents/skills/bmad-build/step-05-present.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-01#0183` | `completion:presence_checks:5::.agents/skills/bmad-build/step-05-present.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-01#0184` | `completion:presence_checks:6::.agents/skills/bmad-build/step-oneshot.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-01#0185` | `completion:presence_checks:7::.agents/skills/bmad-build/step-oneshot.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-01#0186` | `completion:presence_checks:8::.agents/skills/bmad-build/step-oneshot.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-01#0187` | `completion:presence_checks:9::.agents/skills/bmad-code-review/steps/step-04-present.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-01#0188` | `completion:presence_checks:10::.agents/skills/bmad-code-review/steps/step-04-present.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-01#0189` | `completion:presence_checks:11::.agents/skills/bmad-code-review/steps/step-04-present.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-01#0190` | `completion:presence_checks:12::.claude/skills/bmad-build-auto/step-04-review.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-01#0191` | `completion:presence_checks:13::.claude/skills/bmad-build-auto/step-04-review.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-01#0192` | `completion:presence_checks:14::.claude/skills/bmad-build-auto/step-04-review.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-01#0193` | `completion:presence_checks:15::.claude/skills/bmad-build/step-05-present.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-01#0194` | `completion:presence_checks:16::.claude/skills/bmad-build/step-05-present.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-01#0195` | `completion:presence_checks:17::.claude/skills/bmad-build/step-05-present.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-01#0196` | `completion:presence_checks:18::.claude/skills/bmad-build/step-oneshot.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-01#0197` | `completion:presence_checks:19::.claude/skills/bmad-build/step-oneshot.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-01#0198` | `completion:presence_checks:20::.claude/skills/bmad-build/step-oneshot.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-01#0199` | `completion:presence_checks:21::.claude/skills/bmad-code-review/steps/step-04-present.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-01#0200` | `completion:presence_checks:22::.claude/skills/bmad-code-review/steps/step-04-present.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-01#0201` | `completion:presence_checks:23::.claude/skills/bmad-code-review/steps/step-04-present.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-01#0202` | `completion:presence_checks:24::render:.claude/skills/bmad-build-auto/step-04-review.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-01#0203` | `completion:presence_checks:25::render:.claude/skills/bmad-build-auto/step-04-review.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-01#0204` | `completion:presence_checks:26::render:.claude/skills/bmad-build-auto/step-04-review.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-01#0205` | `completion:presence_checks:27::render:.claude/skills/bmad-build/step-05-present.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-01#0206` | `completion:presence_checks:28::render:.claude/skills/bmad-build/step-05-present.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-01#0207` | `completion:presence_checks:29::render:.claude/skills/bmad-build/step-05-present.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-01#0208` | `completion:presence_checks:30::render:.claude/skills/bmad-build/step-oneshot.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-01#0209` | `completion:presence_checks:31::render:.claude/skills/bmad-build/step-oneshot.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-01#0210` | `completion:presence_checks:32::render:.claude/skills/bmad-build/step-oneshot.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-01#0211` | `completion:parity_checks:0::.agents/skills/bmad-build-auto/step-04-review.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-01#0212` | `completion:parity_checks:1::.agents/skills/bmad-build-auto/step-04-review.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-01#0213` | `completion:parity_checks:2::.agents/skills/bmad-build/step-05-present.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-01#0214` | `completion:parity_checks:3::.agents/skills/bmad-build/step-05-present.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-01#0215` | `completion:parity_checks:4::.agents/skills/bmad-build/step-oneshot.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-01#0216` | `completion:parity_checks:5::.agents/skills/bmad-build/step-oneshot.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-01#0217` | `completion:parity_checks:6::.agents/skills/bmad-code-review/steps/step-04-present.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-01#0218` | `completion:parity_checks:7::.agents/skills/bmad-code-review/steps/step-04-present.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-01#0219` | `completion:parity_checks:8::.claude/skills/bmad-build-auto/step-04-review.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-01#0220` | `completion:parity_checks:9::.claude/skills/bmad-build-auto/step-04-review.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-01#0221` | `completion:parity_checks:10::.claude/skills/bmad-build/step-05-present.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-01#0222` | `completion:parity_checks:11::.claude/skills/bmad-build/step-05-present.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-01#0223` | `completion:parity_checks:12::.claude/skills/bmad-build/step-oneshot.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-01#0224` | `completion:parity_checks:13::.claude/skills/bmad-build/step-oneshot.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-01#0225` | `completion:parity_checks:14::.claude/skills/bmad-code-review/steps/step-04-present.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-01#0226` | `completion:parity_checks:15::.claude/skills/bmad-code-review/steps/step-04-present.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-01#0227` | `completion:parity_checks:16::render:.claude/skills/bmad-build-auto/step-04-review.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-01#0228` | `completion:parity_checks:17::render:.claude/skills/bmad-build-auto/step-04-review.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-01#0229` | `completion:parity_checks:18::render:.claude/skills/bmad-build/step-05-present.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-01#0230` | `completion:parity_checks:19::render:.claude/skills/bmad-build/step-05-present.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-01#0231` | `completion:parity_checks:20::render:.claude/skills/bmad-build/step-oneshot.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-01#0232` | `completion:parity_checks:21::render:.claude/skills/bmad-build/step-oneshot.md::block-states-gate-contract` | `PASS` |
+
+### `AC-10.3-02`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k stable_code_contract --junitxml=artifacts/v9/10.3/AC-10.3-02.xml`
+
+| Bound output | SHA-256 |
+| --- | --- |
+| `artifacts/v9/10.3/AC-10.3-02.xml` | `e390763a12623cfc1ace07c5cc2b471d7cf5d4f3d9b5a0496f521e9ce8a0dfd6` |
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-10.3-02#0001` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_bridge_faults[hash-EVIDENCE_HASH_MISMATCH]` | `PASS` |
+| `AC-10.3-02#0002` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_bridge_faults[path-EVIDENCE_PATH_ESCAPE]` | `PASS` |
+| `AC-10.3-02#0003` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_bridge_faults[missing-EVIDENCE_FILE_MISSING]` | `PASS` |
+| `AC-10.3-02#0004` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_bridge_faults[output-EVIDENCE_OUTPUT_FORBIDDEN]` | `PASS` |
+| `AC-10.3-02#0005` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_bridge_faults[signable-SIGNABLE_PAYLOAD_MISMATCH]` | `PASS` |
+| `AC-10.3-02#0006` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_bridge_faults[subset-CHANGED_PATH_SET_MISMATCH]` | `PASS` |
+| `AC-10.3-02#0007` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_bridge_faults[superset-CHANGED_PATH_SET_MISMATCH]` | `PASS` |
+| `AC-10.3-02#0008` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_bridge_faults[roots-ROOT_OF_TRUST_NOT_PINNED]` | `PASS` |
+| `AC-10.3-02#0009` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_bridge_faults[allowlist-SIGNED_EVIDENCE_ALLOWLISTED]` | `PASS` |
+| `AC-10.3-02#0010` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_bridge_faults[history-REVISION_INVALID]` | `PASS` |
+| `AC-10.3-02#0011` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_changed_reader_requires_real_helpers[comment-spoof-EVIDENCE_READER_NOT_SHARED]` | `PASS` |
+| `AC-10.3-02#0012` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_changed_reader_requires_real_helpers[assertion-removal-EVIDENCE_READER_STRENGTH_REDUCED]` | `PASS` |
+| `AC-10.3-02#0013` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_committed_edited_xml_withdrawal_fails` | `PASS` |
+| `AC-10.3-02#0014` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_current_ownership_preserves_receipt[head]` | `PASS` |
+| `AC-10.3-02#0015` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_current_ownership_preserves_receipt[index]` | `PASS` |
+| `AC-10.3-02#0016` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_current_ownership_unavailable_cannot_write[HELPER_FAILURE-FAIL-1-output:head]` | `PASS` |
+| `AC-10.3-02#0017` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_current_ownership_unavailable_cannot_write[HELPER_FAILURE-FAIL-1-output:head-tree]` | `PASS` |
+| `AC-10.3-02#0018` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_current_ownership_unavailable_cannot_write[HELPER_FAILURE-FAIL-1-output:index]` | `PASS` |
+| `AC-10.3-02#0019` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_current_ownership_unavailable_cannot_write[HELPER_FAILURE-FAIL-1-output:index-completed]` | `PASS` |
+| `AC-10.3-02#0020` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_current_ownership_unavailable_cannot_write[HISTORY_UNAVAILABLE-SKIPPED-2-output:head]` | `PASS` |
+| `AC-10.3-02#0021` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_current_ownership_unavailable_cannot_write[HISTORY_UNAVAILABLE-SKIPPED-2-output:head-tree]` | `PASS` |
+| `AC-10.3-02#0022` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_current_ownership_unavailable_cannot_write[HISTORY_UNAVAILABLE-SKIPPED-2-output:index]` | `PASS` |
+| `AC-10.3-02#0023` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_current_ownership_unavailable_cannot_write[HISTORY_UNAVAILABLE-SKIPPED-2-output:index-completed]` | `PASS` |
+| `AC-10.3-02#0024` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_output_write_failure_is_schema_valid_blocked` | `PASS` |
+| `AC-10.3-02#0025` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_raw_gitlink_is_never_filtered` | `PASS` |
+| `AC-10.3-02#0026` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_receipt_is_canonical_utf8_bytes` | `PASS` |
+| `AC-10.3-02#0027` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_registry_is_unique[FAIL-EVIDENCE_HASH_MISMATCH]` | `PASS` |
+| `AC-10.3-02#0028` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_registry_is_unique[BLOCKED-HISTORY_UNAVAILABLE]` | `PASS` |
+| `AC-10.3-02#0029` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_stable_code_contract_unavailable_history_cannot_pass` | `PASS` |
+
+### `AC-10.3-03`
+
+Command: `python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.3-current-binding-v1.json --baseline f272a32e2a5fa334d0001da08caf1e55b6e142a7 --candidate HEAD --verify-workflows --format json --output artifacts/v9/10.3/AC-10.3-03.json`
+
+| Bound output | SHA-256 |
+| --- | --- |
+| `artifacts/v9/10.3/AC-10.3-03.json` | `45d0660a2786aef27789d89f83382bb5d752c0034bd7309f6ee2eae7f5c3eb2e` |
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-10.3-03#0001` | `binding:baseline::_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json` | `PASS` |
+| `AC-10.3-03#0002` | `binding:source-paths::_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json` | `PASS` |
+| `AC-10.3-03#0003` | `binding:withdrawal::prior publication` | `PASS` |
+| `AC-10.3-03#0004` | `binding:exemptions::_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json` | `PASS` |
+| `AC-10.3-03#0005` | `binding:inventory:workflowInventory::workflowInventory` | `PASS` |
+| `AC-10.3-03#0006` | `binding:inventory:guidanceInventory::guidanceInventory` | `PASS` |
+| `AC-10.3-03#0007` | `provenance:membership::historical provenance` | `PASS` |
+| `AC-10.3-03#0008` | `provenance:baseline:_bmad-output/planning-artifacts/v9/story-contracts/10.3.json::_bmad-output/planning-artifacts/v9/story-contracts/10.3.json` | `PASS` |
+| `AC-10.3-03#0009` | `provenance:baseline:_bmad-output/planning-artifacts/v9-authority-bundle-v1.json::_bmad-output/planning-artifacts/v9-authority-bundle-v1.json` | `PASS` |
+| `AC-10.3-03#0010` | `provenance:baseline:_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json::_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json` | `PASS` |
+| `AC-10.3-03#0011` | `provenance:baseline:_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json::_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json` | `PASS` |
+| `AC-10.3-03#0012` | `provenance:baseline:docs/release-evidence/story-10.2-final-record-v2.json::docs/release-evidence/story-10.2-final-record-v2.json` | `PASS` |
+| `AC-10.3-03#0013` | `provenance:baseline:docs/release-evidence/story-10.2-final-record-v2.md::docs/release-evidence/story-10.2-final-record-v2.md` | `PASS` |
+| `AC-10.3-03#0014` | `roots:approved::tests/Hexalith.Conversations.TestSupport.Runner/Program.cs` | `PASS` |
+| `AC-10.3-03#0015` | `repository::repository` | `PASS` |
+| `AC-10.3-03#0016` | `candidate::candidate` | `PASS` |
+| `AC-10.3-03#0017` | `baseline::baseline` | `PASS` |
+| `AC-10.3-03#0018` | `diff::diff` | `PASS` |
+| `AC-10.3-03#0019` | `changed-paths::changed-paths` | `PASS` |
+| `AC-10.3-03#0020` | `gitlinks::gitlinks` | `PASS` |
+| `AC-10.3-03#0021` | `manifest:file:_bmad-output/planning-artifacts/v9/story-contracts/10.3.json::_bmad-output/planning-artifacts/v9/story-contracts/10.3.json` | `PASS` |
+| `AC-10.3-03#0022` | `manifest:file:_bmad-output/planning-artifacts/v9-authority-bundle-v1.json::_bmad-output/planning-artifacts/v9-authority-bundle-v1.json` | `PASS` |
+| `AC-10.3-03#0023` | `manifest:file:_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json::_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json` | `PASS` |
+| `AC-10.3-03#0024` | `manifest:file:_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json::_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json` | `PASS` |
+| `AC-10.3-03#0025` | `manifest:file:docs/release-evidence/story-10.2-final-record-v2.json::docs/release-evidence/story-10.2-final-record-v2.json` | `PASS` |
+| `AC-10.3-03#0026` | `manifest:file:docs/release-evidence/story-10.2-final-record-v2.md::docs/release-evidence/story-10.2-final-record-v2.md` | `PASS` |
+| `AC-10.3-03#0027` | `manifest:file:tests/Hexalith.Conversations.TestSupport.Runner/Program.cs::tests/Hexalith.Conversations.TestSupport.Runner/Program.cs` | `PASS` |
+| `AC-10.3-03#0028` | `manifest:file:.agents/skills/bmad-build/step-04-review.md::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0029` | `manifest:file:.agents/skills/bmad-build/step-05-present.md::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0030` | `manifest:file:.agents/skills/bmad-build/step-oneshot.md::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0031` | `manifest:file:.agents/skills/bmad-build-auto/step-04-review.md::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0032` | `manifest:file:.agents/skills/bmad-code-review/steps/step-04-present.md::.agents/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-03#0033` | `manifest:file:.claude/skills/bmad-build/step-04-review.md::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0034` | `manifest:file:.claude/skills/bmad-build/step-05-present.md::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0035` | `manifest:file:.claude/skills/bmad-build/step-oneshot.md::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0036` | `manifest:file:.claude/skills/bmad-build-auto/step-04-review.md::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0037` | `manifest:file:.claude/skills/bmad-code-review/steps/step-04-present.md::.claude/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-03#0038` | `manifest:file:_bmad/custom/bmad-build.toml::_bmad/custom/bmad-build.toml` | `PASS` |
+| `AC-10.3-03#0039` | `manifest:file:_bmad/custom/bmad-build-auto.toml::_bmad/custom/bmad-build-auto.toml` | `PASS` |
+| `AC-10.3-03#0040` | `manifest:file:_bmad/custom/bmad-review.toml::_bmad/custom/bmad-review.toml` | `PASS` |
+| `AC-10.3-03#0041` | `manifest:file:docs/runbooks/current-change-validation.md::docs/runbooks/current-change-validation.md` | `PASS` |
+| `AC-10.3-03#0042` | `manifest:signable-payload::manifest` | `PASS` |
+| `AC-10.3-03#0043` | `roots:compiled::roots:compiled` | `PASS` |
+| `AC-10.3-03#0044` | `roots::roots` | `PASS` |
+| `AC-10.3-03#0045` | `allowlist::allowlist` | `PASS` |
+| `AC-10.3-03#0046` | `candidate:blob:_bmad-output/planning-artifacts/v9/story-contracts/10.3.json::_bmad-output/planning-artifacts/v9/story-contracts/10.3.json` | `PASS` |
+| `AC-10.3-03#0047` | `candidate:blob:_bmad-output/planning-artifacts/v9-authority-bundle-v1.json::_bmad-output/planning-artifacts/v9-authority-bundle-v1.json` | `PASS` |
+| `AC-10.3-03#0048` | `candidate:blob:_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json::_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json` | `PASS` |
+| `AC-10.3-03#0049` | `candidate:blob:_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json::_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json` | `PASS` |
+| `AC-10.3-03#0050` | `candidate:blob:docs/release-evidence/story-10.2-final-record-v2.json::docs/release-evidence/story-10.2-final-record-v2.json` | `PASS` |
+| `AC-10.3-03#0051` | `candidate:blob:docs/release-evidence/story-10.2-final-record-v2.md::docs/release-evidence/story-10.2-final-record-v2.md` | `PASS` |
+| `AC-10.3-03#0052` | `candidate:blob:tests/Hexalith.Conversations.TestSupport.Runner/Program.cs::tests/Hexalith.Conversations.TestSupport.Runner/Program.cs` | `PASS` |
+| `AC-10.3-03#0053` | `candidate:blob:.agents/skills/bmad-build/step-04-review.md::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0054` | `candidate:blob:.agents/skills/bmad-build/step-05-present.md::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0055` | `candidate:blob:.agents/skills/bmad-build/step-oneshot.md::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0056` | `candidate:blob:.agents/skills/bmad-build-auto/step-04-review.md::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0057` | `candidate:blob:.agents/skills/bmad-code-review/steps/step-04-present.md::.agents/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-03#0058` | `candidate:blob:.claude/skills/bmad-build/step-04-review.md::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0059` | `candidate:blob:.claude/skills/bmad-build/step-05-present.md::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0060` | `candidate:blob:.claude/skills/bmad-build/step-oneshot.md::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0061` | `candidate:blob:.claude/skills/bmad-build-auto/step-04-review.md::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0062` | `candidate:blob:.claude/skills/bmad-code-review/steps/step-04-present.md::.claude/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-03#0063` | `candidate:blob:_bmad/custom/bmad-build.toml::_bmad/custom/bmad-build.toml` | `PASS` |
+| `AC-10.3-03#0064` | `candidate:blob:_bmad/custom/bmad-build-auto.toml::_bmad/custom/bmad-build-auto.toml` | `PASS` |
+| `AC-10.3-03#0065` | `candidate:blob:_bmad/custom/bmad-review.toml::_bmad/custom/bmad-review.toml` | `PASS` |
+| `AC-10.3-03#0066` | `candidate:blob:docs/runbooks/current-change-validation.md::docs/runbooks/current-change-validation.md` | `PASS` |
+| `AC-10.3-03#0067` | `candidate:blob:_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json::_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json` | `PASS` |
+| `AC-10.3-03#0068` | `authority:selection::_bmad-output/planning-artifacts/v9-authority-bundle-v1.json` | `PASS` |
+| `AC-10.3-03#0069` | `predecessor:10.2::10.2` | `PASS` |
+| `AC-10.3-03#0070` | `workflow:presence:.agents/skills/bmad-build/step-04-review.md::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0071` | `workflow:span:.agents/skills/bmad-build/step-04-review.md::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0072` | ``workflow:clause:.agents/skills/bmad-build/step-04-review.md:`FAIL`/`1`::.agents/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0073` | ``workflow:clause:.agents/skills/bmad-build/step-04-review.md:`BLOCKED`/`2`::.agents/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0074` | ``workflow:clause:.agents/skills/bmad-build/step-04-review.md:`not-applicable`/`0`::.agents/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0075` | `workflow:clause:.agents/skills/bmad-build/step-04-review.md:--verify-workflows::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0076` | `workflow:clause:.agents/skills/bmad-build/step-04-review.md:explicitly requires::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0077` | ``workflow:clause:.agents/skills/bmad-build/step-04-review.md:never write `review` or `done`::.agents/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0078` | `render:deterministic:.agents/skills:bmad-build::bmad-build` | `PASS` |
+| `AC-10.3-03#0079` | `render:gate:.agents/skills/bmad-build/step-04-review.md::.agents/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0080` | `workflow:presence:.agents/skills/bmad-build/step-05-present.md::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0081` | `workflow:span:.agents/skills/bmad-build/step-05-present.md::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0082` | ``workflow:clause:.agents/skills/bmad-build/step-05-present.md:`FAIL`/`1`::.agents/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-03#0083` | ``workflow:clause:.agents/skills/bmad-build/step-05-present.md:`BLOCKED`/`2`::.agents/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-03#0084` | ``workflow:clause:.agents/skills/bmad-build/step-05-present.md:`not-applicable`/`0`::.agents/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-03#0085` | `workflow:clause:.agents/skills/bmad-build/step-05-present.md:--verify-workflows::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0086` | `workflow:clause:.agents/skills/bmad-build/step-05-present.md:explicitly requires::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0087` | ``workflow:clause:.agents/skills/bmad-build/step-05-present.md:never write `review` or `done`::.agents/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-03#0088` | `render:gate:.agents/skills/bmad-build/step-05-present.md::.agents/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0089` | `workflow:presence:.agents/skills/bmad-build/step-oneshot.md::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0090` | `workflow:span:.agents/skills/bmad-build/step-oneshot.md::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0091` | ``workflow:clause:.agents/skills/bmad-build/step-oneshot.md:`FAIL`/`1`::.agents/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-03#0092` | ``workflow:clause:.agents/skills/bmad-build/step-oneshot.md:`BLOCKED`/`2`::.agents/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-03#0093` | ``workflow:clause:.agents/skills/bmad-build/step-oneshot.md:`not-applicable`/`0`::.agents/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-03#0094` | `workflow:clause:.agents/skills/bmad-build/step-oneshot.md:--verify-workflows::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0095` | `workflow:clause:.agents/skills/bmad-build/step-oneshot.md:explicitly requires::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0096` | ``workflow:clause:.agents/skills/bmad-build/step-oneshot.md:never write `review` or `done`::.agents/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-03#0097` | `render:gate:.agents/skills/bmad-build/step-oneshot.md::.agents/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0098` | `workflow:presence:.agents/skills/bmad-build-auto/step-04-review.md::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0099` | `workflow:span:.agents/skills/bmad-build-auto/step-04-review.md::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0100` | ``workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:`FAIL`/`1`::.agents/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0101` | ``workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:`BLOCKED`/`2`::.agents/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0102` | ``workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:`not-applicable`/`0`::.agents/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0103` | `workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:--verify-workflows::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0104` | `workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:explicitly requires::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0105` | ``workflow:clause:.agents/skills/bmad-build-auto/step-04-review.md:never write `review` or `done`::.agents/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0106` | `render:deterministic:.agents/skills:bmad-build-auto::bmad-build-auto` | `PASS` |
+| `AC-10.3-03#0107` | `render:gate:.agents/skills/bmad-build-auto/step-04-review.md::.agents/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0108` | `workflow:presence:.agents/skills/bmad-code-review/steps/step-04-present.md::.agents/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-03#0109` | `workflow:span:.agents/skills/bmad-code-review/steps/step-04-present.md::.agents/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-03#0110` | ``workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:`FAIL`/`1`::.agents/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-03#0111` | ``workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:`BLOCKED`/`2`::.agents/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-03#0112` | ``workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:`not-applicable`/`0`::.agents/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-03#0113` | `workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:--verify-workflows::.agents/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-03#0114` | `workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:explicitly requires::.agents/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-03#0115` | ``workflow:clause:.agents/skills/bmad-code-review/steps/step-04-present.md:never write `review` or `done`::.agents/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-03#0116` | `workflow:presence:.claude/skills/bmad-build/step-04-review.md::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0117` | `workflow:span:.claude/skills/bmad-build/step-04-review.md::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0118` | ``workflow:clause:.claude/skills/bmad-build/step-04-review.md:`FAIL`/`1`::.claude/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0119` | ``workflow:clause:.claude/skills/bmad-build/step-04-review.md:`BLOCKED`/`2`::.claude/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0120` | ``workflow:clause:.claude/skills/bmad-build/step-04-review.md:`not-applicable`/`0`::.claude/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0121` | `workflow:clause:.claude/skills/bmad-build/step-04-review.md:--verify-workflows::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0122` | `workflow:clause:.claude/skills/bmad-build/step-04-review.md:explicitly requires::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0123` | ``workflow:clause:.claude/skills/bmad-build/step-04-review.md:never write `review` or `done`::.claude/skills/bmad-build/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0124` | `render:deterministic:.claude/skills:bmad-build::bmad-build` | `PASS` |
+| `AC-10.3-03#0125` | `render:gate:.claude/skills/bmad-build/step-04-review.md::.claude/skills/bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0126` | `workflow:presence:.claude/skills/bmad-build/step-05-present.md::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0127` | `workflow:span:.claude/skills/bmad-build/step-05-present.md::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0128` | ``workflow:clause:.claude/skills/bmad-build/step-05-present.md:`FAIL`/`1`::.claude/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-03#0129` | ``workflow:clause:.claude/skills/bmad-build/step-05-present.md:`BLOCKED`/`2`::.claude/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-03#0130` | ``workflow:clause:.claude/skills/bmad-build/step-05-present.md:`not-applicable`/`0`::.claude/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-03#0131` | `workflow:clause:.claude/skills/bmad-build/step-05-present.md:--verify-workflows::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0132` | `workflow:clause:.claude/skills/bmad-build/step-05-present.md:explicitly requires::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0133` | ``workflow:clause:.claude/skills/bmad-build/step-05-present.md:never write `review` or `done`::.claude/skills/bmad-build/step-05-present.md`` | `PASS` |
+| `AC-10.3-03#0134` | `render:gate:.claude/skills/bmad-build/step-05-present.md::.claude/skills/bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0135` | `workflow:presence:.claude/skills/bmad-build/step-oneshot.md::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0136` | `workflow:span:.claude/skills/bmad-build/step-oneshot.md::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0137` | ``workflow:clause:.claude/skills/bmad-build/step-oneshot.md:`FAIL`/`1`::.claude/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-03#0138` | ``workflow:clause:.claude/skills/bmad-build/step-oneshot.md:`BLOCKED`/`2`::.claude/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-03#0139` | ``workflow:clause:.claude/skills/bmad-build/step-oneshot.md:`not-applicable`/`0`::.claude/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-03#0140` | `workflow:clause:.claude/skills/bmad-build/step-oneshot.md:--verify-workflows::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0141` | `workflow:clause:.claude/skills/bmad-build/step-oneshot.md:explicitly requires::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0142` | ``workflow:clause:.claude/skills/bmad-build/step-oneshot.md:never write `review` or `done`::.claude/skills/bmad-build/step-oneshot.md`` | `PASS` |
+| `AC-10.3-03#0143` | `render:gate:.claude/skills/bmad-build/step-oneshot.md::.claude/skills/bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0144` | `workflow:presence:.claude/skills/bmad-build-auto/step-04-review.md::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0145` | `workflow:span:.claude/skills/bmad-build-auto/step-04-review.md::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0146` | ``workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:`FAIL`/`1`::.claude/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0147` | ``workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:`BLOCKED`/`2`::.claude/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0148` | ``workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:`not-applicable`/`0`::.claude/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0149` | `workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:--verify-workflows::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0150` | `workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:explicitly requires::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0151` | ``workflow:clause:.claude/skills/bmad-build-auto/step-04-review.md:never write `review` or `done`::.claude/skills/bmad-build-auto/step-04-review.md`` | `PASS` |
+| `AC-10.3-03#0152` | `render:deterministic:.claude/skills:bmad-build-auto::bmad-build-auto` | `PASS` |
+| `AC-10.3-03#0153` | `render:gate:.claude/skills/bmad-build-auto/step-04-review.md::.claude/skills/bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0154` | `workflow:presence:.claude/skills/bmad-code-review/steps/step-04-present.md::.claude/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-03#0155` | `workflow:span:.claude/skills/bmad-code-review/steps/step-04-present.md::.claude/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-03#0156` | ``workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:`FAIL`/`1`::.claude/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-03#0157` | ``workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:`BLOCKED`/`2`::.claude/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-03#0158` | ``workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:`not-applicable`/`0`::.claude/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-03#0159` | `workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:--verify-workflows::.claude/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-03#0160` | `workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:explicitly requires::.claude/skills/bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-03#0161` | ``workflow:clause:.claude/skills/bmad-code-review/steps/step-04-present.md:never write `review` or `done`::.claude/skills/bmad-code-review/steps/step-04-present.md`` | `PASS` |
+| `AC-10.3-03#0162` | `workflow:twins:bmad-build/step-04-review.md::bmad-build/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0163` | `workflow:twins:bmad-build/step-05-present.md::bmad-build/step-05-present.md` | `PASS` |
+| `AC-10.3-03#0164` | `workflow:twins:bmad-build/step-oneshot.md::bmad-build/step-oneshot.md` | `PASS` |
+| `AC-10.3-03#0165` | `workflow:twins:bmad-build-auto/step-04-review.md::bmad-build-auto/step-04-review.md` | `PASS` |
+| `AC-10.3-03#0166` | `workflow:twins:bmad-code-review/steps/step-04-present.md::bmad-code-review/steps/step-04-present.md` | `PASS` |
+| `AC-10.3-03#0167` | `route:retired:.agents/skills/bmad-dev-story::.agents/skills/bmad-dev-story` | `PASS` |
+| `AC-10.3-03#0168` | `route:retired:.agents/skills/bmad-quick-dev::.agents/skills/bmad-quick-dev` | `PASS` |
+| `AC-10.3-03#0169` | `route:retired:.claude/skills/bmad-dev-story::.claude/skills/bmad-dev-story` | `PASS` |
+| `AC-10.3-03#0170` | `route:retired:.claude/skills/bmad-quick-dev::.claude/skills/bmad-quick-dev` | `PASS` |
+| `AC-10.3-03#0171` | `guidance:resolved:bmad-build::bmad-build` | `PASS` |
+| `AC-10.3-03#0172` | `guidance:resolved:bmad-build-auto::bmad-build-auto` | `PASS` |
+| `AC-10.3-03#0173` | `guidance:resolved:bmad-review::bmad-review` | `PASS` |
+| `AC-10.3-03#0174` | `guidance:file:_bmad/custom/bmad-build.toml::_bmad/custom/bmad-build.toml` | `PASS` |
+| `AC-10.3-03#0175` | `guidance:file:_bmad/custom/bmad-build-auto.toml::_bmad/custom/bmad-build-auto.toml` | `PASS` |
+| `AC-10.3-03#0176` | `guidance:file:_bmad/custom/bmad-review.toml::_bmad/custom/bmad-review.toml` | `PASS` |
+| `AC-10.3-03#0177` | `guidance:file:docs/runbooks/current-change-validation.md::docs/runbooks/current-change-validation.md` | `PASS` |
+| `AC-10.3-03#0178` | `completion:presence_checks:0::.agents/skills/bmad-build-auto/step-04-review.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-03#0179` | `completion:presence_checks:1::.agents/skills/bmad-build-auto/step-04-review.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-03#0180` | `completion:presence_checks:2::.agents/skills/bmad-build-auto/step-04-review.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-03#0181` | `completion:presence_checks:3::.agents/skills/bmad-build/step-05-present.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-03#0182` | `completion:presence_checks:4::.agents/skills/bmad-build/step-05-present.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-03#0183` | `completion:presence_checks:5::.agents/skills/bmad-build/step-05-present.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-03#0184` | `completion:presence_checks:6::.agents/skills/bmad-build/step-oneshot.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-03#0185` | `completion:presence_checks:7::.agents/skills/bmad-build/step-oneshot.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-03#0186` | `completion:presence_checks:8::.agents/skills/bmad-build/step-oneshot.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-03#0187` | `completion:presence_checks:9::.agents/skills/bmad-code-review/steps/step-04-present.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-03#0188` | `completion:presence_checks:10::.agents/skills/bmad-code-review/steps/step-04-present.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-03#0189` | `completion:presence_checks:11::.agents/skills/bmad-code-review/steps/step-04-present.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-03#0190` | `completion:presence_checks:12::.claude/skills/bmad-build-auto/step-04-review.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-03#0191` | `completion:presence_checks:13::.claude/skills/bmad-build-auto/step-04-review.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-03#0192` | `completion:presence_checks:14::.claude/skills/bmad-build-auto/step-04-review.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-03#0193` | `completion:presence_checks:15::.claude/skills/bmad-build/step-05-present.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-03#0194` | `completion:presence_checks:16::.claude/skills/bmad-build/step-05-present.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-03#0195` | `completion:presence_checks:17::.claude/skills/bmad-build/step-05-present.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-03#0196` | `completion:presence_checks:18::.claude/skills/bmad-build/step-oneshot.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-03#0197` | `completion:presence_checks:19::.claude/skills/bmad-build/step-oneshot.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-03#0198` | `completion:presence_checks:20::.claude/skills/bmad-build/step-oneshot.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-03#0199` | `completion:presence_checks:21::.claude/skills/bmad-code-review/steps/step-04-present.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-03#0200` | `completion:presence_checks:22::.claude/skills/bmad-code-review/steps/step-04-present.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-03#0201` | `completion:presence_checks:23::.claude/skills/bmad-code-review/steps/step-04-present.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-03#0202` | `completion:presence_checks:24::render:.claude/skills/bmad-build-auto/step-04-review.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-03#0203` | `completion:presence_checks:25::render:.claude/skills/bmad-build-auto/step-04-review.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-03#0204` | `completion:presence_checks:26::render:.claude/skills/bmad-build-auto/step-04-review.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-03#0205` | `completion:presence_checks:27::render:.claude/skills/bmad-build/step-05-present.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-03#0206` | `completion:presence_checks:28::render:.claude/skills/bmad-build/step-05-present.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-03#0207` | `completion:presence_checks:29::render:.claude/skills/bmad-build/step-05-present.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-03#0208` | `completion:presence_checks:30::render:.claude/skills/bmad-build/step-oneshot.md::completion-gate-block-present` | `PASS` |
+| `AC-10.3-03#0209` | `completion:presence_checks:31::render:.claude/skills/bmad-build/step-oneshot.md::generator-invocation-in-block` | `PASS` |
+| `AC-10.3-03#0210` | `completion:presence_checks:32::render:.claude/skills/bmad-build/step-oneshot.md::block-in-gate-span-before-transition` | `PASS` |
+| `AC-10.3-03#0211` | `completion:parity_checks:0::.agents/skills/bmad-build-auto/step-04-review.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-03#0212` | `completion:parity_checks:1::.agents/skills/bmad-build-auto/step-04-review.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-03#0213` | `completion:parity_checks:2::.agents/skills/bmad-build/step-05-present.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-03#0214` | `completion:parity_checks:3::.agents/skills/bmad-build/step-05-present.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-03#0215` | `completion:parity_checks:4::.agents/skills/bmad-build/step-oneshot.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-03#0216` | `completion:parity_checks:5::.agents/skills/bmad-build/step-oneshot.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-03#0217` | `completion:parity_checks:6::.agents/skills/bmad-code-review/steps/step-04-present.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-03#0218` | `completion:parity_checks:7::.agents/skills/bmad-code-review/steps/step-04-present.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-03#0219` | `completion:parity_checks:8::.claude/skills/bmad-build-auto/step-04-review.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-03#0220` | `completion:parity_checks:9::.claude/skills/bmad-build-auto/step-04-review.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-03#0221` | `completion:parity_checks:10::.claude/skills/bmad-build/step-05-present.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-03#0222` | `completion:parity_checks:11::.claude/skills/bmad-build/step-05-present.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-03#0223` | `completion:parity_checks:12::.claude/skills/bmad-build/step-oneshot.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-03#0224` | `completion:parity_checks:13::.claude/skills/bmad-build/step-oneshot.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-03#0225` | `completion:parity_checks:14::.claude/skills/bmad-code-review/steps/step-04-present.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-03#0226` | `completion:parity_checks:15::.claude/skills/bmad-code-review/steps/step-04-present.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-03#0227` | `completion:parity_checks:16::render:.claude/skills/bmad-build-auto/step-04-review.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-03#0228` | `completion:parity_checks:17::render:.claude/skills/bmad-build-auto/step-04-review.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-03#0229` | `completion:parity_checks:18::render:.claude/skills/bmad-build/step-05-present.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-03#0230` | `completion:parity_checks:19::render:.claude/skills/bmad-build/step-05-present.md::block-states-gate-contract` | `PASS` |
+| `AC-10.3-03#0231` | `completion:parity_checks:20::render:.claude/skills/bmad-build/step-oneshot.md::block-bytes-identical-across-surfaces` | `PASS` |
+| `AC-10.3-03#0232` | `completion:parity_checks:21::render:.claude/skills/bmad-build/step-oneshot.md::block-states-gate-contract` | `PASS` |
+
+### `AC-10.3-04`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k workflow_tree_and_render_parity --junitxml=artifacts/v9/10.3/AC-10.3-04.xml`
+
+| Bound output | SHA-256 |
+| --- | --- |
+| `artifacts/v9/10.3/AC-10.3-04.xml` | `88529ac63f6ca7f40eab4be648c068df2b761bee9c0e75e31ede874fd9187c15` |
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-10.3-04#0001` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_workflow_tree_and_render_parity` | `PASS` |
+
+### `AC-10.3-05`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k not_applicable_is_not_pass --junitxml=artifacts/v9/10.3/AC-10.3-05.xml`
+
+| Bound output | SHA-256 |
+| --- | --- |
+| `artifacts/v9/10.3/AC-10.3-05.xml` | `1246d0f4cac6284034fa9dc92a008db1ce0a736618824aedd375fbd3084bceab` |
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-10.3-05#0001` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_not_applicable_is_not_pass` | `PASS` |
+| `AC-10.3-05#0002` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_not_applicable_is_not_pass_missing_history` | `PASS` |
+
+### `AC-10.3-06`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k lifecycle_transition_semantics --junitxml=artifacts/v9/10.3/AC-10.3-06.xml`
+
+| Bound output | SHA-256 |
+| --- | --- |
+| `artifacts/v9/10.3/AC-10.3-06.xml` | `c008e8bfdb84a8ba3aa8914949579c8f85bf0af3ef01707af73c9d4c1bc16af2` |
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-10.3-06#0001` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_lifecycle_transition_semantics[PASS-0-True]` | `PASS` |
+| `AC-10.3-06#0002` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_lifecycle_transition_semantics[FAIL-1-False]` | `PASS` |
+| `AC-10.3-06#0003` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_lifecycle_transition_semantics[BLOCKED-2-False]` | `PASS` |
+| `AC-10.3-06#0004` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_lifecycle_transition_semantics[not-applicable-0-True]` | `PASS` |
+| `AC-10.3-06#0005` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_lifecycle_transition_semantics[PASS-1-False]` | `PASS` |
+| `AC-10.3-06#0006` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_lifecycle_transition_semantics[FAIL-0-False]` | `PASS` |
+| `AC-10.3-06#0007` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_lifecycle_transition_semantics[BLOCKED-0-False]` | `PASS` |
+| `AC-10.3-06#0008` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_lifecycle_transition_semantics[not-applicable-1-False]` | `PASS` |
+| `AC-10.3-06#0009` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_lifecycle_transition_semantics_rejects_forged_not_applicable[blockers]` | `PASS` |
+| `AC-10.3-06#0010` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_lifecycle_transition_semantics_rejects_forged_not_applicable[failed-row]` | `PASS` |
+| `AC-10.3-06#0011` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_lifecycle_transition_semantics_rejects_forged_not_applicable[skipped-row]` | `PASS` |
+| `AC-10.3-06#0012` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_lifecycle_transition_semantics_rejects_forged_not_applicable[unknown-code]` | `PASS` |
+| `AC-10.3-06#0013` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_lifecycle_transition_semantics_rejects_forged_not_applicable[non-object]` | `PASS` |
+
+### `AC-10.3-07`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k invocation_removal_and_displacement --junitxml=artifacts/v9/10.3/AC-10.3-07.xml`
+
+| Bound output | SHA-256 |
+| --- | --- |
+| `artifacts/v9/10.3/AC-10.3-07.xml` | `60fcce9b025ca30e1391441b336faa1c938baed3fe840cb910699ce04f3ec134` |
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-10.3-07#0001` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_invocation_removal_and_displacement[remove-EVIDENCE_GATE_NOT_USED]` | `PASS` |
+| `AC-10.3-07#0002` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_invocation_removal_and_displacement[malformed-EVIDENCE_GATE_NOT_USED]` | `PASS` |
+| `AC-10.3-07#0003` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_invocation_removal_and_displacement[displace-EVIDENCE_GATE_DISPLACED]` | `PASS` |
+| `AC-10.3-07#0004` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_invocation_removal_and_displacement[retired-EVIDENCE_ALIAS_ROUTE_BROKEN]` | `PASS` |
+| `AC-10.3-07#0005` | `_bmad.scripts.tests.test_verify_evidence_boundary::test_invocation_removal_and_displacement[guidance-EVIDENCE_GUIDANCE_NOT_BOUND]` | `PASS` |
+
+### `AC-10.3-08`
+
+Command: `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/story-10.3-current-contract-v1.json --format bundle --output-json docs/release-evidence/story-10.3-final-record-v2.json --output-markdown docs/release-evidence/story-10.3-final-record-v2.md`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-10.3-08#0001` | `effective-contract-and-original-provenance` | `PASS` |
+| `AC-10.3-08#0002` | `shared-verifier-and-current-route-checks` | `PASS` |
+| `AC-10.3-08#0003` | `verified-10.2-predecessor-pair` | `PASS` |
+| `AC-10.3-08#0004` | `seven-candidate-bound-receipts` | `PASS` |
+| `AC-10.3-08#0005` | `closed-schema-and-deterministic-pair` | `PASS` |
+
+## Fault injection
+
+18 observed mutation results are bound to the retained receipts.
+
+| Fault | Expected blocker | Observed blockers | Before SHA-256 | After SHA-256 | Restored |
+| --- | --- | --- | --- | --- | --- |
+| `test_stable_code_contract_bridge_faults[hash-EVIDENCE_HASH_MISMATCH]` | `EVIDENCE_HASH_MISMATCH` | `EVIDENCE_HASH_MISMATCH` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `True` |
+| `test_stable_code_contract_bridge_faults[path-EVIDENCE_PATH_ESCAPE]` | `EVIDENCE_PATH_ESCAPE` | `EVIDENCE_PATH_ESCAPE` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `True` |
+| `test_stable_code_contract_bridge_faults[missing-EVIDENCE_FILE_MISSING]` | `EVIDENCE_FILE_MISSING` | `EVIDENCE_FILE_MISSING` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `True` |
+| `test_stable_code_contract_bridge_faults[output-EVIDENCE_OUTPUT_FORBIDDEN]` | `EVIDENCE_OUTPUT_FORBIDDEN` | `EVIDENCE_OUTPUT_FORBIDDEN` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `True` |
+| `test_stable_code_contract_bridge_faults[signable-SIGNABLE_PAYLOAD_MISMATCH]` | `SIGNABLE_PAYLOAD_MISMATCH` | `SIGNABLE_PAYLOAD_MISMATCH` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `True` |
+| `test_stable_code_contract_bridge_faults[subset-CHANGED_PATH_SET_MISMATCH]` | `CHANGED_PATH_SET_MISMATCH` | `CHANGED_PATH_SET_MISMATCH` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `True` |
+| `test_stable_code_contract_bridge_faults[superset-CHANGED_PATH_SET_MISMATCH]` | `CHANGED_PATH_SET_MISMATCH` | `CHANGED_PATH_SET_MISMATCH` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `True` |
+| `test_stable_code_contract_bridge_faults[roots-ROOT_OF_TRUST_NOT_PINNED]` | `ROOT_OF_TRUST_NOT_PINNED` | `ROOT_OF_TRUST_NOT_PINNED` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `True` |
+| `test_stable_code_contract_bridge_faults[allowlist-SIGNED_EVIDENCE_ALLOWLISTED]` | `SIGNED_EVIDENCE_ALLOWLISTED` | `SIGNED_EVIDENCE_ALLOWLISTED` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `True` |
+| `test_stable_code_contract_bridge_faults[history-REVISION_INVALID]` | `REVISION_INVALID` | `REVISION_INVALID` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `48aa6cae8c70abdb28631d22b316e6d9f9d0768ec2911de7090e248b2afe6ca1` | `True` |
+| `test_stable_code_contract_changed_reader_requires_real_helpers[comment-spoof-EVIDENCE_READER_NOT_SHARED]` | `EVIDENCE_READER_NOT_SHARED` | `EVIDENCE_READER_NOT_SHARED, EVIDENCE_READER_STRENGTH_REDUCED` | `45db39a202bbf776a979f96ee71c14894650c12e8aef4240c4d325bbbd7b4ff6` | `45db39a202bbf776a979f96ee71c14894650c12e8aef4240c4d325bbbd7b4ff6` | `True` |
+| `test_stable_code_contract_changed_reader_requires_real_helpers[assertion-removal-EVIDENCE_READER_STRENGTH_REDUCED]` | `EVIDENCE_READER_STRENGTH_REDUCED` | `EVIDENCE_READER_STRENGTH_REDUCED` | `45db39a202bbf776a979f96ee71c14894650c12e8aef4240c4d325bbbd7b4ff6` | `45db39a202bbf776a979f96ee71c14894650c12e8aef4240c4d325bbbd7b4ff6` | `True` |
+| `test_stable_code_contract_raw_gitlink_is_never_filtered` | `EVIDENCE_BOUNDARY_GITLINK` | `EVIDENCE_BOUNDARY_GITLINK` | `210d7ddca77375c876f9007146f923112deb7a5a5734f482c331060089c5f974` | `210d7ddca77375c876f9007146f923112deb7a5a5734f482c331060089c5f974` | `True` |
+| `test_invocation_removal_and_displacement[remove-EVIDENCE_GATE_NOT_USED]` | `EVIDENCE_GATE_NOT_USED` | `EVIDENCE_GATE_NOT_USED, EVIDENCE_WORKFLOW_PARITY_DRIFT` | `3dcd8846162812558b1bcd2c3bf937bba87725aa8273699b8dd6bbc082fb3099` | `3dcd8846162812558b1bcd2c3bf937bba87725aa8273699b8dd6bbc082fb3099` | `True` |
+| `test_invocation_removal_and_displacement[malformed-EVIDENCE_GATE_NOT_USED]` | `EVIDENCE_GATE_NOT_USED` | `EVIDENCE_GATE_NOT_USED, EVIDENCE_WORKFLOW_PARITY_DRIFT` | `3dcd8846162812558b1bcd2c3bf937bba87725aa8273699b8dd6bbc082fb3099` | `3dcd8846162812558b1bcd2c3bf937bba87725aa8273699b8dd6bbc082fb3099` | `True` |
+| `test_invocation_removal_and_displacement[displace-EVIDENCE_GATE_DISPLACED]` | `EVIDENCE_GATE_DISPLACED` | `EVIDENCE_GATE_DISPLACED, EVIDENCE_WORKFLOW_PARITY_DRIFT` | `3dcd8846162812558b1bcd2c3bf937bba87725aa8273699b8dd6bbc082fb3099` | `3dcd8846162812558b1bcd2c3bf937bba87725aa8273699b8dd6bbc082fb3099` | `True` |
+| `test_invocation_removal_and_displacement[retired-EVIDENCE_ALIAS_ROUTE_BROKEN]` | `EVIDENCE_ALIAS_ROUTE_BROKEN` | `EVIDENCE_ALIAS_ROUTE_BROKEN` | `3dcd8846162812558b1bcd2c3bf937bba87725aa8273699b8dd6bbc082fb3099` | `3dcd8846162812558b1bcd2c3bf937bba87725aa8273699b8dd6bbc082fb3099` | `True` |
+| `test_invocation_removal_and_displacement[guidance-EVIDENCE_GUIDANCE_NOT_BOUND]` | `EVIDENCE_GUIDANCE_NOT_BOUND` | `EVIDENCE_GUIDANCE_NOT_BOUND` | `3dcd8846162812558b1bcd2c3bf937bba87725aa8273699b8dd6bbc082fb3099` | `3dcd8846162812558b1bcd2c3bf937bba87725aa8273699b8dd6bbc082fb3099` | `True` |
+
+## Outputs
+
+| Output | Path |
+| --- | --- |
+| JSON | `docs/release-evidence/story-10.3-final-record-v2.json` |
+| Markdown | `docs/release-evidence/story-10.3-final-record-v2.md` |
+
+## Rollback boundary
+
+remove Story 10.3 scoped verifier, bridge, ten workflow insertions, current binding/contract, receipts and final record as one unit; retain Stories 10.1 and 10.2 and frozen provenance.
+
+## Summary
+
+| Required | Passed | Failed | Blocked | Skipped | Not run |
+| --- | --- | --- | --- | --- | --- |
+| `8` | `8` | `0` | `0` | `0` | `0` |
+<!-- STORY-FINAL-RECORD:END -->
