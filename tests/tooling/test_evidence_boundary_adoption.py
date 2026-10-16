@@ -81,6 +81,7 @@ def test_complete_fault_matrix_integrity(adoption_git,fault,code,record_property
     try: observed=current.bridge(root,request)
     finally:
         (root/'evidence.txt').write_bytes(original);(root/'.git/index').write_bytes(index);(root/'roots.cs').unlink(missing_ok=True)
+    assert observed['blockers']==[code]
     observed_fault(record_property,fault,code,observed,hashlib.sha256(original+index).hexdigest(),
         hashlib.sha256((root/'evidence.txt').read_bytes()+(root/'.git/index').read_bytes()).hexdigest())
 
@@ -101,6 +102,7 @@ def test_complete_fault_matrix_chain(adoption_git,fault,code,record_property):
         path.write_text(changed)
         observed=current.bridge(root,dict(baseline=before,candidate=candidate,chains=[dict(id='frozen-chain',source=path.read_text(),begin=begin,end=end,rows=rows)]))
     finally:path.write_text(original)
+    assert observed['blockers']==[code]
     observed_fault(record_property,fault,code,observed,digest,hashlib.sha256(path.read_bytes()).hexdigest())
 
 @pytest.mark.parametrize('fault,code',[

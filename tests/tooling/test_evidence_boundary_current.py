@@ -756,8 +756,11 @@ def withdrawn_source_repository(tmp_path, *, edited_xml=False):
     subprocess.run(['git','clone','--quiet','--local','--no-hardlinks',str(ROOT),str(root)],check=True,capture_output=True)
     subprocess.run(['git','-C',str(root),'checkout','--quiet',current.BASELINE],check=True,capture_output=True)
     binding=json.loads((ROOT/current.BINDING).read_bytes())
+    # Reproduce the accepted 10.3 source, independent of later shared-helper and
+    # project-guidance changes. The live checker still evaluates this fixture.
+    source_candidate=json.loads((ROOT/'docs/release-evidence/story-10.3-final-record-v2.json').read_bytes())['candidate']['commit']
     for path in binding['sourcePaths']:
-        (root/path).write_bytes((ROOT/path).read_bytes())
+        (root/path).write_bytes(subprocess.check_output(['git','-C',str(ROOT),'show',source_candidate+':'+path]))
     import generate_story_record as generator
     spec=root/generator.V2_10_3_SPEC
     source=spec.read_bytes()

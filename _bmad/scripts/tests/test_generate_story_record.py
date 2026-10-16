@@ -11474,6 +11474,12 @@ def story103_receipt_repository(tmp_path,monkeypatch):
     contract=json.loads((WORKSPACE/generator.V2_10_3_CONTRACT).read_bytes())
     for path in set(binding['sourcePaths'])|set(current.HISTORICAL_PROVENANCE)|{current.SCHEMA}:
         target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((WORKSPACE/path).read_bytes())
+    # Preserve the accepted story's provenance despite later bridge/guidance adoption.
+    # Its before-consumer hash and unrelated sprint rows must not follow the live tree.
+    for path, revision in ((current.CURRENT_PROVENANCE, current.BASELINE),
+            ('_bmad-output/implementation-artifacts/sprint-status.yaml', current.BASELINE)):
+        (repository/path).write_bytes(subprocess.run(['git','-C',str(WORKSPACE),'show',revision+':'+path],
+            check=True,capture_output=True,env=V2_GIT_ENV,timeout=30).stdout)
     (repository/generator.V2_10_3_SPEC).write_bytes(story103_unpublished_spec_fixture(generator))
     run_git(repository,'init','--quiet');run_git(repository,'add','--all')
     for path,commit in generator.v2_raw_gitlinks(WORKSPACE,current.BASELINE):

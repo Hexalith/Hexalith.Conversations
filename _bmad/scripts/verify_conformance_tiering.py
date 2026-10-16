@@ -168,7 +168,7 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
     if helper_path in declared:
         approved = sorted([*approved, helper_path])
     require(declared == approved,
-            "PORTABLE_TIER_NONPORTABLE_REFERENCE", "Portable declared references must be the three approved shipped surfaces and the optional neutral TestSupport helper.")
+            "PORTABLE_TIER_NONPORTABLE_REFERENCE", "Portable declared references must be the three approved shipped surfaces.")
     queue = list(declared)
     seen: dict[str, dict[str, Any]] = {}
     project_outputs: dict[str, set[Path]] = {}
