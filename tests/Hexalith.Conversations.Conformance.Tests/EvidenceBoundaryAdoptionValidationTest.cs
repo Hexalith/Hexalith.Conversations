@@ -16,7 +16,7 @@ public sealed class EvidenceBoundaryAdoptionValidationTest(ITestOutputHelper out
 
     /// <summary>AC-01 preserves the exact 27-reader inventory.</summary>
     [Fact]
-    public void FrozenReaderInventoryShouldRemainExact() => Check("readers");
+    public void ReaderInventoryShouldMatchFrozenSet() => Check("readers");
 
     /// <summary>AC-02 compares full expressions, fixtures and constants through exact substitutions.</summary>
     [Fact]
