@@ -679,7 +679,7 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
         string repositoryRelativePath,
         out string sha256)
     {
-        GitFact<GitBlob> blob = new GitFacts().ReadBlobAsync(repositoryRoot, revision, repositoryRelativePath).GetAwaiter().GetResult();
+        GitFact<GitBlob> blob = new GitFacts().ReadRegularBlobAsync(repositoryRoot, revision, repositoryRelativePath).GetAwaiter().GetResult();
         sha256 = blob.Value?.Sha256 ?? string.Empty;
         return blob.IsSuccess;
     }

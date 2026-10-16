@@ -162,3 +162,36 @@ def test_complete_fault_matrix_readers(tmp_path,fault,code,record_property):
         assert set(observed['blockers'])==({code,'ASSERTION_STRENGTH_WEAKENED'} if fault=='READER_HELPER' else {code})
     finally:path.write_bytes(original);binding=frozen
     observed_fault(record_property,fault,code,observed,hashlib.sha256(original).hexdigest(),hashlib.sha256(path.read_bytes()).hexdigest())
+
+
+def test_adoption_output_hardlink_cannot_overwrite_a_source(adoption_git,monkeypatch,capsys):
+    root,before,candidate=adoption_git
+    output=root/'artifacts/v9/10.4/AC-10.4-09.json';output.parent.mkdir(parents=True,exist_ok=True)
+    source=root/'evidence.txt';original=source.read_bytes()
+    output.hardlink_to(source)
+    result=current.empty_result(candidate);result['assertionLedger']=[dict(id='fixture',subject='fixture',state='PASS')]
+    result=adoption.finish(result)
+    monkeypatch.setattr(adoption,'verify',lambda *args,**kwargs:copy.deepcopy(result))
+    try:
+        assert adoption.main(['--repository',str(root),'--candidate',candidate,'--output',output.relative_to(root).as_posix()])==1
+        observed=json.loads(capsys.readouterr().out)
+        assert observed['blockers']==['EVIDENCE_OUTPUT_FORBIDDEN']
+        assert source.read_bytes()==original
+    finally:output.unlink()
+
+
+@pytest.mark.parametrize('fault',['package','project','assembly','publish'])
+def test_neutral_helper_portable_surface_stays_closed(tmp_path,monkeypatch,fault):
+    import verify_conformance_tiering as tiering
+    project=tmp_path/tiering.PROJECTS['portable'];project.parent.mkdir(parents=True);project.write_text('<Project />')
+    helper='tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj'
+    paths=[f'src/{name}/{name}.csproj' for name in ('Hexalith.Conversations.Client','Hexalith.Conversations.Contracts','Hexalith.Conversations.Testing')]+[helper]
+    initial=[dict(FullPath=str(tmp_path/path),DefiningProjectFullPath=str(project)) for path in paths]
+    graph=dict(Properties=dict(AssemblyName='Hexalith.Conversations.TestSupport',IsPackable='false',IsPublishable='false'),
+        Items=dict(ProjectReference=[],PackageReference=[],Reference=[],ReferencePath=[],FrameworkReference=[dict(Identity='Microsoft.NETCore.App',IsImplicitlyDefined='true')]))
+    if fault=='publish':graph['Properties']['IsPublishable']='true'
+    else:graph['Items'][{'package':'PackageReference','project':'ProjectReference','assembly':'Reference'}[fault]]=[dict(Identity='forbidden')]
+    monkeypatch.setattr(tiering,'msbuild',lambda *args,**kwargs:graph)
+    with pytest.raises(tiering.VerificationError) as caught:
+        tiering.portable_surface(tmp_path,dict(portable=dict(Items=dict(ProjectReference=initial))))
+    assert caught.value.code=='PORTABLE_TIER_NONPORTABLE_REFERENCE'

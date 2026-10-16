@@ -407,7 +407,7 @@
         {
           "kind": "method:ReadGitBlobBytes",
           "before": "    private static bool ReadGitBlobBytes(string repository, string revision, string relativePath, out byte[] bytes)\n    {\n        if (!ReadGitTreeMode(repository, revision, relativePath, out string mode) || mode is not (\"100644\" or \"100755\"))\n        {\n            bytes = [];\n            return false;\n        }\n\n        var startInfo = new ProcessStartInfo(\"git\")\n        {\n            WorkingDirectory = repository,\n            RedirectStandardOutput = true,\n            RedirectStandardError = true,\n            UseShellExecute = false,\n        };\n        startInfo.ArgumentList.Add(\"cat-file\");\n        startInfo.ArgumentList.Add(\"blob\");\n        startInfo.ArgumentList.Add($\"{revision}:{relativePath.Replace('\\\\', '/')}\");\n\n        using Process process = Process.Start(startInfo)!;\n        using var output = new MemoryStream();\n        Task copy = process.StandardOutput.BaseStream.CopyToAsync(output);\n        string error = process.StandardError.ReadToEnd();\n        process.WaitForExit();\n        copy.GetAwaiter().GetResult();\n        bytes = output.ToArray();\n        return process.ExitCode == 0 && string.IsNullOrEmpty(error);\n    }",
-          "after": "    private static bool ReadGitBlobBytes(string repository, string revision, string relativePath, out byte[] bytes)\n    {\n        GitFact<GitBlob> fact = new GitFacts().ReadBlobAsync(repository, revision, relativePath.Replace('\\\\', '/')).GetAwaiter().GetResult();\n        bytes = fact.Value?.Content ?? [];\n        return fact.IsSuccess;\n    }",
+          "after": "    private static bool ReadGitBlobBytes(string repository, string revision, string relativePath, out byte[] bytes)\n    {\n        GitFact<GitBlob> fact = new GitFacts().ReadRegularBlobAsync(repository, revision, relativePath.Replace('\\\\', '/')).GetAwaiter().GetResult();\n        bytes = fact.Value?.Content ?? [];\n        return fact.IsSuccess;\n    }",
           "count": 1
         },
         {
@@ -418,7 +418,7 @@
         }
       ],
       "indirectConsumers": [],
-      "afterSha256": "2b8192ec956d3020cfd41ebdfd386265bfc3883a72dfa6f362cf29d61fa5b593"
+      "afterSha256": "dda8bc0c5d18a376dc58f87cb8254208c069defee1a6514c2aa88354b961bfaa"
     },
     {
       "path": "tests/Hexalith.Conversations.Conformance.Tests/PublicContractShapeSnapshotGenerationTest.cs",
@@ -438,6 +438,12 @@
           "count": 2
         },
         {
+          "kind": "method:TemporaryRead",
+          "before": "string readBack = RepositoryLocator.ReadAllText(path);",
+          "after": "string readBack = File.ReadAllText(path);",
+          "count": 1
+        },
+        {
           "kind": "using",
           "before": "namespace Hexalith.Conversations.",
           "after": "using Hexalith.Conversations.TestSupport;\n\nnamespace Hexalith.Conversations.",
@@ -445,7 +451,7 @@
         }
       ],
       "indirectConsumers": [],
-      "afterSha256": "5067ed76c95e4be412e2342bc145c96363a16b9d8daf2a58ba85fbc2738694cd"
+      "afterSha256": "1cffe905f4eb85bedc9e06aec6fb2b9b8cd702e1ffbb8cd7651970e3c802c08b"
     },
     {
       "path": "tests/Hexalith.Conversations.Conformance.Tests/ReleaseBaselineValidationTest.cs",
@@ -661,7 +667,7 @@
         {
           "kind": "method:TryReadGitBlobSha256In",
           "before": "    private static bool TryReadGitBlobSha256In(\n        string repositoryRoot,\n        string revision,\n        string repositoryRelativePath,\n        out string sha256)\n    {\n        sha256 = string.Empty;\n\n        if (!TryRunGitIn(repositoryRoot, out string treeEntry, \"ls-tree\", \"--full-tree\", revision, \"--\", repositoryRelativePath))\n        {\n            return false;\n        }\n\n        string[] entries = treeEntry.Split('\\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);\n        if (entries.Length != 1 || entries[0].Split(' ', 2, StringSplitOptions.None)[0] is not (\"100644\" or \"100755\"))\n        {\n            return false;\n        }\n\n        if (!TryStartGit(CreateGitStartInfo(repositoryRoot, \"cat-file\", \"blob\", $\"{revision}:{repositoryRelativePath}\"), out Process? process, out _))\n        {\n            return false;\n        }\n\n        using Process started = process;\n        using MemoryStream buffer = new();\n\n        // Drain stderr concurrently: reading stdout to completion first deadlocks whenever git fills\n        // the stderr pipe (warnings are emitted per file and can exceed the pipe buffer).\n        Task<string> errorTask = started.StandardError.ReadToEndAsync();\n        started.StandardOutput.BaseStream.CopyTo(buffer);\n        WaitForGitExit(started, \"cat-file\", \"blob\", $\"{revision}:{repositoryRelativePath}\");\n        errorTask.Wait(GitTimeout);\n\n        if (started.ExitCode != 0)\n        {\n            return false;\n        }\n\n        sha256 = Convert.ToHexString(SHA256.HashData(buffer.ToArray())).ToLowerInvariant();\n        return true;\n    }",
-          "after": "    private static bool TryReadGitBlobSha256In(\n        string repositoryRoot,\n        string revision,\n        string repositoryRelativePath,\n        out string sha256)\n    {\n        GitFact<GitBlob> blob = new GitFacts().ReadBlobAsync(repositoryRoot, revision, repositoryRelativePath).GetAwaiter().GetResult();\n        sha256 = blob.Value?.Sha256 ?? string.Empty;\n        return blob.IsSuccess;\n    }",
+          "after": "    private static bool TryReadGitBlobSha256In(\n        string repositoryRoot,\n        string revision,\n        string repositoryRelativePath,\n        out string sha256)\n    {\n        GitFact<GitBlob> blob = new GitFacts().ReadRegularBlobAsync(repositoryRoot, revision, repositoryRelativePath).GetAwaiter().GetResult();\n        sha256 = blob.Value?.Sha256 ?? string.Empty;\n        return blob.IsSuccess;\n    }",
           "count": 1
         },
         {
@@ -708,7 +714,7 @@
         }
       ],
       "indirectConsumers": [],
-      "afterSha256": "ee3374c8247366b875a5aa5b7b52517f27344fb367fd31d99c6cba5b403d6708"
+      "afterSha256": "0086701098764ee298aac23c8966f424fdc918b4d924de55b129ec9b824ac374"
     },
     {
       "path": "tests/Hexalith.Conversations.Contracts.Tests/Conformance/ConformanceManifestContractTest.cs",

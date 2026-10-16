@@ -25,6 +25,27 @@ public sealed class AdoptionSeamTests
         }
     }
 
+    /// <summary>Regular evidence reads reject raw symbolic-link and gitlink tree modes.</summary>
+    [Fact]
+    public async Task RegularBlobReadsShouldPreserveHistoricalModeChecks()
+    {
+        using GitFixture fixture = new();
+        File.WriteAllText(Path.Combine(fixture.Root, "regular.txt"), "regular");
+        string regular = fixture.Commit();
+        File.WriteAllText(Path.Combine(fixture.Root, "link.txt"), "regular.txt");
+        string blob = fixture.Git("hash-object", "-w", "link.txt");
+        fixture.Git("update-index", "--add", "--cacheinfo", $"120000,{blob},link.txt");
+        fixture.Git("commit", "--quiet", "-m", "fixture");
+        string symbolic = fixture.Git("rev-parse", "HEAD");
+        GitFacts facts = new();
+        (await facts.ReadBlobAsync(fixture.Root, symbolic, "link.txt")).IsSuccess.ShouldBeTrue();
+        (await facts.ReadRegularBlobAsync(fixture.Root, symbolic, "link.txt")).Code.ShouldBe("BLOB_INVALID");
+        fixture.Git("update-index", "--add", "--cacheinfo", $"160000,{regular},nested");
+        fixture.Git("commit", "--quiet", "-m", "fixture");
+        (await facts.ReadRegularBlobAsync(fixture.Root, "HEAD", "nested")).Code.ShouldBe("BLOB_INVALID");
+        (await facts.ReadRegularBlobAsync(fixture.Root, regular, "regular.txt")).IsSuccess.ShouldBeTrue();
+    }
+
     /// <summary>Malformed chain regions fail with exact stable codes and nonempty ledgers.</summary>
     [Theory]
     [InlineData("valid", "PASS", "")]

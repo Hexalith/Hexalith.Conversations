@@ -964,7 +964,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
 
     private static bool ReadGitBlobBytes(string repository, string revision, string relativePath, out byte[] bytes)
     {
-        GitFact<GitBlob> fact = new GitFacts().ReadBlobAsync(repository, revision, relativePath.Replace('\\', '/')).GetAwaiter().GetResult();
+        GitFact<GitBlob> fact = new GitFacts().ReadRegularBlobAsync(repository, revision, relativePath.Replace('\\', '/')).GetAwaiter().GetResult();
         bytes = fact.Value?.Content ?? [];
         return fact.IsSuccess;
     }

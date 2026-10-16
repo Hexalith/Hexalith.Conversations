@@ -90,7 +90,7 @@
   },
   "entrySnapshot": {
     "path": "artifacts/v9/10.4/reader-entry-v1.json",
-    "sha256": "6fac9beaf005f465468e96dcacb9fc3e307433d4aee036c397011f043ec192f1"
+    "sha256": "f6ea72f88076b969760a16209b2f12c4724dd7568abdeeb8c37a9f840e40f3cf"
   },
   "workflowInventory": {
     "id": "STORY-10.4-CURRENT-WORKFLOWS-v1",
@@ -277,6 +277,7 @@
     "_bmad/scripts/tests/test_generate_story_record.py",
     "_bmad/scripts/tests/test_verify_evidence_boundary.py",
     "_bmad/scripts/tests/test_verify_submodule_promotion.py",
+    "_bmad/scripts/verify_conformance_tiering.py",
     "_bmad/scripts/verify_evidence_boundary.py",
     "artifacts/v9/10.4/reader-entry-v1.json",
     "docs/runbooks/evidence-boundary-validation.md",
@@ -335,6 +336,7 @@
     "_bmad/scripts/tests/test_generate_story_record.py",
     "_bmad/scripts/tests/test_verify_evidence_boundary.py",
     "_bmad/scripts/tests/test_verify_submodule_promotion.py",
+    "_bmad/scripts/verify_conformance_tiering.py",
     "_bmad/scripts/verify_evidence_boundary.py",
     "artifacts/v9/10.4/reader-entry-v1.json",
     "docs/runbooks/evidence-boundary-validation.md",

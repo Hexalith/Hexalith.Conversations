@@ -475,6 +475,17 @@ public sealed class GitFacts
         return entries;
     }
 
+    /// <summary>Reads a historical regular file, rejecting symlink and gitlink modes.</summary>
+    public async Task<GitFact<GitBlob>> ReadRegularBlobAsync(string repository, string revision, string path, CancellationToken cancellationToken = default)
+    {
+        GitFact<IReadOnlyList<GitTreeEntry>> tree = await ReadTreeAsync(repository, revision, cancellationToken).ConfigureAwait(false);
+        if (!tree.IsSuccess) return Forward<GitBlob>(tree);
+        GitTreeEntry? entry = tree.Value!.SingleOrDefault(entry => entry.Path == path);
+        if (entry is null || entry.Mode is not ("100644" or "100755"))
+            return GitFact<GitBlob>.Fail(GitFactStatus.Invalid, "BLOB_INVALID", "A historical regular file is required: " + path);
+        return await ReadBlobAsync(repository, revision, path, cancellationToken).ConfigureAwait(false);
+    }
+
     /// <summary>Reads exact historical blob bytes and computes SHA-256.</summary>
     public async Task<GitFact<GitBlob>> ReadBlobAsync(string repository, string revision, string path, CancellationToken cancellationToken = default)
     {

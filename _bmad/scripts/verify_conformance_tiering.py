@@ -132,8 +132,8 @@ def bound(root: Path, relative: str) -> dict[str, str]:
 def msbuild(root: Path, project: str, configuration: str, *, resolved: bool = False) -> dict[str, Any]:
     require((root / project).is_file(), "TIER_PROJECT_MISSING", f"Tier project is missing: {project}")
     command = ["dotnet", "msbuild", project, f"-p:Configuration={configuration}", "-nr:false",
-               "-getProperty:IsPackable,AssemblyName,ProjectAssetsFile,TargetPath,TargetRefPath",
-               "-getItem:Compile,ProjectReference,PackageReference,ReferencePath,FrameworkReference,ResolvedFrameworkReference"]
+               "-getProperty:IsPackable,IsPublishable,AssemblyName,ProjectAssetsFile,TargetPath,TargetRefPath",
+               "-getItem:Compile,ProjectReference,PackageReference,Reference,ReferencePath,FrameworkReference,ResolvedFrameworkReference"]
     if resolved:
         # Resolve existing outputs without rebuilding them: a rebuild would invalidate the tier TRX files.
         command += ["-target:ResolveReferences", "-p:BuildProjectReferences=false"]
@@ -161,8 +161,14 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
                       if Path(item.get("DefiningProjectFullPath") or root).resolve() == project_file)
     approved = sorted((root / "src" / name / f"{name}.csproj").resolve() for name in (
         "Hexalith.Conversations.Client", "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Testing"))
+    # Story 10.4 adds one neutral non-shipping evidence helper. It cannot open a
+    # route to module internals: the exact project must remain dependency-free.
+    helper_relative = "tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj"
+    helper_path = (root / helper_relative).resolve()
+    if helper_path in declared:
+        approved = sorted([*approved, helper_path])
     require(declared == approved,
-            "PORTABLE_TIER_NONPORTABLE_REFERENCE", "Portable declared references must be the three approved shipped surfaces.")
+            "PORTABLE_TIER_NONPORTABLE_REFERENCE", "Portable declared references must be the three approved shipped surfaces and the optional neutral TestSupport helper.")
     queue = list(declared)
     seen: dict[str, dict[str, Any]] = {}
     project_outputs: dict[str, set[Path]] = {}
@@ -177,7 +183,13 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
         properties = graph["Properties"]
         name = properties["AssemblyName"]
         packable = properties["IsPackable"].lower() == "true"
-        require(packable,
+        neutral_helper = (relative == helper_relative and name == "Hexalith.Conversations.TestSupport"
+            and not packable and properties.get("IsPublishable", "true").lower() == "false"
+            and all(not graph["Items"].get(item, []) for item in
+                ("ProjectReference", "PackageReference", "Reference", "ReferencePath"))
+            and all(item["Identity"] == "Microsoft.NETCore.App" and item.get("IsImplicitlyDefined", "").lower() == "true"
+                for item in graph["Items"].get("FrameworkReference", [])))
+        require(packable or neutral_helper,
                 "PORTABLE_TIER_NONPORTABLE_REFERENCE", f"Evaluated non-packable module reference: {name}")
         seen[relative] = {"project": relative, "assembly": name, "packable": packable}
         project_outputs.setdefault(name, set()).update(
@@ -191,7 +203,7 @@ def portable_surface(root: Path, evaluated: dict[str, Any], configuration: str =
     require(all(Path(item["FullPath"]).resolve() in reached for item in initial),
             "PORTABLE_TIER_NONPORTABLE_REFERENCE",
             "A portable evaluated reference is neither declared nor reachable from the approved surfaces.")
-    allowed = {row["assembly"] for row in seen.values() if row["packable"]}
+    allowed = {row["assembly"] for row in seen.values() if row["packable"] or row["project"] == helper_relative}
 
     assets_path = Path(portable["Properties"]["ProjectAssetsFile"])
     require(assets_path.is_file() and assets_path.resolve().is_relative_to(root),

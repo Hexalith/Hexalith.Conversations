@@ -167,7 +167,7 @@ public sealed class PublicContractShapeSnapshotGenerationTest
         try
         {
             File.WriteAllText(path, json);
-            string readBack = RepositoryLocator.ReadAllText(path);
+            string readBack = File.ReadAllText(path);
             PublicContractShapeSnapshotV1? parsed = JsonSerializer.Deserialize<PublicContractShapeSnapshotV1>(readBack, SnapshotOptions);
             parsed.ShouldNotBeNull();
             parsed!.Types.Count.ShouldBe(snapshot.Types.Count);
