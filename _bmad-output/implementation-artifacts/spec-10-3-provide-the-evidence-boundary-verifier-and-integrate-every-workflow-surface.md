@@ -3,7 +3,7 @@ title: 'Story 10.3: Evidence verifier and workflow enforcement'
 type: 'feature'
 created: '2026-10-14'
 status: 'in-progress'
-baseline_commit: '3319e062472bb44fda8389a2420af108da58da0a'
+baseline_commit: 'f272a32e2a5fa334d0001da08caf1e55b6e142a7'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -25,7 +25,7 @@ context:
 
 **Never:** Filter gitlinks to manufacture a pass, rewrite historical authority/accepted records, migrate the 27 frozen readers reserved for 10.4, change production APIs or conformance membership, or edit installed customization defaults.
 
-**Owner decision, 2026-10-15:** Use current policy: ten surviving workflow routes, additive effective binding/contract, and entry baseline `3319e062472bb44fda8389a2420af108da58da0a`. Keep absent legacy routes/aliases retired and historical bundle bytes as provenance. Gate explicitly required evidence work; preserve routine validation and restore the existing Story 7.3 completion guard.
+**Owner decision, 2026-10-15:** Use current policy: ten surviving workflow routes, additive effective binding/contract, and entry baseline `f272a32e2a5fa334d0001da08caf1e55b6e142a7`. Keep absent legacy routes/aliases retired and historical bundle bytes as provenance. Gate explicitly required evidence work; preserve routine validation and restore the existing Story 7.3 completion guard.
 
 ## I/O & Edge-Case Matrix
 
@@ -79,6 +79,7 @@ context:
 ## Spec Change Log
 
 - 2026-10-15 — The owner replied "I approve" to "Approve refreshing the baseline to `3319e062472bb44fda8389a2420af108da58da0a` and regenerating evidence while preserving current pins?" The exact approved revision is confirmed from Git and remains current HEAD. Replace the previous scope baseline `10f395a690b3f581771891e5f69fc5858a5d1d12` in the frozen decision and frontmatter only under this authorization. Preserve all twelve current root pointers, including the four differences documented below, the independently approved thirty-four source paths, and historical provenance at `7f24b72d57da65745cdecdea5b5e7c0da1313b4d`. Keep the source inventory pinned independently of the refreshed post-entry diff; the previous baseline's approved inventory remains its trust anchor. Adapt current bindings, schema, commands, route hashes and focused fixtures, then regenerate candidate-bound receipts and the Story 10.3 pair using the existing withdrawal/publication lifecycle. Earlier records remain preserved in Git. This approval supersedes the parked R01 and pending-refresh notes only as authorization to resume; fresh verification still gates review and completion.
+- 2026-10-16 — The owner replied "I approve" to the proposed baseline refresh after the fourth code review. Pushed `/pushall` commits `59868b0`, `e1a9fbe`, `88db9c3` and `9b2d8c3` moved all eleven differing root gitlinks past `3319e062472bb44fda8389a2420af108da58da0a`, so the completion gate failed with `CHANGED_PATH_SET_MISMATCH` and `EVIDENCE_BOUNDARY_GITLINK`. Replace the scope baseline in the frozen decision and frontmatter with the exact current entry `f272a32e2a5fa334d0001da08caf1e55b6e142a7` only under this authorization, preserving every committed pointer, the independently approved source inventory at `10f395a690b3f581771891e5f69fc5858a5d1d12`, and historical provenance at `7f24b72d57da65745cdecdea5b5e7c0da1313b4d`. Withdraw the current nine-file publication, regenerate candidate-bound receipts and the Story 10.3 pair through the existing lifecycle, and rerun verification. Earlier records remain preserved in Git.
 
 - 2026-10-14 — The owner explicitly authorized “Use entry commit 7f24b72 as the approved baseline (recommended)”, identifying full revision `7f24b72d57da65745cdecdea5b5e7c0da1313b4d`. This replaces `0056c9f0335094e7f5b253aba7ec257bd68b0b4f`, whose diff already contained the EventStore and Folders gitlink updates in the specification commit. The frozen Owner decision and frontmatter baseline are amended only for this authorization. All pointers, accepted records, original contracts, and historical authority bytes are preserved.
 

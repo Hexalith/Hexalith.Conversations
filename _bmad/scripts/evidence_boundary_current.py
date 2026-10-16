@@ -14,7 +14,7 @@ import jsonschema
 from config_utils import load_customization
 import verify_story_completion_workflows as completion
 
-BASELINE = '3319e062472bb44fda8389a2420af108da58da0a'
+BASELINE = 'f272a32e2a5fa334d0001da08caf1e55b6e142a7'
 SOURCE_INVENTORY_BASELINE = '10f395a690b3f581771891e5f69fc5858a5d1d12'
 PROVENANCE_BASELINE = '7f24b72d57da65745cdecdea5b5e7c0da1313b4d'
 BINDING = '_bmad-output/planning-artifacts/story-10.3-current-binding-v1.json'
