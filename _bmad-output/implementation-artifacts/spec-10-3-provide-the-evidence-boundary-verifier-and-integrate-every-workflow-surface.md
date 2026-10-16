@@ -2,7 +2,7 @@
 title: 'Story 10.3: Evidence verifier and workflow enforcement'
 type: 'feature'
 created: '2026-10-14'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '3319e062472bb44fda8389a2420af108da58da0a'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -139,6 +139,7 @@ context:
 | RZ06 | false/low | rejected | KeyError on missing `headPaths`/`sourceMode` (caught at the `except (ValueError, KeyError, TypeError)` → `HELPER_FAILURE`); published-pair branch skipping `binding:withdrawal` (by design, published receipts stay protected); AC-10.3-03 exemption untested (already parametrized in the working tree, RZ01); RY01 "not in diff" (tracked by RZ02 deferral); baseline enum, compact JSON, surrogate/stdout-fallback, non-UTF-8 index, hard-coded nine, shallow-clone fixtures, ten-file skill copies, atomic write, untracked stale receipt overwrite (already rejected, deliberate, or negligible). |
 | RZ03 | false/low | rejected | Schema baseline enum (deliberate, already deferred); identical AC-01/AC-03 receipts (verified byte-identical, closed earlier); decoder and `KeyError` crashes (caught at `Program.cs:203` and in `main`); hand-edited baselines, compact JSON, selector renames, three-baseline model, inline `ls-files`, fixture history dependence, mode `100644` (documented or by design). |
 | RZ07 | low | patch, 2026-10-16 (uncommitted) | Third code review of `3319e06..HEAD` (source chunk, 780 lines). `main()` blocks on any `output:index*` row but the ownership-unavailable test injected only `output:index`; parametrized it over `output:index-completed` too. Defer: malformed NUL index listing in the runner (extends RZ02); `AC-10.3-02` lane membership (RZ05). Rejected: KeyError on missing binding/`headPaths`/mode keys (caught at `verify()` and `main()`), published branch skipping `binding:withdrawal` (by design), untracked receipt overwrite (contracted receipts), schema enum, compact JSON, surrogate/stdout fallback, fixture regexes (deliberate or negligible). (all layers) |
+| RW01 | high | decision_needed, 2026-10-16 | Fourth code review of `3319e06..HEAD` (source chunk, 996 lines): all four layers raised no new actionable finding (rejected or already tracked as RZ02/RY02/RZ06). The completion gate nevertheless fails at HEAD: `verify_evidence_boundary.py --verify-workflows --candidate HEAD` exits `1` with `AUTHORITY_BINDING_INVALID`, `CHANGED_PATH_SET_MISMATCH` and `EVIDENCE_BOUNDARY_GITLINK`, and `--verify-inserted-record` exits `1` with `RECORD_CONTENT_DRIFT`. All eleven root gitlinks differ from the baseline after pushed `/pushall` commits `59868b0`, `e1a9fbe`, `88db9c3` and `9b2d8c3`; a restoring commit would itself be a post-candidate gitlink commit. Needs an owner-approved baseline refresh and republication; status returned to `in-progress`. (blind-hunter+edge-case-hunter+verification-gap+acceptance-auditor) |
 
 
 Review patches are implemented and independently checked. Focused verification passed 91 current CLI/reader tests, 44 generator/schema/route tests, and six affected historical neutral-helper tests. All 23 triage rows above are preserved.
