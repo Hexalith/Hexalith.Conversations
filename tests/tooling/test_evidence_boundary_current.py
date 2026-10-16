@@ -855,7 +855,7 @@ def test_stable_code_contract_receipt_is_canonical_utf8_bytes(tmp_path,monkeypat
     assert b'\xc3\xa9' in target.read_bytes() and b'\r\n' not in target.read_bytes()
 
 
-@pytest.mark.parametrize('row_id', ['output:head','output:head-tree','output:index'])
+@pytest.mark.parametrize('row_id', ['output:head','output:head-tree','output:index','output:index-completed'])
 @pytest.mark.parametrize('code,state,exit_code', [('HELPER_FAILURE','FAIL',1),('HISTORY_UNAVAILABLE','SKIPPED',2)])
 def test_stable_code_contract_current_ownership_unavailable_cannot_write(tmp_path,monkeypatch,capsys,code,state,exit_code,row_id):
     document=current.empty_result('a'*40)
