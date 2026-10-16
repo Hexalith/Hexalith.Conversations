@@ -207,10 +207,21 @@ def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING
                 if not problems:expected=sorted(set(expected)|set(generator.v2_10_4_publication_paths(published))|({SPEC} if SPEC in paths else set()))
         payload=''.join(f'{row["path"]}\t{row["sha256"]}\t{row.get("role","provenance")}\n' for row in sorted(manifest,key=lambda row:row['path']))
         facts=current.bridge(repository,dict(baseline=baseline,candidate=initial['candidate'],expectedPaths=expected,
-            roots=ROOTS,manifest=manifest,signablePayloadHash=current.digest(payload.encode()),blobPaths=[row['path'] for row in manifest]))
+            roots=ROOTS,manifest=manifest,signablePayloadHash=current.digest(payload.encode()),
+            blobPaths=list(dict.fromkeys([row['path'] for row in manifest]+binding['sourcePaths'])),containedPaths=binding['sourcePaths']))
         merge(result,facts,'boundary:');result['manifest']=manifest
+        declared={row['path']:row['sha256'] for row in manifest}
+        contained={row['path']:row for row in facts['containedPaths']}
         for row in facts['blobs']:
-            record(result,'candidate:blob:'+row['path'],row['path'],row['sha256']==next(item['sha256'] for item in manifest if item['path']==row['path']),'EVIDENCE_HASH_MISMATCH')
+            path=row['path']; expected_hash=declared.get(path)
+            if expected_hash is not None:
+                valid=row['sha256']==expected_hash
+            else:
+                item=contained[path];target=Path(item['fullPath']) if item['fullPath'] else None
+                valid=not item['code'] and target is not None and target.is_file() and current.digest(target.read_bytes())==row['sha256']
+                if not valid and path==SPEC and pair.is_file() and target is not None and target.is_file():
+                    valid=generator.v2_working_spec_lifecycle_only_change(repository,initial['candidate'],path,target.read_bytes(),record_region=True,task_checkboxes=True)
+            record(result,'candidate:blob:'+path,path,valid,'EVIDENCE_HASH_MISMATCH')
         if check in (None,'readers','projection','exemptions'):reader_checks(repository,result,binding)
         if check in (None,'guidance','runbook'):guidance_checks(repository,result,binding)
         if verify_workflows or check is None:

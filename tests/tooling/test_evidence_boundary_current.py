@@ -874,3 +874,14 @@ def test_stable_code_contract_current_ownership_unavailable_cannot_write(tmp_pat
     assert current.main(['--repository',str(tmp_path),'--baseline',current.BASELINE,'--authority-bundle','authority.json','--output','result.json'])==exit_code
     observed=json.loads(capsys.readouterr().out)
     assert observed['blockers']==[code] and not target.exists()
+
+# The current CI lane names this module explicitly. Include the scoped successor's
+# real-helper faults here while keeping historical 10.3 fixture bytes independent.
+import importlib.util as _adoption_importlib
+_adoption_path = Path(__file__).with_name('test_evidence_boundary_adoption.py')
+_adoption_spec = _adoption_importlib.spec_from_file_location('story104_current_lane', _adoption_path)
+_adoption_module = _adoption_importlib.module_from_spec(_adoption_spec)
+_adoption_spec.loader.exec_module(_adoption_module)
+for _adoption_name in dir(_adoption_module):
+    if _adoption_name.startswith('test_complete_fault_matrix') or _adoption_name in ('stamp_adoption_candidate','adoption_surface','adoption_git'):
+        globals()[_adoption_name] = getattr(_adoption_module, _adoption_name)

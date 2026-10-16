@@ -88,4 +88,7 @@ Affected build command (each project individually): `dotnet build tests/Hexalith
 
 - Build affected projects in Debug; use built xUnit `-method`/`-class` filters and approved acceptance commands.
 - Run new selectors, current tooling CI lane, both conformance tiers, affected Contracts/Integration smoke tests and TestSupport tests.
+- Current tooling CI command: `python3 -m pytest -q -ra -p no:cacheprovider _bmad/scripts/tests tests/tooling/test_evidence_boundary_current.py --ignore=_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py --junitxml=/tmp/story104-current-ci-lane.xml`.
+- Native current tiers use their Debug assemblies with `-automated sync -failSkips -parallel none -trx /tmp/story104-<tier>.trx`; the class/method exclusions are exactly those in `.github/workflows/ci.yml`, retained independently of this story. Contracts and TestSupport run unfiltered; Integration smoke uses `-class Hexalith.Conversations.IntegrationTests.ScaffoldSmokeTest`.
+- Both Story 7.3 guard commands retain their contract, `--scenario AC-7.3-01` / `AC-7.3-02`, and contracted `artifacts/v9/7.3/<scenario>.json` outputs. The scoped 10.4 verifier initially passed with 406 evaluated assertions and no blockers at source commit `7b51671`; the final committed-candidate receipts below supersede that initial observation.
 - Run both Story 7.3 guards and scoped verifier before review/completion; verify pair/insertion. Report broad blockers separately.
