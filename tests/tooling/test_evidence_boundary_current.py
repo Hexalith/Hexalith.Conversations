@@ -773,9 +773,9 @@ def withdrawn_source_repository(tmp_path, *, edited_xml=False):
     return root,binding,candidate
 
 
-def test_current_refreshed_source_accepts_exact_withdrawal_and_writes_receipt(tmp_path,capsys):
+@pytest.mark.parametrize('receipt', ['artifacts/v9/10.3/AC-10.3-01.json','artifacts/v9/10.3/AC-10.3-03.json'])
+def test_current_refreshed_source_accepts_exact_withdrawal_and_writes_receipt(tmp_path,capsys,receipt):
     root,binding,candidate=withdrawn_source_repository(tmp_path)
-    receipt='artifacts/v9/10.3/AC-10.3-01.json'
     exit_code=current.main(['--repository',str(root),'--baseline',current.BASELINE,'--candidate','HEAD',
         '--authority-bundle',binding['authorityBundle']['path'],'--verify-workflows','--output',receipt])
     observed=json.loads(capsys.readouterr().out)
@@ -855,14 +855,15 @@ def test_stable_code_contract_receipt_is_canonical_utf8_bytes(tmp_path,monkeypat
     assert b'\xc3\xa9' in target.read_bytes() and b'\r\n' not in target.read_bytes()
 
 
+@pytest.mark.parametrize('row_id', ['output:head','output:head-tree','output:index'])
 @pytest.mark.parametrize('code,state,exit_code', [('HELPER_FAILURE','FAIL',1),('HISTORY_UNAVAILABLE','SKIPPED',2)])
-def test_stable_code_contract_current_ownership_unavailable_cannot_write(tmp_path,monkeypatch,capsys,code,state,exit_code):
+def test_stable_code_contract_current_ownership_unavailable_cannot_write(tmp_path,monkeypatch,capsys,code,state,exit_code,row_id):
     document=current.empty_result('a'*40)
     document.update(result='PASS',assertionLedger=[dict(id='scope',subject='measured',state='PASS')])
     target=tmp_path/'result.json'
     monkeypatch.setattr(current,'verify',lambda *_args,**_kwargs:copy.deepcopy(document))
     monkeypatch.setattr(current,'bridge',lambda *_args:dict(result='FAIL',treePaths=[],headPaths=[],indexPaths=[],
-        assertionLedger=[dict(id='output:index',subject='index',state=state)],blockers=[code],
+        assertionLedger=[dict(id=row_id,subject='ownership',state=state)],blockers=[code],
         containedPaths=[dict(code=None,fullPath=str(target))]))
     assert current.main(['--repository',str(tmp_path),'--baseline',current.BASELINE,'--authority-bundle','authority.json','--output','result.json'])==exit_code
     observed=json.loads(capsys.readouterr().out)
