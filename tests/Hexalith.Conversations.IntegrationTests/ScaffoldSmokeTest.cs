@@ -10,6 +10,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.IntegrationTests;
 
 /// <summary>
@@ -42,7 +44,7 @@ public sealed class ScaffoldSmokeTest
     public void GlobalJsonShouldPinRequestedSdkVersion()
     {
         string root = FindRepositoryRoot();
-        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "global.json")));
+        using JsonDocument document = JsonDocument.Parse(RepositoryLocator.ReadAllText(Path.Combine(root, "global.json")));
 
         JsonElement sdk = document.RootElement.GetProperty("sdk");
         sdk.GetProperty("version").GetString().ShouldBe("10.0.401");
@@ -255,7 +257,7 @@ public sealed class ScaffoldSmokeTest
     public void ReadmeShouldDocumentSmokeValidationSafety()
     {
         string root = FindRepositoryRoot();
-        string readme = File.ReadAllText(Path.Combine(root, "README.md"));
+        string readme = RepositoryLocator.ReadAllText(Path.Combine(root, "README.md"));
 
         readme.ShouldContain("Aspire runtime launch", Case.Insensitive);
         readme.ShouldContain("Dapr sidecars", Case.Insensitive);
@@ -364,22 +366,7 @@ public sealed class ScaffoldSmokeTest
     }
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Directory.Packages.props"))
-                && File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not locate the Hexalith.Conversations repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 
     private static string NormalizePath(string path) => path.Replace('\\', '/');
 

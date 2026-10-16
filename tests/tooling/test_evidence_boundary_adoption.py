@@ -1,0 +1,164 @@
+"""Real shared-helper fault injection for the approved 10.4 boundary."""
+from __future__ import annotations
+import copy
+import hashlib
+import json
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import pytest
+ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT/'_bmad/scripts'))
+import evidence_boundary_adoption as adoption
+import evidence_boundary_current as current
+
+@pytest.fixture(autouse=True)
+def stamp_adoption_candidate(record_property):
+    revision=subprocess.run(['git','-C',str(ROOT),'rev-parse','HEAD'],check=True,capture_output=True,text=True).stdout.strip()
+    record_property('story104_source_revision',revision)
+
+@pytest.fixture
+def adoption_surface(tmp_path):
+    for path in ('.agents/skills','.claude/skills','_bmad/custom','_bmad/bmm','_bmad/core'):
+        shutil.copytree(ROOT/path,tmp_path/path)
+    shutil.copy2(ROOT/'_bmad/config.toml',tmp_path/'_bmad/config.toml')
+    for path in adoption.GUIDANCE:
+        (tmp_path/path).parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/path,tmp_path/path)
+    return tmp_path,json.loads((ROOT/adoption.BINDING).read_bytes())
+
+@pytest.fixture(scope='module')
+def adoption_git(tmp_path_factory):
+    root=tmp_path_factory.mktemp('adoption-git')
+    def git(*args):return subprocess.run(['git','-C',str(root),*args],check=True,capture_output=True).stdout.decode().strip()
+    git('init','-q');git('config','user.name','Fixture');git('config','user.email','fixture@example.invalid')
+    (root/'evidence.txt').write_text('before\n');git('add','.');git('commit','-qm','test: establish fixture');before=git('rev-parse','HEAD')
+    (root/'evidence.txt').write_text('after\n');git('add','.');git('commit','-qm','test: update fixture')
+    return root,before,git('rev-parse','HEAD')
+
+
+def observed_fault(record_property,fault,code,observed,before,after):
+    assert observed['result'] in ('FAIL','BLOCKED')
+    assert code in observed['blockers']
+    assert observed['blockers']==sorted(set(observed['blockers']))
+    assert observed['assertionLedger']
+    assert before==after
+    envelope=current.empty_result('a'*40)
+    envelope['assertionLedger']=observed['assertionLedger']
+    envelope['blockers']=observed['blockers']
+    envelope=adoption.finish(envelope)
+    decision=current.transition_decision(envelope,2 if envelope['result']=='BLOCKED' else 1)
+    assert decision==dict(allowed=False,recordedResult=envelope['result'],blockers=observed['blockers'])
+    for key,value in dict(fault_id=fault,expected_code=code,observed_blockers=json.dumps(observed['blockers']),
+        before_sha256=before,after_sha256=after,assertion_ledger=json.dumps(observed['assertionLedger'])).items():
+        record_property('story104_'+key,value)
+
+@pytest.mark.parametrize('fault,code',[
+ ('HASH','EVIDENCE_HASH_MISMATCH'),('PATH_ESCAPE','EVIDENCE_PATH_ESCAPE'),('GENERATED_OUTPUT','EVIDENCE_OUTPUT_FORBIDDEN'),
+ ('SUBSET','CHANGED_PATH_SET_MISMATCH'),('SIGNED_ALLOWLIST','SIGNED_EVIDENCE_ALLOWLISTED'),
+ ('SIGNABLE','SIGNABLE_PAYLOAD_MISMATCH'),('ROOT','ROOT_OF_TRUST_NOT_PINNED'),('GIT_UNAVAILABLE','GIT_UNAVAILABLE'),
+ ('HISTORY_UNAVAILABLE','REVISION_INVALID'),('GITLINK','EVIDENCE_BOUNDARY_GITLINK')])
+def test_complete_fault_matrix_integrity(adoption_git,fault,code,record_property):
+    root,before,candidate=adoption_git;original=(root/'evidence.txt').read_bytes();index=(root/'.git/index').read_bytes()
+    manifest=[dict(path='evidence.txt',sha256=hashlib.sha256(original).hexdigest(),role='evidence')]
+    request=dict(baseline=before,candidate=candidate,expectedPaths=['evidence.txt'],manifest=manifest)
+    if fault=='HASH':manifest[0]['sha256']='0'*64
+    if fault=='PATH_ESCAPE':manifest[0]['path']='../evidence.txt'
+    if fault=='GENERATED_OUTPUT':manifest[0]['path']='obj/evidence.txt'
+    if fault=='SUBSET':request['expectedPaths']=[]
+    if fault=='GIT_UNAVAILABLE':request['gitExecutable']='missing-story104-git-executable'
+    if fault=='HISTORY_UNAVAILABLE':request['baseline']='f'*40
+    if fault in ('ROOT','SIGNED_ALLOWLIST'):
+        (root/'roots.cs').write_text('internal class Roots { const string Trusted = "pinned"; }')
+        request['roots']=dict(sourcePath='roots.cs',constants={'Trusted':'wrong' if fault=='ROOT' else 'pinned'},
+            allowlist=['docs/release-evidence/signed.json'] if fault=='SIGNED_ALLOWLIST' else [])
+    request['signablePayloadHash']=hashlib.sha256(''.join(f'{r["path"]}\t{r["sha256"]}\t{r["role"]}\n' for r in manifest).encode()).hexdigest()
+    if fault=='SIGNABLE':request['signablePayloadHash']='0'*64
+    if fault=='GITLINK':
+        def git(*args):return subprocess.run(['git','-C',str(root),*args],check=True,capture_output=True).stdout.decode().strip()
+        git('update-index','--add','--cacheinfo',f'160000,{candidate},reference')
+        tree=git('write-tree');request.update(baseline=candidate,candidate=git('commit-tree',tree,'-p',candidate,'-m','test: raw mode'),expectedPaths=['reference'])
+    try: observed=current.bridge(root,request)
+    finally:
+        (root/'evidence.txt').write_bytes(original);(root/'.git/index').write_bytes(index);(root/'roots.cs').unlink(missing_ok=True)
+    observed_fault(record_property,fault,code,observed,hashlib.sha256(original+index).hexdigest(),
+        hashlib.sha256((root/'evidence.txt').read_bytes()+(root/'.git/index').read_bytes()).hexdigest())
+
+@pytest.mark.parametrize('fault,code',[
+ ('CHAIN_CHANGED','EVIDENCE_CHAIN_TABLE_INVALID'),('CHAIN_MISSING','EVIDENCE_CHAIN_TABLE_INVALID'),
+ ('CHAIN_REORDERED','EVIDENCE_CHAIN_TABLE_INVALID'),('CHAIN_NESTED','EVIDENCE_CHAIN_MARKER_INVALID'),
+ ('CHAIN_DUPLICATE','EVIDENCE_CHAIN_MARKER_INVALID'),('CHAIN_UNTERMINATED','EVIDENCE_CHAIN_MARKER_INVALID'),
+ ('CHAIN_DUPLICATE_ROW','EVIDENCE_CHAIN_TABLE_INVALID')])
+def test_complete_fault_matrix_chain(adoption_git,fault,code,record_property):
+    root,before,candidate=adoption_git;begin='<!-- CHAIN:BEGIN -->';end='<!-- CHAIN:END -->'
+    rows=['| 10.1 | 10.2 |','| 10.2 | 10.3 |','| 10.3 | 10.4 |'];original=begin+'\n'+'\n'.join(rows)+'\n'+end
+    path=root/'chain.md';path.write_text(original);digest=hashlib.sha256(path.read_bytes()).hexdigest()
+    changed={'CHAIN_CHANGED':original.replace('10.2 | 10.3','10.2 | 10.4'),
+      'CHAIN_MISSING':original.replace(rows[1]+'\n',''),'CHAIN_REORDERED':original.replace('\n'.join(rows),'\n'.join(reversed(rows))),
+      'CHAIN_NESTED':original.replace(begin,begin+'\n'+begin),'CHAIN_DUPLICATE':original+'\n'+original,
+      'CHAIN_UNTERMINATED':original.replace(end,''),'CHAIN_DUPLICATE_ROW':original.replace(rows[0],rows[0]+'\n'+rows[0])}[fault]
+    try:
+        path.write_text(changed)
+        observed=current.bridge(root,dict(baseline=before,candidate=candidate,chains=[dict(id='frozen-chain',source=path.read_text(),begin=begin,end=end,rows=rows)]))
+    finally:path.write_text(original)
+    observed_fault(record_property,fault,code,observed,digest,hashlib.sha256(path.read_bytes()).hexdigest())
+
+@pytest.mark.parametrize('fault,code',[
+ ('WORKFLOW_REMOVED','EVIDENCE_GATE_NOT_USED'),('MARKER_MALFORMED','EVIDENCE_GATE_NOT_USED'),('SPAN_DISPLACED','EVIDENCE_GATE_DISPLACED')])
+def test_complete_fault_matrix_workflow(adoption_surface,fault,code,record_property):
+    root,binding=adoption_surface;path=root/adoption.WORKFLOWS[0];original=path.read_bytes();text=path.read_text()
+    start=text.index(current.BEGIN);end=text.index(current.END)+len(current.END);block=text[start:end]
+    if fault=='WORKFLOW_REMOVED':text=text.replace(block,'')
+    if fault=='MARKER_MALFORMED':text=text.replace(current.END,current.BEGIN)
+    if fault=='SPAN_DISPLACED':text=text.replace(block,'')+'\n'+block
+    try:
+        path.write_text(text);result=current.empty_result('a'*40);current.workflow_checks(root,result,binding)
+        observed=adoption.finish(result)
+        # The route's primary blocker is measured separately from consequent twin/render drift.
+        route_rows=[row for row in observed['assertionLedger'] if row['id'].startswith(('workflow:presence:','workflow:span:')) and row['subject']==adoption.WORKFLOWS[0]]
+        assert set(observed['blockers'])=={code,'EVIDENCE_WORKFLOW_PARITY_DRIFT'}
+        assert any(row['state']=='FAIL' for row in route_rows)
+    finally:path.write_bytes(original)
+    observed_fault(record_property,fault,code,observed,hashlib.sha256(original).hexdigest(),hashlib.sha256(path.read_bytes()).hexdigest())
+
+@pytest.mark.parametrize('fault,code',[
+ ('GUIDANCE_REMOVED','EVIDENCE_GUIDANCE_NOT_USED'),('GUIDANCE_EQUALITY','EVIDENCE_GUIDANCE_DRIFT'),
+ ('GUIDANCE_DECLARED_HASH','EVIDENCE_GUIDANCE_DRIFT'),('GUIDANCE_REDIRECT','EVIDENCE_GUIDANCE_DRIFT')])
+def test_complete_fault_matrix_guidance(adoption_surface,fault,code,record_property):
+    root,binding=adoption_surface;path=root/'_bmad/custom/bmad-build.toml';original=path.read_bytes()
+    try:
+        if fault=='GUIDANCE_REMOVED':path.unlink()
+        else:
+            old,new={'GUIDANCE_EQUALITY':('exact changed-path equality','changed-path containment'),
+                'GUIDANCE_DECLARED_HASH':('recomputed hashes','declared hashes'),
+                'GUIDANCE_REDIRECT':(adoption.RUNBOOK,'docs/runbooks/current-change-validation.md')}[fault]
+            path.write_bytes(original.replace(old.encode(),new.encode()))
+        result=current.empty_result('a'*40);adoption.guidance_checks(root,result,binding);observed=adoption.finish(result)
+        assert code in observed['blockers']
+        assert set(observed['blockers'])=={'EVIDENCE_GUIDANCE_DRIFT','EVIDENCE_GUIDANCE_NOT_USED'}
+    finally:path.write_bytes(original)
+    observed_fault(record_property,fault,code,observed,hashlib.sha256(original).hexdigest(),hashlib.sha256(path.read_bytes()).hexdigest())
+
+@pytest.mark.parametrize('fault,code',[
+ ('READER_STRENGTH','ASSERTION_STRENGTH_WEAKENED'),('READER_HELPER','EVIDENCE_HELPER_NOT_USED'),
+ ('EXEMPTION','DAY_ONE_EXEMPTION_FORBIDDEN'),('READER_INVENTORY','EVIDENCE_READER_INVENTORY_DRIFT')])
+def test_complete_fault_matrix_readers(tmp_path,fault,code,record_property):
+    binding=json.loads((ROOT/adoption.BINDING).read_bytes());entries=adoption.snapshot(ROOT)['readers']
+    for row in entries:
+        target=tmp_path/row['path'];target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((ROOT/row['path']).read_bytes())
+    for path in (adoption.READERS,adoption.SNAPSHOT):
+        (tmp_path/path).parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/path,tmp_path/path)
+    for project in ('Conformance.Tests','Conformance.Portable.Tests','Contracts.Tests','IntegrationTests'):
+        path=f'tests/Hexalith.Conversations.{project}/Hexalith.Conversations.{project}.csproj'
+        (tmp_path/path).parent.mkdir(parents=True,exist_ok=True)
+        shutil.copy2(ROOT/path,tmp_path/path)
+    path=tmp_path/entries[0]['path'];original=path.read_bytes();frozen=copy.deepcopy(binding)
+    try:
+        if fault=='READER_STRENGTH':path.write_bytes(original.replace(b'first.Tests.ShouldNotBeEmpty();',b'first.Tests.ShouldBeEmpty();'))
+        if fault=='READER_HELPER':path.write_bytes(original.replace(b'RepositoryLocator.',b'LocalRepositoryLocator.'))
+        if fault=='EXEMPTION':binding['exemptions']=['reader']
+        if fault=='READER_INVENTORY':binding['readerInventory']['paths']=binding['readerInventory']['paths'][:-1]
+        result=current.empty_result('a'*40);adoption.reader_checks(tmp_path,result,binding,historical=False);observed=adoption.finish(result)
+        assert set(observed['blockers'])==({code,'ASSERTION_STRENGTH_WEAKENED'} if fault=='READER_HELPER' else {code})
+    finally:path.write_bytes(original);binding=frozen
+    observed_fault(record_property,fault,code,observed,hashlib.sha256(original).hexdigest(),hashlib.sha256(path.read_bytes()).hexdigest())

@@ -10,6 +10,8 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -330,7 +332,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
             "implementation-artifacts",
             "6-2-migrate-conversations-to-platform-owned-hosting.md");
         File.Exists(storyPath).ShouldBeTrue(storyPath);
-        string story = File.ReadAllText(storyPath).Replace("\r\n", "\n", StringComparison.Ordinal);
+        string story = RepositoryLocator.ReadAllText(storyPath).Replace("\r\n", "\n", StringComparison.Ordinal);
         Match status = Regex.Match(story, "^status: '([a-z-]+)'$", RegexOptions.Multiline);
         status.Success.ShouldBeTrue("the Story 6.2 record must declare a frontmatter status");
         // `review` is allowed: the documented process is "Dev moves story to 'review', then runs
@@ -455,41 +457,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
     private static (int ExitCode, string StandardOutput, string StandardError) RunGitRaw(
         string workingDirectory,
         params string[] arguments)
-    {
-        ProcessStartInfo startInfo = new("git")
-        {
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            WorkingDirectory = workingDirectory,
-        };
-        foreach (string argument in arguments)
-        {
-            startInfo.ArgumentList.Add(argument);
-        }
-
-        using Process process = Process.Start(startInfo)
-            ?? throw new InvalidOperationException("git could not be started.");
-
-        // Both pipes are drained concurrently and are themselves bounded: a child that inherits a pipe and
-        // outlives the parent would otherwise keep the read open forever, so the timeout would bound the wait
-        // without bounding the run.
-        Task<string> standardOutputTask = process.StandardOutput.ReadToEndAsync();
-        Task<string> standardErrorTask = process.StandardError.ReadToEndAsync();
-        if (!process.WaitForExit(milliseconds: 120_000))
-        {
-            process.Kill(entireProcessTree: true);
-            throw new InvalidOperationException("git did not complete within 120 seconds.");
-        }
-
-        if (!Task.WhenAll(standardOutputTask, standardErrorTask).Wait(TimeSpan.FromSeconds(30)))
-        {
-            throw new InvalidOperationException(
-                $"git {string.Join(' ', arguments)} exited but its output pipes stayed open past the drain timeout.");
-        }
-
-        return (process.ExitCode, standardOutputTask.Result, standardErrorTask.Result);
-    }
+        => GitFacts.CaptureText(workingDirectory, arguments);
 
     [Fact]
     public void ProofSourceAndSignedV1BindingsShouldRemainByteIdentical()
@@ -497,7 +465,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         using JsonDocument proofDocument = LoadEvidence(ProofJsonFileName);
         JsonElement proof = proofDocument.RootElement;
         using JsonDocument resolutionDocument = JsonDocument.Parse(
-            File.ReadAllText(Path.Combine(FindRepositoryRoot(), BindingResolutionRepositoryPath)));
+            RepositoryLocator.ReadAllText(Path.Combine(FindRepositoryRoot(), BindingResolutionRepositoryPath)));
         JsonElement resolution = resolutionDocument.RootElement;
 
         JsonElement sourceBoundary = proof.GetProperty("sourceBoundary");
@@ -514,7 +482,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
             .ShouldBe(EvidenceFinalizationRevision, "the immutable proof bytes must still be rooted at their source-pinned finalization commit");
         ReadGitBlobBytes(FindRepositoryRoot(), EvidenceFinalizationRevision, ProofRepositoryPath, out byte[] finalizedProofBytes)
             .ShouldBeTrue($"{ProofRepositoryPath} must exist at the evidence-finalization root of trust");
-        Convert.ToHexString(SHA256.HashData(finalizedProofBytes)).ToLowerInvariant()
+        EvidenceManifest.HashBytes(finalizedProofBytes)
             .ShouldBe(ComputeSha256(Path.Combine(FindRepositoryRoot(), ProofRepositoryPath)));
         ValidateBindingResolutionSidecar(proof, resolution);
         JsonObject resolutionObject = JsonNode.Parse(resolution.GetRawText())!.AsObject();
@@ -684,7 +652,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         disclosure.GetProperty("ungatedRowsMayNotBeCitedAsEvidenceOfNoRegression").GetBoolean().ShouldBeTrue();
         disclosure.GetProperty("measuredInstability").GetString().ShouldNotBeNullOrWhiteSpace();
         disclosure.GetProperty("approvedCostCause").GetString().ShouldNotBeNullOrWhiteSpace();
-        string postMarkdown = File.ReadAllText(
+        string postMarkdown = RepositoryLocator.ReadAllText(
             Path.Combine(ReleaseEvidenceDirectory(), "sm-c2-hot-path-post-v1.md"));
         postMarkdown.ShouldContain(
             "may not be cited as evidence of no regression",
@@ -695,7 +663,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
     [Fact]
     public void MarkdownShouldPresentTheAuthoritativeJsonBoundary()
     {
-        string markdown = File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), ProofMarkdownFileName));
+        string markdown = RepositoryLocator.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), ProofMarkdownFileName));
 
         // Derived from the authoritative JSON rather than pinned, so repairing SM-C2 does not turn this red.
         using JsonDocument proofDocument = LoadEvidence(ProofJsonFileName);
@@ -956,7 +924,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
                 actualMode.ShouldBe(expectedMode, boundPath);
                 ReadGitBlobBytes(repository, revision, gitPath, out byte[] bytes)
                     .ShouldBeTrue($"{boundPath} must remain available at explicit revision {revision}");
-                Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant()
+                EvidenceManifest.HashBytes(bytes)
                     .ShouldBe(binding.GetProperty("sha256").GetString(), boundPath);
             }
         }
@@ -989,38 +957,16 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
             string gitPath = boundPath[pathPrefix.Length..];
             ReadGitBlobBytes(repository, revision, gitPath, out byte[] bytes)
                 .ShouldBeTrue($"{boundPath} must remain available at {revision}");
-            Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant()
+            EvidenceManifest.HashBytes(bytes)
                 .ShouldBe(binding.GetProperty("sha256").GetString(), boundPath);
         }
     }
 
     private static bool ReadGitBlobBytes(string repository, string revision, string relativePath, out byte[] bytes)
     {
-        if (!ReadGitTreeMode(repository, revision, relativePath, out string mode) || mode is not ("100644" or "100755"))
-        {
-            bytes = [];
-            return false;
-        }
-
-        var startInfo = new ProcessStartInfo("git")
-        {
-            WorkingDirectory = repository,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-        };
-        startInfo.ArgumentList.Add("cat-file");
-        startInfo.ArgumentList.Add("blob");
-        startInfo.ArgumentList.Add($"{revision}:{relativePath.Replace('\\', '/')}");
-
-        using Process process = Process.Start(startInfo)!;
-        using var output = new MemoryStream();
-        Task copy = process.StandardOutput.BaseStream.CopyToAsync(output);
-        string error = process.StandardError.ReadToEnd();
-        process.WaitForExit();
-        copy.GetAwaiter().GetResult();
-        bytes = output.ToArray();
-        return process.ExitCode == 0 && string.IsNullOrEmpty(error);
+        GitFact<GitBlob> fact = new GitFacts().ReadBlobAsync(repository, revision, relativePath.Replace('\\', '/')).GetAwaiter().GetResult();
+        bytes = fact.Value?.Content ?? [];
+        return fact.IsSuccess;
     }
 
     private static bool ReadGitTreeMode(
@@ -1201,7 +1147,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
             .EnumerateFiles(testsRoot, "*.cs", SearchOption.AllDirectories)
             .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
                 && !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
-            .Any(file => File.ReadAllText(file).Contains(methodName, StringComparison.Ordinal));
+            .Any(file => RepositoryLocator.ReadAllText(file).Contains(methodName, StringComparison.Ordinal));
 
         declared.ShouldBeTrue(
             $"the bound run artifact names {testCase}, but no test source declares {methodName}; a renamed or "
@@ -1221,29 +1167,16 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
     }
 
     private static string ComputeSha256(string path)
-        => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
+        => EvidenceManifest.HashFile(path);
 
     private static JsonDocument LoadEvidence(string fileName)
-        => JsonDocument.Parse(File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), fileName)));
+        => JsonDocument.Parse(RepositoryLocator.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), fileName)));
 
     private static string ReleaseEvidenceDirectory()
         => Path.Combine(FindRepositoryRoot(), "docs", "release-evidence");
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 
     private sealed record XunitRun(int Passed, int Failed, int Skipped, IReadOnlyCollection<string> PassedTests);
 }

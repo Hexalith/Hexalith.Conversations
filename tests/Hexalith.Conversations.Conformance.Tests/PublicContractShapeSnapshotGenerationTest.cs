@@ -14,6 +14,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -98,7 +100,7 @@ public sealed class PublicContractShapeSnapshotGenerationTest
     {
         string root = FindRepositoryRoot();
         string baselinePath = Path.Combine(root, "docs", "release-evidence", "public-contract-shape-story-9.2-v2.json");
-        string committedBaseline = File.ReadAllText(baselinePath);
+        string committedBaseline = RepositoryLocator.ReadAllText(baselinePath);
         string currentSnapshot = JsonSerializer.Serialize(BuildSnapshot(), SnapshotOptions);
 
         currentSnapshot.ShouldBe(
@@ -165,7 +167,7 @@ public sealed class PublicContractShapeSnapshotGenerationTest
         try
         {
             File.WriteAllText(path, json);
-            string readBack = File.ReadAllText(path);
+            string readBack = RepositoryLocator.ReadAllText(path);
             PublicContractShapeSnapshotV1? parsed = JsonSerializer.Deserialize<PublicContractShapeSnapshotV1>(readBack, SnapshotOptions);
             parsed.ShouldNotBeNull();
             parsed!.Types.Count.ShouldBe(snapshot.Types.Count);
@@ -369,22 +371,7 @@ public sealed class PublicContractShapeSnapshotGenerationTest
     }
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 
     /// <summary>Root of the public contract-shape snapshot artifact.</summary>
     internal sealed record PublicContractShapeSnapshotV1

@@ -3,6 +3,41 @@ namespace Hexalith.Conversations.TestSupport;
 /// <summary>Resolves paths without permitting lexical or symbolic-link escape.</summary>
 public static class RepositoryLocator
 {
+    /// <summary>Finds the nearest repository marker above the supplied directory.</summary>
+    /// <param name="startDirectory">An optional discovery origin; the test output directory is the default.</param>
+    /// <returns>The existing repository root; discovery never falls back to the current directory.</returns>
+    public static string FindRepositoryRoot(string? startDirectory = null)
+    {
+        for (DirectoryInfo? directory = new(startDirectory ?? AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
+                || Directory.Exists(Path.Combine(directory.FullName, ".git")) || File.Exists(Path.Combine(directory.FullName, ".git")))
+                return directory.FullName;
+        }
+        throw new DirectoryNotFoundException("Could not find the repository root.");
+    }
+
+    /// <summary>Resolves an existing evidence read beneath its owning repository.</summary>
+    public static string ContainedFile(string path)
+    {
+        string full = Path.GetFullPath(path);
+        string root = FindRepositoryRoot(Path.GetDirectoryName(full));
+        GitFact<string> fact = ResolveContainedPath(root, Path.GetRelativePath(root, full).Replace('\\', '/'));
+        if (!fact.IsSuccess) throw new IOException(fact.Code + ": " + fact.Message);
+        return fact.Value!;
+    }
+
+    /// <summary>Reads contained evidence bytes.</summary>
+    public static byte[] ReadAllBytes(string path) => File.ReadAllBytes(ContainedFile(path));
+
+    /// <summary>Reads contained evidence text with the caller's original encoding.</summary>
+    public static string ReadAllText(string path, System.Text.Encoding? encoding = null)
+        => File.ReadAllText(ContainedFile(path), encoding ?? System.Text.Encoding.UTF8);
+
+    /// <summary>Reads contained evidence lines with the caller's original encoding.</summary>
+    public static string[] ReadAllLines(string path, System.Text.Encoding? encoding = null)
+        => File.ReadAllLines(ContainedFile(path), encoding ?? System.Text.Encoding.UTF8);
+
     /// <summary>Resolves a path beneath the exact repository root.</summary>
     /// <param name="root">The repository root.</param>
     /// <param name="relativePath">A relative path using forward slashes.</param>

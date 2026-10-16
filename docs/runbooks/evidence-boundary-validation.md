@@ -1,14 +1,9 @@
 # Evidence-Boundary Validation
 
-> Historical V23–V29 verification guidance. For changes after the
-> [current-change policy](current-change-validation.md) is merged, use that
-> policy for CI and routine work. This file remains available to reproduce
-> earlier authority results; it no longer defines a required gate for new work.
-
-Use this runbook when reproducing historical planning authority, manifests,
-generated records, signed or release-facing evidence, evidence readers, or the
-tests and workflows that governed those artifacts. The mechanical verifier
-and acceptance tests describe that historical enforcement boundary.
+Use this runbook for explicitly scoped Story 10.4 evidence work under the approved
+current binding. Routine changes continue to follow [current-change validation](current-change-validation.md).
+The V23–V29 sections below remain historical reproduction guidance. This story
+does not add CI wiring, restore retired publishers, or authorize release.
 
 ## Invariants
 
@@ -92,6 +87,40 @@ marker span, alias route, guidance binding, customization resolution, and each
 frozen chain-table relation. The expected stable code must occur, the assertion
 ledger must be nonempty, and the fixture must restore byte-identically even
 when validation fails.
+
+### Story 10.4 acceptance commands
+
+Build affected projects in Debug before invoking their built xUnit assemblies.
+The effective contract binds all nine AC identities and summary `9/9/0/0/0/0`.
+
+```bash
+python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.4-current-binding-v1.json --baseline 1915a47123737859e3ac31872fa787fa8c0bd1e3 --candidate HEAD --verify-workflows --format json
+python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k complete_fault_matrix --junitxml=artifacts/v9/10.4/AC-10.4-06.xml
+python3 -m pytest -q _bmad/scripts/tests/test_verify_submodule_promotion.py -k evidence_gate_span_coupling --junitxml=artifacts/v9/10.4/AC-10.4-07.xml
+python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.4-current-binding-v1.json --baseline 1915a47123737859e3ac31872fa787fa8c0bd1e3 --candidate HEAD --format json --output artifacts/v9/10.4/AC-10.4-09.json
+python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/story-10.4-current-contract-v1.json --format bundle --output-json docs/release-evidence/story-10.4-final-record-v2.json --output-markdown docs/release-evidence/story-10.4-final-record-v2.md
+python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/story-10.4-current-contract-v1.json --verify-inserted-record _bmad-output/implementation-artifacts/spec-10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection.md
+```
+
+The contract lists the five exact xUnit `-method` commands and receipt paths.
+AC-09 verifies resolved guidance through the current verifier; it does not invoke
+the retired authority publisher. Run both independent Story 7.3 guards using
+`python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-01 --output artifacts/v9/7.3/AC-7.3-01.json`
+and `python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-02 --output artifacts/v9/7.3/AC-7.3-02.json`.
+
+Migration defects are `EVIDENCE_READER_INVENTORY_DRIFT`, `EVIDENCE_HELPER_NOT_USED`,
+`ASSERTION_STRENGTH_WEAKENED`, `DAY_ONE_EXEMPTION_FORBIDDEN`, and
+`PROJECTION_PROOF_SCOPE_ABSORBED`. Guidance defects are `EVIDENCE_RUNBOOK_INVALID`,
+`EVIDENCE_GUIDANCE_NOT_USED`, and `EVIDENCE_GUIDANCE_DRIFT`. Malformed, nested,
+duplicate or unterminated chain markers yield `EVIDENCE_CHAIN_MARKER_INVALID`;
+changed, missing or duplicate chain rows yield `EVIDENCE_CHAIN_TABLE_INVALID`.
+A displaced promotion span yields `PROMOTION_GATE_SPAN_WEAKENED` in its regression
+proof. The inherited integrity codes remain `EVIDENCE_HASH_MISMATCH`,
+`EVIDENCE_PATH_ESCAPE`, `EVIDENCE_OUTPUT_FORBIDDEN`, `SIGNABLE_PAYLOAD_MISMATCH`,
+`CHANGED_PATH_SET_MISMATCH`, `EVIDENCE_BOUNDARY_GITLINK`, `ROOT_OF_TRUST_NOT_PINNED`,
+`SIGNED_EVIDENCE_ALLOWLISTED`, `GIT_UNAVAILABLE`, `EVIDENCE_GATE_NOT_USED`, and
+`EVIDENCE_GATE_DISPLACED`. Every injected fixture records exact observed codes,
+a nonempty ledger, and equal restoration digests.
 
 ## V27 lifecycle-evidence route
 

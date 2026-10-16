@@ -12,6 +12,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Contracts.Tests.Conformance;
 
 /// <summary>
@@ -380,7 +382,7 @@ public sealed class ReleaseWaiverContractTest
         string path = GetFixturePath();
         File.Exists(path).ShouldBeTrue($"Expected waiver fixture file at '{path}'.");
 
-        string json = File.ReadAllText(path);
+        string json = RepositoryLocator.ReadAllText(path);
         ReleaseWaiverV1? waiver = JsonSerializer.Deserialize<ReleaseWaiverV1>(json, WebOptions);
         waiver.ShouldNotBeNull();
     }
@@ -388,7 +390,7 @@ public sealed class ReleaseWaiverContractTest
     [Fact]
     public void FixtureFileShouldPassValidateWaiverWithFutureEvaluatedAt()
     {
-        string json = File.ReadAllText(GetFixturePath());
+        string json = RepositoryLocator.ReadAllText(GetFixturePath());
         ReleaseWaiverV1 waiver = JsonSerializer.Deserialize<ReleaseWaiverV1>(json, WebOptions)!;
 
         IReadOnlyList<string> errors = ReleaseWaiverValidator.ValidateWaiver(waiver, CurrentTime);
@@ -408,7 +410,7 @@ public sealed class ReleaseWaiverContractTest
             "D:\\",
         ];
 
-        string json = File.ReadAllText(GetFixturePath());
+        string json = RepositoryLocator.ReadAllText(GetFixturePath());
         foreach (string fragment in forbidden)
         {
             json.ShouldNotContain(fragment, Case.Insensitive, $"Waiver fixture must not contain forbidden fragment '{fragment}'.");
@@ -422,7 +424,7 @@ public sealed class ReleaseWaiverContractTest
         string path = Path.Combine(root, "docs", "release-evidence", "conformance-manifest-v1-fixture.json");
         File.Exists(path).ShouldBeTrue($"Expected manifest fixture at '{path}'.");
 
-        string json = File.ReadAllText(path);
+        string json = RepositoryLocator.ReadAllText(path);
         JsonNode? node = JsonNode.Parse(json);
         JsonNode? entries = node?["entries"];
         entries.ShouldNotBeNull();
@@ -438,22 +440,7 @@ public sealed class ReleaseWaiverContractTest
     }
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => ContractSamples.EvidenceRoot();
 
     private static ReleaseWaiverV1 BuildWaiver(
         string waiverId = "waiver-test-001",

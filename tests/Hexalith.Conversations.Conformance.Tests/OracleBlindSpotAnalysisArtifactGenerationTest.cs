@@ -10,6 +10,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -114,7 +116,7 @@ public sealed class OracleBlindSpotAnalysisArtifactGenerationTest
         File.WriteAllText(Path.Combine(dir, ArtifactFileName), json);
 
         // Re-read + re-validate: the committed bytes must round-trip and pass the same content-safety scan.
-        string readBack = File.ReadAllText(Path.Combine(dir, ArtifactFileName));
+        string readBack = RepositoryLocator.ReadAllText(Path.Combine(dir, ArtifactFileName));
         BlindSpotAnalysisV1? parsed = JsonSerializer.Deserialize<BlindSpotAnalysisV1>(readBack, WriteOptions);
         parsed.ShouldNotBeNull();
         parsed!.Behaviors.Count.ShouldBe(5);
@@ -129,7 +131,7 @@ public sealed class OracleBlindSpotAnalysisArtifactGenerationTest
     {
         string path = Path.Combine(FindRepositoryRoot(), "docs", "release-evidence", HeaderFileName);
         File.Exists(path).ShouldBeTrue($"Expected committed header at '{path}'.");
-        string md = File.ReadAllText(path);
+        string md = RepositoryLocator.ReadAllText(path);
 
         // AC5: the header states what it is, the commands used, the story, and the baseline commit.
         md.ShouldContain("Story 1.2");
@@ -351,22 +353,7 @@ public sealed class OracleBlindSpotAnalysisArtifactGenerationTest
         ]);
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 
     private sealed record BlindSpotAnalysisV1(
         string ArtifactKind,

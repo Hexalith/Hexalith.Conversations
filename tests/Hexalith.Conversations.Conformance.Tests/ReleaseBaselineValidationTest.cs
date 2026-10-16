@@ -13,6 +13,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -239,27 +241,12 @@ public sealed class ReleaseBaselineValidationTest
     {
         string path = Path.Combine(ReleaseEvidenceDirectory(), fileName);
         File.Exists(path).ShouldBeTrue($"Expected committed evidence file at '{path}'.");
-        return JsonDocument.Parse(File.ReadAllText(path));
+        return JsonDocument.Parse(RepositoryLocator.ReadAllText(path));
     }
 
     private static string ReleaseEvidenceDirectory()
         => Path.Combine(FindRepositoryRoot(), "docs", "release-evidence");
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 }

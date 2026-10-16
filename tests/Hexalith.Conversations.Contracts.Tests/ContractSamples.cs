@@ -17,10 +17,15 @@ using Hexalith.Conversations.Contracts.Results;
 using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Contracts.Tests;
 
 internal static class ContractSamples
 {
+    /// <summary>Resolves the repository used by committed contract sample readers.</summary>
+    internal static string EvidenceRoot() => RepositoryLocator.FindRepositoryRoot();
+
     internal static readonly SchemaVersion Version = new(1);
     internal static readonly TenantId Tenant = new("tenant-001");
     internal static readonly ConversationId Conversation = new("conversation-001");

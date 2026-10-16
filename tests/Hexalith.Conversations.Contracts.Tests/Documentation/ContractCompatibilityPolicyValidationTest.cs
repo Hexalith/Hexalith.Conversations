@@ -12,6 +12,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Contracts.Tests.Documentation;
 
 /// <summary>
@@ -174,24 +176,9 @@ public sealed class ContractCompatibilityPolicyValidationTest
     {
         string path = Path.Combine([root, .. pathParts]);
         File.Exists(path).ShouldBeTrue($"Expected repository file '{path}' to exist.");
-        return File.ReadAllText(path);
+        return RepositoryLocator.ReadAllText(path);
     }
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 }

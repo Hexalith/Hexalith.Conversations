@@ -427,6 +427,10 @@ def verify(repository: Path, baseline: str, candidate: str, *, authority_bundle:
 
 def transition_decision(document: Any, observed_exit: int) -> dict[str, Any]:
     """Advance only a schema-valid, registered, matching PASS or empty non-applicable result."""
+    # The installed adapter also consumes explicitly scoped successor results.
+    import evidence_boundary_adoption
+    accepted_fail_codes = FAIL_CODES | evidence_boundary_adoption.FAIL_CODES
+    accepted_codes = accepted_fail_codes | BLOCKED_CODES | WARNING_CODES
     expected_exit = {'PASS': 0, 'FAIL': 1, 'BLOCKED': 2, 'not-applicable': 0}
     if not isinstance(document, dict):
         return dict(allowed=False,recordedResult=None,blockers=['EVIDENCE_RESULT_EXIT_MISMATCH'])
@@ -436,13 +440,13 @@ def transition_decision(document: Any, observed_exit: int) -> dict[str, Any]:
         jsonschema.validate(document, json.loads((Path(__file__).resolve().parents[2] / SCHEMA).read_bytes()))
         valid = (document['blockers'] == sorted(set(document['blockers']))
             and document['warnings'] == sorted(set(document['warnings']))
-            and set(document['blockers']).issubset(FAIL_CODES | BLOCKED_CODES)
+            and set(document['blockers']).issubset(accepted_fail_codes | BLOCKED_CODES)
             and set(document['warnings']).issubset(WARNING_CODES)
             and (state != 'not-applicable' or not document['assertionLedger'] and not document['blockers']))
     except (jsonschema.ValidationError, KeyError, TypeError, ValueError):
         pass
     matches = valid and expected_exit.get(state) == observed_exit
-    known = {code for code in document.get('blockers', []) if isinstance(code,str) and code in STABLE_CODES} if isinstance(document.get('blockers'),list) else set()
+    known = {code for code in document.get('blockers', []) if isinstance(code,str) and code in accepted_codes} if isinstance(document.get('blockers'),list) else set()
     return dict(allowed=matches and state in ('PASS', 'not-applicable'), recordedResult=state,
         blockers=sorted(known | (set() if matches else {'EVIDENCE_RESULT_EXIT_MISMATCH'})))
 

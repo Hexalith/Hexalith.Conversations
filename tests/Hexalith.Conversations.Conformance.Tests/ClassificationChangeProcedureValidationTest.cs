@@ -10,6 +10,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -84,7 +86,7 @@ public sealed class ClassificationChangeProcedureValidationTest
         File.Exists(Path.Combine(dir, ProcedureFileName)).ShouldBeTrue("The machine-readable procedure .json must be committed (AC5).");
         string mdPath = Path.Combine(dir, ProcedureMarkdownFileName);
         File.Exists(mdPath).ShouldBeTrue("The human-readable procedure .md must be committed alongside the .json (AC5).");
-        File.ReadAllText(mdPath).Trim().ShouldNotBeNullOrWhiteSpace("The human-readable procedure .md must not be empty.");
+        RepositoryLocator.ReadAllText(mdPath).Trim().ShouldNotBeNullOrWhiteSpace("The human-readable procedure .md must not be empty.");
 
         File.Exists(Path.Combine(dir, InventoryFileName)).ShouldBeTrue("The governed inventory .json must exist (the procedure is meaningless without it).");
     }
@@ -269,7 +271,7 @@ public sealed class ClassificationChangeProcedureValidationTest
         // in principle carry a forbidden fragment, so neither is exempt from the AC5g scope.
         foreach (string fileName in new[] { ProcedureFileName, ProcedureMarkdownFileName })
         {
-            string raw = File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), fileName));
+            string raw = RepositoryLocator.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), fileName));
 
             foreach (string fragment in ForbiddenFragments)
             {
@@ -427,7 +429,7 @@ public sealed class ClassificationChangeProcedureValidationTest
     [Fact]
     public void ProcedureMarkdownShouldDocumentTheFiveStepProcedureAndCanonicalLog()
     {
-        string md = File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), ProcedureMarkdownFileName));
+        string md = RepositoryLocator.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), ProcedureMarkdownFileName));
 
         foreach (string step in new[] { "Step 1", "Step 2", "Step 3", "Step 4", "Step 5" })
         {
@@ -518,27 +520,12 @@ public sealed class ClassificationChangeProcedureValidationTest
     {
         string path = Path.Combine(ReleaseEvidenceDirectory(), fileName);
         File.Exists(path).ShouldBeTrue($"Expected committed file at '{path}'.");
-        return JsonDocument.Parse(File.ReadAllText(path));
+        return JsonDocument.Parse(RepositoryLocator.ReadAllText(path));
     }
 
     private static string ReleaseEvidenceDirectory()
         => Path.Combine(FindRepositoryRoot(), "docs", "release-evidence");
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 }

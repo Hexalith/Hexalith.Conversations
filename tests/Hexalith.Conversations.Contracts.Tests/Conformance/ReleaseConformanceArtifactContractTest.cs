@@ -13,6 +13,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Contracts.Tests.Conformance;
 
 /// <summary>
@@ -329,7 +331,7 @@ public sealed class ReleaseConformanceArtifactContractTest
 
         File.Exists(path).ShouldBeTrue($"Expected fixture file to exist at '{path}'.");
 
-        string json = File.ReadAllText(path);
+        string json = RepositoryLocator.ReadAllText(path);
         ReleaseConformanceArtifactV1? artifact = JsonSerializer.Deserialize<ReleaseConformanceArtifactV1>(json, WebOptions);
 
         artifact.ShouldNotBeNull();
@@ -344,7 +346,7 @@ public sealed class ReleaseConformanceArtifactContractTest
         string path = Path.Combine(root, "docs", "release-evidence", "release-conformance-artifact-v1-fixture.json");
 
         File.Exists(path).ShouldBeTrue();
-        string json = File.ReadAllText(path);
+        string json = RepositoryLocator.ReadAllText(path);
 
         ReleaseConformanceArtifactV1 artifact = JsonSerializer.Deserialize<ReleaseConformanceArtifactV1>(json, WebOptions)!;
         foreach (ReleaseGateId gate in ReleaseGateId.All)
@@ -372,7 +374,7 @@ public sealed class ReleaseConformanceArtifactContractTest
         string path = Path.Combine(root, "docs", "release-evidence", "release-conformance-artifact-v1-fixture.json");
 
         File.Exists(path).ShouldBeTrue();
-        string json = File.ReadAllText(path);
+        string json = RepositoryLocator.ReadAllText(path);
 
         foreach (string fragment in forbidden)
         {
@@ -419,20 +421,5 @@ public sealed class ReleaseConformanceArtifactContractTest
         => new(gateId, status, "Gate result evidence verified.", $"gate-ref-{index:d2}", evaluatedAt, "FR86");
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => ContractSamples.EvidenceRoot();
 }

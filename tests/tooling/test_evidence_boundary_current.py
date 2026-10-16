@@ -33,6 +33,12 @@ def surfaces(tmp_path):
     runbook.parent.mkdir(parents=True, exist_ok=True)
     runbook.write_bytes((ROOT / current.GUIDANCE[-1]).read_bytes())
     binding = json.loads((ROOT / current.BINDING).read_bytes())
+    # 10.3 is retained evidence: later project overrides must not rewrite its fixture.
+    for row in binding['guidanceInventory']['rows']:
+        path = tmp_path / row['path']
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(subprocess.run(['git', '-C', str(ROOT), 'show', current.BASELINE + ':' + row['path']],
+            check=True, capture_output=True).stdout)
     return tmp_path, binding
 
 

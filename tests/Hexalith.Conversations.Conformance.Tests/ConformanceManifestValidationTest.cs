@@ -12,6 +12,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -149,29 +151,14 @@ public sealed class ConformanceManifestValidationTest
         path.ShouldSatisfyAllConditions(
             () => File.Exists(path).ShouldBeTrue($"Expected fixture file at '{path}'."));
 
-        string json = File.ReadAllText(path);
+        string json = RepositoryLocator.ReadAllText(path);
         ConformanceManifestV1? manifest = JsonSerializer.Deserialize<ConformanceManifestV1>(json, WebOptions);
         manifest.ShouldNotBeNull();
         return manifest!;
     }
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 
     private static ConformanceManifestRowV1 BuildRow(string testId = "test-validation-001")
         => new(

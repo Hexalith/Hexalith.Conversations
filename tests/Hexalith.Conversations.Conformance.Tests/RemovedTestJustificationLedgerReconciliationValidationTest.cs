@@ -10,6 +10,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -260,7 +262,7 @@ public sealed class RemovedTestJustificationLedgerReconciliationValidationTest
         string root = FindRepositoryRoot();
         JsonElement disposition = doc.RootElement.GetProperty("projectReferenceDisposition");
 
-        string projectFile = File.ReadAllText(Path.Combine(root, ConformanceProjectPath));
+        string projectFile = RepositoryLocator.ReadAllText(Path.Combine(root, ConformanceProjectPath));
         projectFile.ShouldContain("src\\Hexalith.Conversations.Server\\Hexalith.Conversations.Server.csproj");
         disposition.GetProperty("decision").GetString().ShouldBe("retain-residual-coupling");
         disposition.GetProperty("currentReferenceState").GetString().ShouldBe("retained");
@@ -365,39 +367,24 @@ public sealed class RemovedTestJustificationLedgerReconciliationValidationTest
     {
         string path = Path.Combine(ReleaseEvidenceDirectory(), JsonArtifactFileName);
         File.Exists(path).ShouldBeTrue($"Expected Story 5.2 JSON artifact at '{path}'.");
-        return JsonDocument.Parse(File.ReadAllText(path));
+        return JsonDocument.Parse(RepositoryLocator.ReadAllText(path));
     }
 
     private static JsonDocument LoadEvidenceArtifact(string fileName)
-        => JsonDocument.Parse(File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), fileName)));
+        => JsonDocument.Parse(RepositoryLocator.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), fileName)));
 
     private static string LoadMarkdownArtifact()
     {
         string path = Path.Combine(ReleaseEvidenceDirectory(), MarkdownArtifactFileName);
         File.Exists(path).ShouldBeTrue($"Expected Story 5.2 Markdown artifact at '{path}'.");
-        return File.ReadAllText(path);
+        return RepositoryLocator.ReadAllText(path);
     }
 
     private static string ReleaseEvidenceDirectory()
         => Path.Combine(FindRepositoryRoot(), "docs", "release-evidence");
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 
     private static void CollectStringValues(JsonElement element, string path, List<(string Path, string Value)> values)
     {

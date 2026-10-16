@@ -3,6 +3,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj" />
     <Compile Include="../Hexalith.Conversations.Conformance.Portable.Tests/Story92TieringVerification.cs" Link="Story92/Story92TieringVerification.cs" />
   </ItemGroup>
   <ItemGroup>

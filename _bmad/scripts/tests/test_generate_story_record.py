@@ -11753,3 +11753,73 @@ def test_story103_inserted_rederivation_accepts_only_committed_owned_sprint_comp
     with pytest.raises(generator.V2Stop) as inserted:
         generator.v2_10_3_verify_inserted(verify_options)
     assert inserted.value.findings[0]['code']==('RECORD_CONTENT_DRIFT' if fault=='unrelated-row' else 'WORKTREE_NOT_CLEAN')
+
+
+def story104_closed_fixture(generator):
+    """A complete schema fixture; repository/source verification remains a separate gate."""
+    adoption = generator.v2_10_4_module()
+    binding=json.loads((WORKSPACE/adoption.BINDING).read_bytes())
+    contract=json.loads((WORKSPACE/adoption.CONTRACT).read_bytes())
+    record=json.loads((WORKSPACE/'docs/release-evidence/story-10.3-final-record-v2.json').read_bytes())
+    facts={key:deepcopy(binding[key]) for key in ('baseline','provenance','workflowInventory','guidanceInventory',
+        'resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot')}
+    paths=contract['finalRecord']['paths'];candidate='a'*40
+    receipts=[dict(path=f'artifacts/v9/10.4/AC-10.4-0{n}.'+('trx' if n<6 else 'json' if n==9 else 'xml'),sha256='b'*64)
+        for n in (1,2,3,4,5,6,7,9)]
+    scenarios=[]
+    for scenario in contract['scenarios']:
+        row=dict(scenarioId=scenario['id'],command=scenario['command'],exitCode=0,result='PASS',blockers=[],
+            assertionLedger=[dict(id=scenario['id']+'#0001',subject='measured fixture',state='PASS')])
+        if scenario['id']!='AC-10.4-08':
+            receipt=receipts[len(scenarios)] if len(scenarios)<7 else receipts[-1]
+            row.update(resultFile=receipt,outputFiles=[receipt])
+        scenarios.append(row)
+    facts.update(bindingRule='SC-10.4 is the committed candidate evaluated under the approved current binding',sourceRevisionId=candidate,
+        binding=dict(path=adoption.BINDING,sha256='b'*64),contract=dict(path=adoption.CONTRACT,sha256='b'*64),
+        predecessorPair=dict(json=dict(path=adoption.PROVENANCE[5],sha256=adoption.PREDECESSOR_SHA256),
+            markdown=dict(path=adoption.PROVENANCE[6],sha256='b'*64)),
+        readerBeforeAfter=generator.v2_10_4_reader_facts(adoption.snapshot(WORKSPACE)),
+        routeFacts=deepcopy(record['evidenceWorkflowExecution']['routeFacts']),receipts=receipts,
+        sourceFiles=[dict(path=adoption.BINDING,sha256='b'*64)],
+        mutationLedger=[dict(id=f'fault-{n}',expectedBlocker='EVIDENCE_HASH_MISMATCH',observedBlockers=['EVIDENCE_HASH_MISMATCH'],
+            beforeSha256='b'*64,afterSha256='b'*64,restored=True,result='PASS') for n in range(29)])
+    record.pop('evidenceWorkflowExecution');record.update(storyId='10.4',candidate=dict(commit=candidate,gitlinks=facts['rootGitlinks']),
+        predecessors=['10.3'],inventory=contract['inventory'],scenarios=scenarios,evidenceAdoptionExecution=facts,
+        summary=dict(required=9,passed=9,failed=0,blocked=0,skipped=0,notRun=0),
+        outputs=dict(json=dict(path=paths[0],sha256='0'*64),markdown=dict(path=paths[1],sha256='0'*64)),
+        rollback=contract['rollback'])
+    return record
+
+
+def test_story104_closed_schema_and_deterministic_pair():
+    generator=load_generator();record=story104_closed_fixture(generator);_,validators=generator.v2_load_schemas()
+    final,j,m=generator.v2_finalize(record)
+    assert not generator.v2_schema_errors(validators['record'],final)
+    assert not generator.v2_verify_pair(j,m)
+    assert generator.v2_finalize(record)==(final,j,m)
+    assert len(final['evidenceAdoptionExecution']['readerBeforeAfter'])==27
+    assert len(final['evidenceAdoptionExecution']['receipts'])==8
+    assert b'AC-10.4-09' in m
+
+
+@pytest.mark.parametrize('fault',['unknown-fact','eleven-roots','seven-receipts','reader-omission','missing-AC09','empty-ledger','unrestored'])
+def test_story104_pair_rejects_missing_or_drifted_facts(fault):
+    generator=load_generator();record=story104_closed_fixture(generator);facts=record['evidenceAdoptionExecution']
+    if fault=='unknown-fact':facts['uncheckedAuthority']=True
+    if fault=='eleven-roots':record['candidate']['gitlinks'].pop()
+    if fault=='seven-receipts':facts['receipts'].pop()
+    if fault=='reader-omission':facts['readerBeforeAfter'].pop()
+    if fault=='missing-AC09':record['scenarios'].pop()
+    if fault=='empty-ledger':record['scenarios'][0]['assertionLedger']=[]
+    if fault=='unrestored':facts['mutationLedger'][0]['afterSha256']='c'*64
+    _,validators=generator.v2_load_schemas()
+    assert generator.v2_schema_errors(validators['record'],record) or generator.v2_10_4_pair_errors(record)
+
+
+def test_story104_receipt_parser_rejects_unstamped_and_empty_results():
+    generator=load_generator()
+    command='python3 -m pytest -q tests/tooling/test_evidence_boundary_adoption.py -k complete_fault_matrix --junitxml=artifacts/v9/10.4/AC-10.4-06.xml'
+    contract={'scenarios':[dict(id='AC-10.4-06',command=command)]}
+    for xml in (b'<testsuites><testsuite tests="0" failures="0" errors="0" skipped="0" /></testsuites>',
+        b'<testsuites><testsuite tests="1" failures="0" errors="0" skipped="0"><testcase name="unstamped" /></testsuite></testsuites>'):
+        with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,'a'*40,lambda _:xml)

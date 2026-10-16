@@ -11,6 +11,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Contracts.Tests.Documentation;
 
 /// <summary>
@@ -64,8 +66,8 @@ public sealed class MinimalModuleAuthoringCostBaselineValidationTest
         root.GetProperty("story5Reference").GetString().ShouldBe("Story 5.3");
         root.GetProperty("oq2Status").GetString().ShouldBe("unconfirmed");
 
-        string rawJson = File.ReadAllText(jsonPath);
-        string markdown = File.ReadAllText(markdownPath);
+        string rawJson = RepositoryLocator.ReadAllText(jsonPath);
+        string markdown = RepositoryLocator.ReadAllText(markdownPath);
 
         rawJson.ShouldContain("docs/domain-module-authoring-template.md", Case.Sensitive);
         rawJson.ShouldContain("docs/release-evidence/thin-authoring-template-validation-v1.md", Case.Sensitive);
@@ -179,7 +181,7 @@ public sealed class MinimalModuleAuthoringCostBaselineValidationTest
         JsonElement templateMinimal = root.GetProperty("templateMinimal");
         JsonElement preInitiative = root.GetProperty("preInitiativeEquivalent");
         JsonElement comparison = root.GetProperty("comparison");
-        string markdown = File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), MarkdownFileName));
+        string markdown = RepositoryLocator.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), MarkdownFileName));
 
         markdown.ShouldContain($"**{templateMinimal.GetProperty("fileCount").GetInt32()}**", Case.Sensitive);
         markdown.ShouldContain($"**{templateMinimal.GetProperty("loc").GetInt32()}**", Case.Sensitive);
@@ -195,8 +197,8 @@ public sealed class MinimalModuleAuthoringCostBaselineValidationTest
     {
         using JsonDocument doc = LoadBaselineJson();
         JsonElement root = doc.RootElement;
-        string rawJson = File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), JsonFileName));
-        string markdown = File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), MarkdownFileName));
+        string rawJson = RepositoryLocator.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), JsonFileName));
+        string markdown = RepositoryLocator.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), MarkdownFileName));
 
         foreach (string raw in new[] { rawJson, markdown })
         {
@@ -219,7 +221,7 @@ public sealed class MinimalModuleAuthoringCostBaselineValidationTest
     }
 
     private static JsonDocument LoadBaselineJson()
-        => JsonDocument.Parse(File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), JsonFileName)));
+        => JsonDocument.Parse(RepositoryLocator.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), JsonFileName)));
 
     private static string[] ReadStringArray(JsonElement element)
         => element.EnumerateArray().Select(item => item.GetString()!).ToArray();
@@ -231,20 +233,5 @@ public sealed class MinimalModuleAuthoringCostBaselineValidationTest
         => Path.Combine(FindRepositoryRoot(), "docs", "release-evidence");
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 }

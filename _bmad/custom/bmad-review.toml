@@ -1,6 +1,7 @@
 [workflow]
 
 review_guidance = [
+  "file:{project-root}/docs/runbooks/evidence-boundary-validation.md",
   "file:{project-root}/docs/runbooks/current-change-validation.md",
 ]
 
@@ -9,4 +10,4 @@ code = "evidence-boundary"
 name = "Evidence Boundary"
 applies_to = "any"
 when = "The spec explicitly requires evidence-boundary verification, or the user requests reproduction or review of a historical result."
-instruction = "For explicitly required current evidence work, enforce the effective scoped evidence-boundary contract; FAIL and BLOCKED halt, and not-applicable is recorded distinctly. Apply the historical evidence-boundary runbook to the named result and report its actual state without converting FAIL or BLOCKED to PASS."
+instruction = "Use the canonical evidence-boundary runbook for explicitly required evidence work: recomputed hashes, contained paths, canonical signable payload, exact changed-path equality, raw-mode gitlink exclusion, exact inventory identity, root-of-trust pinning, and anti-vacuity. Invoke the effective scoped verifier; preserve PASS/FAIL/BLOCKED/not-applicable distinctly. FAIL and BLOCKED halt review and completion. For explicitly required current evidence work, enforce the effective scoped evidence-boundary contract; FAIL and BLOCKED halt, and not-applicable is recorded distinctly. Apply the historical evidence-boundary runbook to the named result and report its actual state without converting FAIL or BLOCKED to PASS."

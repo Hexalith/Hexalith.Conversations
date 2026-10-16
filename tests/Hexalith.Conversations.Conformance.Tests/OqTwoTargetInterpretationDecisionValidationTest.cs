@@ -10,6 +10,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -34,7 +36,7 @@ public sealed class OqTwoTargetInterpretationDecisionValidationTest
 
         using JsonDocument doc = LoadDecision();
         JsonElement root = doc.RootElement;
-        string markdown = File.ReadAllText(markdownPath);
+        string markdown = RepositoryLocator.ReadAllText(markdownPath);
 
         root.GetProperty("artifact").GetString().ShouldBe("oq-2-target-interpretation-decision");
         root.GetProperty("version").GetInt32().ShouldBe(1);
@@ -168,32 +170,17 @@ public sealed class OqTwoTargetInterpretationDecisionValidationTest
         => Math.Round((decimal)removed / baseline * 100m, 2, MidpointRounding.AwayFromZero);
 
     private static string ComputeFileSha256(string path)
-        => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
+        => EvidenceManifest.HashFile(path);
 
     private static JsonDocument LoadDecision()
         => LoadEvidenceArtifact(DecisionJsonFileName);
 
     private static JsonDocument LoadEvidenceArtifact(string fileName)
-        => JsonDocument.Parse(File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), fileName)));
+        => JsonDocument.Parse(RepositoryLocator.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), fileName)));
 
     private static string ReleaseEvidenceDirectory()
         => Path.Combine(FindRepositoryRoot(), "docs", "release-evidence");
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 }

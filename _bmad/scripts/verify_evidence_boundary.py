@@ -3471,6 +3471,11 @@ def main(arguments: Sequence[str] | None = None) -> int:
 
     raw = list(sys.argv[1:] if arguments is None else arguments)
     if any(token.partition("=")[0] in ("--authority-bundle", "--current-binding", "--verify-workflows", "--format") for token in raw):
+        binding = next((raw[index + 1] for index,token in enumerate(raw[:-1]) if token == "--current-binding"), "")
+        binding = next((token.partition("=")[2] for token in raw if token.startswith("--current-binding=")), binding)
+        if binding == "_bmad-output/planning-artifacts/story-10.4-current-binding-v1.json":
+            import evidence_boundary_adoption
+            return evidence_boundary_adoption.main(raw)
         import evidence_boundary_current
         return evidence_boundary_current.main(raw)
     args = build_parser().parse_args(arguments)

@@ -5,6 +5,7 @@
 """Generate a story final record from measured repository state."""
 
 import argparse
+import base64
 import hashlib
 import json
 import os
@@ -4541,8 +4542,9 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
                          for name, value in sorted(roots["constants"].items()))
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
-    if record["storyId"] == "10.3" and "evidenceWorkflowExecution" in record:
-        faults = record["evidenceWorkflowExecution"]["mutationLedger"]
+    if record["storyId"] in ("10.3", "10.4") and ("evidenceWorkflowExecution" in record or "evidenceAdoptionExecution" in record):
+        facts = record.get("evidenceWorkflowExecution", record.get("evidenceAdoptionExecution"))
+        faults = facts["mutationLedger"]
         lines.extend([f"{len(faults)} observed mutation results are bound to the retained receipts.", "",
                       "| Fault | Expected blocker | Observed blockers | Before SHA-256 | After SHA-256 | Restored |",
                       "| --- | --- | --- | --- | --- | --- |"])
@@ -4684,6 +4686,8 @@ def v2_verify_pair(json_bytes: bytes, markdown_bytes: bytes) -> list[str]:
         problems.extend(v2_10_2_pair_errors(record))
     if record.get("storyId") == "10.3":
         problems.extend(v2_10_3_pair_errors(record))
+    if record.get("storyId") == "10.4":
+        problems.extend(v2_10_4_pair_errors(record))
     return problems
 
 
@@ -8146,6 +8150,11 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
 
 def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> bytes:
     """Derive, validate, and atomically write the v2 pair; return the JSON bytes."""
+    if options.get("--contract") == V2_10_4_CONTRACT:
+        try:
+            return v2_10_4_generate(options, verify_spec=verify_spec)
+        except ValueError as error:
+            raise V2Stop([v2_finding('RECORD_NOT_DERIVED', '10.4', str(error))], '10.4') from None
     if options.get("--contract") == V2_10_3_CONTRACT:
         return v2_10_3_generate(options, verify_spec=verify_spec)
     try:
@@ -9277,13 +9286,295 @@ def v2_10_3_verify_inserted(options: dict[str,str]) -> bytes:
     return json_bytes
 
 
+# Story 10.4 uses the approved current policy without amending historical contracts.
+V2_10_4_CONTRACT = '_bmad-output/planning-artifacts/story-10.4-current-contract-v1.json'
+V2_10_4_BINDING = '_bmad-output/planning-artifacts/story-10.4-current-binding-v1.json'
+V2_10_4_SPEC = '_bmad-output/implementation-artifacts/spec-10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection.md'
+
+
+def v2_10_4_module():
+    """Load the scoped sibling route for command-line and path-import consumers."""
+    directory = str(Path(__file__).resolve().parent)
+    if directory not in sys.path: sys.path.insert(0, directory)
+    import evidence_boundary_adoption
+    return evidence_boundary_adoption
+
+
+def v2_10_4_pair_errors(record):
+    """Reject a pair whose nine identities, receipts, ledgers or immutable facts disagree."""
+    try:
+        facts=record['evidenceAdoptionExecution'];scenarios=record['scenarios']
+        expected=[f'AC-10.4-0{n}' for n in range(1,10)]
+        if ([row['scenarioId'] for row in scenarios]!=expected or record['predecessors']!=['10.3']
+            or facts['sourceRevisionId']!=record['candidate']['commit']
+            or record['summary']!=dict(required=9,passed=9,failed=0,blocked=0,skipped=0,notRun=0)
+            or any(row['result']!='PASS' or row['exitCode']!=0 or row['blockers'] or not row['assertionLedger'] for row in scenarios)
+            or facts['binding']['path']!=V2_10_4_BINDING or facts['contract']['path']!=V2_10_4_CONTRACT
+            or facts['exemptions']!=[] or len(facts['readerBeforeAfter'])!=27):
+            return ['Story 10.4 candidate, summary, scenarios or closed bindings differ']
+        measured=[row for row in scenarios if row['scenarioId']!='AC-10.4-08']
+        if len(facts['receipts'])!=8 or any(row['resultFile']!=receipt or row['outputFiles']!=[receipt]
+                for row,receipt in zip(measured,facts['receipts'])):
+            return ['Story 10.4 eight measured receipts differ']
+        if any(row['expectedBlocker'] not in row['observedBlockers'] or row['beforeSha256']!=row['afterSha256']
+                or not row['restored'] or row['result']!='PASS' for row in facts['mutationLedger']):
+            return ['Story 10.4 measured faults or restoration differ']
+        if [row['path'] for row in facts['readerBeforeAfter']]!=facts['readerInventory']['paths']:
+            return ['Story 10.4 reader identities differ']
+        if facts['rootGitlinks']!=record['candidate']['gitlinks']:
+            return ['Story 10.4 root gitlinks differ']
+    except (KeyError,TypeError,ValueError):return ['Story 10.4 execution facts are malformed']
+    return []
+
+
+def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
+    """Read eight measured receipts, then derive AC-08 from their verified facts."""
+    adoption = v2_10_4_module()
+    read=read_receipt or (lambda path:v2_10_1_artifact_bytes(repository,path))
+    scenarios=[];receipts=[];mutations=[]
+    for scenario in contract['scenarios']:
+        identity=scenario['id']
+        if identity=='AC-10.4-08':continue
+        tokens=shlex.split(scenario['command']);ledger=[]
+        if identity=='AC-10.4-09':
+            path=tokens[tokens.index('--output')+1];content=read(path);observed=v2_parse_json(content)
+            import jsonschema
+            jsonschema.validate(observed,json.loads((repository/adoption.current.SCHEMA).read_bytes()))
+            if observed['candidate']!=candidate or observed['result']!='PASS' or observed['blockers'] or not observed['assertionLedger']:
+                raise ValueError('AC-09 is not a passing candidate-bound scoped result')
+            ledger=[dict(id=f'{identity}#{n+1:04d}',subject=row['id']+'::'+row['subject'],state=row['state'])
+                for n,row in enumerate(observed['assertionLedger'])]
+        elif '-trx' in tokens:
+            path=tokens[tokens.index('-trx')+1];content=read(path);parsed=parse_trx(content)
+            method=tokens[tokens.index('-method')+1]
+            if count_disagreements(parsed) or parsed['reported']!=dict(total=1,executed=1,passed=1,failed=0,skipped=0):
+                raise ValueError(identity+' must measure exactly its named passing xUnit test')
+            testcase=parsed['results'][0]
+            if testcase['test']!=method or not re.search(r'story104_source_revision=[^\r\n]*'+re.escape(candidate),testcase['output']):
+                raise ValueError(identity+' receipt does not bind its exact test and source assembly revision')
+            ledger=[dict(id=identity+'#0001',subject=testcase['test'],state='PASS')]
+            # Check() writes the actual shared-helper result into the test receipt.
+            lines=testcase['output'].splitlines()
+            observed=next((v2_parse_json(line[line.index('{'):].encode()) for line in lines
+                if '"schemaVersion":"hexalith.conversations.evidence-boundary-result.v1"' in line),None)
+            if observed is None or observed['candidate']!=candidate or observed['result']!='PASS' or not observed['assertionLedger']:
+                raise ValueError(identity+' measured helper assertion ledger is unavailable')
+            ledger += [dict(id=f'{identity}#{n+2:04d}',subject=row['id']+'::'+row['subject'],state=row['state'])
+                for n,row in enumerate(observed['assertionLedger'])]
+        else:
+            command=v2_pytest_command(tokens)
+            if command is None:raise ValueError(identity+' unsupported command')
+            path=str(command['junit']);content=read(path);parsed=v2_parse_junit(content)
+            if not parsed['cases'] or any(case['failure'] or case['error'] or case['skipped'] for case in parsed['cases']):
+                raise ValueError(identity+' has failed, skipped or empty tests')
+            reported=parsed['reported']
+            if reported['tests']!=len(parsed['cases']) or any(reported[key] for key in ('failures','errors','skipped')):
+                raise ValueError(identity+' testcase summary differs')
+            for n,case in enumerate(parsed['cases']):
+                props=dict(case['properties'])
+                if len(props)!=len(case['properties']) or props.get('story104_source_revision')!=candidate:
+                    raise ValueError(identity+' test is not bound to the source candidate')
+                ledger.append(dict(id=f'{identity}#{n+1:04d}',subject=case['name'],state='PASS'))
+                if 'story104_expected_code' in props:
+                    code=props['story104_expected_code'];blockers=json.loads(props['story104_observed_blockers'])
+                    before,after=props['story104_before_sha256'],props['story104_after_sha256']
+                    execution=json.loads(props['story104_assertion_ledger'])
+                    if code not in blockers or set(blockers)-adoption.STABLE_CODES or before!=after or not execution:
+                        raise ValueError(identity+' fault observation or restoration differs')
+                    mutations.append(dict(id=props['story104_fault_id'],expectedBlocker=code,observedBlockers=blockers,
+                        beforeSha256=before,afterSha256=after,restored=True,result='PASS'))
+        receipt=dict(path=path,sha256=v2_sha256(content));receipts.append(receipt)
+        scenarios.append(dict(scenarioId=identity,command=scenario['command'],exitCode=0,result='PASS',blockers=[],
+            assertionLedger=ledger,resultFile=receipt,outputFiles=[receipt]))
+    required={'HASH','PATH_ESCAPE','GENERATED_OUTPUT','SUBSET','SIGNED_ALLOWLIST','SIGNABLE','ROOT','GIT_UNAVAILABLE',
+        'HISTORY_UNAVAILABLE','GITLINK','CHAIN_CHANGED','CHAIN_MISSING','CHAIN_REORDERED','CHAIN_NESTED','CHAIN_DUPLICATE',
+        'CHAIN_UNTERMINATED','CHAIN_DUPLICATE_ROW','WORKFLOW_REMOVED','MARKER_MALFORMED','SPAN_DISPLACED',
+        'GUIDANCE_REMOVED','GUIDANCE_EQUALITY','GUIDANCE_DECLARED_HASH','GUIDANCE_REDIRECT','READER_STRENGTH',
+        'READER_HELPER','EXEMPTION','READER_INVENTORY','PROMOTION_SPAN_DISPLACED'}
+    if {row['id'] for row in mutations}!=required or len(mutations)!=len(required):
+        raise ValueError('the exact named 29-fault matrix was not measured')
+    scenario=contract['scenarios'][7]
+    scenarios.insert(7,dict(scenarioId='AC-10.4-08',command=scenario['command'],exitCode=0,result='PASS',blockers=[],
+        assertionLedger=[dict(id=f'AC-10.4-08#{n+1:04d}',subject=subject,state='PASS') for n,subject in enumerate((
+            'eight-measured-candidate-bound-receipts-including-AC-09','verified-10.3-predecessor',
+            '27-exact-reader-substitutions-and-zero-exemptions','29-real-faults-and-byte-identical-restoration',
+            'ten-workflow-spans-and-resolved-guidance','closed-schema-and-deterministic-pair'))]))
+    return scenarios,receipts,mutations
+
+
+def v2_10_4_source_errors(repository,record,consumer_candidate=None):
+    """Recompute sources, predecessor, exact Git boundary and committed receipt derivations."""
+    adoption = v2_10_4_module()
+    problems=v2_10_4_pair_errors(record)
+    if problems:return problems
+    try:
+        facts=record['evidenceAdoptionExecution'];candidate=record['candidate']['commit']
+        for row in [facts['binding'],facts['contract'],*facts['sourceFiles'],*facts['provenance']]:
+            blob=v2_committed_blob(repository,candidate,row['path'])
+            if blob is None or v2_sha256(blob)!=row['sha256']:problems.append('committed source differs: '+row['path'])
+        binding=v2_parse_json(v2_committed_blob(repository,candidate,V2_10_4_BINDING))
+        contract=v2_parse_json(v2_committed_blob(repository,candidate,V2_10_4_CONTRACT))
+        if [row['path'] for row in facts['sourceFiles']]!=binding['sourcePaths']:problems.append('source membership differs')
+        for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot'):
+            if facts[key]!=binding[key]:problems.append('effective binding differs: '+key)
+        raw=adoption.current.bridge(repository,dict(baseline=adoption.BASELINE,candidate=candidate,expectedPaths=binding['sourcePaths'],includeRootGitlinks=True,
+            blobPaths=[adoption.SNAPSHOT,*adoption.PROVENANCE]))
+        if raw['result']!='PASS' or raw['rootGitlinks']!=facts['rootGitlinks']:problems.append('raw boundary or twelve roots differ')
+        blobs={row['path']:row for row in raw['blobs']}
+        if blobs[adoption.SNAPSHOT]['sha256']!=adoption.SNAPSHOT_SHA256:problems.append('entry trust root differs')
+        snapshot=v2_parse_json(base64.b64decode(blobs[adoption.SNAPSHOT]['content']))
+        reader_facts=v2_10_4_reader_facts(snapshot)
+        if reader_facts!=facts['readerBeforeAfter']:problems.append('reader identity/strength material differs')
+        for row in reader_facts:
+            blob=v2_committed_blob(repository,candidate,row['path'])
+            if blob is None or v2_sha256(blob)!=row['afterSha256']:problems.append('migrated reader differs: '+row['path'])
+        if facts['routeFacts']!=v2_10_3_route_facts(repository,candidate,adoption.WORKFLOWS):problems.append('workflow byte spans differ')
+        _,validators=v2_load_schemas()
+        if v2_verified_predecessor(repository,candidate,'10.3',adoption.PROVENANCE[5],adoption.PROVENANCE[6],validators['record'])!=adoption.PREDECESSOR_SHA256:
+            problems.append('verified 10.3 predecessor differs')
+        consumer_candidate=consumer_candidate or resolve_commit(repository,'HEAD','CANDIDATE_UNRESOLVABLE')
+        def committed(path):
+            content=v2_committed_blob(repository,consumer_candidate,path)
+            if content is None:raise ValueError('committed receipt unavailable')
+            return content
+        scenarios,receipts,mutations=v2_10_4_receipt_facts(repository,contract,candidate,committed)
+        if (scenarios,receipts,mutations)!=(record['scenarios'],facts['receipts'],facts['mutationLedger']):
+            problems.append('committed receipts do not derive the recorded facts')
+    except (ValueError,KeyError,TypeError,OSError,V2Stop) as error:problems.append('source consumption unavailable: '+str(error))
+    return problems
+
+
+def v2_10_4_reader_facts(snapshot):
+    """Full entry bytes and enumerated substitutions bind identity and strength, not assertion counts."""
+    adoption = v2_10_4_module()
+    rows=[]
+    for entry in snapshot['readers']:
+        original=base64.b64decode(entry['entryBase64']);strength=original.decode().replace('\r\n','\n')
+        # Every non-plumbing byte, including all fixtures and original assertions, remains in this material.
+        for operation in entry['substitutions']:
+            strength=strength.replace(operation['before'],'<plumbing:'+operation['kind']+'>')
+        rows.append(dict(path=entry['path'],beforeSha256=entry['entrySha256'],afterSha256=entry['afterSha256'],
+            substitutionSha256=v2_sha256(adoption.current.canonical(entry['substitutions'])),identityStrengthSha256=v2_sha256(strength.encode())))
+    return rows
+
+
+def v2_10_4_publication_paths(record):
+    return [record['outputs'][kind]['path'] for kind in ('json','markdown')]+[row['path'] for row in record['evidenceAdoptionExecution']['receipts']]
+
+
+def v2_10_4_descendant_errors(repository,record,head):
+    """Require one atomic receipt/pair publication followed only by lifecycle insertion."""
+    adoption = v2_10_4_module()
+    candidate=record['candidate']['commit'];parent=candidate;publications=0
+    if run_git(repository,'merge-base','--is-ancestor',candidate,head,allowed_returncodes=(0,1)).returncode:
+        return ['source candidate is not an ancestor']
+    for commit in decode(run_git(repository,'rev-list','--reverse',f'{candidate}..{head}').stdout).split():
+        if decode(run_git(repository,'rev-list','--parents','-n','1',commit).stdout).split()[1:]!=[parent]:return ['history is not a direct single-parent continuation']
+        facts=adoption.current.bridge(repository,dict(baseline=parent,candidate=commit))
+        changed={row['path'] for row in facts['diff']}|{row['sourcePath'] for row in facts['diff'] if row['sourcePath']}
+        if facts['result']!='PASS':return ['post-source history or gitlinks do not pass']
+        if changed==set(v2_10_4_publication_paths(record)) and publications==0:
+            for row in record['evidenceAdoptionExecution']['receipts']:
+                blob=v2_committed_blob(repository,commit,row['path'])
+                if blob is None or v2_sha256(blob)!=row['sha256']:return ['published receipt differs']
+            j,m=(v2_committed_blob(repository,commit,record['outputs'][kind]['path']) for kind in ('json','markdown'))
+            if j is None or m is None or v2_verify_pair(j,m) or v2_parse_json(j)!=record:return ['published pair differs']
+            publications+=1
+        elif publications==1 and changed and changed.issubset({V2_10_4_SPEC,'_bmad-output/implementation-artifacts/sprint-status.yaml'}):
+            if V2_10_4_SPEC in changed and not v2_spec_lifecycle_only_change(repository,parent,commit,V2_10_4_SPEC,record_region=True,task_checkboxes=True):return ['spec source drift after acceptance']
+            if '_bmad-output/implementation-artifacts/sprint-status.yaml' in changed and not v2_sprint_status_only_change(repository,parent,commit,
+                    '10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection'):return ['tracking source drift after acceptance']
+        else:return ['publication boundary or later source changed']
+        parent=commit
+    return [] if publications==1 else ['exactly one atomic publication is required']
+
+
+def v2_10_4_generate(options,*,candidate=None,verify_spec=None,consumer_candidate=None):
+    """Generate from committed sources, eight receipts and verified predecessor; derive AC-08 last."""
+    adoption = v2_10_4_module()
+    repository=validate_repository(Path(options.get('--repository') or default_repository()))
+    candidate=candidate or resolve_commit(repository,'HEAD','CANDIDATE_UNRESOLVABLE')
+    _,validators=v2_load_schemas()
+    binding_bytes=v2_committed_blob(repository,candidate,V2_10_4_BINDING);contract_bytes=v2_committed_blob(repository,candidate,V2_10_4_CONTRACT)
+    binding=v2_parse_json(binding_bytes);contract=v2_validate_contract(contract_bytes,V2_10_4_CONTRACT,validators['contract'],validators['contract_v14'])
+    if [row['id'] for row in contract['scenarios']]!=[f'AC-10.4-0{n}' for n in range(1,10)]:raise ValueError('all nine AC identities are required')
+    if [options['--output-json'],options['--output-markdown']]!=contract['finalRecord']['paths']:raise ValueError('output pair differs from contract')
+    source_files=[]
+    for path in binding['sourcePaths']:
+        blob=v2_committed_blob(repository,candidate,path)
+        if blob is None:raise ValueError('source unavailable: '+path)
+        source_files.append(dict(path=path,sha256=v2_sha256(blob)))
+        working=v2_10_1_artifact_bytes(repository,path)
+        if working!=blob and not (path==V2_10_4_SPEC and v2_working_spec_lifecycle_only_change(repository,candidate,path,working,record_region=True,task_checkboxes=True)):
+            raise ValueError('working source differs: '+path)
+    predecessor=v2_verified_predecessor(repository,candidate,'10.3',adoption.PROVENANCE[5],adoption.PROVENANCE[6],validators['record'])
+    if predecessor!=adoption.PREDECESSOR_SHA256:raise ValueError('predecessor does not verify')
+    observed=adoption.verify(repository,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+    if observed['result']!='PASS':
+        raise V2Stop([v2_finding('GIT_COMMAND_FAILED' if observed['result']=='BLOCKED' else 'RECORD_NOT_DERIVED',
+            'scoped-verifier','scoped verifier does not pass: '+', '.join(observed['blockers']))],'10.4')
+    scenarios,receipts,mutations=v2_10_4_receipt_facts(repository,contract,candidate,
+        (lambda path:v2_committed_blob(repository,consumer_candidate,path)) if consumer_candidate else None)
+    facts={key:binding[key] for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot')}
+    facts.update(bindingRule='SC-10.4 is the committed candidate evaluated under the approved current binding',sourceRevisionId=candidate,
+        binding=dict(path=V2_10_4_BINDING,sha256=v2_sha256(binding_bytes)),contract=dict(path=V2_10_4_CONTRACT,sha256=v2_sha256(contract_bytes)),
+        predecessorPair=dict(json=dict(path=adoption.PROVENANCE[5],sha256=predecessor),markdown=dict(path=adoption.PROVENANCE[6],sha256=v2_sha256(v2_committed_blob(repository,candidate,adoption.PROVENANCE[6])))),
+        sourceFiles=source_files,routeFacts=v2_10_3_route_facts(repository,candidate,adoption.WORKFLOWS),
+        readerBeforeAfter=v2_10_4_reader_facts(adoption.snapshot(repository)),receipts=receipts,mutationLedger=mutations)
+    bundle=v2_parse_json(v2_committed_blob(repository,candidate,adoption.PROVENANCE[4]))
+    bundle_digest=v2_sha256(''.join(f'{row["sha256"]}  {row["path"]}\n' for row in bundle['artifacts']).encode())
+    if bundle_digest!=bundle['bundleDigest']:raise ValueError('original authority row digest differs')
+    paths=contract['finalRecord']['paths']
+    record=dict(schemaVersion=V2_RECORD_SCHEMA_VERSION,storyId='10.4',authority={key:contract['authority'][key] for key in ('epic','architecture','planningCandidate')},
+        candidate=dict(commit=candidate,gitlinks=facts['rootGitlinks']),predecessors=['10.3'],inventory=contract['inventory'],scenarios=scenarios,
+        faultInjection=dict(results=[]),outputs=dict(json=dict(path=paths[0],sha256=V2_ZERO_DIGEST),markdown=dict(path=paths[1],sha256=V2_ZERO_DIGEST)),
+        rollback=contract['rollback'],summary=dict(required=9,passed=9,failed=0,blocked=0,skipped=0,notRun=0),renderedMarkdownSha256=V2_ZERO_DIGEST,evidenceAdoptionExecution=facts)
+    record['authority']['bundleDigest']=bundle_digest
+    final,j,m=v2_finalize(record)
+    problems=v2_schema_errors(validators['record'],final)+v2_verify_pair(j,m)
+    if problems:raise ValueError('; '.join(problems))
+    if verify_spec is not None:return j
+    v2_write_outputs([(v2_output_target(repository,paths[0]),j),(v2_output_target(repository,paths[1]),m)])
+    return j
+
+
+def v2_10_4_verify_inserted_impl(options):
+    repository=validate_repository(Path(options.get('--repository') or default_repository()));head=resolve_commit(repository,'HEAD','CANDIDATE_UNRESOLVABLE')
+    paths=('docs/release-evidence/story-10.4-final-record-v2.json','docs/release-evidence/story-10.4-final-record-v2.md')
+    j,m=(v2_committed_blob(repository,head,path) for path in paths)
+    if j is None or m is None:raise ValueError('pair must be committed before insertion verification')
+    record=v2_parse_json(j);_,validators=v2_load_schemas()
+    problems=v2_schema_errors(validators['record'],record)+v2_verify_pair(j,m)+v2_10_4_source_errors(repository,record,head)+v2_10_4_descendant_errors(repository,record,head)
+    if problems:raise ValueError('; '.join(problems))
+    if options[V2_VERIFY_OPTION]!=V2_10_4_SPEC:raise ValueError('designated 10.4 spec required')
+    spec=(repository/V2_10_4_SPEC).read_bytes();region=v2_record_region(spec)
+    if region is None or spec[region[0]:region[1]]!=m:raise ValueError('verbatim inserted region differs')
+    if not v2_working_spec_lifecycle_only_change(repository,head,V2_10_4_SPEC,spec,record_region=True,task_checkboxes=True):raise ValueError('working spec changes source')
+    for path,content in zip(paths,(j,m)):
+        if (repository/path).read_bytes()!=content:raise ValueError('installed pair differs')
+    derived=v2_10_4_generate({'--repository':str(repository),'--contract':V2_10_4_CONTRACT,'--format':'bundle',
+        '--output-json':paths[0],'--output-markdown':paths[1]},candidate=record['candidate']['commit'],verify_spec=V2_10_4_SPEC,consumer_candidate=head)
+    if derived!=j:raise ValueError('candidate rederivation differs')
+    return j
+
+def v2_10_4_verify_inserted(options):
+    """Report scoped rederivation defects with the stable insertion blocker."""
+    try:
+        return v2_10_4_verify_inserted_impl(options)
+    except ValueError as error:
+        raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT', '10.4', str(error))], '10.4') from None
+
+
 def v2_main(raw_arguments: Sequence[str]) -> int:
     """Run the v2 route: exit 0 PASS, 1 FAIL, 2 BLOCKED; stdout is always schema-valid."""
     story_id: str | None = None
     try:
         options = v2_parse_arguments(raw_arguments)
         if V2_VERIFY_OPTION in options:
-            json_bytes = (v2_10_3_verify_inserted(options) if options.get("--contract") == V2_10_3_CONTRACT
+            if options.get("--contract") == V2_10_4_CONTRACT:
+                json_bytes = v2_10_4_verify_inserted(options)
+            else:
+                json_bytes = (v2_10_3_verify_inserted(options) if options.get("--contract") == V2_10_3_CONTRACT
                           else v2_verify_inserted(options))
         elif "--historical" in options:
             json_bytes, historical_exit = v2_historical(options)

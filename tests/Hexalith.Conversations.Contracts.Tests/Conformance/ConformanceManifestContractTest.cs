@@ -13,6 +13,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Contracts.Tests.Conformance;
 
 /// <summary>
@@ -366,7 +368,7 @@ public sealed class ConformanceManifestContractTest
         string path = GetFixturePath();
         File.Exists(path).ShouldBeTrue($"Expected fixture file at '{path}'.");
 
-        string json = File.ReadAllText(path);
+        string json = RepositoryLocator.ReadAllText(path);
         ConformanceManifestV1? manifest = JsonSerializer.Deserialize<ConformanceManifestV1>(json, WebOptions);
         manifest.ShouldNotBeNull();
     }
@@ -374,7 +376,7 @@ public sealed class ConformanceManifestContractTest
     [Fact]
     public void FixtureFileShouldPassValidateManifestWithZeroDiagnostics()
     {
-        string json = File.ReadAllText(GetFixturePath());
+        string json = RepositoryLocator.ReadAllText(GetFixturePath());
         ConformanceManifestV1 manifest = JsonSerializer.Deserialize<ConformanceManifestV1>(json, WebOptions)!;
 
         IReadOnlyList<string> errors = ConformanceManifestValidator.ValidateManifest(manifest);
@@ -384,7 +386,7 @@ public sealed class ConformanceManifestContractTest
     [Fact]
     public void FixtureFileShouldContainAtLeastThreeEntries()
     {
-        string json = File.ReadAllText(GetFixturePath());
+        string json = RepositoryLocator.ReadAllText(GetFixturePath());
         ConformanceManifestV1 manifest = JsonSerializer.Deserialize<ConformanceManifestV1>(json, WebOptions)!;
 
         manifest.Entries.Count.ShouldBeGreaterThanOrEqualTo(3);
@@ -393,7 +395,7 @@ public sealed class ConformanceManifestContractTest
     [Fact]
     public void FixtureFileShouldContainV1TelemetryAndRenderedUiWaiverEvidence()
     {
-        string json = File.ReadAllText(GetFixturePath());
+        string json = RepositoryLocator.ReadAllText(GetFixturePath());
         ConformanceManifestV1 manifest = JsonSerializer.Deserialize<ConformanceManifestV1>(json, WebOptions)!;
         string[] testIds = manifest.Entries.Select(e => e.TestId).ToArray();
 
@@ -423,7 +425,7 @@ public sealed class ConformanceManifestContractTest
             "D:\\",
         ];
 
-        string json = File.ReadAllText(GetFixturePath());
+        string json = RepositoryLocator.ReadAllText(GetFixturePath());
         foreach (string fragment in forbidden)
         {
             json.ShouldNotContain(fragment, Case.Insensitive, $"Fixture must not contain forbidden fragment '{fragment}'.");
@@ -439,22 +441,7 @@ public sealed class ConformanceManifestContractTest
     }
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => ContractSamples.EvidenceRoot();
 
     private static ConformanceManifestRowV1 BuildRow(
         string testId = "test-row-001",

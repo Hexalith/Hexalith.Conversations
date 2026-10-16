@@ -10,6 +10,9 @@ internal static class Program
     private const string Story102RecordSha256 = "7bca69ff979b5ead9819da913933c13efbcb6e2076368202be92f256ef39d409";
     private const string Story102CandidateCommit = "5a119ff283a8f81906a52d983e50b04b76fae0ed";
 
+    private const string Story103RecordSha256 = "013416c7f819aafcad2528d4b6892a05707b5f3056830ee550f174048a9929d1";
+    private const string Story103CandidateCommit = "6908c5264c388cca1b094400c5abfa320482c5e3";
+
     /// <summary>Reads one request and emits one helper-derived response.</summary>
     private static async Task<int> Main()
     {
@@ -19,7 +22,7 @@ internal static class Program
             using JsonDocument request = JsonDocument.Parse(await Console.In.ReadToEndAsync().ConfigureAwait(false));
             JsonElement input = request.RootElement;
             string root = input.GetProperty("repository").GetString()!;
-            GitFacts git = new();
+            GitFacts git = new(input.TryGetProperty("gitExecutable", out JsonElement executable) ? executable.GetString()! : "git");
             AssertionLedger ledger = new();
             GitFact<string> repository = await git.ResolveRepositoryAsync(root).ConfigureAwait(false);
             BoundaryAssertions.HistoryAvailable(ledger, "repository", repository);
@@ -57,8 +60,10 @@ internal static class Program
                     .ToDictionary(row => row.Name, row => row.Value.GetString()!, StringComparer.Ordinal);
                 if (roots.GetProperty("sourcePath").GetString() == "tests/Hexalith.Conversations.TestSupport.Runner/Program.cs")
                 {
-                    bool compiledPins = constants.Count == 2 && constants.GetValueOrDefault("Story102RecordSha256") == Story102RecordSha256
-                        && constants.GetValueOrDefault("Story102CandidateCommit") == Story102CandidateCommit;
+                    bool compiledPins = constants.Count == 2 && (constants.GetValueOrDefault("Story102RecordSha256") == Story102RecordSha256
+                        && constants.GetValueOrDefault("Story102CandidateCommit") == Story102CandidateCommit
+                        || constants.GetValueOrDefault("Story103RecordSha256") == Story103RecordSha256
+                        && constants.GetValueOrDefault("Story103CandidateCommit") == Story103CandidateCommit);
                     if (!compiledPins) ledger.Block("ROOT_OF_TRUST_NOT_PINNED", "roots:compiled", "The request must retain the consuming assembly's literal pins.");
                     ledger.Record("roots:compiled", compiledPins);
                 }
@@ -72,6 +77,14 @@ internal static class Program
                 }
                 BoundaryAssertions.SignedEvidenceIsNotAllowlisted(ledger, "allowlist", root,
                     roots.GetProperty("allowlist").EnumerateArray().Select(row => row.GetString()!));
+            }
+            List<object> rootGitlinks = [];
+            if (input.TryGetProperty("includeRootGitlinks", out JsonElement includeLinks) && includeLinks.GetBoolean())
+            {
+                GitFact<IReadOnlyList<GitTreeEntry>> tree = await git.ReadTreeAsync(root, candidate.Value ?? input.GetProperty("candidate").GetString()!).ConfigureAwait(false);
+                BoundaryAssertions.HistoryAvailable(ledger, "roots:tree", tree);
+                if (tree.IsSuccess) rootGitlinks.AddRange(tree.Value!.Where(entry => entry.Mode == "160000")
+                    .Select(entry => (object)new { path = entry.Path, mode = entry.Mode, commit = entry.ObjectId }));
             }
             List<string> treePaths = [];
             List<string> headPaths = [];
@@ -179,6 +192,13 @@ internal static class Program
                     ledger.Record("reader:strength:" + relative, relative, strength);
                 }
             }
+            if (input.TryGetProperty("chains", out JsonElement chains))
+            {
+                foreach (JsonElement chain in chains.EnumerateArray())
+                    BoundaryAssertions.ChainTable(ledger, chain.GetProperty("id").GetString()!, chain.GetProperty("source").GetString()!,
+                        chain.GetProperty("begin").GetString()!, chain.GetProperty("end").GetString()!,
+                        chain.GetProperty("rows").EnumerateArray().Select(row => row.GetString()!));
+            }
             List<object> containedPaths = [];
             if (input.TryGetProperty("containedPaths", out JsonElement requestedPaths))
             {
@@ -196,7 +216,7 @@ internal static class Program
                 && !ledger.Rows.Any(row => row.State == "FAIL") && !evaluation.Blockers.Any(row => row.Code == "UNAVAILABLE_HISTORY_PASSED") ? "BLOCKED" : evaluation.Result;
             Console.WriteLine(JsonSerializer.Serialize(new {
                 result = state, candidate = candidate.Value, baseline = baseline.Value, diff = diff.Value,
-                blobs, containedPaths, treePaths, headPaths, indexPaths, evidenceReaders, assertionLedger = ledger.Rows, blockers = evaluation.Blockers.Select(row => row.Code).Distinct().Order(StringComparer.Ordinal)
+                blobs, containedPaths, rootGitlinks, treePaths, headPaths, indexPaths, evidenceReaders, assertionLedger = ledger.Rows, blockers = evaluation.Blockers.Select(row => row.Code).Distinct().Order(StringComparer.Ordinal)
             }, options));
             return 0;
         }

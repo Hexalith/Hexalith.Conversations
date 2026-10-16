@@ -1,10 +1,12 @@
 [workflow]
 
 activation_steps_append = [
+  "Use the canonical evidence-boundary runbook for explicitly required evidence work: recomputed hashes, contained paths, canonical signable payload, exact changed-path equality, raw-mode gitlink exclusion, exact inventory identity, root-of-trust pinning, and anti-vacuity. Invoke the effective scoped verifier; preserve PASS/FAIL/BLOCKED/not-applicable distinctly. FAIL and BLOCKED halt review and completion.",
   "For explicitly required evidence work, enforce the effective scoped evidence-boundary contract before review or completion; FAIL and BLOCKED halt, and not-applicable is recorded distinctly.",
   "For new routine work, follow the current-change runbook and run focused checks. Reproduce historical evidence-boundary results only when the spec explicitly asks for them.",
 ]
 
 persistent_facts = [
+  "file:{project-root}/docs/runbooks/evidence-boundary-validation.md",
   "file:{project-root}/docs/runbooks/current-change-validation.md",
 ]

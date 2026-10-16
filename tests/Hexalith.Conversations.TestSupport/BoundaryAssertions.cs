@@ -3,6 +3,28 @@ namespace Hexalith.Conversations.TestSupport;
 /// <summary>Small neutral assertion helpers that record their evaluation.</summary>
 public static class BoundaryAssertions
 {
+    /// <summary>Validates a single bounded marker region and its exact ordered chain-table rows.</summary>
+    public static bool ChainTable(AssertionLedger ledger, string identity, string source, string begin, string end, IEnumerable<string> expectedRows)
+    {
+        ArgumentNullException.ThrowIfNull(ledger);
+        int first = source.IndexOf(begin, StringComparison.Ordinal);
+        int last = source.IndexOf(end, StringComparison.Ordinal);
+        bool markers = first >= 0 && last > first
+            && source.IndexOf(begin, first + begin.Length, StringComparison.Ordinal) < 0
+            && source.IndexOf(end, last + end.Length, StringComparison.Ordinal) < 0;
+        if (!markers) ledger.Block("EVIDENCE_CHAIN_MARKER_INVALID", identity, "Exactly one ordered, nonnested marker pair is required.");
+        ledger.Record(identity + ":markers", identity, markers);
+        if (!markers) return false;
+        string[] rows = source[(first + begin.Length)..last].Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(row => row.Trim()).Where(row => row.StartsWith('|')).ToArray();
+        string[] expected = expectedRows.ToArray();
+        bool equal = expected.Length > 0 && rows.SequenceEqual(expected, StringComparer.Ordinal)
+            && rows.Distinct(StringComparer.Ordinal).Count() == rows.Length;
+        if (!equal) ledger.Block("EVIDENCE_CHAIN_TABLE_INVALID", identity, "Chain rows must equal the frozen ordered inventory without duplicates.");
+        ledger.Record(identity + ":rows", identity, equal);
+        return equal;
+    }
+
     /// <summary>Records whether an expected value equals an observed value.</summary>
     public static bool Equal<T>(AssertionLedger ledger, string identity, T expected, T observed)
     {

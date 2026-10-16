@@ -12,6 +12,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -196,7 +198,7 @@ public sealed class ReleaseConformanceArtifactGenerationTest
         File.WriteAllText(path, json);
 
         // Validate the generated file round-trips correctly
-        string readBack = File.ReadAllText(path);
+        string readBack = RepositoryLocator.ReadAllText(path);
         ReleaseConformanceArtifactV1? parsed = JsonSerializer.Deserialize<ReleaseConformanceArtifactV1>(readBack, WebOptions);
         parsed.ShouldNotBeNull();
         IReadOnlyList<string> errors = ReleaseConformanceArtifactV1.ValidateArtifact(parsed!);
@@ -204,22 +206,7 @@ public sealed class ReleaseConformanceArtifactGenerationTest
     }
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 
     /// <summary>
     /// Simple test-time <see cref="TimeProvider"/> that always returns a fixed time.

@@ -44,3 +44,8 @@ artifacts/v9/10.3/*.xml text eol=lf
 tests/Hexalith.Conversations.TestSupport.Runner/Hexalith.Conversations.TestSupport.Runner.csproj text eol=lf
 # The pinned C# consumer is authored with the required CRLF convention.
 tests/Hexalith.Conversations.TestSupport.Runner/Program.cs -text diff
+
+# Story 10.4 entry and measured receipts are byte-hashed across checkouts.
+artifacts/v9/10.4/*.json text eol=lf
+artifacts/v9/10.4/*.xml text eol=lf
+artifacts/v9/10.4/*.trx text eol=lf

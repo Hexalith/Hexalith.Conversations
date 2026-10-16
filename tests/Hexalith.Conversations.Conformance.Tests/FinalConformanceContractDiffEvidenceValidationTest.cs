@@ -10,6 +10,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -143,36 +145,21 @@ public sealed class FinalConformanceContractDiffEvidenceValidationTest
     {
         string path = Path.Combine(ReleaseEvidenceDirectory(), JsonArtifactFileName);
         File.Exists(path).ShouldBeTrue($"Expected Story 5.1 JSON artifact at '{path}'.");
-        return JsonDocument.Parse(File.ReadAllText(path));
+        return JsonDocument.Parse(RepositoryLocator.ReadAllText(path));
     }
 
     private static string LoadMarkdownArtifact()
     {
         string path = Path.Combine(ReleaseEvidenceDirectory(), MarkdownArtifactFileName);
         File.Exists(path).ShouldBeTrue($"Expected Story 5.1 Markdown artifact at '{path}'.");
-        return File.ReadAllText(path);
+        return RepositoryLocator.ReadAllText(path);
     }
 
     private static string ReleaseEvidenceDirectory()
         => Path.Combine(FindRepositoryRoot(), "docs", "release-evidence");
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 
     private static void CollectStringValues(JsonElement element, string path, List<(string Path, string Value)> values)
     {

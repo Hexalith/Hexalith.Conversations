@@ -2231,3 +2231,12 @@ for _story103_name in dir(_story103_module):
         'test_not_applicable_is_not_pass', 'test_lifecycle_transition_semantics',
         'test_invocation_removal_and_displacement')) or _story103_name in ('surfaces', 'git_repository', '_stamp_current_candidate'):
         globals()[_story103_name] = getattr(_story103_module, _story103_name)
+
+# Story 10.4 acceptance selectors share the current tooling lane's real-helper fixtures.
+_story104_path = Path(__file__).resolve().parents[3] / 'tests/tooling/test_evidence_boundary_adoption.py'
+_story104_spec = _story103_importlib.spec_from_file_location('story104_adoption_regressions', _story104_path)
+_story104_module = _story103_importlib.module_from_spec(_story104_spec)
+_story104_spec.loader.exec_module(_story104_module)
+for _story104_name in dir(_story104_module):
+    if _story104_name.startswith('test_complete_fault_matrix') or _story104_name in ('stamp_adoption_candidate','adoption_surface','adoption_git'):
+        globals()[_story104_name] = getattr(_story104_module, _story104_name)

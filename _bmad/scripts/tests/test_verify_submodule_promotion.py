@@ -998,6 +998,11 @@ def promotion_gate_span(content: str, markers: tuple[str, ...]) -> tuple[int, in
     if gate_index + 1 == len(markers):
         return start, len(content)
     end = content.find(markers[gate_index + 1], start + len(markers[gate_index]))
+    # An evidence insertion is a follower too. Never widen the promotion span
+    # across a new guard merely because the old final-record heading still exists.
+    evidence = content.find("<!-- EVIDENCE-BOUNDARY-GATE:BEGIN v1 -->", start + len(markers[gate_index]))
+    if evidence >= 0 and (end < 0 or evidence < end):
+        end = evidence
     return (start, end) if end >= 0 else (-1, -1)
 
 
@@ -1706,3 +1711,41 @@ def test_declared_and_unrelated_ahead_root_submodules_are_both_enforced(
 
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))
+
+
+@pytest.mark.parametrize("displaced", [False, True], ids=["exact-span", "displaced-span"])
+def test_evidence_gate_span_coupling(tmp_path, displaced, record_property):
+    """The real V12 contract guard stops at a newly inserted evidence gate."""
+    markers, clauses = WORKFLOW_GATE_CONTRACTS["bmad-build/step-05-present.md"]
+    heading, follower = markers
+    evidence = "<!-- EVIDENCE-BOUNDARY-GATE:BEGIN v1 -->"
+    original = (heading + "\n" + "\n".join(clauses) + "\n" + evidence
+        + "\nindependent evidence guard\n<!-- EVIDENCE-BOUNDARY-GATE:END v1 -->\n" + follower + "\n")
+    path = tmp_path / "route.md"
+    path.write_text(original)
+    before = hashlib.sha256(path.read_bytes()).hexdigest()
+    try:
+        if displaced:
+            changed = original.replace("verify_submodule_promotion.py\n", "", 1)
+            changed = changed.replace(evidence, evidence + "\nverify_submodule_promotion.py", 1)
+            path.write_text(changed)
+        text = path.read_text()
+        start, end = promotion_gate_span(text, markers)
+        assert start == 0 and end == text.index(evidence)
+        violations = gate_contract_violations(text, markers, clauses)
+        observed = ["PROMOTION_GATE_SPAN_WEAKENED"] if violations else []
+        assert observed == (["PROMOTION_GATE_SPAN_WEAKENED"] if displaced else [])
+        if displaced:
+            assert violations == ["missing enforcement clause: verify_submodule_promotion.py"]
+    finally:
+        path.write_text(original)
+    after = hashlib.sha256(path.read_bytes()).hexdigest()
+    assert before == after
+    record_property("story104_source_revision", run_git(WORKSPACE, "rev-parse", "HEAD").stdout.strip())
+    record_property("story104_before_sha256", before)
+    record_property("story104_after_sha256", after)
+    record_property("story104_assertion_ledger", json.dumps([dict(id="promotion-span", state="FAIL" if displaced else "PASS")]))
+    if displaced:
+        record_property("story104_fault_id", "PROMOTION_SPAN_DISPLACED")
+        record_property("story104_expected_code", "PROMOTION_GATE_SPAN_WEAKENED")
+        record_property("story104_observed_blockers", json.dumps(observed))

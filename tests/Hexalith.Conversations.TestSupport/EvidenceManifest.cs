@@ -17,6 +17,19 @@ public sealed class EvidenceManifest
     /// <summary>Signed rows in their original declaration order.</summary>
     public IReadOnlyList<EvidenceManifestRow> Rows => _rows.AsReadOnly();
 
+    /// <summary>Recomputes a contained file hash from a bounded-memory stream.</summary>
+    public static string HashFile(string path)
+    {
+        using FileStream stream = File.OpenRead(RepositoryLocator.ContainedFile(path));
+        return Convert.ToHexStringLower(SHA256.HashData(stream));
+    }
+
+    /// <summary>Recomputes a byte payload hash.</summary>
+    public static string HashBytes(byte[] content) => Convert.ToHexStringLower(SHA256.HashData(content));
+
+    /// <summary>Recomputes a UTF-8 text payload hash without changing its canonicalization.</summary>
+    public static string HashText(string content) => HashBytes(Encoding.UTF8.GetBytes(content));
+
     /// <summary>Adds a declaration without evaluating its evidence boundary.</summary>
     public void Add(string path, string sha256)
         => Add(path, sha256, "evidence");

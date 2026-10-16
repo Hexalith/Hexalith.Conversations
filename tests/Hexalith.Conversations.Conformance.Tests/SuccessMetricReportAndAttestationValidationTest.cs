@@ -13,6 +13,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -57,7 +59,6 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
     private const string ArchivedLegacyPrdPath = "_bmad-output/archive/conversations-product-contract-2026-05-31.md";
 
     /// <summary>Bounded wait so a blocked git (index.lock, credential prompt, hook) fails instead of hanging the suite.</summary>
-    private const int GitTimeout = 60_000;
 
     /// <summary>
     /// Signed v1 source artifacts that later corrective authority lawfully supersedes. Every other declared
@@ -598,39 +599,24 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
     {
         string path = Path.Combine(ReleaseEvidenceDirectory(), JsonArtifactFileName);
         File.Exists(path).ShouldBeTrue($"Expected Story 5.3 JSON artifact at '{path}'.");
-        return JsonDocument.Parse(File.ReadAllText(path));
+        return JsonDocument.Parse(RepositoryLocator.ReadAllText(path));
     }
 
     private static JsonDocument LoadEvidenceArtifact(string fileName)
-        => JsonDocument.Parse(File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), fileName)));
+        => JsonDocument.Parse(RepositoryLocator.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), fileName)));
 
     private static string LoadMarkdownArtifact()
     {
         string path = Path.Combine(ReleaseEvidenceDirectory(), MarkdownArtifactFileName);
         File.Exists(path).ShouldBeTrue($"Expected Story 5.3 Markdown artifact at '{path}'.");
-        return File.ReadAllText(path);
+        return RepositoryLocator.ReadAllText(path);
     }
 
     private static string ReleaseEvidenceDirectory()
         => Path.Combine(FindRepositoryRoot(), "docs", "release-evidence");
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 
     /// <summary>
     /// Normalizes a declared repository-relative path so a spelling difference cannot move an artifact out
@@ -657,10 +643,10 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
             : path;
 
     private static string ComputeFileSha256(string path)
-        => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
+        => EvidenceManifest.HashFile(path);
 
     private static string ComputeTextSha256(string content)
-        => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content))).ToLowerInvariant();
+        => EvidenceManifest.HashText(content);
 
     private static void AssertCommitIdentity(string commit, string name)
     {
@@ -693,41 +679,9 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
         string repositoryRelativePath,
         out string sha256)
     {
-        sha256 = string.Empty;
-
-        if (!TryRunGitIn(repositoryRoot, out string treeEntry, "ls-tree", "--full-tree", revision, "--", repositoryRelativePath))
-        {
-            return false;
-        }
-
-        string[] entries = treeEntry.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        if (entries.Length != 1 || entries[0].Split(' ', 2, StringSplitOptions.None)[0] is not ("100644" or "100755"))
-        {
-            return false;
-        }
-
-        if (!TryStartGit(CreateGitStartInfo(repositoryRoot, "cat-file", "blob", $"{revision}:{repositoryRelativePath}"), out Process? process, out _))
-        {
-            return false;
-        }
-
-        using Process started = process;
-        using MemoryStream buffer = new();
-
-        // Drain stderr concurrently: reading stdout to completion first deadlocks whenever git fills
-        // the stderr pipe (warnings are emitted per file and can exceed the pipe buffer).
-        Task<string> errorTask = started.StandardError.ReadToEndAsync();
-        started.StandardOutput.BaseStream.CopyTo(buffer);
-        WaitForGitExit(started, "cat-file", "blob", $"{revision}:{repositoryRelativePath}");
-        errorTask.Wait(GitTimeout);
-
-        if (started.ExitCode != 0)
-        {
-            return false;
-        }
-
-        sha256 = Convert.ToHexString(SHA256.HashData(buffer.ToArray())).ToLowerInvariant();
-        return true;
+        GitFact<GitBlob> blob = new GitFacts().ReadBlobAsync(repositoryRoot, revision, repositoryRelativePath).GetAwaiter().GetResult();
+        sha256 = blob.Value?.Sha256 ?? string.Empty;
+        return blob.IsSuccess;
     }
 
     private static void ValidateHistoricalBlobModeFaults()
@@ -776,112 +730,22 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
 
     private static bool TryRunGit(out string output, out string error, params string[] arguments)
     {
-        output = string.Empty;
-
-        if (!TryStartGit(CreateGitStartInfo(arguments), out Process? process, out error))
-        {
-            return false;
-        }
-
-        using Process started = process;
-        Task<string> outputTask = started.StandardOutput.ReadToEndAsync();
-        Task<string> errorTask = started.StandardError.ReadToEndAsync();
-        WaitForGitExit(started, arguments);
-        output = outputTask.Wait(GitTimeout) ? outputTask.Result : string.Empty;
-        error = errorTask.Wait(GitTimeout) ? errorTask.Result : string.Empty;
-        return started.ExitCode == 0;
+        GitFact<GitCommandResult> fact = new GitFacts().RunAsync(FindRepositoryRoot(), arguments).GetAwaiter().GetResult();
+        output = fact.IsSuccess ? Encoding.UTF8.GetString(fact.Value!.Stdout) : string.Empty;
+        error = fact.IsSuccess ? Encoding.UTF8.GetString(fact.Value!.Stderr) : fact.Code + ": " + fact.Message;
+        return fact.IsSuccess && fact.Value!.ExitCode == 0;
     }
 
     private static bool TryRunGitIn(string workingDirectory, out string output, params string[] arguments)
     {
-        output = string.Empty;
-        if (!TryStartGit(CreateGitStartInfo(workingDirectory, arguments), out Process? process, out _))
-        {
-            return false;
-        }
-
-        using Process started = process;
-        Task<string> outputTask = started.StandardOutput.ReadToEndAsync();
-        Task<string> errorTask = started.StandardError.ReadToEndAsync();
-        WaitForGitExit(started, arguments);
-        output = outputTask.Wait(GitTimeout) ? outputTask.Result : string.Empty;
-        errorTask.Wait(GitTimeout);
-        return started.ExitCode == 0;
+        GitFact<GitCommandResult> fact = new GitFacts().RunAsync(workingDirectory, arguments).GetAwaiter().GetResult();
+        output = fact.IsSuccess ? Encoding.UTF8.GetString(fact.Value!.Stdout) : string.Empty;
+        return fact.IsSuccess && fact.Value!.ExitCode == 0;
     }
 
-    private static bool TryStartGit(ProcessStartInfo startInfo, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Process? process, out string error)
-    {
-        process = null;
-        error = string.Empty;
 
-        try
-        {
-            process = Process.Start(startInfo);
-        }
-        catch (System.ComponentModel.Win32Exception exception)
-        {
-            // git is absent from PATH (source tarball, minimal container). Report unavailable history
-            // rather than letting an unhandled exception escape the graceful-degradation path.
-            error = $"git could not be started: {exception.Message}";
-            return false;
-        }
 
-        if (process is null)
-        {
-            error = "git could not be started.";
-            return false;
-        }
 
-        return true;
-    }
-
-    private static void WaitForGitExit(Process process, params string[] arguments)
-    {
-        if (!process.WaitForExit(GitTimeout))
-        {
-            try
-            {
-                process.Kill(entireProcessTree: true);
-            }
-            catch (InvalidOperationException)
-            {
-                // Already exited between the timeout and the kill.
-            }
-
-            throw new TimeoutException($"git {string.Join(' ', arguments)} did not complete within {GitTimeout}ms.");
-        }
-    }
-
-    private static ProcessStartInfo CreateGitStartInfo(params string[] arguments)
-        => CreateGitStartInfo(FindRepositoryRoot(), arguments);
-
-    private static ProcessStartInfo CreateGitStartInfo(string workingDirectory, params string[] arguments)
-    {
-        ProcessStartInfo startInfo = new()
-        {
-            FileName = "git",
-            WorkingDirectory = workingDirectory,
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
-
-            // Decode git output as UTF-8 rather than the ambient console codepage, which on Windows would
-            // corrupt non-ASCII paths before they are ever compared.
-            StandardOutputEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
-            StandardErrorEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
-        };
-
-        // Emit raw UTF-8 paths instead of octal-escaped, locale-decoded ones, so a non-ASCII changed path
-        // compares correctly against the recorded boundary.
-        startInfo.ArgumentList.Add("-c");
-        startInfo.ArgumentList.Add("core.quotepath=false");
-
-        foreach (string argument in arguments)
-        {
-            startInfo.ArgumentList.Add(argument);
-        }
-
-        return startInfo;
-    }
 
     private static void CollectStringValues(JsonElement element, string path, List<(string Path, string Value)> values)
     {

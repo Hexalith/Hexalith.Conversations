@@ -1,5 +1,5 @@
 # generated: 2026-06-02
-# last_updated: 2026-10-11
+# last_updated: 2026-10-16
 # project: Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -103,7 +103,7 @@ development_status:
   10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner: done
   10-2-implement-manifest-hash-ledger-exact-diff-and-gitlink-invariants: done
   10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface: done
-  10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection: backlog
+  10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection: in-progress
   epic-10-retrospective: optional
   epic-11: backlog
   11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance: backlog

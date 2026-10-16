@@ -12,6 +12,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -180,7 +182,7 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
     {
         // Whole-file scan: the artifact may NAME SDK/Commons capabilities (AC2), but must not embed secrets,
         // drive paths, or provider IDs. Mirrors the sibling release-evidence content-safety scans, scoped per AC5.
-        string raw = File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), InventoryFileName));
+        string raw = RepositoryLocator.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), InventoryFileName));
 
         foreach (string fragment in ForbiddenFragments)
         {
@@ -204,7 +206,7 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
 
         File.Exists(Path.Combine(dir, InventoryFileName)).ShouldBeTrue("The machine-readable inventory .json must be committed (AC5).");
         File.Exists(mdPath).ShouldBeTrue("The human-readable inventory .md must be committed alongside the .json (AC5).");
-        File.ReadAllText(mdPath).Trim().ShouldNotBeNullOrWhiteSpace("The human-readable inventory .md must not be empty.");
+        RepositoryLocator.ReadAllText(mdPath).Trim().ShouldNotBeNullOrWhiteSpace("The human-readable inventory .md must not be empty.");
     }
 
     [Fact]
@@ -474,7 +476,7 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
         string artifactPath = Path.Combine(ReleaseEvidenceDirectory(), Story62DispositionFileName);
         File.Exists(artifactPath).ShouldBeTrue($"Expected Story 6.2 disposition file at '{artifactPath}'.");
 
-        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(artifactPath));
+        using JsonDocument document = JsonDocument.Parse(RepositoryLocator.ReadAllText(artifactPath));
         JsonElement root = document.RootElement;
         root.GetProperty("artifactVersion").GetString().ShouldBe("consume-promote-keep-story-6-2-disposition-v1");
         root.GetProperty("story").GetString().ShouldBe("6.2");
@@ -482,7 +484,7 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
         JsonElement baseInventory = root.GetProperty("baseInventory");
         baseInventory.GetProperty("path").GetString().ShouldBe($"docs/release-evidence/{InventoryFileName}");
         string inventoryPath = Path.Combine(repositoryRoot, baseInventory.GetProperty("path").GetString()!);
-        Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(inventoryPath))).ToLowerInvariant()
+        EvidenceManifest.HashFile(inventoryPath)
             .ShouldBe(baseInventory.GetProperty("sha256").GetString());
 
         JsonElement verification = root.GetProperty("sourceVerification");
@@ -560,35 +562,13 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
     {
         string path = Path.Combine(ReleaseEvidenceDirectory(), InventoryFileName);
         File.Exists(path).ShouldBeTrue($"Expected committed inventory file at '{path}'.");
-        return JsonDocument.Parse(File.ReadAllText(path));
+        return JsonDocument.Parse(RepositoryLocator.ReadAllText(path));
     }
 
     private static string RunGit(string workingDirectory, params string[] arguments)
     {
-        var startInfo = new ProcessStartInfo("git")
-        {
-            WorkingDirectory = workingDirectory,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-        };
-        foreach (string argument in arguments)
-        {
-            startInfo.ArgumentList.Add(argument);
-        }
-
-        using Process process = Process.Start(startInfo)!;
-        Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
-        Task<string> errorTask = process.StandardError.ReadToEndAsync();
-        if (!process.WaitForExit(milliseconds: 120_000))
-        {
-            process.Kill(entireProcessTree: true);
-            throw new InvalidOperationException($"git {string.Join(' ', arguments)} did not complete within 120 seconds.");
-        }
-
-        string output = outputTask.GetAwaiter().GetResult();
-        string error = errorTask.GetAwaiter().GetResult();
-        process.ExitCode.ShouldBe(0, $"git {string.Join(' ', arguments)} failed: {error}");
+        (int exitCode, string output, string error) = GitFacts.CaptureText(workingDirectory, arguments);
+        exitCode.ShouldBe(0, $"git {string.Join(' ', arguments)} failed: {error}");
         return output;
     }
 
@@ -596,20 +576,5 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
         => Path.Combine(FindRepositoryRoot(), "docs", "release-evidence");
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 }

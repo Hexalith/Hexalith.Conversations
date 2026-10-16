@@ -18,6 +18,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -126,7 +128,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
         root.GetProperty("properties").GetProperty("lineage").GetProperty("additionalProperties").GetBoolean().ShouldBeFalse();
         ComputeFileSha256(FullPath(Rc1Path)).ShouldBe(Rc1Sha256);
         ComputeFileSha256(FullPath(Rc1ApprovalPath)).ShouldBe(Rc1ApprovalSha256);
-        string generator = File.ReadAllText(FullPath("_bmad/scripts/generate_preservation_traceability_manifest_v3_rc2.py"), Encoding.UTF8);
+        string generator = RepositoryLocator.ReadAllText(FullPath("_bmad/scripts/generate_preservation_traceability_manifest_v3_rc2.py"), Encoding.UTF8);
         generator.ShouldNotContain("--bootstrap");
         generator.ShouldContain("--require-green");
         generator.ShouldContain("--run-conformance");
@@ -380,13 +382,13 @@ public sealed class PreservationTraceabilityManifestValidationTest
     {
         using JsonDocument manifest = LoadJson(ManifestPath);
         string expected = RenderMarkdown(manifest.RootElement, ComputeFileSha256(FullPath(ManifestPath)));
-        File.ReadAllText(FullPath(MarkdownPath), Encoding.UTF8).Replace("\r\n", "\n", StringComparison.Ordinal).ShouldBe(expected);
+        RepositoryLocator.ReadAllText(FullPath(MarkdownPath), Encoding.UTF8).Replace("\r\n", "\n", StringComparison.Ordinal).ShouldBe(expected);
     }
 
     [Fact]
     public void FaultInjectedCandidatesShouldFailWithStableDiagnostics()
     {
-        JsonObject canonical = JsonNode.Parse(File.ReadAllText(FullPath(ManifestPath), Encoding.UTF8))!.AsObject();
+        JsonObject canonical = JsonNode.Parse(RepositoryLocator.ReadAllText(FullPath(ManifestPath), Encoding.UTF8))!.AsObject();
         AssertMutation(canonical, candidate => candidate["obligations"]!.AsArray().RemoveAt(0), "MISSING_IDENTITY");
         AssertMutation(canonical, candidate => candidate["obligations"]!.AsArray().Add(candidate["obligations"]![0]!.DeepClone()), "DUPLICATE_IDENTITY");
         AssertMutation(canonical, candidate => candidate["sourceBinding"]!["ownerReviewOverlay"]!["bindings"]![0]!["sha256"] = new string('0', 64), "SOURCE_HASH_MISMATCH");
@@ -415,7 +417,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
             },
             "COMMAND_SUMMARY_INVALID");
 
-        JsonObject receipt = JsonNode.Parse(File.ReadAllText(FullPath(RunReceiptPath), Encoding.UTF8))!.AsObject();
+        JsonObject receipt = JsonNode.Parse(RepositoryLocator.ReadAllText(FullPath(RunReceiptPath), Encoding.UTF8))!.AsObject();
         AssertReceiptMutation(receipt, candidate => candidate["candidateDigest"] = new string('0', 64), "RUN_RECEIPT_CANDIDATE_MISMATCH");
         AssertReceiptMutation(receipt, candidate => candidate["preRunManifest"]!["sha256"] = "invalid", "RUN_RECEIPT_MANIFEST_MISMATCH");
         AssertReceiptMutation(receipt, candidate => candidate["assembly"]!["sourceRevisionId"] = new string('0', 64), "RUN_RECEIPT_ASSEMBLY_MISMATCH");
@@ -438,7 +440,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
             "RUN_RECEIPT_COUNTER_MISMATCH");
         AssertReceiptMutation(receipt, candidate => candidate["xml"]!["sha256"] = new string('0', 64), "RUN_RECEIPT_XML_MISMATCH");
         AssertReceiptMutation(receipt, candidate => candidate["assembly"]!["sha256"] = new string('0', 64), "RUN_RECEIPT_ASSEMBLY_MISMATCH");
-        JsonObject buildReceipt = JsonNode.Parse(File.ReadAllText(FullPath(BuildReceiptPath), Encoding.UTF8))!.AsObject();
+        JsonObject buildReceipt = JsonNode.Parse(RepositoryLocator.ReadAllText(FullPath(BuildReceiptPath), Encoding.UTF8))!.AsObject();
         AssertBuildReceiptMutation(buildReceipt, candidate => candidate["candidateDigest"] = new string('0', 64), "BUILD_RECEIPT_CANDIDATE_MISMATCH");
         AssertBuildReceiptMutation(buildReceipt, candidate => candidate["sequence"]![0] = "executed-exact-build-command", "BUILD_RECEIPT_ORDER_MISMATCH");
         AssertBuildReceiptMutation(buildReceipt, candidate => candidate["preBuild"]!["restoreReceipt"]!["sha256"] = new string('0', 64), "BUILD_RECEIPT_PREBUILD_MISMATCH");
@@ -492,11 +494,11 @@ public sealed class PreservationTraceabilityManifestValidationTest
                 fifoDiagnostic.ShouldContain("regular file");
             }
 
-            File.ReadAllText(regular, Encoding.UTF8).ShouldBe("unchanged");
+            RepositoryLocator.ReadAllText(regular, Encoding.UTF8).ShouldBe("unchanged");
             if (!OperatingSystem.IsWindows())
             {
                 string regularPath = regular;
-                byte[] regularBytes = File.ReadAllBytes(regularPath);
+                byte[] regularBytes = RepositoryLocator.ReadAllBytes(regularPath);
                 UnixFileMode executable = UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute;
                 UnixFileMode regularMode = File.GetUnixFileMode(regularPath) & ~executable;
                 File.SetUnixFileMode(regularPath, regularMode);
@@ -520,7 +522,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
                 }
 
                 RunProcessInDirectory(fixtureRoot, "git", ["ls-files", "--stage", "--", "regular.txt"]).Output.ShouldBe(regularStage);
-                File.ReadAllBytes(regularPath).ShouldBe(regularBytes);
+                RepositoryLocator.ReadAllBytes(regularPath).ShouldBe(regularBytes);
                 GetWorktreeGitMode("regular.txt", fixtureRoot).ShouldBe(SourceInputMode);
 
                 try
@@ -540,7 +542,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
                 }
 
                 RunProcessInDirectory(fixtureRoot, "git", ["ls-files", "--stage", "--", "regular.txt"]).Output.ShouldBe(regularStage);
-                File.ReadAllBytes(regularPath).ShouldBe(regularBytes);
+                RepositoryLocator.ReadAllBytes(regularPath).ShouldBe(regularBytes);
                 GetWorktreeGitMode("regular.txt", fixtureRoot).ShouldBe(SourceInputMode);
 
                 string stagedLink = Path.Combine(fixtureRoot, "staged-link");
@@ -1008,7 +1010,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
     private static IReadOnlyDictionary<string, string> ExtractRequirementAndUxSourceHashes()
     {
         Dictionary<string, string> result = new(StringComparer.Ordinal);
-        string[] prdLines = File.ReadAllLines(FullPath(PrdPath), Encoding.UTF8);
+        string[] prdLines = RepositoryLocator.ReadAllLines(FullPath(PrdPath), Encoding.UTF8);
         Regex initiativePattern = new("^#### (FR-(?<ordinal>[0-9]+)):", RegexOptions.CultureInvariant);
         Regex featurePattern = new("^- \\*\\*(Feature-(?:FR|NFR)[0-9]+):\\*\\*\\s*(?<text>.+)$", RegexOptions.CultureInvariant);
         for (int index = 0; index < prdLines.Length; index++)
@@ -1033,7 +1035,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
         }
 
         Regex uxDecisionPattern = new("^\\| (UX-DR[0-9]+) \\| (?<section>[^|]+) \\| (?<summary>[^|]+) \\|", RegexOptions.CultureInvariant);
-        foreach (string line in File.ReadAllLines(FullPath(UxMapPath), Encoding.UTF8))
+        foreach (string line in RepositoryLocator.ReadAllLines(FullPath(UxMapPath), Encoding.UTF8))
         {
             Match match = uxDecisionPattern.Match(line);
             if (match.Success)
@@ -1042,7 +1044,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
             }
         }
 
-        string[] uxLines = File.ReadAllLines(FullPath(UxSpecificationPath), Encoding.UTF8);
+        string[] uxLines = RepositoryLocator.ReadAllLines(FullPath(UxSpecificationPath), Encoding.UTF8);
         foreach (string section in UxAcceptanceSections)
         {
             int heading = Array.FindIndex(uxLines, line => line == $"### {section}");
@@ -1156,26 +1158,8 @@ public sealed class PreservationTraceabilityManifestValidationTest
 
     private static HashSet<string> GitPaths(params string[] arguments)
     {
-        using var process = new Process
-        {
-            StartInfo = new ProcessStartInfo("git")
-            {
-                WorkingDirectory = RepositoryRoot(),
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-            },
-        };
-        foreach (string argument in arguments)
-        {
-            process.StartInfo.ArgumentList.Add(argument);
-        }
-
-        process.Start();
-        string output = process.StandardOutput.ReadToEnd();
-        string error = process.StandardError.ReadToEnd();
-        process.WaitForExit();
-        process.ExitCode.ShouldBe(0, error);
+        (int exitCode, string output, string error) = GitFacts.CaptureText(RepositoryRoot(), arguments);
+        exitCode.ShouldBe(0, error);
         return output.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet(StringComparer.Ordinal);
     }
 
@@ -1199,32 +1183,11 @@ public sealed class PreservationTraceabilityManifestValidationTest
         string workingDirectory,
         string fileName,
         IEnumerable<string> arguments)
-    {
-        using var process = new Process
-        {
-            StartInfo = new ProcessStartInfo(fileName)
-            {
-                WorkingDirectory = workingDirectory,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-            },
-        };
-        foreach (string argument in arguments)
-        {
-            process.StartInfo.ArgumentList.Add(argument);
-        }
-
-        process.Start();
-        string output = process.StandardOutput.ReadToEnd();
-        string error = process.StandardError.ReadToEnd();
-        process.WaitForExit();
-        return (process.ExitCode, output, error);
-    }
+        => GitFacts.CaptureText(workingDirectory, arguments, fileName);
 
     private static (string Result, int Warnings, int Errors) ParseBuildLog(string path)
     {
-        string text = File.ReadAllText(FullPath(path), Encoding.UTF8);
+        string text = RepositoryLocator.ReadAllText(FullPath(path), Encoding.UTF8);
         return ParseBuildLogText(text);
     }
 
@@ -1441,25 +1404,9 @@ public sealed class PreservationTraceabilityManifestValidationTest
 
     private static byte[] ReadGitBlobBytes(string revision, string repositoryPath)
     {
-        using var process = new Process
-        {
-            StartInfo = new ProcessStartInfo("git")
-            {
-                WorkingDirectory = RepositoryRoot(),
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-            },
-        };
-        process.StartInfo.ArgumentList.Add("show");
-        process.StartInfo.ArgumentList.Add($"{revision}:{repositoryPath.Replace('\\', '/')}");
-        process.Start();
-        using var output = new MemoryStream();
-        process.StandardOutput.BaseStream.CopyTo(output);
-        string error = process.StandardError.ReadToEnd();
-        process.WaitForExit();
-        process.ExitCode.ShouldBe(0, error);
-        return output.ToArray();
+        GitCommandResult process = GitFacts.Capture(RepositoryRoot(), ["show", $"{revision}:{repositoryPath.Replace('\\', '/')}"]);
+        process.ExitCode.ShouldBe(0, Encoding.UTF8.GetString(process.Stderr));
+        return process.Stdout;
     }
 
     private static string ReadTextAtRevision(string repositoryPath, string revision)
@@ -1579,7 +1526,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
     private static JsonDocument LoadJson(string repositoryPath)
     {
         TryValidateRepositoryRegularFile(repositoryPath, out string diagnostic).ShouldBeTrue(diagnostic);
-        return JsonDocument.Parse(File.ReadAllText(FullPath(repositoryPath), Encoding.UTF8));
+        return JsonDocument.Parse(RepositoryLocator.ReadAllText(FullPath(repositoryPath), Encoding.UTF8));
     }
 
     private static JsonDocument LoadJsonAtRevision(string repositoryPath, string revision)
@@ -1589,27 +1536,14 @@ public sealed class PreservationTraceabilityManifestValidationTest
         => Path.GetFullPath(Path.Combine(RepositoryRoot(), repositoryPath));
 
     private static string RepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Repository root not found.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 
     private static string ComputeFileSha256(string path)
-        => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
+        => EvidenceManifest.HashFile(path);
 
     private static string ComputeBytesSha256(byte[] content)
-        => Convert.ToHexString(SHA256.HashData(content)).ToLowerInvariant();
+        => EvidenceManifest.HashBytes(content);
 
     private static string ComputeTextSha256(string value)
-        => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value))).ToLowerInvariant();
+        => EvidenceManifest.HashText(value);
 }

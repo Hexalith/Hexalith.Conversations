@@ -11,6 +11,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -279,7 +281,7 @@ public sealed class AtRiskTestRegisterGenerationTest
         Directory.CreateDirectory(dir);
         File.WriteAllText(path, json);
 
-        string readBack = File.ReadAllText(path);
+        string readBack = RepositoryLocator.ReadAllText(path);
         AtRiskTestRegisterV1? parsed = JsonSerializer.Deserialize<AtRiskTestRegisterV1>(readBack, RegisterOptions);
         parsed.ShouldNotBeNull();
         parsed!.Tests.Count.ShouldBe(register.Tests.Count);
@@ -1031,22 +1033,7 @@ public sealed class AtRiskTestRegisterGenerationTest
     ];
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 
     /// <summary>Root of the at-risk test register artifact.</summary>
     internal sealed record AtRiskTestRegisterV1

@@ -12,6 +12,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -251,18 +253,8 @@ public sealed class PlanningAuthorityV8ValidationTest
             "tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs",
         })
         {
-            ProcessStartInfo startInfo = new("git")
-            {
-                WorkingDirectory = FindRepositoryRoot(),
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-            };
-            startInfo.ArgumentList.Add("cat-file");
-            startInfo.ArgumentList.Add("-e");
-            startInfo.ArgumentList.Add($"{HistoricalSprintCandidate}:{futureStoryDeliverable}");
-            using Process process = Process.Start(startInfo)!;
-            process.WaitForExit();
+            GitCommandResult process = GitFacts.Capture(FindRepositoryRoot(),
+                ["cat-file", "-e", $"{HistoricalSprintCandidate}:{futureStoryDeliverable}"]);
             process.ExitCode.ShouldNotBe(0, $"{futureStoryDeliverable} belongs to future Story 6.4 implementation, not the historical v8 candidate.");
         }
     }
@@ -410,7 +402,7 @@ public sealed class PlanningAuthorityV8ValidationTest
         return count;
     }
 
-    private static string Sha256(byte[] content) => Convert.ToHexStringLower(SHA256.HashData(content));
+    private static string Sha256(byte[] content) => EvidenceManifest.HashBytes(content);
 
     private static byte[] PrefixBeforeAppendedOverlay(byte[] content, string marker)
     {
@@ -421,42 +413,17 @@ public sealed class PlanningAuthorityV8ValidationTest
         return content[..(markerIndex - 1)];
     }
 
-    private static byte[] ReadBytes(string relativePath) => File.ReadAllBytes(Path.Combine(FindRepositoryRoot(), relativePath));
+    private static byte[] ReadBytes(string relativePath) => RepositoryLocator.ReadAllBytes(Path.Combine(FindRepositoryRoot(), relativePath));
 
     private static byte[] ReadCandidateBytes(string candidate, string relativePath)
     {
-        ProcessStartInfo startInfo = new("git")
-        {
-            WorkingDirectory = FindRepositoryRoot(),
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-        };
-        startInfo.ArgumentList.Add("show");
-        startInfo.ArgumentList.Add($"{candidate}:{relativePath}");
-        using Process process = Process.Start(startInfo)!;
-        using MemoryStream output = new();
-        process.StandardOutput.BaseStream.CopyTo(output);
-        process.WaitForExit();
-        process.ExitCode.ShouldBe(0, process.StandardError.ReadToEnd());
-        return output.ToArray();
+        GitCommandResult process = GitFacts.Capture(FindRepositoryRoot(), ["show", $"{candidate}:{relativePath}"]);
+        process.ExitCode.ShouldBe(0, Encoding.UTF8.GetString(process.Stderr));
+        return process.Stdout;
     }
 
-    private static string Read(string relativePath) => File.ReadAllText(Path.Combine(FindRepositoryRoot(), relativePath));
+    private static string Read(string relativePath) => RepositoryLocator.ReadAllText(Path.Combine(FindRepositoryRoot(), relativePath));
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Unable to locate the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 }

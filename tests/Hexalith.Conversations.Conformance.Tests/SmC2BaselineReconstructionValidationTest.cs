@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text.Json;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -172,7 +174,7 @@ public sealed class SmC2BaselineReconstructionValidationTest
     [Fact]
     public void MarkdownShouldPresentTheReconstructionProvenance()
     {
-        string markdown = File.ReadAllText(
+        string markdown = RepositoryLocator.ReadAllText(
             Path.Combine(ReleaseEvidenceDirectory(), BaselineMarkdownFileName));
 
         markdown.ShouldContain("## Reconstruction provenance", Case.Sensitive);
@@ -184,47 +186,9 @@ public sealed class SmC2BaselineReconstructionValidationTest
 
     private static bool TryRunGit(out string standardOutput, params string[] arguments)
     {
-        ProcessStartInfo startInfo = new("git")
-        {
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            WorkingDirectory = FindRepositoryRoot(),
-        };
-        foreach (string argument in arguments)
-        {
-            startInfo.ArgumentList.Add(argument);
-        }
-
-        try
-        {
-            using Process? process = Process.Start(startInfo);
-            if (process is null)
-            {
-                standardOutput = string.Empty;
-                return false;
-            }
-
-            // Both pipes drain concurrently so a child filling stderr while stdout is still open cannot
-            // deadlock the run; the timeout stays enforceable because nothing blocks before WaitForExit.
-            Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
-            Task<string> errorTask = process.StandardError.ReadToEndAsync();
-            if (!process.WaitForExit(milliseconds: 60_000))
-            {
-                process.Kill(entireProcessTree: true);
-                standardOutput = string.Empty;
-                return false;
-            }
-
-            standardOutput = outputTask.GetAwaiter().GetResult();
-            _ = errorTask.GetAwaiter().GetResult();
-            return process.ExitCode == 0;
-        }
-        catch (Exception exception) when (exception is System.ComponentModel.Win32Exception or InvalidOperationException)
-        {
-            standardOutput = string.Empty;
-            return false;
-        }
+        GitFact<GitCommandResult> fact = new GitFacts().RunAsync(FindRepositoryRoot(), arguments).GetAwaiter().GetResult();
+        standardOutput = fact.IsSuccess ? System.Text.Encoding.UTF8.GetString(fact.Value!.Stdout) : string.Empty;
+        return fact.IsSuccess && fact.Value!.ExitCode == 0;
     }
 
     private static string RunGit(params string[] arguments)
@@ -253,39 +217,10 @@ public sealed class SmC2BaselineReconstructionValidationTest
 
     private static byte[] RunGitBytes(params string[] arguments)
     {
-        ProcessStartInfo startInfo = new("git")
-        {
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            WorkingDirectory = FindRepositoryRoot(),
-        };
-        foreach (string argument in arguments)
-        {
-            startInfo.ArgumentList.Add(argument);
-        }
-
-        using Process process = Process.Start(startInfo)
-            ?? throw new InvalidOperationException("git could not be started; reconstruction evidence cannot be skipped.");
-        using var output = new MemoryStream();
-        Task outputTask = process.StandardOutput.BaseStream.CopyToAsync(output);
-        Task<string> errorTask = process.StandardError.ReadToEndAsync();
-        if (!process.WaitForExit(milliseconds: 60_000))
-        {
-            process.Kill(entireProcessTree: true);
-            throw new InvalidOperationException($"git {string.Join(' ', arguments)} did not complete within 60 seconds.");
-        }
-
-        Task.WhenAll(outputTask, errorTask).GetAwaiter().GetResult();
+        GitCommandResult process = GitFacts.Capture(FindRepositoryRoot(), arguments);
         if (process.ExitCode != 0)
-        {
-            throw new InvalidOperationException(
-                $"git {string.Join(' ', arguments)} failed; reconstruction evidence cannot be skipped."
-                + Environment.NewLine
-                + errorTask.GetAwaiter().GetResult());
-        }
-
-        return output.ToArray();
+            throw new InvalidOperationException($"git {string.Join(' ', arguments)} failed; reconstruction evidence cannot be skipped.");
+        return process.Stdout;
     }
 
     private static string RunProcess(string executable, params string[] arguments)
@@ -374,30 +309,17 @@ public sealed class SmC2BaselineReconstructionValidationTest
     }
 
     private static string ComputeSha256(string path)
-        => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
+        => EvidenceManifest.HashFile(path);
 
     private static string ComputeSha256(byte[] bytes)
-        => Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
+        => EvidenceManifest.HashBytes(bytes);
 
     private static JsonDocument LoadEvidence(string fileName)
-        => JsonDocument.Parse(File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), fileName)));
+        => JsonDocument.Parse(RepositoryLocator.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), fileName)));
 
     private static string ReleaseEvidenceDirectory()
         => Path.Combine(FindRepositoryRoot(), "docs", "release-evidence");
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 }

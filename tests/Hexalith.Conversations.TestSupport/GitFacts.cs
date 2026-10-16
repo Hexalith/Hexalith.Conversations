@@ -27,6 +27,26 @@ public sealed class GitFacts
         _includeGitPreamble = includeGitPreamble;
     }
 
+    /// <summary>Captures a command synchronously through the bounded concurrent runner.</summary>
+    /// <param name="repository">The exact command working directory.</param>
+    /// <param name="arguments">Individual command arguments.</param>
+    /// <param name="executable">Git by default; explicit process fixtures may name another executable.</param>
+    /// <returns>Raw completion; unavailable execution throws with its stable code.</returns>
+    public static GitCommandResult Capture(string repository, IEnumerable<string> arguments, string executable = "git")
+    {
+        GitFact<GitCommandResult> fact = new GitFacts(executable, includeGitPreamble: executable == "git")
+            .RunAsync(repository, arguments).GetAwaiter().GetResult();
+        if (!fact.IsSuccess) throw new InvalidOperationException(fact.Code + ": " + fact.Message);
+        return fact.Value!;
+    }
+
+    /// <summary>Captures decoded command streams while preserving the process exit code.</summary>
+    public static (int ExitCode, string Output, string Error) CaptureText(string repository, IEnumerable<string> arguments, string executable = "git")
+    {
+        GitCommandResult result = Capture(repository, arguments, executable);
+        return (result.ExitCode, StrictUtf8.GetString(result.Stdout), StrictUtf8.GetString(result.Stderr));
+    }
+
     /// <summary>Captures command completion with both streams drained concurrently and a 30-second maximum. A successful capture may have a nonzero exit code; callers must check <see cref="GitCommandResult.ExitCode"/> before treating its output as a Git fact.</summary>
     public async Task<GitFact<GitCommandResult>> RunAsync(string repository, IEnumerable<string> arguments, CancellationToken cancellationToken = default, TimeSpan? timeout = null)
     {

@@ -3,6 +3,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj" />
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" />
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Testing\Hexalith.Conversations.Testing.csproj" />

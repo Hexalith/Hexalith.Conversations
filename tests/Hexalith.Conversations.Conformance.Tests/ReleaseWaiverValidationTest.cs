@@ -11,6 +11,8 @@ using Shouldly;
 
 using Xunit;
 
+using Hexalith.Conversations.TestSupport;
+
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
@@ -121,29 +123,14 @@ public sealed class ReleaseWaiverValidationTest
 
         File.Exists(path).ShouldBeTrue($"Expected waiver fixture file at '{path}'.");
 
-        string json = File.ReadAllText(path);
+        string json = RepositoryLocator.ReadAllText(path);
         ReleaseWaiverV1? waiver = JsonSerializer.Deserialize<ReleaseWaiverV1>(json, WebOptions);
         waiver.ShouldNotBeNull();
         return waiver!;
     }
 
     private static string FindRepositoryRoot()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
-                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not find the repository root.");
-    }
+        => RepositoryLocator.FindRepositoryRoot();
 
     private static ReleaseWaiverV1 BuildWaiver(
         bool isBlocker = false,
