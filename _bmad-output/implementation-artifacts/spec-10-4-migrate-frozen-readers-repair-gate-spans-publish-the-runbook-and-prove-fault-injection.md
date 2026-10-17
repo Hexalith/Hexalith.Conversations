@@ -2,7 +2,7 @@
 title: 'Story 10.4: Adopt the shared evidence boundary'
 type: 'refactor'
 created: '2026-10-16'
-status: 'in-progress'
+status: 'done'
 baseline_commit: '1915a47123737859e3ac31872fa787fa8c0bd1e3'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -119,6 +119,8 @@ context:
 | Edge 4: mutable revision mode race | medium | patch | ReadRegularBlobAsync resolves the caller's revision separately in ReadTreeAsync and ReadBlobAsync. A moving HEAD can pass mode validation at one commit and return symlink bytes at another. Pin once before both operations. |
 | Verification 1: neutral-helper guard test | medium | patch | The pre-verified gap shows that the mock returns a nonpackable helper graph for later shipped projects, allowing an unrelated failure after the helper restriction is removed. The five cases are also absent from the routine re-export. Use valid per-project graphs and a passing baseline before mutations, then collect the cases. |
 | Verification 2: fault/blocker identity | high | patch | Confirmed the same declared-code acceptance defect as Blind 1 and Edge 1; independent required-code validation closes all three reports. |
+
+Review corrections completed at source `7e5a4b765a4437f361fac7e7bb4f13e5b7cf3ec8`. All twelve patch root causes are fixed; two unsupported findings were rejected. Full verification passed: 1,088 native suite cases, five exact source-stamped native receipts, 1,838 current tooling cases, 51 amendment/correction cases, both Story 7.3 guards, committed insertion verification, and the scoped gate. The regenerated record is `9/9/0/0/0/0` with 29 restored faults and eight measured receipts. Atomic publication: `4bdab7d79fd4acb8238fefd5b64459f1b34fa922`; insertion: `3b21b99974c5fff2aefc35d7abfd1035bba9e8bc`. No deferred findings remain.
 
 ## Verification
 
