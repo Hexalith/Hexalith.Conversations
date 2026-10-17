@@ -14,7 +14,7 @@ internal static class Program
     private const string Story103CandidateCommit = "6908c5264c388cca1b094400c5abfa320482c5e3";
 
     // Independent compiled pins for the sole approved Story 10.4 Git transition set.
-    private static readonly (string Path, string Before, string After)[] Story104GitlinkTransitions =
+    private static readonly (string Path, string Before, string After)[] _story104GitlinkTransitions =
     [
         ("references/Hexalith.Builds", "abdfca89ed82f388b54664825a8a79fed73e7ccf", "4f53d9f37c5b86cfd43fbcc8fa5dd4df19b84c77"),
         ("references/Hexalith.EventStore", "6cc9d6114fd055dac7a1d86130208b52271e3740", "77d9af18a54d92506e310fe5a45021a395e66f60"),
@@ -264,10 +264,10 @@ internal static class Program
         bool pinned = baseline.Value == "1915a47123737859e3ac31872fa787fa8c0bd1e3"
             && amendment.GetProperty("decisionDate").GetString() == "2026-10-17"
             && amendment.GetProperty("approvalCommit").GetString() == "9cbc71b63be3fa1ce4d89d98ef1771c54c6603f5"
-            && amendment.EnumerateObject().Count() == 3 && declared.Length == Story104GitlinkTransitions.Length;
-        for (int index = 0; index < declared.Length && index < Story104GitlinkTransitions.Length; index++)
+            && amendment.EnumerateObject().Count() == 3 && declared.Length == _story104GitlinkTransitions.Length;
+        for (int index = 0; index < declared.Length && index < _story104GitlinkTransitions.Length; index++)
         {
-            (string path, string before, string after) = Story104GitlinkTransitions[index];
+            (string path, string before, string after) = _story104GitlinkTransitions[index];
             JsonElement row = declared[index];
             pinned &= row.EnumerateObject().Count() == 5 && row.GetProperty("path").GetString() == path
                 && row.GetProperty("sourceMode").GetString() == "160000" && row.GetProperty("destinationMode").GetString() == "160000"
@@ -284,10 +284,10 @@ internal static class Program
             BoundaryAssertions.NoGitlinks(ledger, "gitlinks", diff);
             return;
         }
-        bool exact = links.Length == Story104GitlinkTransitions.Length;
-        for (int index = 0; index < links.Length && index < Story104GitlinkTransitions.Length; index++)
+        bool exact = links.Length == _story104GitlinkTransitions.Length;
+        for (int index = 0; index < links.Length && index < _story104GitlinkTransitions.Length; index++)
         {
-            (string path, string before, string after) = Story104GitlinkTransitions[index];
+            (string path, string before, string after) = _story104GitlinkTransitions[index];
             GitDiffEntry row = links[index];
             exact &= row.Path == path && row.SourcePath is null && row.Status == "M"
                 && row.SourceMode == "160000" && row.DestinationMode == "160000"
