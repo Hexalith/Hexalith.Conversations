@@ -377,8 +377,15 @@ def main(arguments=None):
         binding_path=args.current_binding,verify_workflows=args.verify_workflows,check=args.check)
     if args.output:
         try:
-            containment=current.bridge(repository,dict(baseline=BASELINE,candidate=args.candidate,containedPaths=[args.output],includeTreePaths=True,
+            containment=current.bridge(repository,dict(baseline=BASELINE,candidate=result['candidate'] or args.candidate,containedPaths=[args.output],includeTreePaths=True,
                 story104GitlinkAmendment=APPROVED_GITLINK_AMENDMENT))
+            required_ownership={'output:tree','output:head','output:head-tree','output:index','output:index-completed'}
+            ownership=[row for row in containment.get('assertionLedger',[]) if row['id']=='output:tree'
+                or row['id'].startswith(('output:head','output:index'))]
+            evaluated={row['id'] for row in ownership}
+            if evaluated!=required_ownership or len(ownership)!=len(required_ownership) or any(row['state']!='PASS' for row in ownership):
+                fallback='HELPER_UNAVAILABLE' if required_ownership-evaluated or any(row['state']=='SKIPPED' for row in ownership) else 'HELPER_FAILURE'
+                raise RuntimeError(next((code for code in containment.get('blockers',[]) if code in STABLE_CODES),fallback))
             path=containment['containedPaths'][0]
             owned=set(containment['headPaths'])|set(containment['indexPaths'])|set(containment['treePaths'])
             allowed={f'artifacts/v9/10.4/AC-10.4-0{n}.json' for n in (9,)}

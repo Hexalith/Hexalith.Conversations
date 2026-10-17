@@ -369,3 +369,108 @@ def test_approved_gitlink_amendment_complete_verifier_preserves_result_schema(tm
         assert any(row['state']=='FAIL' for row in invalid['assertionLedger'])
     finally:path.write_bytes(original)
     assert hashlib.sha256(path.read_bytes()).digest()==hashlib.sha256(original).digest()
+
+
+@pytest.mark.parametrize('fault,code',[('git','GIT_UNAVAILABLE'),('baseline','REVISION_INVALID'),('candidate','REVISION_INVALID')])
+def test_approved_gitlink_amendment_unavailable_history_stays_blocked(approved_gitlink_repository,monkeypatch,fault,code):
+    """Unavailable facts must survive the complete amendment verifier/finalizer as BLOCKED."""
+    root,git=approved_gitlink_repository
+    bridge=current.bridge
+    def unavailable(repository,request):
+        request=dict(request)
+        if fault=='git':request['gitExecutable']='missing-story104-approved-git-executable'
+        else:request[fault]='f'*40
+        return bridge(repository,request)
+    monkeypatch.setattr(current,'bridge',unavailable)
+    observed=adoption.verify(root,adoption.BASELINE,adoption.BASELINE,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+    assert observed['result']=='BLOCKED'
+    assert observed['blockers']==[code]
+    assert any(row['state']=='SKIPPED' for row in observed['assertionLedger'])
+    assert not any(row['state']=='FAIL' for row in observed['assertionLedger'])
+
+
+@pytest.mark.parametrize('row_id',['output:tree','output:head','output:head-tree','output:index','output:index-completed'])
+@pytest.mark.parametrize('code,state,exit_code',[('HELPER_FAILURE','FAIL',1),('HISTORY_UNAVAILABLE','SKIPPED',2)])
+def test_approved_gitlink_amendment_output_requires_available_ownership(tmp_path,monkeypatch,capsys,row_id,code,state,exit_code):
+    output='artifacts/v9/10.4/AC-10.4-09.json';target=tmp_path/output
+    target.parent.mkdir(parents=True);target.write_bytes(b'preserved receipt\n');original=target.read_bytes()
+    result=current.empty_result('a'*40);result['assertionLedger']=[dict(id='fixture',subject='fixture',state='PASS')]
+    result=adoption.finish(result)
+    required=['output:tree','output:head','output:head-tree','output:index','output:index-completed']
+    rows=[dict(id=identity,subject='ownership',state=state if identity==row_id else 'PASS') for identity in required]
+    monkeypatch.setattr(adoption,'verify',lambda *args,**kwargs:copy.deepcopy(result))
+    monkeypatch.setattr(current,'bridge',lambda *args,**kwargs:dict(result='BLOCKED' if state=='SKIPPED' else 'FAIL',
+        assertionLedger=rows,blockers=[code],headPaths=[],indexPaths=[],treePaths=[],
+        containedPaths=[dict(code=None,fullPath=str(target))]))
+    assert adoption.main(['--repository',str(tmp_path),'--output',output])==exit_code
+    observed=json.loads(capsys.readouterr().out)
+    assert observed['result']==('BLOCKED' if state=='SKIPPED' else 'FAIL')
+    assert observed['blockers']==[code]
+    assert target.read_bytes()==original
+
+
+def test_approved_gitlink_amendment_output_requires_evaluated_candidate_tree(tmp_path,monkeypatch,capsys):
+    output='artifacts/v9/10.4/AC-10.4-09.json';target=tmp_path/output
+    target.parent.mkdir(parents=True);target.write_bytes(b'preserved candidate receipt\n');original=target.read_bytes()
+    result=current.empty_result('a'*40);result['assertionLedger']=[dict(id='fixture',subject='fixture',state='PASS')]
+    result=adoption.finish(result)
+    rows=[dict(id=identity,subject='ownership',state='PASS') for identity in ['output:head','output:head-tree','output:index','output:index-completed']]
+    monkeypatch.setattr(adoption,'verify',lambda *args,**kwargs:copy.deepcopy(result))
+    monkeypatch.setattr(current,'bridge',lambda *args,**kwargs:dict(result='PASS',assertionLedger=rows,blockers=[],
+        headPaths=[],indexPaths=[],treePaths=[],containedPaths=[dict(code=None,fullPath=str(target))]))
+    assert adoption.main(['--repository',str(tmp_path),'--output',output])==2
+    observed=json.loads(capsys.readouterr().out)
+    assert observed['result']=='BLOCKED' and observed['blockers']==['HELPER_UNAVAILABLE']
+    assert target.read_bytes()==original
+
+
+def test_approved_gitlink_amendment_output_missing_git_preserves_real_tracked_receipt(approved_gitlink_repository,monkeypatch,capsys):
+    root,git=approved_gitlink_repository;output='artifacts/v9/10.4/AC-10.4-09.json';target=root/output
+    target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(b'committed receipt must survive\n');original=target.read_bytes()
+    git('read-tree',adoption.BASELINE)
+    blob=git('hash-object','-w','--stdin',input=original)
+    git('update-index','--add','--cacheinfo','100644',blob,output)
+    candidate=git('commit-tree',git('write-tree'),'-p',adoption.BASELINE,'-m','test: freeze the scoped gitlink fixture')
+    git('update-ref','HEAD',candidate)
+    assert output in git('ls-tree','-r','--name-only','HEAD').splitlines()
+    assert output in git('ls-files').splitlines()
+    bridge=current.bridge
+    monkeypatch.setattr(current,'bridge',lambda repository,request:bridge(repository,
+        dict(request,gitExecutable='missing-story104-output-git-executable')))
+    assert adoption.main(['--repository',str(root),'--candidate',candidate,'--output',output])==2
+    observed=json.loads(capsys.readouterr().out)
+    assert observed['result']=='BLOCKED' and observed['blockers']==['GIT_UNAVAILABLE']
+    assert target.read_bytes()==original
+
+
+def test_approved_gitlink_amendment_output_can_publish_fail_with_proven_ownership(tmp_path,monkeypatch,capsys):
+    output='artifacts/v9/10.4/AC-10.4-09.json';target=tmp_path/output
+    result=current.empty_result('a'*40);result['assertionLedger']=[dict(id='fixture',subject='fixture',state='FAIL')]
+    result['blockers']=['EVIDENCE_HASH_MISMATCH'];result=adoption.finish(result)
+    required=['output:tree','output:head','output:head-tree','output:index','output:index-completed']
+    monkeypatch.setattr(adoption,'verify',lambda *args,**kwargs:copy.deepcopy(result))
+    monkeypatch.setattr(current,'bridge',lambda *args,**kwargs:dict(result='PASS',
+        assertionLedger=[dict(id=identity,subject='ownership',state='PASS') for identity in required],blockers=[],
+        headPaths=[],indexPaths=[],treePaths=[],containedPaths=[dict(code=None,fullPath=str(target))]))
+    assert adoption.main(['--repository',str(tmp_path),'--output',output])==1
+    observed=json.loads(capsys.readouterr().out)
+    assert observed['result']=='FAIL' and observed['blockers']==['EVIDENCE_HASH_MISMATCH']
+    assert target.read_bytes()==current.canonical(observed)+b'\n'
+
+
+def test_approved_gitlink_amendment_output_checks_resolved_candidate_ownership(tmp_path,monkeypatch,capsys):
+    output='artifacts/v9/10.4/AC-10.4-09.json';target=tmp_path/output
+    target.parent.mkdir(parents=True);target.write_bytes(b'candidate-owned receipt\n');original=target.read_bytes()
+    result=current.empty_result('a'*40);result['assertionLedger']=[dict(id='fixture',subject='fixture',state='PASS')]
+    result=adoption.finish(result)
+    required=['output:tree','output:head','output:head-tree','output:index','output:index-completed']
+    monkeypatch.setattr(adoption,'verify',lambda *args,**kwargs:copy.deepcopy(result))
+    def ownership(repository,request):
+        assert request['candidate']==result['candidate']
+        return dict(result='PASS',assertionLedger=[dict(id=identity,subject='ownership',state='PASS') for identity in required],
+            blockers=[],headPaths=[],indexPaths=[],treePaths=[output],containedPaths=[dict(code=None,fullPath=str(target))])
+    monkeypatch.setattr(current,'bridge',ownership)
+    assert adoption.main(['--repository',str(tmp_path),'--candidate','HEAD','--output',output])==1
+    observed=json.loads(capsys.readouterr().out)
+    assert observed['blockers']==['EVIDENCE_OUTPUT_FORBIDDEN']
+    assert target.read_bytes()==original

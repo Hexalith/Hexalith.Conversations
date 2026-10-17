@@ -50,7 +50,7 @@ internal static class Program
             if (input.TryGetProperty("expectedPaths", out JsonElement paths))
                 BoundaryAssertions.ChangedPaths(ledger, "changed-paths", paths.EnumerateArray().Select(path => path.GetString()!), diff);
             if (input.TryGetProperty("story104GitlinkAmendment", out JsonElement amendment))
-                Story104Gitlinks(ledger, amendment, baseline.Value, diff);
+                Story104Gitlinks(ledger, amendment, baseline, diff);
             else
                 BoundaryAssertions.NoGitlinks(ledger, "gitlinks", diff);
             List<object> blobs = [];
@@ -245,11 +245,23 @@ internal static class Program
     }
 
     /// <summary>Accepts only the complete independently pinned owner amendment at its original baseline.</summary>
-    private static void Story104Gitlinks(AssertionLedger ledger, JsonElement amendment, string? baseline,
+    private static void Story104Gitlinks(AssertionLedger ledger, JsonElement amendment, GitFact<string> baseline,
         GitFact<IReadOnlyList<GitDiffEntry>> diff)
     {
+        // Availability is established before comparing immutable pins: absence is BLOCKED,
+        // while an available but different baseline remains a proven failure.
+        if (!baseline.IsSuccess)
+        {
+            BoundaryAssertions.HistoryAvailable(ledger, "gitlinks:story104-baseline", baseline);
+            return;
+        }
+        if (!diff.IsSuccess)
+        {
+            BoundaryAssertions.HistoryAvailable(ledger, "gitlinks:story104-diff", diff);
+            return;
+        }
         JsonElement[] declared = amendment.GetProperty("transitions").EnumerateArray().ToArray();
-        bool pinned = baseline == "1915a47123737859e3ac31872fa787fa8c0bd1e3"
+        bool pinned = baseline.Value == "1915a47123737859e3ac31872fa787fa8c0bd1e3"
             && amendment.GetProperty("decisionDate").GetString() == "2026-10-17"
             && amendment.GetProperty("approvalCommit").GetString() == "9cbc71b63be3fa1ce4d89d98ef1771c54c6603f5"
             && amendment.EnumerateObject().Count() == 3 && declared.Length == Story104GitlinkTransitions.Length;
@@ -263,11 +275,6 @@ internal static class Program
         }
         ledger.Record("gitlinks:story104-pins", pinned);
         if (!pinned) ledger.Block("EVIDENCE_BOUNDARY_GITLINK", "story104-amendment", "The complete compiled owner amendment must match exactly.");
-        if (!diff.IsSuccess)
-        {
-            BoundaryAssertions.HistoryAvailable(ledger, "gitlinks:story104-diff", diff);
-            return;
-        }
         GitDiffEntry[] links = diff.Value!.Where(entry => entry.SourceMode == "160000" || entry.DestinationMode == "160000")
             .OrderBy(entry => entry.Path, StringComparer.Ordinal).ToArray();
         // With no raw gitlink changes, preserve the neutral helper's ordinary no-gitlink path.
