@@ -29,6 +29,20 @@ context:
 
 **Owner amendment, 2026-10-17:** The user explicitly approved correcting only `ScaffoldSmokeTest.SubmodulePathsShouldLiveUnderReferences` from `submodulePaths.Length.ShouldBe(10)` to `submodulePaths.Length.ShouldBe(12)`, updating its migration proof, and regenerating final acceptance evidence. The approved baseline already contains twelve root gitlinks. This is the sole authorized exception to assertion-expression preservation: preserve every original entry blob and provenance, all 27 reader identities, all twelve gitlinks, and every other assertion. Represent the exact count correction explicitly in the migration material and update its resulting hashes, binding, and independent consuming-source pins; do not treat it as an unrecorded plumbing change.
 
+**Owner gitlink amendment, 2026-10-17:** The user explicitly approved accepting the nine current root-submodule revisions introduced by `9cbc71b63be3fa1ce4d89d98ef1771c54c6603f5` while preserving the original baseline, inventories, assertions and evidence. This supersedes gitlink preservation only for the exact nine mode-`160000` transitions below. Retain the twelve baseline gitlinks as immutable provenance; independently pin and verify the complete approved transition set, both endpoint commits and modes, and the unchanged other three gitlinks. Record the amendment in the effective binding and closed final-record facts. Reject omissions, additions, endpoint drift and mode drift; do not add a generic gitlink exemption or edit submodule checkouts. Regenerate all source-bound acceptance evidence after implementation. No push.
+
+| Root submodule | Original baseline commit | Approved current commit |
+| --- | --- | --- |
+| `references/Hexalith.Builds` | `abdfca89ed82f388b54664825a8a79fed73e7ccf` | `4f53d9f37c5b86cfd43fbcc8fa5dd4df19b84c77` |
+| `references/Hexalith.EventStore` | `6cc9d6114fd055dac7a1d86130208b52271e3740` | `77d9af18a54d92506e310fe5a45021a395e66f60` |
+| `references/Hexalith.Folders` | `92e87359dd50dc9644e490a04de98adaaade9a86` | `42a2308113e1bdb9b1d07a778b4405dde797ebd3` |
+| `references/Hexalith.FrontComposer` | `0129bd39095892283371f97836ade5768fef3809` | `b102b85b148f21fb26d5742e120c344109df7084` |
+| `references/Hexalith.McpCli` | `0b96dfdf2ff6037be88f1fb952d6581a78930e67` | `b35b0975a234f1f97e2e35e9dad381d0a988f4af` |
+| `references/Hexalith.Memories` | `f7c8ce84a8a765667beafc31154ee2d6981552f8` | `f6b60d5a2e9b81d84fddad789c7d9bed40d3a533` |
+| `references/Hexalith.Parties` | `c0946ef17b3641fb23f6f17614913bfbab687373` | `90af3047b50046cb4f6f91e01f182f562110aab3` |
+| `references/Hexalith.Platform` | `b2890d20575356239555df5b113e3100c1d594c1` | `b4b6d4a1efcd2f13c6d03270f8e952f27ed8148b` |
+| `references/Hexalith.Tenants` | `e44ac7f537e9f192605e24efc3e61a97d00d44f3` | `e667d5391dae306e631dec23acd191863e54130c` |
+
 ## I/O & Edge-Case Matrix
 
 | Input | Result |
@@ -61,6 +75,7 @@ context:
 - [x] `_bmad/scripts/tests/test_verify_evidence_boundary.py`, promotion tests and `tests/tooling/test_evidence_boundary_current.py` — add `complete_fault_matrix`/`evidence_gate_span_coupling`: named faults, signable/root faults, nested/duplicate/unterminated chains, reader/strength drift, exemptions and span displacement. Retain exact codes, nonempty ledgers and restoration digests.
 - [x] `docs/runbooks/evidence-boundary-validation.md` and `_bmad/custom/bmad-{build,build-auto,review}.toml` — bind current guidance, five sections and exact commands/codes; preserve history/routine policy. Test resolved renders and four guidance mutations.
 - [x] Generator, `_bmad/schemas/story-final-record-v2.schema.json` and generator tests — add closed 10.4 facts, twelve-root shape, eight measured receipts including AC-09, source/predecessor/publication/insertion verification. Derive AC-08 last.
+- [x] `_bmad-output/planning-artifacts/story-10.4-current-binding-v1.json`, `_bmad/scripts/evidence_boundary_adoption.py`, `tests/Hexalith.Conversations.TestSupport.Runner/Program.cs`, generator/schema and their existing test files — bind the approved exact nine gitlink transitions independently, preserve baseline provenance, derive closed final-record facts, and prove rejection of missing/extra transitions, changed endpoints and raw-mode drift.
 - [ ] `artifacts/v9/10.4/` and `docs/release-evidence/story-10.4-final-record-v2.{json,md}` — commit sources, measure immutable candidate, publish receipts/pair together, insert verbatim and verify. Later source changes require fresh evidence. No push.
 
 **Acceptance Criteria:**
@@ -71,7 +86,7 @@ context:
 
 ## Implementation Notes
 
-- Entry is bound to `1915a47123737859e3ac31872fa787fa8c0bd1e3`; all twelve raw gitlinks and accepted 10.3 pair/receipts remain untouched.
+- Entry remains bound to `1915a47123737859e3ac31872fa787fa8c0bd1e3`; retain its twelve raw gitlinks as provenance and accept only the nine exact transitions in the owner gitlink amendment. Accepted 10.3 pair/receipts remain untouched.
 - The independently pinned entry snapshot retains all 27 original blobs and exact enumerated plumbing substitutions. The separately named `approvedAssertionCorrections` binds exactly the owner-approved 10-to-12 correction in the snapshot, effective binding, closed final-record facts and independent consuming source. Original assertion strength material still includes `ShouldBe(10)`; the approved correction is never normalized as plumbing. Twenty-five readers now call shared discovery/read/hash/Git seams; the unchanged collection and live tenant characterization retain meaningful adoption through their serialized collection and migrated blind-spot evidence owner. ContractSamples supplies repository discovery to the three frozen contract readers without changing sample fixtures.
 - The effective binding retains original inventory and contract provenance and names all nine ACs. AC-09 uses current resolved-guidance verification. The ten installed workflow bodies and installed defaults remain unchanged.
 - Shared chain validation checks exact ordered nonempty rows and single ordered nonnested markers. Fault fixtures cover all ten named boundary faults, signable/root faults, seven chain variants, reader/helper/inventory/exemption faults, four guidance mutations and exact/displaced evidence and promotion spans. The lifecycle adapter retains successor blocker identities.
@@ -79,11 +94,17 @@ context:
 
 ## Spec Change Log
 
+- 2026-10-17: User approved the exact nine gitlink transitions in `9cbc71b63be3fa1ce4d89d98ef1771c54c6603f5` after the scoped verifier returned `FAIL` with `CHANGED_PATH_SET_MISMATCH` and `EVIDENCE_BOUNDARY_GITLINK` (516 assertions). Original baseline, inventories, assertions and evidence remain preserved; fresh acceptance measurements and final publication are required.
+
 - 2026-10-17: User approved the narrow submodule-count amendment after the fresh Debug smoke-method failure confirmed expected 10 versus actual 12 at both baseline and current HEAD. Original entry bytes, inventories, predecessor evidence, and all other assertions remain preserved. Fresh source-bound acceptance measurements and final publication remain required.
 
 ## Review Triage Log
 
 ## Verification
+
+2026-10-17 gitlink-amendment implementation: the effective binding, independently pinned Python and compiled C# consumers, closed schema and generator bind exactly the nine owner-approved mode-`160000` transitions from `9cbc71b63be3fa1ce4d89d98ef1771c54c6603f5`. The twelve baseline roots remain immutable provenance; candidate roots contain exactly nine approved endpoints and three unchanged roots. Exact changed-path equality includes the nine gitlink paths separately from source files. Missing/extra transitions, changed endpoints/modes, amendment metadata drift and changed unchanged roots fail; valid unrelated changes retain `not-applicable`. `python3 -m pytest -q tests/tooling/test_evidence_boundary_adoption.py _bmad/scripts/tests/test_generate_story_record.py -k 'approved_gitlink_amendment or story104 or approved_assertion_correction'` passed 53 cases. The original 28-case `complete_fault_matrix` selector also passed, `git diff --check` passed, and `python3 scripts/check-root-submodules.py --repository .` returned `root submodules: PASS`. Source-bound acceptance, broad current lanes and final publication must be freshly measured after this source freeze. Logs are retained as `/tmp/story104-gitlink-final-focused-v2.log`, `/tmp/story104-gitlink-matrix.log`, and `/tmp/story104-gitlink-commitlint.log`.
+
+Runtime baseline for the gitlink amendment: `aspire start --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --format Json`, `aspire wait conversations --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --timeout 30`, and `aspire describe --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --format Json` succeeded before implementation. All eleven resources reached Running/Healthy after security readiness warmed up; `aspire stop --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj` stopped this exact AppHost successfully. The pre-existing FrontComposer AppHost was preserved. Local observations are retained under `/tmp/story104-gitlink-runtime*`.
 
 2026-10-17 amendment checks: `python3 -m pytest -q tests/tooling/test_evidence_boundary_adoption.py _bmad/scripts/tests/test_generate_story_record.py -k 'approved_assertion_correction or story104'` passed 15 cases. The explicit correction is independently constrained; unapproved count changes, another changed assertion, correction-metadata drift and closed-record drift turn red. Fresh committed-candidate measurements use a detached local shared clone at `/tmp/story104-approved-laacf8pj/checkout`, with twelve root-declared dependency clones checked out at the superproject's exact pinned commits. Concurrent user dependency checkout changes remain untouched. Isolation commands and source-bound results are retained under `/tmp/story104-approved-*`; no network or nested submodule initialization is used.
 

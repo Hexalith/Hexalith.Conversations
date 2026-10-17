@@ -226,3 +226,94 @@ def test_neutral_helper_portable_surface_stays_closed(tmp_path,monkeypatch,fault
     with pytest.raises(tiering.VerificationError) as caught:
         tiering.portable_surface(tmp_path,dict(portable=dict(Items=dict(ProjectReference=initial))))
     assert caught.value.code=='PORTABLE_TIER_NONPORTABLE_REFERENCE'
+
+
+@pytest.fixture(scope='module')
+def approved_gitlink_repository(tmp_path_factory):
+    """Use immutable baseline objects without opening or changing dependency checkouts."""
+    root=tmp_path_factory.mktemp('approved-gitlink-amendment')/'repository'
+    subprocess.run(['git','clone','--shared','--no-checkout','--quiet',str(ROOT),str(root)],check=True,capture_output=True)
+    def git(*args,input=None):
+        return subprocess.run(['git','-C',str(root),*args],input=input,check=True,capture_output=True).stdout.decode().strip()
+    git('config','user.name','Fixture');git('config','user.email','fixture@example.invalid')
+    return root,git
+
+
+@pytest.mark.parametrize('fault',['none','missing','extra','before','after','source-mode','destination-mode','approval','date'])
+def test_approved_gitlink_amendment_cannot_redefine_compiled_trust_roots(approved_gitlink_repository,fault):
+    root,git=approved_gitlink_repository
+    git('read-tree',adoption.BASELINE)
+    for row in adoption.APPROVED_GITLINK_AMENDMENT['transitions']:
+        git('update-index','--cacheinfo',row['destinationMode'],row['destinationObject'],row['path'])
+    candidate=git('commit-tree',git('write-tree'),'-p',adoption.BASELINE,'-m','test: exact approved transitions')
+    declared=copy.deepcopy(adoption.APPROVED_GITLINK_AMENDMENT)
+    if fault=='missing':declared['transitions'].pop()
+    if fault=='extra':declared['transitions'].append(dict(declared['transitions'][-1],path='references/Hexalith.Projects'))
+    if fault=='before':declared['transitions'][0]['sourceObject']='a'*40
+    if fault=='after':declared['transitions'][0]['destinationObject']='a'*40
+    if fault=='source-mode':declared['transitions'][0]['sourceMode']='100644'
+    if fault=='destination-mode':declared['transitions'][0]['destinationMode']='100644'
+    if fault=='approval':declared['approvalCommit']='a'*40
+    if fault=='date':declared['decisionDate']='2026-10-18'
+    observed=current.bridge(root,dict(baseline=adoption.BASELINE,candidate=candidate,story104GitlinkAmendment=declared))
+    assert observed['result']==('PASS' if fault=='none' else 'FAIL')
+    assert observed['blockers']==([] if fault=='none' else ['EVIDENCE_BOUNDARY_GITLINK'])
+    assert observed['assertionLedger']
+
+
+@pytest.mark.parametrize('fault',['missing','extra','endpoint','raw-mode','unchanged-root','unamended','wrong-baseline'])
+def test_approved_gitlink_amendment_checks_real_raw_git_diffs(approved_gitlink_repository,fault):
+    root,git=approved_gitlink_repository
+    git('read-tree',adoption.BASELINE)
+    rows=copy.deepcopy(adoption.APPROVED_GITLINK_AMENDMENT['transitions'])
+    if fault=='missing':rows.pop()
+    if fault in ('extra','unchanged-root'):
+        rows.append(dict(path='references/Hexalith.Projects',destinationMode='160000',destinationObject=adoption.BASELINE))
+    if fault=='endpoint':rows[0]['destinationObject']=adoption.BASELINE
+    if fault=='raw-mode':
+        rows[0].update(destinationMode='100644',destinationObject=git('hash-object','-w','--stdin',input=b'regular file\n'))
+    for row in rows:git('update-index','--cacheinfo',row['destinationMode'],row['destinationObject'],row['path'])
+    candidate=git('commit-tree',git('write-tree'),'-p',adoption.BASELINE,'-m','test: reject unapproved transition drift')
+    request=dict(baseline=candidate if fault=='wrong-baseline' else adoption.BASELINE,candidate=candidate)
+    if fault!='unamended':request['story104GitlinkAmendment']=adoption.APPROVED_GITLINK_AMENDMENT
+    observed=current.bridge(root,request)
+    assert observed['result']=='FAIL'
+    assert observed['blockers']==['EVIDENCE_BOUNDARY_GITLINK']
+    assert observed['assertionLedger']
+
+
+@pytest.mark.parametrize('fault',['none','missing','extra','before','after','source-mode','destination-mode','baseline','candidate','unchanged-root','all-missing'])
+def test_approved_gitlink_amendment_binding_and_candidate_stay_independent(fault):
+    binding=json.loads((ROOT/adoption.BINDING).read_bytes())
+    original=copy.deepcopy(binding['rootGitlinks']);candidate=adoption.candidate_gitlinks(original)
+    diff=[dict(row,status='M',sourcePath=None) for row in adoption.APPROVED_GITLINK_AMENDMENT['transitions']]
+    amendment=binding['approvedGitlinkAmendment']
+    if fault=='missing':amendment['transitions'].pop()
+    if fault=='extra':amendment['transitions'].append(dict(amendment['transitions'][-1],path='references/Hexalith.Projects'))
+    if fault=='before':amendment['transitions'][0]['sourceObject']='a'*40
+    if fault=='after':amendment['transitions'][0]['destinationObject']='a'*40
+    if fault=='source-mode':amendment['transitions'][0]['sourceMode']='100644'
+    if fault=='destination-mode':amendment['transitions'][0]['destinationMode']='100644'
+    if fault=='baseline':binding['rootGitlinks'][0]['commit']='a'*40
+    if fault=='candidate':candidate[1]['commit']='a'*40
+    if fault=='unchanged-root':candidate[0]['commit']='a'*40
+    if fault=='all-missing':diff=[];candidate=original
+    result=current.empty_result('b'*40);adoption.gitlink_checks(result,binding,original,candidate,diff);observed=adoption.finish(result)
+    assert observed['result']==('PASS' if fault=='none' else 'FAIL')
+    assert observed['blockers']==([] if fault=='none' else ['EVIDENCE_BOUNDARY_GITLINK'])
+    assert observed['assertionLedger']
+
+
+def test_approved_gitlink_amendment_retains_valid_non_applicable_state(approved_gitlink_repository):
+    root,git=approved_gitlink_repository
+    # No governed source and no raw gitlink changes: this is a real non-applicable diff.
+    git('read-tree',adoption.BASELINE)
+    blob=git('hash-object','-w','--stdin',input=b'unrelated\n')
+    git('update-index','--add','--cacheinfo','100644',blob,'unrelated.txt')
+    candidate=git('commit-tree',git('write-tree'),'-p',adoption.BASELINE,'-m','test: unrelated scope')
+    path=root/adoption.BINDING;path.parent.mkdir(parents=True,exist_ok=True)
+    path.write_bytes((ROOT/adoption.BINDING).read_bytes())
+    observed=adoption.verify(root,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4])
+    assert observed['result']=='not-applicable'
+    assert observed['blockers']==[]
+    assert observed['warnings']==['EVIDENCE_SCOPE_NOT_APPLICABLE']

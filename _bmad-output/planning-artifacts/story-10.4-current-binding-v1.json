@@ -340,6 +340,15 @@
     "_bmad/scripts/verify_evidence_boundary.py",
     "artifacts/v9/10.4/reader-entry-v1.json",
     "docs/runbooks/evidence-boundary-validation.md",
+    "references/Hexalith.Builds",
+    "references/Hexalith.EventStore",
+    "references/Hexalith.Folders",
+    "references/Hexalith.FrontComposer",
+    "references/Hexalith.McpCli",
+    "references/Hexalith.Memories",
+    "references/Hexalith.Parties",
+    "references/Hexalith.Platform",
+    "references/Hexalith.Tenants",
     "tests/Hexalith.Conversations.Conformance.Portable.Tests/Hexalith.Conversations.Conformance.Portable.Tests.csproj",
     "tests/Hexalith.Conversations.Conformance.Tests/AtRiskTestRegisterGenerationTest.cs",
     "tests/Hexalith.Conversations.Conformance.Tests/ClassificationChangeProcedureValidationTest.cs",
@@ -388,5 +397,74 @@
       "after": "submodulePaths.Length.ShouldBe(12);",
       "count": 1
     }
-  ]
+  ],
+  "approvedGitlinkAmendment": {
+    "decisionDate": "2026-10-17",
+    "approvalCommit": "9cbc71b63be3fa1ce4d89d98ef1771c54c6603f5",
+    "transitions": [
+      {
+        "path": "references/Hexalith.Builds",
+        "sourceMode": "160000",
+        "sourceObject": "abdfca89ed82f388b54664825a8a79fed73e7ccf",
+        "destinationMode": "160000",
+        "destinationObject": "4f53d9f37c5b86cfd43fbcc8fa5dd4df19b84c77"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "sourceMode": "160000",
+        "sourceObject": "6cc9d6114fd055dac7a1d86130208b52271e3740",
+        "destinationMode": "160000",
+        "destinationObject": "77d9af18a54d92506e310fe5a45021a395e66f60"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "sourceMode": "160000",
+        "sourceObject": "92e87359dd50dc9644e490a04de98adaaade9a86",
+        "destinationMode": "160000",
+        "destinationObject": "42a2308113e1bdb9b1d07a778b4405dde797ebd3"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "sourceMode": "160000",
+        "sourceObject": "0129bd39095892283371f97836ade5768fef3809",
+        "destinationMode": "160000",
+        "destinationObject": "b102b85b148f21fb26d5742e120c344109df7084"
+      },
+      {
+        "path": "references/Hexalith.McpCli",
+        "sourceMode": "160000",
+        "sourceObject": "0b96dfdf2ff6037be88f1fb952d6581a78930e67",
+        "destinationMode": "160000",
+        "destinationObject": "b35b0975a234f1f97e2e35e9dad381d0a988f4af"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "sourceMode": "160000",
+        "sourceObject": "f7c8ce84a8a765667beafc31154ee2d6981552f8",
+        "destinationMode": "160000",
+        "destinationObject": "f6b60d5a2e9b81d84fddad789c7d9bed40d3a533"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "sourceMode": "160000",
+        "sourceObject": "c0946ef17b3641fb23f6f17614913bfbab687373",
+        "destinationMode": "160000",
+        "destinationObject": "90af3047b50046cb4f6f91e01f182f562110aab3"
+      },
+      {
+        "path": "references/Hexalith.Platform",
+        "sourceMode": "160000",
+        "sourceObject": "b2890d20575356239555df5b113e3100c1d594c1",
+        "destinationMode": "160000",
+        "destinationObject": "b4b6d4a1efcd2f13c6d03270f8e952f27ed8148b"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "sourceMode": "160000",
+        "sourceObject": "e44ac7f537e9f192605e24efc3e61a97d00d44f3",
+        "destinationMode": "160000",
+        "destinationObject": "e667d5391dae306e631dec23acd191863e54130c"
+      }
+    ]
+  }
 }

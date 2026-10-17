@@ -11768,7 +11768,7 @@ def story104_closed_fixture(generator):
     contract=json.loads((WORKSPACE/adoption.CONTRACT).read_bytes())
     record=json.loads((WORKSPACE/'docs/release-evidence/story-10.3-final-record-v2.json').read_bytes())
     facts={key:deepcopy(binding[key]) for key in ('baseline','provenance','workflowInventory','guidanceInventory',
-        'resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections')}
+        'resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections','approvedGitlinkAmendment')}
     paths=contract['finalRecord']['paths'];candidate='a'*40
     receipts=[dict(path=f'artifacts/v9/10.4/AC-10.4-0{n}.'+('trx' if n<6 else 'json' if n==9 else 'xml'),sha256='b'*64)
         for n in (1,2,3,4,5,6,7,9)]
@@ -11789,7 +11789,7 @@ def story104_closed_fixture(generator):
         sourceFiles=[dict(path=adoption.BINDING,sha256='b'*64)],
         mutationLedger=[dict(id=f'fault-{n}',expectedBlocker='EVIDENCE_HASH_MISMATCH',observedBlockers=['EVIDENCE_HASH_MISMATCH'],
             beforeSha256='b'*64,afterSha256='b'*64,restored=True,result='PASS') for n in range(29)])
-    record.pop('evidenceWorkflowExecution');record.update(storyId='10.4',candidate=dict(commit=candidate,gitlinks=facts['rootGitlinks']),
+    record.pop('evidenceWorkflowExecution');record.update(storyId='10.4',candidate=dict(commit=candidate,gitlinks=adoption.candidate_gitlinks(facts['rootGitlinks'])),
         predecessors=['10.3'],inventory=contract['inventory'],scenarios=scenarios,evidenceAdoptionExecution=facts,
         summary=dict(required=9,passed=9,failed=0,blocked=0,skipped=0,notRun=0),
         outputs=dict(json=dict(path=paths[0],sha256='0'*64),markdown=dict(path=paths[1],sha256='0'*64)),
@@ -11806,6 +11806,9 @@ def test_story104_closed_schema_and_deterministic_pair():
     assert len(final['evidenceAdoptionExecution']['readerBeforeAfter'])==27
     assert len(final['evidenceAdoptionExecution']['receipts'])==8
     assert b'AC-10.4-09' in m
+    assert b'9cbc71b63be3fa1ce4d89d98ef1771c54c6603f5' in m
+    assert len(final['evidenceAdoptionExecution']['approvedGitlinkAmendment']['transitions'])==9
+    assert final['candidate']['gitlinks']!=final['evidenceAdoptionExecution']['rootGitlinks']
 
 
 @pytest.mark.parametrize('fault',['unknown-fact','eleven-roots','seven-receipts','reader-omission','missing-AC09','empty-ledger','unrestored','unapproved-correction'])
@@ -11830,3 +11833,21 @@ def test_story104_receipt_parser_rejects_unstamped_and_empty_results():
     for xml in (b'<testsuites><testsuite tests="0" failures="0" errors="0" skipped="0" /></testsuites>',
         b'<testsuites><testsuite tests="1" failures="0" errors="0" skipped="0"><testcase name="unstamped" /></testsuite></testsuites>'):
         with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,'a'*40,lambda _:xml)
+
+
+@pytest.mark.parametrize('fault',['missing','extra','before','after','source-mode','destination-mode','approval','baseline','candidate','unchanged-root'])
+def test_story104_pair_rejects_unapproved_gitlink_amendment(fault):
+    generator=load_generator();record=story104_closed_fixture(generator);facts=record['evidenceAdoptionExecution']
+    amendment=facts['approvedGitlinkAmendment']
+    if fault=='missing':amendment['transitions'].pop()
+    if fault=='extra':amendment['transitions'].append(dict(amendment['transitions'][-1],path='references/Hexalith.Projects'))
+    if fault=='before':amendment['transitions'][0]['sourceObject']='a'*40
+    if fault=='after':amendment['transitions'][0]['destinationObject']='a'*40
+    if fault=='source-mode':amendment['transitions'][0]['sourceMode']='100644'
+    if fault=='destination-mode':amendment['transitions'][0]['destinationMode']='100644'
+    if fault=='approval':amendment['approvalCommit']='a'*40
+    if fault=='baseline':facts['rootGitlinks'][0]['commit']='a'*40
+    if fault=='candidate':record['candidate']['gitlinks'][1]['commit']='a'*40
+    if fault=='unchanged-root':record['candidate']['gitlinks'][0]['commit']='a'*40
+    _,validators=generator.v2_load_schemas()
+    assert generator.v2_schema_errors(validators['record'],record) or generator.v2_10_4_pair_errors(record)

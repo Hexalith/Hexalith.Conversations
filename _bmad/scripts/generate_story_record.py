@@ -4540,6 +4540,17 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
                           "| Literal root | Value |", "| --- | --- |"])
             lines.extend(f"| {code(name)} | {code(value)} |"
                          for name, value in sorted(roots["constants"].items()))
+    if "evidenceAdoptionExecution" in record:
+        amendment = record["evidenceAdoptionExecution"]["approvedGitlinkAmendment"]
+        lines.extend(["", "## Approved root-gitlink amendment", "",
+                      f"- Owner decision: {code(amendment['decisionDate'])}",
+                      f"- Approved revision: {code(amendment['approvalCommit'])}",
+                      "- The twelve original baseline roots remain immutable provenance; three roots are unchanged.",
+                      "", "| Root submodule | Original commit | Approved commit | Original / approved mode |",
+                      "| --- | --- | --- | --- |"])
+        lines.extend("| " + " | ".join(code(value) for value in (
+            row["path"], row["sourceObject"], row["destinationObject"], row["sourceMode"] + " / " + row["destinationMode"])) + " |"
+                     for row in amendment["transitions"])
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
     if record["storyId"] in ("10.3", "10.4") and ("evidenceWorkflowExecution" in record or "evidenceAdoptionExecution" in record):
@@ -9321,8 +9332,10 @@ def v2_10_4_pair_errors(record):
             return ['Story 10.4 measured faults or restoration differ']
         if [row['path'] for row in facts['readerBeforeAfter']]!=facts['readerInventory']['paths']:
             return ['Story 10.4 reader identities differ']
-        if facts['rootGitlinks']!=record['candidate']['gitlinks']:
-            return ['Story 10.4 root gitlinks differ']
+        adoption=v2_10_4_module()
+        if (facts['approvedGitlinkAmendment']!=adoption.APPROVED_GITLINK_AMENDMENT
+                or adoption.candidate_gitlinks(facts['rootGitlinks'])!=record['candidate']['gitlinks']):
+            return ['Story 10.4 approved gitlink amendment or candidate roots differ']
     except (KeyError,TypeError,ValueError):return ['Story 10.4 execution facts are malformed']
     return []
 
@@ -9398,7 +9411,8 @@ def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
         assertionLedger=[dict(id=f'AC-10.4-08#{n+1:04d}',subject=subject,state='PASS') for n,subject in enumerate((
             'eight-measured-candidate-bound-receipts-including-AC-09','verified-10.3-predecessor',
             '27-exact-reader-substitutions-and-zero-exemptions','29-real-faults-and-byte-identical-restoration',
-            'ten-workflow-spans-and-resolved-guidance','closed-schema-and-deterministic-pair'))]))
+            'ten-workflow-spans-and-resolved-guidance','nine-approved-raw-gitlink-transitions-and-three-unchanged-roots',
+            'closed-schema-and-deterministic-pair'))]))
     return scenarios,receipts,mutations
 
 
@@ -9415,11 +9429,15 @@ def v2_10_4_source_errors(repository,record,consumer_candidate=None):
         binding=v2_parse_json(v2_committed_blob(repository,candidate,V2_10_4_BINDING))
         contract=v2_parse_json(v2_committed_blob(repository,candidate,V2_10_4_CONTRACT))
         if [row['path'] for row in facts['sourceFiles']]!=binding['sourcePaths']:problems.append('source membership differs')
-        for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections'):
+        if (binding['sourcePaths']!=list(adoption.APPROVED_SOURCE_PATHS) or binding['expectedChangedPaths']!=sorted(
+                set(adoption.APPROVED_SOURCE_PATHS)|{row['path'] for row in adoption.APPROVED_GITLINK_AMENDMENT['transitions']})):
+            problems.append('independent exact source/transition boundary differs')
+        for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections','approvedGitlinkAmendment'):
             if facts[key]!=binding[key]:problems.append('effective binding differs: '+key)
-        raw=adoption.current.bridge(repository,dict(baseline=adoption.BASELINE,candidate=candidate,expectedPaths=binding['sourcePaths'],includeRootGitlinks=True,
+        raw=adoption.current.bridge(repository,dict(baseline=adoption.BASELINE,candidate=candidate,expectedPaths=binding['expectedChangedPaths'],includeRootGitlinks=True,
+            story104GitlinkAmendment=adoption.APPROVED_GITLINK_AMENDMENT,
             blobPaths=[adoption.SNAPSHOT,*adoption.PROVENANCE]))
-        if raw['result']!='PASS' or raw['rootGitlinks']!=facts['rootGitlinks']:problems.append('raw boundary or twelve roots differ')
+        if raw['result']!='PASS' or raw['rootGitlinks']!=adoption.candidate_gitlinks(facts['rootGitlinks']):problems.append('raw boundary or twelve roots differ')
         blobs={row['path']:row for row in raw['blobs']}
         if blobs[adoption.SNAPSHOT]['sha256']!=adoption.SNAPSHOT_SHA256:problems.append('entry trust root differs')
         snapshot=v2_parse_json(base64.b64decode(blobs[adoption.SNAPSHOT]['content']))
@@ -9516,7 +9534,7 @@ def v2_10_4_generate(options,*,candidate=None,verify_spec=None,consumer_candidat
             'scoped-verifier','scoped verifier does not pass: '+', '.join(observed['blockers']))],'10.4')
     scenarios,receipts,mutations=v2_10_4_receipt_facts(repository,contract,candidate,
         (lambda path:v2_committed_blob(repository,consumer_candidate,path)) if consumer_candidate else None)
-    facts={key:binding[key] for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections')}
+    facts={key:binding[key] for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections','approvedGitlinkAmendment')}
     facts.update(bindingRule='SC-10.4 is the committed candidate evaluated under the approved current binding',sourceRevisionId=candidate,
         binding=dict(path=V2_10_4_BINDING,sha256=v2_sha256(binding_bytes)),contract=dict(path=V2_10_4_CONTRACT,sha256=v2_sha256(contract_bytes)),
         predecessorPair=dict(json=dict(path=adoption.PROVENANCE[5],sha256=predecessor),markdown=dict(path=adoption.PROVENANCE[6],sha256=v2_sha256(v2_committed_blob(repository,candidate,adoption.PROVENANCE[6])))),
@@ -9526,8 +9544,9 @@ def v2_10_4_generate(options,*,candidate=None,verify_spec=None,consumer_candidat
     bundle_digest=v2_sha256(''.join(f'{row["sha256"]}  {row["path"]}\n' for row in bundle['artifacts']).encode())
     if bundle_digest!=bundle['bundleDigest']:raise ValueError('original authority row digest differs')
     paths=contract['finalRecord']['paths']
+    observed_roots=[dict(path=path,mode='160000',commit=commit) for path,commit in v2_raw_gitlinks(repository,candidate)]
     record=dict(schemaVersion=V2_RECORD_SCHEMA_VERSION,storyId='10.4',authority={key:contract['authority'][key] for key in ('epic','architecture','planningCandidate')},
-        candidate=dict(commit=candidate,gitlinks=facts['rootGitlinks']),predecessors=['10.3'],inventory=contract['inventory'],scenarios=scenarios,
+        candidate=dict(commit=candidate,gitlinks=observed_roots),predecessors=['10.3'],inventory=contract['inventory'],scenarios=scenarios,
         faultInjection=dict(results=[]),outputs=dict(json=dict(path=paths[0],sha256=V2_ZERO_DIGEST),markdown=dict(path=paths[1],sha256=V2_ZERO_DIGEST)),
         rollback=contract['rollback'],summary=dict(required=9,passed=9,failed=0,blocked=0,skipped=0,notRun=0),renderedMarkdownSha256=V2_ZERO_DIGEST,evidenceAdoptionExecution=facts)
     record['authority']['bundleDigest']=bundle_digest

@@ -23,6 +23,76 @@ APPROVED_ASSERTION_CORRECTIONS = [dict(
     path='tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs',
     method='SubmodulePathsShouldLiveUnderReferences', decisionDate='2026-10-17',
     before='submodulePaths.Length.ShouldBe(10);', after='submodulePaths.Length.ShouldBe(12);', count=1)]
+# The exact owner amendment is independently pinned; it is never a caller-defined allowlist.
+APPROVED_GITLINK_AMENDMENT = {
+    "decisionDate": "2026-10-17",
+    "approvalCommit": "9cbc71b63be3fa1ce4d89d98ef1771c54c6603f5",
+    "transitions": [
+        {
+            "path": "references/Hexalith.Builds",
+            "sourceMode": "160000",
+            "sourceObject": "abdfca89ed82f388b54664825a8a79fed73e7ccf",
+            "destinationMode": "160000",
+            "destinationObject": "4f53d9f37c5b86cfd43fbcc8fa5dd4df19b84c77"
+        },
+        {
+            "path": "references/Hexalith.EventStore",
+            "sourceMode": "160000",
+            "sourceObject": "6cc9d6114fd055dac7a1d86130208b52271e3740",
+            "destinationMode": "160000",
+            "destinationObject": "77d9af18a54d92506e310fe5a45021a395e66f60"
+        },
+        {
+            "path": "references/Hexalith.Folders",
+            "sourceMode": "160000",
+            "sourceObject": "92e87359dd50dc9644e490a04de98adaaade9a86",
+            "destinationMode": "160000",
+            "destinationObject": "42a2308113e1bdb9b1d07a778b4405dde797ebd3"
+        },
+        {
+            "path": "references/Hexalith.FrontComposer",
+            "sourceMode": "160000",
+            "sourceObject": "0129bd39095892283371f97836ade5768fef3809",
+            "destinationMode": "160000",
+            "destinationObject": "b102b85b148f21fb26d5742e120c344109df7084"
+        },
+        {
+            "path": "references/Hexalith.McpCli",
+            "sourceMode": "160000",
+            "sourceObject": "0b96dfdf2ff6037be88f1fb952d6581a78930e67",
+            "destinationMode": "160000",
+            "destinationObject": "b35b0975a234f1f97e2e35e9dad381d0a988f4af"
+        },
+        {
+            "path": "references/Hexalith.Memories",
+            "sourceMode": "160000",
+            "sourceObject": "f7c8ce84a8a765667beafc31154ee2d6981552f8",
+            "destinationMode": "160000",
+            "destinationObject": "f6b60d5a2e9b81d84fddad789c7d9bed40d3a533"
+        },
+        {
+            "path": "references/Hexalith.Parties",
+            "sourceMode": "160000",
+            "sourceObject": "c0946ef17b3641fb23f6f17614913bfbab687373",
+            "destinationMode": "160000",
+            "destinationObject": "90af3047b50046cb4f6f91e01f182f562110aab3"
+        },
+        {
+            "path": "references/Hexalith.Platform",
+            "sourceMode": "160000",
+            "sourceObject": "b2890d20575356239555df5b113e3100c1d594c1",
+            "destinationMode": "160000",
+            "destinationObject": "b4b6d4a1efcd2f13c6d03270f8e952f27ed8148b"
+        },
+        {
+            "path": "references/Hexalith.Tenants",
+            "sourceMode": "160000",
+            "sourceObject": "e44ac7f537e9f192605e24efc3e61a97d00d44f3",
+            "destinationMode": "160000",
+            "destinationObject": "e667d5391dae306e631dec23acd191863e54130c"
+        }
+    ]
+}
 PREDECESSOR_SHA256 = '013416c7f819aafcad2528d4b6892a05707b5f3056830ee550f174048a9929d1'
 PREDECESSOR_CANDIDATE = '6908c5264c388cca1b094400c5abfa320482c5e3'
 READERS = '_bmad-output/planning-artifacts/v9/inventories/evidence-readers-v1.json'
@@ -172,10 +242,37 @@ def merge(result,facts,prefix=''):
         for code in facts['blockers'] if facts['result']!='BLOCKED' or code in current.BLOCKED_CODES)
 
 
+def candidate_gitlinks(baseline_roots):
+    """Retain all twelve original roots and apply only the independently approved endpoints."""
+    transitions={row['path']:row for row in APPROVED_GITLINK_AMENDMENT['transitions']}
+    return [dict(row,commit=transitions[row['path']]['destinationObject']) if row['path'] in transitions else dict(row)
+        for row in baseline_roots]
+
+
+def gitlink_checks(result,binding,baseline_roots,candidate_roots,diff):
+    """Require exact amendment metadata, raw transitions, baseline provenance and unchanged roots."""
+    record(result,'gitlinks:amendment',BINDING,binding.get('approvedGitlinkAmendment')==APPROVED_GITLINK_AMENDMENT,
+        'EVIDENCE_BOUNDARY_GITLINK')
+    transitions=APPROVED_GITLINK_AMENDMENT['transitions']
+    actual=[{key:row[key] for key in ('path','sourceMode','sourceObject','destinationMode','destinationObject')}
+        for row in diff if '160000' in (row['sourceMode'],row['destinationMode'])]
+    raw_ok=actual==transitions and all(row.get('sourcePath') is None and row.get('status')=='M'
+        for row in diff if '160000' in (row['sourceMode'],row['destinationMode']))
+    original={row['path']:row for row in baseline_roots}
+    record(result,'gitlinks:transitions','nine exact mode-160000 transitions',raw_ok and all(
+        original.get(row['path'])==dict(path=row['path'],mode=row['sourceMode'],commit=row['sourceObject']) for row in transitions),
+        'EVIDENCE_BOUNDARY_GITLINK')
+    record(result,'gitlinks:provenance','twelve baseline root gitlinks',len(baseline_roots)==12
+        and baseline_roots==binding['rootGitlinks'],'EVIDENCE_BOUNDARY_GITLINK')
+    record(result,'gitlinks:candidate','nine approved and three unchanged roots',candidate_roots==candidate_gitlinks(baseline_roots),
+        'EVIDENCE_BOUNDARY_GITLINK')
+
+
 def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING,verify_workflows=False,check=None):
     result=current.empty_result()
     try:
-        initial=current.bridge(repository,dict(baseline=baseline,candidate=candidate,containedPaths=[binding_path,authority_bundle],includeRootGitlinks=True))
+        initial=current.bridge(repository,dict(baseline=baseline,candidate=candidate,containedPaths=[binding_path,authority_bundle],includeRootGitlinks=True,
+            story104GitlinkAmendment=APPROVED_GITLINK_AMENDMENT))
         merge(result,initial,'initial:');result['candidate']=initial['candidate']
         if initial['result']=='BLOCKED':return finish(result)
         if any(row['code'] for row in initial['containedPaths']):return finish(result)
@@ -191,8 +288,7 @@ def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING
         record(result,'roots:independent',ROOTS['sourcePath'],binding['rootConstants']==ROOTS,'ROOT_OF_TRUST_NOT_PINNED')
         base=current.bridge(repository,dict(baseline=BASELINE,candidate=BASELINE,blobPaths=list(PROVENANCE)+list(WORKFLOWS),includeRootGitlinks=True))
         merge(result,base,'baseline:')
-        record(result,'gitlinks:preserved','twelve root gitlinks',len(base['rootGitlinks'])==12
-            and initial['rootGitlinks']==base['rootGitlinks']==binding['rootGitlinks'],'EVIDENCE_BOUNDARY_GITLINK')
+        gitlink_checks(result,binding,base['rootGitlinks'],initial['rootGitlinks'],entries)
         baseline_blobs={row['path']:row for row in base['blobs']}
         record(result,'provenance:membership',BINDING,[row['path'] for row in binding['provenance']]==list(PROVENANCE),'AUTHORITY_BINDING_INVALID')
         for row in binding['provenance']:
@@ -207,7 +303,8 @@ def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING
         manifest=binding['provenance']+binding['workflowInventory']['rows']+binding['guidanceInventory']['rows']
         manifest += [dict(path=SNAPSHOT,sha256=SNAPSHOT_SHA256,role='entry-snapshot')]
         expected=binding['expectedChangedPaths']
-        record(result,'binding:exact-sources',BINDING,expected==binding['sourcePaths']==list(APPROVED_SOURCE_PATHS) and expected==sorted(set(expected)),'AUTHORITY_BINDING_INVALID')
+        record(result,'binding:exact-sources',BINDING,binding['sourcePaths']==list(APPROVED_SOURCE_PATHS)
+            and expected==sorted(set(APPROVED_SOURCE_PATHS)|{row['path'] for row in APPROVED_GITLINK_AMENDMENT['transitions']}),'AUTHORITY_BINDING_INVALID')
         import generate_story_record as generator
         # Publication adds only the bound receipt/pair set and checked lifecycle changes.
         pair=repository/'docs/release-evidence/story-10.4-final-record-v2.json'
@@ -221,6 +318,7 @@ def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING
         payload=''.join(f'{row["path"]}\t{row["sha256"]}\t{row.get("role","provenance")}\n' for row in sorted(manifest,key=lambda row:row['path']))
         facts=current.bridge(repository,dict(baseline=baseline,candidate=initial['candidate'],expectedPaths=expected,
             roots=ROOTS,manifest=manifest,signablePayloadHash=current.digest(payload.encode()),
+            story104GitlinkAmendment=APPROVED_GITLINK_AMENDMENT,
             blobPaths=list(dict.fromkeys([row['path'] for row in manifest]+binding['sourcePaths'])),containedPaths=binding['sourcePaths']))
         merge(result,facts,'boundary:');result['manifest']=manifest
         declared={row['path']:row['sha256'] for row in manifest}
