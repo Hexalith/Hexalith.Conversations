@@ -15,14 +15,75 @@ public sealed class AdoptionSeamTests
         string path = Path.Combine(nested, "evidence.txt");
         File.WriteAllText(path, "evidence\r\n");
         RepositoryLocator.FindRepositoryRoot(nested).ShouldBe(fixture.Root);
-        RepositoryLocator.ReadAllText(path).ShouldBe("evidence\r\n");
-        EvidenceManifest.HashFile(path).ShouldBe(EvidenceManifest.HashBytes(File.ReadAllBytes(path)));
+        RepositoryLocator.ReadAllText(path, null, repositoryRoot: fixture.Root).ShouldBe("evidence\r\n");
+        EvidenceManifest.HashFile(path, fixture.Root).ShouldBe(EvidenceManifest.HashBytes(File.ReadAllBytes(path)));
         if (!OperatingSystem.IsWindows())
         {
             string link = Path.Combine(fixture.Root, "link.txt");
             File.CreateSymbolicLink(link, path);
-            Should.Throw<IOException>(() => RepositoryLocator.ReadAllBytes(link)).Message.ShouldContain("REPOSITORY_PATH_ESCAPE");
+            Should.Throw<IOException>(() => RepositoryLocator.ReadAllBytes(link, fixture.Root)).Message.ShouldContain("REPOSITORY_PATH_ESCAPE");
         }
+    }
+
+    /// <summary>Requested paths cannot select a sibling checkout as their own trust root.</summary>
+    [Fact]
+    public void ContainedReadsShouldRejectSiblingCheckoutsAndTraversal()
+    {
+        using GitFixture owner = new();
+        using GitFixture sibling = new();
+        string path = Path.Combine(sibling.Root, "evidence.txt");
+        File.WriteAllText(path, "sibling");
+        Should.Throw<IOException>(() => RepositoryLocator.ReadAllBytes(path)).Message.ShouldContain("REPOSITORY_PATH_ESCAPE");
+        Should.Throw<IOException>(() => RepositoryLocator.ReadAllText(path, null, repositoryRoot: owner.Root));
+        Should.Throw<IOException>(() => RepositoryLocator.ReadAllLines(path, null, repositoryRoot: owner.Root));
+        Should.Throw<IOException>(() => EvidenceManifest.HashFile(path, owner.Root));
+        string traversal = Path.Combine(owner.Root, "..", Path.GetFileName(sibling.Root), "evidence.txt");
+        Should.Throw<IOException>(() => RepositoryLocator.ContainedFile(traversal, owner.Root));
+    }
+
+    /// <summary>A moving HEAD cannot change the blob after its regular-mode check.</summary>
+    [Fact]
+    public async Task RegularBlobReadsShouldResolveMutableRevisionsOnce()
+    {
+        using GitFixture fixture = new();
+        File.WriteAllText(Path.Combine(fixture.Root, "evidence.txt"), "regular bytes");
+        string regular = fixture.Commit();
+        File.WriteAllText(Path.Combine(fixture.Root, "link-target"), "target.txt");
+        string blob = fixture.Git("hash-object", "-w", "link-target");
+        fixture.Git("update-index", "--cacheinfo", $"120000,{blob},evidence.txt");
+        fixture.Git("commit", "--quiet", "-m", "fixture");
+        string symbolic = fixture.Git("rev-parse", "HEAD");
+        fixture.Git("update-ref", "HEAD", regular);
+        string script = "import pathlib,subprocess,sys; args=sys.argv[1:]; result=subprocess.run(['git',*args],capture_output=True); "
+            + "move=args[0]=='ls-tree' and not pathlib.Path('race-fired').exists(); "
+            + $"subprocess.run(['git','update-ref','HEAD','{symbolic}'],check=True) if move else None; "
+            + "pathlib.Path('race-fired').touch() if move else None; sys.stdout.buffer.write(result.stdout); sys.stderr.buffer.write(result.stderr); sys.exit(result.returncode)";
+        GitFacts facts = new("python3", ["-c", script], false);
+        GitFact<GitBlob> result = await facts.ReadRegularBlobAsync(fixture.Root, "HEAD", "evidence.txt", TestContext.Current.CancellationToken);
+        result.IsSuccess.ShouldBeTrue(result.Message);
+        result.Value!.Revision.ShouldBe(regular);
+        System.Text.Encoding.UTF8.GetString(result.Value.Content).ShouldBe("regular bytes");
+        File.Exists(Path.Combine(fixture.Root, "race-fired")).ShouldBeTrue();
+        fixture.Git("rev-parse", "HEAD").ShouldBe(symbolic);
+    }
+
+    /// <summary>Orchestration can exceed a Git command's budget while sharing bounded capture and cancellation.</summary>
+    [Fact]
+    public async Task OrchestrationShouldHaveAnExplicitIndependentBudget()
+    {
+        using GitFixture fixture = new();
+        GitFacts orchestration = new("python3", ["-c", "import time; time.sleep(31); print('completed')"], false);
+        GitFact<GitCommandResult> result = await orchestration.RunOrchestrationAsync(fixture.Root, [], TestContext.Current.CancellationToken, TimeSpan.FromSeconds(35));
+        result.IsSuccess.ShouldBeTrue(result.Message);
+        result.Value!.ExitCode.ShouldBe(0);
+        (await new GitFacts().RunAsync(fixture.Root, [], TestContext.Current.CancellationToken, TimeSpan.FromSeconds(31))).Code.ShouldBe("GIT_TIMEOUT_INVALID");
+        (await new GitFacts().RunOrchestrationAsync(fixture.Root, [], TestContext.Current.CancellationToken)).Code.ShouldBe("GIT_TIMEOUT_INVALID");
+        (await orchestration.RunOrchestrationAsync(fixture.Root, [], TestContext.Current.CancellationToken, TimeSpan.FromMinutes(21))).Code.ShouldBe("GIT_TIMEOUT_INVALID");
+        using CancellationTokenSource cancelled = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
+        cancelled.CancelAfter(TimeSpan.FromMilliseconds(100));
+        (await orchestration.RunOrchestrationAsync(fixture.Root, [], cancelled.Token)).Code.ShouldBe("GIT_CANCELLED");
+        GitFacts overflow = new("python3", ["-c", "import os; os.write(1,b'o'*(17*1024*1024))"], false);
+        (await overflow.RunOrchestrationAsync(fixture.Root, [], TestContext.Current.CancellationToken)).Code.ShouldBe("GIT_OUTPUT_LIMIT_EXCEEDED");
     }
 
     /// <summary>Regular evidence reads reject raw symbolic-link and gitlink tree modes.</summary>

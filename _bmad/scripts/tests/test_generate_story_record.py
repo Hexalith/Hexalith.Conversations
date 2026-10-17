@@ -11787,8 +11787,8 @@ def story104_closed_fixture(generator):
         readerBeforeAfter=generator.v2_10_4_reader_facts(adoption.snapshot(WORKSPACE)),
         routeFacts=deepcopy(record['evidenceWorkflowExecution']['routeFacts']),receipts=receipts,
         sourceFiles=[dict(path=adoption.BINDING,sha256='b'*64)],
-        mutationLedger=[dict(id=f'fault-{n}',expectedBlocker='EVIDENCE_HASH_MISMATCH',observedBlockers=['EVIDENCE_HASH_MISMATCH'],
-            beforeSha256='b'*64,afterSha256='b'*64,restored=True,result='PASS') for n in range(29)])
+        mutationLedger=[dict(id=fault,expectedBlocker=expected['code'],observedBlockers=expected['blockers'],
+            beforeSha256='b'*64,afterSha256='b'*64,restored=True,result='PASS') for fault,expected in adoption.FAULT_EXPECTATIONS.items()])
     record.pop('evidenceWorkflowExecution');record.update(storyId='10.4',candidate=dict(commit=candidate,gitlinks=facts['rootGitlinks']),
         predecessors=['10.3'],inventory=contract['inventory'],scenarios=scenarios,evidenceAdoptionExecution=facts,
         summary=dict(required=9,passed=9,failed=0,blocked=0,skipped=0,notRun=0),
@@ -11874,3 +11874,116 @@ def test_story104_committed_lifecycle_sprint_rederives_only_the_owned_transition
     else:
         with pytest.raises(ValueError,match='working source differs: '+generator.V2_7_2_SPRINT_PATH):
             generator.v2_10_4_generate(options,candidate=candidate,verify_spec=generator.V2_10_4_SPEC,consumer_candidate=consumer)
+
+
+def story104_complete_receipts(generator, candidate):
+    """Construct complete native/JUnit/scoped envelopes through their real receipt formats."""
+    adoption=generator.v2_10_4_module()
+    contract=json.loads((WORKSPACE/adoption.CONTRACT).read_bytes());receipts={}
+    measured=adoption.current.empty_result(candidate)
+    measured.update(result='PASS',assertionLedger=[dict(id='measured',subject='shared helper evidence',state='PASS')])
+    for scenario in contract['scenarios']:
+        identity=scenario['id'];tokens=shlex.split(scenario['command'])
+        if identity=='AC-10.4-08':continue
+        if identity=='AC-10.4-09':
+            receipts[tokens[tokens.index('--output')+1]]=adoption.current.canonical(measured)+b'\n';continue
+        if '-trx' in tokens:
+            root=ElementTree.Element('TestRun');summary=ElementTree.SubElement(root,'ResultSummary')
+            ElementTree.SubElement(summary,'Counters',total='1',executed='1',passed='1',failed='0',notExecuted='0')
+            result=ElementTree.SubElement(ElementTree.SubElement(root,'Results'),'UnitTestResult',
+                testName=tokens[tokens.index('-method')+1],outcome='Passed')
+            ElementTree.SubElement(ElementTree.SubElement(result,'Output'),'StdOut').text=(
+                'story104_source_revision=1.0.0+'+candidate+'\n'+adoption.current.canonical(measured).decode())
+            receipts[tokens[tokens.index('-trx')+1]]=ElementTree.tostring(root);continue
+        command=generator.v2_pytest_command(tokens)
+        cases=adoption.FAULT_TESTCASES if identity=='AC-10.4-06' else adoption.PROMOTION_TESTCASES
+        root=ElementTree.Element('testsuites');suite=ElementTree.SubElement(root,'testsuite',tests=str(len(cases)),failures='0',errors='0',skipped='0')
+        for name,fault in cases.items():
+            case=ElementTree.SubElement(suite,'testcase',classname=command['target'][:-3].replace('/','.'),name=name)
+            props=ElementTree.SubElement(case,'properties')
+            values=dict(story104_source_revision=candidate,story104_before_sha256='b'*64,story104_after_sha256='b'*64,
+                story104_assertion_ledger=json.dumps([dict(id='real-helper-check',subject='fixture',state='FAIL' if fault else 'PASS')]))
+            if fault:
+                expected=adoption.FAULT_EXPECTATIONS[fault]
+                values.update(story104_fault_id=fault,story104_expected_code=expected['code'],story104_observed_blockers=json.dumps(expected['blockers']))
+            for key,value in values.items():ElementTree.SubElement(props,'property',name=key,value=value)
+        receipts[str(command['junit'])]=ElementTree.tostring(root)
+    return contract,receipts
+
+
+@pytest.mark.parametrize('tamper',['none','hash-relabel','fault-extra-code','positive-span-missing','fault-case-rename',
+    'native-revision-suffix','native-schema','native-blocker','native-failed-row','native-skipped-row','stale-AC09','AC09-failed-row','restoration','empty-fault-ledger'])
+def test_story104_complete_receipts_reject_tampering_with_the_real_parser(tamper):
+    generator=load_generator();candidate='a'*40
+    contract,receipts=story104_complete_receipts(generator,candidate)
+    if tamper in ('hash-relabel','fault-extra-code','fault-case-rename','restoration','empty-fault-ledger'):
+        path='artifacts/v9/10.4/AC-10.4-06.xml';root=ElementTree.fromstring(receipts[path]);case=root.find('testsuite/testcase')
+        props={prop.get('name'):prop for prop in case.findall('properties/property')}
+        if tamper=='hash-relabel':
+            props['story104_expected_code'].set('value','ROOT_OF_TRUST_NOT_PINNED')
+            props['story104_observed_blockers'].set('value',json.dumps(['ROOT_OF_TRUST_NOT_PINNED']))
+        if tamper=='fault-extra-code':props['story104_observed_blockers'].set('value',json.dumps(['EVIDENCE_HASH_MISMATCH','ROOT_OF_TRUST_NOT_PINNED']))
+        if tamper=='fault-case-rename':case.set('name','renamed-fault')
+        if tamper=='restoration':props['story104_after_sha256'].set('value','c'*64)
+        if tamper=='empty-fault-ledger':props['story104_assertion_ledger'].set('value','[]')
+        receipts[path]=ElementTree.tostring(root)
+    if tamper=='positive-span-missing':
+        path='artifacts/v9/10.4/AC-10.4-07.xml';root=ElementTree.fromstring(receipts[path]);suite=root.find('testsuite')
+        suite.remove(suite.find('testcase'));suite.set('tests','1');receipts[path]=ElementTree.tostring(root)
+    if tamper.startswith('native-'):
+        path='artifacts/v9/10.4/AC-10.4-01.trx';root=ElementTree.fromstring(receipts[path]);output=root.find('Results/UnitTestResult/Output/StdOut')
+        version,payload=output.text.split('\n',1);observed=json.loads(payload)
+        if tamper=='native-revision-suffix':version='story104_source_revision=1.0.0+'+'f'*40+' later='+candidate
+        if tamper=='native-schema':observed['uncheckedFact']=True
+        if tamper=='native-blocker':observed['blockers']=['EVIDENCE_HASH_MISMATCH']
+        if tamper=='native-failed-row':observed['assertionLedger'][0]['state']='FAIL'
+        if tamper=='native-skipped-row':observed['assertionLedger'][0]['state']='SKIPPED'
+        output.text=version+'\n'+generator.v2_10_4_module().current.canonical(observed).decode();receipts[path]=ElementTree.tostring(root)
+    if tamper in ('stale-AC09','AC09-failed-row'):
+        path='artifacts/v9/10.4/AC-10.4-09.json';observed=json.loads(receipts[path])
+        if tamper=='stale-AC09':observed['candidate']='f'*40
+        else:observed['assertionLedger'][0]['state']='FAIL'
+        receipts[path]=json.dumps(observed).encode()
+    if tamper=='none':
+        scenarios,measured,mutations=generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+        assert len(scenarios)==9 and len(measured)==8 and len(mutations)==29
+    else:
+        with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+
+
+def test_story104_real_git_insertion_rejects_one_changed_inserted_byte(tmp_path):
+    """Publish a real pair/receipt commit, pass real insertion, then reject one inserted byte."""
+    generator=load_generator();adoption=generator.v2_10_4_module();repository=tmp_path/'repository'
+    run_git(WORKSPACE,'clone','--shared','--no-checkout',str(WORKSPACE),str(repository))
+    pair=WORKSPACE/'docs/release-evidence/story-10.4-final-record-v2.json'
+    source_revision=(json.loads(pair.read_bytes())['candidate']['commit'] if pair.is_file()
+        else run_git(WORKSPACE,'rev-parse','HEAD').stdout.strip())
+    run_git(repository,'checkout','--detach',source_revision)
+    binding=json.loads((WORKSPACE/adoption.BINDING).read_bytes())
+    for path in binding['sourcePaths']:
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True)
+        # Reuse reachable pre-publication lifecycle bytes when CI runs after publication.
+        content=(run_git(WORKSPACE,'show',source_revision+':'+path).stdout.encode()
+            if path in (generator.V2_10_4_SPEC,generator.V2_7_2_SPRINT_PATH) else (WORKSPACE/path).read_bytes())
+        target.write_bytes(content)
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','--allow-empty','-m','test: establish insertion source')
+    candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    contract,receipts=story104_complete_receipts(generator,candidate)
+    for path,content in receipts.items():
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    paths=contract['finalRecord']['paths']
+    options={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,'--format':'bundle',
+        '--output-json':paths[0],'--output-markdown':paths[1]}
+    j=generator.v2_10_4_generate(options)
+    m=(repository/paths[1]).read_bytes()
+    run_git(repository,'add','--force','--',*receipts,*paths);run_git(repository,'commit','--quiet','-m','test: publish atomic insertion pair')
+    spec=repository/generator.V2_10_4_SPEC;original=spec.read_bytes()
+    inserted=original+b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\n'+m+generator.RECORD_END_MARKER.encode()+b'\n'
+    spec.write_bytes(inserted)
+    verify={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,generator.V2_VERIFY_OPTION:generator.V2_10_4_SPEC}
+    assert generator.v2_10_4_verify_inserted(verify)==j
+    region=generator.v2_record_region(inserted);assert region is not None
+    changed=bytearray(inserted);changed[region[0]]^=1;spec.write_bytes(changed)
+    with pytest.raises(generator.V2Stop) as caught:generator.v2_10_4_verify_inserted(verify)
+    assert caught.value.findings[0]['code']=='RECORD_CONTENT_DRIFT'
+    assert caught.value.findings[0]['message']=='verbatim inserted region differs'

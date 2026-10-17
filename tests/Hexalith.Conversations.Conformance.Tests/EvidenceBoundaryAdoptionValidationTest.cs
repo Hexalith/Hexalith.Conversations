@@ -54,8 +54,10 @@ public sealed class EvidenceBoundaryAdoptionValidationTest(ITestOutputHelper out
         output.WriteLine("story104_source_revision=" + version);
         string root = RepositoryLocator.FindRepositoryRoot();
         EvidenceManifest.HashFile(Path.Combine(root, "artifacts/v9/10.4/reader-entry-v1.json")).ShouldBe(EntrySnapshotSha256);
-        GitCommandResult process = GitFacts.Capture(root,
-            ["_bmad/scripts/evidence_boundary_adoption.py", "--repository", root, "--baseline", BaselineCommit, "--check", check], "python3");
+        GitFact<GitCommandResult> capture = new GitFacts("python3", includeGitPreamble: false).RunOrchestrationAsync(root,
+            ["_bmad/scripts/evidence_boundary_adoption.py", "--repository", root, "--baseline", BaselineCommit, "--check", check], TestContext.Current.CancellationToken, TimeSpan.FromMinutes(20)).GetAwaiter().GetResult();
+        capture.IsSuccess.ShouldBeTrue(capture.Code + ": " + capture.Message);
+        GitCommandResult process = capture.Value!;
         string text = Encoding.UTF8.GetString(process.Stdout);
         output.WriteLine(text);
         process.ExitCode.ShouldBe(0, text + Encoding.UTF8.GetString(process.Stderr));

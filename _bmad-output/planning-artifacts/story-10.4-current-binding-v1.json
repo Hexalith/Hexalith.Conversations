@@ -150,7 +150,7 @@
   },
   "guidanceInventory": {
     "id": "STORY-10.4-CURRENT-GUIDANCE-v1",
-    "sha256": "e06bf5c7993127d4462e9a06832a72e312787e5392bb2cf77a935e237bdd3305",
+    "sha256": "8e22fd2d811acd7040f696e777f6a373a074e2dd9b4809ef3f7824bc45e98435",
     "rows": [
       {
         "path": "_bmad/custom/bmad-build.toml",
@@ -174,7 +174,7 @@
       },
       {
         "path": "docs/runbooks/evidence-boundary-validation.md",
-        "sha256": "c63d9b90930233e141a50781cfadeec5009ddbf9dfedc24d72d5a97793582c28",
+        "sha256": "5db7c5b350aabec0f62739eb328a82142c25ea9f1a8f57a1200cdb7d0068d9ac",
         "role": "guidance"
       }
     ]
