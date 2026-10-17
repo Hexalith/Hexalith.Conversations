@@ -886,5 +886,6 @@ _adoption_spec = _adoption_importlib.spec_from_file_location('story104_current_l
 _adoption_module = _adoption_importlib.module_from_spec(_adoption_spec)
 _adoption_spec.loader.exec_module(_adoption_module)
 for _adoption_name in dir(_adoption_module):
-    if _adoption_name.startswith('test_complete_fault_matrix') or _adoption_name in ('stamp_adoption_candidate','adoption_surface','adoption_git'):
+    if _adoption_name.startswith(('test_complete_fault_matrix','test_approved_gitlink_amendment')) or _adoption_name in (
+            'stamp_adoption_candidate','adoption_surface','adoption_git','approved_gitlink_repository'):
         globals()[_adoption_name] = getattr(_adoption_module, _adoption_name)
