@@ -5088,7 +5088,7 @@ def v2_working_spec_lifecycle_only_change(
 
 def v2_sprint_status_only_change(
     repository: Path, candidate: str, head: str, sprint_key: str,
-    require_transition: bool = True,
+    require_transition: bool = True, *, updated_content: bytes | None = None,
 ) -> bool:
     """Accept one story row, its `last_updated` date, and the header comment date."""
     status = re.compile(
@@ -5145,7 +5145,8 @@ def v2_sprint_status_only_change(
         return masked, story_value, date.group("value"), header_value, tuple(retro_values)
 
     original = without_status(v2_committed_blob(repository, candidate, V2_7_2_SPRINT_PATH))
-    latest = without_status(v2_committed_blob(repository, head, V2_7_2_SPRINT_PATH))
+    latest = without_status(updated_content if updated_content is not None
+        else v2_committed_blob(repository, head, V2_7_2_SPRINT_PATH))
     if original is None or latest is None or original[0] != latest[0]:
         return False
     if original[1] == b"done" and latest[1] != b"done":
@@ -5161,6 +5162,12 @@ def v2_sprint_status_only_change(
         and original[3] != latest[3]
     )
     return not require_transition or status_changed or header_date_only or retro_changed
+
+
+def v2_working_sprint_status_only_change(repository: Path, head: str, sprint_key: str, working: bytes) -> bool:
+    """Apply the same single-story/date lifecycle mask to a working sprint file."""
+    return v2_sprint_status_only_change(repository, head, head, sprint_key,
+        require_transition=False, updated_content=working)
 
 
 def v2_story_7_2_status_only_change(repository: Path, candidate: str, head: str) -> bool:
@@ -9301,6 +9308,7 @@ def v2_10_3_verify_inserted(options: dict[str,str]) -> bytes:
 V2_10_4_CONTRACT = '_bmad-output/planning-artifacts/story-10.4-current-contract-v1.json'
 V2_10_4_BINDING = '_bmad-output/planning-artifacts/story-10.4-current-binding-v1.json'
 V2_10_4_SPEC = '_bmad-output/implementation-artifacts/spec-10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection.md'
+V2_10_4_SPRINT_KEY = '10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection'
 
 
 def v2_10_4_module():
@@ -9524,7 +9532,11 @@ def v2_10_4_generate(options,*,candidate=None,verify_spec=None,consumer_candidat
         if blob is None:raise ValueError('source unavailable: '+path)
         source_files.append(dict(path=path,sha256=v2_sha256(blob)))
         working=v2_10_1_artifact_bytes(repository,path)
-        if working!=blob and not (path==V2_10_4_SPEC and v2_working_spec_lifecycle_only_change(repository,candidate,path,working,record_region=True,task_checkboxes=True)):
+        valid_spec=path==V2_10_4_SPEC and v2_working_spec_lifecycle_only_change(
+            repository,candidate,path,working,record_region=True,task_checkboxes=True)
+        valid_sprint=verify_spec is not None and path==V2_7_2_SPRINT_PATH and v2_working_sprint_status_only_change(
+            repository,candidate,V2_10_4_SPRINT_KEY,working)
+        if working!=blob and not (valid_spec or valid_sprint):
             raise ValueError('working source differs: '+path)
     predecessor=v2_verified_predecessor(repository,candidate,'10.3',adoption.PROVENANCE[5],adoption.PROVENANCE[6],validators['record'])
     if predecessor!=adoption.PREDECESSOR_SHA256:raise ValueError('predecessor does not verify')
@@ -9570,6 +9582,8 @@ def v2_10_4_verify_inserted_impl(options):
     spec=(repository/V2_10_4_SPEC).read_bytes();region=v2_record_region(spec)
     if region is None or spec[region[0]:region[1]]!=m:raise ValueError('verbatim inserted region differs')
     if not v2_working_spec_lifecycle_only_change(repository,head,V2_10_4_SPEC,spec,record_region=True,task_checkboxes=True):raise ValueError('working spec changes source')
+    if not v2_working_sprint_status_only_change(repository,head,V2_10_4_SPRINT_KEY,
+            v2_10_1_artifact_bytes(repository,V2_7_2_SPRINT_PATH)):raise ValueError('working sprint changes source')
     for path,content in zip(paths,(j,m)):
         if (repository/path).read_bytes()!=content:raise ValueError('installed pair differs')
     derived=v2_10_4_generate({'--repository':str(repository),'--contract':V2_10_4_CONTRACT,'--format':'bundle',

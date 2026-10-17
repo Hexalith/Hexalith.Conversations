@@ -337,6 +337,8 @@ def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING
                 valid=not item['code'] and target is not None and target.is_file() and current.digest(target.read_bytes())==row['sha256']
                 if not valid and path==SPEC and pair.is_file() and target is not None and target.is_file():
                     valid=generator.v2_working_spec_lifecycle_only_change(repository,initial['candidate'],path,target.read_bytes(),record_region=True,task_checkboxes=True)
+                if not valid and path==generator.V2_7_2_SPRINT_PATH and pair.is_file() and target is not None and target.is_file():
+                    valid=generator.v2_working_sprint_status_only_change(repository,initial['candidate'],generator.V2_10_4_SPRINT_KEY,target.read_bytes())
             record(result,'candidate:blob:'+path,path,valid,'EVIDENCE_HASH_MISMATCH')
         if check in (None,'readers','projection','exemptions'):reader_checks(repository,result,binding)
         if check in (None,'guidance','runbook'):guidance_checks(repository,result,binding)

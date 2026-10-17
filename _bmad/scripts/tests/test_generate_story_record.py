@@ -11851,3 +11851,140 @@ def test_story104_pair_rejects_unapproved_gitlink_amendment(fault):
     if fault=='unchanged-root':record['candidate']['gitlinks'][0]['commit']='a'*40
     _,validators=generator.v2_load_schemas()
     assert generator.v2_schema_errors(validators['record'],record) or generator.v2_10_4_pair_errors(record)
+
+
+@pytest.fixture(scope='module')
+def story104_receipt_repository(tmp_path_factory):
+    """Real source/history verification with synthetic, candidate-stamped parser receipts."""
+    generator=load_generator();adoption=generator.v2_10_4_module()
+    tmp_path=tmp_path_factory.mktemp('story104-lifecycle')
+    repository=tmp_path/'repository'
+    published=WORKSPACE/'docs/release-evidence/story-10.4-final-record-v2.json'
+    source=generator.v2_parse_json(published.read_bytes())['candidate']['commit'] if published.is_file() else run_git(WORKSPACE,'rev-parse','HEAD').stdout.strip()
+    run_git(tmp_path,'clone','--quiet','--shared','--no-checkout',str(WORKSPACE),str(repository))
+    run_git(repository,'checkout','--detach',source)
+    for path in adoption.APPROVED_SOURCE_PATHS:
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((WORKSPACE/path).read_bytes())
+    # A completed live story must not turn the next fixture's original source into
+    # a lifecycle descendant or include its already published record region.
+    spec=repository/generator.V2_10_4_SPEC;content=spec.read_bytes()
+    marker=content.find(generator.RECORD_BEGIN_MARKER.encode())
+    if marker>=0:
+        content=content[:marker].rstrip(b'\n')+b'\n'
+    spec.write_bytes(re.sub(rb"(?m)^status: '[^'\r\n]+'$",b"status: 'in-progress'",content,count=1))
+    sprint=repository/generator.V2_7_2_SPRINT_PATH
+    sprint.write_bytes(re.sub(rb'(?m)^([ \t]*'+generator.V2_10_4_SPRINT_KEY.encode()+rb': )[a-z-]+$',rb'\g<1>in-progress',sprint.read_bytes()))
+    run_git(repository,'add','--force','--',*adoption.APPROVED_SOURCE_PATHS)
+    run_git(repository,'commit','--quiet','-m','test: freeze the story 10.4 lifecycle fixture')
+    candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    measured=adoption.verify(repository,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+    assert measured['result']=='PASS',measured['blockers']
+    contract=json.loads((repository/adoption.CONTRACT).read_bytes())
+    faults='HASH PATH_ESCAPE GENERATED_OUTPUT SUBSET SIGNED_ALLOWLIST SIGNABLE ROOT GIT_UNAVAILABLE HISTORY_UNAVAILABLE GITLINK CHAIN_CHANGED CHAIN_MISSING CHAIN_REORDERED CHAIN_NESTED CHAIN_DUPLICATE CHAIN_UNTERMINATED CHAIN_DUPLICATE_ROW WORKFLOW_REMOVED MARKER_MALFORMED SPAN_DISPLACED GUIDANCE_REMOVED GUIDANCE_EQUALITY GUIDANCE_DECLARED_HASH GUIDANCE_REDIRECT READER_STRENGTH READER_HELPER EXEMPTION READER_INVENTORY PROMOTION_SPAN_DISPLACED'.split()
+    for scenario in contract['scenarios']:
+        identity=scenario['id'];tokens=shlex.split(scenario['command'])
+        if identity=='AC-10.4-08':continue
+        if identity=='AC-10.4-09':
+            path=tokens[tokens.index('--output')+1];content=adoption.current.canonical(measured)
+        elif '-trx' in tokens:
+            path=tokens[tokens.index('-trx')+1]
+            root=ElementTree.Element('TestRun',xmlns=TRX_NAMESPACE)
+            case=ElementTree.SubElement(ElementTree.SubElement(root,'Results'),'UnitTestResult',
+                testName=tokens[tokens.index('-method')+1],outcome='Passed')
+            ElementTree.SubElement(ElementTree.SubElement(case,'Output'),'StdOut').text=(
+                'story104_source_revision='+candidate+'\n'+adoption.current.canonical(measured).decode())
+            ElementTree.SubElement(ElementTree.SubElement(root,'ResultSummary'),'Counters',total='1',executed='1',passed='1',failed='0',notExecuted='0')
+            content=ElementTree.tostring(root)
+        else:
+            command=generator.v2_pytest_command(tokens);path=command['junit']
+            root=ElementTree.Element('testsuites');identities=faults if identity=='AC-10.4-06' else [None]
+            suite=ElementTree.SubElement(root,'testsuite',tests=str(len(identities)),failures='0',errors='0',skipped='0')
+            for number,fault in enumerate(identities):
+                case=ElementTree.SubElement(suite,'testcase',classname=command['target'][:-3].replace('/','.'),
+                    name='test_'+command['selector']+'_'+str(number))
+                props=ElementTree.SubElement(case,'properties');values={'story104_source_revision':candidate}
+                if fault:values.update(story104_fault_id=fault,story104_expected_code='EVIDENCE_HASH_MISMATCH',
+                    story104_observed_blockers='["EVIDENCE_HASH_MISMATCH"]',story104_before_sha256='b'*64,
+                    story104_after_sha256='b'*64,story104_assertion_ledger='[{"id":"fixture","subject":"parser fixture","state":"FAIL"}]')
+                for key,value in values.items():ElementTree.SubElement(props,'property',name=key,value=value)
+            content=ElementTree.tostring(root)
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    options={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,'--format':'bundle',
+        '--output-json':contract['finalRecord']['paths'][0],'--output-markdown':contract['finalRecord']['paths'][1]}
+    json_bytes=generator.v2_10_4_generate(options);record=generator.v2_parse_json(json_bytes)
+    publication=generator.v2_10_4_publication_paths(record)
+    run_git(repository,'add','--force','--',*publication)
+    assert set(run_git(repository,'diff','--cached','--name-only').stdout.splitlines())==set(publication)
+    run_git(repository,'commit','--quiet','-m','test: publish the story 10.4 lifecycle fixture')
+    return generator,repository,candidate,options,json_bytes
+
+
+@pytest.fixture(scope='module')
+def story104_completed_repository(story104_receipt_repository):
+    generator,repository,candidate,options,json_bytes=story104_receipt_repository
+    adoption=generator.v2_10_4_module();record=generator.v2_parse_json(json_bytes)
+    spec=repository/generator.V2_10_4_SPEC;sprint=repository/generator.V2_7_2_SPRINT_PATH
+    original_spec=spec.read_bytes();original_sprint=sprint.read_bytes()
+    sprint_fact=next(row for row in record['evidenceAdoptionExecution']['sourceFiles'] if row['path']==generator.V2_7_2_SPRINT_PATH)
+    assert sprint_fact['sha256']==generator.v2_sha256(original_sprint)
+    markdown=(repository/record['outputs']['markdown']['path']).read_bytes()
+    verify_options={'--repository':str(repository),generator.V2_VERIFY_OPTION:generator.V2_10_4_SPEC}
+    inserted=original_spec+b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\n'+markdown+generator.RECORD_END_MARKER.encode()+b'\n'
+    for spec_state,state,date,message in [('in-review','review','2026-10-18','test: review the story 10.4 lifecycle fixture'),
+            ('done','done','2026-10-19','test: complete the story 10.4 lifecycle fixture')]:
+        spec.write_bytes(inserted.replace(b"status: 'in-progress'",("status: '"+spec_state+"'").encode(),1))
+        updated=re.sub(rb'(?m)^([ \t]*'+generator.V2_10_4_SPRINT_KEY.encode()+rb': )[a-z-]+$',
+            lambda match:match[1]+state.encode(),original_sprint)
+        updated=re.sub(rb'(?m)^last_updated: .+$',('last_updated: '+date).encode(),updated)
+        updated=re.sub(rb'(?m)^# last_updated: .+$',('# last_updated: '+date).encode(),updated)
+        sprint.write_bytes(updated)
+        assert generator.v2_10_4_verify_inserted(verify_options)==json_bytes
+        observed=adoption.verify(repository,adoption.BASELINE,'HEAD',authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+        assert observed['result']=='PASS',observed['blockers']
+        run_git(repository,'add','--',generator.V2_10_4_SPEC,generator.V2_7_2_SPRINT_PATH)
+        run_git(repository,'commit','--quiet','-m',message)
+        assert generator.v2_10_4_verify_inserted(verify_options)==json_bytes
+        assert generator.v2_parse_json(json_bytes)['evidenceAdoptionExecution']['sourceFiles']==record['evidenceAdoptionExecution']['sourceFiles']
+    with pytest.raises(ValueError,match='working source differs: '+generator.V2_7_2_SPRINT_PATH):
+        generator.v2_10_4_generate(options,candidate=candidate)
+    return generator,repository,candidate,options,json_bytes
+
+
+@pytest.mark.parametrize('fault',['none','unrelated-row','source-drift'])
+def test_story104_committed_publication_review_done_rederives_original_sources(story104_completed_repository,tmp_path,fault):
+    generator,completed,candidate,source_options,json_bytes=story104_completed_repository
+    repository=tmp_path/'repository'
+    run_git(tmp_path,'clone','--quiet','--shared',str(completed),str(repository))
+    adoption=generator.v2_10_4_module();record=generator.v2_parse_json(json_bytes)
+    options=dict(source_options,**{'--repository':str(repository)})
+    verify_options={'--repository':str(repository),generator.V2_VERIFY_OPTION:generator.V2_10_4_SPEC}
+    sprint=repository/generator.V2_7_2_SPRINT_PATH
+    if fault=='none':
+        # An uncommitted done regression or malformed/duplicate date cannot use
+        # the original in-progress source as permission to change the live state.
+        valid=sprint.read_bytes()
+        for dirty in (valid.replace((generator.V2_10_4_SPRINT_KEY+': done').encode(),(generator.V2_10_4_SPRINT_KEY+': review').encode()),
+                valid+b'last_updated: 2026-10-20\n',valid.replace(b'last_updated: 2026-10-19',b'last_updated: invalid')):
+            sprint.write_bytes(dirty)
+            with pytest.raises(generator.V2Stop):generator.v2_10_4_verify_inserted(verify_options)
+            observed=adoption.verify(repository,adoption.BASELINE,'HEAD',authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+            assert observed['result']=='FAIL' and 'EVIDENCE_HASH_MISMATCH' in observed['blockers']
+        sprint.write_bytes(valid)
+        assert generator.v2_10_4_verify_inserted(verify_options)==json_bytes
+        return
+    if fault=='unrelated-row':
+        content=sprint.read_bytes();changed=content.replace(b'  epic-10: in-progress',b'  epic-10: done',1)
+        assert changed!=content;sprint.write_bytes(changed)
+        path=generator.V2_7_2_SPRINT_PATH
+    else:
+        path='docs/runbooks/current-change-validation.md';target=repository/path;target.write_bytes(target.read_bytes()+b'\nUnapproved source change.\n')
+    # The same unrelated drift is rejected both before and after commitment.
+    with pytest.raises(generator.V2Stop):generator.v2_10_4_verify_inserted(verify_options)
+    observed=adoption.verify(repository,adoption.BASELINE,'HEAD',authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+    assert observed['result']=='FAIL'
+    run_git(repository,'add','--',path);run_git(repository,'commit','--quiet','-m','test: inject story 10.4 lifecycle drift')
+    head=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    assert generator.v2_10_4_descendant_errors(repository,record,head)
+    with pytest.raises(generator.V2Stop):generator.v2_10_4_verify_inserted(verify_options)
+    observed=adoption.verify(repository,adoption.BASELINE,'HEAD',authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+    assert observed['result']=='FAIL'
