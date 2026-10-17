@@ -2,7 +2,7 @@
 title: 'Story 10.4: Adopt the shared evidence boundary'
 type: 'refactor'
 created: '2026-10-16'
-status: 'in-review'
+status: 'done'
 baseline_commit: '1915a47123737859e3ac31872fa787fa8c0bd1e3'
 route: 'dispatch'
 review_loop_iteration: 1
@@ -198,6 +198,8 @@ Fresh source `c48ff6493a15bc6843dfaf7a9c722028b56d6676` passed all six Debug bui
 Atomic publication `b2db48690f5d94b67f746b59f36dc519e80e8ae0` binds eight fresh receipts, all 29 exact fault identities/blocker sets with byte-identical restoration, the accepted predecessor and deterministic closed pair. The derived acceptance summary is `9/9/0/0/0/0`; exemptions remain zero. Both independent Story 7.3 guards and the scoped workflow verifier passed before publication. The committed Markdown was inserted verbatim and verified before the lifecycle transition.
 
 Exact command logs, native TRX, complete Python XML, commitlint evidence and supplemental source, preservation, unavailable-history and not-applicable audits are retained under `/tmp/story104-final-blncbdtj/measurements/`. The preceding 4f7e604 publication remains intact in its separate checkout; no prior receipts were reused. Portable isolation initially lacked the three proof-required remote tracking refs; their locally known refs were copied from the validated pinned checkout, without source/gitlink edits or network access. The failed isolation runs and repair audit remain separate. Lifecycle checkpoint is `in-review`; no push was performed.
+
+Completion verification passed all review patches, with no deferred work. The post-publication insertion and owned sprint lifecycle regressions passed four cases; the final review checkpoint passed 528 scoped assertions. The spec is done and the sprint row is ready for review.
 
 <!-- STORY-FINAL-RECORD:BEGIN -->
 # Story 10.4 Final Record
