@@ -212,14 +212,21 @@ def test_adoption_output_hardlink_cannot_overwrite_a_source(adoption_git,monkeyp
     finally:output.unlink()
 
 
-@pytest.mark.parametrize('fault',['none','count','other-assertion','binding','snapshot'])
+@pytest.mark.parametrize('fault',['none','count','other-assertion','binding','snapshot','root-substitution','existing-substitution'])
 def test_approved_assertion_correction_preserves_every_other_entry_byte(tmp_path,monkeypatch,fault):
     """Only the exact owner-approved count change may differ from the plumbing migration."""
     binding=json.loads((ROOT/adoption.BINDING).read_bytes());entry=adoption.snapshot(ROOT)
     historical=json.loads(subprocess.check_output(['git','-C',str(ROOT),'show',
         '4e937361613c2dba72c46595226219017e6ba524:'+adoption.SNAPSHOT]))
-    assert [(r['path'],r['entryBase64'],r['entrySha256'],r['substitutions']) for r in entry['readers']]==[
-        (r['path'],r['entryBase64'],r['entrySha256'],r['substitutions']) for r in historical['readers']]
+    assert [(r['path'],r['entryBase64'],r['entrySha256']) for r in entry['readers']]==[
+        (r['path'],r['entryBase64'],r['entrySha256']) for r in historical['readers']]
+    # Independently pin the four fixture-root plumbing additions; every earlier substitution is immutable.
+    expected_fixture_roots = [{'kind': 'read:explicit-fixture-root', 'before': 'RepositoryLocator.ReadAllText(regular, Encoding.UTF8)', 'after': 'RepositoryLocator.ReadAllText(regular, Encoding.UTF8, fixtureRoot)', 'count': 1}, {'kind': 'read:explicit-fixture-root', 'before': 'byte[] regularBytes = RepositoryLocator.ReadAllBytes(regularPath);', 'after': 'byte[] regularBytes = RepositoryLocator.ReadAllBytes(regularPath, fixtureRoot);', 'count': 1}, {'kind': 'read:explicit-fixture-root', 'before': 'RepositoryLocator.ReadAllBytes(regularPath).ShouldBe(regularBytes);\n                GetWorktreeGitMode("regular.txt", fixtureRoot).ShouldBe(SourceInputMode);\n\n                try\n                {\n                    RunProcessInDirectory(fixtureRoot, "git", ["rm",', 'after': 'RepositoryLocator.ReadAllBytes(regularPath, fixtureRoot).ShouldBe(regularBytes);\n                GetWorktreeGitMode("regular.txt", fixtureRoot).ShouldBe(SourceInputMode);\n\n                try\n                {\n                    RunProcessInDirectory(fixtureRoot, "git", ["rm",', 'count': 1}, {'kind': 'read:explicit-fixture-root', 'before': 'RepositoryLocator.ReadAllBytes(regularPath).ShouldBe(regularBytes);\n                GetWorktreeGitMode("regular.txt", fixtureRoot).ShouldBe(SourceInputMode);\n\n                string stagedLink', 'after': 'RepositoryLocator.ReadAllBytes(regularPath, fixtureRoot).ShouldBe(regularBytes);\n                GetWorktreeGitMode("regular.txt", fixtureRoot).ShouldBe(SourceInputMode);\n\n                string stagedLink', 'count': 1}]
+    for current_row,original_row in zip(entry['readers'],historical['readers']):
+        original_substitutions=original_row['substitutions']
+        assert current_row['substitutions'][:len(original_substitutions)]==original_substitutions
+        assert current_row['substitutions'][len(original_substitutions):]==(
+            expected_fixture_roots if current_row['path'].endswith('/PreservationTraceabilityManifestValidationTest.cs') else [])
     for row in entry['readers']:
         path=tmp_path/row['path'];path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes((ROOT/row['path']).read_bytes())
     for path in (adoption.READERS,):
@@ -233,6 +240,9 @@ def test_approved_assertion_correction_preserves_every_other_entry_byte(tmp_path
     if fault=='other-assertion':path.write_bytes(original.replace(b'.ShouldBeEmpty();',b'.ShouldNotBeEmpty();',1))
     if fault=='binding':binding['approvedAssertionCorrections'][0]['count']=2
     if fault=='snapshot':entry['approvedAssertionCorrections'][0]['after']='submodulePaths.Length.ShouldBe(13);'
+    if fault in ('root-substitution','existing-substitution'):
+        row=next(row for row in entry['readers'] if row['path'].endswith('/PreservationTraceabilityManifestValidationTest.cs'))
+        row['substitutions'][-1 if fault=='root-substitution' else 0]['after']+=' // unapproved plumbing'
     monkeypatch.setattr(adoption,'snapshot',lambda _:entry)
     result=current.empty_result('a'*40);adoption.reader_checks(tmp_path,result,binding,historical=False);observed=adoption.finish(result)
     assert observed['result']==('PASS' if fault=='none' else 'FAIL')

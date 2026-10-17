@@ -17,7 +17,7 @@ CONTRACT = '_bmad-output/planning-artifacts/story-10.4-current-contract-v1.json'
 SPEC = '_bmad-output/implementation-artifacts/spec-10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection.md'
 SNAPSHOT = 'artifacts/v9/10.4/reader-entry-v1.json'
 # Independent consuming-source trust roots, never supplied by the manifest being checked.
-SNAPSHOT_SHA256 = 'a90a2cc9a0fcfdeec6b77a760cbcd68ac7deffb79302273f577bc5eba743265f'
+SNAPSHOT_SHA256 = '0f126558b4ec37af50721250c707c98fcd5944ad3ef1e798b8525501fac91833'
 # The sole owner-approved assertion change is explicit and independent of the snapshot/binding.
 APPROVED_ASSERTION_CORRECTIONS = [dict(
     path='tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs',

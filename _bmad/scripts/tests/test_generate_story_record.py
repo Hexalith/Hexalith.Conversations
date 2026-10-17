@@ -11832,14 +11832,32 @@ def test_story104_receipt_parser_rejects_unstamped_and_empty_results():
         with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,'a'*40,lambda _:xml)
 
 
+
+def story104_current_source_repository(tmp_path,generator):
+    """Create a fixture from reachable source plus current approved source bytes."""
+    adoption=generator.v2_10_4_module();repository=tmp_path/'repository'
+    run_git(WORKSPACE,'clone','--shared','--no-checkout',str(WORKSPACE),str(repository))
+    pair=WORKSPACE/'docs/release-evidence/story-10.4-final-record-v2.json'
+    source_revision=(json.loads(pair.read_bytes())['candidate']['commit'] if pair.is_file()
+        else run_git(WORKSPACE,'rev-parse','HEAD').stdout.strip())
+    run_git(repository,'checkout','--detach',source_revision)
+    binding=json.loads((WORKSPACE/adoption.BINDING).read_bytes())
+    for path in binding['sourcePaths']:
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True)
+        # Reuse reachable pre-publication lifecycle bytes when CI runs after publication.
+        content=(run_git(WORKSPACE,'show',source_revision+':'+path).stdout.encode()
+            if path in (generator.V2_10_4_SPEC,generator.V2_7_2_SPRINT_PATH) else (WORKSPACE/path).read_bytes())
+        target.write_bytes(content)
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','--allow-empty','-m','test: establish insertion source')
+    candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    return repository,candidate
+
+
 @pytest.mark.parametrize('change',['story','unrelated-row','dirty'])
 def test_story104_committed_lifecycle_sprint_rederives_only_the_owned_transition(tmp_path,monkeypatch,change):
     """Exercise both real source consumers across committed and dirty lifecycle updates."""
     generator=load_generator();adoption=generator.v2_10_4_module()
-    repository=tmp_path/'repository'
-    run_git(WORKSPACE,'clone','--shared','--no-checkout',str(WORKSPACE),str(repository))
-    run_git(repository,'checkout','--detach','b626227c62b9a9302e4b0638a3ff34523ca72780')
-    candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    repository,candidate=story104_current_source_repository(tmp_path,generator)
     sprint=repository/generator.V2_7_2_SPRINT_PATH;original=sprint.read_bytes()
     owned=generator.V2_10_4_SPRINT_KEY.encode()+b': in-progress'
     assert original.count(owned)==1
@@ -11852,7 +11870,7 @@ def test_story104_committed_lifecycle_sprint_rederives_only_the_owned_transition
     run_git(repository,'add',generator.V2_7_2_SPRINT_PATH)
     run_git(repository,'commit','--quiet','-m','test: record lifecycle transition')
     consumer=run_git(repository,'rev-parse','HEAD').stdout.strip()
-    if change=='dirty':sprint.write_bytes(updated.replace(b'last_updated: 10-16-2026 15:00',b'last_updated: 10-17-2026 15:00'))
+    if change=='dirty':sprint.write_bytes(re.sub(rb'(?m)^last_updated:.*$',b'last_updated: uncommitted-fixture-date',updated))
     assert generator.v2_10_4_working_source_matches(repository,candidate,generator.V2_7_2_SPRINT_PATH,
         sprint.read_bytes(),consumer)==(change=='story')
     # A retained-source evaluation reads the consumer's committed lifecycle bytes.
@@ -11954,20 +11972,7 @@ def test_story104_complete_receipts_reject_tampering_with_the_real_parser(tamper
 def test_story104_real_git_insertion_rejects_one_changed_inserted_byte(tmp_path):
     """Publish a real pair/receipt commit, pass real insertion, then reject one inserted byte."""
     generator=load_generator();adoption=generator.v2_10_4_module();repository=tmp_path/'repository'
-    run_git(WORKSPACE,'clone','--shared','--no-checkout',str(WORKSPACE),str(repository))
-    pair=WORKSPACE/'docs/release-evidence/story-10.4-final-record-v2.json'
-    source_revision=(json.loads(pair.read_bytes())['candidate']['commit'] if pair.is_file()
-        else run_git(WORKSPACE,'rev-parse','HEAD').stdout.strip())
-    run_git(repository,'checkout','--detach',source_revision)
-    binding=json.loads((WORKSPACE/adoption.BINDING).read_bytes())
-    for path in binding['sourcePaths']:
-        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True)
-        # Reuse reachable pre-publication lifecycle bytes when CI runs after publication.
-        content=(run_git(WORKSPACE,'show',source_revision+':'+path).stdout.encode()
-            if path in (generator.V2_10_4_SPEC,generator.V2_7_2_SPRINT_PATH) else (WORKSPACE/path).read_bytes())
-        target.write_bytes(content)
-    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','--allow-empty','-m','test: establish insertion source')
-    candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    repository,candidate=story104_current_source_repository(tmp_path,generator)
     contract,receipts=story104_complete_receipts(generator,candidate)
     for path,content in receipts.items():
         target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
