@@ -18,9 +18,12 @@ public sealed class EvidenceManifest
     public IReadOnlyList<EvidenceManifestRow> Rows => _rows.AsReadOnly();
 
     /// <summary>Recomputes a contained file hash from a bounded-memory stream.</summary>
-    public static string HashFile(string path)
+    public static string HashFile(string path) => HashFile(path, RepositoryLocator.FindRepositoryRoot());
+
+    /// <summary>Recomputes a hash beneath an explicitly supplied owning repository.</summary>
+    public static string HashFile(string path, string repositoryRoot)
     {
-        using FileStream stream = File.OpenRead(RepositoryLocator.ContainedFile(path));
+        using FileStream stream = File.OpenRead(RepositoryLocator.ContainedFile(path, repositoryRoot));
         return Convert.ToHexStringLower(SHA256.HashData(stream));
     }
 

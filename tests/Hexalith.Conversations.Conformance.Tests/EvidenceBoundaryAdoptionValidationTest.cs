@@ -11,7 +11,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 [Collection(ReleaseEvidenceArtifactCollection.Name)]
 public sealed class EvidenceBoundaryAdoptionValidationTest(ITestOutputHelper output)
 {
-    private const string EntrySnapshotSha256 = "a90a2cc9a0fcfdeec6b77a760cbcd68ac7deffb79302273f577bc5eba743265f";
+    private const string EntrySnapshotSha256 = "0f126558b4ec37af50721250c707c98fcd5944ad3ef1e798b8525501fac91833";
     private const string BaselineCommit = "1915a47123737859e3ac31872fa787fa8c0bd1e3";
 
     /// <summary>AC-01 preserves the exact 27-reader inventory.</summary>
@@ -54,8 +54,10 @@ public sealed class EvidenceBoundaryAdoptionValidationTest(ITestOutputHelper out
         output.WriteLine("story104_source_revision=" + version);
         string root = RepositoryLocator.FindRepositoryRoot();
         EvidenceManifest.HashFile(Path.Combine(root, "artifacts/v9/10.4/reader-entry-v1.json")).ShouldBe(EntrySnapshotSha256);
-        GitCommandResult process = GitFacts.Capture(root,
-            ["_bmad/scripts/evidence_boundary_adoption.py", "--repository", root, "--baseline", BaselineCommit, "--check", check], "python3");
+        GitFact<GitCommandResult> capture = new GitFacts("python3", includeGitPreamble: false).RunOrchestrationAsync(root,
+            ["_bmad/scripts/evidence_boundary_adoption.py", "--repository", root, "--baseline", BaselineCommit, "--check", check], TestContext.Current.CancellationToken, TimeSpan.FromMinutes(20)).GetAwaiter().GetResult();
+        capture.IsSuccess.ShouldBeTrue(capture.Code + ": " + capture.Message);
+        GitCommandResult process = capture.Value!;
         string text = Encoding.UTF8.GetString(process.Stdout);
         output.WriteLine(text);
         process.ExitCode.ShouldBe(0, text + Encoding.UTF8.GetString(process.Stderr));

@@ -1744,7 +1744,8 @@ def test_evidence_gate_span_coupling(tmp_path, displaced, record_property):
     record_property("story104_source_revision", run_git(WORKSPACE, "rev-parse", "HEAD").stdout.strip())
     record_property("story104_before_sha256", before)
     record_property("story104_after_sha256", after)
-    record_property("story104_assertion_ledger", json.dumps([dict(id="promotion-span", state="FAIL" if displaced else "PASS")]))
+    record_property("story104_assertion_ledger", json.dumps([dict(id="promotion-span",
+        subject="bmad-build/step-05-present.md::promotion_gate_span", state="FAIL" if displaced else "PASS")]))
     if displaced:
         record_property("story104_fault_id", "PROMOTION_SPAN_DISPLACED")
         record_property("story104_expected_code", "PROMOTION_GATE_SPAN_WEAKENED")

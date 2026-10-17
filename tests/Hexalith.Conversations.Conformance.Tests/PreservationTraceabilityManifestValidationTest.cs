@@ -494,11 +494,11 @@ public sealed class PreservationTraceabilityManifestValidationTest
                 fifoDiagnostic.ShouldContain("regular file");
             }
 
-            RepositoryLocator.ReadAllText(regular, Encoding.UTF8).ShouldBe("unchanged");
+            RepositoryLocator.ReadAllText(regular, Encoding.UTF8, fixtureRoot).ShouldBe("unchanged");
             if (!OperatingSystem.IsWindows())
             {
                 string regularPath = regular;
-                byte[] regularBytes = RepositoryLocator.ReadAllBytes(regularPath);
+                byte[] regularBytes = RepositoryLocator.ReadAllBytes(regularPath, fixtureRoot);
                 UnixFileMode executable = UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute;
                 UnixFileMode regularMode = File.GetUnixFileMode(regularPath) & ~executable;
                 File.SetUnixFileMode(regularPath, regularMode);
@@ -522,7 +522,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
                 }
 
                 RunProcessInDirectory(fixtureRoot, "git", ["ls-files", "--stage", "--", "regular.txt"]).Output.ShouldBe(regularStage);
-                RepositoryLocator.ReadAllBytes(regularPath).ShouldBe(regularBytes);
+                RepositoryLocator.ReadAllBytes(regularPath, fixtureRoot).ShouldBe(regularBytes);
                 GetWorktreeGitMode("regular.txt", fixtureRoot).ShouldBe(SourceInputMode);
 
                 try
@@ -542,7 +542,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
                 }
 
                 RunProcessInDirectory(fixtureRoot, "git", ["ls-files", "--stage", "--", "regular.txt"]).Output.ShouldBe(regularStage);
-                RepositoryLocator.ReadAllBytes(regularPath).ShouldBe(regularBytes);
+                RepositoryLocator.ReadAllBytes(regularPath, fixtureRoot).ShouldBe(regularBytes);
                 GetWorktreeGitMode("regular.txt", fixtureRoot).ShouldBe(SourceInputMode);
 
                 string stagedLink = Path.Combine(fixtureRoot, "staged-link");
