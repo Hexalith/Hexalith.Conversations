@@ -188,6 +188,13 @@ def test_approved_assertion_correction_preserves_every_other_entry_byte(tmp_path
     binding=json.loads((ROOT/adoption.BINDING).read_bytes());entry=adoption.snapshot(ROOT)
     historical=json.loads(subprocess.check_output(['git','-C',str(ROOT),'show',
         '4e937361613c2dba72c46595226219017e6ba524:'+adoption.SNAPSHOT]))
+    # Temporary fixture reads keep their original I/O after explicit fixture-root
+    # validation; only repository evidence reads use the default owning root.
+    fixture_reader=next(row for row in historical['readers'] if row['path'].endswith('/PreservationTraceabilityManifestValidationTest.cs'))
+    text_read=next(row for row in fixture_reader['substitutions'] if row['before']=='File.ReadAllText(')
+    text_read.update(before='File.ReadAllText(FullPath(',after='RepositoryLocator.ReadAllText(FullPath(',count=7)
+    byte_read=next(row for row in fixture_reader['substitutions'] if row['before']=='File.ReadAllBytes(')
+    byte_read.update(before='File.ReadAllBytes(path)',after='RepositoryLocator.ReadAllBytes(path)',count=1)
     assert [(r['path'],r['entryBase64'],r['entrySha256'],r['substitutions']) for r in entry['readers']]==[
         (r['path'],r['entryBase64'],r['entrySha256'],r['substitutions']) for r in historical['readers']]
     for row in entry['readers']:
@@ -217,15 +224,26 @@ def test_neutral_helper_portable_surface_stays_closed(tmp_path,monkeypatch,fault
     helper='tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj'
     paths=[f'src/{name}/{name}.csproj' for name in ('Hexalith.Conversations.Client','Hexalith.Conversations.Contracts','Hexalith.Conversations.Testing')]+[helper]
     initial=[dict(FullPath=str(tmp_path/path),DefiningProjectFullPath=str(project)) for path in paths]
-    graph=dict(Properties=dict(AssemblyName='Hexalith.Conversations.TestSupport',IsPackable='false',IsPublishable='false'),
-        Items=dict(ProjectReference=[],PackageReference=[],Reference=[],ReferencePath=[],FrameworkReference=[dict(Identity='Microsoft.NETCore.App',IsImplicitlyDefined='true')]))
+    graphs={}
+    references=[]
+    for path in paths:
+        name=Path(path).stem;output=tmp_path/'obj'/name/(name+'.dll');output.parent.mkdir(parents=True,exist_ok=True);output.write_bytes(b'evaluated fixture assembly')
+        graphs[path]=dict(Properties=dict(AssemblyName=name,IsPackable='false' if path==helper else 'true',IsPublishable='false',TargetPath=str(output)),
+            Items=dict(ProjectReference=[],PackageReference=[],Reference=[],ReferencePath=[],FrameworkReference=[dict(Identity='Microsoft.NETCore.App',IsImplicitlyDefined='true')]))
+        references.append(dict(FullPath=str(output),FusionName=name+', Version=1.0.0.0'))
+    assets=tmp_path/'obj/project.assets.json';assets.write_text(json.dumps(dict(targets={'net10.0':{'ThirdParty/1.0.0':dict(type='package',compile={'lib/net10.0/ThirdParty.dll':{}})}})))
+    evaluated=dict(portable=dict(Properties=dict(ProjectAssetsFile=str(assets)),Items=dict(ProjectReference=initial,
+        PackageReference=[dict(Identity='ThirdParty')],ReferencePath=references)))
+    monkeypatch.setattr(tiering,'msbuild',lambda root,path,*args,**kwargs:graphs[path])
+    baseline=tiering.portable_surface(tmp_path,evaluated)
+    assert {row['assembly'] for row in baseline['evaluatedProjects']}=={Path(path).stem for path in paths}
+    graph=graphs[helper]
     if fault=='publish':graph['Properties']['IsPublishable']='true'
     elif fault=='pack':graph['Properties']['IsPackable']='true'
     else:graph['Items'][{'package':'PackageReference','project':'ProjectReference','assembly':'Reference'}[fault]]=[dict(Identity='forbidden')]
-    monkeypatch.setattr(tiering,'msbuild',lambda *args,**kwargs:graph)
-    with pytest.raises(tiering.VerificationError) as caught:
-        tiering.portable_surface(tmp_path,dict(portable=dict(Items=dict(ProjectReference=initial))))
+    with pytest.raises(tiering.VerificationError) as caught:tiering.portable_surface(tmp_path,evaluated)
     assert caught.value.code=='PORTABLE_TIER_NONPORTABLE_REFERENCE'
+    assert 'Hexalith.Conversations.TestSupport' in str(caught.value)
 
 
 @pytest.fixture(scope='module')
@@ -474,3 +492,16 @@ def test_approved_gitlink_amendment_output_checks_resolved_candidate_ownership(t
     observed=json.loads(capsys.readouterr().out)
     assert observed['blockers']==['EVIDENCE_OUTPUT_FORBIDDEN']
     assert target.read_bytes()==original
+
+
+def test_runbook_acceptance_sequence_matches_effective_contract():
+    binding=json.loads((ROOT/adoption.BINDING).read_bytes())
+    result=current.empty_result('a'*40);adoption.guidance_checks(ROOT,result,binding)
+    observed=adoption.finish(result)
+    assert observed['result']=='PASS',observed['blockers']
+    assert binding['guidanceInventory']['sha256']==current.digest(current.canonical(binding['guidanceInventory']['rows']))
+    text=(ROOT/adoption.RUNBOOK).read_text();contract=json.loads((ROOT/adoption.CONTRACT).read_bytes())
+    assert all(row['command'] in text for row in contract['scenarios'])
+    assert text.index(contract['scenarios'][8]['command'])<text.index(contract['scenarios'][7]['command'])
+    assert text.index('Publish exactly the eight receipts and pair together')<text.index('--verify-inserted-record')
+    assert 'exactly this set' in text and 'byte-for-byte' in text

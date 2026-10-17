@@ -21,7 +21,7 @@ public static class RepositoryLocator
     public static string ContainedFile(string path)
     {
         string full = Path.GetFullPath(path);
-        string root = FindRepositoryRoot(Path.GetDirectoryName(full));
+        string root = FindRepositoryRoot();
         GitFact<string> fact = ResolveContainedPath(root, Path.GetRelativePath(root, full).Replace('\\', '/'));
         if (!fact.IsSuccess) throw new IOException(fact.Code + ": " + fact.Message);
         return fact.Value!;

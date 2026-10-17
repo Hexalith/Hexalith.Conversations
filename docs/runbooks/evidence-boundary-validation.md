@@ -90,23 +90,64 @@ when validation fails.
 
 ### Story 10.4 acceptance commands
 
-Build affected projects in Debug before invoking their built xUnit assemblies.
-The effective contract binds all nine AC identities and summary `9/9/0/0/0/0`.
+Freeze the reviewed source in a commit before measuring. Validate its exact
+Conventional Commit message with the pinned commitlint CLI, commit the sources,
+and require a clean source tree. Record `git rev-parse HEAD` as SC-10.4. Build the
+affected projects in Debug at that commit before invoking their built xUnit
+assemblies. Keep the source unchanged through all eight measurements; each
+receipt must name that exact source candidate. The effective contract binds all
+nine AC identities and summary `9/9/0/0/0/0`.
+
+Run these eight measurements, including the contracted AC-09 `--verify-workflows`:
 
 ```bash
-python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.4-current-binding-v1.json --baseline 1915a47123737859e3ac31872fa787fa8c0bd1e3 --candidate HEAD --verify-workflows --format json
+dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.ReaderInventoryShouldMatchFrozenSet -trx artifacts/v9/10.4/AC-10.4-01.trx
+dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.MigrationsShouldUseHelperAtEqualStrength -trx artifacts/v9/10.4/AC-10.4-02.trx
+dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.DayOneExemptionInventoryShouldBeEmpty -trx artifacts/v9/10.4/AC-10.4-03.trx
+dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.KnownGitDefectsShouldBeClosedWithoutChangingProjectionProof -trx artifacts/v9/10.4/AC-10.4-04.trx
+dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.RunbookShouldDocumentTheExactContract -trx artifacts/v9/10.4/AC-10.4-05.trx
 python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k complete_fault_matrix --junitxml=artifacts/v9/10.4/AC-10.4-06.xml
 python3 -m pytest -q _bmad/scripts/tests/test_verify_submodule_promotion.py -k evidence_gate_span_coupling --junitxml=artifacts/v9/10.4/AC-10.4-07.xml
-python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.4-current-binding-v1.json --baseline 1915a47123737859e3ac31872fa787fa8c0bd1e3 --candidate HEAD --format json --output artifacts/v9/10.4/AC-10.4-09.json
+python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.4-current-binding-v1.json --baseline 1915a47123737859e3ac31872fa787fa8c0bd1e3 --candidate HEAD --verify-workflows --format json --output artifacts/v9/10.4/AC-10.4-09.json
+```
+
+Generate the JSON/Markdown pair from those measured receipts:
+
+```bash
 python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/story-10.4-current-contract-v1.json --format bundle --output-json docs/release-evidence/story-10.4-final-record-v2.json --output-markdown docs/release-evidence/story-10.4-final-record-v2.md
+```
+
+Publish exactly the eight receipts and pair together in one atomic commit.
+Stage only these ten files, confirm `git diff --cached --name-only` contains
+exactly this set, validate the exact publication commit message with pinned
+commitlint, and commit the set before insertion verification:
+
+```bash
+git add --force -- docs/release-evidence/story-10.4-final-record-v2.json docs/release-evidence/story-10.4-final-record-v2.md artifacts/v9/10.4/AC-10.4-01.trx artifacts/v9/10.4/AC-10.4-02.trx artifacts/v9/10.4/AC-10.4-03.trx artifacts/v9/10.4/AC-10.4-04.trx artifacts/v9/10.4/AC-10.4-05.trx artifacts/v9/10.4/AC-10.4-06.xml artifacts/v9/10.4/AC-10.4-07.xml artifacts/v9/10.4/AC-10.4-09.json
+git diff --cached --name-only
+```
+
+Insert the generated Markdown byte-for-byte between the spec's
+`<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->` markers.
+Run insertion verification below, then commit only the verified insertion and
+permitted task/lifecycle edits using a validated commit message. Repeat the same
+verification after that commit. Never edit generated Markdown to make it pass.
+
+```bash
 python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/story-10.4-current-contract-v1.json --verify-inserted-record _bmad-output/implementation-artifacts/spec-10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection.md
 ```
 
-The contract lists the five exact xUnit `-method` commands and receipt paths.
+Run both independent Story 7.3 guards and the final scoped verifier. The final
+verifier has no `--output`: the measured AC-09 receipt is now committed evidence.
+
+```bash
+python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-01 --output artifacts/v9/7.3/AC-7.3-01.json
+python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-02 --output artifacts/v9/7.3/AC-7.3-02.json
+python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.4-current-binding-v1.json --baseline 1915a47123737859e3ac31872fa787fa8c0bd1e3 --candidate HEAD --verify-workflows --format json
+```
+
 AC-09 verifies resolved guidance through the current verifier; it does not invoke
-the retired authority publisher. Run both independent Story 7.3 guards using
-`python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-01 --output artifacts/v9/7.3/AC-7.3-01.json`
-and `python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-02 --output artifacts/v9/7.3/AC-7.3-02.json`.
+the retired authority publisher.
 
 Migration defects are `EVIDENCE_READER_INVENTORY_DRIFT`, `EVIDENCE_HELPER_NOT_USED`,
 `ASSERTION_STRENGTH_WEAKENED`, `DAY_ONE_EXEMPTION_FORBIDDEN`, and

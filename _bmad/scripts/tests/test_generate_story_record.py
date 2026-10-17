@@ -11880,7 +11880,6 @@ def story104_receipt_repository(tmp_path_factory):
     measured=adoption.verify(repository,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
     assert measured['result']=='PASS',measured['blockers']
     contract=json.loads((repository/adoption.CONTRACT).read_bytes())
-    faults='HASH PATH_ESCAPE GENERATED_OUTPUT SUBSET SIGNED_ALLOWLIST SIGNABLE ROOT GIT_UNAVAILABLE HISTORY_UNAVAILABLE GITLINK CHAIN_CHANGED CHAIN_MISSING CHAIN_REORDERED CHAIN_NESTED CHAIN_DUPLICATE CHAIN_UNTERMINATED CHAIN_DUPLICATE_ROW WORKFLOW_REMOVED MARKER_MALFORMED SPAN_DISPLACED GUIDANCE_REMOVED GUIDANCE_EQUALITY GUIDANCE_DECLARED_HASH GUIDANCE_REDIRECT READER_STRENGTH READER_HELPER EXEMPTION READER_INVENTORY PROMOTION_SPAN_DISPLACED'.split()
     for scenario in contract['scenarios']:
         identity=scenario['id'];tokens=shlex.split(scenario['command'])
         if identity=='AC-10.4-08':continue
@@ -11897,15 +11896,15 @@ def story104_receipt_repository(tmp_path_factory):
             content=ElementTree.tostring(root)
         else:
             command=generator.v2_pytest_command(tokens);path=command['junit']
-            root=ElementTree.Element('testsuites');identities=faults if identity=='AC-10.4-06' else [None]
+            root=ElementTree.Element('testsuites');identities=generator.V2_10_4_PYTEST_CASES[identity]
             suite=ElementTree.SubElement(root,'testsuite',tests=str(len(identities)),failures='0',errors='0',skipped='0')
-            for number,fault in enumerate(identities):
-                case=ElementTree.SubElement(suite,'testcase',classname=command['target'][:-3].replace('/','.'),
-                    name='test_'+command['selector']+'_'+str(number))
+            for name,fault in identities.items():
+                case=ElementTree.SubElement(suite,'testcase',classname=command['target'][:-3].replace('/','.'),name=name)
                 props=ElementTree.SubElement(case,'properties');values={'story104_source_revision':candidate}
-                if fault:values.update(story104_fault_id=fault,story104_expected_code='EVIDENCE_HASH_MISMATCH',
-                    story104_observed_blockers='["EVIDENCE_HASH_MISMATCH"]',story104_before_sha256='b'*64,
+                if fault:values.update(story104_fault_id=fault,story104_expected_code=generator.V2_10_4_FAULT_CODES[fault],
+                    story104_observed_blockers=json.dumps([generator.V2_10_4_FAULT_CODES[fault]]),story104_before_sha256='b'*64,
                     story104_after_sha256='b'*64,story104_assertion_ledger='[{"id":"fixture","subject":"parser fixture","state":"FAIL"}]')
+                if fault is None:values.update(story104_before_sha256='b'*64,story104_after_sha256='b'*64,story104_assertion_ledger='[{"id":"promotion-span","subject":"exact completion gate span","state":"PASS"}]')
                 for key,value in values.items():ElementTree.SubElement(props,'property',name=key,value=value)
             content=ElementTree.tostring(root)
         target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
@@ -11988,3 +11987,170 @@ def test_story104_committed_publication_review_done_rederives_original_sources(s
     with pytest.raises(generator.V2Stop):generator.v2_10_4_verify_inserted(verify_options)
     observed=adoption.verify(repository,adoption.BASELINE,'HEAD',authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
     assert observed['result']=='FAIL'
+
+
+@pytest.fixture
+def story104_parser_receipts(monkeypatch):
+    """Synthetic parser inputs stay independent of an installed publication or pending source overlays."""
+    generator=load_generator();candidate='a'*40
+    contract=json.loads((WORKSPACE/generator.V2_10_4_CONTRACT).read_bytes())
+    measured=generator.v2_10_4_module().current.empty_result(candidate)
+    measured.update(result='PASS',assertionLedger=[dict(id='measured',subject='shared facts',state='PASS')])
+    receipts={}
+    for scenario in contract['scenarios']:
+        identity=scenario['id'];tokens=shlex.split(scenario['command'])
+        if identity=='AC-10.4-08':continue
+        if identity=='AC-10.4-09':
+            path=tokens[tokens.index('--output')+1];content=json.dumps(measured,separators=(',',':')).encode()
+        elif '-trx' in tokens:
+            path=tokens[tokens.index('-trx')+1];root=ElementTree.Element('TestRun',xmlns=TRX_NAMESPACE)
+            case=ElementTree.SubElement(ElementTree.SubElement(root,'Results'),'UnitTestResult',testName=tokens[tokens.index('-method')+1],outcome='Passed')
+            ElementTree.SubElement(ElementTree.SubElement(case,'Output'),'StdOut').text='story104_source_revision=1.0.0+'+candidate+'\n'+json.dumps(measured,separators=(',',':'))
+            ElementTree.SubElement(ElementTree.SubElement(root,'ResultSummary'),'Counters',total='1',executed='1',passed='1',failed='0',notExecuted='0')
+            content=ElementTree.tostring(root)
+        else:
+            command=generator.v2_pytest_command(tokens);path=command['junit'];cases=generator.V2_10_4_PYTEST_CASES[identity]
+            root=ElementTree.Element('testsuites');suite=ElementTree.SubElement(root,'testsuite',tests=str(len(cases)),failures='0',errors='0',skipped='0')
+            for name,fault in cases.items():
+                case=ElementTree.SubElement(suite,'testcase',classname=command['target'][:-3].replace('/','.'),name=name)
+                props=ElementTree.SubElement(case,'properties');values=dict(story104_source_revision=candidate)
+                if fault:
+                    code=generator.V2_10_4_FAULT_CODES[fault]
+                    values.update(story104_fault_id=fault,story104_expected_code=code,story104_observed_blockers=json.dumps([code]),
+                        story104_before_sha256='b'*64,story104_after_sha256='b'*64,
+                        story104_assertion_ledger='[{"id":"checked","subject":"actual fault","state":"FAIL"}]')
+                if fault is None:values.update(story104_before_sha256='b'*64,story104_after_sha256='b'*64,story104_assertion_ledger='[{"id":"promotion-span","subject":"exact completion gate span","state":"PASS"}]')
+                for key,value in values.items():ElementTree.SubElement(props,'property',name=key,value=value)
+            content=ElementTree.tostring(root)
+        receipts[str(path)]=content
+    # Scope recomputation is covered separately; these cases isolate the TRX/JUnit parsers.
+    monkeypatch.setattr(generator,'v2_10_4_scope_receipt',lambda *_args:None)
+    return generator,contract,candidate,receipts
+
+
+def test_story104_receipt_parser_accepts_exact_contract_identities(story104_parser_receipts):
+    generator,contract,candidate,receipts=story104_parser_receipts
+    scenarios,_,faults=generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+    assert len(scenarios)==9 and len(faults)==29
+    assert {row['id']:row['expectedBlocker'] for row in faults}==generator.V2_10_4_FAULT_CODES
+
+
+@pytest.mark.parametrize('mutation',['wrong-code','ledger-string','ledger-object','ledger-empty','ledger-row-type','ledger-fields','ledger-state','ledger-skipped','ledger-duplicate',
+    'class','unrelated-case','duplicate-case','missing-positive-span','missing-displaced-span','extra-case'])
+def test_story104_receipt_parser_rejects_forged_junit(story104_parser_receipts,mutation):
+    generator,contract,candidate,receipts=story104_parser_receipts
+    path='artifacts/v9/10.4/AC-10.4-0'+('7' if 'span' in mutation else '6')+'.xml';root=ElementTree.fromstring(receipts[path]);suite=root.find('testsuite');case=suite.find('testcase')
+    props={row.get('name'):row for row in case.findall('properties/property')}
+    if mutation=='wrong-code':
+        props['story104_expected_code'].set('value','EVIDENCE_PATH_ESCAPE');props['story104_observed_blockers'].set('value','["EVIDENCE_PATH_ESCAPE"]')
+    elif mutation.startswith('ledger-'):
+        value={'ledger-string':'truthy','ledger-object':{'checked':True},'ledger-empty':[], 'ledger-row-type':['checked'],
+            'ledger-fields':[{'state':'FAIL'}], 'ledger-state':[dict(id='i',subject='s',state='OTHER')],
+            'ledger-skipped':[dict(id='i',subject='s',state='SKIPPED')],
+            'ledger-duplicate':[dict(id='i',subject='s',state='FAIL')]*2}[mutation]
+        props['story104_assertion_ledger'].set('value',json.dumps(value))
+    elif mutation=='class':case.set('classname','unrelated.tests')
+    elif mutation=='unrelated-case':case.set('name','test_unrelated')
+    elif mutation=='duplicate-case':suite.append(deepcopy(case));suite.set('tests',str(len(suite)))
+    elif mutation=='extra-case':
+        extra=deepcopy(case);extra.set('name','test_extra');suite.append(extra);suite.set('tests',str(len(suite)))
+    else:
+        remove=next(row for row in suite if ('[exact-span]' if mutation=='missing-positive-span' else '[displaced-span]') in row.get('name'))
+        suite.remove(remove);suite.set('tests',str(len(suite)))
+    receipts[path]=ElementTree.tostring(root)
+    with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+
+
+@pytest.mark.parametrize('stamp',['a'*40,'1.2.3+'+'a'*40,'1.2.3-preview.1+'+'a'*40,'a'*40+'0','1.2.3+'+'a'*40+'0','wrong'+'a'*40,'wrong+'+'a'*40,'1.2.3+wrong+'+'a'*40])
+def test_story104_native_stamp_compares_the_complete_revision(story104_parser_receipts,stamp):
+    generator,contract,candidate,receipts=story104_parser_receipts;path='artifacts/v9/10.4/AC-10.4-01.trx'
+    receipts[path]=receipts[path].replace(('1.0.0+'+candidate).encode(),stamp.encode())
+    if stamp in (candidate,'1.2.3+'+candidate,'1.2.3-preview.1+'+candidate):
+        generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+    else:
+        with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+
+
+@pytest.mark.parametrize('mutation',['blockers','schema','malformed-row','skipped-row','empty-ledger'])
+def test_story104_native_helper_envelope_must_validate(story104_parser_receipts,mutation):
+    generator,contract,candidate,receipts=story104_parser_receipts;path='artifacts/v9/10.4/AC-10.4-01.trx';root=ElementTree.fromstring(receipts[path]);output=root.find('.//{*}StdOut')
+    stamp,raw=output.text.split('\n',1);result=json.loads(raw)
+    if mutation=='blockers':result['blockers']=['EVIDENCE_HASH_MISMATCH']
+    elif mutation=='schema':result['unexpected']=True
+    elif mutation=='malformed-row':result['assertionLedger']=[{'state':'PASS'}]
+    elif mutation=='skipped-row':result['assertionLedger'][0]['state']='SKIPPED'
+    else:result['assertionLedger']=[]
+    output.text=stamp+'\n'+json.dumps(result,separators=(',',':'));receipts[path]=ElementTree.tostring(root)
+    with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+
+
+@pytest.mark.parametrize('mutation',['none','empty-scope','unrelated-ledger','manifest','candidate','candidate-blob','boundary','workflow','guidance','output-facts'])
+def test_story104_scope_receipt_requires_independent_candidate_facts(monkeypatch,mutation):
+    generator=load_generator();adoption=generator.v2_10_4_module();current=adoption.current;candidate='a'*40
+    binding=json.loads((WORKSPACE/adoption.BINDING).read_bytes())
+    monkeypatch.setattr(generator,'v2_committed_blob',lambda _root,revision,path:current.canonical(binding)
+        if revision==candidate and path==adoption.BINDING else None)
+    manifest=binding['provenance']+binding['workflowInventory']['rows']+binding['guidanceInventory']['rows']+[dict(path=adoption.SNAPSHOT,sha256=adoption.SNAPSHOT_SHA256,role='entry-snapshot')]
+    boundary=[dict(id='changed-paths',subject='changed-paths',state='PASS'),dict(id='manifest:signable-payload',subject='manifest',state='PASS')]
+    def bridge(_root,request):
+        assert request['candidate']==candidate and request['baseline']==adoption.BASELINE
+        assert request['manifest']==manifest and 'outputPath' not in request
+        return dict(result='PASS',blockers=[],diff=[dict(path=path,sourcePath=None) for path in binding['expectedChangedPaths']],assertionLedger=deepcopy(boundary),
+            blobs=[dict(path=row['path'],code=None,sha256='f'*64 if mutation=='candidate-blob' and number==0 else row['sha256']) for number,row in enumerate(manifest)])
+    monkeypatch.setattr(current,'bridge',bridge)
+    flow=dict(id='workflow:span:route',subject='route',state='PASS');guide=dict(id='guidance:hash:runbook',subject='runbook',state='PASS')
+    monkeypatch.setattr(current,'workflow_checks',lambda _root,result,_binding:result['assertionLedger'].append(flow))
+    monkeypatch.setattr(adoption,'guidance_checks',lambda _root,result,_binding:result['assertionLedger'].append(guide))
+    observed=current.empty_result(candidate);observed.update(result='PASS',changedPaths=binding['expectedChangedPaths'],manifest=manifest,
+        assertionLedger=[dict(row,id='boundary:'+row['id']) for row in boundary]+[flow,guide]
+        +[dict(id='candidate:blob:'+path,subject=path,state='PASS') for path in binding['sourcePaths']]
+        +[dict(id='output:contained',subject='receipt',state='PASS')])
+    if mutation=='empty-scope':observed['changedPaths']=[];observed['manifest']=[]
+    elif mutation=='unrelated-ledger':observed['assertionLedger']=[dict(id='unrelated',subject='unrelated',state='PASS')]
+    elif mutation=='manifest':observed['manifest']=deepcopy(manifest);observed['manifest'][0]['sha256']='f'*64
+    elif mutation=='candidate':observed['candidate']='b'*40
+    elif mutation in ('boundary','workflow','guidance','output-facts'):
+        prefix={'boundary':'boundary:','workflow':'workflow:','guidance':'guidance:','output-facts':'output:'}[mutation]
+        observed['assertionLedger']=[row for row in observed['assertionLedger'] if not row['id'].startswith(prefix)]
+    if mutation in ('none','output-facts'):generator.v2_10_4_scope_receipt(WORKSPACE,observed,candidate)
+    else:
+        with pytest.raises(ValueError):generator.v2_10_4_scope_receipt(WORKSPACE,observed,candidate)
+
+
+@pytest.mark.parametrize('state',['allowed-output','allowed-lifecycle','tracked','untracked'])
+def test_story104_generation_rejects_unrelated_worktree_dirt(tmp_path,monkeypatch,state):
+    """Exercise the real Git dirt guard before stopping at predecessor evaluation."""
+    generator=load_generator();repository=tmp_path/'repository';repository.mkdir()
+    run_git(repository,'init','--quiet')
+    contract=json.loads((WORKSPACE/generator.V2_10_4_CONTRACT).read_bytes())
+    binding=json.loads((WORKSPACE/generator.V2_10_4_BINDING).read_bytes())
+    binding['sourcePaths']=['source.py',generator.V2_10_4_SPEC,generator.V2_7_2_SPRINT_PATH]
+    files={'source.py':b'reviewed source\n','other.txt':b'unchanged\n',
+        generator.V2_10_4_SPEC:b"---\nstatus: 'in-progress'\n---\n\n## Tasks & Acceptance\n- [ ] task\n\n## Implementation Notes\n",
+        generator.V2_7_2_SPRINT_PATH:('# last_updated: 2026-10-17\nlast_updated: 2026-10-17\n  '+generator.V2_10_4_SPRINT_KEY+': in-progress\n').encode(),
+        generator.V2_10_4_BINDING:json.dumps(binding).encode(),generator.V2_10_4_CONTRACT:json.dumps(contract).encode()}
+    for path,content in files.items():
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: freeze the story 10.4 lifecycle fixture')
+    output_paths=list(contract['finalRecord']['paths'])
+    for scenario in contract['scenarios']:
+        tokens=shlex.split(scenario['command'])
+        if '-trx' in tokens:output_paths.append(tokens[tokens.index('-trx')+1])
+        elif '--output' in tokens:output_paths.append(tokens[tokens.index('--output')+1])
+        elif scenario['id']!='AC-10.4-08':output_paths.append(generator.v2_pytest_command(tokens)['junit'])
+    for path in output_paths:
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(b'allowed output fixture')
+    if state=='allowed-lifecycle':
+        spec=repository/generator.V2_10_4_SPEC;spec.write_bytes(spec.read_bytes().replace(b"'in-progress'",b"'in-review'").replace(b'- [ ]',b'- [x]')
+            +b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\nfixture\n'+generator.RECORD_END_MARKER.encode()+b'\n')
+        sprint=repository/generator.V2_7_2_SPRINT_PATH;sprint.write_bytes(sprint.read_bytes().replace(b': in-progress',b': review').replace(b'2026-10-17',b'2026-10-18'))
+    elif state=='tracked':(repository/'other.txt').write_bytes(b'unrelated tracked change')
+    elif state=='untracked':(repository/'unrelated.py').write_bytes(b'unrelated untracked source')
+    class ReachedPredecessor(Exception):pass
+    def stop(*_args):raise ReachedPredecessor
+    monkeypatch.setattr(generator,'v2_verified_predecessor',stop)
+    options={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,'--format':'bundle',
+        '--output-json':contract['finalRecord']['paths'][0],'--output-markdown':contract['finalRecord']['paths'][1]}
+    expected=ReachedPredecessor if state.startswith('allowed') else generator.V2Stop
+    with pytest.raises(expected) as caught:generator.v2_10_4_generate(options,verify_spec=generator.V2_10_4_SPEC)
+    if not state.startswith('allowed'):assert caught.value.findings[0]['code']=='WORKTREE_NOT_CLEAN'

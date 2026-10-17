@@ -90,7 +90,7 @@
   },
   "entrySnapshot": {
     "path": "artifacts/v9/10.4/reader-entry-v1.json",
-    "sha256": "a90a2cc9a0fcfdeec6b77a760cbcd68ac7deffb79302273f577bc5eba743265f"
+    "sha256": "34e2d2ae3aab0580ab4338a9eec1f2f8590b8dbca6f3949aad519a0148b133f9"
   },
   "workflowInventory": {
     "id": "STORY-10.4-CURRENT-WORKFLOWS-v1",
@@ -150,7 +150,7 @@
   },
   "guidanceInventory": {
     "id": "STORY-10.4-CURRENT-GUIDANCE-v1",
-    "sha256": "e06bf5c7993127d4462e9a06832a72e312787e5392bb2cf77a935e237bdd3305",
+    "sha256": "42e828eda1926830ef641ecad29d4e8086de1ec7c5c48c7cea7cb7a462279981",
     "rows": [
       {
         "path": "_bmad/custom/bmad-build.toml",
@@ -174,7 +174,7 @@
       },
       {
         "path": "docs/runbooks/evidence-boundary-validation.md",
-        "sha256": "c63d9b90930233e141a50781cfadeec5009ddbf9dfedc24d72d5a97793582c28",
+        "sha256": "30271e6cb5fb09466e9e5b0bc5b722e37c97e146ce918276b102342c744ca652",
         "role": "guidance"
       }
     ]

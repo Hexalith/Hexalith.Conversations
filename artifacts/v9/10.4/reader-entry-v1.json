@@ -295,15 +295,15 @@
         },
         {
           "kind": "read",
-          "before": "File.ReadAllText(",
-          "after": "RepositoryLocator.ReadAllText(",
-          "count": 8
+          "before": "File.ReadAllText(FullPath(",
+          "after": "RepositoryLocator.ReadAllText(FullPath(",
+          "count": 7
         },
         {
           "kind": "read",
-          "before": "File.ReadAllBytes(",
-          "after": "RepositoryLocator.ReadAllBytes(",
-          "count": 4
+          "before": "File.ReadAllBytes(path)",
+          "after": "RepositoryLocator.ReadAllBytes(path)",
+          "count": 1
         },
         {
           "kind": "read",
@@ -355,7 +355,7 @@
         }
       ],
       "indirectConsumers": [],
-      "afterSha256": "414ef23424f8dbfeea39d613a46603457b8c04ecb18130cba13e208adffcd908"
+      "afterSha256": "2698ea35536dbe6a901fc973e8767aa25e58c2cea3b5a1fca1b02769bcc7e0d9"
     },
     {
       "path": "tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs",
