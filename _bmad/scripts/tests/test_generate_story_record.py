@@ -11904,12 +11904,21 @@ def story104_complete_receipts(generator, candidate):
         identity=scenario['id'];tokens=shlex.split(scenario['command'])
         if identity=='AC-10.4-08':continue
         if identity=='AC-10.4-09':
-            receipts[tokens[tokens.index('--output')+1]]=adoption.current.canonical(measured)+b'\n';continue
+            guidance=adoption.current.empty_result(candidate);binding=json.loads((WORKSPACE/adoption.BINDING).read_bytes())
+            adoption.guidance_checks(WORKSPACE,guidance,binding);adoption.current.workflow_checks(WORKSPACE,guidance,binding)
+            guidance=adoption.finish(guidance);assert guidance['result']=='PASS'
+            receipts[tokens[tokens.index('--output')+1]]=adoption.current.canonical(guidance)+b'\n';continue
         if '-trx' in tokens:
             root=ElementTree.Element('TestRun');summary=ElementTree.SubElement(root,'ResultSummary')
             ElementTree.SubElement(summary,'Counters',total='1',executed='1',passed='1',failed='0',notExecuted='0')
+            method=tokens[tokens.index('-method')+1];test_id=identity+'-test';execution_id=identity+'-execution'
+            definition=ElementTree.SubElement(ElementTree.SubElement(root,'TestDefinitions'),'UnitTest',
+                id=test_id,name=method,storage=tokens[1])
+            ElementTree.SubElement(definition,'Execution',id=execution_id)
+            ElementTree.SubElement(definition,'TestMethod',codeBase=tokens[1],
+                className=method.rsplit('.',1)[0],name=method.rsplit('.',1)[1])
             result=ElementTree.SubElement(ElementTree.SubElement(root,'Results'),'UnitTestResult',
-                testName=tokens[tokens.index('-method')+1],outcome='Passed')
+                testName=method,outcome='Passed',testId=test_id,executionId=execution_id)
             ElementTree.SubElement(ElementTree.SubElement(result,'Output'),'StdOut').text=(
                 'story104_source_revision=1.0.0+'+candidate+'\n'+adoption.current.canonical(measured).decode())
             receipts[tokens[tokens.index('-trx')+1]]=ElementTree.tostring(root);continue
@@ -11930,7 +11939,12 @@ def story104_complete_receipts(generator, candidate):
 
 
 @pytest.mark.parametrize('tamper',['none','hash-relabel','fault-extra-code','positive-span-missing','fault-case-rename',
-    'native-revision-suffix','native-schema','native-blocker','native-failed-row','native-skipped-row','stale-AC09','AC09-failed-row','restoration','empty-fault-ledger'])
+    'native-revision-suffix','native-schema','native-blocker','native-failed-row','native-skipped-row',
+    'native-assembly','native-storage','native-result-test-id','native-result-execution-id','native-definition-id',
+    'native-definition-execution-id','native-definition-name','native-class','native-method',
+    'native-missing-definition','native-duplicate-definition','native-second-envelope','native-second-escaped-envelope',
+    'stale-AC09','AC09-failed-row','AC09-unrelated','AC09-no-guidance','AC09-no-customization',
+    'AC09-no-runbook','AC09-no-workflow','AC09-subject-drift','malformed-trx','malformed-junit','restoration','empty-fault-ledger'])
 def test_story104_complete_receipts_reject_tampering_with_the_real_parser(tamper):
     generator=load_generator();candidate='a'*40
     contract,receipts=story104_complete_receipts(generator,candidate)
@@ -11956,17 +11970,60 @@ def test_story104_complete_receipts_reject_tampering_with_the_real_parser(tamper
         if tamper=='native-blocker':observed['blockers']=['EVIDENCE_HASH_MISMATCH']
         if tamper=='native-failed-row':observed['assertionLedger'][0]['state']='FAIL'
         if tamper=='native-skipped-row':observed['assertionLedger'][0]['state']='SKIPPED'
-        output.text=version+'\n'+generator.v2_10_4_module().current.canonical(observed).decode();receipts[path]=ElementTree.tostring(root)
-    if tamper in ('stale-AC09','AC09-failed-row'):
+        definition=root.find('TestDefinitions/UnitTest');method=definition.find('TestMethod')
+        if tamper=='native-assembly':method.set('codeBase','other/Unrelated.dll')
+        if tamper=='native-storage':definition.set('storage','other/Unrelated.dll')
+        if tamper=='native-result-test-id':root.find('Results/UnitTestResult').set('testId','unlinked')
+        if tamper=='native-result-execution-id':root.find('Results/UnitTestResult').set('executionId','unlinked')
+        if tamper=='native-definition-id':definition.set('id','unlinked')
+        if tamper=='native-definition-execution-id':definition.find('Execution').set('id','unlinked')
+        if tamper=='native-definition-name':definition.set('name','Other.Test')
+        if tamper=='native-class':method.set('className','Other.Class')
+        if tamper=='native-method':method.set('name','OtherMethod')
+        if tamper=='native-missing-definition':root.find('TestDefinitions').remove(definition)
+        if tamper=='native-duplicate-definition':root.find('TestDefinitions').append(deepcopy(definition))
+        output.text=version+'\n'+generator.v2_10_4_module().current.canonical(observed).decode()
+        if tamper in ('native-second-envelope','native-second-escaped-envelope'):
+            second=deepcopy(observed);second.update(result='FAIL',blockers=['EVIDENCE_HASH_MISMATCH'])
+            second['assertionLedger'][0]['state']='FAIL'
+            extra=json.dumps(second)
+            if tamper=='native-second-escaped-envelope':extra=extra.replace('"schemaVersion"','"schema\\u0056ersion"')
+            output.text+='\n'+extra
+        receipts[path]=ElementTree.tostring(root)
+    if tamper=='stale-AC09' or tamper.startswith('AC09-'):
         path='artifacts/v9/10.4/AC-10.4-09.json';observed=json.loads(receipts[path])
         if tamper=='stale-AC09':observed['candidate']='f'*40
-        else:observed['assertionLedger'][0]['state']='FAIL'
+        if tamper=='AC09-failed-row':observed['assertionLedger'][0]['state']='FAIL'
+        if tamper=='AC09-unrelated':observed['assertionLedger']=[dict(id='unrelated',subject='unrelated',state='PASS')]
+        prefixes={'AC09-no-guidance':('guidance:content:',),'AC09-no-customization':('guidance:resolved:','guidance:render:'),
+            'AC09-no-runbook':('runbook:',),'AC09-no-workflow':('workflow:',)}
+        if tamper in prefixes:observed['assertionLedger']=[row for row in observed['assertionLedger'] if not row['id'].startswith(prefixes[tamper])]
+        if tamper=='AC09-subject-drift':observed['assertionLedger'][0]['subject']='unrelated'
         receipts[path]=json.dumps(observed).encode()
+    if tamper in ('malformed-trx','malformed-junit'):
+        receipts['artifacts/v9/10.4/AC-10.4-'+('01.trx' if tamper=='malformed-trx' else '06.xml')]=b'<broken'
     if tamper=='none':
         scenarios,measured,mutations=generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
         assert len(scenarios)==9 and len(measured)==8 and len(mutations)==29
     else:
         with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+
+
+@pytest.mark.parametrize('scenario',['06','07'])
+@pytest.mark.parametrize('tamper',['integer-id','missing-subject','unknown-field','duplicate-row','classname'])
+def test_story104_junit_receipts_require_closed_ledgers_and_exact_modules(scenario,tamper):
+    generator=load_generator();candidate='a'*40;contract,receipts=story104_complete_receipts(generator,candidate)
+    path=f'artifacts/v9/10.4/AC-10.4-{scenario}.xml';root=ElementTree.fromstring(receipts[path])
+    case=root.find('testsuite/testcase');prop=next(row for row in case.findall('properties/property') if row.get('name')=='story104_assertion_ledger')
+    ledger=json.loads(prop.get('value'))
+    if tamper=='integer-id':ledger[0]['id']=1
+    if tamper=='missing-subject':ledger[0].pop('subject')
+    if tamper=='unknown-field':ledger[0]['unchecked']=True
+    if tamper=='duplicate-row':ledger.append(dict(ledger[0]))
+    if tamper=='classname':case.set('classname','unrelated.module')
+    prop.set('value',json.dumps(ledger));receipts[path]=ElementTree.tostring(root)
+    with pytest.raises(ValueError,match='closed schema' if tamper!='classname' else 'exact testcase identities'):
+        generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
 
 
 def test_story104_real_git_insertion_rejects_one_changed_inserted_byte(tmp_path):
@@ -11992,3 +12049,71 @@ def test_story104_real_git_insertion_rejects_one_changed_inserted_byte(tmp_path)
     with pytest.raises(generator.V2Stop) as caught:generator.v2_10_4_verify_inserted(verify)
     assert caught.value.findings[0]['code']=='RECORD_CONTENT_DRIFT'
     assert caught.value.findings[0]['message']=='verbatim inserted region differs'
+
+
+def test_story104_real_git_publication_rejects_installed_receipt_snapshot_and_xml_drift(tmp_path,monkeypatch):
+    """Check installed bytes, independent declarations and typed XML failures through real source/publication routes."""
+    generator=load_generator();adoption=generator.v2_10_4_module()
+    repository,candidate=story104_current_source_repository(tmp_path,generator)
+    contract,receipts=story104_complete_receipts(generator,candidate);paths=contract['finalRecord']['paths']
+    options={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,'--format':'bundle',
+        '--output-json':paths[0],'--output-markdown':paths[1]}
+    binding_path=repository/adoption.BINDING;original_binding=binding_path.read_bytes()
+    for metadata in (dict(path='artifacts/v9/10.4/other.json',sha256=adoption.SNAPSHOT_SHA256),
+            dict(path=adoption.SNAPSHOT,sha256='f'*64)):
+        binding=json.loads(original_binding);binding['entrySnapshot']=metadata;binding_path.write_bytes(json.dumps(binding).encode())
+        observed=adoption.verify(repository,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+        assert observed['result']=='FAIL' and 'ROOT_OF_TRUST_NOT_PINNED' in observed['blockers']
+        assert dict(id='binding:entry-snapshot',subject=adoption.BINDING,state='FAIL') in observed['assertionLedger']
+    binding_path.write_bytes(original_binding)
+    for path,content in receipts.items():
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    malformed_paths=('artifacts/v9/10.4/AC-10.4-01.trx','artifacts/v9/10.4/AC-10.4-06.xml')
+    for path in malformed_paths:
+        (repository/path).write_bytes(b'<broken')
+        with pytest.raises(generator.V2Stop) as caught:generator.v2_generate(options)
+        assert caught.value.findings[0]['code']=='RECORD_NOT_DERIVED'
+        assert 'malformed '+('TRX' if path.endswith('.trx') else 'JUnit')+' XML' in caught.value.findings[0]['message']
+        (repository/path).write_bytes(receipts[path])
+    j=generator.v2_10_4_generate(options);record=json.loads(j);m=(repository/paths[1]).read_bytes()
+    run_git(repository,'add','--force','--',*receipts,*paths)
+    run_git(repository,'commit','--quiet','-m','test: publish receipt drift fixture')
+    publication=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    spec=repository/generator.V2_10_4_SPEC
+    spec.write_bytes(spec.read_bytes()+b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\n'+m+generator.RECORD_END_MARKER.encode()+b'\n')
+    verify={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,generator.V2_VERIFY_OPTION:generator.V2_10_4_SPEC}
+    assert generator.v2_10_4_verify_inserted(verify)==j
+    for path in receipts:
+        (repository/path).write_bytes(receipts[path]+b'\n')
+        assert generator.v2_10_4_source_errors(repository,record,publication)==['installed receipt differs: '+path]
+        if path==malformed_paths[0]:
+            with pytest.raises(generator.V2Stop) as caught:generator.v2_10_4_verify_inserted(verify)
+            assert caught.value.findings[0]['code']=='RECORD_CONTENT_DRIFT'
+            assert 'installed receipt differs: '+path in caught.value.findings[0]['message']
+        (repository/path).write_bytes(receipts[path])
+    committed=generator.v2_committed_blob
+    for metadata in (dict(path='artifacts/v9/10.4/other.json',sha256=adoption.SNAPSHOT_SHA256),
+            dict(path=adoption.SNAPSHOT,sha256='f'*64)):
+        binding=json.loads(original_binding);binding['entrySnapshot']=metadata
+        copied=deepcopy(record);copied['evidenceAdoptionExecution']['entrySnapshot']=metadata
+        with monkeypatch.context() as patch:
+            patch.setattr(generator,'v2_committed_blob',lambda root,revision,path:
+                json.dumps(binding).encode() if (revision,path)==(candidate,adoption.BINDING) else committed(root,revision,path))
+            assert 'entry snapshot declaration differs from independent trust root' in generator.v2_10_4_source_errors(repository,copied,publication)
+    for path in malformed_paths:
+        for receipt,content in receipts.items():(repository/receipt).write_bytes(b'<broken' if receipt==path else content)
+        run_git(repository,'add','--force','--',*receipts)
+        run_git(repository,'commit','--quiet','-m','test: corrupt published XML fixture')
+        consumer=run_git(repository,'rev-parse','HEAD').stdout.strip()
+        # Keep installed bytes equal to the accepted hashes so this specifically exercises
+        # malformed committed XML, independently of the installed-byte guard above.
+        (repository/path).write_bytes(receipts[path])
+        import generate_story_record as scoped_generator
+        errors=[];source_errors=scoped_generator.v2_10_4_source_errors
+        def capture_source_errors(*args):
+            found=source_errors(*args);errors.extend(found);return found
+        with monkeypatch.context() as patch:
+            patch.setattr(scoped_generator,'v2_10_4_source_errors',capture_source_errors)
+            observed=adoption.verify(repository,adoption.BASELINE,consumer,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+        assert any('malformed '+('TRX' if path.endswith('.trx') else 'JUnit')+' XML' in error for error in errors)
+        assert observed['result']=='FAIL' and 'AUTHORITY_BINDING_INVALID' in observed['blockers']

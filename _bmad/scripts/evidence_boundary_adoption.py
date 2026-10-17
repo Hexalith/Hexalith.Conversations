@@ -263,6 +263,8 @@ def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING
         if any(row['code'] for row in initial['containedPaths']):return finish(result)
         binding=json.loads((repository/binding_path).read_bytes())
         record(result,'binding:baseline',binding_path,baseline==binding['baseline']==BASELINE and binding['storyId']=='10.4','AUTHORITY_BINDING_INVALID')
+        record(result,'binding:entry-snapshot',binding_path,
+            binding.get('entrySnapshot')==dict(path=SNAPSHOT,sha256=SNAPSHOT_SHA256),'ROOT_OF_TRUST_NOT_PINNED')
         entries=initial['diff'] or []; paths=sorted({entry['path'] for entry in entries}|{entry['sourcePath'] for entry in entries if entry['sourcePath']})
         result['changedPaths']=paths
         result['gitlinks']=[dict(path=row['path'],sourceMode=row['sourceMode'],destinationMode=row['destinationMode'])

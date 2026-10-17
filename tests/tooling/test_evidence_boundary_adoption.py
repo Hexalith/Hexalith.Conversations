@@ -250,22 +250,38 @@ def test_approved_assertion_correction_preserves_every_other_entry_byte(tmp_path
     assert observed['assertionLedger']
 
 
-@pytest.mark.parametrize('fault',['package','project','assembly','publish','pack'])
+@pytest.mark.parametrize('fault',['none','package','project','assembly','publish','pack'])
 def test_neutral_helper_portable_surface_stays_closed(tmp_path,monkeypatch,fault):
     import verify_conformance_tiering as tiering
     project=tmp_path/tiering.PROJECTS['portable'];project.parent.mkdir(parents=True);project.write_text('<Project />')
     helper='tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj'
     paths=[f'src/{name}/{name}.csproj' for name in ('Hexalith.Conversations.Client','Hexalith.Conversations.Contracts','Hexalith.Conversations.Testing')]+[helper]
     initial=[dict(FullPath=str(tmp_path/path),DefiningProjectFullPath=str(project)) for path in paths]
-    graph=dict(Properties=dict(AssemblyName='Hexalith.Conversations.TestSupport',IsPackable='false',IsPublishable='false'),
-        Items=dict(ProjectReference=[],PackageReference=[],Reference=[],ReferencePath=[],FrameworkReference=[dict(Identity='Microsoft.NETCore.App',IsImplicitlyDefined='true')]))
+    graphs={}
+    for path in paths:
+        name=Path(path).stem;output=tmp_path/'bin'/f'{name}.dll';output.parent.mkdir(exist_ok=True);output.write_bytes(b'fixture assembly')
+        graphs[path]=dict(Properties=dict(AssemblyName=name,IsPackable='false' if path==helper else 'true',
+            IsPublishable='false',TargetPath=str(output)),Items=dict(ProjectReference=[],PackageReference=[],Reference=[],ReferencePath=[],
+                FrameworkReference=[dict(Identity='Microsoft.NETCore.App',IsImplicitlyDefined='true')]))
+    graph=graphs[helper]
     if fault=='publish':graph['Properties']['IsPublishable']='true'
     elif fault=='pack':graph['Properties']['IsPackable']='true'
-    else:graph['Items'][{'package':'PackageReference','project':'ProjectReference','assembly':'Reference'}[fault]]=[dict(Identity='forbidden')]
-    monkeypatch.setattr(tiering,'msbuild',lambda *args,**kwargs:graph)
+    elif fault!='none':graph['Items'][{'package':'PackageReference','project':'ProjectReference','assembly':'Reference'}[fault]]=[dict(Identity='forbidden')]
+    assets=tmp_path/'obj/project.assets.json';assets.parent.mkdir();assets.write_text(json.dumps(dict(targets={'net10.0':{
+        'Hexalith.Conversations.Client/1.0':dict(type='project',compile={'lib/Hexalith.Conversations.Client.dll':{}})}})))
+    portable=dict(Properties=dict(ProjectAssetsFile=str(assets)),Items=dict(ProjectReference=initial,PackageReference=[],
+        ReferencePath=[dict(FullPath=graphs[paths[0]]['Properties']['TargetPath'],FusionName='Hexalith.Conversations.Client, Version=1.0.0.0')]))
+    monkeypatch.setattr(tiering,'msbuild',lambda _root,path,*args,**kwargs:copy.deepcopy(graphs[path]))
+    if fault=='none':
+        observed=tiering.portable_surface(tmp_path,dict(portable=portable))
+        assert len(observed['evaluatedProjects'])==4
+        assert next(row for row in observed['evaluatedProjects'] if row['project']==helper)==dict(
+            project=helper,assembly='Hexalith.Conversations.TestSupport',packable=False)
+        return
     with pytest.raises(tiering.VerificationError) as caught:
-        tiering.portable_surface(tmp_path,dict(portable=dict(Items=dict(ProjectReference=initial))))
+        tiering.portable_surface(tmp_path,dict(portable=portable))
     assert caught.value.code=='PORTABLE_TIER_NONPORTABLE_REFERENCE'
+    assert str(caught.value)=='Evaluated non-packable module reference: Hexalith.Conversations.TestSupport'
 
 
 @pytest.mark.parametrize('ownership_failure',['history','index'])
