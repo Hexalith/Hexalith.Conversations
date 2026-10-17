@@ -211,8 +211,10 @@ def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING
         import generate_story_record as generator
         # Publication adds only the bound receipt/pair set and checked lifecycle changes.
         pair=repository/'docs/release-evidence/story-10.4-final-record-v2.json'
+        consumer_candidate=None
         if pair.is_file():
             published=json.loads(pair.read_bytes());source=published['candidate']['commit']
+            consumer_candidate=generator.resolve_commit(repository,'HEAD','CANDIDATE_UNRESOLVABLE')
             if source != initial['candidate']:
                 problems=generator.v2_10_4_source_errors(repository,published,initial['candidate'])
                 problems+=generator.v2_10_4_descendant_errors(repository,published,initial['candidate'])
@@ -232,8 +234,8 @@ def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING
             else:
                 item=contained[path];target=Path(item['fullPath']) if item['fullPath'] else None
                 valid=not item['code'] and target is not None and target.is_file() and current.digest(target.read_bytes())==row['sha256']
-                if not valid and path==SPEC and pair.is_file() and target is not None and target.is_file():
-                    valid=generator.v2_working_spec_lifecycle_only_change(repository,initial['candidate'],path,target.read_bytes(),record_region=True,task_checkboxes=True)
+                if not valid and pair.is_file() and target is not None and target.is_file():
+                    valid=generator.v2_10_4_working_source_matches(repository,initial['candidate'],path,target.read_bytes(),consumer_candidate)
             record(result,'candidate:blob:'+path,path,valid,'EVIDENCE_HASH_MISMATCH')
         if check in (None,'readers','projection','exemptions'):reader_checks(repository,result,binding)
         if check in (None,'guidance','runbook'):guidance_checks(repository,result,binding)

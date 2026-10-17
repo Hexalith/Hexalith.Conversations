@@ -9290,6 +9290,20 @@ def v2_10_3_verify_inserted(options: dict[str,str]) -> bytes:
 V2_10_4_CONTRACT = '_bmad-output/planning-artifacts/story-10.4-current-contract-v1.json'
 V2_10_4_BINDING = '_bmad-output/planning-artifacts/story-10.4-current-binding-v1.json'
 V2_10_4_SPEC = '_bmad-output/implementation-artifacts/spec-10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection.md'
+V2_10_4_SPRINT_KEY = '10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection'
+
+
+def v2_10_4_working_source_matches(repository, candidate, path, working, consumer_candidate=None):
+    """Allow exact sources or checked lifecycle bytes committed by the record consumer."""
+    original = v2_committed_blob(repository, candidate, path)
+    if original is not None and working == original:
+        return True
+    if path == V2_10_4_SPEC:
+        return v2_working_spec_lifecycle_only_change(repository, candidate, path, working,
+            record_region=True, task_checkboxes=True)
+    return (consumer_candidate is not None and path == V2_7_2_SPRINT_PATH
+        and working == v2_committed_blob(repository, consumer_candidate, path)
+        and v2_sprint_status_only_change(repository, candidate, consumer_candidate, V2_10_4_SPRINT_KEY))
 
 
 def v2_10_4_module():
@@ -9484,7 +9498,7 @@ def v2_10_4_descendant_errors(repository,record,head):
         elif publications==1 and changed and changed.issubset({V2_10_4_SPEC,'_bmad-output/implementation-artifacts/sprint-status.yaml'}):
             if V2_10_4_SPEC in changed and not v2_spec_lifecycle_only_change(repository,parent,commit,V2_10_4_SPEC,record_region=True,task_checkboxes=True):return ['spec source drift after acceptance']
             if '_bmad-output/implementation-artifacts/sprint-status.yaml' in changed and not v2_sprint_status_only_change(repository,parent,commit,
-                    '10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection'):return ['tracking source drift after acceptance']
+                    V2_10_4_SPRINT_KEY):return ['tracking source drift after acceptance']
         else:return ['publication boundary or later source changed']
         parent=commit
     return [] if publications==1 else ['exactly one atomic publication is required']
@@ -9506,7 +9520,8 @@ def v2_10_4_generate(options,*,candidate=None,verify_spec=None,consumer_candidat
         if blob is None:raise ValueError('source unavailable: '+path)
         source_files.append(dict(path=path,sha256=v2_sha256(blob)))
         working=v2_10_1_artifact_bytes(repository,path)
-        if working!=blob and not (path==V2_10_4_SPEC and v2_working_spec_lifecycle_only_change(repository,candidate,path,working,record_region=True,task_checkboxes=True)):
+        if not v2_10_4_working_source_matches(repository,candidate,path,working,
+                consumer_candidate if verify_spec is not None else None):
             raise ValueError('working source differs: '+path)
     predecessor=v2_verified_predecessor(repository,candidate,'10.3',adoption.PROVENANCE[5],adoption.PROVENANCE[6],validators['record'])
     if predecessor!=adoption.PREDECESSOR_SHA256:raise ValueError('predecessor does not verify')

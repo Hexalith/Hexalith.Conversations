@@ -11830,3 +11830,47 @@ def test_story104_receipt_parser_rejects_unstamped_and_empty_results():
     for xml in (b'<testsuites><testsuite tests="0" failures="0" errors="0" skipped="0" /></testsuites>',
         b'<testsuites><testsuite tests="1" failures="0" errors="0" skipped="0"><testcase name="unstamped" /></testsuite></testsuites>'):
         with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,'a'*40,lambda _:xml)
+
+
+@pytest.mark.parametrize('change',['story','unrelated-row','dirty'])
+def test_story104_committed_lifecycle_sprint_rederives_only_the_owned_transition(tmp_path,monkeypatch,change):
+    """Exercise both real source consumers across committed and dirty lifecycle updates."""
+    generator=load_generator();adoption=generator.v2_10_4_module()
+    repository=tmp_path/'repository'
+    run_git(WORKSPACE,'clone','--shared','--no-checkout',str(WORKSPACE),str(repository))
+    run_git(repository,'checkout','--detach','b626227c62b9a9302e4b0638a3ff34523ca72780')
+    candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    sprint=repository/generator.V2_7_2_SPRINT_PATH;original=sprint.read_bytes()
+    owned=generator.V2_10_4_SPRINT_KEY.encode()+b': in-progress'
+    assert original.count(owned)==1
+    updated=original.replace(owned,owned.replace(b'in-progress',b'in-review'))
+    if change=='unrelated-row':
+        other=b'10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface: done'
+        assert updated.count(other)==1
+        updated=updated.replace(other,other.replace(b'done',b'in-review'))
+    sprint.write_bytes(updated)
+    run_git(repository,'add',generator.V2_7_2_SPRINT_PATH)
+    run_git(repository,'commit','--quiet','-m','test: record lifecycle transition')
+    consumer=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    if change=='dirty':sprint.write_bytes(updated.replace(b'last_updated: 10-16-2026 15:00',b'last_updated: 10-17-2026 15:00'))
+    assert generator.v2_10_4_working_source_matches(repository,candidate,generator.V2_7_2_SPRINT_PATH,
+        sprint.read_bytes(),consumer)==(change=='story')
+    # A retained-source evaluation reads the consumer's committed lifecycle bytes.
+    # Full pair/receipt/publication verification is independently required by insertion.
+    pair=repository/'docs/release-evidence/story-10.4-final-record-v2.json'
+    pair.write_text(json.dumps(dict(candidate=dict(commit=candidate))))
+    observed=adoption.verify(repository,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+    assert observed['result']==('PASS' if change=='story' else 'FAIL')
+    assert observed['blockers']==([] if change=='story' else ['EVIDENCE_HASH_MISMATCH'])
+    options={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,
+        '--output-json':'docs/release-evidence/story-10.4-final-record-v2.json',
+        '--output-markdown':'docs/release-evidence/story-10.4-final-record-v2.md'}
+    fixture=story104_closed_fixture(generator);facts=fixture['evidenceAdoptionExecution']
+    monkeypatch.setattr(generator,'v2_10_4_receipt_facts',lambda *args:(fixture['scenarios'],facts['receipts'],facts['mutationLedger']))
+    if change=='story':
+        derived=json.loads(generator.v2_10_4_generate(options,candidate=candidate,verify_spec=generator.V2_10_4_SPEC,consumer_candidate=consumer))
+        assert derived['candidate']['commit']==candidate
+        assert derived['summary']==dict(required=9,passed=9,failed=0,blocked=0,skipped=0,notRun=0)
+    else:
+        with pytest.raises(ValueError,match='working source differs: '+generator.V2_7_2_SPRINT_PATH):
+            generator.v2_10_4_generate(options,candidate=candidate,verify_spec=generator.V2_10_4_SPEC,consumer_candidate=consumer)
