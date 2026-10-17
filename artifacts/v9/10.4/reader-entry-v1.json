@@ -958,7 +958,17 @@
         }
       ],
       "indirectConsumers": [],
-      "afterSha256": "82a3170e7cc20b82ef944396b69f3f92007029a04db1913b722fc9e2991e7e10"
+      "afterSha256": "9f711b92655fac326d0b821aa3eb172144cc66a6f67c019a1f20a912d14f560f"
+    }
+  ],
+  "approvedAssertionCorrections": [
+    {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs",
+      "method": "SubmodulePathsShouldLiveUnderReferences",
+      "decisionDate": "2026-10-17",
+      "before": "submodulePaths.Length.ShouldBe(10);",
+      "after": "submodulePaths.Length.ShouldBe(12);",
+      "count": 1
     }
   ]
 }

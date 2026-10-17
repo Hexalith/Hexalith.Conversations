@@ -284,7 +284,7 @@ public sealed class ScaffoldSmokeTest
             .Select(line => line["path = ".Length..])
             .Order(StringComparer.Ordinal)];
 
-        submodulePaths.Length.ShouldBe(10);
+        submodulePaths.Length.ShouldBe(12);
         foreach (string submodulePath in submodulePaths)
         {
             submodulePath.ShouldStartWith("references/");

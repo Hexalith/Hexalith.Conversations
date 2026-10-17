@@ -6198,7 +6198,8 @@
         "entrySnapshot",
         "rootGitlinks",
         "readerInventory",
-        "readerBeforeAfter"
+        "readerBeforeAfter",
+        "approvedAssertionCorrections"
       ],
       "properties": {
         "bindingRule": {
@@ -6546,6 +6547,18 @@
               }
             }
           }
+        },
+        "approvedAssertionCorrections": {
+          "const": [
+            {
+              "path": "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs",
+              "method": "SubmodulePathsShouldLiveUnderReferences",
+              "decisionDate": "2026-10-17",
+              "before": "submodulePaths.Length.ShouldBe(10);",
+              "after": "submodulePaths.Length.ShouldBe(12);",
+              "count": 1
+            }
+          ]
         }
       }
     }

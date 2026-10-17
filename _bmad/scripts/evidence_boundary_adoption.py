@@ -17,7 +17,12 @@ CONTRACT = '_bmad-output/planning-artifacts/story-10.4-current-contract-v1.json'
 SPEC = '_bmad-output/implementation-artifacts/spec-10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection.md'
 SNAPSHOT = 'artifacts/v9/10.4/reader-entry-v1.json'
 # Independent consuming-source trust roots, never supplied by the manifest being checked.
-SNAPSHOT_SHA256 = 'b68c800223aa1866ccb0f1918c451a3fafedaa7dfcb93d3798553344bdaf72ad'
+SNAPSHOT_SHA256 = 'a90a2cc9a0fcfdeec6b77a760cbcd68ac7deffb79302273f577bc5eba743265f'
+# The sole owner-approved assertion change is explicit and independent of the snapshot/binding.
+APPROVED_ASSERTION_CORRECTIONS = [dict(
+    path='tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs',
+    method='SubmodulePathsShouldLiveUnderReferences', decisionDate='2026-10-17',
+    before='submodulePaths.Length.ShouldBe(10);', after='submodulePaths.Length.ShouldBe(12);', count=1)]
 PREDECESSOR_SHA256 = '013416c7f819aafcad2528d4b6892a05707b5f3056830ee550f174048a9929d1'
 PREDECESSOR_CANDIDATE = '6908c5264c388cca1b094400c5abfa320482c5e3'
 READERS = '_bmad-output/planning-artifacts/v9/inventories/evidence-readers-v1.json'
@@ -63,7 +68,11 @@ def snapshot(repository):
 
 def reader_checks(repository, result, binding, *, historical=True):
     """Reconstruct the exact approved migration, rather than comparing counts of assertions."""
-    entries = snapshot(repository)['readers']
+    entry_snapshot = snapshot(repository)
+    entries = entry_snapshot['readers']
+    record(result,'readers:approved-correction',SNAPSHOT,
+        entry_snapshot.get('approvedAssertionCorrections')==binding.get('approvedAssertionCorrections')==APPROVED_ASSERTION_CORRECTIONS,
+        'ASSERTION_STRENGTH_WEAKENED')
     inventory = json.loads((repository/READERS).read_bytes())
     expected = [row['path'] for row in inventory['rows']]
     paths = [row['path'] for row in entries]
@@ -87,6 +96,10 @@ def reader_checks(repository, result, binding, *, historical=True):
         for operation in row['substitutions']:
             if text.count(operation['before']) != operation['count']: raise ValueError('ambiguous plumbing substitution')
             text=text.replace(operation['before'],operation['after'])
+        for correction in APPROVED_ASSERTION_CORRECTIONS:
+            if correction['path'] != path: continue
+            if text.count(correction['before']) != correction['count']: raise ValueError('ambiguous approved assertion correction')
+            text=text.replace(correction['before'],correction['after'])
         safe = not historical or not containment[path]['code']
         actual = (repository/path).read_bytes() if safe and (repository/path).is_file() else b''
         migrated = text.replace('\n','\r\n').encode() if row['substitutions'] else original

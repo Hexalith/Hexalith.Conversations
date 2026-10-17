@@ -11768,7 +11768,7 @@ def story104_closed_fixture(generator):
     contract=json.loads((WORKSPACE/adoption.CONTRACT).read_bytes())
     record=json.loads((WORKSPACE/'docs/release-evidence/story-10.3-final-record-v2.json').read_bytes())
     facts={key:deepcopy(binding[key]) for key in ('baseline','provenance','workflowInventory','guidanceInventory',
-        'resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot')}
+        'resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections')}
     paths=contract['finalRecord']['paths'];candidate='a'*40
     receipts=[dict(path=f'artifacts/v9/10.4/AC-10.4-0{n}.'+('trx' if n<6 else 'json' if n==9 else 'xml'),sha256='b'*64)
         for n in (1,2,3,4,5,6,7,9)]
@@ -11808,7 +11808,7 @@ def test_story104_closed_schema_and_deterministic_pair():
     assert b'AC-10.4-09' in m
 
 
-@pytest.mark.parametrize('fault',['unknown-fact','eleven-roots','seven-receipts','reader-omission','missing-AC09','empty-ledger','unrestored'])
+@pytest.mark.parametrize('fault',['unknown-fact','eleven-roots','seven-receipts','reader-omission','missing-AC09','empty-ledger','unrestored','unapproved-correction'])
 def test_story104_pair_rejects_missing_or_drifted_facts(fault):
     generator=load_generator();record=story104_closed_fixture(generator);facts=record['evidenceAdoptionExecution']
     if fault=='unknown-fact':facts['uncheckedAuthority']=True
@@ -11818,6 +11818,7 @@ def test_story104_pair_rejects_missing_or_drifted_facts(fault):
     if fault=='missing-AC09':record['scenarios'].pop()
     if fault=='empty-ledger':record['scenarios'][0]['assertionLedger']=[]
     if fault=='unrestored':facts['mutationLedger'][0]['afterSha256']='c'*64
+    if fault=='unapproved-correction':facts['approvedAssertionCorrections'][0]['after']='submodulePaths.Length.ShouldBe(13);'
     _,validators=generator.v2_load_schemas()
     assert generator.v2_schema_errors(validators['record'],record) or generator.v2_10_4_pair_errors(record)
 

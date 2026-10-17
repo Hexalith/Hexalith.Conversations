@@ -90,7 +90,7 @@
   },
   "entrySnapshot": {
     "path": "artifacts/v9/10.4/reader-entry-v1.json",
-    "sha256": "b68c800223aa1866ccb0f1918c451a3fafedaa7dfcb93d3798553344bdaf72ad"
+    "sha256": "a90a2cc9a0fcfdeec6b77a760cbcd68ac7deffb79302273f577bc5eba743265f"
   },
   "workflowInventory": {
     "id": "STORY-10.4-CURRENT-WORKFLOWS-v1",
@@ -378,5 +378,15 @@
     "tests/Hexalith.Conversations.TestSupport/RepositoryLocator.cs",
     "tests/tooling/test_evidence_boundary_adoption.py",
     "tests/tooling/test_evidence_boundary_current.py"
+  ],
+  "approvedAssertionCorrections": [
+    {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs",
+      "method": "SubmodulePathsShouldLiveUnderReferences",
+      "decisionDate": "2026-10-17",
+      "before": "submodulePaths.Length.ShouldBe(10);",
+      "after": "submodulePaths.Length.ShouldBe(12);",
+      "count": 1
+    }
   ]
 }

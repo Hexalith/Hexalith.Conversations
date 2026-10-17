@@ -182,6 +182,34 @@ def test_adoption_output_hardlink_cannot_overwrite_a_source(adoption_git,monkeyp
     finally:output.unlink()
 
 
+@pytest.mark.parametrize('fault',['none','count','other-assertion','binding','snapshot'])
+def test_approved_assertion_correction_preserves_every_other_entry_byte(tmp_path,monkeypatch,fault):
+    """Only the exact owner-approved count change may differ from the plumbing migration."""
+    binding=json.loads((ROOT/adoption.BINDING).read_bytes());entry=adoption.snapshot(ROOT)
+    historical=json.loads(subprocess.check_output(['git','-C',str(ROOT),'show',
+        '4e937361613c2dba72c46595226219017e6ba524:'+adoption.SNAPSHOT]))
+    assert [(r['path'],r['entryBase64'],r['entrySha256'],r['substitutions']) for r in entry['readers']]==[
+        (r['path'],r['entryBase64'],r['entrySha256'],r['substitutions']) for r in historical['readers']]
+    for row in entry['readers']:
+        path=tmp_path/row['path'];path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes((ROOT/row['path']).read_bytes())
+    for path in (adoption.READERS,):
+        (tmp_path/path).parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/path,tmp_path/path)
+    for project in ('Conformance.Tests','Conformance.Portable.Tests','Contracts.Tests','IntegrationTests'):
+        path=f'tests/Hexalith.Conversations.{project}/Hexalith.Conversations.{project}.csproj'
+        (tmp_path/path).parent.mkdir(parents=True,exist_ok=True)
+        shutil.copy2(ROOT/path,tmp_path/path)
+    path=tmp_path/adoption.APPROVED_ASSERTION_CORRECTIONS[0]['path'];original=path.read_bytes()
+    if fault=='count':path.write_bytes(original.replace(b'ShouldBe(12);',b'ShouldBe(13);'))
+    if fault=='other-assertion':path.write_bytes(original.replace(b'.ShouldBeEmpty();',b'.ShouldNotBeEmpty();',1))
+    if fault=='binding':binding['approvedAssertionCorrections'][0]['count']=2
+    if fault=='snapshot':entry['approvedAssertionCorrections'][0]['after']='submodulePaths.Length.ShouldBe(13);'
+    monkeypatch.setattr(adoption,'snapshot',lambda _:entry)
+    result=current.empty_result('a'*40);adoption.reader_checks(tmp_path,result,binding,historical=False);observed=adoption.finish(result)
+    assert observed['result']==('PASS' if fault=='none' else 'FAIL')
+    assert observed['blockers']==([] if fault=='none' else ['ASSERTION_STRENGTH_WEAKENED'])
+    assert observed['assertionLedger']
+
+
 @pytest.mark.parametrize('fault',['package','project','assembly','publish','pack'])
 def test_neutral_helper_portable_surface_stays_closed(tmp_path,monkeypatch,fault):
     import verify_conformance_tiering as tiering

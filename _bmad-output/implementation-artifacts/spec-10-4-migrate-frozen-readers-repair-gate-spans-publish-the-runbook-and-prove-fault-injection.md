@@ -27,6 +27,8 @@ context:
 
 **Owner decision, 2026-10-16:** Apply the recommended current-policy approach using baseline `1915a47123737859e3ac31872fa787fa8c0bd1e3`. Preserve its twelve gitlinks and reader assertions, all 27 inventory paths, nine AC identities and original provenance. Bind the ten surviving routes and replace AC-09's retired publisher with resolved-guidance verification.
 
+**Owner amendment, 2026-10-17:** The user explicitly approved correcting only `ScaffoldSmokeTest.SubmodulePathsShouldLiveUnderReferences` from `submodulePaths.Length.ShouldBe(10)` to `submodulePaths.Length.ShouldBe(12)`, updating its migration proof, and regenerating final acceptance evidence. The approved baseline already contains twelve root gitlinks. This is the sole authorized exception to assertion-expression preservation: preserve every original entry blob and provenance, all 27 reader identities, all twelve gitlinks, and every other assertion. Represent the exact count correction explicitly in the migration material and update its resulting hashes, binding, and independent consuming-source pins; do not treat it as an unrecorded plumbing change.
+
 ## I/O & Edge-Case Matrix
 
 | Input | Result |
@@ -50,6 +52,7 @@ context:
 
 **Execution:**
 
+- [x] `tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs` and the Story 10.4 migration proof — apply the approved exact 10-to-12 count correction, preserve original before-material, and independently verify that all other assertion bytes remain preserved.
 - [x] `_bmad-output/planning-artifacts/story-10.4-current-{binding,contract}-v1.json` — bind approved scope, immutable before-material, provenance, predecessor, exact source/diff sets and nine scenarios.
 - [x] `tests/Hexalith.Conversations.TestSupport/` and its test project — extend discovery/read seams and table-driven chain validation; test bounded streams, history and containment.
 - [x] Frozen 27 paths and owning test `.csproj` files — replace path/hash/Git wrappers with equivalent shared checks. Collection, live-tenant test and `ContractSamples` need meaningful indirect adoption.
@@ -69,16 +72,22 @@ context:
 ## Implementation Notes
 
 - Entry is bound to `1915a47123737859e3ac31872fa787fa8c0bd1e3`; all twelve raw gitlinks and accepted 10.3 pair/receipts remain untouched.
-- The independently pinned entry snapshot retains all 27 original blobs and exact enumerated plumbing substitutions. Twenty-five readers now call shared discovery/read/hash/Git seams; the unchanged collection and live tenant characterization retain meaningful adoption through their serialized collection and migrated blind-spot evidence owner. ContractSamples supplies repository discovery to the three frozen contract readers without changing sample fixtures.
+- The independently pinned entry snapshot retains all 27 original blobs and exact enumerated plumbing substitutions. The separately named `approvedAssertionCorrections` binds exactly the owner-approved 10-to-12 correction in the snapshot, effective binding, closed final-record facts and independent consuming source. Original assertion strength material still includes `ShouldBe(10)`; the approved correction is never normalized as plumbing. Twenty-five readers now call shared discovery/read/hash/Git seams; the unchanged collection and live tenant characterization retain meaningful adoption through their serialized collection and migrated blind-spot evidence owner. ContractSamples supplies repository discovery to the three frozen contract readers without changing sample fixtures.
 - The effective binding retains original inventory and contract provenance and names all nine ACs. AC-09 uses current resolved-guidance verification. The ten installed workflow bodies and installed defaults remain unchanged.
 - Shared chain validation checks exact ordered nonempty rows and single ordered nonnested markers. Fault fixtures cover all ten named boundary faults, signable/root faults, seven chain variants, reader/helper/inventory/exemption faults, four guidance mutations and exact/displaced evidence and promotion spans. The lifecycle adapter retains successor blocker identities.
 - The closed 10.4 final-record facts bind eight measured receipts including AC-09; AC-08 is derived last. Publication and insertion verification retain the committed source candidate and reject later source or receipt drift.
 
 ## Spec Change Log
 
+- 2026-10-17: User approved the narrow submodule-count amendment after the fresh Debug smoke-method failure confirmed expected 10 versus actual 12 at both baseline and current HEAD. Original entry bytes, inventories, predecessor evidence, and all other assertions remain preserved. Fresh source-bound acceptance measurements and final publication remain required.
+
 ## Review Triage Log
 
 ## Verification
+
+2026-10-17 amendment checks: `python3 -m pytest -q tests/tooling/test_evidence_boundary_adoption.py _bmad/scripts/tests/test_generate_story_record.py -k 'approved_assertion_correction or story104'` passed 15 cases. The explicit correction is independently constrained; unapproved count changes, another changed assertion, correction-metadata drift and closed-record drift turn red. Fresh committed-candidate measurements use a detached local shared clone at `/tmp/story104-approved-laacf8pj/checkout`, with twelve root-declared dependency clones checked out at the superproject's exact pinned commits. Concurrent user dependency checkout changes remain untouched. Isolation commands and source-bound results are retained under `/tmp/story104-approved-*`; no network or nested submodule initialization is used.
+
+2026-10-17 approved-amendment runtime baseline: started the exact Conversations AppHost with `aspire start --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --format Json`, waited using `aspire wait conversations --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --timeout 30`, and inspected `aspire describe --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --format Json` before code changes. All eleven resources were Running/Healthy. The exact AppHost was stopped successfully with `aspire stop --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj`. The initial readiness probe ran before background startup completed and reported no running AppHost; the retry passed. `aspire stop` rejected unsupported `--format Json`; the supported command above succeeded. Sanitized state retained at `/tmp/story104-approved-runtime-summary.json`.
 
 Initial focused commands passed: `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k complete_fault_matrix` (28 cases), `python3 -m pytest -q _bmad/scripts/tests/test_verify_submodule_promotion.py -k evidence_gate_span_coupling` (2 cases), and `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k story104` (9 cases). The eight initial `AdoptionSeamTests` cases also passed and remain covered by the later unfiltered 40-case TestSupport run. These are preliminary checks; final acceptance measurements remain pending the owner amendment below.
 

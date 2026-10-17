@@ -9415,7 +9415,7 @@ def v2_10_4_source_errors(repository,record,consumer_candidate=None):
         binding=v2_parse_json(v2_committed_blob(repository,candidate,V2_10_4_BINDING))
         contract=v2_parse_json(v2_committed_blob(repository,candidate,V2_10_4_CONTRACT))
         if [row['path'] for row in facts['sourceFiles']]!=binding['sourcePaths']:problems.append('source membership differs')
-        for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot'):
+        for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections'):
             if facts[key]!=binding[key]:problems.append('effective binding differs: '+key)
         raw=adoption.current.bridge(repository,dict(baseline=adoption.BASELINE,candidate=candidate,expectedPaths=binding['sourcePaths'],includeRootGitlinks=True,
             blobPaths=[adoption.SNAPSHOT,*adoption.PROVENANCE]))
@@ -9450,7 +9450,8 @@ def v2_10_4_reader_facts(snapshot):
     rows=[]
     for entry in snapshot['readers']:
         original=base64.b64decode(entry['entryBase64']);strength=original.decode().replace('\r\n','\n')
-        # Every non-plumbing byte, including all fixtures and original assertions, remains in this material.
+        # Preserve every original assertion in this strength material. The sole owner-approved
+        # count correction is bound separately and must never be normalized away as plumbing.
         for operation in entry['substitutions']:
             strength=strength.replace(operation['before'],'<plumbing:'+operation['kind']+'>')
         rows.append(dict(path=entry['path'],beforeSha256=entry['entrySha256'],afterSha256=entry['afterSha256'],
@@ -9515,7 +9516,7 @@ def v2_10_4_generate(options,*,candidate=None,verify_spec=None,consumer_candidat
             'scoped-verifier','scoped verifier does not pass: '+', '.join(observed['blockers']))],'10.4')
     scenarios,receipts,mutations=v2_10_4_receipt_facts(repository,contract,candidate,
         (lambda path:v2_committed_blob(repository,consumer_candidate,path)) if consumer_candidate else None)
-    facts={key:binding[key] for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot')}
+    facts={key:binding[key] for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections')}
     facts.update(bindingRule='SC-10.4 is the committed candidate evaluated under the approved current binding',sourceRevisionId=candidate,
         binding=dict(path=V2_10_4_BINDING,sha256=v2_sha256(binding_bytes)),contract=dict(path=V2_10_4_CONTRACT,sha256=v2_sha256(contract_bytes)),
         predecessorPair=dict(json=dict(path=adoption.PROVENANCE[5],sha256=predecessor),markdown=dict(path=adoption.PROVENANCE[6],sha256=v2_sha256(v2_committed_blob(repository,candidate,adoption.PROVENANCE[6])))),
