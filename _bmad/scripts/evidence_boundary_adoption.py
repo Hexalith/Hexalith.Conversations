@@ -266,6 +266,11 @@ def gitlink_checks(result,binding,baseline_roots,candidate_roots,diff):
         and baseline_roots==binding['rootGitlinks'],'EVIDENCE_BOUNDARY_GITLINK')
     record(result,'gitlinks:candidate','nine approved and three unchanged roots',candidate_roots==candidate_gitlinks(baseline_roots),
         'EVIDENCE_BOUNDARY_GITLINK')
+    if all(row['state']=='PASS' for row in result['assertionLedger']):
+        # The inherited schema's `gitlinks` field lists prohibited raw transitions.
+        # The exact approved set remains in changedPaths, these measured assertions,
+        # the independent compiled checker and the closed final-record amendment.
+        result['gitlinks']=[]
 
 
 def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING,verify_workflows=False,check=None):
@@ -372,7 +377,8 @@ def main(arguments=None):
         binding_path=args.current_binding,verify_workflows=args.verify_workflows,check=args.check)
     if args.output:
         try:
-            containment=current.bridge(repository,dict(baseline=BASELINE,candidate=args.candidate,containedPaths=[args.output],includeTreePaths=True))
+            containment=current.bridge(repository,dict(baseline=BASELINE,candidate=args.candidate,containedPaths=[args.output],includeTreePaths=True,
+                story104GitlinkAmendment=APPROVED_GITLINK_AMENDMENT))
             path=containment['containedPaths'][0]
             owned=set(containment['headPaths'])|set(containment['indexPaths'])|set(containment['treePaths'])
             allowed={f'artifacts/v9/10.4/AC-10.4-0{n}.json' for n in (9,)}

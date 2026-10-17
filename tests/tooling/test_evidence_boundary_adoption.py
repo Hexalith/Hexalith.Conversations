@@ -298,7 +298,13 @@ def test_approved_gitlink_amendment_binding_and_candidate_stay_independent(fault
     if fault=='candidate':candidate[1]['commit']='a'*40
     if fault=='unchanged-root':candidate[0]['commit']='a'*40
     if fault=='all-missing':diff=[];candidate=original
-    result=current.empty_result('b'*40);adoption.gitlink_checks(result,binding,original,candidate,diff);observed=adoption.finish(result)
+    result=current.empty_result('b'*40)
+    result['changedPaths']=[row['path'] for row in diff]
+    result['gitlinks']=[{key:row[key] for key in ('path','sourceMode','destinationMode')} for row in diff]
+    adoption.gitlink_checks(result,binding,original,candidate,diff);observed=adoption.finish(result)
+    assert observed['changedPaths']==[row['path'] for row in diff]
+    if fault=='none':assert observed['gitlinks']==[]
+    elif fault!='all-missing':assert observed['gitlinks']==result['gitlinks'] and observed['gitlinks']
     assert observed['result']==('PASS' if fault=='none' else 'FAIL')
     assert observed['blockers']==([] if fault=='none' else ['EVIDENCE_BOUNDARY_GITLINK'])
     assert observed['assertionLedger']
@@ -317,3 +323,49 @@ def test_approved_gitlink_amendment_retains_valid_non_applicable_state(approved_
     assert observed['result']=='not-applicable'
     assert observed['blockers']==[]
     assert observed['warnings']==['EVIDENCE_SCOPE_NOT_APPLICABLE']
+
+
+def test_approved_gitlink_amendment_complete_verifier_preserves_result_schema(tmp_path):
+    """A real committed scope passes the complete verifier/finalizer without changing v1 schema."""
+    root=tmp_path/'repository'
+    pair=ROOT/'docs/release-evidence/story-10.4-final-record-v2.json'
+    # Once published, reconstruct the original source scope rather than following
+    # later receipt/lifecycle commits or unrelated changes on the live branch.
+    source=json.loads(pair.read_bytes())['candidate']['commit'] if pair.is_file() else subprocess.check_output(
+        ['git','-C',str(ROOT),'rev-parse','HEAD'],text=True).strip()
+    subprocess.run(['git','clone','--shared','--no-checkout','--quiet',str(ROOT),str(root)],check=True,capture_output=True)
+    def git(*args):
+        return subprocess.run(['git','-C',str(root),*args],check=True,capture_output=True).stdout.decode().strip()
+    git('checkout','--detach',source)
+    git('config','user.name','Fixture');git('config','user.email','fixture@example.invalid')
+    for path in adoption.APPROVED_SOURCE_PATHS:
+        (root/path).parent.mkdir(parents=True,exist_ok=True)
+        (root/path).write_bytes((ROOT/path).read_bytes())
+    git('add','--force','--',*adoption.APPROVED_SOURCE_PATHS)
+    candidate=git('commit-tree',git('write-tree'),'-p',git('rev-parse','HEAD'),'-m','test: freeze the scoped gitlink fixture')
+    git('update-ref','HEAD',candidate)
+    observed=adoption.verify(root,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+    assert observed['result']=='PASS'
+    assert observed['blockers']==[] and observed['gitlinks']==[]
+    approved={row['path'] for row in adoption.APPROVED_GITLINK_AMENDMENT['transitions']}
+    assert approved.issubset(observed['changedPaths'])
+    assert all(row['state']=='PASS' for row in observed['assertionLedger'])
+    assert {row['id'] for row in observed['assertionLedger'] if row['id'].startswith('gitlinks:')}=={
+        'gitlinks:amendment','gitlinks:transitions','gitlinks:provenance','gitlinks:candidate'}
+    wrong_baseline=git('commit-tree',git('rev-parse',adoption.BASELINE+'^{tree}'),'-p',adoption.BASELINE,
+        '-m','test: freeze the scoped gitlink fixture')
+    wrong=adoption.verify(root,wrong_baseline,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+    assert wrong['result']=='FAIL'
+    assert set(wrong['blockers'])=={'AUTHORITY_BINDING_INVALID','EVIDENCE_BOUNDARY_GITLINK'}
+    assert {row['path'] for row in wrong['gitlinks']}==approved
+    path=root/adoption.BINDING;original=path.read_bytes();binding=json.loads(original)
+    binding['approvedGitlinkAmendment']['transitions'][0]['destinationObject']='a'*40
+    try:
+        path.write_text(json.dumps(binding))
+        invalid=adoption.verify(root,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+        assert invalid['result']=='FAIL'
+        assert set(invalid['blockers'])=={'EVIDENCE_BOUNDARY_GITLINK','EVIDENCE_HASH_MISMATCH'}
+        assert {row['path'] for row in invalid['gitlinks']}==approved
+        assert any(row['state']=='FAIL' for row in invalid['assertionLedger'])
+    finally:path.write_bytes(original)
+    assert hashlib.sha256(path.read_bytes()).digest()==hashlib.sha256(original).digest()
