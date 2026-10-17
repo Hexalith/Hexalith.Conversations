@@ -11875,7 +11875,7 @@ def story104_receipt_repository(tmp_path_factory):
     sprint=repository/generator.V2_7_2_SPRINT_PATH
     sprint.write_bytes(re.sub(rb'(?m)^([ \t]*'+generator.V2_10_4_SPRINT_KEY.encode()+rb': )[a-z-]+$',rb'\g<1>in-progress',sprint.read_bytes()))
     run_git(repository,'add','--force','--',*adoption.APPROVED_SOURCE_PATHS)
-    run_git(repository,'commit','--quiet','-m','test: freeze the story 10.4 lifecycle fixture')
+    run_git(repository,'commit','--quiet','--allow-empty','-m','test: freeze the story 10.4 lifecycle fixture')
     candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
     measured=adoption.verify(repository,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
     assert measured['result']=='PASS',measured['blockers']
