@@ -143,7 +143,7 @@ jobs:
 
       - name: Upload repository tooling evidence
         if: always()
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: repository-tooling-results
           path: |
@@ -186,7 +186,7 @@ jobs:
 
       - name: Upload Admin Web test evidence
         if: always()
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: admin-web-test-results
           path: TestResults/admin-web/*.trx
@@ -273,7 +273,7 @@ jobs:
 
       - name: Upload conformance evidence
         if: always()
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: conformance-test-results
           path: TestResults/conformance/*
