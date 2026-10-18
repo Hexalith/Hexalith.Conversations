@@ -236,6 +236,7 @@ def test_complete_fault_matrix_readers(tmp_path,fault,code,record_property):
 
 def test_adoption_output_hardlink_cannot_overwrite_a_source(adoption_git,monkeypatch,capsys):
     root,before,candidate=adoption_git
+    monkeypatch.setattr(adoption,'BASELINE',before)
     output=root/'artifacts/v9/10.4/AC-10.4-09.json';output.parent.mkdir(parents=True,exist_ok=True)
     source=root/'evidence.txt';original=source.read_bytes()
     output.hardlink_to(source)
@@ -573,3 +574,58 @@ def test_runbook_acceptance_sequence_matches_effective_contract():
     assert text.index(contract['scenarios'][8]['command'])<text.index(contract['scenarios'][7]['command'])
     assert text.index('Publish exactly the eight receipts and pair together')<text.index('--verify-inserted-record')
     assert 'exactly this set' in text and 'byte-for-byte' in text
+
+
+def test_frozen_authority_chain_requires_the_final_document_boundary(adoption_git):
+    root,before,candidate=adoption_git
+    path=root/adoption.AUTHORITY_EPICS;path.parent.mkdir(parents=True,exist_ok=True)
+    original=(ROOT/adoption.AUTHORITY_EPICS).read_bytes();path.write_bytes(original)
+    request=dict(baseline=before,candidate=candidate,authorityChains=[dict(id='actual-frozen-chain',path=adoption.AUTHORITY_EPICS)])
+    try:
+        valid=current.bridge(root,request)
+        assert valid['result']=='PASS' and valid['assertionLedger']
+        path.write_bytes(original+b'after final END\n')
+        invalid=current.bridge(root,request)
+        assert invalid['result']=='FAIL' and invalid['blockers']==['EVIDENCE_CHAIN_MARKER_INVALID']
+        assert invalid['assertionLedger']
+    finally:path.write_bytes(original)
+
+
+@pytest.mark.parametrize('ownership_failure',['history','index'])
+def test_adoption_output_ownership_failure_preserves_receipt(adoption_git,monkeypatch,capsys,ownership_failure):
+    root,before,candidate=adoption_git
+    output=root/'artifacts/v9/10.4/AC-10.4-09.json';output.parent.mkdir(parents=True,exist_ok=True)
+    original=b'owned sentinel receipt\r\n';output.write_bytes(original)
+    result=current.empty_result(candidate);result['assertionLedger']=[dict(id='fixture',subject='fixture',state='PASS')]
+    monkeypatch.setattr(adoption,'verify',lambda *args,**kwargs:adoption.finish(copy.deepcopy(result)))
+    monkeypatch.setattr(adoption,'BASELINE',before if ownership_failure=='index' else 'f'*40)
+    index=root/'.git/index';saved=index.read_bytes()
+    try:
+        if ownership_failure=='index':index.write_bytes(b'invalid index')
+        exit_code=adoption.main(['--repository',str(root),'--candidate',candidate,'--output',output.relative_to(root).as_posix()])
+        observed=json.loads(capsys.readouterr().out)
+        assert exit_code==(2 if ownership_failure=='history' else 1)
+        assert observed['result']==('BLOCKED' if ownership_failure=='history' else 'FAIL')
+        assert observed['blockers']==(['REVISION_INVALID'] if ownership_failure=='history' else ['HELPER_FAILURE'])
+        assert observed['assertionLedger'] and output.read_bytes()==original
+    finally:index.write_bytes(saved);output.unlink()
+
+
+@pytest.mark.parametrize('alias',['gitfile','external-gitdir'])
+def test_adoption_output_git_admin_hardlink_cannot_overwrite(adoption_git,tmp_path,monkeypatch,capsys,alias):
+    root,before,candidate=adoption_git
+    worktree=tmp_path/'worktree'
+    subprocess.run(['git','-C',str(root),'worktree','add','--detach',str(worktree),candidate],check=True,capture_output=True)
+    gitfile=worktree/'.git';admin=Path(gitfile.read_text().strip().removeprefix('gitdir: '))
+    source=gitfile if alias=='gitfile' else admin/'HEAD';original=source.read_bytes()
+    output=worktree/'artifacts/v9/10.4/AC-10.4-09.json';output.parent.mkdir(parents=True);output.hardlink_to(source)
+    result=current.empty_result(candidate);result['assertionLedger']=[dict(id='fixture',subject='fixture',state='PASS')]
+    monkeypatch.setattr(adoption,'verify',lambda *args,**kwargs:adoption.finish(copy.deepcopy(result)))
+    monkeypatch.setattr(adoption,'BASELINE',before)
+    try:
+        assert adoption.main(['--repository',str(worktree),'--candidate',candidate,'--output',output.relative_to(worktree).as_posix()])==1
+        observed=json.loads(capsys.readouterr().out)
+        assert observed['blockers']==['EVIDENCE_OUTPUT_FORBIDDEN']
+        assert source.read_bytes()==original
+    finally:
+        output.unlink();subprocess.run(['git','-C',str(root),'worktree','remove','--force',str(worktree)],check=True,capture_output=True)

@@ -2238,5 +2238,5 @@ _story104_spec = _story103_importlib.spec_from_file_location('story104_adoption_
 _story104_module = _story103_importlib.module_from_spec(_story104_spec)
 _story104_spec.loader.exec_module(_story104_module)
 for _story104_name in dir(_story104_module):
-    if _story104_name.startswith('test_complete_fault_matrix') or _story104_name in ('stamp_adoption_candidate','adoption_surface','adoption_git'):
+    if _story104_name.startswith(('test_complete_fault_matrix','test_adoption_output_','test_frozen_authority_chain_','test_approved_assertion_correction_','test_neutral_helper_portable_surface_')) or _story104_name in ('stamp_adoption_candidate','adoption_surface','adoption_git'):
         globals()[_story104_name] = getattr(_story104_module, _story104_name)

@@ -18,10 +18,13 @@ public static class RepositoryLocator
     }
 
     /// <summary>Resolves an existing evidence read beneath its owning repository.</summary>
-    public static string ContainedFile(string path)
+    public static string ContainedFile(string path) => ContainedFile(path, FindRepositoryRoot());
+
+    /// <summary>Resolves evidence beneath an explicitly supplied owning repository.</summary>
+    public static string ContainedFile(string path, string repositoryRoot)
     {
+        string root = repositoryRoot;
         string full = Path.GetFullPath(path);
-        string root = FindRepositoryRoot();
         GitFact<string> fact = ResolveContainedPath(root, Path.GetRelativePath(root, full).Replace('\\', '/'));
         if (!fact.IsSuccess) throw new IOException(fact.Code + ": " + fact.Message);
         return fact.Value!;
@@ -30,13 +33,24 @@ public static class RepositoryLocator
     /// <summary>Reads contained evidence bytes.</summary>
     public static byte[] ReadAllBytes(string path) => File.ReadAllBytes(ContainedFile(path));
 
+    /// <summary>Reads bytes beneath the explicitly supplied owning repository.</summary>
+    public static byte[] ReadAllBytes(string path, string repositoryRoot) => File.ReadAllBytes(ContainedFile(path, repositoryRoot));
+
     /// <summary>Reads contained evidence text with the caller's original encoding.</summary>
     public static string ReadAllText(string path, System.Text.Encoding? encoding = null)
         => File.ReadAllText(ContainedFile(path), encoding ?? System.Text.Encoding.UTF8);
 
+    /// <summary>Reads text beneath the explicitly supplied owning repository.</summary>
+    public static string ReadAllText(string path, System.Text.Encoding? encoding, string repositoryRoot)
+        => File.ReadAllText(ContainedFile(path, repositoryRoot), encoding ?? System.Text.Encoding.UTF8);
+
     /// <summary>Reads contained evidence lines with the caller's original encoding.</summary>
     public static string[] ReadAllLines(string path, System.Text.Encoding? encoding = null)
         => File.ReadAllLines(ContainedFile(path), encoding ?? System.Text.Encoding.UTF8);
+
+    /// <summary>Reads lines beneath the explicitly supplied owning repository.</summary>
+    public static string[] ReadAllLines(string path, System.Text.Encoding? encoding, string repositoryRoot)
+        => File.ReadAllLines(ContainedFile(path, repositoryRoot), encoding ?? System.Text.Encoding.UTF8);
 
     /// <summary>Resolves a path beneath the exact repository root.</summary>
     /// <param name="root">The repository root.</param>

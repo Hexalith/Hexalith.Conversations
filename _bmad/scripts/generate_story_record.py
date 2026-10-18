@@ -9311,6 +9311,20 @@ V2_10_4_SPEC = '_bmad-output/implementation-artifacts/spec-10-4-migrate-frozen-r
 V2_10_4_SPRINT_KEY = '10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection'
 
 
+def v2_10_4_working_source_matches(repository, candidate, path, working, consumer_candidate=None):
+    """Allow exact sources or checked lifecycle bytes committed by the record consumer."""
+    original = v2_committed_blob(repository, candidate, path)
+    if original is not None and working == original:
+        return True
+    if path == V2_10_4_SPEC:
+        return v2_working_spec_lifecycle_only_change(repository, candidate, path, working,
+            record_region=True, task_checkboxes=True)
+    return (path == V2_7_2_SPRINT_PATH
+        and v2_working_sprint_status_only_change(repository, candidate, V2_10_4_SPRINT_KEY, working)
+        and (consumer_candidate is None or v2_working_sprint_status_only_change(
+            repository, consumer_candidate, V2_10_4_SPRINT_KEY, working)))
+
+
 def v2_10_4_module():
     """Load the scoped sibling route for command-line and path-import consumers."""
     directory = str(Path(__file__).resolve().parent)
@@ -9335,8 +9349,13 @@ def v2_10_4_pair_errors(record):
         if len(facts['receipts'])!=8 or any(row['resultFile']!=receipt or row['outputFiles']!=[receipt]
                 for row,receipt in zip(measured,facts['receipts'])):
             return ['Story 10.4 eight measured receipts differ']
-        if any(row['expectedBlocker'] not in row['observedBlockers'] or row['beforeSha256']!=row['afterSha256']
-                or not row['restored'] or row['result']!='PASS' for row in facts['mutationLedger']):
+        expected_faults=v2_10_4_module().FAULT_EXPECTATIONS
+        if ({row['id'] for row in facts['mutationLedger']}!=set(expected_faults)
+            or len(facts['mutationLedger'])!=len(expected_faults)
+            or any(row['expectedBlocker']!=expected_faults[row['id']]['code']
+                or row['observedBlockers']!=expected_faults[row['id']]['blockers']
+                or row['beforeSha256']!=row['afterSha256'] or not row['restored'] or row['result']!='PASS'
+                for row in facts['mutationLedger'])):
             return ['Story 10.4 measured faults or restoration differ']
         if [row['path'] for row in facts['readerBeforeAfter']]!=facts['readerInventory']['paths']:
             return ['Story 10.4 reader identities differ']
@@ -9394,10 +9413,10 @@ def v2_10_4_assertion_rows(rows, *, passing=False):
             or set(row)!={'id','subject','state'}
             or any(not isinstance(row[key],str) or not row[key].strip() for key in ('id','subject'))
             or row['state'] not in ('PASS','FAIL','SKIPPED') for row in rows)):
-        raise ValueError('a nonempty valid assertion ledger is required')
+        raise ValueError('assertion ledger violates its closed schema')
     identities=[row['id'] for row in rows]
     if len(set(identities))!=len(identities) or not any(row['state'] in ('PASS','FAIL') for row in rows):
-        raise ValueError('assertion identities must be unique and evaluated')
+        raise ValueError('assertion identities must be unique and evaluated (closed schema)')
     if passing and any(row['state']!='PASS' for row in rows):raise ValueError('passing receipts require passing assertions')
     return rows
 
@@ -9460,11 +9479,26 @@ def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
             ledger=[dict(id=f'{identity}#{n+1:04d}',subject=row['id']+'::'+row['subject'],state=row['state'])
                 for n,row in enumerate(observed['assertionLedger'])]
         elif '-trx' in tokens:
-            path=tokens[tokens.index('-trx')+1];content=read(path);parsed=parse_trx(content)
+            path=tokens[tokens.index('-trx')+1];content=read(path)
+            try:parsed=parse_trx(content)
+            except ElementTree.ParseError as error:raise ValueError(identity+' malformed TRX XML') from error
             method=tokens[tokens.index('-method')+1]
             if count_disagreements(parsed) or parsed['reported']!=dict(total=1,executed=1,passed=1,failed=0,skipped=0):
                 raise ValueError(identity+' must measure exactly its named passing xUnit test')
             testcase=parsed['results'][0]
+            root=ElementTree.fromstring(content)
+            definitions=root.findall('./{*}TestDefinitions/{*}UnitTest')
+            result=root.find('./{*}Results/{*}UnitTestResult')
+            if len(definitions)!=1:raise ValueError(identity+' requires exactly one native test definition')
+            definition=definitions[0];methods=definition.findall('./{*}TestMethod');executions=definition.findall('./{*}Execution')
+            assembly=PurePosixPath(tokens[1]).name
+            if (not result.get('testId') or result.get('testId')!=definition.get('id')
+                or not result.get('executionId') or len(executions)!=1 or result.get('executionId')!=executions[0].get('id')
+                or definition.get('name')!=method or len(methods)!=1
+                or methods[0].get('className')!=method.rsplit('.',1)[0] or methods[0].get('name')!=method.rsplit('.',1)[1]
+                or re.split(r'[\\/]',methods[0].get('codeBase',''))[-1]!=assembly
+                or re.split(r'[\\/]',definition.get('storage',''))[-1]!=assembly):
+                raise ValueError(identity+' native assembly or result/definition linkage differs')
             stamps=re.findall(r'(?m)^story104_source_revision=([^\r\n]+)$',testcase['output'])
             revisions=[match.group(1) if (match:=re.fullmatch(r'(?:(?:[0-9]+\.){2}[0-9]+(?:\.[0-9]+)?(?:-[0-9A-Za-z.-]+)?\+)?([0-9a-f]{40})',stamp)) else None for stamp in stamps]
             if testcase['test']!=method or revisions!=[candidate]:
@@ -9472,15 +9506,27 @@ def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
             ledger=[dict(id=identity+'#0001',subject=testcase['test'],state='PASS')]
             # Check() writes the actual shared-helper result into the test receipt.
             lines=testcase['output'].splitlines()
-            observed=next((v2_parse_json(line[line.index('{'):].encode()) for line in lines
-                if '"schemaVersion":"hexalith.conversations.evidence-boundary-result.v1"' in line),None)
+            envelopes=[]
+            for line in lines:
+                if '{' not in line:continue
+                try:envelope=v2_parse_json(line[line.index('{'):].encode())
+                except ValueError:
+                    if 'hexalith.conversations.evidence-boundary-result.v1' in line:
+                        raise ValueError(identity+' malformed helper result envelope') from None
+                    continue
+                if isinstance(envelope,dict) and envelope.get('schemaVersion')=='hexalith.conversations.evidence-boundary-result.v1':
+                    envelopes.append(envelope)
+            if len(envelopes)!=1:raise ValueError(identity+' requires exactly one measured helper result envelope')
+            observed=envelopes[0]
             v2_10_4_helper_result(repository,observed,candidate)
             ledger += [dict(id=f'{identity}#{n+2:04d}',subject=row['id']+'::'+row['subject'],state=row['state'])
                 for n,row in enumerate(observed['assertionLedger'])]
         else:
             command=v2_pytest_command(tokens)
             if command is None:raise ValueError(identity+' unsupported command')
-            path=str(command['junit']);content=read(path);parsed=v2_parse_junit(content)
+            path=str(command['junit']);content=read(path)
+            try:parsed=v2_parse_junit(content)
+            except ElementTree.ParseError as error:raise ValueError(identity+' malformed JUnit XML') from error
             if not parsed['cases'] or any(case['failure'] or case['error'] or case['skipped'] for case in parsed['cases']):
                 raise ValueError(identity+' has failed, skipped or empty tests')
             reported=parsed['reported']
@@ -9495,7 +9541,7 @@ def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
             for n,case in enumerate(parsed['cases']):
                 props=dict(case['properties']);fault=expected_cases[case['name']]
                 if case['classname']!=expected_class or len(props)!=len(case['properties']) or props.get('story104_source_revision')!=candidate:
-                    raise ValueError(identity+' test is not its contracted source-bound identity')
+                    raise ValueError(identity+' exact testcase identities differ')
                 ledger.append(dict(id=f'{identity}#{n+1:04d}',subject=case['name'],state='PASS'))
                 if fault is not None:
                     code=V2_10_4_FAULT_CODES[fault]
@@ -9510,7 +9556,7 @@ def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
                         if (props.get('story104_observed_result'),props.get('story104_observed_exit'))!=expected:
                             raise ValueError(identity+' fault result/exit differs: '+fault)
                     if (not isinstance(blockers,list) or any(not isinstance(item,str) for item in blockers)
-                            or code not in blockers or set(blockers)-(adoption.FAIL_CODES|adoption.current.BLOCKED_CODES)
+                            or blockers!=adoption.FAULT_EXPECTATIONS[fault]['blockers'] or set(blockers)-(adoption.FAIL_CODES|adoption.current.BLOCKED_CODES)
                             or blockers!=sorted(set(blockers)) or before!=after or re.fullmatch(r'[0-9a-f]{64}',before) is None):
                         raise ValueError(identity+' fault observation or restoration differs')
                     if require_fault_state:
@@ -9542,6 +9588,8 @@ def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
     return scenarios,receipts,mutations
 
 
+
+
 def v2_10_4_source_errors(repository,record,consumer_candidate=None):
     """Recompute sources, predecessor, exact Git boundary and committed receipt derivations."""
     adoption = v2_10_4_module()
@@ -9549,11 +9597,17 @@ def v2_10_4_source_errors(repository,record,consumer_candidate=None):
     if problems:return problems
     try:
         facts=record['evidenceAdoptionExecution'];candidate=record['candidate']['commit']
+        for row in facts['receipts']:
+            if v2_sha256(v2_10_1_artifact_bytes(repository,row['path']))!=row['sha256']:
+                problems.append('installed receipt differs: '+row['path'])
+        if problems:return problems
         for row in [facts['binding'],facts['contract'],*facts['sourceFiles'],*facts['provenance']]:
             blob=v2_committed_blob(repository,candidate,row['path'])
             if blob is None or v2_sha256(blob)!=row['sha256']:problems.append('committed source differs: '+row['path'])
         binding=v2_parse_json(v2_committed_blob(repository,candidate,V2_10_4_BINDING))
         contract=v2_parse_json(v2_committed_blob(repository,candidate,V2_10_4_CONTRACT))
+        if binding.get('entrySnapshot')!=dict(path=adoption.SNAPSHOT,sha256=adoption.SNAPSHOT_SHA256):
+            return problems+['entry snapshot declaration differs from independent trust root']
         if [row['path'] for row in facts['sourceFiles']]!=binding['sourcePaths']:problems.append('source membership differs')
         if (binding['sourcePaths']!=list(adoption.APPROVED_SOURCE_PATHS) or binding['expectedChangedPaths']!=sorted(
                 set(adoption.APPROVED_SOURCE_PATHS)|{row['path'] for row in adoption.APPROVED_GITLINK_AMENDMENT['transitions']})):
@@ -9628,7 +9682,7 @@ def v2_10_4_descendant_errors(repository,record,head):
         elif publications==1 and changed and changed.issubset({V2_10_4_SPEC,'_bmad-output/implementation-artifacts/sprint-status.yaml'}):
             if V2_10_4_SPEC in changed and not v2_spec_lifecycle_only_change(repository,parent,commit,V2_10_4_SPEC,record_region=True,task_checkboxes=True):return ['spec source drift after acceptance']
             if '_bmad-output/implementation-artifacts/sprint-status.yaml' in changed and not v2_sprint_status_only_change(repository,parent,commit,
-                    '10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection'):return ['tracking source drift after acceptance']
+                    V2_10_4_SPRINT_KEY):return ['tracking source drift after acceptance']
         else:return ['publication boundary or later source changed']
         parent=commit
     return [] if publications==1 else ['exactly one atomic publication is required']
@@ -9650,11 +9704,8 @@ def v2_10_4_generate(options,*,candidate=None,verify_spec=None,consumer_candidat
         if blob is None:raise ValueError('source unavailable: '+path)
         source_files.append(dict(path=path,sha256=v2_sha256(blob)))
         working=v2_10_1_artifact_bytes(repository,path)
-        valid_spec=path==V2_10_4_SPEC and v2_working_spec_lifecycle_only_change(
-            repository,candidate,path,working,record_region=True,task_checkboxes=True)
-        valid_sprint=verify_spec is not None and path==V2_7_2_SPRINT_PATH and v2_working_sprint_status_only_change(
-            repository,candidate,V2_10_4_SPRINT_KEY,working)
-        if working!=blob and not (valid_spec or valid_sprint):
+        if not v2_10_4_working_source_matches(repository,candidate,path,working,consumer_candidate) or (
+                path==V2_7_2_SPRINT_PATH and working!=blob and verify_spec is None):
             raise ValueError('working source differs: '+path)
     allowed_dirt=set(contract['finalRecord']['paths'])
     for scenario in contract['scenarios']:

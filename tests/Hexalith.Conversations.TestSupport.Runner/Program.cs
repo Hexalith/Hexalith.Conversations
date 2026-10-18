@@ -13,6 +13,23 @@ internal static class Program
     private const string Story103RecordSha256 = "013416c7f819aafcad2528d4b6892a05707b5f3056830ee550f174048a9929d1";
     private const string Story103CandidateCommit = "6908c5264c388cca1b094400c5abfa320482c5e3";
 
+    // Independent consuming-source identities; evidence requests cannot redefine this chain.
+    private static readonly (string MarkerFamily, string Version, string Supersedes)[] FrozenAuthorityChain =
+    [
+        ("EPIC-6-AUTHORITY-OVERLAY", "epic-6-authority-2026-07-15-v2", "epic-6-authority-2026-07-15-v1"),
+        ("EPIC-6-AUTHORITY-OVERLAY-AMENDMENT", "epic-6-authority-2026-07-27-v3", "epic-6-authority-2026-07-15-v2"),
+        ("EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V4", "epic-6-authority-2026-07-28-v4", "epic-6-authority-2026-07-27-v3"),
+        ("EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V5", "epic-6-authority-2026-07-28-v5", "epic-6-authority-2026-07-28-v4"),
+        ("EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6", "epic-6-authority-2026-07-31-v6", "epic-6-authority-2026-07-28-v5"),
+        ("EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V7", "epic-6-authority-2026-08-01-v7", "epic-6-authority-2026-07-31-v6"),
+        ("EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V8", "epic-6-authority-2026-08-01-v8", "epic-6-authority-2026-08-01-v7"),
+        ("EPIC-6-AUTHORITY-OVERLAY-V9", "epic-6-authority-2026-08-02-v9", "epic-6-authority-2026-08-01-v8"),
+        ("EPIC-6-AUTHORITY-OVERLAY-V10", "epic-6-authority-2026-08-03-v10", "epic-6-authority-2026-08-02-v9"),
+        ("EPIC-6-AUTHORITY-OVERLAY-V11", "epic-6-authority-2026-08-04-v11", "epic-6-authority-2026-08-03-v10"),
+        ("EPIC-6-AUTHORITY-OVERLAY-V12", "epic-6-authority-2026-08-04-v12", "epic-6-authority-2026-08-04-v11"),
+        ("EPIC-6-AUTHORITY-OVERLAY-V14", "epic-6-authority-2026-08-18-v14", "epic-6-authority-2026-08-04-v12"),
+    ];
+
     // Independent compiled pins for the sole approved Story 10.4 Git transition set.
     private static readonly (string Path, string Before, string After)[] _story104GitlinkTransitions =
     [
@@ -207,6 +224,24 @@ internal static class Program
                     }
                     if (!strength) ledger.Block("EVIDENCE_READER_STRENGTH_REDUCED", relative, "Assertions or pinned roots were removed or replaced by vacuous assertions.");
                     ledger.Record("reader:strength:" + relative, relative, strength);
+                }
+            }
+            if (input.TryGetProperty("authorityChains", out JsonElement authorityChains))
+            {
+                foreach (JsonElement chain in authorityChains.EnumerateArray())
+                {
+                    string identity = chain.GetProperty("id").GetString()!;
+                    string relative = chain.GetProperty("path").GetString()!;
+                    GitFact<string> contained = RepositoryLocator.ResolveContainedPath(root, relative);
+                    if (!contained.IsSuccess)
+                    {
+                        ledger.Block("EVIDENCE_PATH_ESCAPE", relative, contained.Message!);
+                        ledger.Record(identity + ":containment", relative, false);
+                        continue;
+                    }
+                    ledger.Record(identity + ":containment", relative, true);
+                    BoundaryAssertions.AuthorityChain(ledger, identity,
+                        RepositoryLocator.ReadAllText(contained.Value!, null, root), FrozenAuthorityChain);
                 }
             }
             if (input.TryGetProperty("chains", out JsonElement chains))

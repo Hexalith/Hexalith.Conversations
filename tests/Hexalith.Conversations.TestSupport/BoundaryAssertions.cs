@@ -29,6 +29,64 @@ public static class BoundaryAssertions
         return equal;
     }
 
+    /// <summary>Validates the frozen amendment identities, nonnested append order and final document boundary.</summary>
+    public static bool AuthorityChain(AssertionLedger ledger, string identity, string source,
+        IEnumerable<(string MarkerFamily, string Version, string Supersedes)> expectedRows)
+    {
+        ArgumentNullException.ThrowIfNull(ledger);
+        var expected = expectedRows.ToArray();
+        var markers = System.Text.RegularExpressions.Regex.Matches(source,
+            @"<!-- (?<family>EPIC-6-AUTHORITY-OVERLAY[^:\s]*):(?<kind>BEGIN|END) (?<attributes>[^>]*?) -->").ToArray();
+        bool bounded = true;
+        string? open = null;
+        foreach (var marker in markers)
+        {
+            string family = marker.Groups["family"].Value;
+            if (marker.Groups["kind"].Value == "BEGIN")
+            {
+                if (open is not null) bounded = false;
+                open = family;
+            }
+            else
+            {
+                if (open != family) bounded = false;
+                open = null;
+            }
+        }
+        bounded &= open is null;
+        foreach (var row in expected)
+        {
+            int count = System.Text.RegularExpressions.Regex.Matches(source,
+                "<!-- " + System.Text.RegularExpressions.Regex.Escape(row.MarkerFamily) + ":").Count;
+            bounded &= count is 0 or 2;
+        }
+        if (markers.Length > 0)
+            bounded &= source[(markers[^1].Index + markers[^1].Length)..].Trim().Length == 0;
+        if (!bounded) ledger.Block("EVIDENCE_CHAIN_MARKER_INVALID", identity, "Each family requires one nonnested pair and the final END must end the document.");
+        ledger.Record(identity + ":markers", identity, bounded);
+        if (!bounded) return false;
+        bool equal = expected.Length > 0 && expected.Select(row => row.MarkerFamily).Distinct(StringComparer.Ordinal).Count() == expected.Length
+            && markers.Length == expected.Length * 2;
+        for (int index = 0; index < expected.Length; index++)
+        {
+            var row = expected[index];
+            if (index > 0) equal &= row.Supersedes == expected[index - 1].Version;
+            if (index * 2 + 1 >= markers.Length) { equal = false; continue; }
+            var begin = markers[index * 2];
+            var end = markers[index * 2 + 1];
+            string[] beginAttributes = begin.Groups["attributes"].Value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            string[] endAttributes = end.Groups["attributes"].Value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            equal &= begin.Groups["family"].Value == row.MarkerFamily && end.Groups["family"].Value == row.MarkerFamily
+                && begin.Groups["kind"].Value == "BEGIN" && end.Groups["kind"].Value == "END"
+                && beginAttributes.Where(value => value.StartsWith("version=", StringComparison.Ordinal)).SequenceEqual(["version=" + row.Version])
+                && beginAttributes.Where(value => value.StartsWith("supersedes=", StringComparison.Ordinal)).SequenceEqual(["supersedes=" + row.Supersedes])
+                && endAttributes.Where(value => value.StartsWith("version=", StringComparison.Ordinal)).SequenceEqual(["version=" + row.Version]);
+        }
+        if (!equal) ledger.Block("EVIDENCE_CHAIN_TABLE_INVALID", identity, "The ordered markerFamily/version/supersedes identities must equal the independently frozen chain.");
+        ledger.Record(identity + ":rows", identity, equal);
+        return equal;
+    }
+
     /// <summary>Records whether an expected value equals an observed value.</summary>
     public static bool Equal<T>(AssertionLedger ledger, string identity, T expected, T observed)
     {

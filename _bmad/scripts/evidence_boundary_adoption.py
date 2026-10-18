@@ -97,6 +97,7 @@ PREDECESSOR_SHA256 = '013416c7f819aafcad2528d4b6892a05707b5f3056830ee550f174048a
 PREDECESSOR_CANDIDATE = '6908c5264c388cca1b094400c5abfa320482c5e3'
 READERS = '_bmad-output/planning-artifacts/v9/inventories/evidence-readers-v1.json'
 RUNBOOK = 'docs/runbooks/evidence-boundary-validation.md'
+AUTHORITY_EPICS = '_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md'
 GUIDANCE = (*current.GUIDANCE, RUNBOOK)
 WORKFLOWS = current.WORKFLOWS
 PROVENANCE = (READERS, '_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json',
@@ -116,6 +117,80 @@ GUIDANCE_CLAUSE = ('Use the canonical evidence-boundary runbook for explicitly r
     'recomputed hashes, contained paths, canonical signable payload, exact changed-path equality, raw-mode gitlink exclusion, '
     'exact inventory identity, root-of-trust pinning, and anti-vacuity. Invoke the effective scoped verifier; '
     'preserve PASS/FAIL/BLOCKED/not-applicable distinctly. FAIL and BLOCKED halt review and completion.')
+
+
+# Consuming-source receipt contracts, independent of properties in measured XML.
+FAULT_EXPECTATIONS = {'HASH': {'code': 'EVIDENCE_HASH_MISMATCH', 'blockers': ['EVIDENCE_HASH_MISMATCH']},
+ 'PATH_ESCAPE': {'code': 'EVIDENCE_PATH_ESCAPE', 'blockers': ['EVIDENCE_PATH_ESCAPE']},
+ 'GENERATED_OUTPUT': {'code': 'EVIDENCE_OUTPUT_FORBIDDEN', 'blockers': ['EVIDENCE_OUTPUT_FORBIDDEN']},
+ 'SUBSET': {'code': 'CHANGED_PATH_SET_MISMATCH', 'blockers': ['CHANGED_PATH_SET_MISMATCH']},
+ 'SIGNED_ALLOWLIST': {'code': 'SIGNED_EVIDENCE_ALLOWLISTED', 'blockers': ['SIGNED_EVIDENCE_ALLOWLISTED']},
+ 'SIGNABLE': {'code': 'SIGNABLE_PAYLOAD_MISMATCH', 'blockers': ['SIGNABLE_PAYLOAD_MISMATCH']},
+ 'ROOT': {'code': 'ROOT_OF_TRUST_NOT_PINNED', 'blockers': ['ROOT_OF_TRUST_NOT_PINNED']},
+ 'GIT_UNAVAILABLE': {'code': 'GIT_UNAVAILABLE', 'blockers': ['GIT_UNAVAILABLE']},
+ 'HISTORY_UNAVAILABLE': {'code': 'REVISION_INVALID', 'blockers': ['REVISION_INVALID']},
+ 'GITLINK': {'code': 'EVIDENCE_BOUNDARY_GITLINK', 'blockers': ['EVIDENCE_BOUNDARY_GITLINK']},
+ 'CHAIN_CHANGED': {'code': 'EVIDENCE_CHAIN_TABLE_INVALID', 'blockers': ['EVIDENCE_CHAIN_TABLE_INVALID']},
+ 'CHAIN_MISSING': {'code': 'EVIDENCE_CHAIN_TABLE_INVALID', 'blockers': ['EVIDENCE_CHAIN_TABLE_INVALID']},
+ 'CHAIN_REORDERED': {'code': 'EVIDENCE_CHAIN_TABLE_INVALID', 'blockers': ['EVIDENCE_CHAIN_TABLE_INVALID']},
+ 'CHAIN_NESTED': {'code': 'EVIDENCE_CHAIN_MARKER_INVALID', 'blockers': ['EVIDENCE_CHAIN_MARKER_INVALID']},
+ 'CHAIN_DUPLICATE': {'code': 'EVIDENCE_CHAIN_MARKER_INVALID', 'blockers': ['EVIDENCE_CHAIN_MARKER_INVALID']},
+ 'CHAIN_UNTERMINATED': {'code': 'EVIDENCE_CHAIN_MARKER_INVALID',
+                        'blockers': ['EVIDENCE_CHAIN_MARKER_INVALID']},
+ 'CHAIN_DUPLICATE_ROW': {'code': 'EVIDENCE_CHAIN_TABLE_INVALID',
+                         'blockers': ['EVIDENCE_CHAIN_TABLE_INVALID']},
+ 'WORKFLOW_REMOVED': {'code': 'EVIDENCE_GATE_NOT_USED',
+                      'blockers': ['EVIDENCE_GATE_NOT_USED', 'EVIDENCE_WORKFLOW_PARITY_DRIFT']},
+ 'MARKER_MALFORMED': {'code': 'EVIDENCE_GATE_NOT_USED',
+                      'blockers': ['EVIDENCE_GATE_NOT_USED', 'EVIDENCE_WORKFLOW_PARITY_DRIFT']},
+ 'SPAN_DISPLACED': {'code': 'EVIDENCE_GATE_DISPLACED',
+                    'blockers': ['EVIDENCE_GATE_DISPLACED', 'EVIDENCE_WORKFLOW_PARITY_DRIFT']},
+ 'GUIDANCE_REMOVED': {'code': 'EVIDENCE_GUIDANCE_NOT_USED',
+                      'blockers': ['EVIDENCE_GUIDANCE_DRIFT', 'EVIDENCE_GUIDANCE_NOT_USED']},
+ 'GUIDANCE_EQUALITY': {'code': 'EVIDENCE_GUIDANCE_DRIFT',
+                       'blockers': ['EVIDENCE_GUIDANCE_DRIFT', 'EVIDENCE_GUIDANCE_NOT_USED']},
+ 'GUIDANCE_DECLARED_HASH': {'code': 'EVIDENCE_GUIDANCE_DRIFT',
+                            'blockers': ['EVIDENCE_GUIDANCE_DRIFT', 'EVIDENCE_GUIDANCE_NOT_USED']},
+ 'GUIDANCE_REDIRECT': {'code': 'EVIDENCE_GUIDANCE_DRIFT',
+                       'blockers': ['EVIDENCE_GUIDANCE_DRIFT', 'EVIDENCE_GUIDANCE_NOT_USED']},
+ 'READER_STRENGTH': {'code': 'ASSERTION_STRENGTH_WEAKENED', 'blockers': ['ASSERTION_STRENGTH_WEAKENED']},
+ 'READER_HELPER': {'code': 'EVIDENCE_HELPER_NOT_USED',
+                   'blockers': ['ASSERTION_STRENGTH_WEAKENED', 'EVIDENCE_HELPER_NOT_USED']},
+ 'EXEMPTION': {'code': 'DAY_ONE_EXEMPTION_FORBIDDEN', 'blockers': ['DAY_ONE_EXEMPTION_FORBIDDEN']},
+ 'READER_INVENTORY': {'code': 'EVIDENCE_READER_INVENTORY_DRIFT',
+                      'blockers': ['EVIDENCE_READER_INVENTORY_DRIFT']},
+ 'PROMOTION_SPAN_DISPLACED': {'code': 'PROMOTION_GATE_SPAN_WEAKENED',
+                              'blockers': ['PROMOTION_GATE_SPAN_WEAKENED']}}
+FAULT_TESTCASES = {'test_complete_fault_matrix_integrity[HASH-EVIDENCE_HASH_MISMATCH]': 'HASH',
+ 'test_complete_fault_matrix_integrity[PATH_ESCAPE-EVIDENCE_PATH_ESCAPE]': 'PATH_ESCAPE',
+ 'test_complete_fault_matrix_integrity[GENERATED_OUTPUT-EVIDENCE_OUTPUT_FORBIDDEN]': 'GENERATED_OUTPUT',
+ 'test_complete_fault_matrix_integrity[SUBSET-CHANGED_PATH_SET_MISMATCH]': 'SUBSET',
+ 'test_complete_fault_matrix_integrity[SIGNED_ALLOWLIST-SIGNED_EVIDENCE_ALLOWLISTED]': 'SIGNED_ALLOWLIST',
+ 'test_complete_fault_matrix_integrity[SIGNABLE-SIGNABLE_PAYLOAD_MISMATCH]': 'SIGNABLE',
+ 'test_complete_fault_matrix_integrity[ROOT-ROOT_OF_TRUST_NOT_PINNED]': 'ROOT',
+ 'test_complete_fault_matrix_integrity[GIT_UNAVAILABLE-GIT_UNAVAILABLE]': 'GIT_UNAVAILABLE',
+ 'test_complete_fault_matrix_integrity[HISTORY_UNAVAILABLE-REVISION_INVALID]': 'HISTORY_UNAVAILABLE',
+ 'test_complete_fault_matrix_integrity[GITLINK-EVIDENCE_BOUNDARY_GITLINK]': 'GITLINK',
+ 'test_complete_fault_matrix_chain[CHAIN_CHANGED-EVIDENCE_CHAIN_TABLE_INVALID]': 'CHAIN_CHANGED',
+ 'test_complete_fault_matrix_chain[CHAIN_MISSING-EVIDENCE_CHAIN_TABLE_INVALID]': 'CHAIN_MISSING',
+ 'test_complete_fault_matrix_chain[CHAIN_REORDERED-EVIDENCE_CHAIN_TABLE_INVALID]': 'CHAIN_REORDERED',
+ 'test_complete_fault_matrix_chain[CHAIN_NESTED-EVIDENCE_CHAIN_MARKER_INVALID]': 'CHAIN_NESTED',
+ 'test_complete_fault_matrix_chain[CHAIN_DUPLICATE-EVIDENCE_CHAIN_MARKER_INVALID]': 'CHAIN_DUPLICATE',
+ 'test_complete_fault_matrix_chain[CHAIN_UNTERMINATED-EVIDENCE_CHAIN_MARKER_INVALID]': 'CHAIN_UNTERMINATED',
+ 'test_complete_fault_matrix_chain[CHAIN_DUPLICATE_ROW-EVIDENCE_CHAIN_TABLE_INVALID]': 'CHAIN_DUPLICATE_ROW',
+ 'test_complete_fault_matrix_workflow[WORKFLOW_REMOVED-EVIDENCE_GATE_NOT_USED]': 'WORKFLOW_REMOVED',
+ 'test_complete_fault_matrix_workflow[MARKER_MALFORMED-EVIDENCE_GATE_NOT_USED]': 'MARKER_MALFORMED',
+ 'test_complete_fault_matrix_workflow[SPAN_DISPLACED-EVIDENCE_GATE_DISPLACED]': 'SPAN_DISPLACED',
+ 'test_complete_fault_matrix_guidance[GUIDANCE_REMOVED-EVIDENCE_GUIDANCE_NOT_USED]': 'GUIDANCE_REMOVED',
+ 'test_complete_fault_matrix_guidance[GUIDANCE_EQUALITY-EVIDENCE_GUIDANCE_DRIFT]': 'GUIDANCE_EQUALITY',
+ 'test_complete_fault_matrix_guidance[GUIDANCE_DECLARED_HASH-EVIDENCE_GUIDANCE_DRIFT]': 'GUIDANCE_DECLARED_HASH',
+ 'test_complete_fault_matrix_guidance[GUIDANCE_REDIRECT-EVIDENCE_GUIDANCE_DRIFT]': 'GUIDANCE_REDIRECT',
+ 'test_complete_fault_matrix_readers[READER_STRENGTH-ASSERTION_STRENGTH_WEAKENED]': 'READER_STRENGTH',
+ 'test_complete_fault_matrix_readers[READER_HELPER-EVIDENCE_HELPER_NOT_USED]': 'READER_HELPER',
+ 'test_complete_fault_matrix_readers[EXEMPTION-DAY_ONE_EXEMPTION_FORBIDDEN]': 'EXEMPTION',
+ 'test_complete_fault_matrix_readers[READER_INVENTORY-EVIDENCE_READER_INVENTORY_DRIFT]': 'READER_INVENTORY'}
+PROMOTION_TESTCASES = {'test_evidence_gate_span_coupling[exact-span]': None,
+ 'test_evidence_gate_span_coupling[displaced-span]': 'PROMOTION_SPAN_DISPLACED'}
 
 
 def record(result, identity, subject, passed, code):
@@ -236,6 +311,14 @@ def guidance_checks(repository,result,binding):
             and current.digest(path.read_bytes())==row['sha256'],'EVIDENCE_GUIDANCE_DRIFT')
 
 
+def authority_chain_checks(repository, result, baseline, candidate):
+    """Evaluate the preserved authority document against consuming-source chain identities."""
+    facts=current.bridge(repository,dict(baseline=baseline,candidate=candidate,
+        story104GitlinkAmendment=APPROVED_GITLINK_AMENDMENT,
+        authorityChains=[dict(id='frozen-authority-chain',path=AUTHORITY_EPICS)]))
+    merge(result,facts,'chain:')
+
+
 def merge(result,facts,prefix=''):
     result['assertionLedger'].extend(dict(row,id=prefix+row['id']) for row in facts['assertionLedger'])
     result['blockers'].extend(code if code in STABLE_CODES else 'SCOPE_NOT_EVALUATED' if code=='ASSERTION_LEDGER_EMPTY' else 'HELPER_FAILURE'
@@ -283,6 +366,8 @@ def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING
         if any(row['code'] for row in initial['containedPaths']):return finish(result)
         binding=json.loads((repository/binding_path).read_bytes())
         record(result,'binding:baseline',binding_path,baseline==binding['baseline']==BASELINE and binding['storyId']=='10.4','AUTHORITY_BINDING_INVALID')
+        record(result,'binding:entry-snapshot',binding_path,
+            binding.get('entrySnapshot')==dict(path=SNAPSHOT,sha256=SNAPSHOT_SHA256),'ROOT_OF_TRUST_NOT_PINNED')
         entries=initial['diff'] or []; paths=sorted({entry['path'] for entry in entries}|{entry['sourcePath'] for entry in entries if entry['sourcePath']})
         result['changedPaths']=paths
         result['gitlinks']=[dict(path=row['path'],sourceMode=row['sourceMode'],destinationMode=row['destinationMode'])
@@ -313,8 +398,10 @@ def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING
         import generate_story_record as generator
         # Publication adds only the bound receipt/pair set and checked lifecycle changes.
         pair=repository/'docs/release-evidence/story-10.4-final-record-v2.json'
+        consumer_candidate=None
         if pair.is_file():
             published=json.loads(pair.read_bytes());source=published['candidate']['commit']
+            consumer_candidate=generator.resolve_commit(repository,'HEAD','CANDIDATE_UNRESOLVABLE')
             if source != initial['candidate']:
                 problems=generator.v2_10_4_source_errors(repository,published,initial['candidate'])
                 problems+=generator.v2_10_4_descendant_errors(repository,published,initial['candidate'])
@@ -324,7 +411,7 @@ def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING
         facts=current.bridge(repository,dict(baseline=baseline,candidate=initial['candidate'],expectedPaths=expected,
             roots=ROOTS,manifest=manifest,signablePayloadHash=current.digest(payload.encode()),
             story104GitlinkAmendment=APPROVED_GITLINK_AMENDMENT,
-            blobPaths=list(dict.fromkeys([row['path'] for row in manifest]+binding['sourcePaths'])),containedPaths=binding['sourcePaths']))
+            blobPaths=list(dict.fromkeys([row['path'] for row in manifest]+binding['sourcePaths']+[AUTHORITY_EPICS])),containedPaths=binding['sourcePaths']+[AUTHORITY_EPICS]))
         merge(result,facts,'boundary:');result['manifest']=manifest
         declared={row['path']:row['sha256'] for row in manifest}
         contained={row['path']:row for row in facts['containedPaths']}
@@ -335,11 +422,10 @@ def verify(repository,baseline,candidate,*,authority_bundle,binding_path=BINDING
             else:
                 item=contained[path];target=Path(item['fullPath']) if item['fullPath'] else None
                 valid=not item['code'] and target is not None and target.is_file() and current.digest(target.read_bytes())==row['sha256']
-                if not valid and path==SPEC and pair.is_file() and target is not None and target.is_file():
-                    valid=generator.v2_working_spec_lifecycle_only_change(repository,initial['candidate'],path,target.read_bytes(),record_region=True,task_checkboxes=True)
-                if not valid and path==generator.V2_7_2_SPRINT_PATH and pair.is_file() and target is not None and target.is_file():
-                    valid=generator.v2_working_sprint_status_only_change(repository,initial['candidate'],generator.V2_10_4_SPRINT_KEY,target.read_bytes())
+                if not valid and pair.is_file() and target is not None and target.is_file():
+                    valid=generator.v2_10_4_working_source_matches(repository,initial['candidate'],path,target.read_bytes(),consumer_candidate)
             record(result,'candidate:blob:'+path,path,valid,'EVIDENCE_HASH_MISMATCH')
+        authority_chain_checks(repository,result,baseline,initial['candidate'])
         if check in (None,'readers','projection','exemptions'):reader_checks(repository,result,binding)
         if check in (None,'guidance','runbook'):guidance_checks(repository,result,binding)
         if verify_workflows or check is None:
@@ -381,13 +467,19 @@ def main(arguments=None):
         try:
             containment=current.bridge(repository,dict(baseline=BASELINE,candidate=result['candidate'] or args.candidate,containedPaths=[args.output],includeTreePaths=True,
                 story104GitlinkAmendment=APPROVED_GITLINK_AMENDMENT))
+            if containment['result']=='BLOCKED':
+                merge(result,containment,'output:ownership:')
+                result=finish(result)
+                current.write_stdout(current.canonical(result)+b'\n')
+                return {'PASS':0,'FAIL':1,'BLOCKED':2,'not-applicable':0}[result['result']]
             required_ownership={'output:tree','output:head','output:head-tree','output:index','output:index-completed'}
             ownership=[row for row in containment.get('assertionLedger',[]) if row['id']=='output:tree'
                 or row['id'].startswith(('output:head','output:index'))]
             evaluated={row['id'] for row in ownership}
             if evaluated!=required_ownership or len(ownership)!=len(required_ownership) or any(row['state']!='PASS' for row in ownership):
                 fallback='HELPER_UNAVAILABLE' if required_ownership-evaluated or any(row['state']=='SKIPPED' for row in ownership) else 'HELPER_FAILURE'
-                raise RuntimeError(next((code for code in containment.get('blockers',[]) if code in STABLE_CODES),fallback))
+                raise RuntimeError('HELPER_FAILURE' if 'HELPER_FAILURE' in containment.get('blockers',[]) else
+                    next((code for code in containment.get('blockers',[]) if code in STABLE_CODES),fallback))
             path=containment['containedPaths'][0]
             owned=set(containment['headPaths'])|set(containment['indexPaths'])|set(containment['treePaths'])
             allowed={f'artifacts/v9/10.4/AC-10.4-0{n}.json' for n in (9,)}
@@ -396,7 +488,7 @@ def main(arguments=None):
             protected|={entry.relative_to(repository).as_posix() for entry in (repository/'.git').rglob('*') if entry.is_file()}
             collision=target is not None and target.exists() and any((repository/item).is_file()
                 and target.samefile(repository/item) for item in protected)
-            safe=not path['code'] and args.output in allowed and args.output not in owned and not collision
+            safe=not path['code'] and args.output in allowed and args.output not in owned and not collision and (target is None or not target.exists() or target.stat().st_nlink==1)
             record(result,'output:contained',args.output,safe,'EVIDENCE_OUTPUT_FORBIDDEN')
             result=finish(result,result['result']!='not-applicable')
             if safe:

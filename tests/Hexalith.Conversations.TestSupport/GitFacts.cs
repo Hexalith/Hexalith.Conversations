@@ -48,7 +48,20 @@ public sealed class GitFacts
     }
 
     /// <summary>Captures command completion with both streams drained concurrently and a 30-second maximum. A successful capture may have a nonzero exit code; callers must check <see cref="GitCommandResult.ExitCode"/> before treating its output as a Git fact.</summary>
-    public async Task<GitFact<GitCommandResult>> RunAsync(string repository, IEnumerable<string> arguments, CancellationToken cancellationToken = default, TimeSpan? timeout = null)
+    public Task<GitFact<GitCommandResult>> RunAsync(string repository, IEnumerable<string> arguments, CancellationToken cancellationToken = default, TimeSpan? timeout = null)
+        => RunProcessAsync(repository, arguments, cancellationToken, timeout, CommandLimit);
+
+    /// <summary>Runs a non-Git orchestration through the same bounded capture and cancellation machinery.</summary>
+    public Task<GitFact<GitCommandResult>> RunOrchestrationAsync(string repository, IEnumerable<string> arguments,
+        CancellationToken cancellationToken = default, TimeSpan? timeout = null)
+    {
+        if (_includeGitPreamble || Path.GetFileNameWithoutExtension(_gitExecutable).Equals("git", StringComparison.OrdinalIgnoreCase))
+            return Task.FromResult(GitFact<GitCommandResult>.Fail(GitFactStatus.Invalid, "GIT_TIMEOUT_INVALID", "Git operations retain their 30-second maximum."));
+        return RunProcessAsync(repository, arguments, cancellationToken, timeout, TimeSpan.FromMinutes(20));
+    }
+
+    private async Task<GitFact<GitCommandResult>> RunProcessAsync(string repository, IEnumerable<string> arguments,
+        CancellationToken cancellationToken, TimeSpan? timeout, TimeSpan maximum)
     {
         if (arguments is null)
         {
@@ -65,9 +78,9 @@ public sealed class GitFacts
             return GitFact<GitCommandResult>.Fail(GitFactStatus.Cancelled, "GIT_CANCELLED", "The caller cancelled execution.");
         }
 
-        if (timeout.HasValue && (timeout.Value <= TimeSpan.Zero || timeout.Value > CommandLimit))
+        if (timeout.HasValue && (timeout.Value <= TimeSpan.Zero || timeout.Value > maximum))
         {
-            return GitFact<GitCommandResult>.Fail(GitFactStatus.Invalid, "GIT_TIMEOUT_INVALID", "The timeout must be positive and at most 30 seconds.");
+            return GitFact<GitCommandResult>.Fail(GitFactStatus.Invalid, "GIT_TIMEOUT_INVALID", "The timeout must be positive and within the explicit process budget.");
         }
 
         if (repository is not null && repository.Contains('\0'))
@@ -144,7 +157,7 @@ public sealed class GitFacts
         {
             // Start can be delayed by an executable fixture. One deadline covers startup and
             // execution; cleanup uses separate bounded waits. Kill late starts after a timeout.
-            using CancellationTokenSource limit = new(timeout ?? CommandLimit);
+            using CancellationTokenSource limit = new(timeout ?? maximum);
             using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, limit.Token);
             Task<Process?> startup = Task.Run(() => Process.Start(start));
             Process process;

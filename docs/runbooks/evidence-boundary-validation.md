@@ -90,64 +90,111 @@ when validation fails.
 
 ### Story 10.4 acceptance commands
 
-Freeze the reviewed source in a commit before measuring. Validate its exact
-Conventional Commit message with the pinned commitlint CLI, commit the sources,
-and require a clean source tree. Record `git rev-parse HEAD` as SC-10.4. Build the
-affected projects in Debug at that commit before invoking their built xUnit
-assemblies. Keep the source unchanged through all eight measurements; each
-receipt must name that exact source candidate. The effective contract binds all
-nine AC identities and summary `9/9/0/0/0/0`.
+Measure only a clean, committed source candidate. The effective contract binds all
+nine AC identities and summary `9/9/0/0/0/0`. Accepted receipts and final records
+are immutable. If any receipt or pair path is already tracked, stop and create a
+fresh source attempt under an explicitly approved scope; never overwrite accepted
+evidence. In particular, do not rerun the writing commands in a published checkout.
 
-Run these eight measurements, including the contracted AC-09 `--verify-workflows`:
+1. Finish the sources, validate their exact commit message with the pinned CLI,
+   commit them, and record the full source identifier. Create a separate local
+   measurement checkout at that identifier. Keep the source checkout unchanged.
 
 ```bash
+source_checkout="$(pwd)"
+source_revision="$(git rev-parse HEAD)"
+git diff --exit-code HEAD --
+measurement_checkout="$(mktemp -d /tmp/story104-measurement-XXXXXX)/checkout"
+git clone --shared --no-checkout "$source_checkout" "$measurement_checkout"
+git -C "$measurement_checkout" checkout --detach "$source_revision"
+```
+
+Populate only root-declared dependencies at their pinned commits. Existing local
+root dependency clones can be shared into the measurement checkout without
+network access or nested initialization. For each root `.gitmodules` path, clone
+`$source_checkout/<path>` with `git clone --shared --no-checkout`, then check out
+the exact `git ls-tree "$source_revision" -- <path>` object. Never initialize or
+update a dependency's nested submodules. Run the following commands from the
+measurement checkout, using its pinned SDK and commitlint installation.
+
+2. Build all six affected projects in Debug, then execute the five exact native
+   AC commands from the committed contract. Their native receipts must identify
+   exactly one passing test and the complete source revision. The Python verifier
+   orchestration uses an explicit 20-minute bound; each Git process retains its
+   separate 30-second maximum, helper builds retain 120 seconds, and helper runs
+   retain 60 seconds. Output capture and caller cancellation stay bounded.
+
+```bash
+for project in TestSupport.Tests TestSupport.Runner Conformance.Portable.Tests Conformance.Tests Contracts.Tests IntegrationTests; do
+  dotnet build "tests/Hexalith.Conversations.$project/Hexalith.Conversations.$project.csproj" --configuration Debug --nologo -m:1 -p:NuGetAudit=false -p:MinVerVersionOverride=1.0.0 || exit
+done
 dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.ReaderInventoryShouldMatchFrozenSet -trx artifacts/v9/10.4/AC-10.4-01.trx
 dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.MigrationsShouldUseHelperAtEqualStrength -trx artifacts/v9/10.4/AC-10.4-02.trx
 dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.DayOneExemptionInventoryShouldBeEmpty -trx artifacts/v9/10.4/AC-10.4-03.trx
 dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.KnownGitDefectsShouldBeClosedWithoutChangingProjectionProof -trx artifacts/v9/10.4/AC-10.4-04.trx
 dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.RunbookShouldDocumentTheExactContract -trx artifacts/v9/10.4/AC-10.4-05.trx
+```
+
+3. Run the broad current native lanes: unfiltered TestSupport and Contracts,
+   Integration `ScaffoldSmokeTest`, and both conformance tiers with exactly the
+   exclusions in `.github/workflows/ci.yml`. Use their Debug assemblies with
+   `-automated sync -failSkips -parallel none` and write broad-lane TRX files under
+   `/tmp`, separate from the five exact acceptance receipts. Then run the complete
+   current Python lane, the two measured fault/span selectors and AC-09 in order.
+   The fault selector mutates the actual frozen authority document, whose
+   independently pinned `(markerFamily, version, supersedes)` chain runs V2–V12
+   then V14; each family occurs twice, blocks never nest, and V14 ends the document.
+
+```bash
+python3 -m pytest -q -ra -p no:cacheprovider _bmad/scripts/tests tests/tooling/test_evidence_boundary_current.py --ignore=_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py --junitxml=/tmp/story104-current-ci-lane.xml
 python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k complete_fault_matrix --junitxml=artifacts/v9/10.4/AC-10.4-06.xml
 python3 -m pytest -q _bmad/scripts/tests/test_verify_submodule_promotion.py -k evidence_gate_span_coupling --junitxml=artifacts/v9/10.4/AC-10.4-07.xml
 python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.4-current-binding-v1.json --baseline 1915a47123737859e3ac31872fa787fa8c0bd1e3 --candidate HEAD --verify-workflows --format json --output artifacts/v9/10.4/AC-10.4-09.json
 ```
 
-Generate the JSON/Markdown pair from those measured receipts:
+AC-09 verifies resolved guidance through the current verifier. Its output writer
+requires successful ownership and containment facts and rejects source or Git
+administration hardlink aliases. `FAIL` or `BLOCKED` ownership never writes a
+receipt. Require success after each command before running the next command.
 
-```bash
-python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/story-10.4-current-contract-v1.json --format bundle --output-json docs/release-evidence/story-10.4-final-record-v2.json --output-markdown docs/release-evidence/story-10.4-final-record-v2.md
-```
-
-Publish exactly the eight receipts and pair together in one atomic commit.
-Stage only these ten files, confirm `git diff --cached --name-only` contains
-exactly this set, validate the exact publication commit message with pinned
-commitlint, and commit the set before insertion verification:
-
-```bash
-git add --force -- docs/release-evidence/story-10.4-final-record-v2.json docs/release-evidence/story-10.4-final-record-v2.md artifacts/v9/10.4/AC-10.4-01.trx artifacts/v9/10.4/AC-10.4-02.trx artifacts/v9/10.4/AC-10.4-03.trx artifacts/v9/10.4/AC-10.4-04.trx artifacts/v9/10.4/AC-10.4-05.trx artifacts/v9/10.4/AC-10.4-06.xml artifacts/v9/10.4/AC-10.4-07.xml artifacts/v9/10.4/AC-10.4-09.json
-git diff --cached --name-only
-```
-
-Insert the generated Markdown byte-for-byte between the spec's
-`<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->` markers.
-Run insertion verification below, then commit only the verified insertion and
-permitted task/lifecycle edits using a validated commit message. Repeat the same
-verification after that commit. Never edit generated Markdown to make it pass.
-
-```bash
-python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/story-10.4-current-contract-v1.json --verify-inserted-record _bmad-output/implementation-artifacts/spec-10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection.md
-```
-
-Run both independent Story 7.3 guards and the final scoped verifier. The final
-verifier has no `--output`: the measured AC-09 receipt is now committed evidence.
+4. Run the independent Story 7.3 guards and scoped workflow verifier before
+   publication. The 7.3 outputs are untracked operational receipts and do not join
+   the 10.4 publication.
 
 ```bash
 python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-01 --output artifacts/v9/7.3/AC-7.3-01.json
 python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-02 --output artifacts/v9/7.3/AC-7.3-02.json
 python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.4-current-binding-v1.json --baseline 1915a47123737859e3ac31872fa787fa8c0bd1e3 --candidate HEAD --verify-workflows --format json
+python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/story-10.4-current-contract-v1.json --format bundle --output-json docs/release-evidence/story-10.4-final-record-v2.json --output-markdown docs/release-evidence/story-10.4-final-record-v2.md
 ```
 
-AC-09 verifies resolved guidance through the current verifier; it does not invoke
-the retired authority publisher.
+Re-run generation before committing and compare both output byte sequences for
+exact equality. AC-08 is derived last from the eight measured receipts, exact
+fault identities and blocker sets, candidate, predecessor and closed facts.
+Publish exactly the eight receipts and pair together in one
+atomic publication commit, after validating its full message with
+`node_modules/.bin/commitlint --config commitlint.config.mjs --edit <message-file>`.
+The receipt paths are ignored build outputs, so stage exactly the eight contracted
+paths with `git add --force -- <eight-receipt-paths> <json-pair-path> <markdown-pair-path>`.
+Confirm the staged paths contain exactly this set. Do not add source changes or
+the untracked 7.3 operational outputs to that commit.
+
+5. Insert the published Markdown byte-for-byte between the spec's single
+   `<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->` lines,
+   with LF after each marker. Do not re-render or hand-edit the inserted record.
+   Before any lifecycle commit, run:
+
+```bash
+python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/story-10.4-current-contract-v1.json --verify-inserted-record _bmad-output/implementation-artifacts/spec-10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection.md
+```
+
+Only after insertion passes, make the permitted spec status/task updates and its
+single owned sprint transition. Validate the lifecycle message, then commit only
+the spec and owned sprint file. Re-run both Story 7.3 guards, the scoped verifier
+and insertion verification against that lifecycle commit. Record full source,
+publication and lifecycle commit IDs and retain distinct logs. Any later source
+change requires fresh source-bound measurements and a new approved publication;
+these commands do not authorize replacing accepted evidence or pushing.
 
 Migration defects are `EVIDENCE_READER_INVENTORY_DRIFT`, `EVIDENCE_HELPER_NOT_USED`,
 `ASSERTION_STRENGTH_WEAKENED`, `DAY_ONE_EXEMPTION_FORBIDDEN`, and
