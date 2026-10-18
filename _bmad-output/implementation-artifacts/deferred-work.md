@@ -579,3 +579,13 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance.md`
   summary: Harden Story 11.1 record route and guidance tooling (receipts bound to candidate identity, atomic JSON/MD writes, cross-binding recompute in pair verification, 6.2 disposition content check, duplicated inventories across generator/bundle/template/C#, load-bearing marker notes).
   evidence: Review layers raised these as plausible hardening; none breaks a spec acceptance criterion, and fixes add public surface or schema changes beyond the approved scope.
+
+## Deferred from: code review of spec-11-1 (2026-10-18)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance.md`
+  summary: Story 11.1 receipts are bound to the candidate only by mtime and name (medium, unverified end to end).
+  evidence: Receipts such as `AC-11.1-05.json` carry only `{result: PASS}`; TRX identity uses `endswith`; `v2_11_1_pair_errors` does not cross-compare receipt, guidance and scenario digests; the mutation ledger sets `detected` and `restored` to True from `FAULT_EXPECTATIONS`, not from the JUnit. A stale receipt with a newer mtime would be accepted. Settle by embedding the candidate and bundle digests in each receipt and recomputing them in pair verification.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance.md`
+  summary: Prohibition and ownership validation reads only the three marked tables of the authoring template (medium, owner-accepted for Checkpoint A).
+  evidence: Prose in the checklist, authoring sequence and description columns can reintroduce module-owned ServiceDefaults or Aspire guidance without failing the generator. The C# test only checks a few strings. Settle with a scoped prose scan only if a real regression appears; reason for deferring: natural-language matching is brittle and the reviewer decision gates the template.
