@@ -10005,13 +10005,78 @@ def v2_11_1_generate(options, *, candidate=None, read_receipt=None, verify_only=
     return j
 
 
+V2_11_1_SPEC = '_bmad-output/implementation-artifacts/spec-11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance.md'
+V2_11_1_SPRINT_KEY = '11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance'
+V2_SPRINT_PATH = '_bmad-output/implementation-artifacts/sprint-status.yaml'
+
+
+def v2_11_1_descendant_errors(repository, record, head):
+    """Require one atomic receipt/pair publication followed only by lifecycle edits."""
+    candidate = record['candidate']['commit']; parent = candidate; publications = 0
+    publication = {record['outputs'][kind]['path'] for kind in ('json', 'markdown')} | {
+        row['path'] for row in record['thinGuidanceExecution']['receipts']}
+    if run_git(repository, 'rev-parse', '--verify', candidate).returncode:
+        return ['source candidate is unresolvable']
+    if run_git(repository, 'merge-base', '--is-ancestor', candidate, head, allowed_returncodes=(0, 1)).returncode:
+        return ['source candidate is not an ancestor']
+    for commit in decode(run_git(repository, 'rev-list', '--reverse', f'{candidate}..{head}').stdout).split():
+        if decode(run_git(repository, 'rev-list', '--parents', '-n', '1', commit).stdout).split()[1:] != [parent]:
+            return ['history is not a direct single-parent continuation']
+        changed = set(decode(run_git(repository, 'diff-tree', '--no-commit-id', '--name-only', '-r', '--no-renames', parent, commit).stdout).split('\n')) - {''}
+        if changed == publication and publications == 0:
+            for row in record['thinGuidanceExecution']['receipts']:
+                blob = v2_committed_blob(repository, commit, row['path'])
+                if blob is None or v2_sha256(blob) != row['sha256']: return ['published receipt differs']
+            j, m = (v2_committed_blob(repository, commit, record['outputs'][kind]['path']) for kind in ('json', 'markdown'))
+            if j is None or m is None or v2_verify_pair(j, m) or v2_parse_json(j) != record: return ['published pair differs']
+            publications += 1
+        elif publications == 1 and changed and changed <= {V2_11_1_SPEC, V2_SPRINT_PATH}:
+            if V2_11_1_SPEC in changed and not v2_spec_lifecycle_only_change(
+                    repository, parent, commit, V2_11_1_SPEC, record_region=True, task_checkboxes=True):
+                return ['spec source drift after acceptance']
+            if V2_SPRINT_PATH in changed and not v2_sprint_status_only_change(repository, parent, commit, V2_11_1_SPRINT_KEY):
+                return ['tracking source drift after acceptance']
+        else:
+            return ['publication boundary or later source changed']
+        parent = commit
+    return [] if publications == 1 else ['exactly one atomic publication is required']
+
+
+def v2_11_1_verify_inserted(options):
+    """Verify the committed 11.1 pair, its single publication, and the verbatim inserted region."""
+    try:
+        repository = validate_repository(Path(options.get('--repository') or default_repository()))
+        head = resolve_commit(repository, 'HEAD', 'CANDIDATE_UNRESOLVABLE')
+        paths = ('docs/release-evidence/story-11.1-final-record-v2.json', 'docs/release-evidence/story-11.1-final-record-v2.md')
+        j, m = (v2_committed_blob(repository, head, path) for path in paths)
+        if j is None or m is None: raise ValueError('pair must be committed before insertion verification')
+        record = v2_parse_json(j); _, validators = v2_load_schemas()
+        problems = (v2_schema_errors(validators['record'], record) + v2_verify_pair(j, m)
+                    + v2_11_1_descendant_errors(repository, record, head))
+        if problems: raise ValueError('; '.join(problems))
+        if options[V2_VERIFY_OPTION] != V2_11_1_SPEC: raise ValueError('designated 11.1 spec required')
+        spec = (repository / V2_11_1_SPEC).read_bytes(); region = v2_record_region(spec)
+        if region is None or spec[region[0]:region[1]] != m: raise ValueError('verbatim inserted region differs')
+        if not v2_working_spec_lifecycle_only_change(repository, head, V2_11_1_SPEC, spec, record_region=True, task_checkboxes=True):
+            raise ValueError('working spec changes source')
+        if not v2_working_sprint_status_only_change(repository, head, V2_11_1_SPRINT_KEY, v2_10_1_artifact_bytes(repository, V2_SPRINT_PATH)):
+            raise ValueError('working sprint changes source')
+        for path, content in zip(paths, (j, m)):
+            if (repository / path).read_bytes() != content: raise ValueError('installed pair differs')
+        return j
+    except ValueError as error:
+        raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT', '11.1', str(error))], '11.1') from None
+
+
 def v2_main(raw_arguments: Sequence[str]) -> int:
     """Run the v2 route: exit 0 PASS, 1 FAIL, 2 BLOCKED; stdout is always schema-valid."""
     story_id: str | None = None
     try:
         options = v2_parse_arguments(raw_arguments)
         if V2_VERIFY_OPTION in options:
-            if options.get("--contract") == V2_10_4_CONTRACT:
+            if options.get("--contract") == V2_11_1_CONTRACT:
+                json_bytes = v2_11_1_verify_inserted(options)
+            elif options.get("--contract") == V2_10_4_CONTRACT:
                 json_bytes = v2_10_4_verify_inserted(options)
             else:
                 json_bytes = (v2_10_3_verify_inserted(options) if options.get("--contract") == V2_10_3_CONTRACT
