@@ -12863,3 +12863,352 @@ def test_story_111_verify_inserted_rejects_boundary_and_region_violations(story1
     expected = {"later-source-commit": "publication boundary", "second-publication": "publication boundary",
                 "region-drift": "verbatim inserted region differs"}[variant]
     assert expected in stop.value.findings[0]["message"]
+
+
+# ---------------------------------------------------------------------------
+# Story 11.2 closed route (Checkpoint B minimal-module fixture)
+# ---------------------------------------------------------------------------
+
+STORY_112_FIXTURE_ROOT = "tests/fixtures/Hexalith.Conversations.MinimalModule"
+STORY_112_OVERLAY = (
+    "docs/release-evidence/thin-module-fixture-proof-v1.schema.json",
+    "_bmad/schemas/story-final-record-v2.schema.json",
+    "_bmad/scripts/generate_story_record.py",
+    "_bmad/scripts/verify_minimal_module_fixture.py",
+    "_bmad/scripts/generate_minimal_module_fixture_proof.py",
+    "_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md",
+)
+STORY_112_TESTS = (
+    "Registration_ExposesTheModuleHandlersThroughThePlatformHost",
+    "CommandHandling_ProducesTheCreatedEventAndIsIdempotentAfterReplay",
+    "SubscriptionAndPublication_AreServedByPlatformOwnedEndpointsOnly",
+    "PublishedEvent_IsConsumedThroughThePlatformProcessor",
+    "Projection_IsDispatchedByThePlatformDispatcher",
+    "Query_IsDispatchedByThePlatformDispatcher",
+)
+
+
+def story112_trx(names=STORY_112_TESTS, method_class="Hexalith.Conversations.MinimalModule.Tests.MinimalModuleFixtureTests") -> bytes:
+    rows = "".join(f'<UnitTestResult testName="{method_class}.{name}" outcome="Passed"/>' for name in names)
+    return (
+        '<?xml version="1.0" encoding="utf-8"?>'
+        f'<TestRun xmlns="{TRX_NAMESPACE}"><Results>{rows}</Results>'
+        f'<ResultSummary outcome="Completed"><Counters total="{len(names)}" executed="{len(names)}" '
+        f'passed="{len(names)}" failed="0"/></ResultSummary></TestRun>'
+    ).encode()
+
+
+def story112_apphost_trx() -> bytes:
+    return story112_trx(
+        ("MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary",),
+        "Ns.DomainModuleAuthoringTemplateValidationTest")
+
+
+@pytest.fixture(scope="module")
+def story112_fixture(tmp_path_factory):
+    generator = load_generator()
+    verifier, proof = generator.v2_11_2_module()
+    root = tmp_path_factory.mktemp("story112")
+    repository = root / "repository"
+    run_git(root, "clone", "--quiet", "--shared", "--no-checkout", str(WORKSPACE), str(repository))
+    run_git(repository, "checkout", "--detach", "HEAD")
+    fixture_paths = [f"{STORY_112_FIXTURE_ROOT}/{item}" for item in verifier.fixture_files(WORKSPACE / STORY_112_FIXTURE_ROOT)]
+    for relative in (*STORY_112_OVERLAY, *fixture_paths):
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((WORKSPACE / relative).read_bytes())
+    run_git(repository, "add", "--force", "--", ".")
+    run_git(repository, "commit", "--quiet", "-m", "test: story 11.2 candidate fixture")
+    # Generated, untracked inputs: platform project files, build outputs and the measured result.
+    graph = verifier.graph_facts(repository, STORY_112_FIXTURE_ROOT)["projects"]
+    names = set()
+    for closure in proof.resolve_platform_closure(WORKSPACE, STORY_112_FIXTURE_ROOT, graph):
+        target = repository / closure
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((WORKSPACE / closure).read_bytes())
+        names.add(Path(closure).stem)
+    tests_bin = repository / STORY_112_FIXTURE_ROOT / "tests/Hexalith.Conversations.MinimalModule.Tests" / proof.OUTPUT_DIRECTORY
+    tests_bin.mkdir(parents=True, exist_ok=True)
+    for name in sorted(names):
+        (tests_bin / f"{name}.dll").write_bytes(f"platform assembly {name}".encode())
+    for relative in verifier.EXPECTED_PROJECTS:
+        directory = repository / STORY_112_FIXTURE_ROOT / Path(relative).parent / proof.OUTPUT_DIRECTORY
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / f"{Path(relative).stem}.dll").write_bytes(f"fixture assembly {relative}".encode())
+    trx = story112_trx()
+    (repository / verifier.TEST_RESULT_PATH).parent.mkdir(parents=True, exist_ok=True)
+    (repository / verifier.TEST_RESULT_PATH).write_bytes(trx)
+    assert proof.main([
+        "--repository", str(repository), "--contract", verifier.CONTRACT_PATH, "--fixture", verifier.FIXTURE_ROOT,
+        "--test-result", verifier.TEST_RESULT_PATH, "--output-json", verifier.PROOF_JSON_PATH,
+        "--output-markdown", verifier.PROOF_MARKDOWN_PATH]) == 0
+    contract = generator.v2_parse_json((repository / generator.V2_11_2_CONTRACT).read_bytes())
+    receipts = {
+        "artifacts/v9/11.2/AC-11.2-01.json": (json.dumps(
+            dict(schemaVersion=verifier.RESULT_SCHEMA, result="PASS", blockers=[],
+                 inventorySha256=verifier.INVENTORY_SHA256, fixtureFileCount=13), indent=2) + "\n").encode(),
+        verifier.TEST_RESULT_PATH: trx,
+        "artifacts/v9/11.2/AC-11.2-05.trx": story112_apphost_trx(),
+        "artifacts/v9/11.2/AC-11.2-07.xml": (
+            "<testsuites><testsuite>"
+            + "".join(f'<testcase name="test_checkpoint_b_fault_matrix[{fault}]"/>' for fault in verifier.FAULT_EXPECTATIONS)
+            + "</testsuite></testsuites>").encode(),
+    }
+    options = {
+        "--repository": str(repository), "--contract": generator.V2_11_2_CONTRACT, "--format": "bundle",
+        "--output-json": contract["finalRecord"]["paths"][0], "--output-markdown": contract["finalRecord"]["paths"][1],
+    }
+    return generator, verifier, repository, options, receipts
+
+
+def test_story_112_route_derives_the_closed_pass_record(story112_fixture):
+    generator, verifier, repository, options, receipts = story112_fixture
+    first = generator.v2_11_2_generate(options, read_receipt=receipts.get)
+    second = generator.v2_11_2_generate(options, read_receipt=receipts.get)
+    assert first == second
+    record = generator.v2_parse_json(first)
+    assert record["storyId"] == "11.2" and record["predecessors"] == ["11.1"]
+    assert record["summary"] == dict(required=8, passed=8, failed=0, blocked=0, skipped=0, notRun=0)
+    assert [row["scenarioId"] for row in record["scenarios"]] == list(generator.V2_11_2_SCENARIOS)
+    facts = record["fixtureProofExecution"]
+    assert [row["id"] for row in facts["mutationLedger"]] == list(verifier.FAULT_EXPECTATIONS)
+    assert facts["fixture"]["inventorySha256"] == verifier.INVENTORY_SHA256 and facts["fixture"]["fileCount"] == 13
+    assert facts["predecessor"]["storyId"] == "11.1"
+    _, validators = generator.v2_load_schemas()
+    assert generator.v2_schema_errors(validators["record"], record) == []
+    pair = (repository / options["--output-json"], repository / options["--output-markdown"])
+    assert generator.v2_verify_pair(pair[0].read_bytes(), pair[1].read_bytes()) == []
+    assert b"AC-11.2-01" in pair[1].read_bytes() and b"Minimal-module fixture proof" in pair[1].read_bytes()
+
+
+@pytest.mark.parametrize("missing", [
+    "artifacts/v9/11.2/AC-11.2-01.json", "artifacts/v9/11.2/minimal-module.trx",
+    "artifacts/v9/11.2/AC-11.2-05.trx", "artifacts/v9/11.2/AC-11.2-07.xml"])
+def test_story_112_route_rejects_a_missing_receipt(story112_fixture, missing):
+    generator, _, _, options, receipts = story112_fixture
+    remaining = {path: content for path, content in receipts.items() if path != missing}
+    with pytest.raises(ValueError):
+        generator.v2_11_2_generate(options, read_receipt=remaining.get)
+
+
+def test_story_112_route_rejects_an_open_fault_matrix_and_a_failed_inventory_receipt(story112_fixture):
+    generator, _, _, options, receipts = story112_fixture
+    path = "artifacts/v9/11.2/AC-11.2-07.xml"
+    shortened = dict(receipts)
+    shortened[path] = receipts[path].replace(b'<testcase name="test_checkpoint_b_fault_matrix[proof-json-edited]"/>', b"")
+    with pytest.raises(ValueError):
+        generator.v2_11_2_generate(options, read_receipt=shortened.get)
+    failing = dict(receipts)
+    failing[path] = receipts[path].replace(b'[proof-json-edited]"/>', b'[proof-json-edited]"><failure/></testcase>')
+    with pytest.raises(ValueError):
+        generator.v2_11_2_generate(options, read_receipt=failing.get)
+    wrong = dict(receipts)
+    wrong["artifacts/v9/11.2/AC-11.2-01.json"] = b'{"result":"FAIL"}'
+    with pytest.raises(ValueError):
+        generator.v2_11_2_generate(options, read_receipt=wrong.get)
+
+
+@pytest.mark.parametrize("variant", ["zero-tests", "skipped", "failed", "missing-capability", "broken-xml"])
+def test_story_112_test_receipt_must_be_non_vacuous(story112_fixture, variant):
+    generator, _, _, options, receipts = story112_fixture
+    path = "artifacts/v9/11.2/minimal-module.trx"
+    good = receipts[path].decode()
+    bad = {
+        "zero-tests": story112_trx(()).decode(),
+        "skipped": good.replace('outcome="Passed"', 'outcome="NotExecuted"', 1),
+        "failed": good.replace('outcome="Passed"', 'outcome="Failed"', 1),
+        "missing-capability": story112_trx(STORY_112_TESTS[:-1]).decode(),
+        "broken-xml": "<TestRun",
+    }[variant]
+    assert bad != good
+    with pytest.raises(ValueError):
+        generator.v2_11_2_generate(options, read_receipt={**receipts, path: bad.encode()}.get)
+
+
+@pytest.mark.parametrize("variant", ["wrong-method", "failed", "two-results", "broken-xml"])
+def test_story_112_apphost_receipt_must_be_one_passing_target_test(story112_fixture, variant):
+    generator, _, _, options, receipts = story112_fixture
+    path = "artifacts/v9/11.2/AC-11.2-05.trx"
+    good = receipts[path].decode()
+    result = good[good.index("<UnitTestResult"):good.index("</Results>")]
+    bad = {
+        "wrong-method": good.replace("MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary", "SomeOtherTest"),
+        "failed": good.replace('outcome="Passed"', 'outcome="Failed"').replace('passed="1" failed="0"', 'passed="0" failed="1"'),
+        "two-results": good.replace(result, result + result).replace('total="1" executed="1" passed="1"', 'total="2" executed="2" passed="2"'),
+        "broken-xml": "<TestRun",
+    }[variant]
+    assert bad != good
+    with pytest.raises(ValueError):
+        generator.v2_11_2_generate(options, read_receipt={**receipts, path: bad.encode()}.get)
+
+
+def test_story_112_proof_drift_in_the_worktree_is_rejected(story112_fixture):
+    generator, verifier, repository, options, receipts = story112_fixture
+    target = repository / verifier.PROOF_MARKDOWN_PATH
+    original = target.read_bytes()
+    try:
+        target.write_bytes(original.replace(b"# Thin-Module", b"# Edited Thin-Module"))
+        with pytest.raises(ValueError, match="fixture proof does not verify"):
+            generator.v2_11_2_generate(options, read_receipt=receipts.get)
+    finally:
+        target.write_bytes(original)
+    stale = {**receipts, verifier.TEST_RESULT_PATH: receipts[verifier.TEST_RESULT_PATH] + b"<!-- changed -->\n"}
+    (repository / verifier.TEST_RESULT_PATH).write_bytes(stale[verifier.TEST_RESULT_PATH])
+    try:
+        with pytest.raises(ValueError):
+            generator.v2_11_2_generate(options, read_receipt=stale.get)
+    finally:
+        (repository / verifier.TEST_RESULT_PATH).write_bytes(receipts[verifier.TEST_RESULT_PATH])
+
+
+def test_story_112_pair_errors_reject_open_summary_unbound_proof_and_open_ledger(story112_fixture):
+    generator, _, _, options, receipts = story112_fixture
+    record = generator.v2_parse_json(generator.v2_11_2_generate(options, read_receipt=receipts.get))
+    assert generator.v2_11_2_pair_errors(record) == []
+    for mutate in (
+        lambda r: r["summary"].update(passed=7, notRun=1),
+        lambda r: r["fixtureProofExecution"]["mutationLedger"].pop(),
+        lambda r: r["fixtureProofExecution"]["mutationLedger"][0].update(restored=False),
+        lambda r: r["fixtureProofExecution"]["receipts"].pop(),
+        lambda r: r["fixtureProofExecution"]["proof"].update(jsonSha256="1" * 64),
+        lambda r: r["fixtureProofExecution"].update(sourceRevisionId="2" * 40),
+        lambda r: r["fixtureProofExecution"]["fixture"].update(inventorySha256="3" * 64),
+    ):
+        mutated = deepcopy(record)
+        mutate(mutated)
+        assert generator.v2_11_2_pair_errors(mutated)
+    _, validators = generator.v2_load_schemas()
+    without = deepcopy(record)
+    without.pop("fixtureProofExecution")
+    assert generator.v2_schema_errors(validators["record"], without)
+    other = deepcopy(record)
+    other["storyId"] = "11.1"
+    assert generator.v2_schema_errors(validators["record"], other)
+
+
+def story112_write_receipts(repository, receipts):
+    for relative, content in receipts.items():
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+
+
+def story112_cleanup(repository, options, receipts, keep=()):
+    for relative in (*(path for path in receipts if path not in keep), options["--output-json"], options["--output-markdown"]):
+        target = repository / relative
+        if target.is_symlink() or target.exists():
+            target.unlink()
+
+
+def test_story_112_disk_receipts_must_be_fresh_regular_files(story112_fixture):
+    generator, verifier, repository, options, receipts = story112_fixture
+    try:
+        story112_write_receipts(repository, receipts)
+        assert generator.v2_parse_json(generator.v2_11_2_generate(options))["storyId"] == "11.2"
+        stale = repository / "artifacts/v9/11.2/AC-11.2-01.json"
+        os.utime(stale, (1, 1))
+        with pytest.raises(ValueError, match="older than the candidate"):
+            generator.v2_11_2_generate(options)
+        with pytest.raises(generator.V2Stop) as stop:
+            generator.v2_generate(options)
+        assert [item["code"] for item in stop.value.findings] == ["RECORD_NOT_DERIVED"]
+        stale.unlink()
+        stale.symlink_to(repository / "artifacts/v9/11.2/AC-11.2-05.trx")
+        with pytest.raises(ValueError, match="receipt missing"):
+            generator.v2_11_2_generate(options)
+    finally:
+        story112_cleanup(repository, options, receipts, keep=(verifier.TEST_RESULT_PATH,))
+        (repository / verifier.TEST_RESULT_PATH).write_bytes(receipts[verifier.TEST_RESULT_PATH])
+
+
+def test_story_112_v2_generate_dispatches_and_derives(story112_fixture):
+    generator, verifier, repository, options, receipts = story112_fixture
+    try:
+        story112_write_receipts(repository, receipts)
+        derived = generator.v2_generate(options)
+        assert generator.v2_parse_json(derived)["storyId"] == "11.2"
+        assert (repository / options["--output-json"]).read_bytes() == derived
+    finally:
+        story112_cleanup(repository, options, receipts, keep=(verifier.TEST_RESULT_PATH,))
+
+
+@pytest.mark.parametrize("path", [
+    "docs/release-evidence/story-11.1-final-record-v2.json",
+    "docs/release-evidence/story-11.1-final-record-v2.md",
+    "docs/release-evidence/thin-authoring-guidance-v2.json",
+])
+def test_story_112_predecessor_alteration_is_rejected(story112_fixture, tmp_path, path):
+    generator, verifier, repository, options, receipts = story112_fixture
+    clone = tmp_path / "altered"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    for relative in (verifier.TEST_RESULT_PATH, verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH):
+        (clone / relative).parent.mkdir(parents=True, exist_ok=True)
+        (clone / relative).write_bytes((repository / relative).read_bytes())
+    with (clone / path).open("ab") as handle:
+        handle.write(b"\n")
+    run_git(clone, "add", "--", path)
+    run_git(clone, "commit", "--quiet", "-m", "test: alter a committed predecessor")
+    with pytest.raises((ValueError, verifier.Blocked)):
+        generator.v2_11_2_generate({**options, "--repository": str(clone)}, read_receipt=receipts.get)
+
+
+def story112_published(story112_fixture, tmp_path):
+    """Clone the candidate, publish proof pair, receipts and record pair as one commit, return the clone."""
+    generator, verifier, repository, options, receipts = story112_fixture
+    clone = tmp_path / "published"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    published = (*receipts, options["--output-json"], options["--output-markdown"], verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH)
+    story112_write_receipts(clone, receipts)
+    for relative in (verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH):
+        (clone / relative).write_bytes((repository / relative).read_bytes())
+    local = {**options, "--repository": str(clone)}
+    derived = generator.v2_11_2_generate(local)
+    run_git(clone, "add", "--force", "--", *published)
+    run_git(clone, "commit", "--quiet", "-m", "test: story 11.2 record publication")
+    markdown = (clone / options["--output-markdown"]).read_bytes()
+    return generator, clone, {**local, generator.V2_VERIFY_OPTION: generator.V2_11_2_SPEC}, derived, markdown
+
+
+def story112_insert_region(generator, clone, markdown):
+    spec = clone / generator.V2_11_2_SPEC
+    content = spec.read_bytes()
+    region = generator.v2_record_region(content)
+    if region is None:
+        content += b"\n" + generator.RECORD_BEGIN_MARKER.encode("ascii") + b"\n" + markdown + generator.RECORD_END_MARKER.encode("ascii") + b"\n"
+    else:
+        content = content[:region[0]] + markdown + content[region[1]:]
+    spec.write_bytes(content)
+    return spec
+
+
+def test_story_112_verify_inserted_accepts_one_publication_with_a_verbatim_region(story112_fixture, tmp_path):
+    generator, clone, options, derived, markdown = story112_published(story112_fixture, tmp_path)
+    story112_insert_region(generator, clone, markdown)
+    try:
+        result = generator.v2_11_2_verify_inserted(options)
+    except generator.V2Stop as stop:
+        pytest.fail(str(stop.findings))
+    assert result == derived
+
+
+@pytest.mark.parametrize("variant", ["later-source-commit", "second-publication", "region-drift"])
+def test_story_112_verify_inserted_rejects_boundary_and_region_violations(story112_fixture, tmp_path, variant):
+    generator, clone, options, _, markdown = story112_published(story112_fixture, tmp_path)
+    if variant == "later-source-commit":
+        (clone / "stray.txt").write_text("source change after publication\n", encoding="utf-8")
+        run_git(clone, "add", "--", "stray.txt")
+        run_git(clone, "commit", "--quiet", "-m", "test: source change after publication")
+    elif variant == "second-publication":
+        receipt = clone / "artifacts/v9/11.2/AC-11.2-01.json"
+        receipt.write_bytes(receipt.read_bytes() + b"\n")
+        run_git(clone, "add", "--force", "--", "artifacts/v9/11.2/AC-11.2-01.json")
+        run_git(clone, "commit", "--quiet", "-m", "test: second publication")
+    spec = story112_insert_region(generator, clone, markdown + b"drift\n" if variant == "region-drift" else markdown)
+    if variant == "region-drift":
+        assert spec.read_bytes().count(b"drift\n") == 1
+    with pytest.raises(generator.V2Stop) as stop:
+        generator.v2_11_2_verify_inserted(options)
+    assert [item["code"] for item in stop.value.findings] == ["RECORD_CONTENT_DRIFT"]
+    expected = {"later-source-commit": "publication boundary", "second-publication": "publication boundary",
+                "region-drift": "verbatim inserted region differs"}[variant]
+    assert expected in stop.value.findings[0]["message"]

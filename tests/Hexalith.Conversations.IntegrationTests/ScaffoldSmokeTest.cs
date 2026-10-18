@@ -102,6 +102,8 @@ public sealed class ScaffoldSmokeTest
             .GetFiles(Path.Combine(root, "src"), "*.csproj", SearchOption.AllDirectories)
             .Concat(Directory.GetFiles(Path.Combine(root, "tests"), "*.csproj", SearchOption.AllDirectories))
             .Select(path => NormalizePath(Path.GetRelativePath(root, path)))
+            // The self-contained minimal-module fixture owns its own solution, build root, and locked restore.
+            .Where(path => !path.StartsWith("tests/fixtures/", StringComparison.Ordinal))
             .Order(StringComparer.OrdinalIgnoreCase)];
 
         solutionProjectPaths.ShouldBe(diskProjectPaths);
@@ -117,6 +119,8 @@ public sealed class ScaffoldSmokeTest
         string[] projectFiles = Directory
             .GetFiles(Path.Combine(root, "src"), "*.csproj", SearchOption.AllDirectories)
             .Concat(Directory.GetFiles(Path.Combine(root, "tests"), "*.csproj", SearchOption.AllDirectories))
+            // The self-contained minimal-module fixture pins its own package versions beside its build root.
+            .Where(path => !NormalizePath(Path.GetRelativePath(root, path)).StartsWith("tests/fixtures/", StringComparison.Ordinal))
             .ToArray();
 
         projectFiles.ShouldNotBeEmpty("expected at least one csproj under src/ or tests/ to inspect");

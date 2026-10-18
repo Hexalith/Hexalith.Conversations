@@ -1,0 +1,26 @@
+<Project>
+  <!-- Self-contained build root: the fixture is a thin module that restores and builds on its own. Package
+       versions are pinned here, central to the fixture, and restore is locked by packages.lock.json files. -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <ImportDirectoryPackagesProps>false</ImportDirectoryPackagesProps>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <Deterministic>true</Deterministic>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+    <FixtureEventStoreRoot>$(MSBuildThisFileDirectory)../../../references/Hexalith.EventStore</FixtureEventStoreRoot>
+    <IdentityModelVersion>8.23.0</IdentityModelVersion>
+    <AspireDaprVersion>13.6.1-beta.935</AspireDaprVersion>
+    <TestSdkVersion>18.11.0</TestSdkVersion>
+    <ShouldlyVersion>4.3.0</ShouldlyVersion>
+    <XunitV3Version>4.0.2</XunitV3Version>
+    <XunitRunnerVersion>4.0.1</XunitRunnerVersion>
+  </PropertyGroup>
+</Project>

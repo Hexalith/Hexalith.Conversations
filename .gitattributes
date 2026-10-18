@@ -52,3 +52,9 @@ artifacts/v9/10.4/*.trx text eol=lf
 
 # Fresh Epic 10 follow-up fault receipts retain their measured bytes.
 _bmad-output/implementation-artifacts/tests/epic-10-retro-a1-a2-faults.xml text eol=lf
+
+# Story 11.2 minimal-module fixture sources are hand-authored LF text and byte-hashed; receipts keep measured bytes.
+tests/fixtures/Hexalith.Conversations.MinimalModule/** text eol=lf
+artifacts/v9/11.2/*.json text eol=lf
+artifacts/v9/11.2/*.xml text eol=lf
+artifacts/v9/11.2/*.trx text eol=lf

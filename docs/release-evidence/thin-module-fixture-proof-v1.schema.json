@@ -1,0 +1,908 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "hexalith.conversations.thin-module-fixture-proof.v1",
+  "title": "Thin-module fixture proof v1",
+  "description": "Story 11.2 (Checkpoint B) proof that the frozen minimal-module fixture restores, builds and passes tests against public platform APIs.",
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\\\\\s][^\\\\]*$"
+    },
+    "fileDigest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "assembly": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "candidate",
+    "guidanceDigest",
+    "fixtureInventory",
+    "resolvedPublicApis",
+    "restore",
+    "build",
+    "tests",
+    "appHost",
+    "digests"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "hexalith.conversations.thin-module-fixture-proof.v1"
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "storyId",
+        "checkpoint",
+        "contractPath",
+        "contractSha256",
+        "planningCandidate"
+      ],
+      "properties": {
+        "storyId": {
+          "const": "11.2"
+        },
+        "checkpoint": {
+          "const": "B"
+        },
+        "contractPath": {
+          "const": "_bmad-output/planning-artifacts/v9/story-contracts/11.2.json"
+        },
+        "contractSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "planningCandidate": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "guidanceDigest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bundleJsonPath",
+        "bundleJsonSha256",
+        "bundleMarkdownSha256",
+        "signablePayloadSha256",
+        "sourceSha256",
+        "story11_1RecordPath",
+        "story11_1RecordSha256"
+      ],
+      "properties": {
+        "bundleJsonPath": {
+          "const": "docs/release-evidence/thin-authoring-guidance-v2.json"
+        },
+        "bundleJsonSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "bundleMarkdownSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "signablePayloadSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "sourceSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "story11_1RecordPath": {
+          "const": "docs/release-evidence/story-11.1-final-record-v2.json"
+        },
+        "story11_1RecordSha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "fixtureInventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sha256",
+        "root",
+        "paths"
+      ],
+      "properties": {
+        "id": {
+          "const": "V9-MINIMAL-MODULE-FIXTURE-v1"
+        },
+        "sha256": {
+          "const": "4fa26d6fa11a365339d9ea39c79e38751340847cf963fe71a82c37062f7df15c"
+        },
+        "root": {
+          "const": "tests/fixtures/Hexalith.Conversations.MinimalModule"
+        },
+        "paths": {
+          "type": "array",
+          "minItems": 13,
+          "maxItems": 13,
+          "prefixItems": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "lines"
+              ],
+              "properties": {
+                "path": {
+                  "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "lines": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "lines"
+              ],
+              "properties": {
+                "path": {
+                  "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "lines": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "lines"
+              ],
+              "properties": {
+                "path": {
+                  "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/README.md"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "lines": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "lines"
+              ],
+              "properties": {
+                "path": {
+                  "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/Hexalith.Conversations.MinimalModule.Contracts.csproj"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "lines": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "lines"
+              ],
+              "properties": {
+                "path": {
+                  "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/CreateConversation.cs"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "lines": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "lines"
+              ],
+              "properties": {
+                "path": {
+                  "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/ConversationCreated.cs"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "lines": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "lines"
+              ],
+              "properties": {
+                "path": {
+                  "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/Hexalith.Conversations.MinimalModule.Server.csproj"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "lines": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "lines"
+              ],
+              "properties": {
+                "path": {
+                  "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationAggregate.cs"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "lines": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "lines"
+              ],
+              "properties": {
+                "path": {
+                  "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "lines": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "lines"
+              ],
+              "properties": {
+                "path": {
+                  "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "lines": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "lines"
+              ],
+              "properties": {
+                "path": {
+                  "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "lines": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "lines"
+              ],
+              "properties": {
+                "path": {
+                  "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "lines": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "lines"
+              ],
+              "properties": {
+                "path": {
+                  "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/AppHost.cs"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/digest"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "lines": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          ],
+          "items": false
+        }
+      }
+    },
+    "resolvedPublicApis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "platformRoot",
+        "projects",
+        "assemblies"
+      ],
+      "properties": {
+        "platformRoot": {
+          "const": "references/Hexalith.EventStore"
+        },
+        "projects": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/assembly"
+          }
+        },
+        "assemblies": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/assembly"
+          }
+        }
+      }
+    },
+    "restore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "lockedMode",
+        "lockFiles",
+        "resolvedPackagesSha256",
+        "packageCount"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lockedMode": {
+          "const": true
+        },
+        "lockFiles": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256",
+              "packageCount"
+            ],
+            "properties": {
+              "path": {
+                "$ref": "#/$defs/path"
+              },
+              "sha256": {
+                "$ref": "#/$defs/digest"
+              },
+              "packageCount": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "resolvedPackagesSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "packageCount": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "configuration",
+        "warningsAsErrors",
+        "toolVersions",
+        "assemblies"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "configuration": {
+          "const": "Release"
+        },
+        "warningsAsErrors": {
+          "const": true
+        },
+        "toolVersions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dotnetSdk",
+            "aspireAppHostSdk"
+          ],
+          "properties": {
+            "dotnetSdk": {
+              "type": "string",
+              "minLength": 1
+            },
+            "aspireAppHostSdk": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "assemblies": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "project",
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "project": {
+                "$ref": "#/$defs/path"
+              },
+              "path": {
+                "$ref": "#/$defs/path"
+              },
+              "sha256": {
+                "$ref": "#/$defs/digest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "tests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "toolVersions",
+        "resultFile",
+        "total",
+        "passed",
+        "failed",
+        "skipped",
+        "notRun",
+        "cases",
+        "capabilities"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "toolVersions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "xunitV3"
+          ],
+          "properties": {
+            "xunitV3": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "resultFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "artifacts/v9/11.2/minimal-module.trx"
+            },
+            "sha256": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "passed": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "failed": {
+          "const": 0
+        },
+        "skipped": {
+          "const": 0
+        },
+        "notRun": {
+          "const": 0
+        },
+        "cases": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "prefixItems": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "capability",
+                "test"
+              ],
+              "properties": {
+                "capability": {
+                  "const": "registration"
+                },
+                "test": {
+                  "const": "Registration_ExposesTheModuleHandlersThroughThePlatformHost"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "capability",
+                "test"
+              ],
+              "properties": {
+                "capability": {
+                  "const": "commandHandling"
+                },
+                "test": {
+                  "const": "CommandHandling_ProducesTheCreatedEventAndIsIdempotentAfterReplay"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "capability",
+                "test"
+              ],
+              "properties": {
+                "capability": {
+                  "const": "eventProduction"
+                },
+                "test": {
+                  "const": "CommandHandling_ProducesTheCreatedEventAndIsIdempotentAfterReplay"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "capability",
+                "test"
+              ],
+              "properties": {
+                "capability": {
+                  "const": "subscription"
+                },
+                "test": {
+                  "const": "SubscriptionAndPublication_AreServedByPlatformOwnedEndpointsOnly"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "capability",
+                "test"
+              ],
+              "properties": {
+                "capability": {
+                  "const": "projection"
+                },
+                "test": {
+                  "const": "Projection_IsDispatchedByThePlatformDispatcher"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "capability",
+                "test"
+              ],
+              "properties": {
+                "capability": {
+                  "const": "query"
+                },
+                "test": {
+                  "const": "Query_IsDispatchedByThePlatformDispatcher"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "capability",
+                "test"
+              ],
+              "properties": {
+                "capability": {
+                  "const": "publication"
+                },
+                "test": {
+                  "const": "PublishedEvent_IsConsumedThroughThePlatformProcessor"
+                }
+              }
+            }
+          ],
+          "items": false
+        }
+      }
+    },
+    "appHost": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "project",
+        "isPackable",
+        "isPublishable",
+        "repositoryOnly",
+        "countedInAuthoringCost",
+        "reusableAspireProjects",
+        "platformHelper"
+      ],
+      "properties": {
+        "count": {
+          "const": 1
+        },
+        "project": {
+          "const": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj"
+        },
+        "isPackable": {
+          "const": false
+        },
+        "isPublishable": {
+          "const": false
+        },
+        "repositoryOnly": {
+          "const": true
+        },
+        "countedInAuthoringCost": {
+          "const": true
+        },
+        "reusableAspireProjects": {
+          "const": 0
+        },
+        "platformHelper": {
+          "const": "AddAspireDaprDomainModule"
+        }
+      }
+    },
+    "digests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inventorySha256",
+        "signablePayloadSha256",
+        "markdownSha256"
+      ],
+      "properties": {
+        "inventorySha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "signablePayloadSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "markdownSha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    }
+  }
+}

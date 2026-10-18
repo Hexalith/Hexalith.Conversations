@@ -4,6 +4,7 @@
 // </copyright>
 
 using System.Text.Json;
+using System.Xml.Linq;
 
 using Shouldly;
 
@@ -266,6 +267,80 @@ public sealed class DomainModuleAuthoringTemplateValidationTest
         template.ShouldContain("A reusable module Aspire library is prohibited.", Case.Sensitive);
         template.ShouldContain("A module must never reimplement or reassign a platform-owned capability.", Case.Sensitive);
         template.ShouldNotContain("| `ServiceDefaults` |", Case.Sensitive);
+    }
+
+    [Fact]
+    public void MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary()
+    {
+        const string FixtureRoot = "tests/fixtures/Hexalith.Conversations.MinimalModule";
+        string root = FindRepositoryRoot();
+        string fixture = Path.Combine([root, .. FixtureRoot.Split('/')]);
+        Directory.Exists(fixture).ShouldBeTrue("Expected the minimal-module fixture to exist.");
+
+        Dictionary<string, string> defaults = ReadProperties(Path.Combine(fixture, "Directory.Build.props"));
+        string[] projects = Directory.EnumerateFiles(fixture, "*.csproj", SearchOption.AllDirectories)
+            .Where(path => !path.Split(Path.DirectorySeparatorChar).Any(part => part is "bin" or "obj"))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        projects.Length.ShouldBe(4, "The fixture has exactly Contracts, Server, Tests and one AppHost project.");
+
+        XElement[] appHosts = projects
+            .Select(path => XDocument.Load(path).Root!)
+            .Where(project => (project.Attribute("Sdk")?.Value ?? string.Empty).StartsWith("Aspire.AppHost", StringComparison.Ordinal))
+            .ToArray();
+        appHosts.Length.ShouldBe(1, "APPHOST_BOUNDARY_INVALID: exactly one test AppHost is allowed.");
+
+        // Effective properties: the project value wins, else the fixture Directory.Build.props value.
+        string appHostPath = projects.Single(path => Path.GetFileName(path).EndsWith(".AppHost.csproj", StringComparison.Ordinal));
+        Dictionary<string, string> appHost = ReadProperties(appHostPath);
+        string Effective(string name) => appHost.TryGetValue(name, out string? own) ? own : defaults.GetValueOrDefault(name, string.Empty);
+        Effective("IsPackable").ShouldBe("false", "APPHOST_BOUNDARY_INVALID: the test AppHost must not be packable.");
+        Effective("IsPublishable").ShouldBe("false", "APPHOST_BOUNDARY_INVALID: the test AppHost must not be publishable.");
+        appHostPath.Replace('\\', '/').ShouldContain("/tests/", Case.Sensitive, "APPHOST_BOUNDARY_INVALID: the test AppHost is repository-only.");
+        File.ReadAllText(Path.Combine(Path.GetDirectoryName(appHostPath)!, "AppHost.cs")).ShouldContain("AddAspireDaprDomainModule");
+
+        foreach (string path in projects)
+        {
+            string name = Path.GetFileNameWithoutExtension(path);
+            XElement project = XDocument.Load(path).Root!;
+            string[] references = project.Descendants("ProjectReference").Select(item => item.Attribute("Include")!.Value).ToArray();
+            string[] packages = project.Descendants("PackageReference").Select(item => item.Attribute("Include")!.Value).ToArray();
+            bool isAppHost = path == appHostPath;
+
+            references.ShouldNotContain(
+                reference => reference.Contains("ServiceDefaults", StringComparison.Ordinal),
+                $"REUSABLE_ASPIRE_LIBRARY_PRESENT: {name} references a ServiceDefaults project.");
+            references.ShouldNotContain(
+                reference => reference.Contains("Hexalith.EventStore.Server.csproj", StringComparison.Ordinal),
+                $"REUSABLE_ASPIRE_LIBRARY_PRESENT: {name} references the platform server runtime.");
+            if (!isAppHost)
+            {
+                name.ShouldNotContain("Aspire", Case.Sensitive, "REUSABLE_ASPIRE_LIBRARY_PRESENT: a module Aspire library is prohibited.");
+                name.ShouldNotContain("ServiceDefaults", Case.Sensitive, "REUSABLE_ASPIRE_LIBRARY_PRESENT: a module ServiceDefaults project is prohibited.");
+                references.ShouldNotContain(
+                    reference => reference.Contains("Hexalith.EventStore.Aspire", StringComparison.Ordinal),
+                    $"REUSABLE_ASPIRE_LIBRARY_PRESENT: {name} references the platform Aspire helper outside the test AppHost.");
+                packages.ShouldNotContain(
+                    package => package.StartsWith("Aspire.", StringComparison.Ordinal)
+                        || package.StartsWith("CommunityToolkit.Aspire", StringComparison.Ordinal)
+                        || package.StartsWith("Dapr.", StringComparison.Ordinal),
+                    $"REUSABLE_ASPIRE_LIBRARY_PRESENT: {name} owns platform Aspire or Dapr wiring.");
+            }
+        }
+    }
+
+    private static Dictionary<string, string> ReadProperties(string path)
+    {
+        Dictionary<string, string> values = new(StringComparer.Ordinal);
+        foreach (XElement group in XDocument.Load(path).Root!.Elements("PropertyGroup").Where(group => group.Attribute("Condition") is null))
+        {
+            foreach (XElement property in group.Elements().Where(property => property.Attribute("Condition") is null))
+            {
+                values[property.Name.LocalName] = property.Value.Trim();
+            }
+        }
+
+        return values;
     }
 
     private static JsonDocument ReadGuidanceBundle(string root)

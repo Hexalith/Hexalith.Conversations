@@ -4566,10 +4566,29 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
         lines.extend(["", "| Receipt | Path | SHA-256 |", "| --- | --- | --- |"])
         lines.extend("| " + " | ".join(code(value) for value in (row["scenarioId"], row["path"], row["sha256"])) + " |"
                      for row in guidance["receipts"])
+    if "fixtureProofExecution" in record:
+        fixture = record["fixtureProofExecution"]
+        lines.extend(["", "## Minimal-module fixture proof", "",
+                      f"- Story 11.1 record: {code(fixture['predecessor']['recordPath'])} ({code(fixture['predecessor']['recordSha256'])})",
+                      f"- Guidance bundle: {code(fixture['predecessor']['guidanceJsonSha256'])}; signable payload {code(fixture['predecessor']['signablePayloadSha256'])}",
+                      f"- Fixture inventory {code(fixture['fixture']['inventoryId'])}: {code(fixture['fixture']['inventorySha256'])} ({fixture['fixture']['fileCount']} paths under {code(fixture['fixture']['root'])})",
+                      f"- Fixture sources: {code(fixture['fixture']['sourcesSha256'])}",
+                      f"- Proof JSON: {code(fixture['proof']['jsonPath'])} ({code(fixture['proof']['jsonSha256'])})",
+                      f"- Proof Markdown: {code(fixture['proof']['markdownPath'])} ({code(fixture['proof']['markdownSha256'])})",
+                      f"- Proof schema: {code(fixture['proof']['schemaPath'])} ({code(fixture['proof']['schemaSha256'])})",
+                      f"- Proof signable payload: {code(fixture['proof']['signablePayloadSha256'])}",
+                      f"- Resolved public APIs: {code(fixture['proof']['resolvedPublicApisSha256'])}",
+                      f"- Measured test result: {code(fixture['proof']['resultSha256'])}", "",
+                      "| Lock file | SHA-256 |", "| --- | --- |"])
+        lines.extend("| " + " | ".join(code(value) for value in (row["path"], row["sha256"])) + " |"
+                     for row in fixture["fixture"]["lockFiles"])
+        lines.extend(["", "| Receipt | Path | SHA-256 |", "| --- | --- | --- |"])
+        lines.extend("| " + " | ".join(code(value) for value in (row["scenarioId"], row["path"], row["sha256"])) + " |"
+                     for row in fixture["receipts"])
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
-    if "thinGuidanceExecution" in record:
-        faults = record["thinGuidanceExecution"]["mutationLedger"]
+    if "thinGuidanceExecution" in record or "fixtureProofExecution" in record:
+        faults = record.get("thinGuidanceExecution", record.get("fixtureProofExecution"))["mutationLedger"]
         lines.extend([f"{len(faults)} observed mutation results are bound to the retained receipts.", "",
                       "| Fault | Expected blocker | Detected | Restored |", "| --- | --- | --- | --- |"])
         lines.extend("| " + " | ".join(code(value) for value in (
@@ -4722,6 +4741,8 @@ def v2_verify_pair(json_bytes: bytes, markdown_bytes: bytes) -> list[str]:
         problems.extend(v2_10_4_pair_errors(record))
     if record.get("storyId") == "11.1":
         problems.extend(v2_11_1_pair_errors(record))
+    if record.get("storyId") == "11.2":
+        problems.extend(v2_11_2_pair_errors(record))
     return problems
 
 
@@ -8191,6 +8212,11 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
 
 def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> bytes:
     """Derive, validate, and atomically write the v2 pair; return the JSON bytes."""
+    if options.get("--contract") == V2_11_2_CONTRACT:
+        try:
+            return v2_11_2_generate(options)
+        except ValueError as error:
+            raise V2Stop([v2_finding('RECORD_NOT_DERIVED', '11.2', str(error))], '11.2') from None
     if options.get("--contract") == V2_11_1_CONTRACT:
         try:
             return v2_11_1_generate(options)
@@ -10010,11 +10036,13 @@ V2_11_1_SPRINT_KEY = '11-1-correct-and-validate-platform-hosted-thin-module-auth
 V2_SPRINT_PATH = '_bmad-output/implementation-artifacts/sprint-status.yaml'
 
 
-def v2_11_1_descendant_errors(repository, record, head):
+def v2_11_1_descendant_errors(repository, record, head, *, facts_key='thinGuidanceExecution', spec=None, sprint_key=None,
+                              extra_publication=(), publication_check=None):
     """Require one atomic receipt/pair publication followed only by lifecycle edits."""
+    spec = spec or V2_11_1_SPEC; sprint_key = sprint_key or V2_11_1_SPRINT_KEY
     candidate = record['candidate']['commit']; parent = candidate; publications = 0
     publication = {record['outputs'][kind]['path'] for kind in ('json', 'markdown')} | {
-        row['path'] for row in record['thinGuidanceExecution']['receipts']}
+        row['path'] for row in record[facts_key]['receipts']} | set(extra_publication)
     if run_git(repository, 'rev-parse', '--verify', candidate).returncode:
         return ['source candidate is unresolvable']
     if run_git(repository, 'merge-base', '--is-ancestor', candidate, head, allowed_returncodes=(0, 1)).returncode:
@@ -10024,17 +10052,20 @@ def v2_11_1_descendant_errors(repository, record, head):
             return ['history is not a direct single-parent continuation']
         changed = set(decode(run_git(repository, 'diff-tree', '--no-commit-id', '--name-only', '-r', '--no-renames', parent, commit).stdout).split('\n')) - {''}
         if changed == publication and publications == 0:
-            for row in record['thinGuidanceExecution']['receipts']:
+            for row in record[facts_key]['receipts']:
                 blob = v2_committed_blob(repository, commit, row['path'])
                 if blob is None or v2_sha256(blob) != row['sha256']: return ['published receipt differs']
+            if publication_check is not None:
+                failure = publication_check(repository, commit, record)
+                if failure: return [failure]
             j, m = (v2_committed_blob(repository, commit, record['outputs'][kind]['path']) for kind in ('json', 'markdown'))
             if j is None or m is None or v2_verify_pair(j, m) or v2_parse_json(j) != record: return ['published pair differs']
             publications += 1
-        elif publications == 1 and changed and changed <= {V2_11_1_SPEC, V2_SPRINT_PATH}:
-            if V2_11_1_SPEC in changed and not v2_spec_lifecycle_only_change(
-                    repository, parent, commit, V2_11_1_SPEC, record_region=True, task_checkboxes=True):
+        elif publications == 1 and changed and changed <= {spec, V2_SPRINT_PATH}:
+            if spec in changed and not v2_spec_lifecycle_only_change(
+                    repository, parent, commit, spec, record_region=True, task_checkboxes=True):
                 return ['spec source drift after acceptance']
-            if V2_SPRINT_PATH in changed and not v2_sprint_status_only_change(repository, parent, commit, V2_11_1_SPRINT_KEY):
+            if V2_SPRINT_PATH in changed and not v2_sprint_status_only_change(repository, parent, commit, sprint_key):
                 return ['tracking source drift after acceptance']
         else:
             return ['publication boundary or later source changed']
@@ -10042,30 +10073,274 @@ def v2_11_1_descendant_errors(repository, record, head):
     return [] if publications == 1 else ['exactly one atomic publication is required']
 
 
-def v2_11_1_verify_inserted(options):
-    """Verify the committed 11.1 pair, its single publication, and the verbatim inserted region."""
+def v2_11_1_verify_inserted(options, *, story='11.1', facts_key='thinGuidanceExecution', spec_path=None, sprint_key=None,
+                            extra_publication=(), publication_check=None):
+    """Verify the committed 11.1/11.2 pair, its single publication, and the verbatim inserted region."""
+    spec_path = spec_path or V2_11_1_SPEC; sprint_key = sprint_key or V2_11_1_SPRINT_KEY
     try:
         repository = validate_repository(Path(options.get('--repository') or default_repository()))
         head = resolve_commit(repository, 'HEAD', 'CANDIDATE_UNRESOLVABLE')
-        paths = ('docs/release-evidence/story-11.1-final-record-v2.json', 'docs/release-evidence/story-11.1-final-record-v2.md')
+        paths = (f'docs/release-evidence/story-{story}-final-record-v2.json', f'docs/release-evidence/story-{story}-final-record-v2.md')
         j, m = (v2_committed_blob(repository, head, path) for path in paths)
         if j is None or m is None: raise ValueError('pair must be committed before insertion verification')
         record = v2_parse_json(j); _, validators = v2_load_schemas()
         problems = (v2_schema_errors(validators['record'], record) + v2_verify_pair(j, m)
-                    + v2_11_1_descendant_errors(repository, record, head))
+                    + v2_11_1_descendant_errors(repository, record, head, facts_key=facts_key, spec=spec_path,
+                                                sprint_key=sprint_key, extra_publication=extra_publication,
+                                                publication_check=publication_check))
         if problems: raise ValueError('; '.join(problems))
-        if options[V2_VERIFY_OPTION] != V2_11_1_SPEC: raise ValueError('designated 11.1 spec required')
-        spec = (repository / V2_11_1_SPEC).read_bytes(); region = v2_record_region(spec)
+        if options[V2_VERIFY_OPTION] != spec_path: raise ValueError(f'designated {story} spec required')
+        spec = (repository / spec_path).read_bytes(); region = v2_record_region(spec)
         if region is None or spec[region[0]:region[1]] != m: raise ValueError('verbatim inserted region differs')
-        if not v2_working_spec_lifecycle_only_change(repository, head, V2_11_1_SPEC, spec, record_region=True, task_checkboxes=True):
+        if not v2_working_spec_lifecycle_only_change(repository, head, spec_path, spec, record_region=True, task_checkboxes=True):
             raise ValueError('working spec changes source')
-        if not v2_working_sprint_status_only_change(repository, head, V2_11_1_SPRINT_KEY, v2_10_1_artifact_bytes(repository, V2_SPRINT_PATH)):
+        if not v2_working_sprint_status_only_change(repository, head, sprint_key, v2_10_1_artifact_bytes(repository, V2_SPRINT_PATH)):
             raise ValueError('working sprint changes source')
         for path, content in zip(paths, (j, m)):
             if (repository / path).read_bytes() != content: raise ValueError('installed pair differs')
         return j
     except ValueError as error:
-        raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT', '11.1', str(error))], '11.1') from None
+        raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT', story, str(error))], story) from None
+
+
+# Story 11.2 (Checkpoint B) closed route: reproducible minimal-module fixture.
+V2_11_2_CONTRACT = '_bmad-output/planning-artifacts/v9/story-contracts/11.2.json'
+V2_11_2_RECEIPT_DIR = 'artifacts/v9/11.2/'
+V2_11_2_SCENARIOS = tuple(f'AC-11.2-0{n}' for n in range(1, 9))
+V2_11_2_RECEIPT_SCENARIOS = ('AC-11.2-01', 'AC-11.2-04', 'AC-11.2-05', 'AC-11.2-07')
+V2_11_2_SPEC = '_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md'
+V2_11_2_SPRINT_KEY = '11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis'
+V2_11_2_APPHOST_METHOD = 'MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary'
+
+
+def v2_11_2_module():
+    """Load the fixture verifier and proof generator, which own the inventory, proof format and fault expectations."""
+    directory = str(Path(__file__).resolve().parent)
+    if directory not in sys.path: sys.path.insert(0, directory)
+    import generate_minimal_module_fixture_proof
+    import verify_minimal_module_fixture
+    return verify_minimal_module_fixture, generate_minimal_module_fixture_proof
+
+
+def v2_11_2_pair_errors(record):
+    """Independent cross-binding checks for one Story 11.2 record."""
+    try:
+        verifier, _ = v2_11_2_module()
+        facts = record['fixtureProofExecution']
+        scenarios = record['scenarios']
+        if (record['summary'] != dict(required=8, passed=8, failed=0, blocked=0, skipped=0, notRun=0)
+                or [row['scenarioId'] for row in scenarios] != list(V2_11_2_SCENARIOS)
+                or any(row['result'] != 'PASS' or row['exitCode'] != 0 or row['blockers'] for row in scenarios)):
+            return ['Story 11.2 summary or scenarios are not the closed 8/8/0/0/0/0 set']
+        if facts['sourceRevisionId'] != record['candidate']['commit'] or record['predecessors'] != ['11.1']:
+            return ['Story 11.2 candidate or predecessor list differs']
+        if (facts['fixture']['inventorySha256'] != verifier.INVENTORY_SHA256 or facts['fixture']['root'] != verifier.FIXTURE_ROOT
+                or facts['predecessor']['storyId'] != '11.1'):
+            return ['Story 11.2 fixture or predecessor binding differs']
+        if [row['id'] for row in facts['mutationLedger']] != list(verifier.FAULT_EXPECTATIONS) or any(
+                row['expectedBlocker'] != verifier.FAULT_EXPECTATIONS[row['id']] or not row['detected'] or not row['restored']
+                for row in facts['mutationLedger']):
+            return ['Story 11.2 mutation ledger differs from the closed fault matrix']
+        if sorted(row['scenarioId'] for row in facts['receipts']) != sorted(V2_11_2_RECEIPT_SCENARIOS):
+            return ['Story 11.2 receipts differ from the measured scenarios']
+        by_id = {row['scenarioId']: row for row in scenarios}
+        for row in facts['receipts']:
+            if by_id[row['scenarioId']].get('resultFile') != dict(path=row['path'], sha256=row['sha256']):
+                return ['Story 11.2 scenario result digests differ from the receipts']
+        proof = facts['proof']
+        if by_id['AC-11.2-06'].get('outputFiles') != [dict(path=proof['jsonPath'], sha256=proof['jsonSha256']),
+                                                      dict(path=proof['markdownPath'], sha256=proof['markdownSha256'])]:
+            return ['Story 11.2 proof pair differs from the scenario outputs']
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return ['Story 11.2 execution facts are malformed']
+    return []
+
+
+def v2_11_2_receipts(repository, contract, candidate_time, read_receipt=None):
+    """Parse the four measured receipts; return scenario rows, receipt digests and the mutation ledger."""
+    verifier, _ = v2_11_2_module()
+    by_id = {row['id']: row for row in contract['scenarios']}
+    receipts, rows, ledger = [], {}, []
+
+    tokens = shlex.split(by_id['AC-11.2-01']['command'])
+    path = tokens[tokens.index('--output') + 1]
+    if path != f'{V2_11_2_RECEIPT_DIR}AC-11.2-01.json': raise ValueError('AC-11.2-01 receipt path differs')
+    content = v2_11_1_read_receipt(repository, path, candidate_time, read_receipt)
+    report = v2_parse_json(content)
+    if (not isinstance(report, dict) or report.get('schemaVersion') != verifier.RESULT_SCHEMA or report.get('result') != 'PASS'
+            or report.get('blockers') != [] or report.get('inventorySha256') != verifier.INVENTORY_SHA256
+            or report.get('fixtureFileCount') != 13):
+        raise ValueError('AC-11.2-01 receipt is not a PASS with the exact frozen inventory')
+    digest = v2_sha256(content)
+    receipts.append(dict(scenarioId='AC-11.2-01', path=path, sha256=digest))
+    rows['AC-11.2-01'] = dict(resultFile=dict(path=path, sha256=digest), subject='exact frozen fixture inventory verified at the committed candidate')
+
+    tokens = shlex.split(by_id['AC-11.2-04']['command'])
+    path = tokens[tokens.index('-trx') + 1]
+    if path != verifier.TEST_RESULT_PATH: raise ValueError('AC-11.2-04 receipt path differs')
+    content = v2_11_1_read_receipt(repository, path, candidate_time, read_receipt)
+    try:
+        test_blockers, test_facts = verifier.check_tests(content)
+    except verifier.Blocked as error:
+        raise ValueError('AC-11.2-04 TRX is not parseable') from error
+    if test_blockers or test_facts['counts']['total'] < len(set(verifier.CAPABILITY_TESTS.values())):
+        raise ValueError('AC-11.2-04 TRX is vacuous: ' + '; '.join(item['message'] for item in test_blockers))
+    digest = v2_sha256(content)
+    receipts.append(dict(scenarioId='AC-11.2-04', path=path, sha256=digest))
+    rows['AC-11.2-04'] = dict(resultFile=dict(path=path, sha256=digest), subject='non-vacuous minimal-module tests with zero failed, skipped or not-run')
+
+    tokens = shlex.split(by_id['AC-11.2-05']['command'])
+    path = tokens[tokens.index('-trx') + 1]
+    if path != f'{V2_11_2_RECEIPT_DIR}AC-11.2-05.trx': raise ValueError('AC-11.2-05 receipt path differs')
+    content = v2_11_1_read_receipt(repository, path, candidate_time, read_receipt)
+    try:
+        parsed = parse_trx(content)
+    except (ElementTree.ParseError, ValueError):
+        raise ValueError('AC-11.2-05 TRX is not parseable') from None
+    if (len(parsed['results']) != 1 or parsed['recomputed'] != dict(total=1, passed=1, failed=0, skipped=0)
+            or parsed['reported']['total'] != 1 or parsed['unknown_outcomes']
+            or not parsed['results'][0]['test'].endswith(V2_11_2_APPHOST_METHOD)):
+        raise ValueError('AC-11.2-05 TRX is not one passing, non-skipped target test')
+    digest = v2_sha256(content)
+    receipts.append(dict(scenarioId='AC-11.2-05', path=path, sha256=digest))
+    rows['AC-11.2-05'] = dict(resultFile=dict(path=path, sha256=digest), subject=V2_11_2_APPHOST_METHOD)
+
+    command = v2_pytest_command(shlex.split(by_id['AC-11.2-07']['command']))
+    path = str(command['junit'])
+    if path != f'{V2_11_2_RECEIPT_DIR}AC-11.2-07.xml': raise ValueError('AC-11.2-07 receipt path differs')
+    content = v2_11_1_read_receipt(repository, path, candidate_time, read_receipt)
+    try:
+        suite = ElementTree.fromstring(content)
+    except ElementTree.ParseError:
+        raise ValueError('AC-11.2-07 JUnit is not parseable XML') from None
+    cases = suite.findall('.//testcase')
+    if not cases or any(case.findall('failure') or case.findall('error') or case.findall('skipped') for case in cases):
+        raise ValueError('AC-11.2-07 JUnit has a failed, errored or skipped case')
+    found = {}
+    for case in cases:
+        name = case.get('name', '')
+        if '[' in name and name.endswith(']'): found[name.split('[', 1)[1][:-1]] = name
+    if set(found) != set(verifier.FAULT_EXPECTATIONS) or len(found) != len([c for c in cases if '[' in c.get('name', '')]):
+        raise ValueError('AC-11.2-07 JUnit does not cover exactly the closed fault matrix')
+    digest = v2_sha256(content)
+    receipts.append(dict(scenarioId='AC-11.2-07', path=path, sha256=digest))
+    rows['AC-11.2-07'] = dict(resultFile=dict(path=path, sha256=digest), subject='checkpoint B fault matrix, every mutation detected and restored')
+    for fault, code in verifier.FAULT_EXPECTATIONS.items():
+        ledger.append(dict(id=fault, expectedBlocker=code, detected=True, restored=True))
+    return rows, receipts, ledger
+
+
+def v2_11_2_generate(options, *, candidate=None, read_receipt=None, verify_only=False):
+    """Derive the Story 11.2 record from the committed fixture, the 11.1 record, the proof pair and four receipts."""
+    verifier, proof_module = v2_11_2_module()
+    repository = validate_repository(Path(options.get('--repository') or default_repository()))
+    head = resolve_commit(repository, 'HEAD', 'CANDIDATE_UNRESOLVABLE')
+    supplied = candidate is not None
+    candidate = candidate or head
+    _, validators = v2_load_schemas()
+    contract_bytes = v2_committed_blob(repository, candidate, V2_11_2_CONTRACT)
+    contract = v2_validate_contract(contract_bytes, V2_11_2_CONTRACT, validators['contract'], validators['contract_v14'])
+    if [row['id'] for row in contract['scenarios']] != list(V2_11_2_SCENARIOS): raise ValueError('all eight AC identities are required')
+    paths = contract['finalRecord']['paths']
+    if [options['--output-json'], options['--output-markdown']] != paths: raise ValueError('output pair differs from contract')
+    findings = []
+    authority = v2_authority(repository, candidate, V2_11_2_CONTRACT, contract, validators['bundle'], findings)
+    if findings or authority is None: raise V2Stop(findings or [v2_finding('AUTHORITY_BINDING_INVALID', V2_11_2_CONTRACT, 'authority does not bind')], '11.2')
+    proof_paths = [verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH]
+    receipt_paths = {f'{V2_11_2_RECEIPT_DIR}AC-11.2-01.json', f'{V2_11_2_RECEIPT_DIR}AC-11.2-05.trx',
+                     f'{V2_11_2_RECEIPT_DIR}AC-11.2-07.xml', verifier.TEST_RESULT_PATH}
+    dirt = set(worktree_path_status(repository)) - set(paths) - receipt_paths - set(proof_paths) - {V2_11_2_SPEC, V2_SPRINT_PATH}
+    if dirt: raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN', 'working-tree', 'working tree differs outside the record pair, proof pair, receipts and lifecycle files: ' + v2_path_summary(dirt))], '11.2')
+    candidate_time = int(decode(run_git(repository, 'show', '-s', '--format=%ct', candidate).stdout).strip())
+
+    # AC-11.2-01 owner-approved candidate rule: committed HEAD, Story 11.1 digests recomputed.
+    if supplied and candidate != head: raise ValueError('the candidate is not the committed HEAD')
+    blockers, facts = verifier.verify(repository, verifier.FIXTURE_ROOT, False, verifier.TEST_RESULT_PATH)
+    if blockers: raise ValueError('the fixture does not verify: ' + ', '.join(item['code'] for item in blockers))
+    predecessor = facts['predecessor']
+
+    # AC-11.2-06: the proof pair is the deterministic, schema-valid projection of the current fixture and result.
+    proof_json = v2_10_1_artifact_bytes(repository, verifier.PROOF_JSON_PATH)
+    proof_markdown = v2_10_1_artifact_bytes(repository, verifier.PROOF_MARKDOWN_PATH)
+    schema_bytes = v2_committed_blob(repository, candidate, verifier.PROOF_SCHEMA_PATH)
+    if schema_bytes is None: raise ValueError('the proof schema is not committed at the candidate')
+    proof_blockers = verifier.verify_proof(repository, verifier.FIXTURE_ROOT, verifier.PROOF_JSON_PATH,
+                                           verifier.PROOF_MARKDOWN_PATH, verifier.TEST_RESULT_PATH, rederive=False)
+    if proof_blockers: raise ValueError('the fixture proof does not verify: ' + '; '.join(item['message'] for item in proof_blockers))
+    proof = v2_parse_json(proof_json)
+
+    measured, receipts, ledger = v2_11_2_receipts(repository, contract, candidate_time, read_receipt)
+    if proof['tests']['resultFile']['sha256'] != measured['AC-11.2-04']['resultFile']['sha256']:
+        raise ValueError('the proof does not bind the measured test result')
+    by_id = {row['id']: row for row in contract['scenarios']}
+    def scenario(identity, subjects, **extra):
+        return dict(scenarioId=identity, command=by_id[identity]['command'], exitCode=0, result='PASS', blockers=[],
+                    assertionLedger=[dict(id=f'{identity}#{n + 1:04d}', subject=subject, state='PASS') for n, subject in enumerate(subjects)], **extra)
+    proof_files = [dict(path=verifier.PROOF_JSON_PATH, sha256=v2_sha256(proof_json)),
+                   dict(path=verifier.PROOF_MARKDOWN_PATH, sha256=v2_sha256(proof_markdown))]
+    lock_files = [dict(path=row['path'], sha256=row['sha256']) for row in facts['inventory']['lockFiles']]
+    scenarios = [
+        scenario('AC-11.2-01', [measured['AC-11.2-01']['subject'], 'candidate is the committed HEAD', 'Story 11.1 final-record v2 and guidance digests recomputed'],
+                 resultFile=measured['AC-11.2-01']['resultFile']),
+        scenario('AC-11.2-02', ['locked restore: every project has a committed lock file and the proof binds the resolved packages'],
+                 resultFile=proof_files[0]),
+        scenario('AC-11.2-03', ['warnings-as-errors Release build: the proof binds the fixture and public platform assembly hashes'],
+                 resultFile=proof_files[0]),
+        scenario('AC-11.2-04', [measured['AC-11.2-04']['subject']], resultFile=measured['AC-11.2-04']['resultFile']),
+        scenario('AC-11.2-05', [measured['AC-11.2-05']['subject']], resultFile=measured['AC-11.2-05']['resultFile']),
+        scenario('AC-11.2-06', ['proof JSON and Markdown are deterministic, schema-valid and bound by the signable-payload digest',
+                                'proof binds commands, tool versions, public API hashes, AppHost facts, inventory and results'],
+                 outputFiles=proof_files),
+        scenario('AC-11.2-07', [measured['AC-11.2-07']['subject']], resultFile=measured['AC-11.2-07']['resultFile']),
+        scenario('AC-11.2-08', ['AC-11.2-01 through AC-11.2-07 and Story 11.1 are current and compatible',
+                                'record binds SC-11.2, Story 11.1, fixture, proof, receipts and mutation ledger']),
+    ]
+    fixture_record = dict(
+        bindingRule='SC-11.2 is the committed candidate; the record binds the Story 11.1 record and guidance, the fixture inventory, the public-API graph, the measured results and the fixture proof',
+        sourceRevisionId=candidate, contract=dict(path=V2_11_2_CONTRACT, sha256=v2_sha256(contract_bytes)),
+        predecessor=dict(storyId='11.1', recordPath=predecessor['recordPath'], recordSha256=predecessor['recordSha256'],
+                         guidanceJsonSha256=predecessor['bundleJsonSha256'], guidanceMarkdownSha256=predecessor['bundleMarkdownSha256'],
+                         signablePayloadSha256=predecessor['signablePayloadSha256']),
+        fixture=dict(inventoryId=verifier.INVENTORY_ID, inventorySha256=verifier.INVENTORY_SHA256, root=verifier.FIXTURE_ROOT,
+                     fileCount=len(facts['inventory']['paths']), lockFiles=lock_files,
+                     sourcesSha256=v2_sha256(proof_module.canonical(facts['inventory']['paths']))),
+        proof=dict(jsonPath=proof_files[0]['path'], jsonSha256=proof_files[0]['sha256'],
+                   markdownPath=proof_files[1]['path'], markdownSha256=proof_files[1]['sha256'],
+                   schemaPath=verifier.PROOF_SCHEMA_PATH, schemaSha256=v2_sha256(schema_bytes),
+                   signablePayloadSha256=proof['digests']['signablePayloadSha256'],
+                   resolvedPublicApisSha256=v2_sha256(proof_module.canonical(proof['resolvedPublicApis'])),
+                   resultSha256=proof['tests']['resultFile']['sha256']),
+        receipts=receipts, mutationLedger=ledger)
+    observed_roots = [dict(path=path, mode='160000', commit=commit) for path, commit in v2_raw_gitlinks(repository, candidate)]
+    record = dict(schemaVersion=V2_RECORD_SCHEMA_VERSION, storyId='11.2',
+                  authority=authority, candidate=dict(commit=candidate, gitlinks=observed_roots), predecessors=list(contract['predecessors']),
+                  inventory=contract['inventory'], scenarios=scenarios, faultInjection=dict(results=[]),
+                  outputs=dict(json=dict(path=paths[0], sha256=V2_ZERO_DIGEST), markdown=dict(path=paths[1], sha256=V2_ZERO_DIGEST)),
+                  rollback=contract['rollback'], summary=dict(required=8, passed=8, failed=0, blocked=0, skipped=0, notRun=0),
+                  renderedMarkdownSha256=V2_ZERO_DIGEST, fixtureProofExecution=fixture_record)
+    final, j, m = v2_finalize(record)
+    problems = v2_schema_errors(validators['record'], final) + v2_verify_pair(j, m)
+    if problems: raise ValueError('; '.join(problems))
+    if verify_only: return j
+    v2_write_outputs([(v2_output_target(repository, paths[0]), j), (v2_output_target(repository, paths[1]), m)])
+    return j
+
+
+def v2_11_2_publication_check(repository, commit, record):
+    """The publication commit must carry the proof pair exactly as the record binds it."""
+    proof = record['fixtureProofExecution']['proof']
+    for path, digest in ((proof['jsonPath'], proof['jsonSha256']), (proof['markdownPath'], proof['markdownSha256'])):
+        blob = v2_committed_blob(repository, commit, path)
+        if blob is None or v2_sha256(blob) != digest: return 'published proof differs'
+    return None
+
+
+def v2_11_2_verify_inserted(options):
+    """Verify the committed 11.2 pair, its single publication, and the verbatim inserted region."""
+    verifier, _ = v2_11_2_module()
+    return v2_11_1_verify_inserted(
+        options, story='11.2', facts_key='fixtureProofExecution', spec_path=V2_11_2_SPEC, sprint_key=V2_11_2_SPRINT_KEY,
+        extra_publication=(verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH), publication_check=v2_11_2_publication_check)
 
 
 def v2_main(raw_arguments: Sequence[str]) -> int:
@@ -10074,7 +10349,9 @@ def v2_main(raw_arguments: Sequence[str]) -> int:
     try:
         options = v2_parse_arguments(raw_arguments)
         if V2_VERIFY_OPTION in options:
-            if options.get("--contract") == V2_11_1_CONTRACT:
+            if options.get("--contract") == V2_11_2_CONTRACT:
+                json_bytes = v2_11_2_verify_inserted(options)
+            elif options.get("--contract") == V2_11_1_CONTRACT:
                 json_bytes = v2_11_1_verify_inserted(options)
             elif options.get("--contract") == V2_10_4_CONTRACT:
                 json_bytes = v2_10_4_verify_inserted(options)

@@ -547,7 +547,8 @@
               "not": {
                 "enum": [
                   "10.3",
-                  "11.1"
+                  "11.1",
+                  "11.2"
                 ]
               }
             }
@@ -587,6 +588,35 @@
         "not": {
           "required": [
             "thinGuidanceExecution"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "storyId": {
+            "const": "11.2"
+          }
+        },
+        "required": [
+          "storyId"
+        ]
+      },
+      "then": {
+        "required": [
+          "fixtureProofExecution"
+        ],
+        "properties": {
+          "candidate": {
+            "$ref": "#/$defs/story103Candidate"
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "fixtureProofExecution"
           ]
         }
       }
@@ -705,6 +735,9 @@
     },
     "thinGuidanceExecution": {
       "$ref": "#/$defs/thinGuidanceExecution"
+    },
+    "fixtureProofExecution": {
+      "$ref": "#/$defs/fixtureProofExecution"
     }
   },
   "$defs": {
@@ -6967,6 +7000,255 @@
                 "properties": {
                   "scenarioId": {
                     "const": "AC-11.1-06"
+                  }
+                },
+                "required": [
+                  "scenarioId"
+                ]
+              }
+            }
+          ]
+        },
+        "mutationLedger": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "expectedBlocker",
+              "detected",
+              "restored"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedBlocker": {
+                "type": "string",
+                "minLength": 1
+              },
+              "detected": {
+                "const": true
+              },
+              "restored": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "fixtureProofExecution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindingRule",
+        "sourceRevisionId",
+        "contract",
+        "predecessor",
+        "fixture",
+        "proof",
+        "receipts",
+        "mutationLedger"
+      ],
+      "properties": {
+        "bindingRule": {
+          "const": "SC-11.2 is the committed candidate; the record binds the Story 11.1 record and guidance, the fixture inventory, the public-API graph, the measured results and the fixture proof"
+        },
+        "sourceRevisionId": {
+          "$ref": "#/$defs/commit"
+        },
+        "contract": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "predecessor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "storyId",
+            "recordPath",
+            "recordSha256",
+            "guidanceJsonSha256",
+            "guidanceMarkdownSha256",
+            "signablePayloadSha256"
+          ],
+          "properties": {
+            "storyId": {
+              "const": "11.1"
+            },
+            "recordPath": {
+              "const": "docs/release-evidence/story-11.1-final-record-v2.json"
+            },
+            "recordSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "guidanceJsonSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "guidanceMarkdownSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "signablePayloadSha256": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        },
+        "fixture": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "inventoryId",
+            "inventorySha256",
+            "root",
+            "fileCount",
+            "sourcesSha256",
+            "lockFiles"
+          ],
+          "properties": {
+            "inventoryId": {
+              "const": "V9-MINIMAL-MODULE-FIXTURE-v1"
+            },
+            "inventorySha256": {
+              "const": "4fa26d6fa11a365339d9ea39c79e38751340847cf963fe71a82c37062f7df15c"
+            },
+            "root": {
+              "const": "tests/fixtures/Hexalith.Conversations.MinimalModule"
+            },
+            "fileCount": {
+              "const": 13
+            },
+            "sourcesSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "lockFiles": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": {
+                "$ref": "#/$defs/outputFile"
+              }
+            }
+          }
+        },
+        "proof": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "jsonPath",
+            "jsonSha256",
+            "markdownPath",
+            "markdownSha256",
+            "schemaPath",
+            "schemaSha256",
+            "signablePayloadSha256",
+            "resolvedPublicApisSha256",
+            "resultSha256"
+          ],
+          "properties": {
+            "jsonPath": {
+              "const": "docs/release-evidence/thin-module-fixture-proof-v1.json"
+            },
+            "jsonSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "markdownPath": {
+              "const": "docs/release-evidence/thin-module-fixture-proof-v1.md"
+            },
+            "markdownSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "schemaPath": {
+              "const": "docs/release-evidence/thin-module-fixture-proof-v1.schema.json"
+            },
+            "schemaSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "signablePayloadSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "resolvedPublicApisSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "resultSha256": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        },
+        "receipts": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "scenarioId",
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "scenarioId": {
+                "enum": [
+                  "AC-11.2-01",
+                  "AC-11.2-04",
+                  "AC-11.2-05",
+                  "AC-11.2-07"
+                ]
+              },
+              "path": {
+                "$ref": "#/$defs/path"
+              },
+              "sha256": {
+                "$ref": "#/$defs/digest"
+              }
+            }
+          },
+          "allOf": [
+            {
+              "contains": {
+                "properties": {
+                  "scenarioId": {
+                    "const": "AC-11.2-01"
+                  }
+                },
+                "required": [
+                  "scenarioId"
+                ]
+              }
+            },
+            {
+              "contains": {
+                "properties": {
+                  "scenarioId": {
+                    "const": "AC-11.2-04"
+                  }
+                },
+                "required": [
+                  "scenarioId"
+                ]
+              }
+            },
+            {
+              "contains": {
+                "properties": {
+                  "scenarioId": {
+                    "const": "AC-11.2-05"
+                  }
+                },
+                "required": [
+                  "scenarioId"
+                ]
+              }
+            },
+            {
+              "contains": {
+                "properties": {
+                  "scenarioId": {
+                    "const": "AC-11.2-07"
                   }
                 },
                 "required": [
