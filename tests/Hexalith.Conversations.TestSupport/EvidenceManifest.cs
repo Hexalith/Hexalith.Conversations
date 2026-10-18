@@ -80,7 +80,9 @@ public sealed class EvidenceManifest
                 ledger.Block("EVIDENCE_PATH_ESCAPE", row.Path, contained.Message ?? "An absolute drive path is not relative.");
                 passed = false;
             }
-            else if (Path.GetRelativePath(root, contained.Value!).Replace('\\', '/').Split('/').SkipLast(1).Any(segment => segment.Equals("bin", StringComparison.OrdinalIgnoreCase)
+            else if (Path.GetRelativePath(root, contained.Value!).Replace('\\', '/').Split('/').SkipLast(1)
+                .Select(segment => OperatingSystem.IsWindows() ? segment.TrimEnd(' ', '.') : segment)
+                .Any(segment => segment.Equals("bin", StringComparison.OrdinalIgnoreCase)
                 || segment.Equals("obj", StringComparison.OrdinalIgnoreCase) || segment.Equals("generated", StringComparison.OrdinalIgnoreCase)))
             {
                 ledger.Block("EVIDENCE_OUTPUT_FORBIDDEN", row.Path, "Build and generated directory segments cannot be evidence.");

@@ -47,7 +47,7 @@ public sealed class ScaffoldSmokeTest
         using JsonDocument document = JsonDocument.Parse(RepositoryLocator.ReadAllText(Path.Combine(root, "global.json")));
 
         JsonElement sdk = document.RootElement.GetProperty("sdk");
-        sdk.GetProperty("version").GetString().ShouldBe("10.0.401");
+        sdk.GetProperty("version").GetString().ShouldBe("10.0.402");
         sdk.GetProperty("rollForward").GetString().ShouldBe("latestPatch");
     }
 

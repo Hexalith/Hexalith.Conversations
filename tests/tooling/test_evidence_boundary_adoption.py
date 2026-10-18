@@ -159,19 +159,63 @@ def test_complete_fault_matrix_integrity(adoption_git,fault,code,record_property
  ('CHAIN_DUPLICATE','EVIDENCE_CHAIN_MARKER_INVALID'),('CHAIN_UNTERMINATED','EVIDENCE_CHAIN_MARKER_INVALID'),
  ('CHAIN_DUPLICATE_ROW','EVIDENCE_CHAIN_TABLE_INVALID')])
 def test_complete_fault_matrix_chain(adoption_git,fault,code,record_property):
-    root,before,candidate=adoption_git;begin='<!-- CHAIN:BEGIN -->';end='<!-- CHAIN:END -->'
-    rows=['| 10.1 | 10.2 |','| 10.2 | 10.3 |','| 10.3 | 10.4 |'];original=begin+'\n'+'\n'.join(rows)+'\n'+end
-    path=root/'chain.md';path.write_text(original);digest=hashlib.sha256(path.read_bytes()).hexdigest()
-    changed={'CHAIN_CHANGED':original.replace('10.2 | 10.3','10.2 | 10.4'),
-      'CHAIN_MISSING':original.replace(rows[1]+'\n',''),'CHAIN_REORDERED':original.replace('\n'.join(rows),'\n'.join(reversed(rows))),
-      'CHAIN_NESTED':original.replace(begin,begin+'\n'+begin),'CHAIN_DUPLICATE':original+'\n'+original,
-      'CHAIN_UNTERMINATED':original.replace(end,''),'CHAIN_DUPLICATE_ROW':original.replace(rows[0],rows[0]+'\n'+rows[0])}[fault]
+    root,before,candidate=adoption_git
+    original=(ROOT/adoption.AUTHORITY_EPICS).read_bytes()
+    text=original.decode('utf-8');family='EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V4'
+    begin=next(line for line in text.splitlines() if line.startswith('<!-- '+family+':BEGIN'))
+    end=next(line for line in text.splitlines() if line.startswith('<!-- '+family+':END'))
+    block=text[text.index(begin):text.index(end)+len(end)]
+    if fault=='CHAIN_CHANGED':changed=text.replace('supersedes=epic-6-authority-2026-07-27-v3','supersedes=epic-6-authority-2026-07-15-v2',1)
+    if fault=='CHAIN_MISSING':changed=text.replace(block,'')
+    if fault in ('CHAIN_REORDERED','CHAIN_NESTED'):
+        changed=text.replace(block,'')
+        marker='END' if fault=='CHAIN_REORDERED' else 'BEGIN'
+        point=changed.index('<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V5:'+marker)
+        point=changed.index(' -->',point)+4
+        changed=changed[:point]+'\n'+block+changed[point:]
+    if fault=='CHAIN_DUPLICATE':changed=text+'\n'+block
+    if fault=='CHAIN_UNTERMINATED':changed=text.replace(text.splitlines()[-1],'')
+    if fault=='CHAIN_DUPLICATE_ROW':changed=text.replace(begin,begin.replace(' version=',' version=epic-6-authority-2026-07-28-v4 version=',1))
+    assert changed.encode('utf-8')!=original
+    path=root/adoption.AUTHORITY_EPICS;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(original)
+    digest=hashlib.sha256(original).hexdigest()
+    request=dict(baseline=before,candidate=candidate,
+        authorityChains=[dict(id='actual-frozen-chain',path=adoption.AUTHORITY_EPICS)])
     try:
-        path.write_text(changed)
-        observed=current.bridge(root,dict(baseline=before,candidate=candidate,chains=[dict(id='frozen-chain',source=path.read_text(),begin=begin,end=end,rows=rows)]))
-    finally:path.write_text(original)
+        valid=current.bridge(root,request)
+        assert valid['result']=='PASS' and valid['blockers']==[]
+        assert all(row['state']=='PASS' for row in valid['assertionLedger'])
+        path.write_bytes(changed.encode('utf-8'))
+        observed=current.bridge(root,request)
+        # Only a clean surviving mutant may trip the named mutation assertion.
+        # Unavailable history, helper errors and unrelated blockers are not proof.
+        if observed['result']=='PASS':
+            assert observed['blockers']==[] and observed['assertionLedger']
+            assert all(row['state']=='PASS' for row in observed['assertionLedger'])
+        else:
+            assert observed['result']=='FAIL' and observed['blockers']==[code]
+        assert observed['result']=='FAIL' and observed['blockers']==[code], 'Authority-chain fault must be rejected by the compiled guard'
+        states={row['id']:row['state'] for row in observed['assertionLedger']}
+        assert states['actual-frozen-chain:containment']=='PASS'
+        marker_fault=code=='EVIDENCE_CHAIN_MARKER_INVALID'
+        assert states['actual-frozen-chain:markers']==('FAIL' if marker_fault else 'PASS')
+        if not marker_fault:assert states['actual-frozen-chain:rows']=='FAIL'
+    finally:
+        path.write_bytes(original)
+        assert path.read_bytes()==original
     assert observed['blockers']==[code]
     observed_fault(record_property,fault,code,observed,digest,hashlib.sha256(path.read_bytes()).hexdigest())
+
+
+@pytest.mark.parametrize('state,blockers',[('BLOCKED',['GIT_UNAVAILABLE']),('FAIL',['HELPER_FAILURE'])])
+def test_fault_receipt_chain_mutation_rejects_unrelated_outcomes(adoption_git,monkeypatch,state,blockers):
+    positive=dict(result='PASS',blockers=[],assertionLedger=[dict(id='fixture',subject='fixture',state='PASS')])
+    outcomes=iter((positive,dict(result=state,blockers=blockers,assertionLedger=positive['assertionLedger'])))
+    monkeypatch.setattr(current,'bridge',lambda *args,**kwargs:next(outcomes))
+    with pytest.raises(AssertionError) as failure:
+        test_complete_fault_matrix_chain(adoption_git,'CHAIN_CHANGED','EVIDENCE_CHAIN_TABLE_INVALID',lambda *args:None)
+    assert not str(failure.value).startswith('Authority-chain fault must be rejected by the compiled guard')
+
 
 @pytest.mark.parametrize('fault,code',[
  ('WORKFLOW_REMOVED','EVIDENCE_GATE_NOT_USED'),('MARKER_MALFORMED','EVIDENCE_GATE_NOT_USED'),('SPAN_DISPLACED','EVIDENCE_GATE_DISPLACED')])
@@ -244,11 +288,25 @@ def test_adoption_output_hardlink_cannot_overwrite_a_source(adoption_git,monkeyp
     result=adoption.finish(result)
     monkeypatch.setattr(adoption,'verify',lambda *args,**kwargs:copy.deepcopy(result))
     try:
-        assert adoption.main(['--repository',str(root),'--candidate',candidate,'--output',output.relative_to(root).as_posix()])==1
+        exit_code=adoption.main(['--repository',str(root),'--candidate',candidate,'--output',output.relative_to(root).as_posix()])
         observed=json.loads(capsys.readouterr().out)
+        assert (exit_code,observed['result'],observed['blockers']) in (
+            (1,'FAIL',['EVIDENCE_OUTPUT_FORBIDDEN']),(0,'PASS',[]))
+        assert exit_code==1, 'Hardlink output must be rejected by the writer'
         assert observed['blockers']==['EVIDENCE_OUTPUT_FORBIDDEN']
         assert source.read_bytes()==original
     finally:output.unlink()
+
+
+@pytest.mark.parametrize('exit_code,state,blockers',[(2,'BLOCKED',['OUTPUT_WRITE_FAILED']),(1,'FAIL',['HELPER_FAILURE'])])
+def test_fault_receipt_hardlink_mutation_rejects_unrelated_outcomes(adoption_git,monkeypatch,capsys,exit_code,state,blockers):
+    def unrelated(*args):
+        current.write_stdout(current.canonical(dict(result=state,blockers=blockers))+b'\n')
+        return exit_code
+    monkeypatch.setattr(adoption,'main',unrelated)
+    with pytest.raises(AssertionError) as failure:
+        test_adoption_output_hardlink_cannot_overwrite_a_source(adoption_git,monkeypatch,capsys)
+    assert not str(failure.value).startswith('Hardlink output must be rejected by the writer')
 
 
 @pytest.mark.parametrize('fault',['none','count','other-assertion','binding','snapshot'])
@@ -589,6 +647,35 @@ def test_frozen_authority_chain_requires_the_final_document_boundary(adoption_gi
         assert invalid['result']=='FAIL' and invalid['blockers']==['EVIDENCE_CHAIN_MARKER_INVALID']
         assert invalid['assertionLedger']
     finally:path.write_bytes(original)
+
+
+def test_frozen_authority_chain_adoption_seam_uses_the_compiled_guard(adoption_git,monkeypatch):
+    root,before,candidate=adoption_git
+    path=root/adoption.AUTHORITY_EPICS;path.parent.mkdir(parents=True,exist_ok=True)
+    original=(ROOT/adoption.AUTHORITY_EPICS).read_bytes()
+    bridge=current.bridge
+    def isolated_bridge(repository,request):
+        request=copy.deepcopy(request)
+        assert request.pop('story104GitlinkAmendment')==adoption.APPROVED_GITLINK_AMENDMENT
+        assert request['authorityChains']==[dict(id='frozen-authority-chain',path=adoption.AUTHORITY_EPICS)]
+        # This disposable Git fixture has no historical publication/gitlink scope.
+        return bridge(repository,request)
+    monkeypatch.setattr(current,'bridge',isolated_bridge)
+    try:
+        for content,expected in ((original,'PASS'),(original+b'after final END\n','FAIL')):
+            path.write_bytes(content);result=current.empty_result(candidate)
+            adoption.authority_chain_checks(root,result,before,candidate)
+            observed=adoption.finish(result)
+            assert observed['result']==expected
+            assert observed['blockers']==([] if expected=='PASS' else ['EVIDENCE_CHAIN_MARKER_INVALID'])
+            rows={row['id']:row['state'] for row in observed['assertionLedger']
+                if row['id'].startswith('chain:frozen-authority-chain:')}
+            assert rows['chain:frozen-authority-chain:containment']=='PASS'
+            assert rows['chain:frozen-authority-chain:markers']==expected
+            if expected=='PASS':assert rows['chain:frozen-authority-chain:rows']=='PASS'
+    finally:
+        path.write_bytes(original)
+        assert path.read_bytes()==original
 
 
 @pytest.mark.parametrize('ownership_failure',['history','index'])

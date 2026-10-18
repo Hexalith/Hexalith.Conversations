@@ -265,8 +265,12 @@ jobs:
             -parallelMode none \
             -result-trx TestResults/conformance/portable.trx \
             -noLogo
+          # The five adoption ACs replay the full frozen 10.4 boundary at HEAD.
+          # Keep explicit historical invocation; live adoption faults run in repository.
+          # Reproduction and mutation proof: docs/runbooks/epic-10-fault-regressions.md.
           uv run --frozen --no-sync dotnet "$internal" -failSkips \
             -class- "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest" \
             -parallelMode none \
             -result-trx TestResults/conformance/internal.trx \
             -noLogo
@@ -304,6 +308,16 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Set up Python for tooling discovery
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Install locked Python tooling
+        run: |
+          python -m pip install --disable-pip-version-check uv==0.12.23
+          uv sync --locked --python 3.11
+
       - name: Install locked release tooling
         run: npm ci --ignore-scripts
 
@@ -333,4 +347,5 @@ jobs:
           fi
 
       - name: Run fail-closed tooling tests
-        run: npm test
+        # unittest imports pytest modules; their function tests run in the repository job.
+        run: uv run --frozen --no-sync npm test
