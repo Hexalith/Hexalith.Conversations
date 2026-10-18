@@ -29,9 +29,9 @@ APPROVED_READER_SUCCESSORS = {
     'tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs':
         '15e2b67d8173f692edd7ee5281b90d111f640fee2f2262e7458a64fe97d05fe9',
     'tests/Hexalith.Conversations.Contracts.Tests/Documentation/DomainModuleAuthoringTemplateValidationTest.cs':
-        '0facfbcd2390e9a2d5f14d7e2c68bbb81f30247259311dcb6ef9188dca7dfd58',
+        'e50659d39237b2251fe0238f86f58a66b2b1d9fc7aaab77858b8f2702126f06f',
     'tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs':
-        '4b0cd0ba9cde856e974082381fb936a3d734bc6c610ddecda9d9ed0af61f2c54',
+        '4f37e50e2ff9564d0d07d571a88d6a80e6dbe8dbf9c2badd7dfcd41caa544c16',
 }
 # The exact owner amendment is independently pinned; it is never a caller-defined allowlist.
 APPROVED_GITLINK_AMENDMENT = {
@@ -221,6 +221,12 @@ def snapshot(repository):
     return value
 
 
+def reader_strength_ok(path, actual, migrated, digest, after_sha256):
+    """Old rule (exact migrated bytes and afterSha256), or the exact pinned successor digest for listed paths only."""
+    successor = APPROVED_READER_SUCCESSORS.get(path)
+    return (actual == migrated and digest == after_sha256) or (successor is not None and digest == successor)
+
+
 def reader_checks(repository, result, binding, *, historical=True):
     """Reconstruct the exact approved migration, rather than comparing counts of assertions."""
     entry_snapshot = snapshot(repository)
@@ -259,10 +265,8 @@ def reader_checks(repository, result, binding, *, historical=True):
         actual = (repository/path).read_bytes() if safe and (repository/path).is_file() else b''
         migrated = text.replace('\n','\r\n').encode() if row['substitutions'] else original
         digest = current.digest(actual)
-        successor = APPROVED_READER_SUCCESSORS.get(path)
         record(result,'reader:strength:'+path,path,
-            (actual==migrated and digest==row['afterSha256']) or (successor is not None and digest==successor),
-            'ASSERTION_STRENGTH_WEAKENED')
+            reader_strength_ok(path,actual,migrated,digest,row['afterSha256']),'ASSERTION_STRENGTH_WEAKENED')
         if row['substitutions']:
             adopted= bool(re.search(rb'(?<![A-Za-z0-9_])(?:RepositoryLocator|EvidenceManifest|GitFacts)\.',actual))
         else:

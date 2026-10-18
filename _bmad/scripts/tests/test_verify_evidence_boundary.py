@@ -2240,3 +2240,30 @@ _story104_spec.loader.exec_module(_story104_module)
 for _story104_name in dir(_story104_module):
     if _story104_name.startswith(('test_complete_fault_matrix','test_adoption_output_','test_frozen_authority_chain_','test_approved_assertion_correction_','test_neutral_helper_portable_surface_')) or _story104_name in ('stamp_adoption_candidate','adoption_surface','adoption_git'):
         globals()[_story104_name] = getattr(_story104_module, _story104_name)
+
+
+def test_approved_reader_successor_is_exact_and_limited_to_listed_paths():
+    import hashlib
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    import evidence_boundary_adoption as adoption
+
+    listed = next(iter(adoption.APPROVED_READER_SUCCESSORS))
+    pinned = adoption.APPROVED_READER_SUCCESSORS[listed]
+    migrated = b"migrated bytes"
+    after = hashlib.sha256(migrated).hexdigest()
+    # A listed file matching its pinned successor digest passes; one byte off no longer does.
+    assert adoption.reader_strength_ok(listed, b"successor", migrated, pinned, after)
+    off_by_one = hashlib.sha256(b"successor!").hexdigest()
+    assert off_by_one != pinned
+    assert not adoption.reader_strength_ok(listed, b"successor!", migrated, off_by_one, after)
+    # The old rule still governs a listed path whose bytes equal the migrated bytes and afterSha256.
+    assert adoption.reader_strength_ok(listed, migrated, migrated, after, after)
+    # A path outside the dict cannot use any successor digest, only the old afterSha256 rule.
+    outside = "tests/Other.cs"
+    assert outside not in adoption.APPROVED_READER_SUCCESSORS
+    assert not adoption.reader_strength_ok(outside, b"successor", migrated, pinned, after)
+    assert adoption.reader_strength_ok(outside, migrated, migrated, after, after)
+    assert not adoption.reader_strength_ok(outside, migrated + b"x", migrated, hashlib.sha256(migrated + b"x").hexdigest(), after)

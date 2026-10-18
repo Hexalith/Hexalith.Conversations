@@ -67,7 +67,7 @@ public sealed class ConversationProjection : IDomainProjectionHandler
     }
 }
 
-/// <summary>Thin query handler returning the projected title; the platform hosts the query endpoint.</summary>
+/// <summary>Thin query handler that echoes the aggregate id; the platform hosts the query endpoint.</summary>
 public sealed class ConversationTitleQuery : IDomainQueryHandler
 {
     /// <inheritdoc/>
