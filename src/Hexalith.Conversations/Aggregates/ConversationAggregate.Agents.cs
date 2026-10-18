@@ -30,6 +30,10 @@ public sealed partial class ConversationAggregate
     public static DomainResult Handle(AddAgentParticipant command, ConversationState? state)
     {
         ArgumentNullException.ThrowIfNull(command);
+        if (state is null)
+        {
+            return AgentReject(ConversationAgentsOutcome.Unavailable);
+        }
         AddParticipantCommand request = command.PublicCommand;
         DomainResult? rejection = CheckAgentSource(request.Metadata, request.ConversationId, state);
         if (rejection is not null)
@@ -40,7 +44,7 @@ public sealed partial class ConversationAggregate
         {
             return AgentReject(ConversationAgentsOutcome.Denied);
         }
-        if (state!.WasAgentRemoved(request.ParticipantPartyId))
+        if (state.WasAgentRemoved(request.ParticipantPartyId))
         {
             return AgentReject(ConversationAgentsOutcome.PrincipalRemovedFromConversation);
         }
@@ -70,6 +74,10 @@ public sealed partial class ConversationAggregate
     public static DomainResult Handle(RemoveAgentParticipant command, ConversationState? state)
     {
         ArgumentNullException.ThrowIfNull(command);
+        if (state is null)
+        {
+            return AgentReject(ConversationAgentsOutcome.Unavailable);
+        }
         var request = command.PublicCommand;
         DomainResult? rejection = CheckAgentSource(request.Metadata, request.ConversationId, state);
         if (rejection is not null)
@@ -80,7 +88,7 @@ public sealed partial class ConversationAggregate
         {
             return AgentReject(ConversationAgentsOutcome.Denied);
         }
-        if (state!.WasAgentRemoved(request.ParticipantPartyId))
+        if (state.WasAgentRemoved(request.ParticipantPartyId))
         {
             return DomainResult.NoOp();
         }
@@ -104,6 +112,10 @@ public sealed partial class ConversationAggregate
     public static DomainResult Handle(AppendAgentMessage command, ConversationState? state)
     {
         ArgumentNullException.ThrowIfNull(command);
+        if (state is null)
+        {
+            return AgentReject(ConversationAgentsOutcome.Unavailable);
+        }
         var request = command.PublicCommand;
         DomainResult? rejection = CheckAgentSource(request.Metadata, request.ConversationId, state);
         if (rejection is not null)
@@ -114,7 +126,7 @@ public sealed partial class ConversationAggregate
         {
             return AgentReject(ConversationAgentsOutcome.Denied);
         }
-        if (state!.WasAgentRemoved(request.AuthorPartyId))
+        if (state.WasAgentRemoved(request.AuthorPartyId))
         {
             return AgentReject(ConversationAgentsOutcome.PrincipalRemovedFromConversation);
         }
@@ -155,12 +167,17 @@ public sealed partial class ConversationAggregate
     /// <returns>The current content mutation event.</returns>
     public static DomainResult Handle(EditConversationMessageCommand request, ConversationState? state)
     {
+        ArgumentNullException.ThrowIfNull(request);
+        if (state is null)
+        {
+            return AgentReject(ConversationAgentsOutcome.Unavailable);
+        }
         DomainResult? rejection = CheckAgentSource(request.Metadata, request.ConversationId, state);
         if (rejection is not null)
         {
             return rejection;
         }
-        var message = state!.Messages.FirstOrDefault(m => m.MessageId == request.MessageId);
+        var message = state.Messages.FirstOrDefault(m => m.MessageId == request.MessageId);
         if (message is null)
         {
             return AgentReject(ConversationAgentsOutcome.Absent);
@@ -188,12 +205,17 @@ public sealed partial class ConversationAggregate
     /// <returns>One message deletion event.</returns>
     public static DomainResult Handle(DeleteConversationMessageCommand request, ConversationState? state)
     {
+        ArgumentNullException.ThrowIfNull(request);
+        if (state is null)
+        {
+            return AgentReject(ConversationAgentsOutcome.Unavailable);
+        }
         DomainResult? rejection = CheckAgentSource(request.Metadata, request.ConversationId, state);
         if (rejection is not null)
         {
             return rejection;
         }
-        var message = state!.Messages.FirstOrDefault(m => m.MessageId == request.MessageId);
+        var message = state.Messages.FirstOrDefault(m => m.MessageId == request.MessageId);
         if (message is null)
         {
             return AgentReject(ConversationAgentsOutcome.Absent);
@@ -220,6 +242,11 @@ public sealed partial class ConversationAggregate
     /// <returns>One durable approval/publication fact.</returns>
     public static DomainResult Handle(ApproveConversationDeletion command, ConversationState? state)
     {
+        ArgumentNullException.ThrowIfNull(command);
+        if (state is null)
+        {
+            return AgentReject(ConversationAgentsOutcome.Unavailable);
+        }
         var request = command.PublicCommand;
         DomainResult? rejection = CheckAgentSource(request.Metadata, request.ConversationId, state, allowDeleted: true);
         if (rejection is not null)
@@ -230,7 +257,7 @@ public sealed partial class ConversationAggregate
         {
             return AgentReject(ConversationAgentsOutcome.Invalid);
         }
-        if (state!.IsDeleted)
+        if (state.IsDeleted)
         {
             return state.DeletionSource.Signal!.ApprovalReference == request.ApprovalReference
             && state.DeletionSource.Signal.SourceRevision == request.SourceRevision + 1
@@ -260,13 +287,18 @@ public sealed partial class ConversationAggregate
     /// <returns>One delivery transition, exact no-op or safe refusal.</returns>
     public static DomainResult Handle(RecordConversationDeletionDelivery command, ConversationState? state)
     {
+        ArgumentNullException.ThrowIfNull(command);
+        if (state is null)
+        {
+            return AgentReject(ConversationAgentsOutcome.Unavailable);
+        }
         var request = command.PublicCommand;
         DomainResult? rejection = CheckAgentSource(request.Metadata, request.ConversationId, state, allowDeleted: true);
         if (rejection is not null)
         {
             return rejection;
         }
-        var current = state!.DeletionSource;
+        var current = state.DeletionSource;
         if (current.Signal is null)
         {
             return AgentReject(ConversationAgentsOutcome.Absent);

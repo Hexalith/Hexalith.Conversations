@@ -21,6 +21,7 @@ public sealed class ConversationDeletionSourceQueryHandler(ConversationAgentQuer
     /// <inheritdoc />
     public async Task<QueryResult> ExecuteAsync(QueryEnvelope query, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(query);
         var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         try
         {

@@ -7,6 +7,10 @@ public static class BoundaryAssertions
     public static bool ChainTable(AssertionLedger ledger, string identity, string source, string begin, string end, IEnumerable<string> expectedRows)
     {
         ArgumentNullException.ThrowIfNull(ledger);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(begin);
+        ArgumentNullException.ThrowIfNull(end);
+        ArgumentNullException.ThrowIfNull(expectedRows);
         int first = source.IndexOf(begin, StringComparison.Ordinal);
         int last = source.IndexOf(end, StringComparison.Ordinal);
         bool markers = first >= 0 && last > first

@@ -18,6 +18,7 @@ public sealed class ConversationAgentApiClientFixture(ConversationAgentLocalFixt
     public async Task<ConversationAgentCommandResult> AddParticipantAsync(AddParticipantCommand request,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
         MembershipCalls++;
         var before = await source.ReplayAsync().ConfigureAwait(false);
         var result = ConversationAggregate.Handle(new AddAgentParticipant(request, request.OperationTimestamp!.Value, "api-membership"), before);

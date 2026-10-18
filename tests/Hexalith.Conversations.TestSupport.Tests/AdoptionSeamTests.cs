@@ -101,6 +101,9 @@ public sealed class AdoptionSeamTests
     [InlineData("reordered", "FAIL", "EVIDENCE_CHAIN_TABLE_INVALID")]
     public void ChainValidationShouldBeTableDriven(string mutation, string result, string code)
     {
+        ArgumentNullException.ThrowIfNull(mutation);
+        ArgumentNullException.ThrowIfNull(result);
+        ArgumentNullException.ThrowIfNull(code);
         string[] rows = ["| 10.1 | 10.2 |", "| 10.2 | 10.3 |"];
         const string Begin = "<!-- BEGIN -->";
         const string End = "<!-- END -->";

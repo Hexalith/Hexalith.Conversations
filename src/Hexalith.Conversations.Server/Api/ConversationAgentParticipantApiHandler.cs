@@ -95,17 +95,26 @@ public sealed class ConversationAgentParticipantApiHandler(
     /// <inheritdoc />
     public ValueTask<ConversationCommandApiOutcome<ConversationCreatedResult>> CreateConversationAsync(
         CreateConversationCommand command, CancellationToken cancellationToken = default)
-        => ValueTask.FromResult(Unavailable<ConversationCreatedResult>(command.Metadata.CorrelationId));
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        return ValueTask.FromResult(Unavailable<ConversationCreatedResult>(command.Metadata.CorrelationId));
+    }
 
     /// <inheritdoc />
     public ValueTask<ConversationCommandApiOutcome<ConversationCommandAcceptedResult>> AppendMessageAsync(
         AppendMessageCommand command, CancellationToken cancellationToken = default)
-        => ValueTask.FromResult(Unavailable<ConversationCommandAcceptedResult>(command.Metadata.CorrelationId));
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        return ValueTask.FromResult(Unavailable<ConversationCommandAcceptedResult>(command.Metadata.CorrelationId));
+    }
 
     /// <inheritdoc />
     public ValueTask<ConversationCommandApiOutcome<ConversationCommandAcceptedResult>> ReassignConversationProjectAsync(
         ReassignConversationProjectCommand command, CancellationToken cancellationToken = default)
-        => ValueTask.FromResult(Unavailable<ConversationCommandAcceptedResult>(command.Metadata.CorrelationId));
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        return ValueTask.FromResult(Unavailable<ConversationCommandAcceptedResult>(command.Metadata.CorrelationId));
+    }
 
     private static ConversationCommandApiOutcome<ConversationAgentCommandResult> Outcome(ConversationAgentsOutcome outcome)
         => ConversationCommandApiOutcome<ConversationAgentCommandResult>.Success(new(outcome), Status(outcome));

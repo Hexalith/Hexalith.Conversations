@@ -117,7 +117,10 @@ public sealed class ConversationDeletionBackfillTests : TimeProvider, ISourcePub
     { ArgumentNullException.ThrowIfNull(advance); return IndexActor().AdvanceDispatchProgressAsync(advance); }
     /// <inheritdoc/>
     public Task<SourcePublicationDeliveryStatus> DeliverAsync(SourcePublicationIndexEntry entry, CancellationToken cancellationToken = default)
-        => new ConversationDeletionPublicationDelivery(_workers[entry.Publication.Identity].Pump()).DeliverAsync(entry, cancellationToken);
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+        return new ConversationDeletionPublicationDelivery(_workers[entry.Publication.Identity].Pump()).DeliverAsync(entry, cancellationToken);
+    }
 
     /// <summary>A bounded pass delivers the first hundred distinct source originals; restart re-verifies their actual durable acknowledgements and delivers originals 101–103 exactly once.</summary>
     [Fact]
