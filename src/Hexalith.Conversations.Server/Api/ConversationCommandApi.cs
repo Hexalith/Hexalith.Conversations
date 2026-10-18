@@ -42,6 +42,16 @@ public static class ConversationCommandApi
         return endpoints;
     }
 
+    /// <summary>Maps only the restricted Agent participant route for a host with an admitted gateway handler.</summary>
+    /// <param name="endpoints">The endpoint route builder.</param>
+    /// <returns>The endpoint route builder.</returns>
+    public static IEndpointRouteBuilder MapConversationAgentParticipantApi(this IEndpointRouteBuilder endpoints)
+    {
+        ArgumentNullException.ThrowIfNull(endpoints);
+        endpoints.MapPost("/api/v1/conversations/{conversationId}/participants", AddParticipantAsync).RequireAuthorization();
+        return endpoints;
+    }
+
     private static async Task<IResult> CreateConversationAsync(
         HttpContext context,
         IConversationCommandApiHandler handler,

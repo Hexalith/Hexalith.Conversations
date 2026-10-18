@@ -33,6 +33,8 @@ public sealed class ConversationAgentSourceReader(IAuthoritativeEventStreamReade
     public async Task<(AuthoritativeEventStream Source, ConversationState State)?> ReadAsync(TenantId tenant,
         ConversationId conversation, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(tenant);
+        ArgumentNullException.ThrowIfNull(conversation);
         cancellationToken.ThrowIfCancellationRequested();
         var identity = new AggregateIdentity(tenant.Value, "conversation", conversation.Value);
         try
@@ -53,7 +55,10 @@ public sealed class ConversationAgentSourceReader(IAuthoritativeEventStreamReade
     /// <returns>The valid complete state or null.</returns>
     public static (AuthoritativeEventStream Source, ConversationState State)? ReplaySource(AuthoritativeEventStream? sourceInput,
         AggregateIdentity identity)
-        => ReplaySource(sourceInput, identity, CancellationToken.None);
+    {
+        ArgumentNullException.ThrowIfNull(identity);
+        return ReplaySource(sourceInput, identity, CancellationToken.None);
+    }
 
     /// <summary>Replays the same exact source with caller-first completion and iteration cancellation.</summary>
     /// <param name="sourceInput">Certified complete source.</param>
@@ -63,6 +68,7 @@ public sealed class ConversationAgentSourceReader(IAuthoritativeEventStreamReade
     public static (AuthoritativeEventStream Source, ConversationState State)? ReplaySource(AuthoritativeEventStream? sourceInput,
         AggregateIdentity identity, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(identity);
         cancellationToken.ThrowIfCancellationRequested();
         var result = ReplaySourceCore(sourceInput, identity, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();

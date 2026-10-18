@@ -4540,6 +4540,17 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
                           "| Literal root | Value |", "| --- | --- |"])
             lines.extend(f"| {code(name)} | {code(value)} |"
                          for name, value in sorted(roots["constants"].items()))
+    if "evidenceAdoptionExecution" in record:
+        amendment = record["evidenceAdoptionExecution"]["approvedGitlinkAmendment"]
+        lines.extend(["", "## Approved root-gitlink amendment", "",
+                      f"- Owner decision: {code(amendment['decisionDate'])}",
+                      f"- Approved revision: {code(amendment['approvalCommit'])}",
+                      "- The twelve original baseline roots remain immutable provenance; three roots are unchanged.",
+                      "", "| Root submodule | Original commit | Approved commit | Original / approved mode |",
+                      "| --- | --- | --- | --- |"])
+        lines.extend("| " + " | ".join(code(value) for value in (
+            row["path"], row["sourceObject"], row["destinationObject"], row["sourceMode"] + " / " + row["destinationMode"])) + " |"
+                     for row in amendment["transitions"])
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
     if record["storyId"] in ("10.3", "10.4") and ("evidenceWorkflowExecution" in record or "evidenceAdoptionExecution" in record):
@@ -5077,7 +5088,7 @@ def v2_working_spec_lifecycle_only_change(
 
 def v2_sprint_status_only_change(
     repository: Path, candidate: str, head: str, sprint_key: str,
-    require_transition: bool = True,
+    require_transition: bool = True, *, updated_content: bytes | None = None,
 ) -> bool:
     """Accept one story row, its `last_updated` date, and the header comment date."""
     status = re.compile(
@@ -5134,7 +5145,8 @@ def v2_sprint_status_only_change(
         return masked, story_value, date.group("value"), header_value, tuple(retro_values)
 
     original = without_status(v2_committed_blob(repository, candidate, V2_7_2_SPRINT_PATH))
-    latest = without_status(v2_committed_blob(repository, head, V2_7_2_SPRINT_PATH))
+    latest = without_status(updated_content if updated_content is not None
+        else v2_committed_blob(repository, head, V2_7_2_SPRINT_PATH))
     if original is None or latest is None or original[0] != latest[0]:
         return False
     if original[1] == b"done" and latest[1] != b"done":
@@ -5150,6 +5162,12 @@ def v2_sprint_status_only_change(
         and original[3] != latest[3]
     )
     return not require_transition or status_changed or header_date_only or retro_changed
+
+
+def v2_working_sprint_status_only_change(repository: Path, head: str, sprint_key: str, working: bytes) -> bool:
+    """Apply the same single-story/date lifecycle mask to a working sprint file."""
+    return v2_sprint_status_only_change(repository, head, head, sprint_key,
+        require_transition=False, updated_content=working)
 
 
 def v2_story_7_2_status_only_change(repository: Path, candidate: str, head: str) -> bool:
@@ -9301,9 +9319,10 @@ def v2_10_4_working_source_matches(repository, candidate, path, working, consume
     if path == V2_10_4_SPEC:
         return v2_working_spec_lifecycle_only_change(repository, candidate, path, working,
             record_region=True, task_checkboxes=True)
-    return (consumer_candidate is not None and path == V2_7_2_SPRINT_PATH
-        and working == v2_committed_blob(repository, consumer_candidate, path)
-        and v2_sprint_status_only_change(repository, candidate, consumer_candidate, V2_10_4_SPRINT_KEY))
+    return (path == V2_7_2_SPRINT_PATH
+        and v2_working_sprint_status_only_change(repository, candidate, V2_10_4_SPRINT_KEY, working)
+        and (consumer_candidate is None or v2_working_sprint_status_only_change(
+            repository, consumer_candidate, V2_10_4_SPRINT_KEY, working)))
 
 
 def v2_10_4_module():
@@ -9340,23 +9359,109 @@ def v2_10_4_pair_errors(record):
             return ['Story 10.4 measured faults or restoration differ']
         if [row['path'] for row in facts['readerBeforeAfter']]!=facts['readerInventory']['paths']:
             return ['Story 10.4 reader identities differ']
-        if facts['rootGitlinks']!=record['candidate']['gitlinks']:
-            return ['Story 10.4 root gitlinks differ']
+        adoption=v2_10_4_module()
+        if (facts['approvedGitlinkAmendment']!=adoption.APPROVED_GITLINK_AMENDMENT
+                or adoption.candidate_gitlinks(facts['rootGitlinks'])!=record['candidate']['gitlinks']):
+            return ['Story 10.4 approved gitlink amendment or candidate roots differ']
     except (KeyError,TypeError,ValueError):return ['Story 10.4 execution facts are malformed']
     return []
 
 
-def v2_10_4_passing_envelope(repository, observed, candidate, identity):
-    """Require the closed schema and complete candidate-bound PASS semantics."""
+# These independent identities/codes describe the executed contract, not receipt declarations.
+V2_10_4_FAULT_GROUPS = {
+    'integrity': {'HASH':'EVIDENCE_HASH_MISMATCH','PATH_ESCAPE':'EVIDENCE_PATH_ESCAPE',
+        'GENERATED_OUTPUT':'EVIDENCE_OUTPUT_FORBIDDEN','SUBSET':'CHANGED_PATH_SET_MISMATCH',
+        'SIGNED_ALLOWLIST':'SIGNED_EVIDENCE_ALLOWLISTED','SIGNABLE':'SIGNABLE_PAYLOAD_MISMATCH',
+        'ROOT':'ROOT_OF_TRUST_NOT_PINNED','GIT_UNAVAILABLE':'GIT_UNAVAILABLE',
+        'HISTORY_UNAVAILABLE':'REVISION_INVALID','GITLINK':'EVIDENCE_BOUNDARY_GITLINK'},
+    'chain': {**dict.fromkeys(('CHAIN_CHANGED','CHAIN_MISSING','CHAIN_REORDERED','CHAIN_DUPLICATE_ROW'),'EVIDENCE_CHAIN_TABLE_INVALID'),
+        **dict.fromkeys(('CHAIN_NESTED','CHAIN_DUPLICATE','CHAIN_UNTERMINATED'),'EVIDENCE_CHAIN_MARKER_INVALID')},
+    'workflow': {'WORKFLOW_REMOVED':'EVIDENCE_GATE_NOT_USED','MARKER_MALFORMED':'EVIDENCE_GATE_NOT_USED','SPAN_DISPLACED':'EVIDENCE_GATE_DISPLACED'},
+    'guidance': {'GUIDANCE_REMOVED':'EVIDENCE_GUIDANCE_NOT_USED',
+        **dict.fromkeys(('GUIDANCE_EQUALITY','GUIDANCE_DECLARED_HASH','GUIDANCE_REDIRECT'),'EVIDENCE_GUIDANCE_DRIFT')},
+    'readers': {'READER_STRENGTH':'ASSERTION_STRENGTH_WEAKENED','READER_HELPER':'EVIDENCE_HELPER_NOT_USED',
+        'EXEMPTION':'DAY_ONE_EXEMPTION_FORBIDDEN','READER_INVENTORY':'EVIDENCE_READER_INVENTORY_DRIFT'},
+}
+V2_10_4_FAULT_CODES = {fault:code for group in V2_10_4_FAULT_GROUPS.values() for fault,code in group.items()}
+V2_10_4_FAULT_CODES['PROMOTION_SPAN_DISPLACED']='PROMOTION_GATE_SPAN_WEAKENED'
+V2_10_4_PYTEST_CASES = {
+    'AC-10.4-06': {('test_complete_fault_matrix_'+group+'['+fault+'-'+code+']'):fault
+        for group,rows in V2_10_4_FAULT_GROUPS.items() for fault,code in rows.items()},
+    'AC-10.4-07': {'test_evidence_gate_span_coupling[exact-span]':None,
+        'test_evidence_gate_span_coupling[displaced-span]':'PROMOTION_SPAN_DISPLACED'},
+}
+V2_10_4_PYTEST_TARGETS = {'AC-10.4-06':'_bmad/scripts/tests/test_verify_evidence_boundary.py',
+    'AC-10.4-07':'_bmad/scripts/tests/test_verify_submodule_promotion.py'}
+# Only these accepted bytes predate observed result/exit properties. New or
+# altered receipts must satisfy the current contract, even at this candidate.
+V2_10_4_LEGACY_FAULT_RECEIPT = (
+    '7e5a4b765a4437f361fac7e7bb4f13e5b7cf3ec8',
+    'artifacts/v9/10.4/AC-10.4-06.xml',
+    '94faa9000e8fdcbfc4a803d53777d061ff827837874bbda14557c388d1d3fb4a',
+)
+# AC-09 composed two guidance readers before their IDs had separate namespaces.
+# Preserve its exact accepted envelope; current envelopes must use unique IDs.
+V2_10_4_LEGACY_SCOPE_ENVELOPE = (
+    '7e5a4b765a4437f361fac7e7bb4f13e5b7cf3ec8',
+    'f6e7937ec00fef6eaebb355a68877dd264f5dfae7ca39acac5f9711fe66d395d',
+)
+
+
+def v2_10_4_assertion_rows(rows, *, passing=False):
+    """Reject unevaluated, malformed or duplicate assertion identities."""
+    if (not isinstance(rows,list) or not rows or any(not isinstance(row,dict)
+            or set(row)!={'id','subject','state'}
+            or any(not isinstance(row[key],str) or not row[key].strip() for key in ('id','subject'))
+            or row['state'] not in ('PASS','FAIL','SKIPPED') for row in rows)):
+        raise ValueError('assertion ledger violates its closed schema')
+    identities=[row['id'] for row in rows]
+    if len(set(identities))!=len(identities) or not any(row['state'] in ('PASS','FAIL') for row in rows):
+        raise ValueError('assertion identities must be unique and evaluated (closed schema)')
+    if passing and any(row['state']!='PASS' for row in rows):raise ValueError('passing receipts require passing assertions')
+    return rows
+
+
+def v2_10_4_helper_result(repository,observed,candidate):
     import jsonschema
     adoption=v2_10_4_module()
-    try:
-        jsonschema.validate(observed,json.loads((repository/adoption.current.SCHEMA).read_bytes()))
-    except jsonschema.ValidationError as error:
-        raise ValueError(identity+' helper result violates its closed schema') from error
-    if (observed['candidate']!=candidate or observed['result']!='PASS' or observed['blockers']
-        or not observed['assertionLedger'] or any(row['state']!='PASS' for row in observed['assertionLedger'])):
-        raise ValueError(identity+' is not a passing candidate-bound scoped result')
+    try:jsonschema.validate(observed,json.loads((repository/adoption.current.SCHEMA).read_bytes()))
+    except jsonschema.ValidationError as error:raise ValueError('invalid helper envelope: '+error.message) from None
+    if observed['candidate']!=candidate or observed['result']!='PASS' or observed['blockers'] or observed['warnings']:
+        raise ValueError('a passing candidate-bound helper result is required')
+    if (candidate,v2_sha256(adoption.current.canonical(observed)))==V2_10_4_LEGACY_SCOPE_ENVELOPE:
+        return observed['assertionLedger']
+    return v2_10_4_assertion_rows(observed['assertionLedger'],passing=True)
+
+
+def v2_10_4_scope_receipt(repository,observed,candidate):
+    """Recompute source boundary and guidance facts without publication or output ownership."""
+    adoption=v2_10_4_module();current=adoption.current
+    v2_10_4_helper_result(repository,observed,candidate)
+    binding=v2_parse_json(v2_committed_blob(repository,candidate,V2_10_4_BINDING))
+    manifest=binding['provenance']+binding['workflowInventory']['rows']+binding['guidanceInventory']['rows']
+    manifest += [dict(path=adoption.SNAPSHOT,sha256=adoption.SNAPSHOT_SHA256,role='entry-snapshot')]
+    payload=''.join(f'{row["path"]}\t{row["sha256"]}\t{row.get("role","provenance")}\n' for row in sorted(manifest,key=lambda row:row['path']))
+    raw=current.bridge(repository,dict(baseline=adoption.BASELINE,candidate=candidate,
+        expectedPaths=binding['expectedChangedPaths'],roots=adoption.ROOTS,manifest=manifest,
+        signablePayloadHash=current.digest(payload.encode()),story104GitlinkAmendment=adoption.APPROVED_GITLINK_AMENDMENT,
+        blobPaths=[row['path'] for row in manifest]))
+    if raw['result']!='PASS' or raw['blockers']:raise ValueError('candidate boundary facts do not pass')
+    changed=sorted({row['path'] for row in raw['diff']}|{row['sourcePath'] for row in raw['diff'] if row['sourcePath']})
+    blobs={row['path']:row for row in raw['blobs']}
+    if (changed!=binding['expectedChangedPaths'] or observed['changedPaths']!=changed or observed['manifest']!=manifest
+            or any(row['path'] not in blobs or blobs[row['path']]['code'] or blobs[row['path']]['sha256']!=row['sha256'] for row in manifest)):
+        raise ValueError('AC-09 boundary or candidate manifest facts differ')
+    expected=current.empty_result(candidate)
+    adoption.guidance_checks(repository,expected,binding)
+    current.workflow_checks(repository,expected,binding)
+    if expected['blockers']:raise ValueError('candidate workflow or guidance facts do not pass')
+    required=[dict(row,id='boundary:'+row['id']) for row in raw['assertionLedger']]+expected['assertionLedger']
+    if (candidate,v2_sha256(current.canonical(observed)))==V2_10_4_LEGACY_SCOPE_ENVELOPE:
+        required=[dict(row,id=row['id'].replace('guidance:adoption-resolved:','guidance:resolved:',1)) for row in required]
+    required += [dict(id='candidate:blob:'+path,subject=path,state='PASS') for path in binding['sourcePaths']]
+    actual={(row['id'],row['subject'],row['state']) for row in observed['assertionLedger']}
+    if any((row['id'],row['subject'],row['state']) not in actual for row in required):
+        raise ValueError('AC-09 measured boundary/workflow/guidance assertions differ')
 
 
 def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
@@ -9370,10 +9475,7 @@ def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
         tokens=shlex.split(scenario['command']);ledger=[]
         if identity=='AC-10.4-09':
             path=tokens[tokens.index('--output')+1];content=read(path);observed=v2_parse_json(content)
-            v2_10_4_passing_envelope(repository,observed,candidate,identity)
-            required=v2_10_4_guidance_assertions()
-            if not required.issubset({(row['id'],row['subject']) for row in observed['assertionLedger']}):
-                raise ValueError(identity+' guidance/customization/runbook/workflow assertion identities differ')
+            v2_10_4_scope_receipt(repository,observed,candidate)
             ledger=[dict(id=f'{identity}#{n+1:04d}',subject=row['id']+'::'+row['subject'],state=row['state'])
                 for n,row in enumerate(observed['assertionLedger'])]
         elif '-trx' in tokens:
@@ -9397,9 +9499,9 @@ def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
                 or re.split(r'[\\/]',methods[0].get('codeBase',''))[-1]!=assembly
                 or re.split(r'[\\/]',definition.get('storage',''))[-1]!=assembly):
                 raise ValueError(identity+' native assembly or result/definition linkage differs')
-            revisions=[line.strip().removeprefix('story104_source_revision=') for line in testcase['output'].splitlines()
-                if line.strip().startswith('story104_source_revision=')]
-            if testcase['test']!=method or len(revisions)!=1 or re.fullmatch(r'(?:[^\s+]+\+)?'+re.escape(candidate),revisions[0]) is None:
+            stamps=re.findall(r'(?m)^story104_source_revision=([^\r\n]+)$',testcase['output'])
+            revisions=[match.group(1) if (match:=re.fullmatch(r'(?:(?:[0-9]+\.){2}[0-9]+(?:\.[0-9]+)?(?:-[0-9A-Za-z.-]+)?\+)?([0-9a-f]{40})',stamp)) else None for stamp in stamps]
+            if testcase['test']!=method or revisions!=[candidate]:
                 raise ValueError(identity+' receipt does not bind its exact test and source assembly revision')
             ledger=[dict(id=identity+'#0001',subject=testcase['test'],state='PASS')]
             # Check() writes the actual shared-helper result into the test receipt.
@@ -9416,7 +9518,7 @@ def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
                     envelopes.append(envelope)
             if len(envelopes)!=1:raise ValueError(identity+' requires exactly one measured helper result envelope')
             observed=envelopes[0]
-            v2_10_4_passing_envelope(repository,observed,candidate,identity)
+            v2_10_4_helper_result(repository,observed,candidate)
             ledger += [dict(id=f'{identity}#{n+2:04d}',subject=row['id']+'::'+row['subject'],state=row['state'])
                 for n,row in enumerate(observed['assertionLedger'])]
         else:
@@ -9430,40 +9532,50 @@ def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
             reported=parsed['reported']
             if reported['tests']!=len(parsed['cases']) or any(reported[key] for key in ('failures','errors','skipped')):
                 raise ValueError(identity+' testcase summary differs')
-            expected_cases=adoption.FAULT_TESTCASES if identity=='AC-10.4-06' else adoption.PROMOTION_TESTCASES
-            module=('_bmad.scripts.tests.test_verify_evidence_boundary' if identity=='AC-10.4-06'
-                else '_bmad.scripts.tests.test_verify_submodule_promotion')
-            names=[(case['classname'],case['name']) for case in parsed['cases']]
-            if len(names)!=len(expected_cases) or set(names)!={(module,name) for name in expected_cases}:
-                raise ValueError(identity+' exact testcase identities differ')
+            expected_cases=V2_10_4_PYTEST_CASES[identity]
+            if command['target']!=V2_10_4_PYTEST_TARGETS[identity]:raise ValueError(identity+' unrelated pytest target')
+            require_fault_state=identity=='AC-10.4-06' and (candidate,path,v2_sha256(content))!=V2_10_4_LEGACY_FAULT_RECEIPT
+            expected_class=command['target'][:-3].replace('/','.')
+            names=[case['name'] for case in parsed['cases']]
+            if len(names)!=len(set(names)) or set(names)!=set(expected_cases):raise ValueError(identity+' testcase identities differ')
             for n,case in enumerate(parsed['cases']):
-                props=dict(case['properties'])
-                if len(props)!=len(case['properties']) or props.get('story104_source_revision')!=candidate:
-                    raise ValueError(identity+' test is not bound to the source candidate')
+                props=dict(case['properties']);fault=expected_cases[case['name']]
+                if case['classname']!=expected_class or len(props)!=len(case['properties']) or props.get('story104_source_revision')!=candidate:
+                    raise ValueError(identity+' exact testcase identities differ')
                 ledger.append(dict(id=f'{identity}#{n+1:04d}',subject=case['name'],state='PASS'))
-                fault=expected_cases[case['name']]
-                before,after=props['story104_before_sha256'],props['story104_after_sha256']
-                execution=json.loads(props['story104_assertion_ledger'])
-                import jsonschema
-                schema=json.loads((repository/adoption.current.SCHEMA).read_bytes())
-                try:jsonschema.validate(execution,dict(schema['properties']['assertionLedger'],**{'$defs':schema['$defs']}))
-                except jsonschema.ValidationError as error:raise ValueError(identity+' assertion ledger violates its closed schema') from error
-                if not re.fullmatch(r'[0-9a-f]{64}',before) or before!=after or not execution:
-                    raise ValueError(identity+' assertion ledger or restoration differs')
                 if fault is not None:
-                    expected=adoption.FAULT_EXPECTATIONS[fault]
-                    code=props['story104_expected_code'];blockers=json.loads(props['story104_observed_blockers'])
-                    if (props['story104_fault_id']!=fault or code!=expected['code'] or blockers!=expected['blockers']
-                        or not any(row['state'] in ('FAIL','SKIPPED') for row in execution)):
-                        raise ValueError(identity+' fault identity or exact blocker set differs')
+                    code=V2_10_4_FAULT_CODES[fault]
+                    if props.get('story104_fault_id')!=fault or props.get('story104_expected_code')!=code:
+                        raise ValueError(identity+' independent fault/code mapping differs')
+                    blockers=json.loads(props['story104_observed_blockers'])
+                    before,after=props['story104_before_sha256'],props['story104_after_sha256']
+                    execution=json.loads(props['story104_assertion_ledger'])
+                    v2_10_4_assertion_rows(execution)
+                    if require_fault_state:
+                        expected=('BLOCKED','2') if fault in ('GIT_UNAVAILABLE','HISTORY_UNAVAILABLE') else ('FAIL','1')
+                        if (props.get('story104_observed_result'),props.get('story104_observed_exit'))!=expected:
+                            raise ValueError(identity+' fault result/exit differs: '+fault)
+                    if (not isinstance(blockers,list) or any(not isinstance(item,str) for item in blockers)
+                            or blockers!=adoption.FAULT_EXPECTATIONS[fault]['blockers'] or set(blockers)-(adoption.FAIL_CODES|adoption.current.BLOCKED_CODES)
+                            or blockers!=sorted(set(blockers)) or before!=after or re.fullmatch(r'[0-9a-f]{64}',before) is None):
+                        raise ValueError(identity+' fault observation or restoration differs')
+                    if require_fault_state:
+                        envelope=adoption.current.empty_result(candidate)
+                        envelope.update(assertionLedger=execution,blockers=blockers)
+                        if adoption.finish(envelope)['result']!=props['story104_observed_result']:
+                            raise ValueError(identity+' fault ledger/result differs: '+fault)
                     mutations.append(dict(id=fault,expectedBlocker=code,observedBlockers=blockers,
                         beforeSha256=before,afterSha256=after,restored=True,result='PASS'))
-                elif any(key.startswith('story104_fault_') or key in ('story104_expected_code','story104_observed_blockers') for key in props) or any(row['state']!='PASS' for row in execution):
-                    raise ValueError(identity+' positive span proof differs')
+                else:
+                    allowed={'story104_source_revision','story104_before_sha256','story104_after_sha256','story104_assertion_ledger'}
+                    if any(key.startswith('story104_') and key not in allowed for key in props):raise ValueError(identity+' positive span case carries unrelated fault facts')
+                    v2_10_4_assertion_rows(json.loads(props['story104_assertion_ledger']),passing=True)
+                    if props['story104_before_sha256']!=props['story104_after_sha256'] or re.fullmatch(r'[0-9a-f]{64}',props['story104_before_sha256']) is None:
+                        raise ValueError(identity+' positive span restoration differs')
         receipt=dict(path=path,sha256=v2_sha256(content));receipts.append(receipt)
         scenarios.append(dict(scenarioId=identity,command=scenario['command'],exitCode=0,result='PASS',blockers=[],
             assertionLedger=ledger,resultFile=receipt,outputFiles=[receipt]))
-    required=set(adoption.FAULT_EXPECTATIONS)
+    required=set(V2_10_4_FAULT_CODES)
     if {row['id'] for row in mutations}!=required or len(mutations)!=len(required):
         raise ValueError('the exact named 29-fault matrix was not measured')
     scenario=contract['scenarios'][7]
@@ -9471,31 +9583,11 @@ def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
         assertionLedger=[dict(id=f'AC-10.4-08#{n+1:04d}',subject=subject,state='PASS') for n,subject in enumerate((
             'eight-measured-candidate-bound-receipts-including-AC-09','verified-10.3-predecessor',
             '27-exact-reader-substitutions-and-zero-exemptions','29-real-faults-and-byte-identical-restoration',
-            'ten-workflow-spans-and-resolved-guidance','closed-schema-and-deterministic-pair'))]))
+            'ten-workflow-spans-and-resolved-guidance','nine-approved-raw-gitlink-transitions-and-three-unchanged-roots',
+            'closed-schema-and-deterministic-pair'))]))
     return scenarios,receipts,mutations
 
 
-def v2_10_4_guidance_assertions():
-    """Independently bind AC-09's required guidance and ten-route proof identities."""
-    adoption=v2_10_4_module();required={('runbook:sections',adoption.RUNBOOK),('runbook:contract',adoption.RUNBOOK)}
-    for name in ('bmad-build','bmad-build-auto','bmad-review'):
-        path=f'_bmad/custom/{name}.toml'
-        required.update((f'guidance:{kind}:{name}',path) for kind in ('present','content','resolved'))
-        required.add(('guidance:resolved:'+name,name))
-        if name!='bmad-review':
-            for tree in ('.agents/skills','.claude/skills'):
-                required.update((f'guidance:{kind}:{tree}:{name}',name) for kind in ('render','render-used'))
-                required.add((f'render:deterministic:{tree}:{name}',name))
-    for path in adoption.GUIDANCE:
-        required.update((f'guidance:{kind}:{path}',path) for kind in ('hash','file'))
-    for path in adoption.WORKFLOWS:
-        required.update((f'workflow:{kind}:{path}',path) for kind in ('presence','span'))
-        required.update((f'workflow:clause:{path}:{clause}',path) for clause in
-            ('`FAIL`/`1`','`BLOCKED`/`2`','`not-applicable`/`0`','--verify-workflows','explicitly requires','never write `review` or `done`'))
-        if '/bmad-code-review/' not in path:required.add(('render:gate:'+path,path))
-    for logical in adoption.current.LOGICAL_ROUTES:
-        required.add(('workflow:twins:'+logical,logical))
-    return required
 
 
 def v2_10_4_source_errors(repository,record,consumer_candidate=None):
@@ -9517,11 +9609,15 @@ def v2_10_4_source_errors(repository,record,consumer_candidate=None):
         if binding.get('entrySnapshot')!=dict(path=adoption.SNAPSHOT,sha256=adoption.SNAPSHOT_SHA256):
             return problems+['entry snapshot declaration differs from independent trust root']
         if [row['path'] for row in facts['sourceFiles']]!=binding['sourcePaths']:problems.append('source membership differs')
-        for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections'):
+        if (binding['sourcePaths']!=list(adoption.APPROVED_SOURCE_PATHS) or binding['expectedChangedPaths']!=sorted(
+                set(adoption.APPROVED_SOURCE_PATHS)|{row['path'] for row in adoption.APPROVED_GITLINK_AMENDMENT['transitions']})):
+            problems.append('independent exact source/transition boundary differs')
+        for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections','approvedGitlinkAmendment'):
             if facts[key]!=binding[key]:problems.append('effective binding differs: '+key)
-        raw=adoption.current.bridge(repository,dict(baseline=adoption.BASELINE,candidate=candidate,expectedPaths=binding['sourcePaths'],includeRootGitlinks=True,
+        raw=adoption.current.bridge(repository,dict(baseline=adoption.BASELINE,candidate=candidate,expectedPaths=binding['expectedChangedPaths'],includeRootGitlinks=True,
+            story104GitlinkAmendment=adoption.APPROVED_GITLINK_AMENDMENT,
             blobPaths=[adoption.SNAPSHOT,*adoption.PROVENANCE]))
-        if raw['result']!='PASS' or raw['rootGitlinks']!=facts['rootGitlinks']:problems.append('raw boundary or twelve roots differ')
+        if raw['result']!='PASS' or raw['rootGitlinks']!=adoption.candidate_gitlinks(facts['rootGitlinks']):problems.append('raw boundary or twelve roots differ')
         blobs={row['path']:row for row in raw['blobs']}
         if blobs[adoption.SNAPSHOT]['sha256']!=adoption.SNAPSHOT_SHA256:problems.append('entry trust root differs')
         snapshot=v2_parse_json(base64.b64decode(blobs[adoption.SNAPSHOT]['content']))
@@ -9608,9 +9704,20 @@ def v2_10_4_generate(options,*,candidate=None,verify_spec=None,consumer_candidat
         if blob is None:raise ValueError('source unavailable: '+path)
         source_files.append(dict(path=path,sha256=v2_sha256(blob)))
         working=v2_10_1_artifact_bytes(repository,path)
-        if not v2_10_4_working_source_matches(repository,candidate,path,working,
-                consumer_candidate if verify_spec is not None else None):
+        if not v2_10_4_working_source_matches(repository,candidate,path,working,consumer_candidate) or (
+                path==V2_7_2_SPRINT_PATH and working!=blob and verify_spec is None):
             raise ValueError('working source differs: '+path)
+    allowed_dirt=set(contract['finalRecord']['paths'])
+    for scenario in contract['scenarios']:
+        if scenario['id']=='AC-10.4-08':continue
+        tokens=shlex.split(scenario['command'])
+        output=tokens[tokens.index('-trx')+1] if '-trx' in tokens else (tokens[tokens.index('--output')+1] if '--output' in tokens else v2_pytest_command(tokens)['junit'])
+        allowed_dirt.add(str(output))
+    # Source bytes were checked above, including the strictly masked lifecycle files.
+    allowed_dirt.update(binding['sourcePaths'])
+    dirt=set(worktree_path_status(repository))-allowed_dirt
+    if dirt:raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN','working-tree',
+        'working tree differs outside explicit source/receipt/pair scope: '+v2_path_summary(dirt))],'10.4')
     predecessor=v2_verified_predecessor(repository,candidate,'10.3',adoption.PROVENANCE[5],adoption.PROVENANCE[6],validators['record'])
     if predecessor!=adoption.PREDECESSOR_SHA256:raise ValueError('predecessor does not verify')
     observed=adoption.verify(repository,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
@@ -9619,7 +9726,7 @@ def v2_10_4_generate(options,*,candidate=None,verify_spec=None,consumer_candidat
             'scoped-verifier','scoped verifier does not pass: '+', '.join(observed['blockers']))],'10.4')
     scenarios,receipts,mutations=v2_10_4_receipt_facts(repository,contract,candidate,
         (lambda path:v2_committed_blob(repository,consumer_candidate,path)) if consumer_candidate else None)
-    facts={key:binding[key] for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections')}
+    facts={key:binding[key] for key in ('baseline','provenance','workflowInventory','guidanceInventory','resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections','approvedGitlinkAmendment')}
     facts.update(bindingRule='SC-10.4 is the committed candidate evaluated under the approved current binding',sourceRevisionId=candidate,
         binding=dict(path=V2_10_4_BINDING,sha256=v2_sha256(binding_bytes)),contract=dict(path=V2_10_4_CONTRACT,sha256=v2_sha256(contract_bytes)),
         predecessorPair=dict(json=dict(path=adoption.PROVENANCE[5],sha256=predecessor),markdown=dict(path=adoption.PROVENANCE[6],sha256=v2_sha256(v2_committed_blob(repository,candidate,adoption.PROVENANCE[6])))),
@@ -9629,8 +9736,9 @@ def v2_10_4_generate(options,*,candidate=None,verify_spec=None,consumer_candidat
     bundle_digest=v2_sha256(''.join(f'{row["sha256"]}  {row["path"]}\n' for row in bundle['artifacts']).encode())
     if bundle_digest!=bundle['bundleDigest']:raise ValueError('original authority row digest differs')
     paths=contract['finalRecord']['paths']
+    observed_roots=[dict(path=path,mode='160000',commit=commit) for path,commit in v2_raw_gitlinks(repository,candidate)]
     record=dict(schemaVersion=V2_RECORD_SCHEMA_VERSION,storyId='10.4',authority={key:contract['authority'][key] for key in ('epic','architecture','planningCandidate')},
-        candidate=dict(commit=candidate,gitlinks=facts['rootGitlinks']),predecessors=['10.3'],inventory=contract['inventory'],scenarios=scenarios,
+        candidate=dict(commit=candidate,gitlinks=observed_roots),predecessors=['10.3'],inventory=contract['inventory'],scenarios=scenarios,
         faultInjection=dict(results=[]),outputs=dict(json=dict(path=paths[0],sha256=V2_ZERO_DIGEST),markdown=dict(path=paths[1],sha256=V2_ZERO_DIGEST)),
         rollback=contract['rollback'],summary=dict(required=9,passed=9,failed=0,blocked=0,skipped=0,notRun=0),renderedMarkdownSha256=V2_ZERO_DIGEST,evidenceAdoptionExecution=facts)
     record['authority']['bundleDigest']=bundle_digest
@@ -9654,6 +9762,8 @@ def v2_10_4_verify_inserted_impl(options):
     spec=(repository/V2_10_4_SPEC).read_bytes();region=v2_record_region(spec)
     if region is None or spec[region[0]:region[1]]!=m:raise ValueError('verbatim inserted region differs')
     if not v2_working_spec_lifecycle_only_change(repository,head,V2_10_4_SPEC,spec,record_region=True,task_checkboxes=True):raise ValueError('working spec changes source')
+    if not v2_working_sprint_status_only_change(repository,head,V2_10_4_SPRINT_KEY,
+            v2_10_1_artifact_bytes(repository,V2_7_2_SPRINT_PATH)):raise ValueError('working sprint changes source')
     for path,content in zip(paths,(j,m)):
         if (repository/path).read_bytes()!=content:raise ValueError('installed pair differs')
     derived=v2_10_4_generate({'--repository':str(repository),'--contract':V2_10_4_CONTRACT,'--format':'bundle',

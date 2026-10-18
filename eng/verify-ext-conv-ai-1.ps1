@@ -39,11 +39,9 @@ function Assert-Hash([string]$Path, [string]$Expected) {
     }
 }
 
-# Full live execution cannot be enabled by caller-authored acceptance/provider metadata.
-# Candidate C4 discovery, ordered backfill/pump and catalogue source exist, but independently
-# qualified runtime bindings, worker enrollment and receiver lookup are not installed.
 if ($Mode -eq 'Live') {
-    throw 'Live gate closed before any calls: candidate discovery/backfill/pump/catalogue source is not independently qualified or installed with current authority, worker enrollment and an authenticated exact receiver acknowledgement. Production SDK source attestation/compare-append and approval bindings remain unestablished. No caller manifest can override incomplete installation or qualification. Execution requires complete installed behavior and actual Available owner records, or an explicitly accepted all-owner qualification cohort.'
+    & (Join-Path $PSScriptRoot 'verify-ext-conv-ai-1-live.ps1') -ArtifactsPath $ArtifactsPath -LiveManifest $LiveManifest
+    return
 }
 
 New-Item -ItemType Directory -Path $ArtifactsPath -Force | Out-Null
@@ -109,7 +107,7 @@ foreach ($name in $projects) {
 }
 $evidence = @{ Mode = 'Local'; EvidenceKind = 'SerializedLocalSimulation'; LiveReady = $false;
     SourceRevision = (& git -C $repository rev-parse HEAD).Trim(); Lanes = $lanes;
-    RemainingGates = @('Owner full target/date/command acceptance', 'Real current authority and immutable Party',
+    RemainingGates = @('Replacement immutable target and exact command acceptance by Agents owner', 'Real current authority and immutable Party',
         'Independently qualified SDK complete command-source attestation and actor compare/append', 'Installed complete authenticated tenant catalogue under the accepted creation window',
         'Independent deletion approval with authentic policy/source-bound logical-deletion audit evidence',
         'Qualified runtime publication discovery/backfill/pump binding and actual dedicated service-Party enrollment',

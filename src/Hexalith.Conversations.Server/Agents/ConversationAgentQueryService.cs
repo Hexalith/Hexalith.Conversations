@@ -25,6 +25,7 @@ public sealed class ConversationAgentQueryService(IConversationAgentAuthority au
     public async Task<ConversationAgentReadResult> ReadAsync(string principal, ConversationAgentReadQuery query,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(query);
         cancellationToken.ThrowIfCancellationRequested();
         var admitted = await AuthorizeSafelyAsync(principal, query.TenantId, query.ConversationId, "AgentRead", cancellationToken).ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
@@ -91,6 +92,7 @@ public sealed class ConversationAgentQueryService(IConversationAgentAuthority au
     public async Task<ConversationActiveCountResult> CountAsync(string principal, ConversationActiveCountQuery query,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(query);
         cancellationToken.ThrowIfCancellationRequested();
         var admitted = await AuthorizeSafelyAsync(principal, query.TenantId, null, "AgentCount", cancellationToken).ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
@@ -133,6 +135,7 @@ public sealed class ConversationAgentQueryService(IConversationAgentAuthority au
     public async Task<ConversationDeletionSourceResult> DeletionSourceAsync(string principal, ConversationDeletionSourceQuery query,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(query);
         cancellationToken.ThrowIfCancellationRequested();
         var admitted = await AuthorizeSafelyAsync(principal, query.TenantId, query.ConversationId, "DeletionSource", cancellationToken).ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();

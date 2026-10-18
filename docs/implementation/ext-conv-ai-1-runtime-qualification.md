@@ -1,0 +1,33 @@
+# EXT-CONV-AI-1 runtime qualification
+
+The six core seams use the existing `IConversationClient`, aggregate, authoritative EventStore source folds, tenant catalogue, and ordered deletion delivery pump. An external composition host may opt in with `AddConversationDeletionRuntime` and `MapConversationAgentParticipantApi`, after installing `IConversationAgentAuthority`, `IConversationDeletionApprovalVerifier`, `IConversationCommandSourceVerifier`, `IAuthoritativeEventStreamReader`, `ISourcePublicationNamespaceSource`, `ISourcePublicationIndexStore`, `IConversationDeletionReceiver`, and `IConversationClient`. It must supply exact `TenantId`, `WorkerPrincipalId`, `ServicePartyId`, and `NamespaceInstallationId` values. Registration rejects missing or known unavailable providers, but it does not prove enrollment or availability. The source namespace is `conversation/approved-deletion-v1` for that tenant and installation. The repository's thin domain-service host remains fail closed and does not opt in.
+
+The route `POST /api/v1/conversations/{conversationId}/participants` uses the admitted EventStore gateway. Its 202 result means command admission; the caller must use the participant-state read to establish persistence. The handler rejects a foreign tenant or Party, changed type or role, and revoked authority before dispatch. General command routes are not mapped by this Agent-only endpoint extension. Once an external host explicitly composes the runtime, a scoped background worker runs bounded ordered dispatch passes for the exact installed namespace. A blocked pass retains its checkpoint and retries; receipt lookup remains independent of submission.
+
+## Live input and evidence
+
+Set `EXT_CONV_AI_1_LIVE_MANIFEST` to an installed JSON manifest path, or pass `-LiveManifest`. The verifier also reads the committed Agents dependency register and refuses a source target that is not accepted there as `Committed` or `Available`; a caller manifest cannot change the accepted target. The manifest has `schemaVersion: 1`, `targetCommit`, `tenantId`, `foreignTenantId`, `servicePartyId`, `workerPrincipalId`, `messageId`, `zeroAgentConversationId`, UTC `createdFromInclusive`/`createdToExclusive`, `namespaceInstallationId`, `receiverTargetVersion`, and `storageIdentity`.
+
+Its `bases` object names independent HTTPS targets `gateway`, `parties`, `receiver`, `control`, and `observer`. Its `credentialReferences` object names `service`, `human`, `approver`, `worker`, `party`, `receiver`, `control`, and `observer`, each as an `env:VARIABLE_NAME` reference. Secret values remain outside the manifest and evidence. Its `operations` object provides each request with `base`, `credential`, `method` (`GET` or `POST`), relative `path`, and a contained `bodyFile` for POST. A manifest can select requests but cannot set expected results: the verifier asserts the C1–C4 typed outcomes and persisted facts in code.
+
+The required operation names are:
+
+| Lane | Operations in execution order | Required independent facts |
+| --- | --- | --- |
+| Preflight | `identity`, `party` | Clean source commit equals authenticated runtime identity; exact tenant, namespace, receiver and storage; Parties confirms the immutable active Branch B Organization Party by tenant/id. |
+| C1 | `c1Membership`, `c1ParticipantReadAfterFirst`, `c1MembershipRetry`, `c1ParticipantRead`, `c1Post`, `c1MessageReadAfterFirst`, `c1PostRetry`, `c1MessageRead`, `c1RosterRead`, `c1Catalogue`, `c1ZeroAgentSource`, `c1Count`, `c1CurrentRead`, `c1Edit`, `c1EditedRead`, `c1Delete`, `c1DeletedRead` | Source revision is unchanged by exact retries; one AI member and one deterministic message with provenance remain. Current content, human edit and deletion state, and Facilitator are visible. A zero-Agent-Call Conversation is verified from source and present in the authenticated complete catalogue; count equals its active `[from,to)` fold. |
+| C2 | `c2Approve`, `c2SourceBefore`, `c2Dispatch`, `c2SourceAfter`, `c2ReceiverLookup` | Approval creates one stable source signal. The source checkpoint advances only after an exact persisted receipt that equals independent receiver lookup and names a positive protected deletion revision. |
+| C3 | `c3Approve`, `c3SourcePending`, `c3ReceiverOutage`, `c3SourceOutage`, `c3Restart`, `c3SourceRestart`, `c3TargetRollover`, `c3Retry`, `c3SourceAcknowledged`, `c3ReceiverLookup` | Outage is observed, restart and rollover retain the signal, and retry yields an exact independently looked-up receipt at a new target version. |
+| C4 | `c4CrossTenant`, `c4Revoked`, `c4DeletedRead`, `c4RemovedRead`, `c4PoisonSourceBefore`, `c4PoisonInject`, `c4PoisonSourceAfter`, `c4ReceiverLookup` | Foreign and revoked callers receive typed denial without content; deletion and principal removal remain distinct. Changed same-ID delivery conflicts, quarantines the original source entry, and leaves its checkpoint unadvanced. |
+
+Every Live attempt writes `live-evidence.json` in a new run directory. Missing references or accepted targets produce `BLOCKED`; an observed mismatch produces `FAIL`, both with stable codes. The script contains no fallback from Local simulation to Live qualification. The installed manifest and its endpoint/credential references still require independent owner trust qualification before a passing command can establish availability.
+
+## Replacement owner packet status
+
+The accepted register currently pins `8469c5c6891d12b43d2082136b1ca7ddfac52c3b`. A reviewed clean successor commit needs a replacement accepted target and command in that register before the Live verifier can run. With an installed runtime manifest, the exact command shape is:
+
+```bash
+test "$(git -C ../conversations rev-parse HEAD)" = "<reviewed-full-commit>" && test -z "$(git -C ../conversations status --porcelain)" && pwsh -NoProfile -File ../conversations/eng/verify-ext-conv-ai-1.ps1 -Mode Live -ArtifactsPath /tmp/ext-conv-ai-1-live
+```
+
+The full commit value must be inserted before acceptance. EXT-CONV-AI-1 remains `Committed`, not `Available`, until that exact command passes with installed authority, SDK source attestation and compare/append, service Party enrollment, approval issuer, complete source/index storage, and independent Agents 8.3 receiver lookup. The owner-input record still lists those references as `Pending`; this packet does not infer them from fixtures, the named human approver, an operator kubeconfig, or a Dapr control plane. The Agents 8.3 receiver is a separate gated consumer, so its qualification and Conversations availability require an explicitly accepted cross-owner qualification sequence or cohort.

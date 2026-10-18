@@ -128,13 +128,11 @@ measurement checkout, using its pinned SDK and commitlint installation.
 for project in TestSupport.Tests TestSupport.Runner Conformance.Portable.Tests Conformance.Tests Contracts.Tests IntegrationTests; do
   dotnet build "tests/Hexalith.Conversations.$project/Hexalith.Conversations.$project.csproj" --configuration Debug --nologo -m:1 -p:NuGetAudit=false -p:MinVerVersionOverride=1.0.0 || exit
 done
-python3 - <<'NATIVE_ACS'
-import json, shlex, subprocess
-from pathlib import Path
-contract=json.loads(Path('_bmad-output/planning-artifacts/story-10.4-current-contract-v1.json').read_bytes())
-for scenario in contract['scenarios'][:5]:
-    subprocess.run(shlex.split(scenario['command']),check=True)
-NATIVE_ACS
+dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.ReaderInventoryShouldMatchFrozenSet -trx artifacts/v9/10.4/AC-10.4-01.trx
+dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.MigrationsShouldUseHelperAtEqualStrength -trx artifacts/v9/10.4/AC-10.4-02.trx
+dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.DayOneExemptionInventoryShouldBeEmpty -trx artifacts/v9/10.4/AC-10.4-03.trx
+dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.KnownGitDefectsShouldBeClosedWithoutChangingProjectionProof -trx artifacts/v9/10.4/AC-10.4-04.trx
+dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.RunbookShouldDocumentTheExactContract -trx artifacts/v9/10.4/AC-10.4-05.trx
 ```
 
 3. Run the broad current native lanes: unfiltered TestSupport and Contracts,
@@ -151,7 +149,7 @@ NATIVE_ACS
 python3 -m pytest -q -ra -p no:cacheprovider _bmad/scripts/tests tests/tooling/test_evidence_boundary_current.py --ignore=_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py --junitxml=/tmp/story104-current-ci-lane.xml
 python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k complete_fault_matrix --junitxml=artifacts/v9/10.4/AC-10.4-06.xml
 python3 -m pytest -q _bmad/scripts/tests/test_verify_submodule_promotion.py -k evidence_gate_span_coupling --junitxml=artifacts/v9/10.4/AC-10.4-07.xml
-python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.4-current-binding-v1.json --baseline 1915a47123737859e3ac31872fa787fa8c0bd1e3 --candidate HEAD --format json --output artifacts/v9/10.4/AC-10.4-09.json
+python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --current-binding _bmad-output/planning-artifacts/story-10.4-current-binding-v1.json --baseline 1915a47123737859e3ac31872fa787fa8c0bd1e3 --candidate HEAD --verify-workflows --format json --output artifacts/v9/10.4/AC-10.4-09.json
 ```
 
 AC-09 verifies resolved guidance through the current verifier. Its output writer
@@ -173,14 +171,15 @@ python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-o
 Re-run generation before committing and compare both output byte sequences for
 exact equality. AC-08 is derived last from the eight measured receipts, exact
 fault identities and blocker sets, candidate, predecessor and closed facts.
-Commit exactly those eight receipts and the JSON/Markdown pair together in one
+Publish exactly the eight receipts and pair together in one
 atomic publication commit, after validating its full message with
 `node_modules/.bin/commitlint --config commitlint.config.mjs --edit <message-file>`.
 The receipt paths are ignored build outputs, so stage exactly the eight contracted
 paths with `git add --force -- <eight-receipt-paths> <json-pair-path> <markdown-pair-path>`.
-Do not add source changes or the untracked 7.3 operational outputs to that commit.
+Confirm the staged paths contain exactly this set. Do not add source changes or
+the untracked 7.3 operational outputs to that commit.
 
-5. Insert the published Markdown bytes verbatim between the spec's single
+5. Insert the published Markdown byte-for-byte between the spec's single
    `<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->` lines,
    with LF after each marker. Do not re-render or hand-edit the inserted record.
    Before any lifecycle commit, run:
