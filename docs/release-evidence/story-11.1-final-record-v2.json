@@ -1,0 +1,484 @@
+{
+  "schemaVersion": "hexalith.conversations.story-final-record.v2",
+  "storyId": "11.1",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
+  },
+  "candidate": {
+    "commit": "df599aeedbd3e833f735603b5190cebd189cdc2e",
+    "gitlinks": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "mode": "160000",
+        "commit": "3f194e17174994d308ec84af9ee2b5aa68674d0d"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "mode": "160000",
+        "commit": "6e8b71e9bc5fe4a38c86069fd8e37f6a6cafa292"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "mode": "160000",
+        "commit": "9e874b1a3c6e7b6ff07b6f40b81d36e4e1403798"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "mode": "160000",
+        "commit": "1aaa173715305a08aff30c4b9cd6354a7073e541"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "mode": "160000",
+        "commit": "65f34e7c4b2bd41805aaa1c3b8d87ee3b65363f1"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "mode": "160000",
+        "commit": "b102b85b148f21fb26d5742e120c344109df7084"
+      },
+      {
+        "path": "references/Hexalith.McpCli",
+        "mode": "160000",
+        "commit": "b35b0975a234f1f97e2e35e9dad381d0a988f4af"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "mode": "160000",
+        "commit": "fb39a0c59cc3befd3176dec5e3c790f94d0e5bd1"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "mode": "160000",
+        "commit": "3358e3c71c44af877aa1b775db32b5c4f66c313a"
+      },
+      {
+        "path": "references/Hexalith.Platform",
+        "mode": "160000",
+        "commit": "b4b6d4a1efcd2f13c6d03270f8e952f27ed8148b"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "mode": "160000",
+        "commit": "3d3b3fab63afe63090e6314e2c2b6e66bcd0ec31"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "mode": "160000",
+        "commit": "5efab750d471064c667e6d9e36cb222fa823bda5"
+      }
+    ]
+  },
+  "predecessors": [
+    "10.4",
+    "6.2",
+    "7.4"
+  ],
+  "inventory": {
+    "id": "V9-11.1-ENTRY-v1",
+    "sha256": "b6c050f6eb387a645fb85bff6d98be90ef9286227c33974c93269f8acbde56ac"
+  },
+  "scenarios": [
+    {
+      "scenarioId": "AC-11.1-01",
+      "command": "python3 _bmad/scripts/verify_story_candidate.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --contract _bmad-output/planning-artifacts/v9/story-contracts/11.1.json --candidate HEAD --output artifacts/v9/11.1/AC-11.1-01.json",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.1-01#0001",
+          "subject": "candidate is the committed HEAD",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-11.1-01#0002",
+          "subject": "Story 7.4 and 10.4 final-record v2 digests recomputed",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-11.1-01#0003",
+          "subject": "Story 6.2 bound through its existing release evidence",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-11.1-01#0004",
+          "subject": "verify_story_candidate.py substitution recorded in the bundle validation",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-11.1-02",
+      "command": "python3 _bmad/scripts/generate_thin_authoring_guidance.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.1.json --schema docs/release-evidence/thin-authoring-guidance-v2.schema.json --output-json docs/release-evidence/thin-authoring-guidance-v2.json --output-markdown docs/release-evidence/thin-authoring-guidance-v2.md",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.1-02#0001",
+          "subject": "committed JSON and Markdown equal a fresh deterministic regeneration",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-11.1-02#0002",
+          "subject": "module and platform ownership inventories are exact",
+          "state": "PASS"
+        }
+      ],
+      "outputFiles": [
+        {
+          "path": "docs/release-evidence/thin-authoring-guidance-v2.json",
+          "sha256": "4f078797f4b5c85aef91b3ea9cedd29dac25a3f28b62dcdca1d8a2db4335c0e2"
+        },
+        {
+          "path": "docs/release-evidence/thin-authoring-guidance-v2.md",
+          "sha256": "990b46d68df0fc05777459e20308ff8dd9e4dba5dda4a8b5da3482ad66b1948b"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-11.1-03",
+      "command": "dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.DomainModuleAuthoringTemplateValidationTest.GuidanceShouldDefineOneNonShippingTestAppHost -trx artifacts/v9/11.1/AC-11.1-03.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.1-03#0001",
+          "subject": "GuidanceShouldDefineOneNonShippingTestAppHost",
+          "state": "PASS"
+        }
+      ],
+      "resultFile": {
+        "path": "artifacts/v9/11.1/AC-11.1-03.trx",
+        "sha256": "431ffdc3ab42c075b4f95a48b6091f3abb3e319c055d35e00ed817bf088f69c0"
+      }
+    },
+    {
+      "scenarioId": "AC-11.1-04",
+      "command": "dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.DomainModuleAuthoringTemplateValidationTest.GuidanceShouldProhibitPlatformCapabilityOwnership -trx artifacts/v9/11.1/AC-11.1-04.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.1-04#0001",
+          "subject": "GuidanceShouldProhibitPlatformCapabilityOwnership",
+          "state": "PASS"
+        }
+      ],
+      "resultFile": {
+        "path": "artifacts/v9/11.1/AC-11.1-04.trx",
+        "sha256": "61fb83bf08ba69bd4a4b5729dcbcf69acc3c270854f587f848c48fa25b790318"
+      }
+    },
+    {
+      "scenarioId": "AC-11.1-05",
+      "command": "python3 _bmad/scripts/verify_thin_authoring_guidance.py --repository . --evidence docs/release-evidence/thin-authoring-guidance-v2.json --markdown docs/release-evidence/thin-authoring-guidance-v2.md --require-review-decision --output artifacts/v9/11.1/AC-11.1-05.json",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.1-05#0001",
+          "subject": "verifier PASS with review decision required",
+          "state": "PASS"
+        }
+      ],
+      "resultFile": {
+        "path": "artifacts/v9/11.1/AC-11.1-05.json",
+        "sha256": "5011787bb43a857d18b60c174dc1512bede7df74bd603fa148181f44f00c6944"
+      }
+    },
+    {
+      "scenarioId": "AC-11.1-06",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_thin_authoring_guidance.py -k checkpoint_a_fault_matrix --junitxml=artifacts/v9/11.1/AC-11.1-06.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.1-06#0001",
+          "subject": "checkpoint A fault matrix, every mutation detected and restored",
+          "state": "PASS"
+        }
+      ],
+      "resultFile": {
+        "path": "artifacts/v9/11.1/AC-11.1-06.xml",
+        "sha256": "f92a797dfed285c4e72c3107a1e9c5963d33634a59958a9eb1f8e524b88cccc7"
+      }
+    },
+    {
+      "scenarioId": "AC-11.1-07",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.1.json --format bundle --output-json docs/release-evidence/story-11.1-final-record-v2.json --output-markdown docs/release-evidence/story-11.1-final-record-v2.md",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.1-07#0001",
+          "subject": "AC-11.1-01 through AC-11.1-06 are current and compatible",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-11.1-07#0002",
+          "subject": "record binds SC-11.1, predecessors, bundle and reviewer digests",
+          "state": "PASS"
+        }
+      ]
+    }
+  ],
+  "faultInjection": {
+    "results": []
+  },
+  "outputs": {
+    "json": {
+      "path": "docs/release-evidence/story-11.1-final-record-v2.json",
+      "sha256": "e98707d7e24744caaf24f62070f34754a050b6134bd9cd1b24288c2edc8ec2e2"
+    },
+    "markdown": {
+      "path": "docs/release-evidence/story-11.1-final-record-v2.md",
+      "sha256": "7a38a366077789e9150d446b100b82a1cafc19a2c169011fe1138589910487ee"
+    }
+  },
+  "rollback": {
+    "boundary": "restore only the Story 11.1 guidance source and remove its generator, validator, generated v2 bundle, results, and final record; preserve all predecessor records and historical guidance evidence."
+  },
+  "summary": {
+    "required": 7,
+    "passed": 7,
+    "failed": 0,
+    "blocked": 0,
+    "skipped": 0,
+    "notRun": 0
+  },
+  "renderedMarkdownSha256": "7a38a366077789e9150d446b100b82a1cafc19a2c169011fe1138589910487ee",
+  "thinGuidanceExecution": {
+    "bindingRule": "SC-11.1 is the committed candidate; the record binds the guidance source, bundle and reviewer decision",
+    "sourceRevisionId": "df599aeedbd3e833f735603b5190cebd189cdc2e",
+    "contract": {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/11.1.json",
+      "sha256": "cab730317c6dd72d815c37e07dc5713ef66d4348ce8aa7fc23b7700cc611594d"
+    },
+    "guidance": {
+      "sourcePath": "docs/domain-module-authoring-template.md",
+      "sourceSha256": "6302bc195901d91a318195787c5a576d14206af19bf74cd47729366084b8b9bb",
+      "jsonPath": "docs/release-evidence/thin-authoring-guidance-v2.json",
+      "jsonSha256": "4f078797f4b5c85aef91b3ea9cedd29dac25a3f28b62dcdca1d8a2db4335c0e2",
+      "markdownPath": "docs/release-evidence/thin-authoring-guidance-v2.md",
+      "markdownSha256": "990b46d68df0fc05777459e20308ff8dd9e4dba5dda4a8b5da3482ad66b1948b",
+      "schemaPath": "docs/release-evidence/thin-authoring-guidance-v2.schema.json",
+      "schemaSha256": "984957e1c29a660d352d945b9f81fc6be9401ea74714df9e266054e201b798e5",
+      "signablePayloadSha256": "9ce146a26cd693261392928a2f767d3752b0101f6097e8a0bc7757784a07ef80"
+    },
+    "reviewDecision": {
+      "decision": "approved",
+      "reviewer": "Jerome Piquot",
+      "decidedAtUtc": "2026-10-18T16:29:59Z",
+      "boundSourceSha256": "6302bc195901d91a318195787c5a576d14206af19bf74cd47729366084b8b9bb",
+      "boundSignablePayloadSha256": "9ce146a26cd693261392928a2f767d3752b0101f6097e8a0bc7757784a07ef80"
+    },
+    "authoritySubstitution": {
+      "acceptanceCriterion": "AC-11.1-01",
+      "decision": "Owner decision 2026-10-18: AC-11.1-01 does not build the absent verify_story_candidate.py; current-policy checks are substituted.",
+      "reason": "verify_story_candidate.py is absent from the repository and is not built by Story 11.1.",
+      "currentPolicyChecks": [
+        "The candidate is the committed HEAD.",
+        "The Story 7.4 and Story 10.4 final-record v2 digests are recomputed from the committed records.",
+        "Story 6.2 is bound through its existing release evidence; it has no v2 record."
+      ],
+      "predecessors": [
+        {
+          "storyId": "6.2",
+          "path": "docs/release-evidence/consume-promote-keep-story-6-2-disposition-v1.json",
+          "sha256": "d18d81286e171f4df1330677bc236ecdc388764ff58a0ed4be32111fdba31b76",
+          "binding": "release-evidence"
+        },
+        {
+          "storyId": "7.4",
+          "path": "docs/release-evidence/story-7.4-final-record-v2.json",
+          "sha256": "1739a8daf93955fe31050b659151f1d45a8555ff58fe3a130b8a389c049d8290",
+          "binding": "final-record-v2"
+        },
+        {
+          "storyId": "10.4",
+          "path": "docs/release-evidence/story-10.4-final-record-v2.json",
+          "sha256": "f6a670f7a9d6be89b765757c0d480879353e033217980c28329e6cdf3f5d38b9",
+          "binding": "final-record-v2"
+        }
+      ]
+    },
+    "receipts": [
+      {
+        "scenarioId": "AC-11.1-03",
+        "path": "artifacts/v9/11.1/AC-11.1-03.trx",
+        "sha256": "431ffdc3ab42c075b4f95a48b6091f3abb3e319c055d35e00ed817bf088f69c0"
+      },
+      {
+        "scenarioId": "AC-11.1-04",
+        "path": "artifacts/v9/11.1/AC-11.1-04.trx",
+        "sha256": "61fb83bf08ba69bd4a4b5729dcbcf69acc3c270854f587f848c48fa25b790318"
+      },
+      {
+        "scenarioId": "AC-11.1-05",
+        "path": "artifacts/v9/11.1/AC-11.1-05.json",
+        "sha256": "5011787bb43a857d18b60c174dc1512bede7df74bd603fa148181f44f00c6944"
+      },
+      {
+        "scenarioId": "AC-11.1-06",
+        "path": "artifacts/v9/11.1/AC-11.1-06.xml",
+        "sha256": "f92a797dfed285c4e72c3107a1e9c5963d33634a59958a9eb1f8e524b88cccc7"
+      }
+    ],
+    "mutationLedger": [
+      {
+        "id": "reassign-service-defaults",
+        "expectedBlocker": "THIN_GUIDANCE_OWNERSHIP_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "reassign-dapr-wiring",
+        "expectedBlocker": "THIN_GUIDANCE_OWNERSHIP_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "reassign-event-subscription",
+        "expectedBlocker": "THIN_GUIDANCE_OWNERSHIP_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "reassign-projection-query-runtime",
+        "expectedBlocker": "THIN_GUIDANCE_OWNERSHIP_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "reassign-publication",
+        "expectedBlocker": "THIN_GUIDANCE_OWNERSHIP_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "reassign-health",
+        "expectedBlocker": "THIN_GUIDANCE_OWNERSHIP_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "reassign-telemetry",
+        "expectedBlocker": "THIN_GUIDANCE_OWNERSHIP_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "missing-capability",
+        "expectedBlocker": "THIN_GUIDANCE_OWNERSHIP_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "extra-capability",
+        "expectedBlocker": "THIN_GUIDANCE_OWNERSHIP_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "prohibition-removed",
+        "expectedBlocker": "PROHIBITED_CAPABILITY_PRESENT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "reusable-aspire-library-added",
+        "expectedBlocker": "PROHIBITED_CAPABILITY_PRESENT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "module-service-defaults-added",
+        "expectedBlocker": "PROHIBITED_CAPABILITY_PRESENT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "namespaced-service-defaults-added",
+        "expectedBlocker": "PROHIBITED_CAPABILITY_PRESENT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "reusable-aspire-library-phrase-added",
+        "expectedBlocker": "PROHIBITED_CAPABILITY_PRESENT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "apphost-packable",
+        "expectedBlocker": "APPHOST_BOUNDARY_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "apphost-publishable",
+        "expectedBlocker": "APPHOST_BOUNDARY_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "apphost-cost-rule-omitted",
+        "expectedBlocker": "APPHOST_BOUNDARY_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "apphost-second-host",
+        "expectedBlocker": "APPHOST_BOUNDARY_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "apphost-none",
+        "expectedBlocker": "APPHOST_BOUNDARY_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "review-removed",
+        "expectedBlocker": "REVIEW_DECISION_MISSING",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "source-edited-after-generation",
+        "expectedBlocker": "GUIDANCE_SOURCE_DRIFT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "markdown-edited",
+        "expectedBlocker": "EVIDENCE_FORMAT_DRIFT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "json-edited",
+        "expectedBlocker": "EVIDENCE_FORMAT_DRIFT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "schema-opened",
+        "expectedBlocker": "EVIDENCE_FORMAT_DRIFT",
+        "detected": true,
+        "restored": true
+      }
+    ]
+  }
+}
