@@ -156,13 +156,13 @@
   "reviewDecision": {
     "decision": "approved",
     "reviewer": "Jerome Piquot",
-    "decidedAtUtc": "2026-10-18T16:27:28Z",
+    "decidedAtUtc": "2026-10-18T16:29:59Z",
     "boundSourceSha256": "6302bc195901d91a318195787c5a576d14206af19bf74cd47729366084b8b9bb",
     "boundSignablePayloadSha256": "9ce146a26cd693261392928a2f767d3752b0101f6097e8a0bc7757784a07ef80"
   },
   "digests": {
     "sourceSha256": "6302bc195901d91a318195787c5a576d14206af19bf74cd47729366084b8b9bb",
     "signablePayloadSha256": "9ce146a26cd693261392928a2f767d3752b0101f6097e8a0bc7757784a07ef80",
-    "markdownSha256": "c968323f2bcb5d578300e8d8cae9346247cfd46904e65f183abdbaa1e7dfd2a9"
+    "markdownSha256": "990b46d68df0fc05777459e20308ff8dd9e4dba5dda4a8b5da3482ad66b1948b"
   }
 }

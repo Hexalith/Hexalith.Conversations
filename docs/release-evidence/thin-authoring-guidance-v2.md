@@ -72,7 +72,7 @@ Schema: `hexalith.conversations.thin-authoring-guidance.v2`
 
 - Decision: approved
 - Reviewer: Jerome Piquot
-- Decided at (UTC): 2026-10-18T16:27:28Z
+- Decided at (UTC): 2026-10-18T16:29:59Z
 - Bound source digest: `6302bc195901d91a318195787c5a576d14206af19bf74cd47729366084b8b9bb`
 - Bound signable-payload digest: `9ce146a26cd693261392928a2f767d3752b0101f6097e8a0bc7757784a07ef80`
 
