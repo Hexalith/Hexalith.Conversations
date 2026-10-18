@@ -9373,6 +9373,19 @@ V2_10_4_PYTEST_CASES = {
 }
 V2_10_4_PYTEST_TARGETS = {'AC-10.4-06':'_bmad/scripts/tests/test_verify_evidence_boundary.py',
     'AC-10.4-07':'_bmad/scripts/tests/test_verify_submodule_promotion.py'}
+# Only these accepted bytes predate observed result/exit properties. New or
+# altered receipts must satisfy the current contract, even at this candidate.
+V2_10_4_LEGACY_FAULT_RECEIPT = (
+    '7e5a4b765a4437f361fac7e7bb4f13e5b7cf3ec8',
+    'artifacts/v9/10.4/AC-10.4-06.xml',
+    '94faa9000e8fdcbfc4a803d53777d061ff827837874bbda14557c388d1d3fb4a',
+)
+# AC-09 composed two guidance readers before their IDs had separate namespaces.
+# Preserve its exact accepted envelope; current envelopes must use unique IDs.
+V2_10_4_LEGACY_SCOPE_ENVELOPE = (
+    '7e5a4b765a4437f361fac7e7bb4f13e5b7cf3ec8',
+    'f6e7937ec00fef6eaebb355a68877dd264f5dfae7ca39acac5f9711fe66d395d',
+)
 
 
 def v2_10_4_assertion_rows(rows, *, passing=False):
@@ -9382,7 +9395,7 @@ def v2_10_4_assertion_rows(rows, *, passing=False):
             or any(not isinstance(row[key],str) or not row[key].strip() for key in ('id','subject'))
             or row['state'] not in ('PASS','FAIL','SKIPPED') for row in rows)):
         raise ValueError('a nonempty valid assertion ledger is required')
-    identities=[(row['id'],row['subject']) for row in rows]
+    identities=[row['id'] for row in rows]
     if len(set(identities))!=len(identities) or not any(row['state'] in ('PASS','FAIL') for row in rows):
         raise ValueError('assertion identities must be unique and evaluated')
     if passing and any(row['state']!='PASS' for row in rows):raise ValueError('passing receipts require passing assertions')
@@ -9396,6 +9409,8 @@ def v2_10_4_helper_result(repository,observed,candidate):
     except jsonschema.ValidationError as error:raise ValueError('invalid helper envelope: '+error.message) from None
     if observed['candidate']!=candidate or observed['result']!='PASS' or observed['blockers'] or observed['warnings']:
         raise ValueError('a passing candidate-bound helper result is required')
+    if (candidate,v2_sha256(adoption.current.canonical(observed)))==V2_10_4_LEGACY_SCOPE_ENVELOPE:
+        return observed['assertionLedger']
     return v2_10_4_assertion_rows(observed['assertionLedger'],passing=True)
 
 
@@ -9422,6 +9437,8 @@ def v2_10_4_scope_receipt(repository,observed,candidate):
     current.workflow_checks(repository,expected,binding)
     if expected['blockers']:raise ValueError('candidate workflow or guidance facts do not pass')
     required=[dict(row,id='boundary:'+row['id']) for row in raw['assertionLedger']]+expected['assertionLedger']
+    if (candidate,v2_sha256(current.canonical(observed)))==V2_10_4_LEGACY_SCOPE_ENVELOPE:
+        required=[dict(row,id=row['id'].replace('guidance:adoption-resolved:','guidance:resolved:',1)) for row in required]
     required += [dict(id='candidate:blob:'+path,subject=path,state='PASS') for path in binding['sourcePaths']]
     actual={(row['id'],row['subject'],row['state']) for row in observed['assertionLedger']}
     if any((row['id'],row['subject'],row['state']) not in actual for row in required):
@@ -9471,6 +9488,7 @@ def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
                 raise ValueError(identity+' testcase summary differs')
             expected_cases=V2_10_4_PYTEST_CASES[identity]
             if command['target']!=V2_10_4_PYTEST_TARGETS[identity]:raise ValueError(identity+' unrelated pytest target')
+            require_fault_state=identity=='AC-10.4-06' and (candidate,path,v2_sha256(content))!=V2_10_4_LEGACY_FAULT_RECEIPT
             expected_class=command['target'][:-3].replace('/','.')
             names=[case['name'] for case in parsed['cases']]
             if len(names)!=len(set(names)) or set(names)!=set(expected_cases):raise ValueError(identity+' testcase identities differ')
@@ -9487,10 +9505,19 @@ def v2_10_4_receipt_facts(repository,contract,candidate,read_receipt=None):
                     before,after=props['story104_before_sha256'],props['story104_after_sha256']
                     execution=json.loads(props['story104_assertion_ledger'])
                     v2_10_4_assertion_rows(execution)
+                    if require_fault_state:
+                        expected=('BLOCKED','2') if fault in ('GIT_UNAVAILABLE','HISTORY_UNAVAILABLE') else ('FAIL','1')
+                        if (props.get('story104_observed_result'),props.get('story104_observed_exit'))!=expected:
+                            raise ValueError(identity+' fault result/exit differs: '+fault)
                     if (not isinstance(blockers,list) or any(not isinstance(item,str) for item in blockers)
-                            or code not in blockers or set(blockers)-adoption.STABLE_CODES
+                            or code not in blockers or set(blockers)-(adoption.FAIL_CODES|adoption.current.BLOCKED_CODES)
                             or blockers!=sorted(set(blockers)) or before!=after or re.fullmatch(r'[0-9a-f]{64}',before) is None):
                         raise ValueError(identity+' fault observation or restoration differs')
+                    if require_fault_state:
+                        envelope=adoption.current.empty_result(candidate)
+                        envelope.update(assertionLedger=execution,blockers=blockers)
+                        if adoption.finish(envelope)['result']!=props['story104_observed_result']:
+                            raise ValueError(identity+' fault ledger/result differs: '+fault)
                     mutations.append(dict(id=fault,expectedBlocker=code,observedBlockers=blockers,
                         beforeSha256=before,afterSha256=after,restored=True,result='PASS'))
                 else:

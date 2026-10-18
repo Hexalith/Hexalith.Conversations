@@ -38,20 +38,88 @@ def adoption_git(tmp_path_factory):
 
 
 def observed_fault(record_property,fault,code,observed,before,after):
-    assert observed['result'] in ('FAIL','BLOCKED')
+    expected='BLOCKED' if fault in ('GIT_UNAVAILABLE','HISTORY_UNAVAILABLE') else 'FAIL'
+    assert observed['result']==expected
     assert code in observed['blockers']
     assert observed['blockers']==sorted(set(observed['blockers']))
     assert observed['assertionLedger']
     assert before==after
     envelope=current.empty_result('a'*40)
+    envelope['result']=observed['result']
     envelope['assertionLedger']=observed['assertionLedger']
     envelope['blockers']=observed['blockers']
-    envelope=adoption.finish(envelope)
-    decision=current.transition_decision(envelope,2 if envelope['result']=='BLOCKED' else 1)
-    assert decision==dict(allowed=False,recordedResult=envelope['result'],blockers=observed['blockers'])
+    # The bridge uses a successful transport exit for logical failures. Measure
+    # the public verifier's exit without re-finalizing away the original state.
+    output=[]
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(adoption,'verify',lambda *args,**kwargs:copy.deepcopy(envelope))
+        patch.setattr(current,'write_stdout',output.append)
+        exit_code=adoption.main([])
+    actual=json.loads(b''.join(output))
+    assert actual==envelope
+    assert exit_code==(2 if expected=='BLOCKED' else 1)
+    ids=[row['id'] for row in observed['assertionLedger']]
+    assert len(ids)==len(set(ids))
+    assert any(row['state'] in ('PASS','FAIL') for row in observed['assertionLedger'])
+    assert adoption.finish(copy.deepcopy(envelope))['result']==observed['result']
+    decision=current.transition_decision(actual,exit_code)
+    assert decision==dict(allowed=False,recordedResult=observed['result'],blockers=observed['blockers'])
     for key,value in dict(fault_id=fault,expected_code=code,observed_blockers=json.dumps(observed['blockers']),
+        observed_result=actual['result'],observed_exit=exit_code,
         before_sha256=before,after_sha256=after,assertion_ledger=json.dumps(observed['assertionLedger'])).items():
         record_property('story104_'+key,value)
+
+
+@pytest.mark.parametrize('fault,code',[('GIT_UNAVAILABLE','GIT_UNAVAILABLE'),('HISTORY_UNAVAILABLE','REVISION_INVALID')])
+def test_fault_receipt_rejects_unavailable_history_as_fail(fault,code):
+    observed=dict(result='FAIL',blockers=[code],assertionLedger=[dict(id='fixture',subject='fault',state='FAIL')])
+    with pytest.raises(AssertionError):
+        observed_fault(lambda *args:None,fault,code,observed,'a'*64,'a'*64)
+
+
+@pytest.mark.parametrize('fault,code,state',[('GIT_UNAVAILABLE','GIT_UNAVAILABLE','BLOCKED'),
+    ('HISTORY_UNAVAILABLE','REVISION_INVALID','BLOCKED'),('HASH','EVIDENCE_HASH_MISMATCH','FAIL')])
+def test_fault_receipt_retains_original_result_and_verifier_exit(fault,code,state):
+    observed=dict(result=state,blockers=[code],assertionLedger=[dict(id='fixture',subject='fault',state='PASS'),
+        dict(id='unavailable',subject='history',state='SKIPPED' if state=='BLOCKED' else 'FAIL')])
+    properties={}
+    observed_fault(properties.__setitem__,fault,code,observed,'a'*64,'a'*64)
+    assert properties['story104_observed_result']==state
+    assert properties['story104_observed_exit']==(2 if state=='BLOCKED' else 1)
+
+
+def test_fault_receipt_rejects_wrong_verifier_exit(monkeypatch):
+    observed=dict(result='BLOCKED',blockers=['GIT_UNAVAILABLE'],
+        assertionLedger=[dict(id='fixture',subject='fault',state='SKIPPED')])
+    main=adoption.main
+    def wrong_exit(*args):
+        main(*args)
+        return 1
+    monkeypatch.setattr(adoption,'main',wrong_exit)
+    with pytest.raises(AssertionError):
+        observed_fault(lambda *args:None,'GIT_UNAVAILABLE','GIT_UNAVAILABLE',observed,'a'*64,'a'*64)
+
+
+@pytest.mark.parametrize('mutation',['duplicate-id','failing-history','warning-blocker','skipped-only'])
+def test_fault_receipt_rejects_invalid_original_observation(mutation):
+    observed=dict(result='BLOCKED',blockers=['GIT_UNAVAILABLE'],assertionLedger=[
+        dict(id='fixture',subject='fault',state='PASS'),dict(id='history',subject='history',state='SKIPPED')])
+    if mutation=='duplicate-id':observed['assertionLedger'].append(dict(id='fixture',subject='other subject',state='PASS'))
+    if mutation=='failing-history':observed['assertionLedger'][1]['state']='FAIL'
+    if mutation=='warning-blocker':observed['blockers']=['EVIDENCE_SCOPE_NOT_APPLICABLE','GIT_UNAVAILABLE']
+    if mutation=='skipped-only':observed['assertionLedger']=observed['assertionLedger'][1:]
+    with pytest.raises(AssertionError):
+        observed_fault(lambda *args:None,'GIT_UNAVAILABLE','GIT_UNAVAILABLE',observed,'a'*64,'a'*64)
+
+
+def test_fault_receipt_composed_guidance_uses_unique_ids(adoption_surface):
+    root,binding=adoption_surface
+    result=current.empty_result('a'*40)
+    adoption.guidance_checks(root,result,binding)
+    current.workflow_checks(root,result,binding)
+    assert result['blockers']==[]
+    identities=[row['id'] for row in result['assertionLedger']]
+    assert len(identities)==len(set(identities))
 
 @pytest.mark.parametrize('fault,code',[
  ('HASH','EVIDENCE_HASH_MISMATCH'),('PATH_ESCAPE','EVIDENCE_PATH_ESCAPE'),('GENERATED_OUTPUT','EVIDENCE_OUTPUT_FORBIDDEN'),

@@ -11904,6 +11904,11 @@ def story104_receipt_repository(tmp_path_factory):
                 if fault:values.update(story104_fault_id=fault,story104_expected_code=generator.V2_10_4_FAULT_CODES[fault],
                     story104_observed_blockers=json.dumps([generator.V2_10_4_FAULT_CODES[fault]]),story104_before_sha256='b'*64,
                     story104_after_sha256='b'*64,story104_assertion_ledger='[{"id":"fixture","subject":"parser fixture","state":"FAIL"}]')
+                if fault and identity=='AC-10.4-06':
+                    blocked=fault in ('GIT_UNAVAILABLE','HISTORY_UNAVAILABLE')
+                    values.update(story104_observed_result='BLOCKED' if blocked else 'FAIL',story104_observed_exit='2' if blocked else '1')
+                    if blocked:values['story104_assertion_ledger']=json.dumps([dict(id='fixture',subject='parser fixture',state='PASS'),
+                        dict(id='history',subject='unavailable history',state='SKIPPED')])
                 if fault is None:values.update(story104_before_sha256='b'*64,story104_after_sha256='b'*64,story104_assertion_ledger='[{"id":"promotion-span","subject":"exact completion gate span","state":"PASS"}]')
                 for key,value in values.items():ElementTree.SubElement(props,'property',name=key,value=value)
             content=ElementTree.tostring(root)
@@ -12019,6 +12024,11 @@ def story104_parser_receipts(monkeypatch):
                     values.update(story104_fault_id=fault,story104_expected_code=code,story104_observed_blockers=json.dumps([code]),
                         story104_before_sha256='b'*64,story104_after_sha256='b'*64,
                         story104_assertion_ledger='[{"id":"checked","subject":"actual fault","state":"FAIL"}]')
+                    if identity=='AC-10.4-06':
+                        blocked=fault in ('GIT_UNAVAILABLE','HISTORY_UNAVAILABLE')
+                        values.update(story104_observed_result='BLOCKED' if blocked else 'FAIL',story104_observed_exit='2' if blocked else '1')
+                        if blocked:values['story104_assertion_ledger']=json.dumps([dict(id='checked',subject='actual fault',state='PASS'),
+                            dict(id='history',subject='unavailable history',state='SKIPPED')])
                 if fault is None:values.update(story104_before_sha256='b'*64,story104_after_sha256='b'*64,story104_assertion_ledger='[{"id":"promotion-span","subject":"exact completion gate span","state":"PASS"}]')
                 for key,value in values.items():ElementTree.SubElement(props,'property',name=key,value=value)
             content=ElementTree.tostring(root)
@@ -12035,19 +12045,85 @@ def test_story104_receipt_parser_accepts_exact_contract_identities(story104_pars
     assert {row['id']:row['expectedBlocker'] for row in faults}==generator.V2_10_4_FAULT_CODES
 
 
+@pytest.mark.parametrize('fault,mutation',[(fault,mutation)
+    for fault in ('GIT_UNAVAILABLE','HISTORY_UNAVAILABLE','HASH')
+    for mutation in ('missing-result','missing-exit','pass','not-applicable','wrong-state',
+        'wrong-exit','zero-exit','noncanonical-exit','ledger-result')
+    if (fault,mutation)!=('HASH','ledger-result')])
+def test_story104_fault_receipt_requires_original_state_and_exit(story104_parser_receipts,fault,mutation):
+    generator,contract,candidate,receipts=story104_parser_receipts
+    path='artifacts/v9/10.4/AC-10.4-06.xml';root=ElementTree.fromstring(receipts[path])
+    case=next(case for case in root.findall('.//testcase') if '['+fault+'-' in case.get('name'))
+    properties=case.find('properties');props={row.get('name'):row for row in properties}
+    blocked=fault!='HASH'
+    if mutation.startswith('missing-'):properties.remove(props['story104_observed_'+mutation.removeprefix('missing-')])
+    elif mutation in ('pass','not-applicable','wrong-state'):
+        state,exit_code={'pass':('PASS','0'),'not-applicable':('not-applicable','0'),
+            'wrong-state':('FAIL','1') if blocked else ('BLOCKED','2')}[mutation]
+        props['story104_observed_result'].set('value',state);props['story104_observed_exit'].set('value',exit_code)
+    elif mutation=='ledger-result':
+        ledger=[dict(id='checked',subject='fault',state='FAIL' if blocked else 'PASS')]
+        props['story104_assertion_ledger'].set('value',json.dumps(ledger))
+    else:
+        props['story104_observed_exit'].set('value',{'wrong-exit':'1' if blocked else '2',
+            'zero-exit':'0','noncanonical-exit':'02' if blocked else '01'}[mutation])
+    receipts[path]=ElementTree.tostring(root)
+    with pytest.raises(ValueError,match='fault (result/exit|ledger/result) differs'):
+        generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+
+
+@pytest.mark.parametrize('mutation',['none','changed-bytes','changed-candidate'])
+def test_story104_legacy_fault_receipt_is_exactly_candidate_and_byte_pinned(story104_parser_receipts,mutation):
+    generator,contract,candidate,receipts=story104_parser_receipts
+    accepted,path,digest=generator.V2_10_4_LEGACY_FAULT_RECEIPT
+    original=(WORKSPACE/path).read_bytes()
+    assert generator.v2_sha256(original)==digest
+    receipts={path:content.replace(candidate.encode(),accepted.encode()) for path,content in receipts.items()}
+    receipts[path]=original
+    if mutation=='changed-bytes':receipts[path]+=b'\n'
+    if mutation=='changed-candidate':
+        candidate='b'*40
+        receipts={path:content.replace(accepted.encode(),candidate.encode()) for path,content in receipts.items()}
+    else:candidate=accepted
+    if mutation=='none':
+        scenarios,_,faults=generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+        assert len(scenarios)==9 and len(faults)==29
+    else:
+        with pytest.raises(ValueError,match='fault result/exit differs'):
+            generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+
+
+@pytest.mark.parametrize('mutation',['none','changed-envelope','changed-candidate'])
+def test_story104_legacy_scope_envelope_preserves_only_exact_accepted_ids(mutation):
+    generator=load_generator();adoption=generator.v2_10_4_module()
+    observed=json.loads((WORKSPACE/'artifacts/v9/10.4/AC-10.4-09.json').read_bytes())
+    candidate,digest=generator.V2_10_4_LEGACY_SCOPE_ENVELOPE
+    assert observed['candidate']==candidate and generator.v2_sha256(adoption.current.canonical(observed))==digest
+    if mutation=='changed-envelope':observed['changedPaths'].append('unaccepted.txt')
+    if mutation=='changed-candidate':candidate=observed['candidate']='b'*40
+    if mutation=='none':
+        assert generator.v2_10_4_helper_result(WORKSPACE,observed,candidate)==observed['assertionLedger']
+        generator.v2_10_4_scope_receipt(WORKSPACE,observed,candidate)
+    else:
+        with pytest.raises(ValueError,match='identities must be unique'):
+            generator.v2_10_4_helper_result(WORKSPACE,observed,candidate)
+
+
 @pytest.mark.parametrize('mutation',['wrong-code','ledger-string','ledger-object','ledger-empty','ledger-row-type','ledger-fields','ledger-state','ledger-skipped','ledger-duplicate',
-    'class','unrelated-case','duplicate-case','missing-positive-span','missing-displaced-span','extra-case'])
+    'ledger-duplicate-id','warning-blocker','class','unrelated-case','duplicate-case','missing-positive-span','missing-displaced-span','extra-case'])
 def test_story104_receipt_parser_rejects_forged_junit(story104_parser_receipts,mutation):
     generator,contract,candidate,receipts=story104_parser_receipts
     path='artifacts/v9/10.4/AC-10.4-0'+('7' if 'span' in mutation else '6')+'.xml';root=ElementTree.fromstring(receipts[path]);suite=root.find('testsuite');case=suite.find('testcase')
     props={row.get('name'):row for row in case.findall('properties/property')}
     if mutation=='wrong-code':
         props['story104_expected_code'].set('value','EVIDENCE_PATH_ESCAPE');props['story104_observed_blockers'].set('value','["EVIDENCE_PATH_ESCAPE"]')
+    elif mutation=='warning-blocker':props['story104_observed_blockers'].set('value','["EVIDENCE_HASH_MISMATCH","EVIDENCE_SCOPE_NOT_APPLICABLE"]')
     elif mutation.startswith('ledger-'):
         value={'ledger-string':'truthy','ledger-object':{'checked':True},'ledger-empty':[], 'ledger-row-type':['checked'],
             'ledger-fields':[{'state':'FAIL'}], 'ledger-state':[dict(id='i',subject='s',state='OTHER')],
             'ledger-skipped':[dict(id='i',subject='s',state='SKIPPED')],
-            'ledger-duplicate':[dict(id='i',subject='s',state='FAIL')]*2}[mutation]
+            'ledger-duplicate':[dict(id='i',subject='s',state='FAIL')]*2,
+            'ledger-duplicate-id':[dict(id='i',subject=subject,state='FAIL') for subject in ('one','two')]}[mutation]
         props['story104_assertion_ledger'].set('value',json.dumps(value))
     elif mutation=='class':case.set('classname','unrelated.tests')
     elif mutation=='unrelated-case':case.set('name','test_unrelated')
@@ -12071,7 +12147,7 @@ def test_story104_native_stamp_compares_the_complete_revision(story104_parser_re
         with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
 
 
-@pytest.mark.parametrize('mutation',['blockers','schema','malformed-row','skipped-row','empty-ledger'])
+@pytest.mark.parametrize('mutation',['blockers','schema','malformed-row','skipped-row','empty-ledger','duplicate-id'])
 def test_story104_native_helper_envelope_must_validate(story104_parser_receipts,mutation):
     generator,contract,candidate,receipts=story104_parser_receipts;path='artifacts/v9/10.4/AC-10.4-01.trx';root=ElementTree.fromstring(receipts[path]);output=root.find('.//{*}StdOut')
     stamp,raw=output.text.split('\n',1);result=json.loads(raw)
@@ -12079,6 +12155,7 @@ def test_story104_native_helper_envelope_must_validate(story104_parser_receipts,
     elif mutation=='schema':result['unexpected']=True
     elif mutation=='malformed-row':result['assertionLedger']=[{'state':'PASS'}]
     elif mutation=='skipped-row':result['assertionLedger'][0]['state']='SKIPPED'
+    elif mutation=='duplicate-id':result['assertionLedger'].append(dict(result['assertionLedger'][0],subject='different subject'))
     else:result['assertionLedger']=[]
     output.text=stamp+'\n'+json.dumps(result,separators=(',',':'));receipts[path]=ElementTree.tostring(root)
     with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)

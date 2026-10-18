@@ -212,7 +212,7 @@ def guidance_checks(repository,result,binding):
         material=current.canonical(resolved).decode()
         record(result,'guidance:content:'+name,path,GUIDANCE_CLAUSE in material and 'file:{project-root}/'+RUNBOOK in material,
             'EVIDENCE_GUIDANCE_DRIFT')
-        record(result,'guidance:resolved:'+name,path,current.digest(current.canonical(resolved))==binding['resolvedCustomization'][name],
+        record(result,'guidance:adoption-resolved:'+name,path,current.digest(current.canonical(resolved))==binding['resolvedCustomization'][name],
             'EVIDENCE_GUIDANCE_DRIFT')
         if name!='bmad-review':
             renderer=current.completion.load_renderer()
