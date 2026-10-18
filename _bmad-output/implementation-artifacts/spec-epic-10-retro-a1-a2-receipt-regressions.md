@@ -2,7 +2,7 @@
 title: 'Epic 10 A1/A2: routine hardlink coverage and fault receipt integrity'
 type: 'bugfix'
 created: '2026-10-18'
-status: 'in-progress'
+status: 'done'
 route: 'oneshot'
 review_loop_iteration: 0
 context:
@@ -33,6 +33,8 @@ Follow current-change policy: use focused regression checks, preserve accepted r
 - Retained `tests/tooling/check_adoption_hardlink_mutation.py` runs the unmodified regression first, then removes `and not collision` only from an in-memory function and requires a failing test. Explicit exit checks remain effective under `python -O`; errors, no collection, and a surviving mutant cannot report success.
 - Retain fresh, source-commit-stamped adoption fault JUnit separately at `_bmad-output/implementation-artifacts/tests/epic-10-retro-a1-a2-faults.xml`, with an explicit LF rule in `.gitattributes`. This is focused follow-up evidence; the accepted Story 10.4 publication is preserved.
 - Review recheck confirmed all five findings resolved, with no remaining concrete issues or deferrals. `python3 -m pytest -q -ra -p no:cacheprovider _bmad/scripts/tests/test_generate_story_record.py -k 'story104 or story103_schema_keeps_accepted' -o junit_family=xunit1 --junitxml=TestResults/epic-10-retro-a1-a2/generator-focused.xml` passed **102 tests**, zero errors/skips. The producer-only current lane passed **11 tests**. Four accepted record pairs passed digest/schema checks; 139 evidence/binding/contract files remained byte-identical.
+- Frozen source: `b5d73776054437087bee67b3d3bd5b2ed2dc1393`. Fresh `python3 -m pytest -q -ra -p no:cacheprovider _bmad/scripts/tests/test_verify_evidence_boundary.py -k complete_fault_matrix -o junit_family=xunit1 --junitxml=_bmad-output/implementation-artifacts/tests/epic-10-retro-a1-a2-faults.xml` passed **28 tests**. The retained receipt SHA-256 is `91292d3e9135e4bd0f64e7f4cee3c6e3b6d7e86a8227c531b8480f301149802a`; every testcase names that source commit. Independent receipt consumption accepted all 28 actual adoption faults, using parser scaffolding for other scenarios; this does not claim a new full Story 10.4 acceptance record. Both availability faults retain `BLOCKED/2`.
+- Exact routine CI collection (`_bmad/scripts/tests tests/tooling/test_evidence_boundary_current.py --ignore=_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py -k adoption_output_hardlink`) selects **one** test. Executing the same lane with `-k 'adoption_output_hardlink or test_fault_receipt_'` passed **12 tests**. The retained mutation checker passed: baseline green, collision-guard mutant red. All final focused runs have zero failures/errors/skips; A-1/A-2 are `done` in sprint tracking. Source and closure commit messages were validated with pinned commitlint 21.2.3; validation logs are under `TestResults/epic-10-retro-a1-a2/`.
 
 ## Review Triage Log
 

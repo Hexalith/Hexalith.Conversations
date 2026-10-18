@@ -37,7 +37,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 10-18-2026 10:58
+last_updated: 10-18-2026 11:48
 # V14 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-18-v14 and conversations-architecture-2026-08-18-v14 are candidate-bound by v9-authority-bundle-v1.json. GLOBAL IMPLEMENTATION HOLD remains ACTIVE; IR-0 was not run, A2 and A3 are done, A4-A6 remain open, and all successor stories including Epic 16 remain backlog.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
 project: Conversations
@@ -341,11 +341,11 @@ action_items:
     epic: 10
     action: "Include the existing Story 10.4 output-hardlink regression in routine CI; prove the exact CI selection executes it and rejects source-overwriting hardlinks with EVIDENCE_OUTPUT_FORBIDDEN and unchanged source bytes."
     owner: "Quality / CI owner"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-10-retro-2026-10-18.md"
   - id: "epic-10-retro-item-42-harden-receipt-state-and-identity"
     epic: 10
     action: "At the next approved evidence-tooling candidate, reject duplicate assertion IDs with differing subjects and retain observed fault result/exit; require BLOCKED/2 for unavailable Git/history and regenerate source-bound acceptance evidence."
     owner: "Evidence tooling owner"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-10-retro-2026-10-18.md"
