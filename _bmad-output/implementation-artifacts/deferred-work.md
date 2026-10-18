@@ -589,3 +589,13 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance.md`
   summary: Prohibition and ownership validation reads only the three marked tables of the authoring template (medium, owner-accepted for Checkpoint A).
   evidence: Prose in the checklist, authoring sequence and description columns can reintroduce module-owned ServiceDefaults or Aspire guidance without failing the generator. The C# test only checks a few strings. Settle with a scoped prose scan only if a real regression appears; reason for deferring: natural-language matching is brittle and the reviewer decision gates the template.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md`
+  summary: No CI lane restores, builds and tests the minimal-module fixture, so the committed proof can go stale after a platform change.
+  evidence: `ci.yml` has no fixture reference and checks out with `submodules: false`; the record path uses `rederive=False` and the fault matrix uses stub platform projects. Unverified severity medium; a lane with the EventStore submodule and Aspire toolchain would settle it.
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md`
+  summary: The fixture pins xunit 4.0.x while the umbrella and sibling submodules share 3.2.2; nothing guards against the fixture leaking into the umbrella restore.
+  evidence: Unverified; an umbrella restore with the fixture present would settle it.
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md`
+  summary: The proof generator hashes the first matching stale DLL, compares the local dotnet version to the committed one, and does not contain output paths.
+  evidence: Edge-case review of `generate_minimal_module_fixture_proof.py`; low severity local-lane robustness.
