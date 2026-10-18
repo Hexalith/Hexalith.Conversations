@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "hexalith.conversations.minimal-module-fixture-result.v1",
+  "result": "PASS",
+  "blockers": [],
+  "inventorySha256": "4fa26d6fa11a365339d9ea39c79e38751340847cf963fe71a82c37062f7df15c",
+  "fixtureFileCount": 13
+}
