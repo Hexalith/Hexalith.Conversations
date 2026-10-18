@@ -1,0 +1,531 @@
+{
+  "schemaVersion": "hexalith.conversations.story-final-record.v2",
+  "storyId": "11.2",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
+  },
+  "candidate": {
+    "commit": "a3e6c15b5882f5f6ca4319af72fd8720a387ac97",
+    "gitlinks": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "mode": "160000",
+        "commit": "3f194e17174994d308ec84af9ee2b5aa68674d0d"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "mode": "160000",
+        "commit": "1dfc39e3a3e6ab1c8ce95138490b39d76e7feb2c"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "mode": "160000",
+        "commit": "5c23c818f639c5bb3175f964c5549440bd5b876d"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "mode": "160000",
+        "commit": "ce1eba0c459f4a00b2e555668e2e548af81f34f5"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "mode": "160000",
+        "commit": "c22b13137202f7bf8c60b80c095a69748435bd6e"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "mode": "160000",
+        "commit": "50f4acbc56192b2ad42b912aa6a83edf3bf2c264"
+      },
+      {
+        "path": "references/Hexalith.McpCli",
+        "mode": "160000",
+        "commit": "3cd4d33e71e03d81b1961e236abff3111944330c"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "mode": "160000",
+        "commit": "4f6b3b1265d15d208761e6419e5c825d3f39fea3"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "mode": "160000",
+        "commit": "749b26d303e448bddafb1e56402bfe676bc92d7f"
+      },
+      {
+        "path": "references/Hexalith.Platform",
+        "mode": "160000",
+        "commit": "cf20db9e8a4697b0e9fb82d388751d355088e942"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "mode": "160000",
+        "commit": "42fec8c61bd698affb390925bc12a628d8e5eccc"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "mode": "160000",
+        "commit": "1532aef62d4532562a5837447463297e64358333"
+      }
+    ]
+  },
+  "predecessors": [
+    "11.1"
+  ],
+  "inventory": {
+    "id": "V9-11.2-ENTRY-v1",
+    "sha256": "2aa59728bdc866263bf31a5f258fb80935fa07485459f795f07f6eb60eb123ac"
+  },
+  "scenarios": [
+    {
+      "scenarioId": "AC-11.2-01",
+      "command": "python3 _bmad/scripts/verify_minimal_module_fixture.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --fixture tests/fixtures/Hexalith.Conversations.MinimalModule --inventory-only --output artifacts/v9/11.2/AC-11.2-01.json",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.2-01#0001",
+          "subject": "exact frozen fixture inventory verified at the committed candidate",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-11.2-01#0002",
+          "subject": "candidate is the committed HEAD",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-11.2-01#0003",
+          "subject": "Story 11.1 final-record v2 and guidance digests recomputed",
+          "state": "PASS"
+        }
+      ],
+      "resultFile": {
+        "path": "artifacts/v9/11.2/AC-11.2-01.json",
+        "sha256": "04460bce7bbeb2fc0026b4d7d929a265e3d43fdd0703a8877d756a6310ea75b8"
+      }
+    },
+    {
+      "scenarioId": "AC-11.2-02",
+      "command": "dotnet restore tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx --locked-mode",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.2-02#0001",
+          "subject": "locked restore: every project has a committed lock file and the proof binds the resolved packages",
+          "state": "PASS"
+        }
+      ],
+      "resultFile": {
+        "path": "docs/release-evidence/thin-module-fixture-proof-v1.json",
+        "sha256": "921bfd0bfeb9630721e30c93edc4fdaa7d31c83f1a5563b9c4d607c72b584202"
+      }
+    },
+    {
+      "scenarioId": "AC-11.2-03",
+      "command": "dotnet build tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx --configuration Release --no-restore",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.2-03#0001",
+          "subject": "warnings-as-errors Release build: the proof binds the fixture and public platform assembly hashes",
+          "state": "PASS"
+        }
+      ],
+      "resultFile": {
+        "path": "docs/release-evidence/thin-module-fixture-proof-v1.json",
+        "sha256": "921bfd0bfeb9630721e30c93edc4fdaa7d31c83f1a5563b9c4d607c72b584202"
+      }
+    },
+    {
+      "scenarioId": "AC-11.2-04",
+      "command": "dotnet tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/bin/Release/net10.0/Hexalith.Conversations.MinimalModule.Tests.dll -automated sync -failSkips -trx artifacts/v9/11.2/minimal-module.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.2-04#0001",
+          "subject": "non-vacuous minimal-module tests with zero failed, skipped or not-run",
+          "state": "PASS"
+        }
+      ],
+      "resultFile": {
+        "path": "artifacts/v9/11.2/minimal-module.trx",
+        "sha256": "d9c4d0ba933fb7eb749139d910769e9549eb304e758407c05ae595a4d1c4ccb9"
+      }
+    },
+    {
+      "scenarioId": "AC-11.2-05",
+      "command": "dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.DomainModuleAuthoringTemplateValidationTest.MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary -trx artifacts/v9/11.2/AC-11.2-05.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.2-05#0001",
+          "subject": "MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary",
+          "state": "PASS"
+        }
+      ],
+      "resultFile": {
+        "path": "artifacts/v9/11.2/AC-11.2-05.trx",
+        "sha256": "a2b5f46824aa88840a5ec349a6a972417fd4daa26903ebb04d3f53a6b182a7d0"
+      }
+    },
+    {
+      "scenarioId": "AC-11.2-06",
+      "command": "python3 _bmad/scripts/generate_minimal_module_fixture_proof.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --fixture tests/fixtures/Hexalith.Conversations.MinimalModule --test-result artifacts/v9/11.2/minimal-module.trx --output-json docs/release-evidence/thin-module-fixture-proof-v1.json --output-markdown docs/release-evidence/thin-module-fixture-proof-v1.md",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.2-06#0001",
+          "subject": "proof JSON and Markdown are deterministic, schema-valid and bound by the signable-payload digest",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-11.2-06#0002",
+          "subject": "proof binds commands, tool versions, public API hashes, AppHost facts, inventory and results",
+          "state": "PASS"
+        }
+      ],
+      "outputFiles": [
+        {
+          "path": "docs/release-evidence/thin-module-fixture-proof-v1.json",
+          "sha256": "921bfd0bfeb9630721e30c93edc4fdaa7d31c83f1a5563b9c4d607c72b584202"
+        },
+        {
+          "path": "docs/release-evidence/thin-module-fixture-proof-v1.md",
+          "sha256": "70fa94c639578c537ec5b4d481544c6ce87fe1fedcfa20193476386cf996361a"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-11.2-07",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_minimal_module_fixture.py -k checkpoint_b_fault_matrix --junitxml=artifacts/v9/11.2/AC-11.2-07.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.2-07#0001",
+          "subject": "checkpoint B fault matrix, every mutation detected and restored",
+          "state": "PASS"
+        }
+      ],
+      "resultFile": {
+        "path": "artifacts/v9/11.2/AC-11.2-07.xml",
+        "sha256": "e20e7d9d943015d8635f92c029c624c14bacc971fde459470089449dc07c0ae6"
+      }
+    },
+    {
+      "scenarioId": "AC-11.2-08",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --format bundle --output-json docs/release-evidence/story-11.2-final-record-v2.json --output-markdown docs/release-evidence/story-11.2-final-record-v2.md",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-11.2-08#0001",
+          "subject": "AC-11.2-01 through AC-11.2-07 and Story 11.1 are current and compatible",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-11.2-08#0002",
+          "subject": "record binds SC-11.2, Story 11.1, fixture, proof, receipts and mutation ledger",
+          "state": "PASS"
+        }
+      ]
+    }
+  ],
+  "faultInjection": {
+    "results": []
+  },
+  "outputs": {
+    "json": {
+      "path": "docs/release-evidence/story-11.2-final-record-v2.json",
+      "sha256": "3fbf3cf5acf46d56106b7d83f7736f841dd6ebe8ba4aa2aca53e802ea75e8589"
+    },
+    "markdown": {
+      "path": "docs/release-evidence/story-11.2-final-record-v2.md",
+      "sha256": "e224ff7e48d5e30a7a20b5b8910a133b28b5b0faf5a25c228b77ae1827c236e1"
+    }
+  },
+  "rollback": {
+    "boundary": "remove only the frozen fixture, fixture proof generator, validator, results, generated proof, and Story 11.2 record; retain Story 11.1."
+  },
+  "summary": {
+    "required": 8,
+    "passed": 8,
+    "failed": 0,
+    "blocked": 0,
+    "skipped": 0,
+    "notRun": 0
+  },
+  "renderedMarkdownSha256": "e224ff7e48d5e30a7a20b5b8910a133b28b5b0faf5a25c228b77ae1827c236e1",
+  "fixtureProofExecution": {
+    "bindingRule": "SC-11.2 is the committed candidate; the record binds the Story 11.1 record and guidance, the fixture inventory, the public-API graph, the measured results and the fixture proof",
+    "sourceRevisionId": "a3e6c15b5882f5f6ca4319af72fd8720a387ac97",
+    "contract": {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/11.2.json",
+      "sha256": "6e67b227fdafe0dc53fcb2fd307f6639b4b7ca44a350243dc4848e8e4dcc5e3a"
+    },
+    "predecessor": {
+      "storyId": "11.1",
+      "recordPath": "docs/release-evidence/story-11.1-final-record-v2.json",
+      "recordSha256": "6ff02bf2f6a71dea275c420d7860a9a62b9423d245046703b8c906363a91667a",
+      "guidanceJsonSha256": "4f078797f4b5c85aef91b3ea9cedd29dac25a3f28b62dcdca1d8a2db4335c0e2",
+      "guidanceMarkdownSha256": "990b46d68df0fc05777459e20308ff8dd9e4dba5dda4a8b5da3482ad66b1948b",
+      "signablePayloadSha256": "9ce146a26cd693261392928a2f767d3752b0101f6097e8a0bc7757784a07ef80"
+    },
+    "fixture": {
+      "inventoryId": "V9-MINIMAL-MODULE-FIXTURE-v1",
+      "inventorySha256": "4fa26d6fa11a365339d9ea39c79e38751340847cf963fe71a82c37062f7df15c",
+      "root": "tests/fixtures/Hexalith.Conversations.MinimalModule",
+      "fileCount": 13,
+      "lockFiles": [
+        {
+          "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/packages.lock.json",
+          "sha256": "52cbaccb8876b9df65fa7e691cf18b6755378e69aa50451ad5e4e211fcac0314"
+        },
+        {
+          "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/packages.lock.json",
+          "sha256": "d9f8362c9a38b3ad08481559e89dbebc92c474a06e1579923182f4419796295c"
+        },
+        {
+          "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/packages.lock.json",
+          "sha256": "78b06f0a95f4be921ace42500c2eba6e7578c0dccb162a2400d838c9b15a2423"
+        },
+        {
+          "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/packages.lock.json",
+          "sha256": "7a55c490e0263300eb97079fffc684ca61b1f00acd057bcf213f7f743744d104"
+        }
+      ],
+      "sourcesSha256": "60ceac3a6acc59ed8339cc6883301963ab5754b41184afb54b2736c17e2e3a90"
+    },
+    "proof": {
+      "jsonPath": "docs/release-evidence/thin-module-fixture-proof-v1.json",
+      "jsonSha256": "921bfd0bfeb9630721e30c93edc4fdaa7d31c83f1a5563b9c4d607c72b584202",
+      "markdownPath": "docs/release-evidence/thin-module-fixture-proof-v1.md",
+      "markdownSha256": "70fa94c639578c537ec5b4d481544c6ce87fe1fedcfa20193476386cf996361a",
+      "schemaPath": "docs/release-evidence/thin-module-fixture-proof-v1.schema.json",
+      "schemaSha256": "87aeb0afc4f8a91428da562dc139beada0a00ffbc19bc7ac4318eb0ed04c06aa",
+      "signablePayloadSha256": "4250d304520acb499909b0418eb73c58917dcf037f75348129b983e401743ad6",
+      "resolvedPublicApisSha256": "6186e01d8a022a03580b017f2074539991110f6f0d34b79ecda253cc092b9ae1",
+      "resultSha256": "d9c4d0ba933fb7eb749139d910769e9549eb304e758407c05ae595a4d1c4ccb9"
+    },
+    "receipts": [
+      {
+        "scenarioId": "AC-11.2-01",
+        "path": "artifacts/v9/11.2/AC-11.2-01.json",
+        "sha256": "04460bce7bbeb2fc0026b4d7d929a265e3d43fdd0703a8877d756a6310ea75b8"
+      },
+      {
+        "scenarioId": "AC-11.2-04",
+        "path": "artifacts/v9/11.2/minimal-module.trx",
+        "sha256": "d9c4d0ba933fb7eb749139d910769e9549eb304e758407c05ae595a4d1c4ccb9"
+      },
+      {
+        "scenarioId": "AC-11.2-05",
+        "path": "artifacts/v9/11.2/AC-11.2-05.trx",
+        "sha256": "a2b5f46824aa88840a5ec349a6a972417fd4daa26903ebb04d3f53a6b182a7d0"
+      },
+      {
+        "scenarioId": "AC-11.2-07",
+        "path": "artifacts/v9/11.2/AC-11.2-07.xml",
+        "sha256": "e20e7d9d943015d8635f92c029c624c14bacc971fde459470089449dc07c0ae6"
+      }
+    ],
+    "mutationLedger": [
+      {
+        "id": "inventory-path-added",
+        "expectedBlocker": "MINIMAL_FIXTURE_INVENTORY_DRIFT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "inventory-path-removed",
+        "expectedBlocker": "MINIMAL_FIXTURE_INVENTORY_DRIFT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "inventory-path-renamed",
+        "expectedBlocker": "MINIMAL_FIXTURE_INVENTORY_DRIFT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "inventory-crlf-edit",
+        "expectedBlocker": "MINIMAL_FIXTURE_INVENTORY_DRIFT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "inventory-lock-file-misplaced",
+        "expectedBlocker": "MINIMAL_FIXTURE_INVENTORY_DRIFT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "apphost-none",
+        "expectedBlocker": "APPHOST_BOUNDARY_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "apphost-second",
+        "expectedBlocker": "APPHOST_BOUNDARY_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "apphost-packable",
+        "expectedBlocker": "APPHOST_BOUNDARY_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "apphost-publishable",
+        "expectedBlocker": "APPHOST_BOUNDARY_INVALID",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "reusable-aspire-library-added",
+        "expectedBlocker": "REUSABLE_ASPIRE_LIBRARY_PRESENT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "service-defaults-project-added",
+        "expectedBlocker": "REUSABLE_ASPIRE_LIBRARY_PRESENT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "service-defaults-reference-added",
+        "expectedBlocker": "REUSABLE_ASPIRE_LIBRARY_PRESENT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "platform-runtime-project-reference-added",
+        "expectedBlocker": "REUSABLE_ASPIRE_LIBRARY_PRESENT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "dapr-package-added",
+        "expectedBlocker": "REUSABLE_ASPIRE_LIBRARY_PRESENT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "module-authored-endpoint",
+        "expectedBlocker": "REUSABLE_ASPIRE_LIBRARY_PRESENT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "internals-visible-to-item",
+        "expectedBlocker": "NONPUBLIC_PLATFORM_API_USED",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "internals-visible-to-attribute",
+        "expectedBlocker": "NONPUBLIC_PLATFORM_API_USED",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "nonpublic-reflection",
+        "expectedBlocker": "NONPUBLIC_PLATFORM_API_USED",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "lock-file-missing",
+        "expectedBlocker": "MINIMAL_FIXTURE_RESTORE_FAILED",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "lock-file-policy-disabled",
+        "expectedBlocker": "MINIMAL_FIXTURE_RESTORE_FAILED",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "warnings-as-errors-disabled",
+        "expectedBlocker": "MINIMAL_FIXTURE_BUILD_FAILED",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "build-output-missing",
+        "expectedBlocker": "MINIMAL_FIXTURE_BUILD_FAILED",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "tests-zero",
+        "expectedBlocker": "MINIMAL_FIXTURE_TESTS_VACUOUS",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "tests-skipped",
+        "expectedBlocker": "MINIMAL_FIXTURE_TESTS_VACUOUS",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "tests-failed",
+        "expectedBlocker": "MINIMAL_FIXTURE_TESTS_VACUOUS",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "capability-test-missing",
+        "expectedBlocker": "MINIMAL_FIXTURE_TESTS_VACUOUS",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "proof-json-edited",
+        "expectedBlocker": "FIXTURE_PROOF_DRIFT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "proof-markdown-edited",
+        "expectedBlocker": "FIXTURE_PROOF_DRIFT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "result-edited",
+        "expectedBlocker": "FIXTURE_PROOF_DRIFT",
+        "detected": true,
+        "restored": true
+      },
+      {
+        "id": "fixture-edited-after-proof",
+        "expectedBlocker": "FIXTURE_PROOF_DRIFT",
+        "detected": true,
+        "restored": true
+      }
+    ]
+  }
+}
