@@ -89,17 +89,17 @@ MICROSOFT_SERVICING_MEMBERS = frozenset((
 ))
 INDEPENDENT_CATALOG_PINS = {
     "Microsoft.AspNetCore.Identity": "2.3.13", "Microsoft.Extensions.Identity.Http": "10.0.9",
-    "Microsoft.Extensions.Http.Resilience": "10.10.0", "Microsoft.Extensions.ServiceDiscovery": "10.10.0",
-    "Microsoft.Extensions.TimeProvider.Testing": "10.10.0", "System.CommandLine": "2.0.12",
+    "Microsoft.Extensions.Http.Resilience": "10.11.0", "Microsoft.Extensions.ServiceDiscovery": "10.11.0",
+    "Microsoft.Extensions.TimeProvider.Testing": "10.11.0", "System.CommandLine": "2.0.13",
     "System.ComponentModel.Annotations": "5.0.0", "System.IdentityModel.Tokens.Jwt": "8.23.0",
     "System.Reactive": "7.0.0", "System.Threading.Tasks.Extensions": "4.6.3",
 }
 CATALOG_PINS = {
-    "HotChocolate": "16.6.8", "Verify": "33.3.2", "Verify.XunitV3": "33.3.2",
-    "Microsoft.Extensions.Http": "10.0.12", "Microsoft.NET.Test.Sdk": "18.10.1",
+    "HotChocolate": "16.6.8", "Verify": "33.3.4", "Verify.XunitV3": "33.3.4",
+    "Microsoft.Extensions.Http": "10.0.13", "Microsoft.NET.Test.Sdk": "18.11.0",
     "Microsoft.Extensions.Identity.Http": "10.0.9",
     "Aspire.Hosting": "13.6.1", "Aspire.Hosting.Testing": "13.6.1",
-    "CommunityToolkit.Aspire.Hosting.Dapr": "13.6.0-preview.1.261001-0243",
+    "CommunityToolkit.Aspire.Hosting.Dapr": "13.6.1-beta.935",
 }
 IMMUTABLE = {
     "_bmad-output/planning-artifacts/v15-planning-tooling-environment-authority-v1.json": "bac4dc435bc200d2eb5b3601a794b20abe5afaa79dc51b79d4f9571a6f6a37ea",
@@ -247,12 +247,12 @@ def validate_graph(sources: dict[str, bytes], catalog: bytes) -> None:
     metadata = project_rows[0]["metadata"]["requires-dist"]
     require(metadata == [{"name": n, "specifier": f"=={v}"} for n, v in sorted(PYTHON_PINS.items())],
             "REFRESH_PYTHON_LOCK_PARITY_DRIFT", "requires-dist")
-    require(json.loads(sources["global.json"])["sdk"]["version"] == "10.0.401",
+    require(json.loads(sources["global.json"])["sdk"]["version"] == "10.0.402",
             "REFRESH_SDK_DRIFT", "SDK pin")
     workflow = sources[".github/workflows/ci.yml"].decode("utf-8")
-    require(re.findall(r"\buv==([0-9.]+)", workflow) == ["0.12.23", "0.12.23"],
-            "REFRESH_UV_DRIFT", "both current CI pins")
-    require(b'ShouldBe("10.0.401")' in sources["tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs"],
+    require(re.findall(r"\buv==([0-9.]+)", workflow) == ["0.12.23", "0.12.23", "0.12.23"],
+            "REFRESH_UV_DRIFT", "current CI pins")
+    require(b'ShouldBe("10.0.402")' in sources["tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs"],
             "REFRESH_SDK_CONSUMER_DRIFT", "structural assertion")
     app_host = ET.fromstring(sources["src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj"])
     require(app_host.get("Sdk") == "Aspire.AppHost.Sdk/13.6.1"
@@ -261,7 +261,7 @@ def validate_graph(sources: dict[str, bytes], catalog: bytes) -> None:
     require(catalog.startswith(b"\xef\xbb\xbf"), "REFRESH_CATALOG_BOM_DRIFT", "owning catalog BOM")
     rows = catalog_versions(catalog)
     require(all(rows.get(n) == v for n, v in CATALOG_PINS.items()), "REFRESH_CATALOG_PIN_DRIFT", "selected catalog versions")
-    require(all(rows.get(name) == "10.0.12" for name in MICROSOFT_SERVICING_MEMBERS),
+    require(all(rows.get(name) == "10.0.13" for name in MICROSOFT_SERVICING_MEMBERS),
             "REFRESH_MICROSOFT_FAMILY_DRIFT", "coherent 10.0.x family")
     require(all(rows.get(name) == version for name, version in INDEPENDENT_CATALOG_PINS.items()),
             "REFRESH_CATALOG_CADENCE_DRIFT", "intentional independent servicing cadences")
@@ -309,7 +309,7 @@ def render(root: Path, candidate: str | None = None) -> dict[str, Any]:
         "buildsCatalog": builds,
         "packages": {"npmDirect": NPM_PINS, "pythonDirect": PYTHON_PINS,
                      "pythonGraph": PYTHON_PACKAGES, "catalogSelected": CATALOG_PINS},
-        "toolchain": {"dotnetSdk": "10.0.401", "uv": "0.12.23", "aspire": "13.6.1"},
+        "toolchain": {"dotnetSdk": "10.0.402", "uv": "0.12.23", "aspire": "13.6.1"},
         "immutableAuthorities": [{"path": p, "sha256": h} for p, h in sorted(IMMUTABLE.items())],
         "authorityEffect": {"executionAllowed": False, "ownerApprovalClaimed": False,
                             "releaseAuthorized": False, "pushAuthorized": False},

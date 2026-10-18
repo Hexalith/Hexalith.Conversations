@@ -69,6 +69,8 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
     private static readonly string[] SupersededByCorrectiveAuthority =
     [
         "_bmad-output/planning-artifacts/architecture.md",
+        // Story 11.1 corrected the platform-hosted authoring recipe. The signed v1 bytes remain at c6670fac.
+        "docs/domain-module-authoring-template.md",
     ];
 
     private static readonly string[] RequiredRootProperties =

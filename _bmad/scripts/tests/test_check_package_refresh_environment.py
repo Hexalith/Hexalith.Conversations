@@ -23,7 +23,7 @@ FIXTURE_COMMIT_MESSAGE = 'test(evidence): model the package refresh boundary'
 
 def fixture_catalog() -> bytes:
     """Keep all fixed families available without reading an initialized submodule."""
-    rows = {**dict.fromkeys(checker.MICROSOFT_SERVICING_MEMBERS, '10.0.12'),
+    rows = {**dict.fromkeys(checker.MICROSOFT_SERVICING_MEMBERS, '10.0.13'),
             **checker.INDEPENDENT_CATALOG_PINS, **checker.CATALOG_PINS}
     return b'\xef\xbb\xbf' + ('<Project><ItemGroup>'
         + ''.join(f'<PackageVersion Include="{name}" Version="{version}" />' for name, version in sorted(rows.items()))
@@ -325,7 +325,7 @@ def test_fixed_python_relationships_and_metadata_are_closed(environment: Path, f
 def test_servicing_downgrade_cannot_leave_family_by_changing_version_prefix(environment: Path, name: str) -> None:
     target = environment / checker.BUILDS_PATH / checker.CATALOG_PATH
     target.write_bytes(target.read_bytes().replace(
-        f'Include="{name}" Version="10.0.12"'.encode(), f'Include="{name}" Version="9.0.0"'.encode()))
+        f'Include="{name}" Version="10.0.13"'.encode(), f'Include="{name}" Version="9.0.0"'.encode()))
     with pytest.raises(checker.RefreshError, match='REFRESH_MICROSOFT_FAMILY_DRIFT'):
         checker.render(environment)
 
@@ -384,7 +384,7 @@ def real_environment_factory(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
         catalog_path = builds / checker.CATALOG_PATH
         catalog_path.parent.mkdir(parents=True)
         catalog = fixture_catalog()
-        old_catalog = catalog.replace(b'16.6.8', b'16.6.7').replace(b'33.3.2', b'33.3.1')
+        old_catalog = catalog.replace(b'16.6.8', b'16.6.7').replace(b'33.3.4', b'33.3.1')
         catalog_path.write_bytes(old_catalog)
         fixture_git(builds, 'add', '--', checker.CATALOG_PATH)
         old_revision = fixture_commit(builds)

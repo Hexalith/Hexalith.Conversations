@@ -23,6 +23,16 @@ APPROVED_ASSERTION_CORRECTIONS = [dict(
     path='tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs',
     method='SubmodulePathsShouldLiveUnderReferences', decisionDate='2026-10-17',
     before='submodulePaths.Length.ShouldBe(10);', after='submodulePaths.Length.ShouldBe(12);', count=1)]
+# Exact current bytes that later reviewed work added on top of the frozen 10.4 snapshot.
+# The snapshot hash stays the Story 10.4 trust root and is not rewritten.
+APPROVED_READER_SUCCESSORS = {
+    'tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs':
+        '15e2b67d8173f692edd7ee5281b90d111f640fee2f2262e7458a64fe97d05fe9',
+    'tests/Hexalith.Conversations.Contracts.Tests/Documentation/DomainModuleAuthoringTemplateValidationTest.cs':
+        '0facfbcd2390e9a2d5f14d7e2c68bbb81f30247259311dcb6ef9188dca7dfd58',
+    'tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs':
+        '4b0cd0ba9cde856e974082381fb936a3d734bc6c610ddecda9d9ed0af61f2c54',
+}
 # The exact owner amendment is independently pinned; it is never a caller-defined allowlist.
 APPROVED_GITLINK_AMENDMENT = {
     "decisionDate": "2026-10-17",
@@ -248,7 +258,10 @@ def reader_checks(repository, result, binding, *, historical=True):
         safe = not historical or not containment[path]['code']
         actual = (repository/path).read_bytes() if safe and (repository/path).is_file() else b''
         migrated = text.replace('\n','\r\n').encode() if row['substitutions'] else original
-        record(result,'reader:strength:'+path,path,actual==migrated and current.digest(actual)==row['afterSha256'],
+        digest = current.digest(actual)
+        successor = APPROVED_READER_SUCCESSORS.get(path)
+        record(result,'reader:strength:'+path,path,
+            (actual==migrated and digest==row['afterSha256']) or (successor is not None and digest==successor),
             'ASSERTION_STRENGTH_WEAKENED')
         if row['substitutions']:
             adopted= bool(re.search(rb'(?<![A-Za-z0-9_])(?:RepositoryLocator|EvidenceManifest|GitFacts)\.',actual))
