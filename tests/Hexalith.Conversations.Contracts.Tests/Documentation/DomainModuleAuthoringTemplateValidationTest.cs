@@ -3,6 +3,8 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json;
+
 using Shouldly;
 
 using Xunit;
@@ -196,6 +198,78 @@ public sealed class DomainModuleAuthoringTemplateValidationTest
         combined.ShouldNotContain("\\obj\\", Case.Insensitive);
         combined.ShouldNotContain("\\bin\\", Case.Insensitive);
     }
+
+    [Fact]
+    public void GuidanceShouldDefineOneNonShippingTestAppHost()
+    {
+        string root = FindRepositoryRoot();
+        string template = ReadRepositoryFile(root, "docs", "domain-module-authoring-template.md");
+        using JsonDocument bundle = ReadGuidanceBundle(root);
+        JsonElement host = bundle.RootElement.GetProperty("testAppHost");
+
+        host.GetProperty("count").GetInt32().ShouldBe(1);
+        host.GetProperty("isPackable").GetBoolean().ShouldBeFalse();
+        host.GetProperty("isPublishable").GetBoolean().ShouldBeFalse();
+        host.GetProperty("repositoryOnly").GetBoolean().ShouldBeTrue();
+        host.GetProperty("countedInAuthoringCost").GetBoolean().ShouldBeTrue();
+
+        template.ShouldContain("Exactly one test AppHost per module.", Case.Sensitive);
+        template.ShouldContain("| `IsPackable` | `false` |", Case.Sensitive);
+        template.ShouldContain("| `IsPublishable` | `false` |", Case.Sensitive);
+        template.ShouldContain("Repository-only; never shipped to adopters.", Case.Sensitive);
+        template.ShouldContain("counts in authoring cost (SM-2)", Case.Sensitive);
+
+        // The repository's own test AppHost must obey the same project rules.
+        string appHostProject = ReadRepositoryFile(
+            root, "src", "Hexalith.Conversations.AppHost", "Hexalith.Conversations.AppHost.csproj");
+        appHostProject.ShouldContain("<IsPackable>false</IsPackable>", Case.Sensitive);
+        appHostProject.ShouldContain("<IsPublishable>false</IsPublishable>", Case.Sensitive);
+    }
+
+    [Fact]
+    public void GuidanceShouldProhibitPlatformCapabilityOwnership()
+    {
+        string root = FindRepositoryRoot();
+        string template = ReadRepositoryFile(root, "docs", "domain-module-authoring-template.md");
+        using JsonDocument bundle = ReadGuidanceBundle(root);
+
+        string[] prohibited = bundle.RootElement.GetProperty("prohibited")
+            .EnumerateArray().Select(item => item.GetProperty("id").GetString()!).ToArray();
+        string[] platformOwned = bundle.RootElement.GetProperty("platformOwned")
+            .EnumerateArray().Select(item => item.GetProperty("id").GetString()!).ToArray();
+        string[] moduleOwned = bundle.RootElement.GetProperty("moduleOwned")
+            .EnumerateArray().Select(item => item.GetProperty("id").GetString()!).ToArray();
+
+        prohibited.ShouldBe(
+        [
+            "reusable-aspire-library",
+            "module-service-defaults",
+            "module-dapr-implementation",
+            "module-event-subscription",
+            "module-projection-query-runtime",
+            "module-publication",
+            "module-health",
+            "module-telemetry-runtime",
+        ]);
+        platformOwned.ShouldBe(
+        [
+            "service-defaults",
+            "dapr-wiring",
+            "event-subscription",
+            "projection-query-runtime",
+            "publication",
+            "health",
+            "telemetry",
+        ]);
+        moduleOwned.ShouldBe(["contracts", "domain-behavior", "module-registration", "module-tests"]);
+
+        template.ShouldContain("A reusable module Aspire library is prohibited.", Case.Sensitive);
+        template.ShouldContain("A module must never reimplement or reassign a platform-owned capability.", Case.Sensitive);
+        template.ShouldNotContain("| `ServiceDefaults` |", Case.Sensitive);
+    }
+
+    private static JsonDocument ReadGuidanceBundle(string root)
+        => JsonDocument.Parse(ReadRepositoryFile(root, "docs", "release-evidence", "thin-authoring-guidance-v2.json"));
 
     private static string ReadRepositoryFile(string root, params string[] pathParts)
     {

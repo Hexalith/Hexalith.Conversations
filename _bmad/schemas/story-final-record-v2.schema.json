@@ -545,7 +545,10 @@
           "properties": {
             "storyId": {
               "not": {
-                "const": "10.3"
+                "enum": [
+                  "10.3",
+                  "11.1"
+                ]
               }
             }
           }
@@ -556,6 +559,35 @@
               "$ref": "#/$defs/candidate"
             }
           }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "storyId": {
+            "const": "11.1"
+          }
+        },
+        "required": [
+          "storyId"
+        ]
+      },
+      "then": {
+        "required": [
+          "thinGuidanceExecution"
+        ],
+        "properties": {
+          "candidate": {
+            "$ref": "#/$defs/story103Candidate"
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "thinGuidanceExecution"
+          ]
         }
       }
     }
@@ -670,6 +702,9 @@
     },
     "evidenceAdoptionExecution": {
       "$ref": "#/$defs/evidenceAdoptionExecution"
+    },
+    "thinGuidanceExecution": {
+      "$ref": "#/$defs/thinGuidanceExecution"
     }
   },
   "$defs": {
@@ -6691,6 +6726,284 @@
                 "destinationObject": "e667d5391dae306e631dec23acd191863e54130c"
               }
             ]
+          }
+        }
+      }
+    },
+    "thinGuidanceExecution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindingRule",
+        "sourceRevisionId",
+        "contract",
+        "guidance",
+        "reviewDecision",
+        "authoritySubstitution",
+        "receipts",
+        "mutationLedger"
+      ],
+      "properties": {
+        "bindingRule": {
+          "const": "SC-11.1 is the committed candidate; the record binds the guidance source, bundle and reviewer decision"
+        },
+        "sourceRevisionId": {
+          "$ref": "#/$defs/commit"
+        },
+        "contract": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "guidance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sourcePath",
+            "sourceSha256",
+            "jsonPath",
+            "jsonSha256",
+            "markdownPath",
+            "markdownSha256",
+            "schemaPath",
+            "schemaSha256",
+            "signablePayloadSha256"
+          ],
+          "properties": {
+            "sourcePath": {
+              "const": "docs/domain-module-authoring-template.md"
+            },
+            "sourceSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "jsonPath": {
+              "const": "docs/release-evidence/thin-authoring-guidance-v2.json"
+            },
+            "jsonSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "markdownPath": {
+              "const": "docs/release-evidence/thin-authoring-guidance-v2.md"
+            },
+            "markdownSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "schemaPath": {
+              "const": "docs/release-evidence/thin-authoring-guidance-v2.schema.json"
+            },
+            "schemaSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "signablePayloadSha256": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        },
+        "reviewDecision": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "decision",
+            "reviewer",
+            "decidedAtUtc",
+            "boundSourceSha256",
+            "boundSignablePayloadSha256"
+          ],
+          "properties": {
+            "decision": {
+              "const": "approved"
+            },
+            "reviewer": {
+              "type": "string",
+              "minLength": 1
+            },
+            "decidedAtUtc": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+            },
+            "boundSourceSha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "boundSignablePayloadSha256": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        },
+        "authoritySubstitution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "acceptanceCriterion",
+            "decision",
+            "reason",
+            "currentPolicyChecks",
+            "predecessors"
+          ],
+          "properties": {
+            "acceptanceCriterion": {
+              "const": "AC-11.1-01"
+            },
+            "decision": {
+              "type": "string",
+              "minLength": 1
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            },
+            "currentPolicyChecks": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "predecessors": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "storyId",
+                  "path",
+                  "sha256",
+                  "binding"
+                ],
+                "properties": {
+                  "storyId": {
+                    "enum": [
+                      "6.2",
+                      "7.4",
+                      "10.4"
+                    ]
+                  },
+                  "path": {
+                    "$ref": "#/$defs/path"
+                  },
+                  "sha256": {
+                    "$ref": "#/$defs/digest"
+                  },
+                  "binding": {
+                    "enum": [
+                      "final-record-v2",
+                      "release-evidence"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "receipts": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "scenarioId",
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "scenarioId": {
+                "enum": [
+                  "AC-11.1-03",
+                  "AC-11.1-04",
+                  "AC-11.1-05",
+                  "AC-11.1-06"
+                ]
+              },
+              "path": {
+                "$ref": "#/$defs/path"
+              },
+              "sha256": {
+                "$ref": "#/$defs/digest"
+              }
+            }
+          },
+          "uniqueItems": true,
+          "allOf": [
+            {
+              "contains": {
+                "properties": {
+                  "scenarioId": {
+                    "const": "AC-11.1-03"
+                  }
+                },
+                "required": [
+                  "scenarioId"
+                ]
+              }
+            },
+            {
+              "contains": {
+                "properties": {
+                  "scenarioId": {
+                    "const": "AC-11.1-04"
+                  }
+                },
+                "required": [
+                  "scenarioId"
+                ]
+              }
+            },
+            {
+              "contains": {
+                "properties": {
+                  "scenarioId": {
+                    "const": "AC-11.1-05"
+                  }
+                },
+                "required": [
+                  "scenarioId"
+                ]
+              }
+            },
+            {
+              "contains": {
+                "properties": {
+                  "scenarioId": {
+                    "const": "AC-11.1-06"
+                  }
+                },
+                "required": [
+                  "scenarioId"
+                ]
+              }
+            }
+          ]
+        },
+        "mutationLedger": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "expectedBlocker",
+              "detected",
+              "restored"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedBlocker": {
+                "type": "string",
+                "minLength": 1
+              },
+              "detected": {
+                "const": true
+              },
+              "restored": {
+                "const": true
+              }
+            }
           }
         }
       }

@@ -575,3 +575,7 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-10-2-implement-manifest-hash-ledger-exact-diff-and-gitlink-invariants.md`
   summary: Investigate concurrent symlink replacement between evidence containment checking and file reading (possible high impact, unverified).
   evidence: Review E4 observed separate containment and read operations but supplied no deterministic race probe. A fixture that swaps and restores a symlink during hashing, then proves whether external bytes can establish PASS, would settle the claim. Existing static symlink rejection tests pass.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance.md`
+  summary: Harden Story 11.1 record route and guidance tooling (receipts bound to candidate identity, atomic JSON/MD writes, cross-binding recompute in pair verification, 6.2 disposition content check, duplicated inventories across generator/bundle/template/C#, load-bearing marker notes).
+  evidence: Review layers raised these as plausible hardening; none breaks a spec acceptance criterion, and fixes add public surface or schema changes beyond the approved scope.

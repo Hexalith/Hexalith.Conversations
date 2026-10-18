@@ -4551,9 +4551,30 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
         lines.extend("| " + " | ".join(code(value) for value in (
             row["path"], row["sourceObject"], row["destinationObject"], row["sourceMode"] + " / " + row["destinationMode"])) + " |"
                      for row in amendment["transitions"])
+    if "thinGuidanceExecution" in record:
+        guidance = record["thinGuidanceExecution"]
+        lines.extend(["", "## Thin-module authoring guidance", "",
+                      f"- Guidance source: {code(guidance['guidance']['sourcePath'])} ({code(guidance['guidance']['sourceSha256'])})",
+                      f"- Bundle JSON: {code(guidance['guidance']['jsonPath'])} ({code(guidance['guidance']['jsonSha256'])})",
+                      f"- Bundle Markdown: {code(guidance['guidance']['markdownPath'])} ({code(guidance['guidance']['markdownSha256'])})",
+                      f"- Signable payload: {code(guidance['guidance']['signablePayloadSha256'])}",
+                      f"- Reviewer: {code(guidance['reviewDecision']['reviewer'])} ({code(guidance['reviewDecision']['decision'])} at {code(guidance['reviewDecision']['decidedAtUtc'])})",
+                      f"- AC-11.1-01 substitution: {code(guidance['authoritySubstitution']['decision'])}", "",
+                      "| Predecessor | Binding | Path | SHA-256 |", "| --- | --- | --- | --- |"])
+        lines.extend("| " + " | ".join(code(value) for value in (row["storyId"], row["binding"], row["path"], row["sha256"])) + " |"
+                     for row in guidance["authoritySubstitution"]["predecessors"])
+        lines.extend(["", "| Receipt | Path | SHA-256 |", "| --- | --- | --- |"])
+        lines.extend("| " + " | ".join(code(value) for value in (row["scenarioId"], row["path"], row["sha256"])) + " |"
+                     for row in guidance["receipts"])
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
-    if record["storyId"] in ("10.3", "10.4") and ("evidenceWorkflowExecution" in record or "evidenceAdoptionExecution" in record):
+    if "thinGuidanceExecution" in record:
+        faults = record["thinGuidanceExecution"]["mutationLedger"]
+        lines.extend([f"{len(faults)} observed mutation results are bound to the retained receipts.", "",
+                      "| Fault | Expected blocker | Detected | Restored |", "| --- | --- | --- | --- |"])
+        lines.extend("| " + " | ".join(code(value) for value in (
+            row["id"], row["expectedBlocker"], row["detected"], row["restored"])) + " |" for row in faults)
+    elif record["storyId"] in ("10.3", "10.4") and ("evidenceWorkflowExecution" in record or "evidenceAdoptionExecution" in record):
         facts = record.get("evidenceWorkflowExecution", record.get("evidenceAdoptionExecution"))
         faults = facts["mutationLedger"]
         lines.extend([f"{len(faults)} observed mutation results are bound to the retained receipts.", "",
@@ -4699,6 +4720,8 @@ def v2_verify_pair(json_bytes: bytes, markdown_bytes: bytes) -> list[str]:
         problems.extend(v2_10_3_pair_errors(record))
     if record.get("storyId") == "10.4":
         problems.extend(v2_10_4_pair_errors(record))
+    if record.get("storyId") == "11.1":
+        problems.extend(v2_11_1_pair_errors(record))
     return problems
 
 
@@ -8168,6 +8191,11 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
 
 def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> bytes:
     """Derive, validate, and atomically write the v2 pair; return the JSON bytes."""
+    if options.get("--contract") == V2_11_1_CONTRACT:
+        try:
+            return v2_11_1_generate(options)
+        except ValueError as error:
+            raise V2Stop([v2_finding('RECORD_NOT_DERIVED', '11.1', str(error))], '11.1') from None
     if options.get("--contract") == V2_10_4_CONTRACT:
         try:
             return v2_10_4_generate(options, verify_spec=verify_spec)
@@ -9777,6 +9805,204 @@ def v2_10_4_verify_inserted(options):
         return v2_10_4_verify_inserted_impl(options)
     except ValueError as error:
         raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT', '10.4', str(error))], '10.4') from None
+
+
+# Story 11.1 (Checkpoint A) closed route: thin-module authoring guidance.
+V2_11_1_CONTRACT = '_bmad-output/planning-artifacts/v9/story-contracts/11.1.json'
+V2_11_1_RECEIPT_DIR = 'artifacts/v9/11.1/'
+V2_11_1_SCENARIOS = tuple(f'AC-11.1-0{n}' for n in range(1, 8))
+V2_11_1_TRX_METHODS = {
+    'AC-11.1-03': 'GuidanceShouldDefineOneNonShippingTestAppHost',
+    'AC-11.1-04': 'GuidanceShouldProhibitPlatformCapabilityOwnership',
+}
+
+
+def v2_11_1_module():
+    """Load the guidance generator, which owns the bundle format and the fault expectations."""
+    directory = str(Path(__file__).resolve().parent)
+    if directory not in sys.path: sys.path.insert(0, directory)
+    import generate_thin_authoring_guidance
+    import verify_thin_authoring_guidance
+    return generate_thin_authoring_guidance, verify_thin_authoring_guidance
+
+
+def v2_11_1_pair_errors(record):
+    """Independent cross-binding checks for one Story 11.1 record."""
+    try:
+        gen, _ = v2_11_1_module()
+        facts = record['thinGuidanceExecution']
+        scenarios = record['scenarios']
+        if (record['summary'] != dict(required=7, passed=7, failed=0, blocked=0, skipped=0, notRun=0)
+                or [row['scenarioId'] for row in scenarios] != list(V2_11_1_SCENARIOS)
+                or any(row['result'] != 'PASS' or row['exitCode'] != 0 or row['blockers'] for row in scenarios)):
+            return ['Story 11.1 summary or scenarios are not the closed 7/7/0/0/0/0 set']
+        if facts['sourceRevisionId'] != record['candidate']['commit'] or record['predecessors'] != ['10.4', '6.2', '7.4']:
+            return ['Story 11.1 candidate or predecessor list differs']
+        review = facts['reviewDecision']
+        if (review['decision'] != 'approved' or not review['reviewer'].strip()
+                or review['boundSignablePayloadSha256'] != facts['guidance']['signablePayloadSha256']):
+            return ['Story 11.1 reviewer decision is not an approved decision bound to the signable payload']
+        if [row['id'] for row in facts['mutationLedger']] != list(gen.FAULT_EXPECTATIONS) or any(
+                row['expectedBlocker'] != gen.FAULT_EXPECTATIONS[row['id']] or not row['detected'] or not row['restored']
+                for row in facts['mutationLedger']):
+            return ['Story 11.1 mutation ledger differs from the closed fault matrix']
+        if [row['storyId'] for row in facts['authoritySubstitution']['predecessors']] != ['6.2', '7.4', '10.4']:
+            return ['Story 11.1 authority substitution predecessors differ']
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return ['Story 11.1 execution facts are malformed']
+    return []
+
+
+def v2_11_1_read_receipt(repository, path, candidate_time, read_receipt):
+    if read_receipt is not None:
+        content = read_receipt(path)
+        if content is None: raise ValueError('receipt missing: ' + path)
+        return content
+    target = repository / path
+    if target.is_symlink() or not target.is_file(): raise ValueError('receipt missing: ' + path)
+    if int(target.stat().st_mtime) < candidate_time: raise ValueError('receipt is older than the candidate: ' + path)
+    return target.read_bytes()
+
+
+def v2_11_1_receipts(repository, contract, candidate, candidate_time, read_receipt=None):
+    """Parse the four measured receipts; return scenario rows, receipt digests and the mutation ledger."""
+    gen, verifier = v2_11_1_module()
+    by_id = {row['id']: row for row in contract['scenarios']}
+    receipts, rows, ledger = [], {}, []
+    for identity in ('AC-11.1-03', 'AC-11.1-04'):
+        tokens = shlex.split(by_id[identity]['command'])
+        path = tokens[tokens.index('-trx') + 1]
+        if path != f'{V2_11_1_RECEIPT_DIR}{identity}.trx': raise ValueError(identity + ' receipt path differs')
+        content = v2_11_1_read_receipt(repository, path, candidate_time, read_receipt)
+        try:
+            parsed = parse_trx(content)
+        except (ElementTree.ParseError, ValueError):
+            raise ValueError(identity + ' TRX is not parseable') from None
+        if (len(parsed['results']) != 1 or parsed['recomputed'] != dict(total=1, passed=1, failed=0, skipped=0)
+                or parsed['reported']['total'] != 1 or parsed['unknown_outcomes']
+                or not parsed['results'][0]['test'].endswith(V2_11_1_TRX_METHODS[identity])):
+            raise ValueError(identity + ' TRX is not one passing, non-skipped target test')
+        digest = v2_sha256(content)
+        receipts.append(dict(scenarioId=identity, path=path, sha256=digest))
+        rows[identity] = dict(resultFile=dict(path=path, sha256=digest), subject=V2_11_1_TRX_METHODS[identity])
+    tokens = shlex.split(by_id['AC-11.1-05']['command'])
+    path = tokens[tokens.index('--output') + 1]
+    if path != f'{V2_11_1_RECEIPT_DIR}AC-11.1-05.json': raise ValueError('AC-11.1-05 receipt path differs')
+    content = v2_11_1_read_receipt(repository, path, candidate_time, read_receipt)
+    report = v2_parse_json(content)
+    if report != dict(schemaVersion=verifier.RESULT_SCHEMA, result='PASS', blockers=[]):
+        raise ValueError('AC-11.1-05 receipt is not a PASS with no blockers')
+    digest = v2_sha256(content)
+    receipts.append(dict(scenarioId='AC-11.1-05', path=path, sha256=digest))
+    rows['AC-11.1-05'] = dict(resultFile=dict(path=path, sha256=digest), subject='verifier PASS with review decision required')
+    command = v2_pytest_command(shlex.split(by_id['AC-11.1-06']['command']))
+    path = str(command['junit'])
+    if path != f'{V2_11_1_RECEIPT_DIR}AC-11.1-06.xml': raise ValueError('AC-11.1-06 receipt path differs')
+    content = v2_11_1_read_receipt(repository, path, candidate_time, read_receipt)
+    try:
+        suite = ElementTree.fromstring(content)
+    except ElementTree.ParseError:
+        raise ValueError('AC-11.1-06 JUnit is not parseable XML') from None
+    cases = suite.findall('.//testcase')
+    if not cases or any(case.findall('failure') or case.findall('error') or case.findall('skipped') for case in cases):
+        raise ValueError('AC-11.1-06 JUnit has a failed, errored or skipped case')
+    found = {}
+    for case in cases:
+        name = case.get('name', '')
+        if '[' in name and name.endswith(']'): found[name.split('[', 1)[1][:-1]] = name
+    if set(found) != set(gen.FAULT_EXPECTATIONS) or len(found) != len([c for c in cases if '[' in c.get('name', '')]):
+        raise ValueError('AC-11.1-06 JUnit does not cover exactly the closed fault matrix')
+    digest = v2_sha256(content)
+    receipts.append(dict(scenarioId='AC-11.1-06', path=path, sha256=digest))
+    rows['AC-11.1-06'] = dict(resultFile=dict(path=path, sha256=digest), subject='checkpoint A fault matrix, every mutation detected and restored')
+    for fault, code in gen.FAULT_EXPECTATIONS.items():
+        ledger.append(dict(id=fault, expectedBlocker=code, detected=True, restored=True))
+    return rows, receipts, ledger
+
+
+def v2_11_1_generate(options, *, candidate=None, read_receipt=None, verify_only=False):
+    """Derive the Story 11.1 record from the committed bundle, predecessors and four receipts."""
+    gen, verifier = v2_11_1_module()
+    repository = validate_repository(Path(options.get('--repository') or default_repository()))
+    head = resolve_commit(repository, 'HEAD', 'CANDIDATE_UNRESOLVABLE')
+    supplied = candidate is not None
+    candidate = candidate or head
+    _, validators = v2_load_schemas()
+    contract_bytes = v2_committed_blob(repository, candidate, V2_11_1_CONTRACT)
+    contract = v2_validate_contract(contract_bytes, V2_11_1_CONTRACT, validators['contract'], validators['contract_v14'])
+    if [row['id'] for row in contract['scenarios']] != list(V2_11_1_SCENARIOS): raise ValueError('all seven AC identities are required')
+    paths = contract['finalRecord']['paths']
+    if [options['--output-json'], options['--output-markdown']] != paths: raise ValueError('output pair differs from contract')
+    findings = []
+    authority = v2_authority(repository, candidate, V2_11_1_CONTRACT, contract, validators['bundle'], findings)
+    if findings or authority is None: raise V2Stop(findings or [v2_finding('AUTHORITY_BINDING_INVALID', V2_11_1_CONTRACT, 'authority does not bind')], '11.1')
+    receipt_paths = {f'{V2_11_1_RECEIPT_DIR}AC-11.1-0{n}.{ext}' for n, ext in ((3, 'trx'), (4, 'trx'), (5, 'json'), (6, 'xml'))}
+    dirt = set(worktree_path_status(repository)) - set(paths) - receipt_paths
+    if dirt: raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN', 'working-tree', 'working tree differs outside the record pair and receipts: ' + v2_path_summary(dirt))], '11.1')
+    candidate_time = int(decode(run_git(repository, 'show', '-s', '--format=%ct', candidate).stdout).strip())
+
+    # AC-11.1-01 owner-approved substitution: committed HEAD candidate, recomputed predecessor digests.
+    if supplied and candidate != head: raise ValueError('the candidate is not the committed HEAD')
+    # AC-11.1-02: the committed bundle is byte-identical to a fresh deterministic regeneration, and verifies.
+    bundle_json = v2_committed_blob(repository, candidate, 'docs/release-evidence/thin-authoring-guidance-v2.json')
+    bundle_md = v2_committed_blob(repository, candidate, 'docs/release-evidence/thin-authoring-guidance-v2.md')
+    schema_bytes = v2_committed_blob(repository, candidate, 'docs/release-evidence/thin-authoring-guidance-v2.schema.json')
+    source_bytes = v2_committed_blob(repository, candidate, gen.SOURCE_PATH)
+    if None in (bundle_json, bundle_md, schema_bytes, source_bytes): raise ValueError('the guidance source or bundle is not committed at the candidate')
+    bundle = v2_parse_json(bundle_json)
+    signable = gen.build_signable(repository, source_bytes, contract_bytes)
+    regenerated = gen.finalize(signable, bundle['reviewDecision'])
+    if regenerated != (bundle_json.decode('utf-8'), bundle_md.decode('utf-8')):
+        raise ValueError('the committed bundle is not the deterministic regeneration of its source')
+    blockers = verifier.verify(repository, 'docs/release-evidence/thin-authoring-guidance-v2.json', 'docs/release-evidence/thin-authoring-guidance-v2.md', True)
+    if blockers: raise ValueError('the guidance verifier does not pass: ' + ', '.join(item['code'] for item in blockers))
+    review = bundle['reviewDecision']
+    substitution = bundle['validation']['authoritySubstitution']
+    for row in substitution['predecessors']:
+        blob = v2_committed_blob(repository, candidate, row['path'])
+        if blob is None or v2_sha256(blob) != row['sha256']: raise ValueError('predecessor digest differs: ' + row['storyId'])
+        if row['binding'] == 'final-record-v2':
+            if v2_verified_predecessor(repository, candidate, row['storyId'], row['path'], row['path'][:-4] + 'md', validators['record']) != row['sha256']:
+                raise ValueError('predecessor record does not verify: ' + row['storyId'])
+
+    measured, receipts, ledger = v2_11_1_receipts(repository, contract, candidate, candidate_time, read_receipt)
+    by_id = {row['id']: row for row in contract['scenarios']}
+    def scenario(identity, subjects, **extra):
+        return dict(scenarioId=identity, command=by_id[identity]['command'], exitCode=0, result='PASS', blockers=[],
+                    assertionLedger=[dict(id=f'{identity}#{n + 1:04d}', subject=subject, state='PASS') for n, subject in enumerate(subjects)], **extra)
+    guidance_files = [dict(path='docs/release-evidence/thin-authoring-guidance-v2.json', sha256=v2_sha256(bundle_json)),
+                      dict(path='docs/release-evidence/thin-authoring-guidance-v2.md', sha256=v2_sha256(bundle_md))]
+    scenarios = [
+        scenario('AC-11.1-01', ['candidate is the committed HEAD', 'Story 7.4 and 10.4 final-record v2 digests recomputed', 'Story 6.2 bound through its existing release evidence',
+                                'verify_story_candidate.py substitution recorded in the bundle validation']),
+        scenario('AC-11.1-02', ['committed JSON and Markdown equal a fresh deterministic regeneration', 'module and platform ownership inventories are exact'],
+                 outputFiles=guidance_files),
+    ]
+    for identity in ('AC-11.1-03', 'AC-11.1-04', 'AC-11.1-05', 'AC-11.1-06'):
+        scenarios.append(scenario(identity, [measured[identity]['subject']], resultFile=measured[identity]['resultFile']))
+    scenarios.append(scenario('AC-11.1-07', ['AC-11.1-01 through AC-11.1-06 are current and compatible', 'record binds SC-11.1, predecessors, bundle and reviewer digests']))
+    facts = dict(
+        bindingRule='SC-11.1 is the committed candidate; the record binds the guidance source, bundle and reviewer decision',
+        sourceRevisionId=candidate, contract=dict(path=V2_11_1_CONTRACT, sha256=v2_sha256(contract_bytes)),
+        guidance=dict(sourcePath=gen.SOURCE_PATH, sourceSha256=v2_sha256(source_bytes),
+                      jsonPath=guidance_files[0]['path'], jsonSha256=guidance_files[0]['sha256'],
+                      markdownPath=guidance_files[1]['path'], markdownSha256=guidance_files[1]['sha256'],
+                      schemaPath='docs/release-evidence/thin-authoring-guidance-v2.schema.json', schemaSha256=v2_sha256(schema_bytes),
+                      signablePayloadSha256=bundle['digests']['signablePayloadSha256']),
+        reviewDecision=review, authoritySubstitution=substitution, receipts=receipts, mutationLedger=ledger)
+    observed_roots = [dict(path=path, mode='160000', commit=commit) for path, commit in v2_raw_gitlinks(repository, candidate)]
+    record = dict(schemaVersion=V2_RECORD_SCHEMA_VERSION, storyId='11.1',
+                  authority=authority, candidate=dict(commit=candidate, gitlinks=observed_roots), predecessors=list(contract['predecessors']),
+                  inventory=contract['inventory'], scenarios=scenarios, faultInjection=dict(results=[]),
+                  outputs=dict(json=dict(path=paths[0], sha256=V2_ZERO_DIGEST), markdown=dict(path=paths[1], sha256=V2_ZERO_DIGEST)),
+                  rollback=contract['rollback'], summary=dict(required=7, passed=7, failed=0, blocked=0, skipped=0, notRun=0),
+                  renderedMarkdownSha256=V2_ZERO_DIGEST, thinGuidanceExecution=facts)
+    final, j, m = v2_finalize(record)
+    problems = v2_schema_errors(validators['record'], final) + v2_verify_pair(j, m)
+    if problems: raise ValueError('; '.join(problems))
+    if verify_only: return j
+    v2_write_outputs([(v2_output_target(repository, paths[0]), j), (v2_output_target(repository, paths[1]), m)])
+    return j
 
 
 def v2_main(raw_arguments: Sequence[str]) -> int:

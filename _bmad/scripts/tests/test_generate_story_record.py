@@ -11864,6 +11864,8 @@ def story104_receipt_repository(tmp_path_factory):
     run_git(tmp_path,'clone','--quiet','--shared','--no-checkout',str(WORKSPACE),str(repository))
     run_git(repository,'checkout','--detach',source)
     for path in adoption.APPROVED_SOURCE_PATHS:
+        # Frozen C# reader files stay at the Story 10.4 candidate bytes; later stories may extend them.
+        if path.endswith('.cs'):continue
         target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((WORKSPACE/path).read_bytes())
     # A completed live story must not turn the next fixture's original source into
     # a lifecycle descendant or include its already published record region.
@@ -12257,6 +12259,8 @@ def story104_current_source_repository(tmp_path,generator):
     run_git(repository,'checkout','--detach',source_revision)
     binding=json.loads((WORKSPACE/adoption.BINDING).read_bytes())
     for path in binding['sourcePaths']:
+        # Frozen C# reader files stay at the Story 10.4 candidate bytes; later stories may extend them.
+        if path.endswith('.cs'):continue
         target=repository/path;target.parent.mkdir(parents=True,exist_ok=True)
         # Reuse reachable pre-publication lifecycle bytes when CI runs after publication.
         content=(run_git(WORKSPACE,'show',source_revision+':'+path).stdout.encode()
@@ -12536,3 +12540,261 @@ def test_story104_real_git_publication_rejects_installed_receipt_snapshot_and_xm
             observed=adoption.verify(repository,adoption.BASELINE,consumer,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
         assert any('malformed '+('TRX' if path.endswith('.trx') else 'JUnit')+' XML' in error for error in errors)
         assert observed['result']=='FAIL' and 'AUTHORITY_BINDING_INVALID' in observed['blockers']
+
+
+# ---------------------------------------------------------------------------
+# Story 11.1 closed route (Checkpoint A thin-module authoring guidance)
+# ---------------------------------------------------------------------------
+
+STORY_111_OVERLAY = (
+    "docs/domain-module-authoring-template.md",
+    "docs/release-evidence/thin-authoring-guidance-v2.schema.json",
+    "_bmad/schemas/story-final-record-v2.schema.json",
+    "_bmad/scripts/generate_story_record.py",
+    "_bmad/scripts/generate_thin_authoring_guidance.py",
+    "_bmad/scripts/verify_thin_authoring_guidance.py",
+)
+
+
+def story111_trx(method: str) -> bytes:
+    return (
+        '<?xml version="1.0" encoding="utf-8"?>'
+        f'<TestRun xmlns="{TRX_NAMESPACE}"><Results>'
+        f'<UnitTestResult testName="Ns.DomainModuleAuthoringTemplateValidationTest.{method}" outcome="Passed"/>'
+        '</Results><ResultSummary outcome="Completed"><Counters total="1" executed="1" passed="1" failed="0"/>'
+        '</ResultSummary></TestRun>'
+    ).encode()
+
+
+@pytest.fixture(scope="module")
+def story111_fixture(tmp_path_factory):
+    generator = load_generator()
+    gen, verifier = generator.v2_11_1_module()
+    root = tmp_path_factory.mktemp("story111")
+    repository = root / "repository"
+    run_git(root, "clone", "--quiet", "--shared", "--no-checkout", str(WORKSPACE), str(repository))
+    run_git(repository, "checkout", "--detach", "HEAD")
+    for relative in STORY_111_OVERLAY:
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((WORKSPACE / relative).read_bytes())
+    approved = gen.main([
+        "--repository", str(repository), "--contract", generator.V2_11_1_CONTRACT,
+        "--schema", "docs/release-evidence/thin-authoring-guidance-v2.schema.json",
+        "--output-json", "docs/release-evidence/thin-authoring-guidance-v2.json",
+        "--output-markdown", "docs/release-evidence/thin-authoring-guidance-v2.md",
+        "--approve-reviewer", "Fixture Reviewer", "--decided-at-utc", "2026-10-18T10:00:00Z",
+    ])
+    assert approved == 0
+    run_git(repository, "add", "--force", "--", ".")
+    run_git(repository, "commit", "--quiet", "-m", "test: story 11.1 candidate fixture")
+    contract = generator.v2_parse_json((repository / generator.V2_11_1_CONTRACT).read_bytes())
+    receipts = {
+        "artifacts/v9/11.1/AC-11.1-03.trx": story111_trx("GuidanceShouldDefineOneNonShippingTestAppHost"),
+        "artifacts/v9/11.1/AC-11.1-04.trx": story111_trx("GuidanceShouldProhibitPlatformCapabilityOwnership"),
+        "artifacts/v9/11.1/AC-11.1-05.json": (json.dumps(
+            dict(schemaVersion=verifier.RESULT_SCHEMA, result="PASS", blockers=[]), indent=2) + "\n").encode(),
+        "artifacts/v9/11.1/AC-11.1-06.xml": (
+            "<testsuites><testsuite>"
+            + "".join(f'<testcase name="test_checkpoint_a_fault_matrix_x[{fault}]"/>' for fault in gen.FAULT_EXPECTATIONS)
+            + "</testsuite></testsuites>").encode(),
+    }
+    options = {
+        "--repository": str(repository), "--contract": generator.V2_11_1_CONTRACT, "--format": "bundle",
+        "--output-json": contract["finalRecord"]["paths"][0], "--output-markdown": contract["finalRecord"]["paths"][1],
+    }
+    return generator, gen, repository, options, receipts
+
+
+def test_story_111_route_derives_the_closed_pass_record(story111_fixture):
+    generator, gen, repository, options, receipts = story111_fixture
+    first = generator.v2_11_1_generate(options, read_receipt=receipts.get)
+    second = generator.v2_11_1_generate(options, read_receipt=receipts.get)
+    assert first == second
+    record = generator.v2_parse_json(first)
+    assert record["storyId"] == "11.1" and record["predecessors"] == ["10.4", "6.2", "7.4"]
+    assert record["summary"] == dict(required=7, passed=7, failed=0, blocked=0, skipped=0, notRun=0)
+    facts = record["thinGuidanceExecution"]
+    assert [row["id"] for row in facts["mutationLedger"]] == list(gen.FAULT_EXPECTATIONS)
+    assert facts["reviewDecision"]["reviewer"] == "Fixture Reviewer"
+    assert [row["storyId"] for row in facts["authoritySubstitution"]["predecessors"]] == ["6.2", "7.4", "10.4"]
+    _, validators = generator.v2_load_schemas()
+    assert generator.v2_schema_errors(validators["record"], record) == []
+    pair = (repository / options["--output-json"], repository / options["--output-markdown"])
+    assert generator.v2_verify_pair(pair[0].read_bytes(), pair[1].read_bytes()) == []
+    assert b"AC-11.1-01" in pair[1].read_bytes() and b"Thin-module authoring guidance" in pair[1].read_bytes()
+
+
+@pytest.mark.parametrize("missing", [
+    "artifacts/v9/11.1/AC-11.1-03.trx", "artifacts/v9/11.1/AC-11.1-05.json", "artifacts/v9/11.1/AC-11.1-06.xml"])
+def test_story_111_route_rejects_a_missing_receipt(story111_fixture, missing):
+    generator, _, repository, options, receipts = story111_fixture
+    remaining = {path: content for path, content in receipts.items() if path != missing}
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate(options, read_receipt=remaining.get)
+
+
+def test_story_111_route_rejects_incomplete_fault_matrix_and_failed_verifier(story111_fixture):
+    generator, gen, _, options, receipts = story111_fixture
+    path = "artifacts/v9/11.1/AC-11.1-06.xml"
+    shortened = dict(receipts)
+    shortened[path] = receipts[path].replace(b'<testcase name="test_checkpoint_a_fault_matrix_x[json-edited]"/>', b"")
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate(options, read_receipt=shortened.get)
+    failing = dict(receipts)
+    failing[path] = receipts[path].replace(b'[json-edited]"/>', b'[json-edited]"><failure/></testcase>')
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate(options, read_receipt=failing.get)
+    wrong = dict(receipts)
+    wrong["artifacts/v9/11.1/AC-11.1-05.json"] = b'{"result":"FAIL"}'
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate(options, read_receipt=wrong.get)
+
+
+def test_story_111_route_rejects_a_bundle_without_an_approved_review(story111_fixture, tmp_path):
+    generator, gen, repository, options, receipts = story111_fixture
+    clone = tmp_path / "unapproved"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    assert gen.main([
+        "--repository", str(clone), "--contract", generator.V2_11_1_CONTRACT,
+        "--schema", "docs/release-evidence/thin-authoring-guidance-v2.schema.json",
+        "--output-json", "docs/release-evidence/thin-authoring-guidance-v2.json",
+        "--output-markdown", "docs/release-evidence/thin-authoring-guidance-v2.md"]) == 0
+    json_path = clone / "docs/release-evidence/thin-authoring-guidance-v2.json"
+    # Same source, review removed: regeneration preserves a bound review, so strip it explicitly.
+    bundle = json.loads(json_path.read_text(encoding="utf-8"))
+    json_text, markdown = gen.finalize(gen.signable_of(bundle), None)
+    json_path.write_text(json_text, encoding="utf-8", newline="\n")
+    (clone / "docs/release-evidence/thin-authoring-guidance-v2.md").write_text(markdown, encoding="utf-8", newline="\n")
+    run_git(clone, "add", "--", "docs/release-evidence")
+    run_git(clone, "commit", "--quiet", "-m", "test: remove the review decision")
+    with pytest.raises(ValueError, match="REVIEW_DECISION_MISSING"):
+        generator.v2_11_1_generate({**options, "--repository": str(clone)}, read_receipt=receipts.get)
+
+
+def test_story_111_pair_errors_reject_open_summary_and_unbound_review(story111_fixture):
+    generator, _, _, options, receipts = story111_fixture
+    record = generator.v2_parse_json(generator.v2_11_1_generate(options, read_receipt=receipts.get))
+    assert generator.v2_11_1_pair_errors(record) == []
+    for mutate in (
+        lambda r: r["summary"].update(passed=6, notRun=1),
+        lambda r: r["thinGuidanceExecution"]["reviewDecision"].update(boundSignablePayloadSha256="1" * 64),
+        lambda r: r["thinGuidanceExecution"]["mutationLedger"].pop(),
+        lambda r: r["thinGuidanceExecution"]["mutationLedger"][0].update(restored=False),
+        lambda r: r["thinGuidanceExecution"]["authoritySubstitution"]["predecessors"].reverse(),
+    ):
+        mutated = deepcopy(record)
+        mutate(mutated)
+        assert generator.v2_11_1_pair_errors(mutated)
+    _, validators = generator.v2_load_schemas()
+    without = deepcopy(record)
+    without.pop("thinGuidanceExecution")
+    assert generator.v2_schema_errors(validators["record"], without)
+    other = deepcopy(record)
+    other["storyId"] = "10.2"
+    assert generator.v2_schema_errors(validators["record"], other)
+
+
+def story111_write_receipts(repository, receipts):
+    for relative, content in receipts.items():
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+
+
+def story111_cleanup(repository, options, receipts):
+    for relative in (*receipts, options["--output-json"], options["--output-markdown"]):
+        target = repository / relative
+        if target.is_symlink() or target.exists():
+            target.unlink()
+
+
+def test_story_111_disk_receipts_must_be_fresh_regular_files(story111_fixture):
+    generator, _, repository, options, receipts = story111_fixture
+    try:
+        story111_write_receipts(repository, receipts)
+        assert generator.v2_parse_json(generator.v2_11_1_generate(options))["storyId"] == "11.1"
+        stale = repository / "artifacts/v9/11.1/AC-11.1-05.json"
+        os.utime(stale, (1, 1))
+        with pytest.raises(ValueError, match="older than the candidate"):
+            generator.v2_11_1_generate(options)
+        # The public entry point maps the same failure to the stable blocker.
+        with pytest.raises(generator.V2Stop) as stop:
+            generator.v2_generate(options)
+        assert [item["code"] for item in stop.value.findings] == ["RECORD_NOT_DERIVED"]
+        stale.unlink()
+        stale.symlink_to(repository / "artifacts/v9/11.1/AC-11.1-03.trx")
+        with pytest.raises(ValueError, match="receipt missing"):
+            generator.v2_11_1_generate(options)
+    finally:
+        story111_cleanup(repository, options, receipts)
+
+
+def test_story_111_v2_generate_dispatches_and_derives(story111_fixture):
+    generator, _, repository, options, receipts = story111_fixture
+    try:
+        story111_write_receipts(repository, receipts)
+        derived = generator.v2_generate(options)
+        assert generator.v2_parse_json(derived)["storyId"] == "11.1"
+        assert (repository / options["--output-json"]).read_bytes() == derived
+    finally:
+        story111_cleanup(repository, options, receipts)
+
+
+@pytest.mark.parametrize("variant", ["wrong-method", "failed", "skipped", "two-results", "zero-results", "broken-xml"])
+def test_story_111_trx_receipt_must_be_one_passing_target_test(story111_fixture, variant):
+    generator, _, _, options, receipts = story111_fixture
+    path = "artifacts/v9/11.1/AC-11.1-03.trx"
+    good = receipts[path].decode()
+    result = good[good.index("<UnitTestResult"):good.index("</Results>")]
+    bad = {
+        "wrong-method": good.replace("GuidanceShouldDefineOneNonShippingTestAppHost", "SomeOtherTest"),
+        "failed": good.replace('outcome="Passed"', 'outcome="Failed"').replace('passed="1" failed="0"', 'passed="0" failed="1"'),
+        "skipped": good.replace('outcome="Passed"', 'outcome="NotExecuted"').replace('passed="1" failed="0"', 'passed="0" failed="0" notExecuted="1"'),
+        "two-results": good.replace(result, result + result).replace('total="1" executed="1" passed="1"', 'total="2" executed="2" passed="2"'),
+        "zero-results": good.replace(result, "").replace('total="1" executed="1" passed="1"', 'total="0" executed="0" passed="0"'),
+        "broken-xml": "<TestRun",
+    }[variant]
+    assert bad != good
+    mutated = {**receipts, path: bad.encode()}
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate(options, read_receipt=mutated.get)
+
+
+def test_story_111_junit_receipt_must_parse(story111_fixture):
+    generator, _, _, options, receipts = story111_fixture
+    mutated = {**receipts, "artifacts/v9/11.1/AC-11.1-06.xml": b"<testsuites"}
+    with pytest.raises(ValueError, match="not parseable"):
+        generator.v2_11_1_generate(options, read_receipt=mutated.get)
+
+
+@pytest.mark.parametrize("path", [
+    "docs/release-evidence/story-10.4-final-record-v2.md",
+    "docs/release-evidence/story-7.4-final-record-v2.md",
+    "docs/release-evidence/story-10.4-final-record-v2.json",
+    "docs/release-evidence/consume-promote-keep-story-6-2-disposition-v1.json",
+])
+def test_story_111_predecessor_alteration_is_rejected(story111_fixture, tmp_path, path):
+    generator, _, repository, options, receipts = story111_fixture
+    clone = tmp_path / "altered"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    with (clone / path).open("ab") as handle:
+        handle.write(b"\n")
+    run_git(clone, "add", "--", path)
+    run_git(clone, "commit", "--quiet", "-m", "test: alter a committed predecessor")
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate({**options, "--repository": str(clone)}, read_receipt=receipts.get)
+
+
+def test_story_111_bundle_recorded_predecessor_digest_must_match(story111_fixture, tmp_path):
+    generator, gen, repository, options, receipts = story111_fixture
+    clone = tmp_path / "digest"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    json_path = clone / "docs/release-evidence/thin-authoring-guidance-v2.json"
+    bundle = json.loads(json_path.read_text(encoding="utf-8"))
+    bundle["validation"]["authoritySubstitution"]["predecessors"][1]["sha256"] = "2" * 64
+    json_path.write_text(gen.serialize_json(bundle), encoding="utf-8", newline="\n")
+    run_git(clone, "add", "--", "docs/release-evidence")
+    run_git(clone, "commit", "--quiet", "-m", "test: forge a recorded predecessor digest")
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate({**options, "--repository": str(clone)}, read_receipt=receipts.get)

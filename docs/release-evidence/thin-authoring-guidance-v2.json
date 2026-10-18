@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "hexalith.conversations.thin-authoring-guidance.v2",
+  "candidate": {
+    "storyId": "11.1",
+    "contractPath": "_bmad-output/planning-artifacts/v9/story-contracts/11.1.json",
+    "contractSha256": "cab730317c6dd72d815c37e07dc5713ef66d4348ce8aa7fc23b7700cc611594d",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5"
+  },
+  "source": {
+    "path": "docs/domain-module-authoring-template.md",
+    "sha256": "6302bc195901d91a318195787c5a576d14206af19bf74cd47729366084b8b9bb"
+  },
+  "moduleOwned": [
+    {
+      "id": "contracts",
+      "capability": "Contracts: public commands, events, identifiers, query/result DTOs"
+    },
+    {
+      "id": "domain-behavior",
+      "capability": "Domain behavior: aggregate, state, validation, idempotency, domain rules"
+    },
+    {
+      "id": "module-registration",
+      "capability": "Module registration: domain assembly marker and domain-specific dependency graph"
+    },
+    {
+      "id": "module-tests",
+      "capability": "Module tests: unit, contract, server, conformance, and integration tests"
+    }
+  ],
+  "platformOwned": [
+    {
+      "id": "service-defaults",
+      "capability": "ServiceDefaults"
+    },
+    {
+      "id": "dapr-wiring",
+      "capability": "Dapr implementation and wiring"
+    },
+    {
+      "id": "event-subscription",
+      "capability": "Event subscription"
+    },
+    {
+      "id": "projection-query-runtime",
+      "capability": "Projection and query runtime"
+    },
+    {
+      "id": "publication",
+      "capability": "Publication"
+    },
+    {
+      "id": "health",
+      "capability": "Health"
+    },
+    {
+      "id": "telemetry",
+      "capability": "Telemetry runtime"
+    }
+  ],
+  "prohibited": [
+    {
+      "id": "reusable-aspire-library",
+      "prohibition": "A reusable module Aspire library is prohibited."
+    },
+    {
+      "id": "module-service-defaults",
+      "prohibition": "A module-owned `ServiceDefaults` project is prohibited."
+    },
+    {
+      "id": "module-dapr-implementation",
+      "prohibition": "Module-owned Dapr implementation or wiring is prohibited."
+    },
+    {
+      "id": "module-event-subscription",
+      "prohibition": "Module-owned event subscription is prohibited."
+    },
+    {
+      "id": "module-projection-query-runtime",
+      "prohibition": "Module-owned projection or query runtime is prohibited."
+    },
+    {
+      "id": "module-publication",
+      "prohibition": "Module-owned publication is prohibited."
+    },
+    {
+      "id": "module-health",
+      "prohibition": "Module-owned health endpoints or checks are prohibited."
+    },
+    {
+      "id": "module-telemetry-runtime",
+      "prohibition": "Module-owned telemetry runtime is prohibited."
+    }
+  ],
+  "testAppHost": {
+    "count": 1,
+    "isPackable": false,
+    "isPublishable": false,
+    "repositoryOnly": true,
+    "countedInAuthoringCost": true
+  },
+  "validation": {
+    "checks": [
+      {
+        "id": "ownership-inventory-exact",
+        "result": "PASS"
+      },
+      {
+        "id": "prohibited-inventory-exact",
+        "result": "PASS"
+      },
+      {
+        "id": "test-apphost-boundary",
+        "result": "PASS"
+      },
+      {
+        "id": "skeleton-no-module-aspire-or-service-defaults",
+        "result": "PASS"
+      },
+      {
+        "id": "deterministic-json-markdown",
+        "result": "PASS"
+      }
+    ],
+    "authoritySubstitution": {
+      "acceptanceCriterion": "AC-11.1-01",
+      "decision": "Owner decision 2026-10-18: AC-11.1-01 does not build the absent verify_story_candidate.py; current-policy checks are substituted.",
+      "reason": "verify_story_candidate.py is absent from the repository and is not built by Story 11.1.",
+      "currentPolicyChecks": [
+        "The candidate is the committed HEAD.",
+        "The Story 7.4 and Story 10.4 final-record v2 digests are recomputed from the committed records.",
+        "Story 6.2 is bound through its existing release evidence; it has no v2 record."
+      ],
+      "predecessors": [
+        {
+          "storyId": "6.2",
+          "path": "docs/release-evidence/consume-promote-keep-story-6-2-disposition-v1.json",
+          "sha256": "d18d81286e171f4df1330677bc236ecdc388764ff58a0ed4be32111fdba31b76",
+          "binding": "release-evidence"
+        },
+        {
+          "storyId": "7.4",
+          "path": "docs/release-evidence/story-7.4-final-record-v2.json",
+          "sha256": "1739a8daf93955fe31050b659151f1d45a8555ff58fe3a130b8a389c049d8290",
+          "binding": "final-record-v2"
+        },
+        {
+          "storyId": "10.4",
+          "path": "docs/release-evidence/story-10.4-final-record-v2.json",
+          "sha256": "f6a670f7a9d6be89b765757c0d480879353e033217980c28329e6cdf3f5d38b9",
+          "binding": "final-record-v2"
+        }
+      ]
+    }
+  },
+  "reviewDecision": {
+    "decision": "approved",
+    "reviewer": "Jerome Piquot",
+    "decidedAtUtc": "2026-10-18T16:27:28Z",
+    "boundSourceSha256": "6302bc195901d91a318195787c5a576d14206af19bf74cd47729366084b8b9bb",
+    "boundSignablePayloadSha256": "9ce146a26cd693261392928a2f767d3752b0101f6097e8a0bc7757784a07ef80"
+  },
+  "digests": {
+    "sourceSha256": "6302bc195901d91a318195787c5a576d14206af19bf74cd47729366084b8b9bb",
+    "signablePayloadSha256": "9ce146a26cd693261392928a2f767d3752b0101f6097e8a0bc7757784a07ef80",
+    "markdownSha256": "c968323f2bcb5d578300e8d8cae9346247cfd46904e65f183abdbaa1e7dfd2a9"
+  }
+}

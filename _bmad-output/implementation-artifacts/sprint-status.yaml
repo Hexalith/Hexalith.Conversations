@@ -105,8 +105,8 @@ development_status:
   10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface: done
   10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection: done
   epic-10-retrospective: done
-  epic-11: backlog
-  11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance: backlog
+  epic-11: in-progress
+  11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance: in-progress
   11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis: backlog
   11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2: backlog
   epic-11-retrospective: optional

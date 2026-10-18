@@ -484,6 +484,8 @@ def test_approved_gitlink_amendment_complete_verifier_preserves_result_schema(tm
     git('checkout','--detach',source)
     git('config','user.name','Fixture');git('config','user.email','fixture@example.invalid')
     for path in adoption.APPROVED_SOURCE_PATHS:
+        # Frozen C# reader files stay at the Story 10.4 candidate bytes; later stories may extend them.
+        if path.endswith('.cs'):continue
         (root/path).parent.mkdir(parents=True,exist_ok=True)
         (root/path).write_bytes((ROOT/path).read_bytes())
     git('add','--force','--',*adoption.APPROVED_SOURCE_PATHS)
