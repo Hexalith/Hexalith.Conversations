@@ -12798,3 +12798,68 @@ def test_story_111_bundle_recorded_predecessor_digest_must_match(story111_fixtur
     run_git(clone, "commit", "--quiet", "-m", "test: forge a recorded predecessor digest")
     with pytest.raises(ValueError):
         generator.v2_11_1_generate({**options, "--repository": str(clone)}, read_receipt=receipts.get)
+
+
+def story111_published(story111_fixture, tmp_path):
+    """Clone the candidate fixture, publish the pair and receipts as one commit, return the clone."""
+    generator, _, repository, options, receipts = story111_fixture
+    clone = tmp_path / "published"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    published = (*receipts, options["--output-json"], options["--output-markdown"])
+    # A previously published pair would hide the publication diff: start from a withdrawn tree.
+    run_git(clone, "rm", "--quiet", "--ignore-unmatch", "--", *published)
+    if run_git(clone, "diff", "--cached", "--name-only").stdout.strip():
+        run_git(clone, "commit", "--quiet", "-m", "test: withdraw the published story 11.1 record")
+    story111_write_receipts(clone, receipts)
+    local = {**options, "--repository": str(clone)}
+    derived = generator.v2_11_1_generate(local)
+    run_git(clone, "add", "--force", "--", options["--output-json"], options["--output-markdown"], *receipts)
+    run_git(clone, "commit", "--quiet", "-m", "test: story 11.1 record-only publication")
+    markdown = (clone / options["--output-markdown"]).read_bytes()
+    return generator, clone, {**local, generator.V2_VERIFY_OPTION: generator.V2_11_1_SPEC}, derived, markdown
+
+
+def story111_insert_region(generator, clone, markdown):
+    spec = clone / generator.V2_11_1_SPEC
+    content = spec.read_bytes()
+    region = generator.v2_record_region(content)
+    if region is None:
+        content += b"\n" + generator.RECORD_BEGIN_MARKER.encode("ascii") + b"\n" + markdown + generator.RECORD_END_MARKER.encode("ascii") + b"\n"
+    else:
+        content = content[:region[0]] + markdown + content[region[1]:]
+    spec.write_bytes(content)
+    return spec
+
+
+def test_story_111_verify_inserted_accepts_one_publication_with_a_verbatim_region(story111_fixture, tmp_path):
+    generator, clone, options, derived, markdown = story111_published(story111_fixture, tmp_path)
+    story111_insert_region(generator, clone, markdown)
+    try:
+        result = generator.v2_11_1_verify_inserted(options)
+    except generator.V2Stop as stop:
+        pytest.fail(str(stop.findings))
+    assert result == derived
+
+
+@pytest.mark.parametrize("variant", ["later-source-commit", "second-publication", "region-drift"])
+def test_story_111_verify_inserted_rejects_boundary_and_region_violations(story111_fixture, tmp_path, variant):
+    generator, clone, options, _, markdown = story111_published(story111_fixture, tmp_path)
+    if variant == "later-source-commit":
+        (clone / "stray.txt").write_text("source change after publication\n", encoding="utf-8")
+        run_git(clone, "add", "--", "stray.txt")
+        run_git(clone, "commit", "--quiet", "-m", "test: source change after publication")
+    elif variant == "second-publication":
+        receipt = clone / "artifacts/v9/11.1/AC-11.1-05.json"
+        receipt.write_bytes(receipt.read_bytes() + b"\n")
+        run_git(clone, "add", "--force", "--", "artifacts/v9/11.1/AC-11.1-05.json")
+        run_git(clone, "commit", "--quiet", "-m", "test: second publication")
+    spec = story111_insert_region(generator, clone, markdown + b"drift\n" if variant == "region-drift" else markdown)
+    if variant == "region-drift":
+        # The inserted region no longer equals the committed Markdown byte for byte.
+        assert spec.read_bytes().count(b"drift\n") == 1
+    with pytest.raises(generator.V2Stop) as stop:
+        generator.v2_11_1_verify_inserted(options)
+    assert [item["code"] for item in stop.value.findings] == ["RECORD_CONTENT_DRIFT"]
+    expected = {"later-source-commit": "publication boundary", "second-publication": "publication boundary",
+                "region-drift": "verbatim inserted region differs"}[variant]
+    assert expected in stop.value.findings[0]["message"]

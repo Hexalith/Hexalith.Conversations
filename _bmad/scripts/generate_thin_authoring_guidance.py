@@ -116,7 +116,7 @@ FAULT_EXPECTATIONS = {
     "schema-opened": "EVIDENCE_FORMAT_DRIFT",
 }
 
-ROW = re.compile(r"^\|\s*`?([^|`]+?)`?\s*\|\s*(.*?)\s*\|\s*$")
+HOST_ROW = "Repository-only test AppHost"
 
 
 class GuidanceError(Exception):
@@ -168,6 +168,10 @@ def strip_ticks(value: str) -> str:
     return value.strip().strip("`")
 
 
+def is_host_row(category: str) -> bool:
+    return category.replace("`", "").strip() == HOST_ROW
+
+
 def skeleton_categories(text: str) -> list[str]:
     match = re.search(r"^## Minimal Project Skeleton\s*$", text, re.M)
     if not match:
@@ -215,7 +219,7 @@ def parse_source(text: str) -> dict:
             prohibited[strip_ticks(row[0])] = row[1]
     skeleton = skeleton_categories(text)
     skeleton_violation = any(
-        re.search(r"servicedefaults|aspire", category, re.I) for category in skeleton if "AppHost" not in category
+        re.search(r"servicedefaults|aspire", category, re.I) for category in skeleton if not is_host_row(category)
     )
     if not prohibited_ok or prohibited != EXPECTED_PROHIBITED or skeleton_violation:
         errors.append(GuidanceError(
@@ -233,8 +237,8 @@ def parse_source(text: str) -> dict:
                 apphost_ok = False
                 continue
             rules[strip_ticks(row[0])] = row[1]
-    host_rows = [c for c in skeleton if "AppHost" in c]
-    if not apphost_ok or rules != EXPECTED_APPHOST_RULES or len(host_rows) != 1:
+    host_rows = [c for c in skeleton if "apphost" in c.lower()]
+    if not apphost_ok or rules != EXPECTED_APPHOST_RULES or len(host_rows) != 1 or not is_host_row(host_rows[0]):
         errors.append(GuidanceError(
             BLOCK_APPHOST,
             "Test AppHost boundary must be exactly one non-packable, non-publishable, repository-only host counted in authoring cost.",

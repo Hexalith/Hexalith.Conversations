@@ -222,3 +222,10 @@ def test_review_bound_to_wrong_digest_is_missing(repo: Path) -> None:
 def test_checkpoint_a_fault_matrix_inventory_matches_generator() -> None:
     declared = {**{k: v[1] for k, v in SOURCE_FAULTS.items()}, **{k: v[1] for k, v in EVIDENCE_FAULTS.items()}}
     assert declared == gen.FAULT_EXPECTATIONS
+
+
+def test_skeleton_row_that_merely_mentions_apphost_is_not_exempt(repo: Path) -> None:
+    add_after("| `Contracts` | Public commands", "| Reusable Aspire `AppHost` library | Shared wiring. | Yes |")(repo)
+    generated = generate(repo)
+    assert generated.returncode == 1
+    assert "PROHIBITED_CAPABILITY_PRESENT" in [line.split(":")[0] for line in generated.stderr.strip().splitlines()]
