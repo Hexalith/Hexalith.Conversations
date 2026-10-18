@@ -11,7 +11,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 [Collection(ReleaseEvidenceArtifactCollection.Name)]
 public sealed class EvidenceBoundaryAdoptionValidationTest(ITestOutputHelper output)
 {
-    private const string EntrySnapshotSha256 = "0f126558b4ec37af50721250c707c98fcd5944ad3ef1e798b8525501fac91833";
+    private const string EntrySnapshotSha256 = "34e2d2ae3aab0580ab4338a9eec1f2f8590b8dbca6f3949aad519a0148b133f9";
     private const string BaselineCommit = "1915a47123737859e3ac31872fa787fa8c0bd1e3";
 
     /// <summary>AC-01 preserves the exact 27-reader inventory.</summary>

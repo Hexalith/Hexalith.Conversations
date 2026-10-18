@@ -31,6 +31,7 @@ public sealed class ConversationAgentHttpFixture : HttpMessageHandler
     /// <inheritdoc />
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         Requests.Add(JsonSerializer.Deserialize<JsonElement>(await request.Content!.ReadAsStringAsync(cancellationToken)));
         return Responses.Dequeue();
     }

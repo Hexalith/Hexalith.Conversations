@@ -172,6 +172,7 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
     /// <summary>SDK admission bound to local ports.</summary>
     public ConversationAgentAdmissionStage Admission => new(this, this, this, this);
     /// <summary>Creates stable local command identity.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Fixture instance method used across test call sites")]
     public ConversationCommandMetadata CommandMetadata(PartyId? actor = null, string key = "intent-1")
         => new(SchemaVersion.Current, Tenant, actor ?? Agent, "correlation-1", IdempotencyKey: key);
     /// <summary>Exact restricted AiAgent Member intent.</summary>
@@ -184,6 +185,7 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
     /// <summary>Appends local domain results to serialized replay inputs.</summary>
     public void Persist(DomainResult result)
     {
+        ArgumentNullException.ThrowIfNull(result);
         foreach (var e in result.Events)
         {
             PersistedEvents.Add(e);
@@ -235,14 +237,22 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
     /// <inheritdoc />
     public Task<ConversationAgentsOutcome> VerifyAsync(CommandEnvelope envelope, ApproveConversationDeletionCommand command,
         CancellationToken cancellationToken = default)
-        => PendingApproval ?? Task.FromResult(envelope.UserId == "human" && command.ApprovalReference == "independent-approval"
+    {
+        ArgumentNullException.ThrowIfNull(envelope);
+        ArgumentNullException.ThrowIfNull(command);
+        return PendingApproval ?? Task.FromResult(envelope.UserId == "human" && command.ApprovalReference == "independent-approval"
             && command.Metadata.ActorPartyId == Human && command.AuditEvidence == DeletionAudit(command.SourceRevision, command.OperationTimestamp)
             ? ApprovalOutcome : ConversationAgentsOutcome.Denied);
+    }
 
     /// <inheritdoc />
     public Task<ConversationAgentsOutcome> VerifyAsync(CommandEnvelope envelope, RecordConversationDeletionDeliveryCommand command,
         CancellationToken cancellationToken = default)
-        => PendingReceipt ?? Task.FromResult(envelope.UserId == "source-worker" ? ReceiptOutcome : ConversationAgentsOutcome.Denied);
+    {
+        ArgumentNullException.ThrowIfNull(envelope);
+        ArgumentNullException.ThrowIfNull(command);
+        return PendingReceipt ?? Task.FromResult(envelope.UserId == "source-worker" ? ReceiptOutcome : ConversationAgentsOutcome.Denied);
+    }
 
     /// <inheritdoc />
     public Task<ConversationTenantCatalogueResult> ReadAsync(ConversationActiveCountQuery query, CancellationToken cancellationToken = default)
@@ -258,6 +268,7 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
     /// <inheritdoc />
     public Task<AuthoritativeStreamReadResult> VerifyAsync(DomainServiceRequest request, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
         if (PendingCommandProof is not null)
         {
             return PendingCommandProof;

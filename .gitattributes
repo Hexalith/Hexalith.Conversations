@@ -49,3 +49,6 @@ tests/Hexalith.Conversations.TestSupport.Runner/Program.cs -text diff
 artifacts/v9/10.4/*.json text eol=lf
 artifacts/v9/10.4/*.xml text eol=lf
 artifacts/v9/10.4/*.trx text eol=lf
+
+# Fresh Epic 10 follow-up fault receipts retain their measured bytes.
+_bmad-output/implementation-artifacts/tests/epic-10-retro-a1-a2-faults.xml text eol=lf

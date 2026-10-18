@@ -34,6 +34,7 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
     /// <inheritdoc />
     public async Task<DomainServiceAdmissionResult> EvaluateAsync(DomainServiceAdmissionContext context, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(context);
         cancellationToken.ThrowIfCancellationRequested();
         CommandEnvelope envelope = context.Command;
         if (envelope.Domain != "conversation")

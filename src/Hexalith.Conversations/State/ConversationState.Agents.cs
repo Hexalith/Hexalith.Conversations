@@ -181,7 +181,11 @@ public sealed partial class ConversationState
     /// <param name="conversation">Exact Conversation.</param>
     /// <returns>The immutable stream address.</returns>
     public static string AgentSourceStream(TenantId tenant, ConversationId conversation)
-        => $"{tenant.Value}:conversation:{conversation.Value}";
+    {
+        ArgumentNullException.ThrowIfNull(tenant);
+        ArgumentNullException.ThrowIfNull(conversation);
+        return $"{tenant.Value}:conversation:{conversation.Value}";
+    }
 
     /// <summary>Checks exact acknowledgement identity; authentication is a separate admission requirement.</summary>
     /// <param name="signal">Original publication.</param>
@@ -190,9 +194,13 @@ public sealed partial class ConversationState
     /// <returns>Whether every immutable acknowledgement field matches.</returns>
     public static bool IsExactAcknowledgement(ConversationDeletionSignal signal, string target,
         ConversationDeletionAcknowledgement? acknowledgement)
-        => acknowledgement is not null && acknowledgement.SignalId == signal.ConversationDeletionSignalId
+    {
+        ArgumentNullException.ThrowIfNull(signal);
+        ArgumentException.ThrowIfNullOrWhiteSpace(target);
+        return acknowledgement is not null && acknowledgement.SignalId == signal.ConversationDeletionSignalId
             && acknowledgement.SourceRevision == signal.SourceRevision && acknowledgement.ProtectedDeletionRevision > 0
             && acknowledgement.TargetVersion == target && !string.IsNullOrWhiteSpace(acknowledgement.Evidence);
+    }
 
     private int FindMessageIndex(MessageId id)
     {

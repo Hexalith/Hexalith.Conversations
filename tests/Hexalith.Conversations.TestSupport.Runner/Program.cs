@@ -30,6 +30,20 @@ internal static class Program
         ("EPIC-6-AUTHORITY-OVERLAY-V14", "epic-6-authority-2026-08-18-v14", "epic-6-authority-2026-08-04-v12"),
     ];
 
+    // Independent compiled pins for the sole approved Story 10.4 Git transition set.
+    private static readonly (string Path, string Before, string After)[] _story104GitlinkTransitions =
+    [
+        ("references/Hexalith.Builds", "abdfca89ed82f388b54664825a8a79fed73e7ccf", "4f53d9f37c5b86cfd43fbcc8fa5dd4df19b84c77"),
+        ("references/Hexalith.EventStore", "6cc9d6114fd055dac7a1d86130208b52271e3740", "77d9af18a54d92506e310fe5a45021a395e66f60"),
+        ("references/Hexalith.Folders", "92e87359dd50dc9644e490a04de98adaaade9a86", "42a2308113e1bdb9b1d07a778b4405dde797ebd3"),
+        ("references/Hexalith.FrontComposer", "0129bd39095892283371f97836ade5768fef3809", "b102b85b148f21fb26d5742e120c344109df7084"),
+        ("references/Hexalith.McpCli", "0b96dfdf2ff6037be88f1fb952d6581a78930e67", "b35b0975a234f1f97e2e35e9dad381d0a988f4af"),
+        ("references/Hexalith.Memories", "f7c8ce84a8a765667beafc31154ee2d6981552f8", "f6b60d5a2e9b81d84fddad789c7d9bed40d3a533"),
+        ("references/Hexalith.Parties", "c0946ef17b3641fb23f6f17614913bfbab687373", "90af3047b50046cb4f6f91e01f182f562110aab3"),
+        ("references/Hexalith.Platform", "b2890d20575356239555df5b113e3100c1d594c1", "b4b6d4a1efcd2f13c6d03270f8e952f27ed8148b"),
+        ("references/Hexalith.Tenants", "e44ac7f537e9f192605e24efc3e61a97d00d44f3", "e667d5391dae306e631dec23acd191863e54130c"),
+    ];
+
     /// <summary>Reads one request and emits one helper-derived response.</summary>
     private static async Task<int> Main()
     {
@@ -52,7 +66,10 @@ internal static class Program
             BoundaryAssertions.HistoryAvailable(ledger, "diff", diff);
             if (input.TryGetProperty("expectedPaths", out JsonElement paths))
                 BoundaryAssertions.ChangedPaths(ledger, "changed-paths", paths.EnumerateArray().Select(path => path.GetString()!), diff);
-            BoundaryAssertions.NoGitlinks(ledger, "gitlinks", diff);
+            if (input.TryGetProperty("story104GitlinkAmendment", out JsonElement amendment))
+                Story104Gitlinks(ledger, amendment, baseline, diff);
+            else
+                BoundaryAssertions.NoGitlinks(ledger, "gitlinks", diff);
             List<object> blobs = [];
             if (input.TryGetProperty("blobPaths", out JsonElement blobPaths))
             {
@@ -260,6 +277,59 @@ internal static class Program
             Console.WriteLine(JsonSerializer.Serialize(new { result = "FAIL", blockers = new[] { "HELPER_REQUEST_INVALID" }, message = exception.Message }, options));
             return 1;
         }
+    }
+
+    /// <summary>Accepts only the complete independently pinned owner amendment at its original baseline.</summary>
+    private static void Story104Gitlinks(AssertionLedger ledger, JsonElement amendment, GitFact<string> baseline,
+        GitFact<IReadOnlyList<GitDiffEntry>> diff)
+    {
+        // Availability is established before comparing immutable pins: absence is BLOCKED,
+        // while an available but different baseline remains a proven failure.
+        if (!baseline.IsSuccess)
+        {
+            BoundaryAssertions.HistoryAvailable(ledger, "gitlinks:story104-baseline", baseline);
+            return;
+        }
+        if (!diff.IsSuccess)
+        {
+            BoundaryAssertions.HistoryAvailable(ledger, "gitlinks:story104-diff", diff);
+            return;
+        }
+        JsonElement[] declared = amendment.GetProperty("transitions").EnumerateArray().ToArray();
+        bool pinned = baseline.Value == "1915a47123737859e3ac31872fa787fa8c0bd1e3"
+            && amendment.GetProperty("decisionDate").GetString() == "2026-10-17"
+            && amendment.GetProperty("approvalCommit").GetString() == "9cbc71b63be3fa1ce4d89d98ef1771c54c6603f5"
+            && amendment.EnumerateObject().Count() == 3 && declared.Length == _story104GitlinkTransitions.Length;
+        for (int index = 0; index < declared.Length && index < _story104GitlinkTransitions.Length; index++)
+        {
+            (string path, string before, string after) = _story104GitlinkTransitions[index];
+            JsonElement row = declared[index];
+            pinned &= row.EnumerateObject().Count() == 5 && row.GetProperty("path").GetString() == path
+                && row.GetProperty("sourceMode").GetString() == "160000" && row.GetProperty("destinationMode").GetString() == "160000"
+                && row.GetProperty("sourceObject").GetString() == before && row.GetProperty("destinationObject").GetString() == after;
+        }
+        ledger.Record("gitlinks:story104-pins", pinned);
+        if (!pinned) ledger.Block("EVIDENCE_BOUNDARY_GITLINK", "story104-amendment", "The complete compiled owner amendment must match exactly.");
+        GitDiffEntry[] links = diff.Value!.Where(entry => entry.SourceMode == "160000" || entry.DestinationMode == "160000")
+            .OrderBy(entry => entry.Path, StringComparer.Ordinal).ToArray();
+        // With no raw gitlink changes, preserve the neutral helper's ordinary no-gitlink path.
+        // The applicable Story 10.4 consumer separately requires all nine transitions.
+        if (links.Length == 0)
+        {
+            BoundaryAssertions.NoGitlinks(ledger, "gitlinks", diff);
+            return;
+        }
+        bool exact = links.Length == _story104GitlinkTransitions.Length;
+        for (int index = 0; index < links.Length && index < _story104GitlinkTransitions.Length; index++)
+        {
+            (string path, string before, string after) = _story104GitlinkTransitions[index];
+            GitDiffEntry row = links[index];
+            exact &= row.Path == path && row.SourcePath is null && row.Status == "M"
+                && row.SourceMode == "160000" && row.DestinationMode == "160000"
+                && row.SourceObject == before && row.DestinationObject == after;
+        }
+        ledger.Record("gitlinks:story104-transitions", exact);
+        if (!exact) ledger.Block("EVIDENCE_BOUNDARY_GITLINK", "story104-transitions", "The raw Git diff must contain exactly nine approved mode-160000 transitions.");
     }
 
     private static bool IsEvidenceReader(IReadOnlyList<string> tokens)

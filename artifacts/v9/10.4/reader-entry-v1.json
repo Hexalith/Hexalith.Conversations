@@ -295,15 +295,15 @@
         },
         {
           "kind": "read",
-          "before": "File.ReadAllText(",
-          "after": "RepositoryLocator.ReadAllText(",
-          "count": 8
+          "before": "File.ReadAllText(FullPath(",
+          "after": "RepositoryLocator.ReadAllText(FullPath(",
+          "count": 7
         },
         {
           "kind": "read",
-          "before": "File.ReadAllBytes(",
-          "after": "RepositoryLocator.ReadAllBytes(",
-          "count": 4
+          "before": "File.ReadAllBytes(path)",
+          "after": "RepositoryLocator.ReadAllBytes(path)",
+          "count": 1
         },
         {
           "kind": "read",
@@ -352,34 +352,10 @@
           "before": "namespace Hexalith.Conversations.",
           "after": "using Hexalith.Conversations.TestSupport;\n\nnamespace Hexalith.Conversations.",
           "count": 1
-        },
-        {
-          "kind": "read:explicit-fixture-root",
-          "before": "RepositoryLocator.ReadAllText(regular, Encoding.UTF8)",
-          "after": "RepositoryLocator.ReadAllText(regular, Encoding.UTF8, fixtureRoot)",
-          "count": 1
-        },
-        {
-          "kind": "read:explicit-fixture-root",
-          "before": "byte[] regularBytes = RepositoryLocator.ReadAllBytes(regularPath);",
-          "after": "byte[] regularBytes = RepositoryLocator.ReadAllBytes(regularPath, fixtureRoot);",
-          "count": 1
-        },
-        {
-          "kind": "read:explicit-fixture-root",
-          "before": "RepositoryLocator.ReadAllBytes(regularPath).ShouldBe(regularBytes);\n                GetWorktreeGitMode(\"regular.txt\", fixtureRoot).ShouldBe(SourceInputMode);\n\n                try\n                {\n                    RunProcessInDirectory(fixtureRoot, \"git\", [\"rm\",",
-          "after": "RepositoryLocator.ReadAllBytes(regularPath, fixtureRoot).ShouldBe(regularBytes);\n                GetWorktreeGitMode(\"regular.txt\", fixtureRoot).ShouldBe(SourceInputMode);\n\n                try\n                {\n                    RunProcessInDirectory(fixtureRoot, \"git\", [\"rm\",",
-          "count": 1
-        },
-        {
-          "kind": "read:explicit-fixture-root",
-          "before": "RepositoryLocator.ReadAllBytes(regularPath).ShouldBe(regularBytes);\n                GetWorktreeGitMode(\"regular.txt\", fixtureRoot).ShouldBe(SourceInputMode);\n\n                string stagedLink",
-          "after": "RepositoryLocator.ReadAllBytes(regularPath, fixtureRoot).ShouldBe(regularBytes);\n                GetWorktreeGitMode(\"regular.txt\", fixtureRoot).ShouldBe(SourceInputMode);\n\n                string stagedLink",
-          "count": 1
         }
       ],
       "indirectConsumers": [],
-      "afterSha256": "37ab90db1109de0960b02234c4a7201c605fa4715764102cb71fdb3fca6088fb"
+      "afterSha256": "2698ea35536dbe6a901fc973e8767aa25e58c2cea3b5a1fca1b02769bcc7e0d9"
     },
     {
       "path": "tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs",
