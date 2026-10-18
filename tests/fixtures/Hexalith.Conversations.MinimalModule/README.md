@@ -13,3 +13,6 @@ non-packable, non-publishable test host and counts in authoring cost.
 dotnet restore Hexalith.Conversations.MinimalModule.slnx --locked-mode
 dotnet build Hexalith.Conversations.MinimalModule.slnx --configuration Release --no-restore
 ```
+
+The platform projects are referenced from `references/Hexalith.EventStore` and share their `obj` state
+with any other build of the umbrella, so always run the locked restore immediately before the build.

@@ -12920,13 +12920,10 @@ def story112_fixture(tmp_path_factory):
     run_git(repository, "add", "--force", "--", ".")
     run_git(repository, "commit", "--quiet", "-m", "test: story 11.2 candidate fixture")
     # Generated, untracked inputs: platform project files, build outputs and the measured result.
-    graph = verifier.graph_facts(repository, STORY_112_FIXTURE_ROOT)["projects"]
-    names = set()
-    for closure in proof.resolve_platform_closure(WORKSPACE, STORY_112_FIXTURE_ROOT, graph):
-        target = repository / closure
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes((WORKSPACE / closure).read_bytes())
-        names.add(Path(closure).stem)
+    from test_minimal_module_fixture import PLATFORM_STUBS, write_platform_stubs  # noqa: PLC0415
+
+    write_platform_stubs(repository)
+    names = {Path(path).stem for path in PLATFORM_STUBS}
     tests_bin = repository / STORY_112_FIXTURE_ROOT / "tests/Hexalith.Conversations.MinimalModule.Tests" / proof.OUTPUT_DIRECTORY
     tests_bin.mkdir(parents=True, exist_ok=True)
     for name in sorted(names):
@@ -13158,6 +13155,10 @@ def story112_published(story112_fixture, tmp_path):
     clone = tmp_path / "published"
     run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
     published = (*receipts, options["--output-json"], options["--output-markdown"], verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH)
+    # A previously published set would hide the publication diff: start from a withdrawn tree.
+    run_git(clone, "rm", "--quiet", "--ignore-unmatch", "--", *published)
+    if run_git(clone, "diff", "--cached", "--name-only").stdout.strip():
+        run_git(clone, "commit", "--quiet", "-m", "test: withdraw the published story 11.2 record")
     story112_write_receipts(clone, receipts)
     for relative in (verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH):
         (clone / relative).write_bytes((repository / relative).read_bytes())

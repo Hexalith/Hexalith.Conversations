@@ -104,16 +104,36 @@ def git(repo: Path, *args: str) -> None:
     subprocess.run(["git", *args], cwd=repo, check=True, capture_output=True)
 
 
+# The platform submodule is never initialized in CI: stand-in project files carry only the reference edges
+# the proof walks (DomainService -> Client -> Contracts, DomainService -> ServiceDefaults).
+PLATFORM_SRC = "references/Hexalith.EventStore/src"
+PLATFORM_STUBS = {
+    f"{PLATFORM_SRC}/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj": [],
+    f"{PLATFORM_SRC}/Hexalith.EventStore.Client/Hexalith.EventStore.Client.csproj": ["..\\Hexalith.EventStore.Contracts\\Hexalith.EventStore.Contracts.csproj"],
+    f"{PLATFORM_SRC}/Hexalith.EventStore.ServiceDefaults/Hexalith.EventStore.ServiceDefaults.csproj": [],
+    f"{PLATFORM_SRC}/Hexalith.EventStore.DomainService/Hexalith.EventStore.DomainService.csproj": [
+        "..\\Hexalith.EventStore.Client\\Hexalith.EventStore.Client.csproj",
+        "..\\Hexalith.EventStore.ServiceDefaults\\Hexalith.EventStore.ServiceDefaults.csproj"],
+    f"{PLATFORM_SRC}/Hexalith.EventStore.Aspire/Hexalith.EventStore.Aspire.csproj": [],
+}
+
+
+def write_platform_stubs(repo: Path) -> None:
+    for relative, references in PLATFORM_STUBS.items():
+        target = repo / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        items = "".join(f'    <ProjectReference Include="{reference}" />\n' for reference in references)
+        target.write_text(f'<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n{items}  </ItemGroup>\n</Project>\n',
+                          encoding="utf-8", newline="\n")
+
+
 @pytest.fixture()
 def repo(tmp_path: Path) -> Path:
     for relative in [*INPUTS, *fixture_input_paths()]:
         target = tmp_path / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
-    for closure in proof.resolve_platform_closure(ROOT, FIXTURE, verifier.graph_facts(ROOT, FIXTURE)["projects"]):
-        target = tmp_path / closure
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(ROOT / closure, target)
+    write_platform_stubs(tmp_path)
     git(tmp_path, "init", "--quiet")
     git(tmp_path, "config", "user.email", "fixture@example.invalid")
     git(tmp_path, "config", "user.name", "Fixture")
@@ -121,8 +141,7 @@ def repo(tmp_path: Path) -> Path:
     git(tmp_path, "add", "--all")
     git(tmp_path, "commit", "--quiet", "-m", "test: fixture candidate")
     # Build outputs and the measured result are generated, untracked inputs.
-    names = {PathStem for PathStem in (Path(p).stem for p in proof.resolve_platform_closure(
-        ROOT, FIXTURE, verifier.graph_facts(ROOT, FIXTURE)["projects"]))}
+    names = {Path(path).stem for path in PLATFORM_STUBS}
     tests_bin = tmp_path / FIXTURE / "tests/Hexalith.Conversations.MinimalModule.Tests" / proof.OUTPUT_DIRECTORY
     tests_bin.mkdir(parents=True, exist_ok=True)
     for name in sorted(names):
