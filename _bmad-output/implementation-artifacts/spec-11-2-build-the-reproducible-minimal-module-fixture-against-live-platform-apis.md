@@ -162,7 +162,7 @@ context:
 - Fixture native tests: 6 passed, zero skips. AppHost boundary native test: 1 passed.
 - `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k story_112 --tb=short`: 37 passed. Static source-binding regression selection: 4 passed.
 - Contracts build without restore encountered stale Commons converter dependencies; rebuilding with `--configuration Release -m:1 -p:UseHexalithProjectReferences=true -p:NuGetAudit=false -p:MinVerVersionOverride=1.0.0` passed.
-- The complete two-file Python run remains pending; fresh source-bound AC receipts and publication follow the corrective source commit.
+- Exact source-bound AC receipts and publication are retained in the final record below; the full two-file Python suite is also required before completion.
 
 **Commands:**
 - `dotnet restore tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx --locked-mode` -- expected: exit 0
