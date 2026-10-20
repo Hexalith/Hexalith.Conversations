@@ -12918,9 +12918,9 @@ def story112_fixture(tmp_path_factory):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((WORKSPACE / relative).read_bytes())
     run_git(repository, "add", "--force", "--", ".")
-    run_git(repository, "commit", "--quiet", "-m", "test: story 11.2 candidate fixture")
+    run_git(repository, "commit", "--quiet", "--allow-empty", "-m", "test: story 11.2 candidate fixture")
     # Generated, untracked inputs: platform project files, build outputs and the measured result.
-    from test_minimal_module_fixture import PLATFORM_STUBS, write_platform_stubs  # noqa: PLC0415
+    from test_minimal_module_fixture import PLATFORM_STUBS, write_platform_stubs, write_measured_command_inputs  # noqa: PLC0415
 
     write_platform_stubs(repository)
     names = {Path(path).stem for path in PLATFORM_STUBS}
@@ -12935,12 +12935,14 @@ def story112_fixture(tmp_path_factory):
     trx = story112_trx()
     (repository / verifier.TEST_RESULT_PATH).parent.mkdir(parents=True, exist_ok=True)
     (repository / verifier.TEST_RESULT_PATH).write_bytes(trx)
+    command_receipts = write_measured_command_inputs(repository)
     assert proof.main([
         "--repository", str(repository), "--contract", verifier.CONTRACT_PATH, "--fixture", verifier.FIXTURE_ROOT,
         "--test-result", verifier.TEST_RESULT_PATH, "--output-json", verifier.PROOF_JSON_PATH,
         "--output-markdown", verifier.PROOF_MARKDOWN_PATH]) == 0
     contract = generator.v2_parse_json((repository / generator.V2_11_2_CONTRACT).read_bytes())
     receipts = {
+        **command_receipts,
         "artifacts/v9/11.2/AC-11.2-01.json": (json.dumps(
             dict(schemaVersion=verifier.RESULT_SCHEMA, result="PASS", blockers=[],
                  inventorySha256=verifier.INVENTORY_SHA256, fixtureFileCount=13), indent=2) + "\n").encode(),
@@ -12980,6 +12982,7 @@ def test_story_112_route_derives_the_closed_pass_record(story112_fixture):
 
 @pytest.mark.parametrize("missing", [
     "artifacts/v9/11.2/AC-11.2-01.json", "artifacts/v9/11.2/minimal-module.trx",
+    "artifacts/v9/11.2/AC-11.2-02.log", "artifacts/v9/11.2/AC-11.2-03.log",
     "artifacts/v9/11.2/AC-11.2-05.trx", "artifacts/v9/11.2/AC-11.2-07.xml"])
 def test_story_112_route_rejects_a_missing_receipt(story112_fixture, missing):
     generator, _, _, options, receipts = story112_fixture
@@ -13058,6 +13061,47 @@ def test_story_112_proof_drift_in_the_worktree_is_rejected(story112_fixture):
         (repository / verifier.TEST_RESULT_PATH).write_bytes(receipts[verifier.TEST_RESULT_PATH])
 
 
+@pytest.mark.parametrize("relative", ["README.md", "src/Hexalith.Conversations.MinimalModule.Server/packages.lock.json"])
+def test_story_112_committed_fixture_change_after_proof_is_rejected(story112_fixture, tmp_path, relative):
+    generator, verifier, repository, options, receipts = story112_fixture
+    _, proof = generator.v2_11_2_module()
+    from test_minimal_module_fixture import write_platform_stubs  # noqa: PLC0415
+
+    clone = tmp_path / "changed-fixture"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    write_platform_stubs(clone)
+    story112_write_receipts(clone, receipts)
+    target = clone / verifier.FIXTURE_ROOT / relative
+    target.write_bytes(target.read_bytes() + b"\n")
+    run_git(clone, "add", "--", str(target.relative_to(clone)))
+    run_git(clone, "commit", "--quiet", "-m", "test: change the fixture after proof generation")
+    bundle = json.loads((repository / verifier.PROOF_JSON_PATH).read_bytes())
+    # Re-sign with the new candidate so the content check, rather than candidate identity, rejects it.
+    bundle["candidate"]["commit"] = run_git(clone, "rev-parse", "HEAD").stdout.strip()
+    json_text, markdown = proof.finalize(proof.signable_of(bundle))
+    (clone / verifier.PROOF_JSON_PATH).write_text(json_text, encoding="utf-8", newline="\n")
+    (clone / verifier.PROOF_MARKDOWN_PATH).write_text(markdown, encoding="utf-8", newline="\n")
+    with pytest.raises(ValueError, match="current fixture"):
+        generator.v2_11_2_generate({**options, "--repository": str(clone)}, read_receipt=receipts.get)
+
+
+@pytest.mark.parametrize("scenario", ["AC-11.2-02", "AC-11.2-03"])
+@pytest.mark.parametrize("variant", ["failed", "wrong-command", "disabled-policy"])
+def test_story_112_restore_and_build_require_successful_measured_receipts(story112_fixture, scenario, variant):
+    generator, verifier, _, options, receipts = story112_fixture
+    path = verifier.COMMAND_RECEIPTS[scenario]
+    receipt = json.loads(receipts[path])
+    if variant == "failed":
+        receipt["exitCode"] = 1
+    elif variant == "wrong-command":
+        receipt["command"] += " --force"
+    else:
+        receipt["lockedMode" if scenario == "AC-11.2-02" else "warningsAsErrors"] = False
+    changed = {**receipts, path: json.dumps(receipt).encode()}
+    with pytest.raises(ValueError, match="measured receipt is invalid"):
+        generator.v2_11_2_generate(options, read_receipt=changed.get)
+
+
 def test_story_112_pair_errors_reject_open_summary_unbound_proof_and_open_ledger(story112_fixture):
     generator, _, _, options, receipts = story112_fixture
     record = generator.v2_parse_json(generator.v2_11_2_generate(options, read_receipt=receipts.get))
@@ -13070,6 +13114,8 @@ def test_story_112_pair_errors_reject_open_summary_unbound_proof_and_open_ledger
         lambda r: r["fixtureProofExecution"]["proof"].update(jsonSha256="1" * 64),
         lambda r: r["fixtureProofExecution"].update(sourceRevisionId="2" * 40),
         lambda r: r["fixtureProofExecution"]["fixture"].update(inventorySha256="3" * 64),
+        lambda r: r["fixtureProofExecution"]["receipts"][0].update(sha256="4" * 64),
+        lambda r: r.update(predecessors=[]),
     ):
         mutated = deepcopy(record)
         mutate(mutated)
@@ -13080,7 +13126,18 @@ def test_story_112_pair_errors_reject_open_summary_unbound_proof_and_open_ledger
     assert generator.v2_schema_errors(validators["record"], without)
     other = deepcopy(record)
     other["storyId"] = "11.1"
-    assert generator.v2_schema_errors(validators["record"], other)
+    other.pop("fixtureProofExecution")
+    exclusion = deepcopy(other)
+    exclusion["fixtureProofExecution"] = record["fixtureProofExecution"]
+    # Isolate the else-clause's forbidden fixture facts from the independent 11.1 requirements.
+    from jsonschema import Draft202012Validator  # noqa: PLC0415
+
+    schema = validators["record"].schema
+    clause = next(row for row in schema["allOf"]
+                  if row.get("if", {}).get("properties", {}).get("storyId", {}).get("const") == "11.2")
+    assert list(Draft202012Validator(clause).iter_errors(other)) == []
+    errors = list(Draft202012Validator(clause).iter_errors(exclusion))
+    assert len(errors) == 1 and errors[0].validator == "not"
 
 
 def story112_write_receipts(repository, receipts):
@@ -13114,7 +13171,7 @@ def test_story_112_disk_receipts_must_be_fresh_regular_files(story112_fixture):
         with pytest.raises(ValueError, match="receipt missing"):
             generator.v2_11_2_generate(options)
     finally:
-        story112_cleanup(repository, options, receipts, keep=(verifier.TEST_RESULT_PATH,))
+        story112_cleanup(repository, options, receipts, keep=(verifier.TEST_RESULT_PATH, *verifier.COMMAND_RECEIPTS.values()))
         (repository / verifier.TEST_RESULT_PATH).write_bytes(receipts[verifier.TEST_RESULT_PATH])
 
 
@@ -13126,7 +13183,7 @@ def test_story_112_v2_generate_dispatches_and_derives(story112_fixture):
         assert generator.v2_parse_json(derived)["storyId"] == "11.2"
         assert (repository / options["--output-json"]).read_bytes() == derived
     finally:
-        story112_cleanup(repository, options, receipts, keep=(verifier.TEST_RESULT_PATH,))
+        story112_cleanup(repository, options, receipts, keep=(verifier.TEST_RESULT_PATH, *verifier.COMMAND_RECEIPTS.values()))
 
 
 @pytest.mark.parametrize("path", [
@@ -13160,8 +13217,17 @@ def story112_published(story112_fixture, tmp_path):
     if run_git(clone, "diff", "--cached", "--name-only").stdout.strip():
         run_git(clone, "commit", "--quiet", "-m", "test: withdraw the published story 11.2 record")
     story112_write_receipts(clone, receipts)
+    from test_minimal_module_fixture import write_platform_stubs  # noqa: PLC0415
+
+    write_platform_stubs(clone)
     for relative in (verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH):
         (clone / relative).write_bytes((repository / relative).read_bytes())
+    _, proof = generator.v2_11_2_module()
+    bundle = json.loads((clone / verifier.PROOF_JSON_PATH).read_bytes())
+    bundle["candidate"]["commit"] = run_git(clone, "rev-parse", "HEAD").stdout.strip()
+    json_text, proof_markdown = proof.finalize(proof.signable_of(bundle))
+    (clone / verifier.PROOF_JSON_PATH).write_text(json_text, encoding="utf-8", newline="\n")
+    (clone / verifier.PROOF_MARKDOWN_PATH).write_text(proof_markdown, encoding="utf-8", newline="\n")
     local = {**options, "--repository": str(clone)}
     derived = generator.v2_11_2_generate(local)
     run_git(clone, "add", "--force", "--", *published)
@@ -13192,7 +13258,7 @@ def test_story_112_verify_inserted_accepts_one_publication_with_a_verbatim_regio
     assert result == derived
 
 
-@pytest.mark.parametrize("variant", ["later-source-commit", "second-publication", "region-drift"])
+@pytest.mark.parametrize("variant", ["later-source-commit", "second-publication", "region-drift", "published-proof-drift"])
 def test_story_112_verify_inserted_rejects_boundary_and_region_violations(story112_fixture, tmp_path, variant):
     generator, clone, options, _, markdown = story112_published(story112_fixture, tmp_path)
     if variant == "later-source-commit":
@@ -13204,6 +13270,13 @@ def test_story_112_verify_inserted_rejects_boundary_and_region_violations(story1
         receipt.write_bytes(receipt.read_bytes() + b"\n")
         run_git(clone, "add", "--force", "--", "artifacts/v9/11.2/AC-11.2-01.json")
         run_git(clone, "commit", "--quiet", "-m", "test: second publication")
+    elif variant == "published-proof-drift":
+        # Change the proof in the one publication, preserving the permitted boundary paths.
+        _, verifier, _, _, _ = story112_fixture
+        target = clone / verifier.PROOF_MARKDOWN_PATH
+        target.write_bytes(target.read_bytes() + b"published proof drift\n")
+        run_git(clone, "add", "--force", "--", verifier.PROOF_MARKDOWN_PATH)
+        run_git(clone, "commit", "--quiet", "--amend", "--no-edit")
     spec = story112_insert_region(generator, clone, markdown + b"drift\n" if variant == "region-drift" else markdown)
     if variant == "region-drift":
         assert spec.read_bytes().count(b"drift\n") == 1
@@ -13211,5 +13284,5 @@ def test_story_112_verify_inserted_rejects_boundary_and_region_violations(story1
         generator.v2_11_2_verify_inserted(options)
     assert [item["code"] for item in stop.value.findings] == ["RECORD_CONTENT_DRIFT"]
     expected = {"later-source-commit": "publication boundary", "second-publication": "publication boundary",
-                "region-drift": "verbatim inserted region differs"}[variant]
+                "region-drift": "verbatim inserted region differs", "published-proof-drift": "published proof differs"}[variant]
     assert expected in stop.value.findings[0]["message"]

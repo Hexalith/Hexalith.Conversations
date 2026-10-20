@@ -17,6 +17,7 @@ sys.path.insert(0, str(SCRIPTS))
 import generate_minimal_module_fixture_proof as proof  # noqa: E402
 import generate_thin_authoring_guidance as guidance  # noqa: E402
 import verify_minimal_module_fixture as verifier  # noqa: E402
+import run_minimal_module_command as command_runner  # noqa: E402
 
 FIXTURE = verifier.FIXTURE_ROOT
 CONTRACT = verifier.CONTRACT_PATH
@@ -127,6 +128,30 @@ def write_platform_stubs(repo: Path) -> None:
                           encoding="utf-8", newline="\n")
 
 
+def write_measured_command_inputs(repo: Path) -> dict[str, bytes]:
+    """Hermetic NuGet metadata and measured-command stand-ins for proof/route unit tests."""
+    folder = repo / FIXTURE / "obj/packages"
+    for project in verifier.EXPECTED_PROJECTS:
+        directory = repo / FIXTURE / Path(project).parent
+        (directory / "obj").mkdir(parents=True, exist_ok=True)
+        (directory / "obj/project.assets.json").write_text(json.dumps({"packageFolders": {str(folder): {}}}))
+        for name, version, _ in proof.lock_packages((directory / "packages.lock.json").read_bytes()):
+            metadata = folder / name.lower() / version.lower() / ".nupkg.metadata"
+            metadata.parent.mkdir(parents=True, exist_ok=True)
+            metadata.write_text(json.dumps({"source": "https://api.nuget.org/v3/index.json"}))
+    contract = json.loads((repo / CONTRACT).read_bytes())
+    receipts = {}
+    for scenario, path in verifier.COMMAND_RECEIPTS.items():
+        command = next(row["command"] for row in contract["scenarios"] if row["id"] == scenario)
+        policy = "lockedMode" if scenario == "AC-11.2-02" else "warningsAsErrors"
+        receipts[path] = (json.dumps({"schemaVersion": verifier.COMMAND_RECEIPT_SCHEMA, "scenarioId": scenario,
+                                     "command": command, "exitCode": 0, "consoleLog": "Measured test execution\n",
+                                     policy: True}, indent=2) + "\n").encode()
+        (repo / path).parent.mkdir(parents=True, exist_ok=True)
+        (repo / path).write_bytes(receipts[path])
+    return receipts
+
+
 @pytest.fixture()
 def repo(tmp_path: Path) -> Path:
     for relative in [*INPUTS, *fixture_input_paths()]:
@@ -139,6 +164,8 @@ def repo(tmp_path: Path) -> Path:
     git(tmp_path, "config", "user.name", "Fixture")
     git(tmp_path, "config", "core.autocrlf", "false")
     git(tmp_path, "add", "--all")
+    git(tmp_path, "rm", "--cached", "-r", "--quiet", "--", "references/Hexalith.EventStore")
+    git(tmp_path, "update-index", "--add", "--cacheinfo", "160000," + "1" * 40 + ",references/Hexalith.EventStore")
     git(tmp_path, "commit", "--quiet", "-m", "test: fixture candidate")
     # Build outputs and the measured result are generated, untracked inputs.
     names = {Path(path).stem for path in PLATFORM_STUBS}
@@ -152,6 +179,7 @@ def repo(tmp_path: Path) -> Path:
         (directory / f"{Path(relative).stem}.dll").write_bytes(f"fixture assembly {relative}".encode())
     (tmp_path / TRX).parent.mkdir(parents=True, exist_ok=True)
     (tmp_path / TRX).write_text(trx_text(ALL_TESTS), encoding="utf-8", newline="\n")
+    write_measured_command_inputs(tmp_path)
     done = generate(tmp_path)
     assert done.returncode == 0, done.stderr
     return tmp_path
@@ -169,7 +197,68 @@ def test_generator_is_deterministic_schema_valid_and_verifier_passes(repo: Path)
     assert bundle["fixtureInventory"]["sha256"] == verifier.INVENTORY_SHA256
     assert bundle["appHost"]["count"] == 1 and bundle["appHost"]["isPackable"] is False
     assert bundle["tests"]["failed"] == bundle["tests"]["skipped"] == bundle["tests"]["notRun"] == 0
+    assert bundle["candidate"]["commit"] == verifier.git_head(repo)
+    assert bundle["candidate"]["eventStoreGitlink"] == verifier.eventstore_gitlink(repo, verifier.git_head(repo))
+    assert bundle["restore"]["sources"] == ["https://api.nuget.org/v3/index.json"]
+    for section, scenario in (("restore", "AC-11.2-02"), ("build", "AC-11.2-03")):
+        assert bundle[section]["receipt"]["sha256"] == verifier.sha256_bytes((repo / verifier.COMMAND_RECEIPTS[scenario]).read_bytes())
     assert (repo / MD_OUT).read_bytes().endswith(b"\n") and b"\r" not in (repo / MD_OUT).read_bytes()
+
+
+@pytest.mark.parametrize("field", ["commit", "eventStoreGitlink"])
+def test_proof_rejects_resigned_candidate_identity_drift(repo: Path, field: str) -> None:
+    bundle = json.loads((repo / JSON_OUT).read_bytes())
+    if field == "commit":
+        bundle["candidate"]["commit"] = "2" * 40
+    else:
+        bundle["candidate"]["eventStoreGitlink"]["commit"] = "2" * 40
+    json_text, markdown = proof.finalize(proof.signable_of(bundle))
+    (repo / JSON_OUT).write_text(json_text, encoding="utf-8", newline="\n")
+    (repo / MD_OUT).write_text(markdown, encoding="utf-8", newline="\n")
+    errors = verifier.verify_proof(repo, FIXTURE, JSON_OUT, MD_OUT, TRX, rederive=False)
+    assert errors and errors[0]["code"] == verifier.BLOCK_PROOF
+    assert "candidate or EventStore gitlink differs" in errors[0]["message"]
+
+
+@pytest.mark.parametrize("binding", ["lock-file", "guidance-markdown", "guidance-source", "platform-project"])
+def test_proof_without_assembly_rederivation_checks_every_source_binding(repo: Path, binding: str) -> None:
+    bundle = json.loads((repo / JSON_OUT).read_bytes())
+    if binding == "lock-file":
+        target = repo / bundle["restore"]["lockFiles"][0]["path"]
+        target.write_bytes(target.read_bytes() + b"\n")
+    elif binding == "platform-project":
+        target = repo / bundle["resolvedPublicApis"]["projects"][0]["path"]
+        target.write_bytes(target.read_bytes() + b"\n")
+    else:
+        field = "bundleMarkdownSha256" if binding == "guidance-markdown" else "sourceSha256"
+        bundle["guidanceDigest"][field] = "2" * 64
+        json_text, markdown = proof.finalize(proof.signable_of(bundle))
+        (repo / JSON_OUT).write_text(json_text, encoding="utf-8", newline="\n")
+        (repo / MD_OUT).write_text(markdown, encoding="utf-8", newline="\n")
+    errors = verifier.verify_proof(repo, FIXTURE, JSON_OUT, MD_OUT, TRX, rederive=False)
+    assert errors and errors[0]["code"] == verifier.BLOCK_PROOF
+    assert "current fixture, result, or guidance" in errors[0]["message"]
+
+
+@pytest.mark.parametrize("scenario", tuple(verifier.COMMAND_RECEIPTS))
+def test_command_wrapper_executes_the_frozen_command_and_retains_failure(repo: Path, monkeypatch, scenario: str) -> None:
+    calls = []
+
+    def execute(arguments, **kwargs):
+        calls.append(arguments)
+        if "msbuild" in arguments:
+            return subprocess.CompletedProcess(arguments, 0, "true\n", "")
+        return subprocess.CompletedProcess(arguments, 17, "NuGet/build failed\n")
+
+    monkeypatch.setattr(command_runner.subprocess, "run", execute)
+    assert command_runner.main(["--repository", str(repo), "--scenario", scenario]) == 17
+    receipt = json.loads((repo / verifier.COMMAND_RECEIPTS[scenario]).read_bytes())
+    import shlex  # noqa: PLC0415
+
+    assert calls[-1] == shlex.split(receipt["command"])
+    assert receipt["exitCode"] == 17 and receipt["consoleLog"] == "NuGet/build failed\n"
+    with pytest.raises(ValueError, match="measured receipt is invalid"):
+        verifier.command_receipt(repo, scenario)
 
 
 def test_committed_fixture_inventory_is_exact_and_source_controlled(tmp_path: Path) -> None:

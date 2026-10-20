@@ -78,7 +78,7 @@ public sealed class MinimalModuleFixtureTests
         using WebApplication app = BuildHost();
         ProjectionEventDto evt = new(
             nameof(ConversationCreated),
-            JsonSerializer.SerializeToUtf8Bytes(new ConversationCreated(Id, "Hello")),
+            JsonSerializer.SerializeToUtf8Bytes(new ConversationCreated(Id, "Hello"), new JsonSerializerOptions(JsonSerializerDefaults.Web)),
             "json",
             1,
             DateTimeOffset.UnixEpoch,

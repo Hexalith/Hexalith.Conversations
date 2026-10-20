@@ -63,6 +63,26 @@ def lock_packages(content: bytes) -> list[tuple[str, str, str]]:
     return sorted(packages)
 
 
+def restore_sources(repository: Path, fixture: str, packages: set) -> list[str]:
+    """Report actual package feeds from NuGet's global-package metadata, never inferred defaults."""
+    folders = set()
+    for project in verifier.EXPECTED_PROJECTS:
+        assets = f"{fixture}/{PurePosixPath(project).parent}/obj/project.assets.json"
+        folders.update(json.loads(verifier.read_file(repository, assets)).get("packageFolders", {}))
+    sources = set()
+    for name, version, _ in sorted(packages):
+        for folder in sorted(folders):
+            metadata = Path(folder) / name.lower() / version.lower() / ".nupkg.metadata"
+            if metadata.is_file():
+                source = json.loads(metadata.read_bytes()).get("source")
+                if isinstance(source, str) and source:
+                    sources.add(source)
+                    break
+        else:
+            raise ProofError(verifier.BLOCK_RESTORE, f"NuGet source metadata is missing: {name}/{version}")
+    return sorted(sources)
+
+
 def resolve_platform_closure(repository: Path, fixture: str, projects: dict) -> list[str]:
     """Repository-relative platform projects the fixture references, directly and transitively."""
     pending: list[str] = []
@@ -118,6 +138,16 @@ def build_signable(repository: Path, fixture: str, test_result: str) -> dict:
         first = blockers[0]
         raise ProofError(first["code"], "; ".join(f"{item['code']}: {item['message']}" for item in blockers))
 
+    receipts = {}
+    for scenario, blocker in (("AC-11.2-02", verifier.BLOCK_RESTORE), ("AC-11.2-03", verifier.BLOCK_BUILD)):
+        try:
+            receipts[scenario] = verifier.command_receipt(repository, scenario)
+        except ValueError as error:
+            raise ProofError(blocker, str(error)) from None
+    commit = facts["candidate"]["commit"]
+    if commit is None:
+        raise Blocked("the proof requires a committed candidate")
+
     inventory = facts["inventory"]
     predecessor = facts["predecessor"]
     projects = facts["graph"]["projects"]
@@ -169,6 +199,8 @@ def build_signable(repository: Path, fixture: str, test_result: str) -> dict:
             "contractPath": verifier.CONTRACT_PATH,
             "contractSha256": sha256_bytes(contract_bytes),
             "planningCandidate": planning,
+            "commit": commit,
+            "eventStoreGitlink": verifier.eventstore_gitlink(repository, commit),
         },
         "guidanceDigest": {
             "bundleJsonPath": verifier.GUIDANCE_JSON,
@@ -192,7 +224,9 @@ def build_signable(repository: Path, fixture: str, test_result: str) -> dict:
         },
         "restore": {
             "command": commands["restore"],
-            "lockedMode": True,
+            "lockedMode": receipts["AC-11.2-02"]["lockedMode"],
+            "receipt": {key: receipts["AC-11.2-02"][key] for key in ("path", "sha256", "exitCode")},
+            "sources": restore_sources(repository, fixture, all_packages),
             "lockFiles": lock_rows,
             "resolvedPackagesSha256": resolved_packages,
             "packageCount": len(all_packages),
@@ -200,7 +234,8 @@ def build_signable(repository: Path, fixture: str, test_result: str) -> dict:
         "build": {
             "command": commands["build"],
             "configuration": "Release",
-            "warningsAsErrors": True,
+            "warningsAsErrors": receipts["AC-11.2-03"]["warningsAsErrors"],
+            "receipt": {key: receipts["AC-11.2-03"][key] for key in ("path", "sha256", "exitCode")},
             "toolVersions": {"dotnetSdk": dotnet_sdk_version(repository), "aspireAppHostSdk": apphost_sdk},
             "assemblies": assemblies,
         },
@@ -248,7 +283,10 @@ def render_markdown(bundle: dict) -> str:
     out += ["## Candidate", "",
             f"- Story: `{cand['storyId']}` (Checkpoint {cand['checkpoint']})",
             f"- Contract: `{cand['contractPath']}` (`{cand['contractSha256']}`)",
-            f"- Planning candidate: `{cand['planningCandidate']}`", ""]
+            f"- Planning candidate: `{cand['planningCandidate']}`",
+            f"- Committed candidate: `{cand['commit']}`",
+            f"- EventStore gitlink: `{cand['eventStoreGitlink']['path']}` "
+            f"(mode `{cand['eventStoreGitlink']['mode']}`, `{cand['eventStoreGitlink']['commit']}`)", ""]
     out += ["## Guidance digest", "",
             f"- Bundle: `{guidance['bundleJsonPath']}` (`{guidance['bundleJsonSha256']}`)",
             f"- Bundle Markdown: `{guidance['bundleMarkdownSha256']}`",
@@ -263,10 +301,13 @@ def render_markdown(bundle: dict) -> str:
     out += [f"- Project `{row['name']}`: `{row['path']}` (`{row['sha256']}`)" for row in apis["projects"]]
     out += [f"- Assembly `{row['name']}`: `{row['path']}` (`{row['sha256']}`)" for row in apis["assemblies"]]
     out += ["", "## Restore", "", f"- Command: `{restore['command']}`", f"- Locked mode: {str(restore['lockedMode']).lower()}"]
+    out += [f"- Receipt: `{restore['receipt']['path']}` (`{restore['receipt']['sha256']}`, exit {restore['receipt']['exitCode']})"]
+    out += [f"- Package source: `{source}`" for source in restore["sources"]]
     out += [f"- Lock file `{row['path']}` (`{row['sha256']}`, {row['packageCount']} packages)" for row in restore["lockFiles"]]
     out += [f"- Resolved packages: {restore['packageCount']} (`{restore['resolvedPackagesSha256']}`)", ""]
     out += ["## Build", "", f"- Command: `{build['command']}`", f"- Configuration: {build['configuration']}",
             f"- Warnings as errors: {str(build['warningsAsErrors']).lower()}",
+            f"- Receipt: `{build['receipt']['path']}` (`{build['receipt']['sha256']}`, exit {build['receipt']['exitCode']})",
             f"- .NET SDK: `{build['toolVersions']['dotnetSdk']}`",
             f"- Aspire AppHost SDK: `{build['toolVersions']['aspireAppHostSdk']}`"]
     out += [f"- Assembly `{row['path']}` (`{row['sha256']}`)" for row in build["assemblies"]]

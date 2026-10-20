@@ -7179,8 +7179,8 @@
         },
         "receipts": {
           "type": "array",
-          "minItems": 4,
-          "maxItems": 4,
+          "minItems": 6,
+          "maxItems": 6,
           "uniqueItems": true,
           "items": {
             "type": "object",
@@ -7194,6 +7194,8 @@
               "scenarioId": {
                 "enum": [
                   "AC-11.2-01",
+                  "AC-11.2-02",
+                  "AC-11.2-03",
                   "AC-11.2-04",
                   "AC-11.2-05",
                   "AC-11.2-07"
@@ -7213,6 +7215,30 @@
                 "properties": {
                   "scenarioId": {
                     "const": "AC-11.2-01"
+                  }
+                },
+                "required": [
+                  "scenarioId"
+                ]
+              }
+            },
+            {
+              "contains": {
+                "properties": {
+                  "scenarioId": {
+                    "const": "AC-11.2-02"
+                  }
+                },
+                "required": [
+                  "scenarioId"
+                ]
+              }
+            },
+            {
+              "contains": {
+                "properties": {
+                  "scenarioId": {
+                    "const": "AC-11.2-03"
                   }
                 },
                 "required": [

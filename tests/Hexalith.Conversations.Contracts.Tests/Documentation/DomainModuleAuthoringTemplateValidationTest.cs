@@ -296,7 +296,7 @@ public sealed class DomainModuleAuthoringTemplateValidationTest
         string Effective(string name) => appHost.TryGetValue(name, out string? own) ? own : defaults.GetValueOrDefault(name, string.Empty);
         Effective("IsPackable").ShouldBe("false", "APPHOST_BOUNDARY_INVALID: the test AppHost must not be packable.");
         Effective("IsPublishable").ShouldBe("false", "APPHOST_BOUNDARY_INVALID: the test AppHost must not be publishable.");
-        appHostPath.Replace('\\', '/').ShouldContain("/tests/", Case.Sensitive, "APPHOST_BOUNDARY_INVALID: the test AppHost is repository-only.");
+        Path.GetRelativePath(fixture, appHostPath).Replace('\\', '/').ShouldStartWith("tests/", Case.Sensitive, "APPHOST_BOUNDARY_INVALID: the test AppHost is repository-only.");
         File.ReadAllText(Path.Combine(Path.GetDirectoryName(appHostPath)!, "AppHost.cs")).ShouldContain("AddAspireDaprDomainModule");
 
         foreach (string path in projects)

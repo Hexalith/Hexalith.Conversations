@@ -58,3 +58,4 @@ tests/fixtures/Hexalith.Conversations.MinimalModule/** text eol=lf
 artifacts/v9/11.2/*.json text eol=lf
 artifacts/v9/11.2/*.xml text eol=lf
 artifacts/v9/11.2/*.trx text eol=lf
+artifacts/v9/11.2/*.log text eol=lf

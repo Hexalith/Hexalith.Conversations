@@ -4,6 +4,7 @@ using Hexalith.EventStore.Client.Registration;
 using Hexalith.EventStore.Client.Subscriptions;
 using Hexalith.EventStore.Contracts.Projections;
 using Hexalith.EventStore.Contracts.Queries;
+using Hexalith.EventStore.Contracts.Serialization;
 using Hexalith.EventStore.DomainService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,7 +60,7 @@ public sealed class ConversationProjection : IDomainProjectionHandler
         {
             if (evt.EventTypeName.EndsWith(nameof(ConversationCreated), StringComparison.Ordinal))
             {
-                title = JsonSerializer.Deserialize<ConversationCreated>(evt.Payload)?.Title ?? title;
+                title = JsonSerializer.Deserialize<ConversationCreated>(evt.Payload, EventStorePayloadSerialization.Options)?.Title ?? title;
             }
         }
 

@@ -35,6 +35,9 @@ PROOF_JSON_PATH = "docs/release-evidence/thin-module-fixture-proof-v1.json"
 PROOF_MARKDOWN_PATH = "docs/release-evidence/thin-module-fixture-proof-v1.md"
 TEST_RESULT_PATH = "artifacts/v9/11.2/minimal-module.trx"
 LOCK_FILE = "packages.lock.json"
+COMMAND_RECEIPT_SCHEMA = "hexalith.conversations.minimal-module-command-receipt.v1"
+COMMAND_RECEIPTS = {"AC-11.2-02": "artifacts/v9/11.2/AC-11.2-02.log",
+                    "AC-11.2-03": "artifacts/v9/11.2/AC-11.2-03.log"}
 
 GUIDANCE_JSON = "docs/release-evidence/thin-authoring-guidance-v2.json"
 GUIDANCE_MARKDOWN = "docs/release-evidence/thin-authoring-guidance-v2.md"
@@ -176,6 +179,37 @@ def git_tracked(repository: Path, paths) -> set[str]:
 def git_head(repository: Path) -> str | None:
     result = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repository, capture_output=True, text=True, check=False)
     return result.stdout.strip() if result.returncode == 0 else None
+
+
+def eventstore_gitlink(repository: Path, commit: str) -> dict:
+    """Read the platform identity from the candidate tree, without opening the submodule."""
+    path = "references/Hexalith.EventStore"
+    result = subprocess.run(["git", "ls-tree", commit, "--", path], cwd=repository,
+                            capture_output=True, text=True, check=False)
+    parts = result.stdout.strip().split()
+    if result.returncode or len(parts) != 4 or parts[:2] != ["160000", "commit"] or parts[3] != path:
+        raise Blocked("the candidate has no EventStore gitlink")
+    return {"path": path, "mode": parts[0], "commit": parts[2]}
+
+
+def command_receipt(repository: Path, scenario: str, content: bytes | None = None) -> dict:
+    """Validate the measured exit and policy for an exact frozen restore/build command."""
+    path = COMMAND_RECEIPTS[scenario]
+    raw = read_file(repository, path) if content is None else content
+    contract = json.loads(read_file(repository, CONTRACT_PATH))
+    command = next(row["command"] for row in contract["scenarios"] if row["id"] == scenario)
+    try:
+        receipt = json.loads(raw)
+        policy = "lockedMode" if scenario == "AC-11.2-02" else "warningsAsErrors"
+        if (set(receipt) != {"schemaVersion", "scenarioId", "command", "exitCode", "consoleLog", policy}
+                or receipt["schemaVersion"] != COMMAND_RECEIPT_SCHEMA or receipt["scenarioId"] != scenario
+                or receipt["command"] != command or type(receipt["exitCode"]) is not int
+                or receipt["exitCode"] != 0 or receipt[policy] is not True
+                or not isinstance(receipt["consoleLog"], str) or not receipt["consoleLog"].strip()):
+            raise ValueError("receipt is not a successful execution of the frozen command and policy")
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError(f"{scenario} measured receipt is invalid: {error}") from None
+    return {**receipt, "path": path, "sha256": sha256_bytes(raw)}
 
 
 def fixture_files(root: Path) -> list[str]:
@@ -500,7 +534,7 @@ def verify(repository: Path, fixture: str, inventory_only: bool, test_result: st
 
 
 def verify_proof(repository: Path, fixture: str, proof_json: str, proof_markdown: str, test_result: str,
-                 rederive: bool = True) -> list[dict]:
+                 rederive: bool = True, candidate_commit: str | None = None) -> list[dict]:
     """The committed proof must equal a fresh deterministic derivation from the current fixture and result.
 
     With ``rederive`` false the build-output hashes are not recomputed; the proof is still checked for schema,
@@ -524,6 +558,10 @@ def verify_proof(repository: Path, fixture: str, proof_json: str, proof_markdown
     if raw.decode("utf-8") != proof.serialize_json(committed):
         problems.append("the proof JSON bytes are not canonical")
     try:
+        candidate = candidate_commit or git_head(repository)
+        if (committed["candidate"]["commit"] != candidate
+                or committed["candidate"]["eventStoreGitlink"] != eventstore_gitlink(repository, candidate)):
+            problems.append("the proof candidate or EventStore gitlink differs")
         if markdown != proof.render_markdown(committed).encode("utf-8"):
             problems.append("the proof Markdown differs from its JSON rendering")
         signable = proof.signable_of(committed)
@@ -539,7 +577,27 @@ def verify_proof(repository: Path, fixture: str, proof_json: str, proof_markdown
             inventory_blockers, inventory = check_inventory(repository, fixture)
             predecessor = check_predecessor(repository)
             guidance_facts = committed["guidanceDigest"]
+            _, graph = check_graph(repository, fixture)
+            projects = [{"name": PurePosixPath(path).stem, "path": path,
+                         "sha256": sha256_bytes(read_file(repository, path))}
+                        for path in proof.resolve_platform_closure(repository, fixture, graph["graph"]["projects"])]
+            packages = set()
+            locks = []
+            for row in inventory["lockFiles"]:
+                resolved = proof.lock_packages(read_file(repository, row["path"]))
+                packages.update(resolved)
+                locks.append({**row, "packageCount": len(resolved)})
+            for section, scenario in (("restore", "AC-11.2-02"), ("build", "AC-11.2-03")):
+                measured = command_receipt(repository, scenario)
+                if committed[section]["receipt"] != {key: measured[key] for key in ("path", "sha256", "exitCode")}:
+                    problems.append(f"the proof differs from the measured {section} receipt")
             if (inventory_blockers or committed["fixtureInventory"]["paths"] != inventory["paths"]
+                    or committed["restore"]["lockFiles"] != sorted(locks, key=lambda row: row["path"])
+                    or committed["restore"]["resolvedPackagesSha256"] != sha256_bytes(canonical(sorted(packages)))
+                    or committed["restore"]["packageCount"] != len(packages)
+                    or committed["resolvedPublicApis"]["projects"] != projects
+                    or guidance_facts["bundleMarkdownSha256"] != predecessor["bundleMarkdownSha256"]
+                    or guidance_facts["sourceSha256"] != predecessor["sourceSha256"]
                     or guidance_facts["bundleJsonSha256"] != predecessor["bundleJsonSha256"]
                     or guidance_facts["signablePayloadSha256"] != predecessor["signablePayloadSha256"]
                     or guidance_facts["story11_1RecordSha256"] != predecessor["recordSha256"]

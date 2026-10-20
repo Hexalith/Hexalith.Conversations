@@ -10107,7 +10107,7 @@ def v2_11_1_verify_inserted(options, *, story='11.1', facts_key='thinGuidanceExe
 V2_11_2_CONTRACT = '_bmad-output/planning-artifacts/v9/story-contracts/11.2.json'
 V2_11_2_RECEIPT_DIR = 'artifacts/v9/11.2/'
 V2_11_2_SCENARIOS = tuple(f'AC-11.2-0{n}' for n in range(1, 9))
-V2_11_2_RECEIPT_SCENARIOS = ('AC-11.2-01', 'AC-11.2-04', 'AC-11.2-05', 'AC-11.2-07')
+V2_11_2_RECEIPT_SCENARIOS = ('AC-11.2-01', 'AC-11.2-02', 'AC-11.2-03', 'AC-11.2-04', 'AC-11.2-05', 'AC-11.2-07')
 V2_11_2_SPEC = '_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md'
 V2_11_2_SPRINT_KEY = '11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis'
 V2_11_2_APPHOST_METHOD = 'MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary'
@@ -10157,7 +10157,7 @@ def v2_11_2_pair_errors(record):
 
 
 def v2_11_2_receipts(repository, contract, candidate_time, read_receipt=None):
-    """Parse the four measured receipts; return scenario rows, receipt digests and the mutation ledger."""
+    """Parse the six measured receipts; return scenario rows, receipt digests and the mutation ledger."""
     verifier, _ = v2_11_2_module()
     by_id = {row['id']: row for row in contract['scenarios']}
     receipts, rows, ledger = [], {}, []
@@ -10174,6 +10174,16 @@ def v2_11_2_receipts(repository, contract, candidate_time, read_receipt=None):
     digest = v2_sha256(content)
     receipts.append(dict(scenarioId='AC-11.2-01', path=path, sha256=digest))
     rows['AC-11.2-01'] = dict(resultFile=dict(path=path, sha256=digest), subject='exact frozen fixture inventory verified at the committed candidate')
+
+    for scenario, path in verifier.COMMAND_RECEIPTS.items():
+        content = v2_11_1_read_receipt(repository, path, candidate_time, read_receipt)
+        measured = verifier.command_receipt(repository, scenario, content)
+        digest = measured['sha256']
+        receipts.append(dict(scenarioId=scenario, path=path, sha256=digest))
+        subject = ('measured locked restore with resolved NuGet sources' if scenario == 'AC-11.2-02'
+                   else 'measured warnings-as-errors Release build using public platform APIs')
+        rows[scenario] = dict(resultFile=dict(path=path, sha256=digest), subject=subject,
+                              exitCode=measured['exitCode'])
 
     tokens = shlex.split(by_id['AC-11.2-04']['command'])
     path = tokens[tokens.index('-trx') + 1]
@@ -10231,7 +10241,7 @@ def v2_11_2_receipts(repository, contract, candidate_time, read_receipt=None):
 
 
 def v2_11_2_generate(options, *, candidate=None, read_receipt=None, verify_only=False):
-    """Derive the Story 11.2 record from the committed fixture, the 11.1 record, the proof pair and four receipts."""
+    """Derive the Story 11.2 record from the committed fixture, the 11.1 record, the proof pair and six receipts."""
     verifier, proof_module = v2_11_2_module()
     repository = validate_repository(Path(options.get('--repository') or default_repository()))
     head = resolve_commit(repository, 'HEAD', 'CANDIDATE_UNRESOLVABLE')
@@ -10248,7 +10258,7 @@ def v2_11_2_generate(options, *, candidate=None, read_receipt=None, verify_only=
     if findings or authority is None: raise V2Stop(findings or [v2_finding('AUTHORITY_BINDING_INVALID', V2_11_2_CONTRACT, 'authority does not bind')], '11.2')
     proof_paths = [verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH]
     receipt_paths = {f'{V2_11_2_RECEIPT_DIR}AC-11.2-01.json', f'{V2_11_2_RECEIPT_DIR}AC-11.2-05.trx',
-                     f'{V2_11_2_RECEIPT_DIR}AC-11.2-07.xml', verifier.TEST_RESULT_PATH}
+                     f'{V2_11_2_RECEIPT_DIR}AC-11.2-07.xml', verifier.TEST_RESULT_PATH, *verifier.COMMAND_RECEIPTS.values()}
     dirt = set(worktree_path_status(repository)) - set(paths) - receipt_paths - set(proof_paths) - {V2_11_2_SPEC, V2_SPRINT_PATH}
     if dirt: raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN', 'working-tree', 'working tree differs outside the record pair, proof pair, receipts and lifecycle files: ' + v2_path_summary(dirt))], '11.2')
     candidate_time = int(decode(run_git(repository, 'show', '-s', '--format=%ct', candidate).stdout).strip())
@@ -10265,16 +10275,20 @@ def v2_11_2_generate(options, *, candidate=None, read_receipt=None, verify_only=
     schema_bytes = v2_committed_blob(repository, candidate, verifier.PROOF_SCHEMA_PATH)
     if schema_bytes is None: raise ValueError('the proof schema is not committed at the candidate')
     proof_blockers = verifier.verify_proof(repository, verifier.FIXTURE_ROOT, verifier.PROOF_JSON_PATH,
-                                           verifier.PROOF_MARKDOWN_PATH, verifier.TEST_RESULT_PATH, rederive=False)
+                                           verifier.PROOF_MARKDOWN_PATH, verifier.TEST_RESULT_PATH, rederive=False,
+                                           candidate_commit=candidate)
     if proof_blockers: raise ValueError('the fixture proof does not verify: ' + '; '.join(item['message'] for item in proof_blockers))
     proof = v2_parse_json(proof_json)
 
     measured, receipts, ledger = v2_11_2_receipts(repository, contract, candidate_time, read_receipt)
     if proof['tests']['resultFile']['sha256'] != measured['AC-11.2-04']['resultFile']['sha256']:
         raise ValueError('the proof does not bind the measured test result')
+    for section, scenario_id in (('restore', 'AC-11.2-02'), ('build', 'AC-11.2-03')):
+        if proof[section]['receipt'] != {**measured[scenario_id]['resultFile'], 'exitCode': measured[scenario_id]['exitCode']}:
+            raise ValueError('the proof does not bind the measured ' + section + ' result')
     by_id = {row['id']: row for row in contract['scenarios']}
-    def scenario(identity, subjects, **extra):
-        return dict(scenarioId=identity, command=by_id[identity]['command'], exitCode=0, result='PASS', blockers=[],
+    def scenario(identity, subjects, *, exit_code=0, **extra):
+        return dict(scenarioId=identity, command=by_id[identity]['command'], exitCode=exit_code, result='PASS', blockers=[],
                     assertionLedger=[dict(id=f'{identity}#{n + 1:04d}', subject=subject, state='PASS') for n, subject in enumerate(subjects)], **extra)
     proof_files = [dict(path=verifier.PROOF_JSON_PATH, sha256=v2_sha256(proof_json)),
                    dict(path=verifier.PROOF_MARKDOWN_PATH, sha256=v2_sha256(proof_markdown))]
@@ -10282,10 +10296,10 @@ def v2_11_2_generate(options, *, candidate=None, read_receipt=None, verify_only=
     scenarios = [
         scenario('AC-11.2-01', [measured['AC-11.2-01']['subject'], 'candidate is the committed HEAD', 'Story 11.1 final-record v2 and guidance digests recomputed'],
                  resultFile=measured['AC-11.2-01']['resultFile']),
-        scenario('AC-11.2-02', ['locked restore: every project has a committed lock file and the proof binds the resolved packages'],
-                 resultFile=proof_files[0]),
-        scenario('AC-11.2-03', ['warnings-as-errors Release build: the proof binds the fixture and public platform assembly hashes'],
-                 resultFile=proof_files[0]),
+        scenario('AC-11.2-02', [measured['AC-11.2-02']['subject']], exit_code=measured['AC-11.2-02']['exitCode'],
+                 resultFile=measured['AC-11.2-02']['resultFile']),
+        scenario('AC-11.2-03', [measured['AC-11.2-03']['subject']], exit_code=measured['AC-11.2-03']['exitCode'],
+                 resultFile=measured['AC-11.2-03']['resultFile']),
         scenario('AC-11.2-04', [measured['AC-11.2-04']['subject']], resultFile=measured['AC-11.2-04']['resultFile']),
         scenario('AC-11.2-05', [measured['AC-11.2-05']['subject']], resultFile=measured['AC-11.2-05']['resultFile']),
         scenario('AC-11.2-06', ['proof JSON and Markdown are deterministic, schema-valid and bound by the signable-payload digest',
