@@ -1,8 +1,8 @@
 {
   "schemaVersion": "hexalith.conversations.sm2-verification-result.v1",
   "result": "PASS",
-  "candidate": "32d0ea8c3f52c4ff7ebaa24e3e3d7c32a9bc395f",
-  "evidenceSha256": "6fc80f6e3d4f12bc88263cecf87e7827e0bcfae3ba43c3c0a53046aef3b3b50a",
+  "candidate": "fc46334ff45fc9e677f31f09e5daf2a1b871fc7c",
+  "evidenceSha256": "217a2fbb2781245641862b7134676ac8313158de0a4b0d04e970981e6cde261e",
   "metrics": {
     "fileCount": 13,
     "physicalLoc": 451,
@@ -35,6 +35,11 @@
       "state": "PASS"
     },
     {
+      "id": "history:owner-decision",
+      "subject": "approved estimated reference and comparison confidence",
+      "state": "PASS"
+    },
+    {
       "id": "history:bindings",
       "subject": "independent historical pins",
       "state": "PASS"
@@ -52,6 +57,11 @@
     {
       "id": "ownership",
       "subject": "no prohibited platform ownership",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:definitions",
+      "subject": "physical and nonblank line meanings",
       "state": "PASS"
     },
     {
@@ -205,6 +215,11 @@
       "state": "PASS"
     },
     {
+      "id": "comparison:dimensions",
+      "subject": "files decide; physical LOC supports",
+      "state": "PASS"
+    },
+    {
       "id": "comparison:arithmetic",
       "subject": "reductions independently recomputed",
       "state": "PASS"
@@ -291,7 +306,7 @@
     },
     {
       "id": "chain:ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
-      "subject": "32d0ea8c3f52c4ff7ebaa24e3e3d7c32a9bc395f",
+      "subject": "fc46334ff45fc9e677f31f09e5daf2a1b871fc7c",
       "state": "PASS"
     },
     {
@@ -676,7 +691,7 @@
     },
     {
       "id": "tools",
-      "subject": "actual Python, jsonschema, Git and .NET SDK versions",
+      "subject": "recorded generation provenance bound by the canonical payload",
       "state": "PASS"
     },
     {
