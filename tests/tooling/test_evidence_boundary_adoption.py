@@ -1,6 +1,8 @@
 """Real shared-helper fault injection for the approved 10.4 boundary."""
 from __future__ import annotations
+import base64
 import copy
+import functools
 import hashlib
 import json
 from pathlib import Path
@@ -253,19 +255,30 @@ def test_complete_fault_matrix_guidance(adoption_surface,fault,code,record_prope
     finally:path.write_bytes(original)
     observed_fault(record_property,fault,code,observed,hashlib.sha256(original).hexdigest(),hashlib.sha256(path.read_bytes()).hexdigest())
 
+@functools.cache
+def frozen_reader_sources():
+    """Read the accepted migration's inputs without borrowing later reader edits."""
+    record=json.loads((ROOT/'docs/release-evidence/story-10.4-final-record-v2.json').read_bytes())
+    revision=record['candidate']['commit']
+    paths=[row['path'] for row in adoption.snapshot(ROOT)['readers']]
+    paths.extend(f'tests/Hexalith.Conversations.{project}/Hexalith.Conversations.{project}.csproj'
+        for project in ('Conformance.Tests','Conformance.Portable.Tests','Contracts.Tests','IntegrationTests'))
+    paths.extend((adoption.READERS,adoption.SNAPSHOT))
+    facts=current.bridge(ROOT,dict(baseline=revision,candidate=revision,blobPaths=paths))
+    assert facts['result']=='PASS',facts['blockers']
+    assert all(row['code'] is None for row in facts['blobs'])
+    contents={row['path']:base64.b64decode(row['content'],validate=True) for row in facts['blobs']}
+    assert set(contents)==set(paths)
+    return contents
+
+
 @pytest.mark.parametrize('fault,code',[
  ('READER_STRENGTH','ASSERTION_STRENGTH_WEAKENED'),('READER_HELPER','EVIDENCE_HELPER_NOT_USED'),
  ('EXEMPTION','DAY_ONE_EXEMPTION_FORBIDDEN'),('READER_INVENTORY','EVIDENCE_READER_INVENTORY_DRIFT')])
 def test_complete_fault_matrix_readers(tmp_path,fault,code,record_property):
     binding=json.loads((ROOT/adoption.BINDING).read_bytes());entries=adoption.snapshot(ROOT)['readers']
-    for row in entries:
-        target=tmp_path/row['path'];target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((ROOT/row['path']).read_bytes())
-    for path in (adoption.READERS,adoption.SNAPSHOT):
-        (tmp_path/path).parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/path,tmp_path/path)
-    for project in ('Conformance.Tests','Conformance.Portable.Tests','Contracts.Tests','IntegrationTests'):
-        path=f'tests/Hexalith.Conversations.{project}/Hexalith.Conversations.{project}.csproj'
-        (tmp_path/path).parent.mkdir(parents=True,exist_ok=True)
-        shutil.copy2(ROOT/path,tmp_path/path)
+    for path,content in frozen_reader_sources().items():
+        target=tmp_path/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
     path=tmp_path/entries[0]['path'];original=path.read_bytes();frozen=copy.deepcopy(binding)
     try:
         if fault=='READER_STRENGTH':path.write_bytes(original.replace(b'first.Tests.ShouldNotBeEmpty();',b'first.Tests.ShouldBeEmpty();'))
@@ -324,14 +337,8 @@ def test_approved_assertion_correction_preserves_every_other_entry_byte(tmp_path
     byte_read.update(before='File.ReadAllBytes(path)',after='RepositoryLocator.ReadAllBytes(path)',count=1)
     assert [(r['path'],r['entryBase64'],r['entrySha256'],r['substitutions']) for r in entry['readers']]==[
         (r['path'],r['entryBase64'],r['entrySha256'],r['substitutions']) for r in historical['readers']]
-    for row in entry['readers']:
-        path=tmp_path/row['path'];path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes((ROOT/row['path']).read_bytes())
-    for path in (adoption.READERS,):
-        (tmp_path/path).parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/path,tmp_path/path)
-    for project in ('Conformance.Tests','Conformance.Portable.Tests','Contracts.Tests','IntegrationTests'):
-        path=f'tests/Hexalith.Conversations.{project}/Hexalith.Conversations.{project}.csproj'
-        (tmp_path/path).parent.mkdir(parents=True,exist_ok=True)
-        shutil.copy2(ROOT/path,tmp_path/path)
+    for path,content in frozen_reader_sources().items():
+        target=tmp_path/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
     path=tmp_path/adoption.APPROVED_ASSERTION_CORRECTIONS[0]['path'];original=path.read_bytes()
     if fault=='count':path.write_bytes(original.replace(b'ShouldBe(12);',b'ShouldBe(13);'))
     if fault=='other-assertion':path.write_bytes(original.replace(b'.ShouldBeEmpty();',b'.ShouldNotBeEmpty();',1))
