@@ -13316,3 +13316,185 @@ def test_story_112_verify_inserted_rejects_boundary_and_region_violations(story1
     expected = {"later-source-commit": "publication boundary", "second-publication": "publication boundary",
                 "region-drift": "verbatim inserted region differs", "published-proof-drift": "published proof differs"}[variant]
     assert expected in stop.value.findings[0]["message"]
+
+# Story 11.3 receipt consumers are strict about native identities, revision bindings,
+# closed fault coverage and actual restoration observations.
+def story113_trx(method, candidate='1' * 40, evidence='2' * 64):
+    output = ('story113_source_revision=1.0.0+' + candidate + '\n'
+              + 'story113_candidate=' + candidate + '\n'
+              + 'story113_evidence_sha256=' + evidence + '\n'
+              + 'story113_measured_totals=13/451/396\n')
+    root = ElementTree.Element('TestRun')
+    results = ElementTree.SubElement(root, 'Results')
+    result = ElementTree.SubElement(results, 'UnitTestResult', testName=method, outcome='Passed', testId='test-1', executionId='execution-1')
+    ElementTree.SubElement(ElementTree.SubElement(result, 'Output'), 'StdOut').text = output
+    definitions = ElementTree.SubElement(root, 'TestDefinitions')
+    definition = ElementTree.SubElement(definitions, 'UnitTest', id='test-1', name=method, storage='Hexalith.Conversations.Contracts.Tests.dll')
+    ElementTree.SubElement(definition, 'Execution', id='execution-1')
+    ElementTree.SubElement(definition, 'TestMethod', className=method.rsplit('.', 1)[0], name=method.rsplit('.', 1)[1], codeBase='Hexalith.Conversations.Contracts.Tests.dll')
+    summary = ElementTree.SubElement(root, 'ResultSummary')
+    ElementTree.SubElement(summary, 'Counters', total='1', executed='1', passed='1', failed='0', notExecuted='0')
+    return ElementTree.tostring(root)
+
+
+def story113_fault_receipt(generator, candidate='1' * 40, evidence='2' * 64):
+    _, verifier, _ = generator.v2_11_3_modules()
+    root = ElementTree.Element('testsuites')
+    suite = ElementTree.SubElement(root, 'testsuite', tests=str(len(verifier.FAULT_EXPECTATIONS)), failures='0', errors='0', skipped='0')
+    for fault, code in verifier.FAULT_EXPECTATIONS.items():
+        blocked = fault == 'history-unavailable'
+        case = ElementTree.SubElement(suite, 'testcase', classname='_bmad.scripts.tests.test_sm2_evidence', name=f'test_checkpoint_c_fault_matrix[{fault}]')
+        props = ElementTree.SubElement(case, 'properties')
+        values = dict(story113_source_revision=candidate, story113_evidence_sha256=evidence,
+                      story113_fault_id=fault, story113_expected_code=code, story113_observed_blockers=json.dumps([code]),
+                      story113_observed_result='BLOCKED' if blocked else 'FAIL', story113_observed_exit='2' if blocked else '1',
+                      story113_before_sha256='3'*64, story113_after_sha256='3'*64,
+                      story113_assertion_ledger=json.dumps([dict(id='check', subject='mutated input', state='SKIPPED' if blocked else 'FAIL')]))
+        for name, value in values.items():
+            ElementTree.SubElement(props, 'property', name=name, value=value)
+    return ElementTree.tostring(root)
+
+
+@pytest.mark.parametrize('method', ['SmTwoV2ShouldCountEveryHandAuthoredFixtureFileIncludingAppHost', 'HistoricalBaselinesShouldRemainByteIdentical'])
+def test_story_113_native_receipt_binds_its_named_test_and_source(method):
+    generator = load_generator()
+    name = 'Hexalith.Conversations.Contracts.Tests.Documentation.MinimalModuleAuthoringCostBaselineValidationTest.' + method
+    metrics = dict(fileCount=13, physicalLoc=451, nonblankLoc=396)
+    content = story113_trx(name)
+    assert generator.v2_11_3_trx(content, name, '1'*40, '2'*64, metrics) == name
+    missing_native = ElementTree.fromstring(content)
+    missing_native.find('Results').remove(missing_native.find('Results/UnitTestResult'))
+    for mutated in (ElementTree.tostring(missing_native), content.replace(b'executed="1"', b'executed="0"'),
+                    content.replace(b'outcome="Passed"', b'outcome="NotExecuted"'),
+                    content.replace(b'1.0.0+' + b'1'*40, b'1.0.0+' + b'4'*40),
+                    content.replace(b'story113_evidence_sha256=' + b'2'*64, b'story113_evidence_sha256=' + b'4'*64),
+                    content.replace(b'executionId="execution-1"', b'executionId="unlinked"'),
+                    content.replace(b'Contracts.Tests.dll', b'Other.Tests.dll')):
+        with pytest.raises(ValueError):
+            generator.v2_11_3_trx(mutated, name, '1'*40, '2'*64, metrics)
+
+
+def test_story_113_fault_receipt_requires_the_exact_observed_restored_matrix():
+    generator = load_generator()
+    content = story113_fault_receipt(generator)
+    rows = generator.v2_11_3_mutations(content, '1'*40, '2'*64)
+    assert len(rows) == 28 and all(row['detected'] and row['restored'] for row in rows)
+    root = ElementTree.fromstring(content)
+    for mutation in ('missing-fault', 'stale-revision', 'false-expected-code', 'vacuous-ledger', 'undetected', 'not-restored', 'skipped', 'duplicate-property'):
+        draft = ElementTree.fromstring(content)
+        suite = draft.find('testsuite')
+        case = suite.find('testcase')
+        props = case.find('properties')
+        values = {prop.get('name'): prop for prop in props}
+        if mutation == 'missing-fault': suite.remove(case)
+        elif mutation == 'stale-revision': values['story113_source_revision'].set('value', '4'*40)
+        elif mutation == 'false-expected-code': values['story113_expected_code'].set('value', 'NOT_A_BLOCKER')
+        elif mutation == 'vacuous-ledger': values['story113_assertion_ledger'].set('value', '[]')
+        elif mutation == 'undetected': values['story113_observed_blockers'].set('value', '[]')
+        elif mutation == 'not-restored': values['story113_after_sha256'].set('value', '4'*64)
+        elif mutation == 'skipped': ElementTree.SubElement(case, 'skipped')
+        elif mutation == 'duplicate-property': props.append(deepcopy(props[0]))
+        with pytest.raises(ValueError): generator.v2_11_3_mutations(ElementTree.tostring(draft), '1'*40, '2'*64)
+
+
+def test_story_113_schema_requires_its_closed_execution_and_summary():
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    schema = validators['record']
+    record = json.loads((WORKSPACE / 'docs/release-evidence/story-11.2-final-record-v2.json').read_bytes())
+    record['storyId'] = '11.3'
+    record.pop('fixtureProofExecution')
+    assert generator.v2_schema_errors(schema, record)
+    assert generator.v2_11_3_pair_errors(record) == ['Story 11.3 execution facts are malformed']
+
+
+def test_story_113_closed_route_dispatches_generation_and_insertion(monkeypatch):
+    generator = load_generator()
+    calls = []
+    def generate(options):
+        calls.append(('generate', options))
+        return b'generated\n'
+    monkeypatch.setattr(generator, 'v2_11_3_generate', generate)
+    options = {'--contract': generator.V2_11_3_CONTRACT}
+    assert generator.v2_generate(options) == b'generated\n'
+    assert calls == [('generate', options)]
+    monkeypatch.setattr(generator, 'v2_11_3_verify_inserted', lambda options: b'inserted\n')
+    monkeypatch.setattr(generator, 'v2_write_stdout', lambda content: calls.append(('stdout', content)))
+    monkeypatch.setattr(generator, 'v2_parse_arguments', lambda argv: dict(options, **{generator.V2_VERIFY_OPTION: generator.V2_11_3_SPEC}))
+    assert generator.v2_main([]) == 0
+    assert calls[-1] == ('stdout', b'inserted\n')
+
+
+from test_sm2_evidence import committed_facts, sm2_repository  # noqa: E402,F401 - shared read-only fixture
+
+
+@pytest.fixture
+def story113_fixture(sm2_repository, monkeypatch):
+    generator = load_generator()
+    gen, verifier, chain = generator.v2_11_3_modules()
+    repository = sm2_repository
+    candidate = chain.fixture.git_head(WORKSPACE)
+    for path in generator.V2_11_3_SOURCES:
+        target = repository / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((WORKSPACE / path).read_bytes())
+    original_blob = generator.v2_committed_blob
+    source_bytes = {path: (repository/path).read_bytes() for path in generator.V2_11_3_SOURCES}
+    monkeypatch.setattr(generator, 'v2_committed_blob', lambda root, revision, path:
+                        source_bytes[path] if path in source_bytes and revision == candidate else original_blob(root, revision, path))
+    monkeypatch.setattr(generator, 'worktree_path_status', lambda root: {})
+    contract = json.loads((repository / generator.V2_11_3_CONTRACT).read_bytes())
+    evidence_hash = generator.v2_sha256((repository / gen.JSON_PATH).read_bytes())
+    paths = contract['finalRecord']['paths']
+    options = {'--repository': str(repository), '--contract': generator.V2_11_3_CONTRACT,
+               '--output-json': paths[0], '--output-markdown': paths[1], '--format': 'bundle'}
+    methods = [shlex.split(contract['scenarios'][i]['command'])[shlex.split(contract['scenarios'][i]['command']).index('-method')+1] for i in (1, 2)]
+    receipts = dict(zip(generator.V2_11_3_RECEIPTS, [
+        story113_trx(methods[0], candidate, evidence_hash), story113_trx(methods[1], candidate, evidence_hash),
+        gen.serialize(verifier.verify(repository)), gen.serialize(chain.verify(repository)),
+        story113_fault_receipt(generator, candidate, evidence_hash)]))
+    return generator, repository, options, receipts
+
+
+def test_story_113_route_derives_current_metrics_receipts_and_closed_record(story113_fixture):
+    generator, repository, options, receipts = story113_fixture
+    first = generator.v2_11_3_generate(options, read_receipt=receipts.get)
+    assert first == generator.v2_11_3_generate(options, read_receipt=receipts.get)
+    record = json.loads(first)
+    assert record['summary'] == dict(required=7, passed=7, failed=0, blocked=0, skipped=0, notRun=0)
+    assert record['sm2Execution']['metrics'] == dict(fileCount=13, physicalLoc=451, nonblankLoc=396,
+        fileReductionPercentage='77.59', locReductionPercentage='69.11', measurementConfidence='high',
+        comparisonConfidence='low', oq2Decision='accepted')
+    assert len(record['sm2Execution']['receipts']) == 5
+    assert len(record['sm2Execution']['mutationLedger']) == 28
+    assert not generator.v2_verify_pair(first, (repository / options['--output-markdown']).read_bytes())
+    for mutate in ('metrics', 'receipt', 'fault', 'summary'):
+        draft = deepcopy(record)
+        if mutate == 'metrics': draft['sm2Execution']['metrics']['comparisonConfidence'] = 'high'
+        elif mutate == 'receipt': draft['sm2Execution']['receipts'][0]['sha256'] = 'f'*64
+        elif mutate == 'fault': draft['sm2Execution']['mutationLedger'][0]['afterSha256'] = 'f'*64
+        elif mutate == 'summary': draft['summary']['required'] = 6
+        assert generator.v2_11_3_pair_errors(draft)
+
+
+@pytest.mark.parametrize('fault', ['missing-receipt', 'stale-trx', 'stale-json', 'empty-matrix', 'source-drift', 'unrelated-dirt', 'upstream-blocked'])
+def test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence(story113_fixture, monkeypatch, fault):
+    generator, repository, options, receipts = story113_fixture
+    receipts = dict(receipts)
+    if fault == 'missing-receipt': receipts.pop(generator.V2_11_3_RECEIPTS[0])
+    elif fault == 'stale-trx': receipts[generator.V2_11_3_RECEIPTS[0]] = receipts[generator.V2_11_3_RECEIPTS[0]].replace(b'story113_candidate=', b'stale_candidate=')
+    elif fault == 'stale-json':
+        report = json.loads(receipts[generator.V2_11_3_RECEIPTS[2]])
+        report['candidate'] = 'f'*40
+        receipts[generator.V2_11_3_RECEIPTS[2]] = json.dumps(report).encode()
+    elif fault == 'empty-matrix': receipts[generator.V2_11_3_RECEIPTS[-1]] = b'<testsuites><testsuite tests="0" failures="0" errors="0" skipped="0" /></testsuites>'
+    elif fault == 'source-drift': (repository / generator.V2_11_3_SOURCES[0]).write_bytes(b'changed source\n')
+    elif fault == 'unrelated-dirt': monkeypatch.setattr(generator, 'worktree_path_status', lambda root: {'src/unrelated.cs': 'modified'})
+    elif fault == 'upstream-blocked':
+        _, verifier, _ = generator.v2_11_3_modules()
+        monkeypatch.setattr(verifier, 'verify', lambda *args, **kwargs: dict(result='BLOCKED', blockers=['HISTORY_UNAVAILABLE']))
+        with pytest.raises(generator.V2Stop) as caught:
+            generator.v2_11_3_generate(options, read_receipt=receipts.get)
+        assert generator.v2_failure_document(caught.value.findings, '11.3')['result'] == 'BLOCKED'
+        return
+    with pytest.raises(ValueError): generator.v2_11_3_generate(options, read_receipt=receipts.get)

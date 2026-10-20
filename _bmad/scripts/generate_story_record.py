@@ -4585,6 +4585,22 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
         lines.extend(["", "| Receipt | Path | SHA-256 |", "| --- | --- | --- |"])
         lines.extend("| " + " | ".join(code(value) for value in (row["scenarioId"], row["path"], row["sha256"])) + " |"
                      for row in fixture["receipts"])
+    if "sm2Execution" in record:
+        sm2 = record['sm2Execution']
+        metrics = sm2['metrics']
+        lines.extend(['', '## Measured SM-2 and OQ-2', '',
+                      f"- Evidence JSON: {code(sm2['evidence']['jsonPath'])} ({code(sm2['evidence']['jsonSha256'])})",
+                      f"- Evidence Markdown: {code(sm2['evidence']['markdownPath'])} ({code(sm2['evidence']['markdownSha256'])})",
+                      f"- Signable payload: {code(sm2['evidence']['signablePayloadSha256'])}",
+                      f"- Measured: {metrics['fileCount']} files; {metrics['physicalLoc']} physical LOC; {metrics['nonblankLoc']} nonblank LOC.",
+                      f"- Reduction against 58 estimated files / 1,460 estimated LOC: {metrics['fileReductionPercentage']}% files; {metrics['locReductionPercentage']}% indicative LOC.",
+                      f"- OQ-2: {code(metrics['oq2Decision'])}, qualified against the accepted estimate. Measurement confidence high; comparison confidence low.",
+                      '- Historical LOC uses estimated nonblank logical skeleton lines; its comparison to measured physical LOC is supporting evidence only.',
+                      '', '| Checkpoint | Original candidate |', '| --- | --- |'])
+        lines.extend('| ' + code(key) + ' | ' + code(value) + ' |' for key, value in sm2['checkpoints'].items())
+        lines.extend(['', '| Receipt | Path | SHA-256 |', '| --- | --- | --- |'])
+        lines.extend('| ' + ' | '.join(code(row[key]) for key in ('scenarioId', 'path', 'sha256')) + ' |'
+                     for row in sm2['receipts'])
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
     if "thinGuidanceExecution" in record or "fixtureProofExecution" in record:
@@ -4593,6 +4609,14 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
                       "| Fault | Expected blocker | Detected | Restored |", "| --- | --- | --- | --- |"])
         lines.extend("| " + " | ".join(code(value) for value in (
             row["id"], row["expectedBlocker"], row["detected"], row["restored"])) + " |" for row in faults)
+    elif 'sm2Execution' in record:
+        faults = record['sm2Execution']['mutationLedger']
+        lines.extend([f'{len(faults)} measured faults detected with byte-identical restoration.', '',
+                      '| Fault | Expected blocker | Observed blockers | Before SHA-256 | After SHA-256 | Restored |',
+                      '| --- | --- | --- | --- | --- | --- |'])
+        lines.extend('| ' + ' | '.join(code(value) for value in (row['id'], row['expectedBlocker'],
+                     ', '.join(row['observedBlockers']), row['beforeSha256'], row['afterSha256'], row['restored'])) + ' |'
+                     for row in faults)
     elif record["storyId"] in ("10.3", "10.4") and ("evidenceWorkflowExecution" in record or "evidenceAdoptionExecution" in record):
         facts = record.get("evidenceWorkflowExecution", record.get("evidenceAdoptionExecution"))
         faults = facts["mutationLedger"]
@@ -4743,6 +4767,8 @@ def v2_verify_pair(json_bytes: bytes, markdown_bytes: bytes) -> list[str]:
         problems.extend(v2_11_1_pair_errors(record))
     if record.get("storyId") == "11.2":
         problems.extend(v2_11_2_pair_errors(record))
+    if record.get("storyId") == "11.3":
+        problems.extend(v2_11_3_pair_errors(record))
     return problems
 
 
@@ -8212,6 +8238,11 @@ def v2_9_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
 
 def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> bytes:
     """Derive, validate, and atomically write the v2 pair; return the JSON bytes."""
+    if options.get("--contract") == V2_11_3_CONTRACT:
+        try:
+            return v2_11_3_generate(options)
+        except ValueError as error:
+            raise V2Stop([v2_finding('RECORD_NOT_DERIVED', '11.3', str(error))], '11.3') from None
     if options.get("--contract") == V2_11_2_CONTRACT:
         try:
             return v2_11_2_generate(options)
@@ -10358,13 +10389,281 @@ def v2_11_2_verify_inserted(options):
         extra_publication=(verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH), publication_check=v2_11_2_publication_check)
 
 
+# Story 11.3 (Checkpoint C): committed measurement and five non-vacuous measured receipts.
+V2_11_3_CONTRACT = '_bmad-output/planning-artifacts/v9/story-contracts/11.3.json'
+V2_11_3_SPEC = '_bmad-output/implementation-artifacts/spec-11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2.md'
+V2_11_3_SPRINT_KEY = '11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2'
+V2_11_3_SCENARIOS = tuple(f'AC-11.3-0{number}' for number in range(1, 8))
+V2_11_3_RECEIPTS = tuple(f'artifacts/v9/11.3/AC-11.3-0{number}.{extension}'
+                        for number, extension in ((2, 'trx'), (3, 'trx'), (4, 'json'), (5, 'json'), (6, 'xml')))
+V2_11_3_SOURCES = (
+    '_bmad/scripts/generate_sm2_evidence.py', '_bmad/scripts/verify_sm2_evidence.py',
+    '_bmad/scripts/verify_story_candidate.py', '_bmad/scripts/generate_story_record.py',
+    '_bmad/scripts/tests/test_sm2_evidence.py', '_bmad/scripts/tests/test_generate_story_record.py',
+    '_bmad/schemas/story-final-record-v2.schema.json',
+    'docs/release-evidence/minimal-module-authoring-cost-sm2-v2.schema.json',
+    'tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthoringCostBaselineValidationTest.cs',
+)
+
+
+def v2_11_3_modules():
+    directory = str(Path(__file__).resolve().parent)
+    if directory not in sys.path: sys.path.insert(0, directory)
+    import generate_sm2_evidence
+    import verify_sm2_evidence
+    import verify_story_candidate
+    return generate_sm2_evidence, verify_sm2_evidence, verify_story_candidate
+
+
+def v2_11_3_trx(content, method, candidate, evidence_sha256, metrics):
+    """Require one native named test, linked definitions and assembly/evidence revision stamps."""
+    try:
+        parsed = parse_trx(content)
+    except ElementTree.ParseError as error:
+        raise ValueError('malformed Story 11.3 native TRX') from error
+    if (count_disagreements(parsed) or parsed['reported'] != dict(total=1, executed=1, passed=1, failed=0, skipped=0)
+            or len(parsed['results']) != 1 or parsed['unknown_outcomes']):
+        raise ValueError('TRX must contain exactly one executed, passing, non-skipped target test')
+    testcase = parsed['results'][0]
+    root = ElementTree.fromstring(content)
+    definitions = root.findall('./{*}TestDefinitions/{*}UnitTest')
+    native = root.find('./{*}Results/{*}UnitTestResult')
+    if native is None or len(definitions) != 1:
+        raise ValueError('TRX requires a native result and exactly one linked definition')
+    definition = definitions[0]
+    methods = definition.findall('./{*}TestMethod'); executions = definition.findall('./{*}Execution')
+    assembly = 'Hexalith.Conversations.Contracts.Tests.dll'
+    if (testcase['test'] != method or not native.get('testId') or native.get('testId') != definition.get('id')
+            or not native.get('executionId') or len(executions) != 1 or native.get('executionId') != executions[0].get('id')
+            or definition.get('name') != method or len(methods) != 1
+            or methods[0].get('className') != method.rsplit('.', 1)[0] or methods[0].get('name') != method.rsplit('.', 1)[1]
+            or re.split(r'[\\/]', methods[0].get('codeBase', ''))[-1] != assembly
+            or re.split(r'[\\/]', definition.get('storage', ''))[-1] != assembly):
+        raise ValueError('TRX native assembly or result/definition linkage differs')
+    output = testcase['output']
+    stamps = re.findall(r'(?m)^story113_source_revision=([^\r\n]+)$', output)
+    if (len(stamps) != 1 or not re.fullmatch(r'(?:[0-9A-Za-z.\-]+\+)?' + re.escape(candidate), stamps[0])
+            or re.findall(r'(?m)^story113_candidate=([^\r\n]+)$', output) != [candidate]
+            or re.findall(r'(?m)^story113_evidence_sha256=([^\r\n]+)$', output) != [evidence_sha256]):
+        raise ValueError('TRX source assembly, candidate or measured evidence digest differs')
+    if method.endswith('SmTwoV2ShouldCountEveryHandAuthoredFixtureFileIncludingAppHost'):
+        totals = '/'.join(str(metrics[key]) for key in ('fileCount', 'physicalLoc', 'nonblankLoc'))
+        if re.findall(r'(?m)^story113_measured_totals=([^\r\n]+)$', output) != [totals]:
+            raise ValueError('TRX independently measured totals differ')
+    return testcase['test']
+
+
+def v2_11_3_mutations(content, candidate, evidence_sha256):
+    """Consume actual fault observations and restoration hashes, never infer them from case names."""
+    _, verifier, _ = v2_11_3_modules()
+    try:
+        parsed = v2_parse_junit(content)
+    except ElementTree.ParseError as error:
+        raise ValueError('malformed Story 11.3 fault JUnit') from error
+    cases, reported = parsed['cases'], parsed['reported']
+    if (not cases or reported['tests'] != len(cases) or any(reported[key] for key in ('failures', 'errors', 'skipped'))
+            or any(case['failure'] or case['error'] or case['skipped'] for case in cases)):
+        raise ValueError('fault receipt is empty, inconsistent, failed or skipped')
+    observed = {}
+    for case in cases:
+        properties = dict(case['properties'])
+        fault = properties.get('story113_fault_id')
+        if (fault not in verifier.FAULT_EXPECTATIONS or fault in observed
+                or case['name'] != f'test_checkpoint_c_fault_matrix[{fault}]'
+                or case['classname'] != '_bmad.scripts.tests.test_sm2_evidence'
+                or len(properties) != len(case['properties'])
+                or properties.get('story113_source_revision') != candidate
+                or properties.get('story113_evidence_sha256') != evidence_sha256
+                or properties.get('story113_expected_code') != verifier.FAULT_EXPECTATIONS[fault]):
+            raise ValueError('fault identity, source revision or evidence digest differs')
+        blockers = json.loads(properties['story113_observed_blockers'])
+        ledger = json.loads(properties['story113_assertion_ledger'])
+        expected_state, expected_exit = ('BLOCKED', '2') if fault == 'history-unavailable' else ('FAIL', '1')
+        before, after = properties['story113_before_sha256'], properties['story113_after_sha256']
+        known_codes = set(verifier.FAULT_EXPECTATIONS.values())
+        if (not isinstance(blockers, list) or blockers != sorted(set(blockers)) or not set(blockers) <= known_codes
+                or verifier.FAULT_EXPECTATIONS[fault] not in blockers or not isinstance(ledger, list) or not ledger
+                or any(set(row) != {'id', 'subject', 'state'} or not row['id'] or not row['subject']
+                       or row['state'] not in ('PASS', 'FAIL', 'SKIPPED') for row in ledger)
+                or len({row['id'] for row in ledger}) != len(ledger)
+                or not any(row['state'] == ('SKIPPED' if expected_state == 'BLOCKED' else 'FAIL') for row in ledger)
+                or properties.get('story113_observed_result') != expected_state
+                or properties.get('story113_observed_exit') != expected_exit or before != after
+                or re.fullmatch(r'[0-9a-f]{64}', before) is None):
+            raise ValueError('fault observation, exact blocker, ledger or byte-identical restoration differs')
+        observed[fault] = dict(id=fault, expectedBlocker=verifier.FAULT_EXPECTATIONS[fault], observedBlockers=blockers,
+                               beforeSha256=before, afterSha256=after, detected=True, restored=True, result='PASS')
+    if set(observed) != set(verifier.FAULT_EXPECTATIONS):
+        raise ValueError('the exact closed checkpoint C fault matrix was not measured')
+    return [observed[fault] for fault in verifier.FAULT_EXPECTATIONS]
+
+
+def v2_11_3_pair_errors(record):
+    try:
+        _, verifier, _ = v2_11_3_modules()
+        facts, scenarios = record['sm2Execution'], record['scenarios']
+        if (record['summary'] != dict(required=7, passed=7, failed=0, blocked=0, skipped=0, notRun=0)
+                or [row['scenarioId'] for row in scenarios] != list(V2_11_3_SCENARIOS)
+                or any(row['result'] != 'PASS' or row['exitCode'] != 0 or row['blockers'] or not row['assertionLedger'] for row in scenarios)
+                or record['predecessors'] != ['11.2'] or facts['sourceRevisionId'] != record['candidate']['commit']
+                or facts['checkpoints']['C'] != record['candidate']['commit']):
+            return ['Story 11.3 requires the compatible closed 7/7/0/0/0/0 PASS set']
+        if [row['path'] for row in facts['sourceFiles']] != list(V2_11_3_SOURCES):
+            return ['Story 11.3 source membership differs']
+        if [row['path'] for row in facts['receipts']] != list(V2_11_3_RECEIPTS):
+            return ['Story 11.3 measured receipt membership differs']
+        by_id = {row['scenarioId']: row for row in scenarios}
+        for row in facts['receipts']:
+            if by_id[row['scenarioId']].get('resultFile') != dict(path=row['path'], sha256=row['sha256']):
+                return ['Story 11.3 receipt/scenario digest differs']
+        evidence = facts['evidence']
+        if by_id['AC-11.3-01'].get('outputFiles') != [dict(path=evidence[prefix+'Path'], sha256=evidence[prefix+'Sha256']) for prefix in ('json', 'markdown')]:
+            return ['Story 11.3 evidence pair/scenario output differs']
+        faults = facts['mutationLedger']
+        if ([row['id'] for row in faults] != list(verifier.FAULT_EXPECTATIONS)
+                or any(row['expectedBlocker'] != verifier.FAULT_EXPECTATIONS[row['id']]
+                       or row['expectedBlocker'] not in row['observedBlockers'] or not row['detected'] or not row['restored']
+                       or row['beforeSha256'] != row['afterSha256'] for row in faults)):
+            return ['Story 11.3 fault observation/restoration ledger differs']
+        metrics = facts['metrics']
+        if (metrics['fileCount'] != 13 or metrics['measurementConfidence'] != 'high' or metrics['comparisonConfidence'] != 'low'
+                or metrics['oq2Decision'] != 'accepted'):
+            return ['Story 11.3 measured metric confidence or OQ-2 decision differs']
+    except (KeyError, ValueError, TypeError, AttributeError):
+        return ['Story 11.3 execution facts are malformed']
+    return []
+
+
+def v2_11_3_generate(options, *, candidate=None, read_receipt=None, verify_only=False):
+    gen, verifier, chain = v2_11_3_modules()
+    repository = validate_repository(Path(options.get('--repository') or default_repository()))
+    candidate = candidate or resolve_commit(repository, 'HEAD', 'CANDIDATE_UNRESOLVABLE')
+    _, validators = v2_load_schemas()
+    contract_bytes = v2_committed_blob(repository, candidate, V2_11_3_CONTRACT)
+    contract = v2_validate_contract(contract_bytes, V2_11_3_CONTRACT, validators['contract'], validators['contract_v14'])
+    paths = contract['finalRecord']['paths']
+    if ([row['id'] for row in contract['scenarios']] != list(V2_11_3_SCENARIOS)
+            or [options['--output-json'], options['--output-markdown']] != paths):
+        raise ValueError('the exact seven contracted commands and output pair are required')
+    findings = []
+    authority = v2_authority(repository, candidate, V2_11_3_CONTRACT, contract, validators['bundle'], findings)
+    if findings or authority is None: raise ValueError('Story 11.3 authority does not bind')
+    allowed = set(paths) | set(V2_11_3_RECEIPTS) | {gen.JSON_PATH, gen.MARKDOWN_PATH, V2_11_3_SPEC, V2_SPRINT_PATH}
+    dirt = set(worktree_path_status(repository)) - allowed
+    if dirt: raise ValueError('working tree differs outside publication and lifecycle files: ' + v2_path_summary(dirt))
+    sources = []
+    for path in V2_11_3_SOURCES:
+        content = v2_committed_blob(repository, candidate, path)
+        if content is None or content != v2_10_1_artifact_bytes(repository, path):
+            raise ValueError('implementation must be committed before measurement: ' + path)
+        sources.append(dict(path=path, sha256=v2_sha256(content)))
+    binding = chain.verify(repository, candidate)
+    verified = verifier.verify(repository, candidate=candidate)
+    if binding['result'] == 'BLOCKED' or verified['result'] == 'BLOCKED':
+        raise V2Stop([v2_finding('CANDIDATE_UNRESOLVABLE', '11.3',
+                                'upstream verification is BLOCKED: ' + ', '.join(binding['blockers'] + verified['blockers']))], '11.3')
+    if binding['result'] != 'PASS' or verified['result'] != 'PASS':
+        raise ValueError('candidate chain or independent SM-2 verification failed: ' + ', '.join(binding['blockers'] + verified['blockers']))
+    evidence_bytes = v2_10_1_artifact_bytes(repository, gen.JSON_PATH)
+    evidence = v2_parse_json(evidence_bytes)
+    if evidence['candidate']['commit'] != candidate: raise ValueError('SM-2 evidence is stale for this source candidate')
+    if gen.finalize(gen.build_signable(repository, candidate=candidate)) != (evidence_bytes, v2_10_1_artifact_bytes(repository, gen.MARKDOWN_PATH)):
+        raise ValueError('SM-2 pair differs from deterministic regeneration')
+    candidate_time = int(decode(run_git(repository, 'show', '-s', '--format=%ct', candidate).stdout).strip())
+    measured, receipts, ledger = {}, [], []
+    by_id = {row['id']: row for row in contract['scenarios']}
+    for number, path in enumerate(V2_11_3_RECEIPTS, 2):
+        identity = f'AC-11.3-0{number}'
+        content = v2_11_1_read_receipt(repository, path, candidate_time, read_receipt)
+        tokens = shlex.split(by_id[identity]['command'])
+        if path not in tokens and not any(token == '--junitxml=' + path for token in tokens):
+            raise ValueError('receipt path differs from exact contract command: ' + identity)
+        if number in (2, 3):
+            subject = v2_11_3_trx(content, tokens[tokens.index('-method')+1], candidate, v2_sha256(evidence_bytes), verified['metrics'])
+            execution = [dict(id=identity+'#0001', subject=subject, state='PASS')]
+        elif number in (4, 5):
+            expected = verified if number == 4 else binding
+            if v2_parse_json(content) != expected: raise ValueError(identity + ' receipt differs from independent current verification')
+            execution = expected['assertionLedger']
+        else:
+            ledger = v2_11_3_mutations(content, candidate, v2_sha256(evidence_bytes))
+            execution = [dict(id=identity+'#'+row['id'], subject=row['expectedBlocker'], state='PASS') for row in ledger]
+        execution = [dict(id=f'{identity}#{index+1:04d}', subject=row['id']+'::'+row['subject'], state=row['state'])
+                     for index, row in enumerate(execution)]
+        receipt = dict(path=path, sha256=v2_sha256(content))
+        receipts.append(dict(scenarioId=identity, **receipt))
+        measured[identity] = dict(receipt=receipt, ledger=execution)
+    evidence_files = [dict(path=path, sha256=v2_sha256(v2_10_1_artifact_bytes(repository, path))) for path in (gen.JSON_PATH, gen.MARKDOWN_PATH)]
+    scenarios = []
+    for identity in V2_11_3_SCENARIOS:
+        execution = measured.get(identity)
+        scenario = dict(scenarioId=identity, command=by_id[identity]['command'], exitCode=0, result='PASS', blockers=[],
+                        assertionLedger=execution['ledger'] if execution else [dict(id=identity+'#0001',
+                            subject='committed sources, exact measurement, compatible A-C chain and deterministic pair' if identity.endswith('01')
+                            else 'five measured current receipts, exact fault ledger and closed final-record schema', state='PASS')])
+        if execution: scenario['resultFile'] = execution['receipt']
+        if identity.endswith('01'): scenario['outputFiles'] = evidence_files
+        scenarios.append(scenario)
+    facts = dict(bindingRule='SC-11.3 is the committed source candidate; original A/B publications, all authored bytes, immutable history, current receipts and the qualified OQ-2 decision are independently verified',
+                 sourceRevisionId=candidate, contract=dict(path=V2_11_3_CONTRACT, sha256=v2_sha256(contract_bytes)),
+                 checkpoints=binding['checkpoints'], sourceFiles=sources, provenance=binding['bindings'],
+                 historicalBaseline=evidence['historicalBaseline']['history'], metrics=verified['metrics'],
+                 evidence=dict(jsonPath=gen.JSON_PATH, jsonSha256=evidence_files[0]['sha256'], markdownPath=gen.MARKDOWN_PATH,
+                               markdownSha256=evidence_files[1]['sha256'], schemaPath=gen.SCHEMA,
+                               schemaSha256=v2_sha256(v2_10_1_artifact_bytes(repository, gen.SCHEMA)),
+                               signablePayloadSha256=evidence['digests']['signablePayloadSha256']),
+                 receipts=receipts, mutationLedger=ledger)
+    record = dict(schemaVersion=V2_RECORD_SCHEMA_VERSION, storyId='11.3', authority=authority,
+                  candidate=dict(commit=candidate, gitlinks=binding['gitlinks']), predecessors=['11.2'], inventory=contract['inventory'],
+                  scenarios=scenarios, faultInjection=dict(results=[]), rollback=contract['rollback'],
+                  outputs=dict(json=dict(path=paths[0], sha256=V2_ZERO_DIGEST), markdown=dict(path=paths[1], sha256=V2_ZERO_DIGEST)),
+                  summary=dict(required=7, passed=7, failed=0, blocked=0, skipped=0, notRun=0),
+                  renderedMarkdownSha256=V2_ZERO_DIGEST, sm2Execution=facts)
+    final, j, m = v2_finalize(record)
+    problems = v2_schema_errors(validators['record'], final) + v2_verify_pair(j, m)
+    if problems: raise ValueError('; '.join(problems))
+    if not verify_only:
+        v2_write_outputs([(v2_output_target(repository, paths[0]), j), (v2_output_target(repository, paths[1]), m)])
+    return j
+
+
+def v2_11_3_publication_check(repository, commit, record):
+    facts = record['sm2Execution']['evidence']
+    for prefix in ('json', 'markdown'):
+        content = v2_committed_blob(repository, commit, facts[prefix+'Path'])
+        if content is None or v2_sha256(content) != facts[prefix+'Sha256']: return 'published SM-2 evidence differs'
+    return None
+
+
+def v2_11_3_verify_inserted(options):
+    """Recompute original C sources/receipts before enforcing atomic publication and verbatim insertion."""
+    gen, _, _ = v2_11_3_modules()
+    repository = validate_repository(Path(options.get('--repository') or default_repository()))
+    head = resolve_commit(repository, 'HEAD', 'CANDIDATE_UNRESOLVABLE')
+    path = 'docs/release-evidence/story-11.3-final-record-v2.json'
+    try:
+        record_bytes = v2_committed_blob(repository, head, path)
+        if record_bytes is None: raise ValueError('the Story 11.3 final record must be committed')
+        record = v2_parse_json(record_bytes)
+        derive = dict(options, **{'--output-json': path, '--output-markdown': 'docs/release-evidence/story-11.3-final-record-v2.md'})
+        fresh = v2_11_3_generate(derive, candidate=record['candidate']['commit'], verify_only=True)
+        if fresh != record_bytes: raise ValueError('record differs from independently recomputed source candidate and current receipts')
+    except ValueError as error:
+        raise V2Stop([v2_finding('RECORD_CONTENT_DRIFT', '11.3', str(error))], '11.3') from None
+    return v2_11_1_verify_inserted(options, story='11.3', facts_key='sm2Execution', spec_path=V2_11_3_SPEC,
+                                  sprint_key=V2_11_3_SPRINT_KEY, extra_publication=(gen.JSON_PATH, gen.MARKDOWN_PATH),
+                                  publication_check=v2_11_3_publication_check)
+
+
 def v2_main(raw_arguments: Sequence[str]) -> int:
     """Run the v2 route: exit 0 PASS, 1 FAIL, 2 BLOCKED; stdout is always schema-valid."""
     story_id: str | None = None
     try:
         options = v2_parse_arguments(raw_arguments)
         if V2_VERIFY_OPTION in options:
-            if options.get("--contract") == V2_11_2_CONTRACT:
+            if options.get("--contract") == V2_11_3_CONTRACT:
+                json_bytes = v2_11_3_verify_inserted(options)
+            elif options.get("--contract") == V2_11_2_CONTRACT:
                 json_bytes = v2_11_2_verify_inserted(options)
             elif options.get("--contract") == V2_11_1_CONTRACT:
                 json_bytes = v2_11_1_verify_inserted(options)

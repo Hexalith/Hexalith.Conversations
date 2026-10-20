@@ -4,6 +4,8 @@
 // </copyright>
 
 using System.Globalization;
+using System.Reflection;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -18,7 +20,8 @@ namespace Hexalith.Conversations.Contracts.Tests.Documentation;
 /// <summary>
 /// Validates the Story 4.2 SM-2 minimal-module authoring-cost baseline artifacts.
 /// </summary>
-public sealed class MinimalModuleAuthoringCostBaselineValidationTest
+/// <param name="output">The measured receipt output.</param>
+public sealed class MinimalModuleAuthoringCostBaselineValidationTest(ITestOutputHelper output)
 {
     private const string JsonFileName = "minimal-module-authoring-cost-sm2-baseline-v1.json";
     private const string MarkdownFileName = "minimal-module-authoring-cost-sm2-baseline-v1.md";
@@ -218,6 +221,116 @@ public sealed class MinimalModuleAuthoringCostBaselineValidationTest
             path.ShouldNotContain("Admin.Web", Case.Insensitive);
             path.ShouldNotContain("FrontComposer", Case.Insensitive);
         }
+    }
+
+    /// <summary>Independently counts every authored fixture source, including both AppHost files.</summary>
+    [Fact]
+    public async Task SmTwoV2ShouldCountEveryHandAuthoredFixtureFileIncludingAppHost()
+    {
+        string root = FindRepositoryRoot();
+        const string fixture = "tests/fixtures/Hexalith.Conversations.MinimalModule/";
+        string[] expected =
+        [
+            "Directory.Build.props",
+            "Hexalith.Conversations.MinimalModule.slnx",
+            "README.md",
+            "src/Hexalith.Conversations.MinimalModule.Contracts/Hexalith.Conversations.MinimalModule.Contracts.csproj",
+            "src/Hexalith.Conversations.MinimalModule.Contracts/CreateConversation.cs",
+            "src/Hexalith.Conversations.MinimalModule.Contracts/ConversationCreated.cs",
+            "src/Hexalith.Conversations.MinimalModule.Server/Hexalith.Conversations.MinimalModule.Server.csproj",
+            "src/Hexalith.Conversations.MinimalModule.Server/ConversationAggregate.cs",
+            "src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs",
+            "tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj",
+            "tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs",
+            "tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+            "tests/Hexalith.Conversations.MinimalModule.AppHost/AppHost.cs",
+        ];
+        using JsonDocument document = LoadV2Json();
+        JsonElement measurement = document.RootElement.GetProperty("measurement");
+        JsonElement[] rows = measurement.GetProperty("paths").EnumerateArray().ToArray();
+        string[] actual = rows.Select(row => row.GetProperty("path").GetString()!).ToArray();
+        foreach (string path in expected.Where(path => path.Contains(".AppHost/", StringComparison.Ordinal)))
+        {
+            actual.ShouldContain(fixture + path, "SM2_APPHOST_COST_OMITTED");
+        }
+        actual.Distinct(StringComparer.Ordinal).Count().ShouldBe(13, "SM2_INCLUSION_RULE_VIOLATION");
+        actual.ShouldBe(expected.Select(path => fixture + path).ToArray(), ignoreOrder: false,
+            customMessage: "SM2_INCLUSION_RULE_VIOLATION");
+        string[] authored = Directory.EnumerateFiles(Path.Combine(root, fixture), "*", SearchOption.AllDirectories)
+            .Select(path => Path.GetRelativePath(root, path).Replace('\\', '/'))
+            .Where(path => !path.Split('/').Any(part => part is "bin" or "obj" or ".git")
+                && !path.EndsWith("/packages.lock.json", StringComparison.Ordinal))
+            .Order(StringComparer.Ordinal).ToArray();
+        authored.ShouldBe(actual.Order(StringComparer.Ordinal).ToArray(), "SM2_SOURCE_INVENTORY_DRIFT");
+        GitFacts git = new();
+        string candidate = document.RootElement.GetProperty("candidate").GetProperty("commit").GetString()!;
+        int physical = 0;
+        int nonblank = 0;
+        EvidenceManifest manifest = new();
+        foreach (JsonElement row in rows)
+        {
+            string path = row.GetProperty("path").GetString()!;
+            row.GetProperty("included").GetBoolean().ShouldBeTrue("SM2_INCLUSION_RULE_VIOLATION");
+            row.GetProperty("category").GetString().ShouldNotBeNullOrWhiteSpace("SM2_INCLUSION_RULE_VIOLATION");
+            row.GetProperty("reason").GetString().ShouldNotBeNullOrWhiteSpace("SM2_INCLUSION_RULE_VIOLATION");
+            byte[] bytes = RepositoryLocator.ReadAllBytes(Path.Combine(root, path));
+            string[] lines = RepositoryLocator.ReadAllLines(Path.Combine(root, path));
+            int countedNonblank = lines.Count(line => !string.IsNullOrWhiteSpace(line));
+            row.GetProperty("bytes").GetInt32().ShouldBe(bytes.Length, "SM2_MEASUREMENT_INVALID");
+            row.GetProperty("physicalLoc").GetInt32().ShouldBe(lines.Length, "SM2_MEASUREMENT_INVALID");
+            row.GetProperty("nonblankLoc").GetInt32().ShouldBe(countedNonblank, "SM2_MEASUREMENT_INVALID");
+            GitFact<GitBlob> blob = await git.ReadBlobAsync(root, candidate, path, TestContext.Current.CancellationToken);
+            blob.IsSuccess.ShouldBeTrue("CHECKPOINT_CANDIDATE_MISMATCH");
+            blob.Value!.Content.ShouldBe(bytes, "SM2_MEASUREMENT_INVALID");
+            manifest.Add(path, row.GetProperty("sha256").GetString()!, "authored-source");
+            physical += lines.Length;
+            nonblank += countedNonblank;
+        }
+        AssertionLedger ledger = new();
+        manifest.Verify(root, manifest.ComputeSignablePayloadHash(), ledger);
+        ledger.Evaluate().Result.ShouldBe("PASS", "SM2_MEASUREMENT_INVALID");
+        measurement.GetProperty("fileCount").GetInt32().ShouldBe(expected.Length, "SM2_MEASUREMENT_INVALID");
+        measurement.GetProperty("physicalLoc").GetInt32().ShouldBe(physical, "SM2_MEASUREMENT_INVALID");
+        measurement.GetProperty("nonblankLoc").GetInt32().ShouldBe(nonblank, "SM2_MEASUREMENT_INVALID");
+        WriteV2Receipt(document.RootElement);
+        output.WriteLine($"story113_measured_totals={expected.Length}/{physical}/{nonblank}");
+    }
+
+    /// <summary>Verifies immutable historical bytes against independent literal pins.</summary>
+    [Fact]
+    public void HistoricalBaselinesShouldRemainByteIdentical()
+    {
+        string root = FindRepositoryRoot();
+        EvidenceManifest manifest = new();
+        manifest.Add("docs/release-evidence/consume-promote-keep-inventory-v1.json",
+            "20bbedb5d0aa1dcd35729aac6a8500f7cf75d8f0c0719b8e1364da5e19fa22b7", "SM1");
+        manifest.Add("docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json",
+            "14de3c86628cb4f900008be42d086a7699ae0869b3b791f92c810ab921192e03", "SM2-v1");
+        manifest.Add("docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.md",
+            "1cb37b3ddbc9186748c7556a87e5c08feb15d8dee30f4a1b0362bcd5536297fd", "SM2-v1");
+        AssertionLedger ledger = new();
+        manifest.Verify(root, manifest.ComputeSignablePayloadHash(), ledger);
+        ledger.Evaluate().Result.ShouldBe("PASS", "SM1_BASELINE_MUTATED or SM2_V1_HISTORY_MUTATED");
+        using JsonDocument sm1 = JsonDocument.Parse(RepositoryLocator.ReadAllBytes(
+            Path.Combine(root, "docs/release-evidence/consume-promote-keep-inventory-v1.json")));
+        sm1.RootElement.GetProperty("plumbingBaselineLoc").GetInt32().ShouldBe(13289, "SM1_BASELINE_MUTATED");
+        using JsonDocument evidence = LoadV2Json();
+        WriteV2Receipt(evidence.RootElement);
+    }
+
+    private static JsonDocument LoadV2Json()
+        => JsonDocument.Parse(RepositoryLocator.ReadAllBytes(Path.Combine(ReleaseEvidenceDirectory(),
+            "minimal-module-authoring-cost-sm2-v2.json")));
+
+    private void WriteV2Receipt(JsonElement evidence)
+    {
+        string version = typeof(MinimalModuleAuthoringCostBaselineValidationTest).Assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
+        output.WriteLine("story113_source_revision=" + version);
+        output.WriteLine("story113_candidate=" + evidence.GetProperty("candidate").GetProperty("commit").GetString());
+        byte[] bytes = RepositoryLocator.ReadAllBytes(Path.Combine(ReleaseEvidenceDirectory(),
+            "minimal-module-authoring-cost-sm2-v2.json"));
+        output.WriteLine("story113_evidence_sha256=" + Convert.ToHexStringLower(SHA256.HashData(bytes)));
     }
 
     private static JsonDocument LoadBaselineJson()
