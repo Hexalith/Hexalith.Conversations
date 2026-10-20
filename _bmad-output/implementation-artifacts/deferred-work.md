@@ -619,3 +619,9 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md`
   summary: Restore the historical October 8 package-refresh validation profile independently of the current SDK/package pins.
   evidence: `python3 _bmad/scripts/check_package_refresh_environment.py --repository . --check` exits 1 with `REFRESH_SDK_DRIFT`; commit `7f67adb8bb67b668dd37d64e9d4795e37dcfb758` applies SDK 10.0.402 and servicing 10.0.13 to the accepted record's candidate using SDK 10.0.401 and servicing 10.0.12. This predates the current Story 11.2 repair; keep the accepted evidence unchanged and select a historical profile in a separate fix.
+
+## Deferred from: code review of spec-11-2 (2026-10-20)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md`
+  summary: The fixture's `ProjectReference` `ItemDefinitionGroup` makes `MinimalModule.Contracts` and `MinimalModule.Server` build twice in one solution build, risking concurrent writes to the same `obj` and `bin` paths.
+  evidence: Medium. Moving `AdditionalProperties` to the four platform references (measured at `cb11f93`) misses the SDK's transitive references, which then built `Client`, `ServiceDefaults` and `Contracts` in Debug into the shared EventStore `bin/Debug`. The frozen 13-path inventory admits no build file that sets the policy globally. Settle by listing the platform projects in the fixture `.slnx`, if the thin-module recipe accepts it.
