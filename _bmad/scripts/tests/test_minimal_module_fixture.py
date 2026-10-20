@@ -64,7 +64,8 @@ def generate(repo: Path) -> subprocess.CompletedProcess:
                "--output-markdown", MD_OUT, cwd=repo)
 
 
-def verify(repo: Path, *, inventory_only: bool = False, with_proof: bool = False) -> tuple[int, list[str]]:
+def verify(repo: Path, *, inventory_only: bool = False, with_proof: bool = False,
+           candidate: str | None = None) -> tuple[int, list[str]]:
     args = ["--repository", ".", "--contract", CONTRACT, "--fixture", FIXTURE, "--output", OUT]
     if inventory_only:
         args.append("--inventory-only")
@@ -72,6 +73,8 @@ def verify(repo: Path, *, inventory_only: bool = False, with_proof: bool = False
         args += ["--test-result", TRX]
     if with_proof:
         args += ["--proof-json", JSON_OUT, "--proof-markdown", MD_OUT]
+    if candidate:
+        args += ["--candidate", candidate]
     result = run("verify_minimal_module_fixture.py", *args, cwd=repo)
     report = json.loads((repo / OUT).read_text(encoding="utf-8"))
     return result.returncode, [item["code"] for item in report["blockers"]]
@@ -130,6 +133,7 @@ def write_platform_stubs(repo: Path) -> None:
     # A real, deterministic local checkout proves the same identity/cleanliness contract as the live submodule.
     platform = repo / proof.PLATFORM_ROOT
     (platform / "src/PlatformFixture.cs").write_text("// Hermetic platform source.\n", encoding="utf-8", newline="\n")
+    (platform / ".gitignore").write_text("bin/\nobj/\n", encoding="utf-8", newline="\n")
     git(platform, "init", "--quiet")
     git(platform, "config", "user.email", "fixture@example.invalid")
     git(platform, "config", "user.name", "Fixture")
@@ -138,6 +142,18 @@ def write_platform_stubs(repo: Path) -> None:
     subprocess.run(["git", "commit", "--quiet", "-m", "test: platform fixture"], cwd=platform,
                    env={**os.environ, "GIT_AUTHOR_DATE": "2000-01-01T00:00:00Z",
                         "GIT_COMMITTER_DATE": "2000-01-01T00:00:00Z"}, check=True, capture_output=True)
+
+
+def write_platform_assemblies(repo: Path) -> None:
+    """Platform assemblies copied into the consuming test output, identical to the platform Release outputs."""
+    tests_bin = repo / FIXTURE / "tests/Hexalith.Conversations.MinimalModule.Tests" / proof.OUTPUT_DIRECTORY
+    tests_bin.mkdir(parents=True, exist_ok=True)
+    for relative in PLATFORM_STUBS:
+        name = Path(relative).stem
+        release = repo / Path(relative).parent / proof.OUTPUT_DIRECTORY
+        release.mkdir(parents=True, exist_ok=True)
+        for directory in (tests_bin, release):
+            (directory / f"{name}.dll").write_bytes(f"platform assembly {name}".encode())
 
 
 def write_measured_command_inputs(repo: Path) -> dict[str, bytes]:
@@ -178,11 +194,7 @@ def repo(tmp_path: Path) -> Path:
     git(tmp_path, "add", "--all")
     git(tmp_path, "commit", "--quiet", "-m", "test: fixture candidate")
     # Build outputs and the measured result are generated, untracked inputs.
-    names = {Path(path).stem for path in PLATFORM_STUBS}
-    tests_bin = tmp_path / FIXTURE / "tests/Hexalith.Conversations.MinimalModule.Tests" / proof.OUTPUT_DIRECTORY
-    tests_bin.mkdir(parents=True, exist_ok=True)
-    for name in sorted(names):
-        (tests_bin / f"{name}.dll").write_bytes(f"platform assembly {name}".encode())
+    write_platform_assemblies(tmp_path)
     for relative in verifier.EXPECTED_PROJECTS:
         directory = tmp_path / FIXTURE / Path(relative).parent / proof.OUTPUT_DIRECTORY
         directory.mkdir(parents=True, exist_ok=True)
@@ -253,20 +265,23 @@ def test_proof_without_assembly_rederivation_rejects_resigned_execution_facts(re
     assert expected in errors[0]["message"]
 
 
-@pytest.mark.parametrize("variant", ["different-head", "dirty-source", "staged-source", "uninitialized"])
+@pytest.mark.parametrize("variant", ["different-head", "dirty-source", "staged-source", "untracked-source", "uninitialized"])
 def test_platform_checkout_is_checked_before_measurement_and_proof_acceptance(repo: Path, monkeypatch, variant: str) -> None:
     platform = repo / proof.PLATFORM_ROOT
     if variant == "different-head":
         git(platform, "commit", "--quiet", "--allow-empty", "-m", "test: advance the platform checkout")
     elif variant == "uninitialized":
         shutil.rmtree(platform / ".git")
+    elif variant == "untracked-source":
+        # SDK globbing would compile this file into the platform assembly.
+        (platform / "src/UntrackedPlatform.cs").write_text("// Untracked platform source.\n", encoding="utf-8")
     else:
         (platform / "src/PlatformFixture.cs").write_text("// Changed platform source.\n", encoding="utf-8")
         if variant == "staged-source":
             git(platform, "add", "src/PlatformFixture.cs")
     errors = verifier.verify_proof(repo, FIXTURE, JSON_OUT, MD_OUT, TRX, rederive=False)
     assert errors and errors[0]["code"] == verifier.BLOCK_PROOF
-    expected = {"different-head": "HEAD differs", "uninitialized": "not initialized"}.get(variant, "tracked source changes")
+    expected = {"different-head": "HEAD differs", "uninitialized": "not initialized"}.get(variant, "uncommitted source changes")
     assert expected in errors[0]["message"]
     result = generate(repo)
     assert result.returncode == 1 and verifier.BLOCK_PROOF in result.stderr and expected in result.stderr
@@ -281,7 +296,8 @@ def test_platform_checkout_is_checked_before_measurement_and_proof_acceptance(re
         command_runner.measure(repo, "AC-11.2-02")
 
 
-@pytest.mark.parametrize("binding", ["lock-file", "guidance-markdown", "guidance-source", "platform-project"])
+@pytest.mark.parametrize("binding", ["lock-file", "guidance-markdown", "guidance-source", "platform-project",
+                                     "restore-source", "apphost-sdk"])
 def test_proof_without_assembly_rederivation_checks_every_source_binding(repo: Path, binding: str) -> None:
     bundle = json.loads((repo / JSON_OUT).read_bytes())
     if binding == "lock-file":
@@ -289,6 +305,10 @@ def test_proof_without_assembly_rederivation_checks_every_source_binding(repo: P
         target.write_bytes(target.read_bytes() + b"\n")
     elif binding == "platform-project":
         bundle["resolvedPublicApis"]["projects"][0]["sha256"] = "2" * 64
+    elif binding == "restore-source":
+        bundle["restore"]["sources"] = ["https://feed.invalid/v3/index.json"]
+    elif binding == "apphost-sdk":
+        bundle["build"]["toolVersions"]["aspireAppHostSdk"] = "Aspire.AppHost.Sdk/13.6.2"
     else:
         field = "bundleMarkdownSha256" if binding == "guidance-markdown" else "sourceSha256"
         bundle["guidanceDigest"][field] = "2" * 64
@@ -323,6 +343,112 @@ def test_command_wrapper_executes_the_frozen_command_and_retains_failure(repo: P
     assert receipt["exitCode"] == 17 and receipt["consoleLog"] == "NuGet/build failed\n"
     with pytest.raises(ValueError, match="measured receipt is invalid"):
         verifier.command_receipt(repo, scenario)
+
+
+@pytest.mark.parametrize("scenario", tuple(verifier.COMMAND_RECEIPTS))
+def test_command_wrapper_success_receipt_is_accepted_by_its_consumer(repo: Path, monkeypatch, scenario: str) -> None:
+    caches = [repo / FIXTURE / Path(project).parent / "obj/project.nuget.cache" for project in verifier.EXPECTED_PROJECTS]
+    for cache in caches:
+        cache.write_text("{}\n", encoding="utf-8")
+    real_run = subprocess.run
+
+    def execute(arguments, **kwargs):
+        if arguments[0] == "git":
+            return real_run(arguments, **kwargs)
+        if "msbuild" in arguments:
+            return subprocess.CompletedProcess(arguments, 0, "true\n", "")
+        # The locked restore must re-validate every lock file instead of taking NuGet's no-op path.
+        assert scenario != "AC-11.2-02" or not any(cache.exists() for cache in caches)
+        return subprocess.CompletedProcess(arguments, 0, "Measured success\n")
+
+    monkeypatch.setattr(command_runner.subprocess, "run", execute)
+    assert command_runner.main(["--repository", str(repo), "--scenario", scenario]) == 0
+    measured = verifier.command_receipt(repo, scenario)
+    assert measured["exitCode"] == 0 and measured["consoleLog"] == "Measured success\n"
+    assert [cache.exists() for cache in caches] == [scenario == "AC-11.2-03"] * len(caches)
+
+
+@pytest.mark.parametrize("evaluation", ["false", "failure"])
+def test_command_wrapper_measures_warnings_as_errors_in_every_project(repo: Path, monkeypatch, evaluation: str) -> None:
+    real_run = subprocess.run
+
+    def execute(arguments, **kwargs):
+        if arguments[0] == "git":
+            return real_run(arguments, **kwargs)
+        if "msbuild" in arguments:
+            if arguments[2].endswith(SERVER):
+                return subprocess.CompletedProcess(arguments, 0 if evaluation == "false" else 1,
+                                                   "false\n" if evaluation == "false" else "", "")
+            return subprocess.CompletedProcess(arguments, 0, "true\n", "")
+        return subprocess.CompletedProcess(arguments, 0, "Build succeeded.\n")
+
+    monkeypatch.setattr(command_runner.subprocess, "run", execute)
+    assert command_runner.main(["--repository", str(repo), "--scenario", "AC-11.2-03"]) == 0
+    assert json.loads((repo / verifier.COMMAND_RECEIPTS["AC-11.2-03"]).read_bytes())["warningsAsErrors"] is False
+    with pytest.raises(ValueError, match="measured receipt is invalid"):
+        verifier.command_receipt(repo, "AC-11.2-03")
+
+
+@pytest.mark.parametrize("scenario", tuple(verifier.COMMAND_RECEIPTS))
+def test_proof_rejects_a_different_valid_measured_receipt(repo: Path, scenario: str) -> None:
+    target = repo / verifier.COMMAND_RECEIPTS[scenario]
+    receipt = json.loads(target.read_bytes())
+    receipt["consoleLog"] = "Measured again after the proof\n"
+    target.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8", newline="\n")
+    verifier.command_receipt(repo, scenario)  # still a successful execution of the frozen command
+    errors = verifier.verify_proof(repo, FIXTURE, JSON_OUT, MD_OUT, TRX, rederive=False)
+    section = "restore" if scenario == "AC-11.2-02" else "build"
+    assert errors and f"the proof differs from the measured {section} receipt" in errors[0]["message"]
+
+
+@pytest.mark.parametrize("variant", ["other-feed", "missing-metadata", "fallback-folder"])
+def test_restore_sources_read_each_package_metadata_in_folder_order(repo: Path, variant: str) -> None:
+    folder = repo / FIXTURE / "obj/packages"
+    metadata = sorted(folder.rglob(".nupkg.metadata"))[0]
+    if variant == "other-feed":
+        metadata.write_text(json.dumps({"source": "https://feed.invalid/v3/index.json"}))
+    elif variant == "missing-metadata":
+        metadata.unlink()
+    else:
+        # NuGet lists the global packages folder first; a fallback folder that sorts earlier must not win.
+        fallback = repo / "a-fallback"
+        shutil.copytree(folder, fallback)
+        for copied in fallback.rglob(".nupkg.metadata"):
+            copied.write_text(json.dumps({"source": "https://fallback.invalid/v3/index.json"}))
+        for assets in (repo / FIXTURE).rglob("obj/project.assets.json"):
+            assets.write_text(json.dumps({"packageFolders": {str(folder): {}, str(fallback): {}}}))
+    result = generate(repo)
+    if variant == "missing-metadata":
+        assert result.returncode == 1 and verifier.BLOCK_RESTORE in result.stderr
+        assert "NuGet source metadata is missing" in result.stderr
+        return
+    assert result.returncode == 0, result.stderr
+    expected = {"other-feed": ["https://api.nuget.org/v3/index.json", "https://feed.invalid/v3/index.json"],
+                "fallback-folder": ["https://api.nuget.org/v3/index.json"]}[variant]
+    assert json.loads((repo / JSON_OUT).read_bytes())["restore"]["sources"] == expected
+
+
+@pytest.mark.parametrize("variant", ["missing", "different"])
+def test_proof_requires_platform_assemblies_from_their_release_outputs(repo: Path, variant: str) -> None:
+    release = repo / PLATFORM_SRC / "Hexalith.EventStore.Client" / proof.OUTPUT_DIRECTORY / "Hexalith.EventStore.Client.dll"
+    if variant == "missing":
+        release.unlink()
+    else:
+        release.write_bytes(b"platform assembly from another configuration")
+    result = generate(repo)
+    assert result.returncode == 1 and verifier.BLOCK_BUILD in result.stderr
+    assert "not its Release build output" in result.stderr
+
+
+def test_committed_proof_verifies_at_its_recorded_candidate(repo: Path) -> None:
+    candidate = verifier.git_head(repo)
+    git(repo, "add", "--", JSON_OUT, MD_OUT)
+    git(repo, "commit", "--quiet", "-m", "test: publish the fixture proof")
+    # A proof is always committed after its candidate, so HEAD alone can never bind it.
+    assert verify(repo, with_proof=True) == (1, [verifier.BLOCK_PROOF])
+    assert verify(repo, with_proof=True, candidate=candidate[:12]) == (0, [])
+    assert verifier.verify_proof(repo, FIXTURE, JSON_OUT, MD_OUT, TRX, candidate_commit=candidate) == []
+    assert verify(repo, with_proof=True, candidate="0" * 40) == (2, ["BLOCKED"])
 
 
 def test_committed_fixture_inventory_is_exact_and_source_controlled(tmp_path: Path) -> None:

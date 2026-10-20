@@ -12917,17 +12917,14 @@ def story112_fixture(tmp_path_factory):
         target = repository / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((WORKSPACE / relative).read_bytes())
-    from test_minimal_module_fixture import PLATFORM_STUBS, write_platform_stubs, write_measured_command_inputs  # noqa: PLC0415
+    from test_minimal_module_fixture import (  # noqa: PLC0415
+        write_measured_command_inputs, write_platform_assemblies, write_platform_stubs)
 
     write_platform_stubs(repository)
     run_git(repository, "add", "--force", "--", ".")
     run_git(repository, "commit", "--quiet", "--allow-empty", "-m", "test: story 11.2 candidate fixture")
     # Generated, untracked inputs: build outputs and the measured result.
-    names = {Path(path).stem for path in PLATFORM_STUBS}
-    tests_bin = repository / STORY_112_FIXTURE_ROOT / "tests/Hexalith.Conversations.MinimalModule.Tests" / proof.OUTPUT_DIRECTORY
-    tests_bin.mkdir(parents=True, exist_ok=True)
-    for name in sorted(names):
-        (tests_bin / f"{name}.dll").write_bytes(f"platform assembly {name}".encode())
+    write_platform_assemblies(repository)
     for relative in verifier.EXPECTED_PROJECTS:
         directory = repository / STORY_112_FIXTURE_ROOT / Path(relative).parent / proof.OUTPUT_DIRECTORY
         directory.mkdir(parents=True, exist_ok=True)
@@ -13122,6 +13119,18 @@ def test_story_112_restore_and_build_require_successful_measured_receipts(story1
         generator.v2_11_2_generate(options, read_receipt=changed.get)
 
 
+@pytest.mark.parametrize("scenario", ["AC-11.2-02", "AC-11.2-03"])
+def test_story_112_route_rejects_a_valid_receipt_the_proof_does_not_bind(story112_fixture, scenario):
+    generator, verifier, _, options, receipts = story112_fixture
+    path = verifier.COMMAND_RECEIPTS[scenario]
+    receipt = json.loads(receipts[path])
+    receipt["consoleLog"] = "Measured again after the proof\n"
+    changed = {**receipts, path: (json.dumps(receipt, indent=2) + "\n").encode()}
+    section = "restore" if scenario == "AC-11.2-02" else "build"
+    with pytest.raises(ValueError, match=f"the proof does not bind the measured {section} result"):
+        generator.v2_11_2_generate(options, read_receipt=changed.get)
+
+
 def test_story_112_pair_errors_reject_open_summary_unbound_proof_and_open_ledger(story112_fixture):
     generator, _, _, options, receipts = story112_fixture
     record = generator.v2_parse_json(generator.v2_11_2_generate(options, read_receipt=receipts.get))
@@ -13237,9 +13246,10 @@ def story112_published(story112_fixture, tmp_path):
     if run_git(clone, "diff", "--cached", "--name-only").stdout.strip():
         run_git(clone, "commit", "--quiet", "-m", "test: withdraw the published story 11.2 record")
     story112_write_receipts(clone, receipts)
-    from test_minimal_module_fixture import write_platform_stubs  # noqa: PLC0415
+    from test_minimal_module_fixture import write_measured_command_inputs, write_platform_stubs  # noqa: PLC0415
 
     write_platform_stubs(clone)
+    write_measured_command_inputs(clone)  # the measured restore state the proof's package sources come from
     for relative in (verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH):
         (clone / relative).write_bytes((repository / relative).read_bytes())
     _, proof = generator.v2_11_2_module()

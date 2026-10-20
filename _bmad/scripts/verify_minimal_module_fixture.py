@@ -181,6 +181,15 @@ def git_head(repository: Path) -> str | None:
     return result.stdout.strip() if result.returncode == 0 else None
 
 
+def resolve_commit(repository: Path, revision: str) -> str:
+    """Resolve a supplied candidate revision to its full commit id."""
+    result = subprocess.run(["git", "rev-parse", "--verify", "--quiet", f"{revision}^{{commit}}"], cwd=repository,
+                            capture_output=True, text=True, check=False)
+    if result.returncode or not result.stdout.strip():
+        raise Blocked(f"the candidate is not a commit: {revision}")
+    return result.stdout.strip()
+
+
 def eventstore_gitlink(repository: Path, commit: str) -> dict:
     """Read the platform identity from the candidate tree, without opening the submodule."""
     path = "references/Hexalith.EventStore"
@@ -210,10 +219,11 @@ def check_platform_checkout(repository: Path, candidate: str | None = None) -> l
         return [{"code": BLOCK_PROOF, "message": "the EventStore checkout is not initialized at the platform root"}]
     if git_head(root) != expected["commit"]:
         return [{"code": BLOCK_PROOF, "message": "the EventStore checkout HEAD differs from the candidate gitlink"}]
-    status = subprocess.run(["git", "status", "--porcelain=v1", "--untracked-files=no", "--ignore-submodules=none"],
+    # Untracked sources count too: SDK-style projects compile every *.cs file under their folder.
+    status = subprocess.run(["git", "status", "--porcelain=v1", "--untracked-files=all", "--ignore-submodules=none"],
                             cwd=root, capture_output=True, text=True, check=False)
     if status.returncode or status.stdout.strip():
-        return [{"code": BLOCK_PROOF, "message": "the EventStore checkout has tracked source changes"}]
+        return [{"code": BLOCK_PROOF, "message": "the EventStore checkout has uncommitted source changes"}]
     return []
 
 
@@ -547,7 +557,7 @@ def verify(repository: Path, fixture: str, inventory_only: bool, test_result: st
     blockers, inventory = check_inventory(repository, fixture)
     facts: dict = {"inventory": inventory, "predecessor": check_predecessor(repository)}
     head = git_head(repository) if is_git_repository(repository) else None
-    facts["candidate"] = {"commit": head}
+    facts["candidate"] = {"commit": candidate_commit or head}
     if not inventory_only:
         blockers += check_platform_checkout(repository, candidate_commit or head)
         graph_blockers, graph = check_graph(repository, fixture)
@@ -600,7 +610,7 @@ def verify_proof(repository: Path, fixture: str, proof_json: str, proof_markdown
         if committed["digests"]["markdownSha256"] != sha256_bytes(markdown):
             problems.append("the Markdown digest differs")
         if rederive:
-            fresh = proof.build_signable(repository, fixture, test_result)
+            fresh = proof.build_signable(repository, fixture, test_result, candidate_commit=candidate)
             if fresh != signable:
                 problems.append("the proof differs from the current fixture, result, or guidance")
         else:
@@ -641,7 +651,9 @@ def verify_proof(repository: Path, fixture: str, proof_json: str, proof_markdown
                     or committed["restore"]["lockFiles"] != sorted(locks, key=lambda row: row["path"])
                     or committed["restore"]["resolvedPackagesSha256"] != sha256_bytes(canonical(sorted(packages)))
                     or committed["restore"]["packageCount"] != len(packages)
+                    or committed["restore"]["sources"] != proof.restore_sources(repository, fixture, packages)
                     or committed["resolvedPublicApis"]["projects"] != projects
+                    or committed["build"]["toolVersions"]["aspireAppHostSdk"] != graph["graph"]["projects"][APPHOST_PROJECT]["sdk"]
                     or guidance_facts["bundleMarkdownSha256"] != predecessor["bundleMarkdownSha256"]
                     or guidance_facts["sourceSha256"] != predecessor["sourceSha256"]
                     or guidance_facts["bundleJsonSha256"] != predecessor["bundleJsonSha256"]
@@ -679,6 +691,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--test-result")
     parser.add_argument("--proof-json")
     parser.add_argument("--proof-markdown")
+    parser.add_argument("--candidate", help="committed candidate the proof binds (default: HEAD)")
     parser.add_argument("--output")
     args = parser.parse_args(argv)
     repository = Path(args.repository)
@@ -693,10 +706,11 @@ def main(argv: list[str] | None = None) -> int:
         except (ValueError, KeyError, TypeError):
             raise Blocked("story contract is not a valid Story 11.2 contract") from None
         fixture = args.fixture.replace("\\", "/").rstrip("/")
-        blockers, facts = verify(repository, fixture, args.inventory_only, args.test_result)
+        candidate = resolve_commit(repository, args.candidate) if args.candidate else None
+        blockers, facts = verify(repository, fixture, args.inventory_only, args.test_result, candidate_commit=candidate)
         if args.proof_json:
             blockers += verify_proof(repository, fixture, args.proof_json, args.proof_markdown or PROOF_MARKDOWN_PATH,
-                                     args.test_result or TEST_RESULT_PATH)
+                                     args.test_result or TEST_RESULT_PATH, candidate_commit=candidate)
         result, code = ("FAIL", 1) if blockers else ("PASS", 0)
     except Blocked as error:
         blockers, result, code = [{"code": "BLOCKED", "message": str(error)}], "BLOCKED", 2

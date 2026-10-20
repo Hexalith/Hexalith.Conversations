@@ -16,12 +16,3 @@ dotnet build Hexalith.Conversations.MinimalModule.slnx --configuration Release -
 
 The platform projects are referenced from `references/Hexalith.EventStore` and share their `obj` state
 with any other build of the umbrella, so always run the locked restore immediately before the build.
-
-For Checkpoint B evidence, run these wrappers from the repository root. Each executes the corresponding
-frozen contract command unchanged and records its exit code, console output and policy in
-`artifacts/v9/11.2/AC-11.2-02.log` or `AC-11.2-03.log` before generating the fixture proof.
-
-```text
-python3 _bmad/scripts/run_minimal_module_command.py --repository . --scenario AC-11.2-02
-python3 _bmad/scripts/run_minimal_module_command.py --repository . --scenario AC-11.2-03
-```

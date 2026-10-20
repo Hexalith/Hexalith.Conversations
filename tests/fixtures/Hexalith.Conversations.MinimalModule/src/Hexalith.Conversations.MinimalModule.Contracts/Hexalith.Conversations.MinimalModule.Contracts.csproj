@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <ProjectReference Include="$(FixtureEventStoreRoot)/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj" />
+    <ProjectReference Include="$(FixtureEventStoreRoot)/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj" AdditionalProperties="ShouldUnsetParentConfigurationAndPlatform=false" />
   </ItemGroup>
 </Project>

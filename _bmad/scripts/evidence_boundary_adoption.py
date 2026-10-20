@@ -29,7 +29,7 @@ APPROVED_READER_SUCCESSORS = {
     'tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs':
         '15e2b67d8173f692edd7ee5281b90d111f640fee2f2262e7458a64fe97d05fe9',
     'tests/Hexalith.Conversations.Contracts.Tests/Documentation/DomainModuleAuthoringTemplateValidationTest.cs':
-        'e50659d39237b2251fe0238f86f58a66b2b1d9fc7aaab77858b8f2702126f06f',
+        '0888d86a52046f8aa5100eb89cd6a31a42cb98339d64ea33664424071e233f86',
     'tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs':
         '4f37e50e2ff9564d0d07d571a88d6a80e6dbe8dbf9c2badd7dfcd41caa544c16',
 }

@@ -65,13 +65,13 @@ def lock_packages(content: bytes) -> list[tuple[str, str, str]]:
 
 def restore_sources(repository: Path, fixture: str, packages: set) -> list[str]:
     """Report actual package feeds from NuGet's global-package metadata, never inferred defaults."""
-    folders = set()
+    folders: dict[str, None] = {}  # assets-file order: the global packages folder precedes fallback folders
     for project in verifier.EXPECTED_PROJECTS:
         assets = f"{fixture}/{PurePosixPath(project).parent}/obj/project.assets.json"
-        folders.update(json.loads(verifier.read_file(repository, assets)).get("packageFolders", {}))
+        folders.update(dict.fromkeys(json.loads(verifier.read_file(repository, assets)).get("packageFolders", {})))
     sources = set()
     for name, version, _ in sorted(packages):
-        for folder in sorted(folders):
+        for folder in folders:
             metadata = Path(folder) / name.lower() / version.lower() / ".nupkg.metadata"
             if metadata.is_file():
                 source = json.loads(metadata.read_bytes()).get("source")
@@ -121,7 +121,7 @@ def find_assembly(repository: Path, fixture: str, project_dirs: list[str], name:
     raise ProofError(verifier.BLOCK_BUILD, f"build output is missing: {name}.dll (run AC-11.2-03)")
 
 
-def build_signable(repository: Path, fixture: str, test_result: str) -> dict:
+def build_signable(repository: Path, fixture: str, test_result: str, candidate_commit: str | None = None) -> dict:
     contract_bytes = verifier.read_file(repository, verifier.CONTRACT_PATH)
     try:
         contract = json.loads(contract_bytes)
@@ -133,7 +133,7 @@ def build_signable(repository: Path, fixture: str, test_result: str) -> dict:
     except (ValueError, KeyError, TypeError, StopIteration):
         raise Blocked("story contract is not a valid Story 11.2 contract") from None
 
-    blockers, facts = verifier.verify(repository, fixture, False, test_result)
+    blockers, facts = verifier.verify(repository, fixture, False, test_result, candidate_commit=candidate_commit)
     if blockers:
         first = blockers[0]
         raise ProofError(first["code"], "; ".join(f"{item['code']}: {item['message']}" for item in blockers))
@@ -184,6 +184,10 @@ def build_signable(repository: Path, fixture: str, test_result: str) -> dict:
         platform_projects.append({"name": PurePosixPath(path).stem, "path": path,
                                   "sha256": sha256_bytes(verifier.read_file(repository, path))})
         relative, digest = find_assembly(repository, fixture, ordered_dirs, PurePosixPath(path).stem)
+        # A copy that differs from the platform's own Release output came from another configuration or build.
+        release = repository / PurePosixPath(path).parent / OUTPUT_DIRECTORY / f"{PurePosixPath(path).stem}.dll"
+        if not release.is_file() or sha256_bytes(release.read_bytes()) != digest:
+            raise ProofError(verifier.BLOCK_BUILD, f"platform assembly is not its Release build output: {relative}")
         platform_assemblies.append({"name": PurePosixPath(path).stem, "path": relative, "sha256": digest})
 
     trx = verifier.read_file(repository, test_result)

@@ -601,6 +601,20 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md`
   summary: The proof generator hashes the first matching stale DLL, compares the local dotnet version to the committed one, does not contain output paths, and accepts an empty Include in platform project references.
   evidence: Edge-case review of `generate_minimal_module_fixture_proof.py`; low severity local-lane robustness.
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md`
+  summary: The AC-11.2-01 receipt carries neither the candidate commit nor the Story 11.1 predecessor digests, and the route takes the candidate from HEAD.
+  evidence: Medium. This extends the owner-accepted Story 11.1 deferral that receipts bind to the candidate only by mtime and name; the route reuses `v2_11_1_read_receipt`. Settle by embedding the candidate and predecessor digests in the receipt and recomputing them in pair verification.
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md`
+  summary: Assembly hashes embed the absolute checkout path (no `ContinuousIntegrationBuild` or `PathMap`), so `rederive=True` cannot reproduce the proof at another path.
+  evidence: Medium. Platform assemblies take the submodule's own props, which Story 11.2 may not edit; this follows the existing path-bound record convention and is settled with the deferred fixture CI lane.
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md`
+  summary: The registration test never shows that the platform host discovered `ConversationAggregate`; command handling calls the aggregate directly.
+  evidence: Medium, unverified. Settle by dispatching `CreateConversation` through the platform host's in-process command path in `MinimalModuleFixtureTests.cs`.
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md`
+  summary: The planning text says the 13 fixture paths are in "ordinal order", but the frozen digest `4fa26d6f…` matches only the listed order (sorted order gives `49521de4…`).
+  evidence: Low. The fix edits planning text in `epics.md`, and the frozen Story 11.2 spec repeats the wording; the code follows the digest.
+
+## Deferred from: build review of spec-11-2 (2026-10-20)
 
 - source_spec: `_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md`
   summary: Restore the historical October 8 package-refresh validation profile independently of the current SDK/package pins.

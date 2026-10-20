@@ -9,6 +9,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <Deterministic>true</Deterministic>
+    <!-- Platform references outside the solution keep its configuration; each one also passes this policy on
+         (AdditionalProperties) so transitive platform references build in Release too. -->
     <ShouldUnsetParentConfigurationAndPlatform>false</ShouldUnsetParentConfigurationAndPlatform>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
@@ -24,10 +26,4 @@
     <XunitV3Version>4.0.2</XunitV3Version>
     <XunitRunnerVersion>4.0.1</XunitRunnerVersion>
   </PropertyGroup>
-  <ItemDefinitionGroup>
-    <ProjectReference>
-      <!-- Keep the policy global across platform references outside this fixture solution. -->
-      <AdditionalProperties>ShouldUnsetParentConfigurationAndPlatform=false</AdditionalProperties>
-    </ProjectReference>
-  </ItemDefinitionGroup>
 </Project>

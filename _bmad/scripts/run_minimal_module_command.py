@@ -26,6 +26,11 @@ def measure(repository: Path, scenario: str) -> dict:
     arguments = shlex.split(command)
     policy = "lockedMode" if scenario == "AC-11.2-02" else "warningsAsErrors"
     enabled = "--locked-mode" in arguments
+    if scenario == "AC-11.2-02":
+        # A no-op restore skips lock-file validation, so drop each fixture project's no-op cache first.
+        for project in verifier.EXPECTED_PROJECTS:
+            cache = repository / verifier.FIXTURE_ROOT / Path(project).parent / "obj/project.nuget.cache"
+            cache.unlink(missing_ok=True)
     if scenario == "AC-11.2-03":
         enabled = True
         # Query each fixture project with the same configuration that the frozen build uses.
