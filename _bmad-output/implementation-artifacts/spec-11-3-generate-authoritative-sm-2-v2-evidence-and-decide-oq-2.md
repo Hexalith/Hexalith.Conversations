@@ -2,7 +2,7 @@
 title: 'Story 11.3: Generate authoritative SM-2 v2 evidence and decide OQ-2'
 type: 'feature'
 created: '2026-10-20'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_commit: '984daa891ad6afafa378bff305748bf3e62bc04c'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -25,6 +25,8 @@ context:
 
 **Never:** Alter fixture, guidance, predecessors, SM-2 v1, SM-1 `13,289`, dependencies or submodules; trust declared fixture counts; upgrade estimate confidence; restore retired authority routes. Rollback removes only 11.3 additions.
 
+**Owner decision, 2026-10-20:** Retain the approved historical reference of 58 estimated files / 1,460 estimated LOC. Fixture measurement may report high confidence only after complete source counting verifies; comparison confidence remains low. Set `oq2Decision` to `accepted` when the inclusive file threshold is met, explicitly qualifying attainment as against the accepted estimate; otherwise set it to `rejected`. Explain historical LOC limitations. Preserve v1 bytes and add no reference fixture or benchmark framework.
+
 ## I/O & Edge-Case Matrix
 
 | Scenario | Expected behavior | Blocker |
@@ -39,10 +41,6 @@ context:
 | Fault undetected or restoration differs | Fail matrix | `FAULT_NOT_DETECTED`; `FIXTURE_NOT_RESTORED` |
 
 </frozen-after-approval>
-
-## Open Questions
-
-1. Reference policy: retain the approved 58-file / 1,460-LOC estimate, label fixture measurement high confidence and comparison low, and qualify numeric `accepted` as estimate-based (recommended); or require a new measured reference for high comparison confidence (needs expanded scope/source inventory)? No historical source bodies support physical LOC remeasurement.
 
 ## Code Map
 
