@@ -1,0 +1,31 @@
+{
+  "kind": "source-revision-recheck",
+  "observed_on": "2026-10-20",
+  "original_source_audit_sha256": "27f8b76ca7fd8fa51d8e1812fdc41a6a23459b8c0999a67eba9637dfd7629435",
+  "original_inspected_and_implementation_test_source_revision": "c9f47dd5ba72918445dfd24a674a5b2c310589bd",
+  "later_observed_source_revision": "0785238dfe88e5d85b282a2edbdcbd0494d51b34",
+  "original_revision_is_ancestor": true,
+  "tracked_source_and_build_configuration_diff": "",
+  "contract_file_sha256": {
+    "src/Hexalith.EventStore.Contracts/Queries/OriginatingQueryContext.cs": "a69d7b497b9000b2b76c2a1c4046c65154b2ce5ce363c84c44e8731c88b709d1",
+    "src/Hexalith.EventStore.Contracts/Queries/QueryCallerAuthority.cs": "1729de65ba8e7e7c4851f3625dfbecdb2154fbbbfc275cfd392af4bfec86a93f",
+    "src/Hexalith.EventStore.DomainService/VerifiedQueryCaller.cs": "b799b9b224ed6c9119608a0c79139f10b62e2460ee1f929c6c5140dc6fc8fa1a",
+    "src/Hexalith.EventStore.DomainService/DomainQueryDispatcher.cs": "d6866e9e51c106c3eed0e3d005e4971f6987edc6c5fdccb7e64ee8e8afe32fc9",
+    "src/Hexalith.EventStore.ServiceDefaults/Authentication/QueryCallerAuthorityBinding.cs": "8423c2eb21eb640ec5bbc96167ee54bf5ac0b063c3bf174551148bd14524e8e1",
+    "src/Hexalith.EventStore/Controllers/QueriesController.cs": "b70ccbd1af468639d82ebe34a483d249026ee7e11f10f96566793dd11f63ba03"
+  },
+  "interpretation": "An external documentation/evidence commit moved the sibling HEAD after the original implementation tests. Tracked src and listed build configuration and the six audited source contract files are unchanged. Preserve the original audit and test attribution; no production or package acceptance follows.",
+  "changed_tracked_path_count": 586,
+  "changed_tracked_path_list_sha256": "e696fc8bbf9e41308f13f59e72bbf78a45445ea9002106e45b94986119ffa8a3",
+  "changed_top_level_path_counts": {
+    ".gitattributes": 1,
+    "_bmad-output": 583,
+    "docs": 2
+  },
+  "initial_recheck_blocker": {
+    "command_kind": "local Python source/archive final audit",
+    "exit_code": 1,
+    "assertion": "current sibling HEAD equals original inspected source revision",
+    "result": "External documentation/evidence-only commit moved HEAD. Corrected audit verifies ancestry, unchanged tracked src/build configuration and all original contract hashes; original source audit and tests are not relabeled."
+  }
+}

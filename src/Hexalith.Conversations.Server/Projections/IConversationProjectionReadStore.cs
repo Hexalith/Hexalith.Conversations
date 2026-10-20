@@ -13,6 +13,12 @@ namespace Hexalith.Conversations.Server.Projections;
 /// </summary>
 public interface IConversationProjectionReadStore
 {
+    /// <summary>Reads only isolated resolution metadata and its lasting generation proof.</summary>
+    /// <returns>Null for absence; older implementations conservatively supply no evidence.</returns>
+    ValueTask<ConversationResolutionMetadataReadModel?> ReadResolutionMetadataAsync(
+        TenantId tenantId, ConversationId conversationId, CancellationToken cancellationToken = default)
+        => ValueTask.FromException<ConversationResolutionMetadataReadModel?>(new ConversationProjectionConsistencyException());
+
     /// <summary>
     /// Reads the projected summary/detail pair.
     /// </summary>

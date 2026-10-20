@@ -1072,6 +1072,11 @@ internal static class ContractSamples
         Freshness,
         FreshnessV1,
         new GetConversationQuery(Version, Tenant, "caller-001", "correlation-001", Conversation),
+        new GetConversationResolutionMetadataQuery(),
+        new ConversationResolutionMetadataV1(Conversation.Value, Project.Value, "Case 123", "Open"),
+        new ConversationResolutionMetadataResultV1(
+            new(Conversation.Value, Project.Value, "Case 123", "Open"), FreshnessV1,
+            FreshnessV1.ProjectionCursor, "[7,\"native-watermark-7\"]", EventMetadata.OccurredAt),
         new ConversationTemporalAnchorV1(
             Version,
             Tenant,

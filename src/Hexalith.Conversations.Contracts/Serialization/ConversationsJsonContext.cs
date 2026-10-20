@@ -27,6 +27,9 @@ namespace Hexalith.Conversations.Contracts.Serialization;
 /// Source-generated JSON metadata for the public Conversations contract surface.
 /// </summary>
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
+[JsonSerializable(typeof(GetConversationResolutionMetadataQuery))]
+[JsonSerializable(typeof(ConversationResolutionMetadataV1))]
+[JsonSerializable(typeof(ConversationResolutionMetadataResultV1))]
 [JsonSerializable(typeof(ConversationAgentsOutcome))]
 [JsonSerializable(typeof(ConversationDeletionSourceResult))]
 [JsonSerializable(typeof(ConversationDeletionSignal))]

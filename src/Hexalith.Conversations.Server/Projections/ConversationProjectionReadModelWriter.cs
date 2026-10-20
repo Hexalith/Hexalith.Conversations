@@ -26,9 +26,9 @@ namespace Hexalith.Conversations.Server.Projections;
 /// generation wins). Re-applying the same materialization yields the same persisted value (NFR5).
 /// </para>
 /// <para>
-/// The production named projection handler publishes a pending dispatch reference through this writer before
-/// the detail key changes, then persists the detail and completed index generation. This ordering lets readers
-/// detect every partial generation and fail closed until the dispatch ledger is completed.
+/// The production named handler claims its outer metadata proof before using the established rich CAS writes.
+/// Public direct writes persist a content-free invalidation barrier before advancing legacy components;
+/// a strictly newer verified generation is required to reopen metadata while such writers could resume.
 /// </para>
 /// </remarks>
 public sealed class ConversationProjectionReadModelWriter
@@ -62,6 +62,15 @@ public sealed class ConversationProjectionReadModelWriter
         ArgumentNullException.ThrowIfNull(models);
         ArgumentException.ThrowIfNullOrWhiteSpace(models.DispatchId);
 
+        await new ConversationResolutionMetadataPersistence(_store).InvalidateAsync(
+            models.Summary.TenantId, models.Summary.ConversationId, models.Summary.Freshness.LastAppliedEventPosition,
+            models.DispatchId, cancellationToken, requiresNewerGeneration: true).ConfigureAwait(false);
+        await PersistGenerationAsync(models, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Writes rich components after the production handler has claimed its outer proof.</summary>
+    internal async Task PersistGenerationAsync(ConversationProjectedReadModels models, CancellationToken cancellationToken)
+    {
         ConversationSummaryProjectionV1 summary = models.Summary;
         string conversationKey = ConversationProjectionReadModelKeys.ConversationKey(summary.TenantId, summary.ConversationId);
 
@@ -136,6 +145,15 @@ public sealed class ConversationProjectionReadModelWriter
         ArgumentNullException.ThrowIfNull(models);
         ArgumentException.ThrowIfNullOrWhiteSpace(models.DispatchId);
 
+        await new ConversationResolutionMetadataPersistence(_store).InvalidateAsync(
+            models.Summary.TenantId, models.Summary.ConversationId, models.Summary.Freshness.LastAppliedEventPosition,
+            models.DispatchId, cancellationToken, requiresNewerGeneration: true).ConfigureAwait(false);
+        await MarkGenerationPendingAsync(models, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Marks the legacy index after the production handler has claimed its outer proof.</summary>
+    internal async Task MarkGenerationPendingAsync(ConversationProjectedReadModels models, CancellationToken cancellationToken)
+    {
         ConversationSummaryProjectionV1 summary = models.Summary;
         ConversationProjectionIndexReadModel incoming = new()
         {
@@ -259,6 +277,15 @@ public sealed class ConversationProjectionReadModelWriter
                 ConversationProjectionReadModelKeys.ConversationKey(tenantId, conversationId),
                 cancellationToken)
             .ConfigureAwait(false);
+        ReadModelEntry<ConversationResolutionMetadataReadModel> metadata = await _store
+            .GetAsync<ConversationResolutionMetadataReadModel>(ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenantId, conversationId), cancellationToken)
+            .ConfigureAwait(false);
+        if (metadata.Value?.DispatchId == dispatchId)
+        {
+            return false;
+        }
+
         ReadModelEntry<ConversationProjectionIndexReadModel> current = await _store
             .GetAsync<ConversationProjectionIndexReadModel>(
                 ConversationProjectionReadModelKeys.StateStoreName,
@@ -373,7 +400,7 @@ public sealed class ConversationProjectionReadModelWriter
         };
     }
 
-    private static int CompareGeneration(
+    internal static int CompareGeneration(
         long incomingPosition,
         string incomingDispatchId,
         long existingPosition,

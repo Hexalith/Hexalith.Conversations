@@ -1,0 +1,85 @@
+{
+  "scope": "Local source AppHost startup/health smoke only; no owner query, gateway integration or production acceptance",
+  "attempts": [
+    {
+      "command": "aspire start --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --non-interactive",
+      "exit_code": 2,
+      "result": "Default unchanged dependency graph lacks OriginatingQueryContext/VerifiedQueryCaller.OriginatingContext (CS0246/CS1061; nine errors). No pin or package change made."
+    },
+    {
+      "command": "HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore aspire start --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --non-interactive",
+      "exit_code": 2,
+      "result": "Detached startup still built against the old API. Explicit MSBuild source property and prebuilt startup used next."
+    },
+    {
+      "command": "dotnet build src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj -c Debug -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore -m:1",
+      "exit_code": 0,
+      "warnings": 2,
+      "errors": 0,
+      "warning_code": "NU1902",
+      "warning_package": "existing MessagePack 2.5.302",
+      "log_sha256": "4f741e00c9e80ee05e39c4833661ee253c3cecb3f7d8256183dafe0da3892f97"
+    },
+    {
+      "command": "aspire start --no-build --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --non-interactive",
+      "exit_code": 0
+    },
+    {
+      "command": "aspire describe --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --format Json --non-interactive",
+      "exit_code": 0
+    },
+    {
+      "command": "aspire stop --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --non-interactive",
+      "exit_code": 0,
+      "result": "Stopped the instance started for this smoke check."
+    }
+  ],
+  "resource_summary": [
+    {
+      "name": "conversations-admin-web-mtbdmktv",
+      "resourceType": "Project",
+      "state": "Running",
+      "healthStatus": "Healthy"
+    },
+    {
+      "name": "conversations-dapr-cli-kvpzzpbe",
+      "resourceType": "Executable",
+      "state": "Running",
+      "healthStatus": "Healthy"
+    },
+    {
+      "name": "conversations-thefjqha",
+      "resourceType": "Project",
+      "state": "Running",
+      "healthStatus": "Healthy"
+    },
+    {
+      "name": "eventstore-dapr-cli-tvmupbss",
+      "resourceType": "Executable",
+      "state": "Running",
+      "healthStatus": "Healthy"
+    },
+    {
+      "name": "eventstore-hrsfvjbn",
+      "resourceType": "Project",
+      "state": "Finished"
+    },
+    {
+      "name": "security-dgcrtvrn",
+      "resourceType": "Container",
+      "state": "Running",
+      "healthStatus": "Healthy"
+    }
+  ],
+  "limitations": [
+    "Conversations, Admin and Security were Running/Healthy; gateway resource was Finished. No successful gateway or production owner-query integration claim.",
+    "Full original source tests/receipts remain the behavior proof. No authorization grant, freshness lease, package qualification or native recovery acceptance is created by AppHost health."
+  ],
+  "archive": {
+    "path": "apphost-source-build-receipt.zip",
+    "sha256": "928d3cd2fb5dd52d5d2b1b237c7afbec0682754f865ef95cbc79776b148544cd",
+    "member": "apphost-source-build.log"
+  },
+  "source_snapshot_record": "implementation-verification-loopback1.json",
+  "stage": "Smoke executed before the final private-key/completion verification patch; not a final end-to-end acceptance run."
+}

@@ -1,0 +1,113 @@
+{
+  "scope": "Executed source test matrix only; methods/cases overlap and must not be added into a separate acceptance total",
+  "native_report_archive": "source-verification-final-receipts.zip",
+  "native_report_member": "final-main-server.xml",
+  "native_report_sha256": "8ecc5f7f0c0ac2d77259a7cf1f2750d3f86eb5d2bb50a3120a74cc85578f113f",
+  "full_executed_passed": 1005,
+  "coverage": [
+    {
+      "requirement": "current_actor_exact_resource_and_fixed_scoring_purpose",
+      "methods": [
+        "VerifiedCurrentReadReturnsOnlyClassifiedSubsetAndNativeEvidenceWithoutMutations",
+        "UnsupportedAuthorityAndPurposeDenyBeforeLookup",
+        "PersistedOwnerClassificationIsRequiredAndInspectionPurposeCannotBorrowReadAuthority"
+      ],
+      "executed_passed_cases": 17
+    },
+    {
+      "requirement": "current_native_permission_evidence_or_honest_unavailability",
+      "methods": [
+        "NonNullDecisionEvidenceMustIndependentlyMatchStableHealthySignalBeforeLookup",
+        "RealAccessServiceCannotInventCurrentRevisionFromHealthySignalOrTenantObservation",
+        "NativeEvidenceChangingInsideThePolicyCheckWithholdsBeforeLookup",
+        "NonCurrentNativePermissionEvidenceWithholdsBeforeLookup"
+      ],
+      "executed_passed_cases": 11
+    },
+    {
+      "requirement": "zero_detail_transcript_hydration_tenant_index_retrieval_and_zero_query_writes",
+      "methods": [
+        "VerifiedCurrentReadReturnsOnlyClassifiedSubsetAndNativeEvidenceWithoutMutations",
+        "ActualNativeRawEnvelopeAndMarkerReadsRemainContentFreeWithoutWrites",
+        "ReaderRacingACompletedGateCannotFetchRichRecoveryManifestThroughMetadata",
+        "ProductionSdkRebuildWithLegacyCoexistenceKeepsEveryVisibleMarkerContentFree"
+      ],
+      "executed_passed_cases": 5
+    },
+    {
+      "requirement": "indistinguishable_safe_denial",
+      "methods": [
+        "DeniedAbsentAndCrossTenantAreIndistinguishable"
+      ],
+      "executed_passed_cases": 3
+    },
+    {
+      "requirement": "stable_generation_and_authority_across_reads",
+      "methods": [
+        "AuthorityAndGenerationMustRemainStableThroughEveryLookup",
+        "TwoIndividuallyCoherentDifferentCompletedGenerationsCannotBeCombinedAcrossOwnerChecks",
+        "ProofChangingDuringReadIsUnavailableEvenWhenMetadataMatchedTheFirstProof",
+        "UnsupportedFreshnessSchemaIsWithheldEvenWhenProofAndMetadataAgree"
+      ],
+      "executed_passed_cases": 7
+    },
+    {
+      "requirement": "durable_live_recovery_and_concurrent_winner",
+      "methods": [
+        "LedgerExpiryAndRestartRecoverOriginalGenerationAndRejectIdentityReuse",
+        "InterruptedOwnerWritesNeverReportFalseCompletionAndRetryPreservesTimestamp",
+        "InterruptedCoordinatedComponentsWithholdOrConvergeAfterRestart",
+        "OverlappingEqualPositionDispatchesConvergeOnOrdinalWinnerEvenWhenLoserResumesLast",
+        "NativeRebuildOverlappingNewerLiveProducerPreservesWinnerOrWithholdsUntilConvergence",
+        "SameGenerationRedeliveryCannotCompleteThroughInstalledNativeRebuildEnvelope",
+        "SupersededDeliveryRequiresActualCompletedWinnerLedgerOrGenuinelyExpiredAbsence",
+        "UnchangedOldRetryAfterThreeGenerationsAndLedgerExpiryPreservesWinningNativeGeneration"
+      ],
+      "executed_passed_cases": 35
+    },
+    {
+      "requirement": "barriers_direct_writers_and_rejected_newer_input",
+      "methods": [
+        "PublicWriterInvalidatesCompletedProofBeforeTouchingRichComponentsAndOlderWriterDoesNotPoisonNewerProof",
+        "PausedDirectWriterCannotReopenSameGenerationProofAndStrictlyNewerRetryConverges",
+        "RejectedEqualPositionOrdinalLoserCannotPoisonWinnerAndRejectedWinnerTupleCanBeRepaired",
+        "RejectedNewerInputPersistsOnlyObservedBarrierWhileOlderInvalidInputCannotPoisonWinner"
+      ],
+      "executed_passed_cases": 7
+    },
+    {
+      "requirement": "native_rebuild_scope_and_remaining_availability_dependency",
+      "methods": [
+        "SdkProducedSixOperationImmutablePlanResumesCoherentlyAtEveryInstallCommitAndCompactionBoundary",
+        "FreshProductionDispatcherRetryWithChangedClockWithholdsPartialRebuildEvidence"
+      ],
+      "executed_passed_cases": 30
+    },
+    {
+      "requirement": "exact_absent_and_bounded_label_without_truncation",
+      "methods": [
+        "LabelAbsenceAndExactBoundArePreservedWhileOverBoundScoringIsUnavailable",
+        "BoundedUnclassifiableLabelsWithholdCompleteScoringWithoutTruncation"
+      ],
+      "executed_passed_cases": 7
+    },
+    {
+      "requirement": "capacity_and_opaque_identifiers",
+      "methods": [
+        "LargeValidTranscriptUsesLegacyCasAndOnlyBoundedMetadataRecoveryManifests",
+        "GrowingTenantIndexBeyondManifestLimitDoesNotLimitLiveProjectionOrCoupleSiblingRecovery",
+        "LongOpaqueOwnerIdsRetainExactModelsWithBoundedDistinctNativeMetadataTokens"
+      ],
+      "executed_passed_cases": 4
+    },
+    {
+      "requirement": "cancellation_and_supported_host_activation",
+      "methods": [
+        "CancellationDuringEvidenceAwaitsPropagatesWithoutUsableResponse",
+        "NativeSdkDiscoveryEnrollsAndDispatchesAllHandlersInBothCompositionOrders"
+      ],
+      "executed_passed_cases": 5
+    }
+  ],
+  "acceptance_limit": "Source checks do not establish production permission freshness, signing/enrollment, package qualification or native original-plan rediscovery. Fresh dispatcher limitation is intentionally asserted as unavailable/failure, not marked accepted production recovery."
+}

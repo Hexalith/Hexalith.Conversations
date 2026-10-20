@@ -1,0 +1,38 @@
+{
+  "observed_on": "2026-10-20",
+  "kind": "source-contract-inspection",
+  "conversations_revision": "984daa891ad6afafa378bff305748bf3e62bc04c",
+  "eventstore_source_root": "/home/administrator/projects/hexalith/eventstore",
+  "eventstore_source_revision": "c9f47dd5ba72918445dfd24a674a5b2c310589bd",
+  "eventstore_root_declared_path": "references/Hexalith.EventStore",
+  "eventstore_root_declared_revision": "5d140359cc4021156ef32e8cb5e7bfa763a1f00c",
+  "source_override": "-p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore",
+  "contract_files": {
+    "src/Hexalith.EventStore.Contracts/Queries/OriginatingQueryContext.cs": "a69d7b497b9000b2b76c2a1c4046c65154b2ce5ce363c84c44e8731c88b709d1",
+    "src/Hexalith.EventStore.Contracts/Queries/QueryCallerAuthority.cs": "1729de65ba8e7e7c4851f3625dfbecdb2154fbbbfc275cfd392af4bfec86a93f",
+    "src/Hexalith.EventStore.DomainService/VerifiedQueryCaller.cs": "b799b9b224ed6c9119608a0c79139f10b62e2460ee1f929c6c5140dc6fc8fa1a",
+    "src/Hexalith.EventStore.DomainService/DomainQueryDispatcher.cs": "d6866e9e51c106c3eed0e3d005e4971f6987edc6c5fdccb7e64ee8e8afe32fc9",
+    "src/Hexalith.EventStore.ServiceDefaults/Authentication/QueryCallerAuthorityBinding.cs": "8423c2eb21eb640ec5bbc96167ee54bf5ac0b063c3bf174551148bd14524e8e1",
+    "src/Hexalith.EventStore/Controllers/QueriesController.cs": "b70ccbd1af468639d82ebe34a483d249026ee7e11f10f96566793dd11f63ba03"
+  },
+  "contract_worktree_diff": "",
+  "fields": {
+    "OriginalActorId": "original.OriginalActorId (authenticated original sub)",
+    "AuthenticatedWorkloadId": "original.AuthenticatedWorkloadId (azp/client_id/aud resolution), nullable",
+    "IsDelegated": "original.IsDelegated",
+    "DelegationId": "original.DelegationId (authenticated act.sub), nullable",
+    "Scopes": "original.Scopes, nullable defensive copy",
+    "Audience": "original.Audience, nullable defensive copy"
+  },
+  "verification": "QueriesController verifies nested authenticated-caller assertion and exact origin digest, requester proof and allowlist; sets delegated-owner-query authority with no roles and original permissions. Receiving DomainQueryDispatcher verifies exact wire envelope before setting private VerifiedQueryCaller feature. OriginatingContext comes from OriginalQuery, before local administrator revalidation. Outer owner-hop workload/delegation/audience remain distinct.",
+  "compatibility": "Origin context is required by this additive consumer. Null/empty original scopes/audience retain Projects compatibility; presented values must include projects.read / hexalith-eventstore ordinally. Neither scopes nor forwarded permissions substitute current owner tenant/member authorization.",
+  "permission_dependency": {
+    "commons_revision": "5c23c818f639c5bb3175f964c5549440bd5b876d",
+    "commons_source": "references/Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/TenantAccessEvaluator.cs: Allowed(request) omits ProjectionVersion/ProjectionWatermark",
+    "tenant_revision": "243d0c4a3f845e3f582a32c08e373651d978ff0e",
+    "tenant_source": "ITenantProjectionStore.GetAsync returns TenantLocalState without ETag/head/freshness; LastEvent is last locally observed event only",
+    "conversations_source": "DefaultConversationTenantProjectionSignal falls back to Healthy with null Version/Watermark; ConversationTenantAccessService faithfully maps successful missing evidence",
+    "required": "Native current tenant/member state coverage with version/watermark bound to successful authorization, including revoke/regrant; signal-capable store with head/gap/rollback/rebuild evidence and revision-preserving decision. Require stable evidence around read, never synthesize from clock or membership hash."
+  },
+  "acceptance": "Source inspection only. No production issuer/enrollment, package qualification, native permission acceptance or parent Story 6.4 acceptance is established."
+}

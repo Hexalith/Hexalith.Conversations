@@ -7,6 +7,7 @@ using Hexalith.Conversations.Server.Agents;
 using Hexalith.Conversations.Server.Hydration;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.EventStore.Client.Registration;
+using Hexalith.EventStore.DomainService;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -112,6 +113,9 @@ public static class ConversationQueryServiceCollectionExtensions
             UnavailablePrivilegedOperationalJustificationReviewSource.Instance);
         services.AddScoped<ConversationPrivilegedJustificationReviewService>();
         services.AddScoped<ConversationQueryHandler>();
+        services.AddHttpContextAccessor();
+        services.TryAddScoped<ConversationResolutionMetadataAuthorization>();
+        // The SDK discovers every IDomainQueryHandler in this assembly in either composition order.
         return services;
     }
 }

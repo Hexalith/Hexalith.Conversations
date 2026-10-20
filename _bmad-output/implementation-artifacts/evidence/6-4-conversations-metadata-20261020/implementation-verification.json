@@ -1,0 +1,296 @@
+{
+  "scope": "Routine Debug/source verification only; no production/package/native-current-permission acceptance",
+  "sourceOverride": "/home/administrator/projects/hexalith/eventstore",
+  "sourceRevision": "c9f47dd5ba72918445dfd24a674a5b2c310589bd",
+  "historicalEvidenceBoundaryGate": "not-applicable",
+  "builds": [
+    {
+      "command": "dotnet build tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj -c Debug -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore --no-restore -m:1",
+      "exitCode": 1,
+      "result": "Stale restored assets: CS1704 duplicate Commons.Serialization and missing source references; resolved by restoring the same Debug source graph.",
+      "logArchiveMember": "implementation-server-first-no-restore-build.log",
+      "logSha256": "2c165d57298a733fb044aa1ca096df638bd9c483d93499b773c88ad618a05eb0"
+    },
+    {
+      "command": "dotnet build tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj -c Debug -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore -m:1",
+      "exitCode": 0,
+      "logArchiveMember": "implementation-server-restoring-build.log",
+      "logSha256": "50c2abbc47a8d59eb905bf54d020f87c89c701de115e8b4b7a29d099452e8bae"
+    },
+    {
+      "command": "dotnet build tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj -c Debug -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore --no-restore -m:1",
+      "exitCode": 0,
+      "logArchiveMember": "implementation-server-final-build.log",
+      "logSha256": "dfa3f8012558cd5a4fc211ec9a4f3f305d2c561746ed59b1954f80e5ba5c2437"
+    },
+    {
+      "command": "dotnet build tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj -c Debug -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore --no-restore -m:1",
+      "exitCode": 0,
+      "logArchiveMember": "implementation-contracts-final-build.log",
+      "logSha256": "f6e10eccf5420a79311702c145a7a3f149c007cc0d1caed22321fbae9ef96fc0"
+    },
+    {
+      "command": "dotnet build tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj -c Debug -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore --no-restore -m:1",
+      "exitCode": 0,
+      "logArchiveMember": "implementation-server-recovery-final-build.log",
+      "logSha256": "cdadd14b18f49bfc8cb596ecc5931a6aa2d793f619a70030ce37e00e0f1d0e49"
+    }
+  ],
+  "tests": [
+    {
+      "command": "tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net10.0/Hexalith.Conversations.Contracts.Tests -class Hexalith.Conversations.Contracts.Tests.Queries.ConversationResolutionMetadataContractTest -result-trx /tmp/conversations-metadata-contracts-focused-final.trx",
+      "exitCode": 0,
+      "nativeCounters": {
+        "total": "2",
+        "executed": "2",
+        "passed": "2",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "sha256": "f075f5aabbeb60724005cecf51bb066279165390214b181164d6175bcb79bed0",
+      "archiveMember": "implementation-contracts-focused-final.xml"
+    },
+    {
+      "command": "tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net10.0/Hexalith.Conversations.Contracts.Tests -method- Hexalith.Conversations.Contracts.Tests.ContractPackageInventoryTest.PackedContractsPackageShouldContainOnlyPublicContractsAndSafeMetadata -result-trx /tmp/conversations-metadata-contracts-affected-final.trx",
+      "exitCode": 0,
+      "nativeCounters": {
+        "total": "622",
+        "executed": "622",
+        "passed": "622",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "sha256": "e28e8ea7f19440e0836c151eaba89782bc71801de3c950cd4a8e9e51dfd00314",
+      "archiveMember": "implementation-contracts-affected-final.xml"
+    },
+    {
+      "command": "tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests -class Hexalith.Conversations.Server.Tests.Queries.ConversationResolutionMetadataQueryHandlerTest -class Hexalith.Conversations.Server.Tests.Projections.ConversationResolutionMetadataProjectionTest -class Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest -result-trx /tmp/conversations-metadata-server-focused-recovery-final.trx",
+      "exitCode": 0,
+      "nativeCounters": {
+        "total": "147",
+        "executed": "147",
+        "passed": "147",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "sha256": "bb348440aecd37d6452984fce39a7fa61e260697a867c878070de55fab50ed64",
+      "archiveMember": "implementation-server-focused-recovery-final.xml"
+    },
+    {
+      "command": "tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests -result-trx /tmp/conversations-metadata-server-full-recovery-final.trx",
+      "exitCode": 0,
+      "nativeCounters": {
+        "total": "970",
+        "executed": "970",
+        "passed": "970",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "sha256": "0798be1b12fd59e2aadd5a37c367f8c9988e16b92fc94d7cb5631752c32aed7c",
+      "archiveMember": "implementation-server-full-recovery-final.xml"
+    }
+  ],
+  "intentionalExclusion": {
+    "method": "Hexalith.Conversations.Contracts.Tests.ContractPackageInventoryTest.PackedContractsPackageShouldContainOnlyPublicContractsAndSafeMetadata",
+    "reason": "This test spawns dotnet pack -c Release; immutable package qualification is outside the approved Debug/source-only verification. No Release build or package qualification is claimed."
+  },
+  "limitations": [
+    "The real owner access service currently drops successful native revision/watermark. Default health has neither. The new query conservatively returns empty unavailable evidence in both real-service tests.",
+    "Source tests establish implementation behavior only. Production signer/enrollment, immutable package tuple qualification and parent Story 6.4 acceptance remain external dependencies.",
+    "Storage preserves nonblank opaque IDs without trimming. The inspected SDK authority digest serializes AggregateIdentity, which itself rejects separator/space/non-ASCII routes; no module workaround or new restriction was added.",
+    "Live rich batches and isolated metadata batches are separate. Query-side marker retrieval is content-free even under the tested read-proof race. Current SDK rebuild safety relies on existing legacy-handler coexistence, which produces default markers without retained owner manifests; its actual dispatcher path is tested.",
+    "Terminal compensation retains a private content-free tombstone. Fresh retries reacquire the outer proof ETag before clearing it; interrupted restoration and same-dispatch races are covered. No caller authorization is persisted."
+  ],
+  "supersededServerTests": [
+    {
+      "command": "tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests -class Hexalith.Conversations.Server.Tests.Queries.ConversationResolutionMetadataQueryHandlerTest -class Hexalith.Conversations.Server.Tests.Projections.ConversationResolutionMetadataProjectionTest -class Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest -result-trx /tmp/conversations-metadata-server-focused-final.trx",
+      "exitCode": 0,
+      "nativeCounters": {
+        "total": "120",
+        "executed": "120",
+        "passed": "120",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "sha256": "df5863ada1b7ca4e9b4c532ceff8bddffa2473074815f1dcfbf78dc356ebbd28",
+      "archiveMember": "implementation-server-focused-final.xml"
+    },
+    {
+      "command": "tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests -result-trx /tmp/conversations-metadata-server-full-final.trx",
+      "exitCode": 0,
+      "nativeCounters": {
+        "total": "943",
+        "executed": "943",
+        "passed": "943",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "sha256": "e9652cad89c628536c8e21e075dd50770a6a0c1c11da48622b0cdffb8897bcde",
+      "archiveMember": "implementation-server-full-final.xml"
+    }
+  ],
+  "staticChecks": {
+    "command": "git diff --check",
+    "exitCode": 0,
+    "output": "",
+    "additionalCheck": "Final new/touched C# newline and whitespace script: PASS (26 files). New C# files use CRLF; existing tracked line endings were preserved."
+  },
+  "sourceAuditCaptureSha256": "27f8b76ca7fd8fa51d8e1812fdc41a6a23459b8c0999a67eba9637dfd7629435",
+  "archive": {
+    "path": "source-verification-receipts.zip",
+    "sha256": "8df5d0794d9c39cdf3a4f3281cb2ec7e3d8bd09606ffc032d68066a1d1758c17",
+    "members": [
+      {
+        "name": "implementation-contracts-affected-final.log",
+        "bytes": 506,
+        "sha256": "c4e6eb220a3d35c6aebd905c9e96a6a0ab9dad60d9f2355eb1f330ae3d631344"
+      },
+      {
+        "name": "implementation-contracts-affected-final.xml",
+        "bytes": 975815,
+        "sha256": "e28e8ea7f19440e0836c151eaba89782bc71801de3c950cd4a8e9e51dfd00314"
+      },
+      {
+        "name": "implementation-contracts-final-build.log",
+        "bytes": 1394,
+        "sha256": "f6e10eccf5420a79311702c145a7a3f149c007cc0d1caed22321fbae9ef96fc0"
+      },
+      {
+        "name": "implementation-contracts-focused-final.log",
+        "bytes": 504,
+        "sha256": "9fd850037b33a9cee5b72a8be87498e7d123afb07fd6af7ffe7b5b0f86249311"
+      },
+      {
+        "name": "implementation-contracts-focused-final.xml",
+        "bytes": 4108,
+        "sha256": "f075f5aabbeb60724005cecf51bb066279165390214b181164d6175bcb79bed0"
+      },
+      {
+        "name": "implementation-server-final-build.log",
+        "bytes": 3774,
+        "sha256": "dfa3f8012558cd5a4fc211ec9a4f3f305d2c561746ed59b1954f80e5ba5c2437"
+      },
+      {
+        "name": "implementation-server-first-no-restore-build.log",
+        "bytes": 208321,
+        "sha256": "2c165d57298a733fb044aa1ca096df638bd9c483d93499b773c88ad618a05eb0"
+      },
+      {
+        "name": "implementation-server-focused-final.log",
+        "bytes": 491,
+        "sha256": "d605e58f96c4e736a6109bd7a8db0ee97276a5b4a388fdf85d0df72fac359a91"
+      },
+      {
+        "name": "implementation-server-focused-final.xml",
+        "bytes": 197128,
+        "sha256": "df5863ada1b7ca4e9b4c532ceff8bddffa2473074815f1dcfbf78dc356ebbd28"
+      },
+      {
+        "name": "implementation-server-focused-recovery-final.log",
+        "bytes": 491,
+        "sha256": "e4f9e9f85ac20b3e52a5e4c532155df96a09dc9dd9c2ce46ea56fb2d6f8f7b35"
+      },
+      {
+        "name": "implementation-server-focused-recovery-final.xml",
+        "bytes": 243722,
+        "sha256": "bb348440aecd37d6452984fce39a7fa61e260697a867c878070de55fab50ed64"
+      },
+      {
+        "name": "implementation-server-full-final.log",
+        "bytes": 22332,
+        "sha256": "3be012ebc2aed131b019e0361c1164befe39ff77555009ed506051f5d372f46b"
+      },
+      {
+        "name": "implementation-server-full-final.xml",
+        "bytes": 1499812,
+        "sha256": "e9652cad89c628536c8e21e075dd50770a6a0c1c11da48622b0cdffb8897bcde"
+      },
+      {
+        "name": "implementation-server-full-recovery-final.log",
+        "bytes": 22332,
+        "sha256": "48a7baff94dd087c6d82506c0aa7e5ad2a2e2afa12d0d55d242166f6965cd7f1"
+      },
+      {
+        "name": "implementation-server-full-recovery-final.xml",
+        "bytes": 1546406,
+        "sha256": "0798be1b12fd59e2aadd5a37c367f8c9988e16b92fc94d7cb5631752c32aed7c"
+      },
+      {
+        "name": "implementation-server-recovery-final-build.log",
+        "bytes": 3774,
+        "sha256": "cdadd14b18f49bfc8cb596ecc5931a6aa2d793f619a70030ce37e00e0f1d0e49"
+      },
+      {
+        "name": "implementation-server-restoring-build.log",
+        "bytes": 6991,
+        "sha256": "50c2abbc47a8d59eb905bf54d020f87c89c701de115e8b4b7a29d099452e8bae"
+      }
+    ]
+  }
+}

@@ -1,0 +1,294 @@
+{
+  "scope": "Final routine Debug/source behavior checks after independent review patches; no production/native permission/package acceptance",
+  "conversations_head": "984daa891ad6afafa378bff305748bf3e62bc04c",
+  "original_source_audit_revision": "c9f47dd5ba72918445dfd24a674a5b2c310589bd",
+  "source_audit_capture_sha256": "27f8b76ca7fd8fa51d8e1812fdc41a6a23459b8c0999a67eba9637dfd7629435",
+  "source_override": "/home/administrator/projects/hexalith/eventstore",
+  "observed_sdk_head": "f6b545cd02632f662136d0b4b8e6952baa7afec3",
+  "tracked_sdk_src_and_build_configuration_diff_from_original": "",
+  "all_six_original_contract_hashes_match": true,
+  "compiled_domainservice_informational_version_matches": [
+    "3.126.0+f6b545cd02632f662136d0b4b8e6952baa7afec3"
+  ],
+  "compiled_domainservice_sha256": "7693b27d6b553fd99cb04b09257727650a7b1f7379afc7edd91f5e84b730b32d",
+  "build": {
+    "command": "dotnet build tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj -c Debug -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore --no-restore -m:1",
+    "exit_code": 0,
+    "warnings": 0,
+    "errors": 0,
+    "archive_member": "final-main-build.log"
+  },
+  "tests": [
+    {
+      "lane": "affected Server",
+      "command": "dotnet tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests.dll -class '*ResolutionMetadata*' -class '*ConversationAsyncProjectionHandlerTest' -class '*ConversationQueryRegistrationTest' -result-xml /tmp/conversations-6-4-final-main-focused.xml",
+      "exit_code": 0,
+      "native_counters": {
+        "total": 183,
+        "passed": 183,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "not-run": 0
+      },
+      "archive_member": "final-main-focused.xml",
+      "sha256": "c64310ab0c60b2fe1693a7aa109ccb636d240e8e4d423f6f6bfcf3e3fcb8c07b"
+    },
+    {
+      "lane": "full Server",
+      "command": "dotnet tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests.dll -result-xml /tmp/conversations-6-4-final-main-server.xml",
+      "exit_code": 0,
+      "native_counters": {
+        "total": 1005,
+        "passed": 1005,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "not-run": 0
+      },
+      "archive_member": "final-main-server.xml",
+      "sha256": "8ecc5f7f0c0ac2d77259a7cf1f2750d3f86eb5d2bb50a3120a74cc85578f113f"
+    }
+  ],
+  "focused_is_subset_of_full": true,
+  "contracts": {
+    "unchanged_source_and_tests": [
+      "src/Hexalith.Conversations.Contracts/Serialization/ConversationsJsonContext.cs",
+      "tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs",
+      "src/Hexalith.Conversations.Contracts/Queries/ConversationResolutionMetadataResultV1.cs",
+      "src/Hexalith.Conversations.Contracts/Queries/ConversationResolutionMetadataV1.cs",
+      "src/Hexalith.Conversations.Contracts/Queries/GetConversationResolutionMetadataQuery.cs",
+      "tests/Hexalith.Conversations.Contracts.Tests/Queries/ConversationResolutionMetadataContractTest.cs"
+    ],
+    "previous_source_checks_remain_applicable": {
+      "focused_passed": 2,
+      "affected_passed": 622
+    },
+    "excluded_method": "Hexalith.Conversations.Contracts.Tests.ContractPackageInventoryTest.PackedContractsPackageShouldContainOnlyPublicContractsAndSafeMetadata",
+    "reason": "Release pack subprocess is outside source-only scope; not package qualification"
+  },
+  "source_files": [
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationResolutionMetadataResultV1.cs",
+      "bytes": 840,
+      "sha256": "d918916abfb3cfc61e83a9271df658d3dd564372856ade4c8df3eb7fe368e45e"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationResolutionMetadataV1.cs",
+      "bytes": 587,
+      "sha256": "ee03cfd31c165ed43fe19ea86ddc0ac392ddf761c4e282ed42232081cf3e048b"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/GetConversationResolutionMetadataQuery.cs",
+      "bytes": 397,
+      "sha256": "62fccfc71fd7b5108ed54d4a1f45bb89e4c04acb8ec07c32348c74da7a9ad2b8"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Serialization/ConversationsJsonContext.cs",
+      "bytes": 13586,
+      "sha256": "6ad5e059e34ca885a6fcef149154515a4b65a2888c800495c25a351f6c733d06"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs",
+      "bytes": 46270,
+      "sha256": "e0cc797c1fd22bd9037941c74fb375494507be429aa3647f814e003617d92afa"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs",
+      "bytes": 5277,
+      "sha256": "4650a9f9a039f870c298fd7094f152ec5bb81712967d6f0ddeed5f2242b38944"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs",
+      "bytes": 20512,
+      "sha256": "08c8219b8ba439590fc49b01539d337c9d4696ffb7e688d8da27de59a89c87b1"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs",
+      "bytes": 21347,
+      "sha256": "810474e37e66e3c5dfa0d307a24d36db26355cf403b4dccdbfbbbff6e5d203d3"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationResolutionGeneration.cs",
+      "bytes": 2116,
+      "sha256": "8a0ea6a5c45087260b7db386d0565311494a6b49982fcfa93aa94d2e4f6037f0"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationResolutionMetadataBarrier.cs",
+      "bytes": 540,
+      "sha256": "97adbf3f211859285af43277d4fa52d67d83279372485f146b0bd84cccf0c530"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationResolutionMetadataPersistence.cs",
+      "bytes": 15316,
+      "sha256": "a5da0cb05f124f23ee25b480846f50027a508b08d1f5f6c002376246f5efd130"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationResolutionMetadataProof.cs",
+      "bytes": 692,
+      "sha256": "856a74698d34bf3e136ab0214c8efa30f4d7d8659d04f113dc561ba5e61a6ca1"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationResolutionMetadataReadModel.cs",
+      "bytes": 3638,
+      "sha256": "772f59975d24fba4e1c1826c857eeda1ed3ac41988cd91ff1a55d9ead7eb6949"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationResolutionScoringPolicy.cs",
+      "bytes": 1236,
+      "sha256": "286f0518141cfcdfbe2350ead212f8391e5670bd5d3f873df03d26587cb24b3c"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/IConversationProjectionReadStore.cs",
+      "bytes": 3965,
+      "sha256": "a015bc5545f338e250d13b23669a87a62e5ab8bba86edd8a46296623cd6a6b4c"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Queries/ConversationQueryServiceCollectionExtensions.cs",
+      "bytes": 6279,
+      "sha256": "0efb29bc9cb896375ce9885743802c9ff5b5d387c2157a4e44daf913692594e8"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Queries/ConversationResolutionMetadataAuthorization.cs",
+      "bytes": 7026,
+      "sha256": "98e31586810fdba8baf1e2887c212826f7e39d43c52cc9e4eeee3f340ca2f5bf"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Queries/GetConversationResolutionMetadataDomainQueryHandler.cs",
+      "bytes": 4715,
+      "sha256": "4d7603b29175e9a346128f65c2c249866c82389213fafae6f0cf1eaecca04a11"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs",
+      "bytes": 71258,
+      "sha256": "ce81042ba5b69f05ed035989cdcc4ec9bfba2a6e004361d961a8a202a68715f3"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/Queries/ConversationResolutionMetadataContractTest.cs",
+      "bytes": 2318,
+      "sha256": "f0aaddf0feffd4f0eb64a3b053234ea4fd20fd16555fc7c978a85347ca8dc109"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs",
+      "bytes": 63657,
+      "sha256": "a7a3157965c9bb50d9f680bba9475c91988df7221af6030681c3506502474142"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationResolutionMetadataProjectionTest.cs",
+      "bytes": 27633,
+      "sha256": "133314cb5078412365442fcbbcadfbe11b8e4b63de009183c5227b973ffabe75"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationResolutionMetadataRecoveryTest.cs",
+      "bytes": 41520,
+      "sha256": "6f6707446f50ad0feba2a329be1c2f3585dbd8fd5aab7616cf4e74c90c3be59f"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Queries/ConversationQueryRegistrationTest.cs",
+      "bytes": 7334,
+      "sha256": "18a1b9705471443b3c76eaf1331068e78453fb8ed5e9fc0e5383736fc214223c"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Queries/ConversationResolutionMetadataQueryHandlerTest.cs",
+      "bytes": 20888,
+      "sha256": "e42de94e2ec2ca11cc1bf80bb939b2f534973433c7f162e72fa550f63e182c9f"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionGuardedStore.cs",
+      "bytes": 4591,
+      "sha256": "e0ac44d0b552119359c996e70cd5fd9021033076c1a7f5f0d0db79f279de05b5"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionMetadataAccess.cs",
+      "bytes": 2251,
+      "sha256": "e7f6221d9de318cb003d43c303d318c0aa6c93cc23b31512660dc0d77c04ad13"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionMetadataFixture.cs",
+      "bytes": 6779,
+      "sha256": "6d1ccd12ba933d85d29f6ff190da977b78cf2613f3715b55a8ddfe0d22d159cf"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionRawReadProxy.cs",
+      "bytes": 1528,
+      "sha256": "3e0ef23a08e4f80c0e22c1272da3293defda32de84966c8099d576998e103c8e"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionRawReadStore.cs",
+      "bytes": 2784,
+      "sha256": "b05053041bac0fb79991e90ac6c6cb54eee6bf165ee4ef4b19c8cebb47ad02c3"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionTenantStore.cs",
+      "bytes": 704,
+      "sha256": "61c9a167e6072e651edcaa64054720b130636a2eb0040d5c6bc0367809f3bace"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionTestTimeProvider.cs",
+      "bytes": 268,
+      "sha256": "1368674c0cb5334f96d5b27c5d60c502d4eb9816831245ebc85e80b6bf480f3b"
+    }
+  ],
+  "static_checks": {
+    "command": "git diff --check",
+    "exit_code": 0,
+    "output": "",
+    "original_eol_preserved": true,
+    "new_csharp_crlf": true
+  },
+  "review": {
+    "independent_layers": [
+      "blind hunter",
+      "edge cases",
+      "verification gaps"
+    ],
+    "full_passes": 2,
+    "patched": "bounded private key/scope tokens; plain completed generation and actual winner ledger; authorization revision mismatch, complete DI dispatch, cancellation, overlap, ordinal barriers and raw SDK query-read checks",
+    "deferred": "Pre-existing native default rebuild-plan rediscovery; documented separately from native permission dependency."
+  },
+  "limitations": [
+    "Real successful owner decisions and default health still lack native current tenant/member revision and watermark evidence. Default route withholds metadata. No clock/member hash/lease invents that evidence.",
+    "Current/previous generation proof preserves their native generation timestamp/fingerprint after ledger expiry. Unchanged older redelivery preserves the winner; changing input under an old dispatch ID violates the native stable retry contract. No unbounded all-history dispatch registry is claimed.",
+    "Native default rebuild original-plan rediscovery after process loss remains open. Captured immutable-plan resumption source tests prove a narrower property; no production restart acceptance.",
+    "Raw native query reads are instrumented for interrupted live/rebuild markers. Current supported rebuild enrollment includes legacy coexistence and content-free default markers; enrollment changes require requalification.",
+    "Native verified-query AggregateIdentity rules remain narrower than opaque owner storage IDs. Bounded private storage tokens preserve original IDs; no widening of SDK transport/digest routes is claimed.",
+    "Source tests do not establish production signing/enrollment, immutable package tuple, parent Story 6.4 acceptance, or resolution of native permission evidence."
+  ],
+  "archive": {
+    "path": "source-verification-final-receipts.zip",
+    "sha256": "d4a38e7ef0b0ea3f7fee4dd2b9f68c89f49f6cf87808d3a172b48421955b8e88",
+    "members": [
+      {
+        "name": "final-main-build.log",
+        "bytes": 3774,
+        "sha256": "e616a338276c1a5cc86e9483ba36fa07c0c9cedcaeae0a8f757194dd4493bb7e"
+      },
+      {
+        "name": "final-main-focused.xml",
+        "bytes": 140902,
+        "sha256": "c64310ab0c60b2fe1693a7aa109ccb636d240e8e4d423f6f6bfcf3e3fcb8c07b"
+      },
+      {
+        "name": "final-main-focused.log",
+        "bytes": 1451,
+        "sha256": "4f8c1e87224dc843a291383b40eb04a6d653b5656e69edccceff489f8c97d3fd"
+      },
+      {
+        "name": "final-main-server.xml",
+        "bytes": 738860,
+        "sha256": "8ecc5f7f0c0ac2d77259a7cf1f2750d3f86eb5d2bb50a3120a74cc85578f113f"
+      },
+      {
+        "name": "final-main-server.log",
+        "bytes": 23293,
+        "sha256": "3188ad5030cbb481f30d10b026a035c7f1dfc4dd6edbd8cc478aa55a15815788"
+      }
+    ]
+  },
+  "historical_evidence_boundary_gate": "not-applicable",
+  "delivery_status": "Source implementation/review complete; draft remains in-progress for the explicitly named native dependencies; no parent story/sprint or final acceptance transition.",
+  "source_matrix_coverage": {
+    "path": "source-matrix-coverage.json",
+    "sha256": "fd659885cf05411c7f4dcc7edc70d40f8ce9761dbe59267497d25a24e11a4caf"
+  }
+}

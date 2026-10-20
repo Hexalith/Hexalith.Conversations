@@ -1,0 +1,40 @@
+{
+  "kind": "superseded-diagnostic-only",
+  "authoritativeFinalHistoricalReceipt": "implementation-verification-loopback1.json",
+  "firstLoopbackFullRun": {
+    "command": "dotnet tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests.dll -result-xml /tmp/conversations-loopback1-full-server.xml",
+    "exitCode": null,
+    "nativeReportAvailable": false,
+    "nativeLogAvailable": false,
+    "reason": "The original /tmp report/log paths were reused by later source verification before the preservation request. Searches found only final 987/987 bytes. No earlier native bytes or exit code are fabricated.",
+    "consoleSummaryObservedEarlierInToolTranscript": {
+      "total": 985,
+      "failed": 7,
+      "errors": 0,
+      "skipped": 0,
+      "notRun": 0
+    },
+    "correctedFindings": [
+      "Old fixed store-key counts and rich coordinated-batch invisibility assumptions changed to persisted CAS/barrier assertions.",
+      "Malformed/cross-Tenant/non-current accepted-route input now retains only content-free position barriers.",
+      "Terminal index compensation retains metadata unavailability while an unfenced writer may resume.",
+      "Late caller cancellation after durable rich writes completes bounded metadata under the existing completion timeout; cancellation injection now observes that persisted boundary."
+    ]
+  },
+  "firstReviewPatchTargetedRun": {
+    "command": "dotnet tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests.dll -class '*ResolutionMetadata*' -class '*ConversationAsyncProjectionHandlerTest' -class '*ConversationQueryRegistrationTest' -result-xml /tmp/conversations-review-patch-targeted.xml",
+    "nativeReportAvailable": true,
+    "observedSummary": {
+      "total": 183,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "correction": "The direct native batch fault intentionally throws InvalidOperationException; the test must assert that injected interruption before checking persisted recovery and handler safety.",
+    "exitCode": 1
+  },
+  "archive": {
+    "path": "review-patch-superseded-diagnostics.zip",
+    "sha256": "5fd01b736b238b114521c00ec93aa833fcfaf4d923f158c5c23e5a1a3f3dc283"
+  }
+}

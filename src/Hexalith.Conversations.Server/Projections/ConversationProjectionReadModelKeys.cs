@@ -45,6 +45,22 @@ internal static class ConversationProjectionReadModelKeys
     internal static string ConversationKey(TenantId tenantId, ConversationId conversationId)
         => $"{ConversationKeyPrefix}{EncodeKeySegment(tenantId.Value)}:{EncodeKeySegment(conversationId.Value)}";
 
+    /// <summary>Builds the isolated metadata key.</summary>
+    internal static string ResolutionMetadataKey(TenantId tenantId, ConversationId conversationId)
+        => $"projection:conversations-resolution:{ResolutionStorageToken(tenantId.Value)}:{ResolutionStorageToken(conversationId.Value)}";
+
+    /// <summary>Builds the permanent content-free generation-proof key.</summary>
+    internal static string ResolutionProofKey(TenantId tenantId, ConversationId conversationId)
+        => $"projection:conversations-resolution-proof:{ResolutionStorageToken(tenantId.Value)}:{ResolutionStorageToken(conversationId.Value)}";
+
+    /// <summary>Builds the internal batch fence; queries must never retrieve it or its retained manifest.</summary>
+    internal static string ResolutionFenceKey(TenantId tenantId, ConversationId conversationId)
+        => $"projection:conversations-resolution-fence:{ResolutionStorageToken(tenantId.Value)}:{ResolutionStorageToken(conversationId.Value)}";
+
+    /// <summary>Bounds private metadata storage/scope tokens without changing owner identities or revisions.</summary>
+    internal static string ResolutionStorageToken(string value)
+        => Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(value)));
+
     /// <summary>
     /// Builds the per-tenant summary-index key used to locate the candidate summary set.
     /// </summary>

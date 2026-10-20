@@ -50,6 +50,72 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         => _store = store ?? throw new ArgumentNullException(nameof(store));
 
     /// <inheritdoc/>
+    public async ValueTask<ConversationResolutionMetadataReadModel?> ReadResolutionMetadataAsync(
+        TenantId tenantId, ConversationId conversationId, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(tenantId);
+        ArgumentNullException.ThrowIfNull(conversationId);
+        string proofKey = ConversationProjectionReadModelKeys.ResolutionProofKey(tenantId, conversationId);
+        ReadModelEntry<ConversationResolutionMetadataProof> before = await _store
+            .GetAsync<ConversationResolutionMetadataProof>(ConversationProjectionReadModelKeys.StateStoreName,
+                proofKey, cancellationToken).ConfigureAwait(false);
+        // The outer proof rejects pending/invalidated observations before touching an envelope-wrapped
+        // metadata key. Retained live manifests contain only this bounded subset and a content-free fence.
+        if (before.Value is not null && string.IsNullOrEmpty(before.ETag)
+            || before.Value is { Current: null } || before.Value?.Current?.IsPending == true || before.Value?.Barrier is not null)
+        {
+            throw new ConversationProjectionConsistencyException();
+        }
+
+        ReadModelEntry<ConversationResolutionMetadataReadModel> metadata = await _store
+            .GetAsync<ConversationResolutionMetadataReadModel>(ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenantId, conversationId), cancellationToken)
+            .ConfigureAwait(false);
+        ReadModelEntry<ConversationResolutionMetadataProof> after;
+        ConversationResolutionGeneration? generation = before.Value?.Current;
+        if (generation is null && metadata.Value is null)
+        {
+            after = await _store.GetAsync<ConversationResolutionMetadataProof>(
+                ConversationProjectionReadModelKeys.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
+            if (after.Value is null && after.ETag == before.ETag)
+            {
+                return null;
+            }
+
+            throw new ConversationProjectionConsistencyException();
+        }
+
+        if (generation is null || generation.IsPending || metadata.Value is null || string.IsNullOrEmpty(metadata.ETag)
+            || generation.TenantId != tenantId || generation.ConversationId != conversationId
+            || !generation.Matches(metadata.Value))
+        {
+            throw new ConversationProjectionConsistencyException();
+        }
+
+        ReadModelEntry<ConversationProjectionDispatchLedger> ledger = await _store
+            .GetAsync<ConversationProjectionDispatchLedger>(ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.DispatchLedgerKey(generation.DispatchId), cancellationToken)
+            .ConfigureAwait(false);
+        if (ledger.Value is not null && (ledger.Value.Status != ConversationProjectionDispatchStatus.Completed
+            || ledger.Value.TenantId != tenantId || ledger.Value.ConversationId != conversationId
+            || ledger.Value.DispatchId != generation.DispatchId
+            || ledger.Value.RequestFingerprint != generation.RequestFingerprint
+            || ledger.Value.ProjectionGeneratedAt != generation.Freshness.ProjectionGeneratedAt))
+        {
+            throw new ConversationProjectionConsistencyException();
+        }
+
+        after = await _store.GetAsync<ConversationResolutionMetadataProof>(
+            ConversationProjectionReadModelKeys.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(after.ETag) || before.ETag != after.ETag || before.Value != after.Value)
+        {
+            throw new ConversationProjectionConsistencyException();
+        }
+
+        return metadata.Value;
+    }
+
+    /// <inheritdoc/>
     public async ValueTask<ConversationProjectedReadModels?> ReadAsync(
         TenantId tenantId,
         ConversationId conversationId,

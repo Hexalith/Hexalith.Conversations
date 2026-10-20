@@ -79,11 +79,12 @@ public sealed class ConversationAsyncProjectionHandlerTest
             ConversationProjectionReadModelKeys.DispatchLedgerKey("dispatch-duplicate"),
             TestContext.Current.CancellationToken);
 
+        int keysBeforeDuplicate = store.Count;
         DomainProjectionHandlerResult duplicate = await handler.ProjectAsync(request, "dispatch-duplicate", TestContext.Current.CancellationToken);
 
         first.Status.ShouldBe(ProjectionDispatchStatus.Completed);
         duplicate.Status.ShouldBe(ProjectionDispatchStatus.Completed);
-        store.Count.ShouldBe(3);
+        store.Count.ShouldBe(keysBeforeDuplicate);
         (await store.GetAsync<ConversationProjectedReadModels>(
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation),
@@ -129,10 +130,11 @@ public sealed class ConversationAsyncProjectionHandlerTest
             .Status.ShouldBe(ConversationProjectionDispatchStatus.Pending);
         ConversationProjectionReadStore readStore = new(inner);
 
-        // The detail key advanced while the index summary did not, so this conversation cannot prove a
-        // completed generation and the detail read fails closed.
+        // Rich CAS detail may persist before index completion. Both readers reject the partial generation.
         _ = await Should.ThrowAsync<ConversationProjectionConsistencyException>(
             async () => await readStore.ReadAsync(Tenant, Conversation, TestContext.Current.CancellationToken));
+        _ = await Should.ThrowAsync<ConversationProjectionConsistencyException>(
+            async () => await readStore.ReadResolutionMetadataAsync(Tenant, Conversation, TestContext.Current.CancellationToken));
 
         // Listing does not fail closed for the whole tenant. The pending dispatch is reported so no caller can
         // claim the page is current, but a conversation mid-write must not make its unrelated siblings
@@ -146,7 +148,8 @@ public sealed class ConversationAsyncProjectionHandlerTest
         DomainProjectionHandlerResult retried = await handler.ProjectAsync(request, "dispatch-partial", TestContext.Current.CancellationToken);
 
         retried.Status.ShouldBe(ProjectionDispatchStatus.Completed);
-        inner.Count.ShouldBe(3);
+        (await readStore.ReadResolutionMetadataAsync(Tenant, Conversation, TestContext.Current.CancellationToken))
+            .ShouldNotBeNull();
         inner.Snapshot<ConversationProjectionIndexReadModel>(
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!
@@ -183,7 +186,7 @@ public sealed class ConversationAsyncProjectionHandlerTest
 
     /// <summary>A terminal pre-write failure compensates its summary-less pending marker.</summary>
     [Fact]
-    public async Task ReconcileShouldCompensateTerminalPendingMarkerWithoutProjectionWrites()
+    public async Task ReconcileShouldCompensateTerminalIndexButKeepUnfencedMetadataUnavailable()
     {
         InMemoryReadModelStore store = new();
         const string DispatchId = "dispatch-reconcile-compensate";
@@ -196,12 +199,15 @@ public sealed class ConversationAsyncProjectionHandlerTest
             DispatchId,
             TestContext.Current.CancellationToken);
 
-        reconciled.Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        reconciled.Status.ShouldBe(ProjectionDispatchStatus.Retryable);
         ConversationProjectionIndexReadModel index = store.Snapshot<ConversationProjectionIndexReadModel>(
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!;
         index.Summaries.ShouldBeEmpty();
         index.Dispatches.ShouldNotContainKey(Conversation.Value);
+        _ = await Should.ThrowAsync<ConversationProjectionConsistencyException>(async () =>
+            await new ConversationProjectionReadStore(store).ReadResolutionMetadataAsync(Tenant, Conversation,
+                TestContext.Current.CancellationToken));
         store.Snapshot<ConversationProjectedReadModels>(
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation)).ShouldBeNull();
@@ -250,7 +256,7 @@ public sealed class ConversationAsyncProjectionHandlerTest
     }
 
     [Fact]
-    public async Task CrossTenantEventShouldFailWithoutWritingEitherTenantScope()
+    public async Task CrossTenantEventShouldFailWithOnlyAnAcceptedRoutePositionBarrier()
     {
         InMemoryReadModelStore store = new();
         ConversationAsyncProjectionHandler handler = Handler(store);
@@ -263,11 +269,17 @@ public sealed class ConversationAsyncProjectionHandlerTest
 
         result.Status.ShouldBe(ProjectionDispatchStatus.Failed);
         result.ReasonCode.ShouldBe(ProjectionDispatchReasonCodes.HandlerFailure);
-        store.Count.ShouldBe(0);
+        store.Count.ShouldBe(1);
+        var proof = store.Snapshot<ConversationResolutionMetadataProof>(ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ResolutionProofKey(Tenant, Conversation))!;
+        proof.Current.ShouldBeNull();
+        proof.Barrier.ShouldNotBeNull();
+        store.Snapshot<ConversationProjectedReadModels>(ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation)).ShouldBeNull();
     }
 
     [Fact]
-    public async Task UnsupportedEmptyAndMalformedInputsShouldFailWithoutAnyWrite()
+    public async Task UnsupportedEmptyAndMalformedInputsShouldFailWithoutRichWrites()
     {
         InMemoryReadModelStore store = new();
         ConversationAsyncProjectionHandler handler = Handler(store);
@@ -289,7 +301,13 @@ public sealed class ConversationAsyncProjectionHandlerTest
             .Status.ShouldBe(ProjectionDispatchStatus.Failed);
         (await handler.ProjectAsync(malformed, "dispatch-malformed", TestContext.Current.CancellationToken))
             .Status.ShouldBe(ProjectionDispatchStatus.Failed);
-        store.Count.ShouldBe(0);
+        store.Count.ShouldBe(1);
+        var proof = store.Snapshot<ConversationResolutionMetadataProof>(ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ResolutionProofKey(Tenant, Conversation))!;
+        proof.Current.ShouldBeNull();
+        proof.Barrier.ShouldNotBeNull();
+        store.Snapshot<ConversationProjectedReadModels>(ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation)).ShouldBeNull();
     }
 
     [Fact]
@@ -356,17 +374,20 @@ public sealed class ConversationAsyncProjectionHandlerTest
         plan.StoreName.ShouldBe(ConversationProjectionReadModelKeys.StateStoreName);
         plan.Operations.Select(operation => operation.Key).ShouldBe(
         [
+            ConversationProjectionReadModelKeys.ResolutionProofKey(Tenant, Conversation),
+            ConversationProjectionReadModelKeys.ResolutionMetadataKey(Tenant, Conversation),
             ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation),
             ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
             ConversationProjectionReadModelKeys.DispatchLedgerKey("rebuild-001"),
+            ConversationProjectionReadModelKeys.ResolutionFenceKey(Tenant, Conversation),
         ]);
         plan.Operations.ShouldAllBe(operation => operation.Kind == ReadModelBatchOperationKind.Write);
-        plan.Operations[2].TimeToLive.ShouldBe(ProjectionDispatchOptions.DefaultRedeliveryWindow);
+        plan.Operations[4].TimeToLive.ShouldBe(ProjectionDispatchOptions.DefaultRedeliveryWindow);
         store.Count.ShouldBe(0, "rebuild preparation must remain side-effect free until coordinated promotion");
     }
 
     [Fact]
-    public async Task NonCurrentMaterializationShouldFailWithoutPublishingDispatchState()
+    public async Task NonCurrentMaterializationShouldFailWithOnlyObservedPositionBarrier()
     {
         InMemoryReadModelStore store = new();
         ConversationAsyncProjectionHandler handler = Handler(store);
@@ -382,7 +403,13 @@ public sealed class ConversationAsyncProjectionHandlerTest
             TestContext.Current.CancellationToken);
 
         result.Status.ShouldBe(ProjectionDispatchStatus.Failed);
-        store.Count.ShouldBe(0);
+        store.Count.ShouldBe(1);
+        var proof = store.Snapshot<ConversationResolutionMetadataProof>(ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ResolutionProofKey(Tenant, Conversation))!;
+        proof.Current.ShouldBeNull();
+        proof.Barrier.ShouldNotBeNull();
+        store.Snapshot<ConversationProjectedReadModels>(ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation)).ShouldBeNull();
     }
 
     [Fact]
@@ -459,11 +486,12 @@ public sealed class ConversationAsyncProjectionHandlerTest
             "rebuild-populated",
             TestContext.Current.CancellationToken);
 
-        ReadModelBatchOperation detailOperation = plan.Operations[0];
-        ReadModelBatchOperation indexOperation = plan.Operations[1];
+        ReadModelBatchOperation detailOperation = plan.Operations.Single(operation => operation.Key == ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation));
+        ReadModelBatchOperation indexOperation = plan.Operations.Single(operation => operation.Key == ConversationProjectionReadModelKeys.TenantIndexKey(Tenant));
         detailOperation.Concurrency.ExpectedETag.ShouldBe(detailBefore.ETag);
         indexOperation.Concurrency.ExpectedETag.ShouldBe(indexBefore.ETag);
-        plan.Operations[2].Concurrency.ShouldBe(ReadModelBatchConcurrency.CreateOnly);
+        plan.Operations.Single(operation => operation.Key == ConversationProjectionReadModelKeys.DispatchLedgerKey("rebuild-populated"))
+            .Concurrency.ShouldBe(ReadModelBatchConcurrency.CreateOnly);
 
         ConversationProjectionIndexReadModel rebuiltIndex = JsonSerializer.Deserialize<ConversationProjectionIndexReadModel>(
             indexOperation.CanonicalValue.Span,
@@ -539,7 +567,7 @@ public sealed class ConversationAsyncProjectionHandlerTest
             "rebuild-with-pending-sibling",
             TestContext.Current.CancellationToken);
         ConversationProjectionIndexReadModel rebuilt = JsonSerializer.Deserialize<ConversationProjectionIndexReadModel>(
-            plan.Operations[1].CanonicalValue.Span,
+            plan.Operations.Single(operation => operation.Key == ConversationProjectionReadModelKeys.TenantIndexKey(Tenant)).CanonicalValue.Span,
             JsonOptions)!;
 
         rebuilt.Dispatches[ConversationB().Value].DispatchId.ShouldBe(siblingDispatch);
@@ -580,7 +608,7 @@ public sealed class ConversationAsyncProjectionHandlerTest
 
         store.BulkCalls.ShouldBe(1);
         ConversationProjectionIndexReadModel rebuilt = JsonSerializer.Deserialize<ConversationProjectionIndexReadModel>(
-            plan.Operations[1].CanonicalValue.Span,
+            plan.Operations.Single(operation => operation.Key == ConversationProjectionReadModelKeys.TenantIndexKey(Tenant)).CanonicalValue.Span,
             JsonOptions)!;
         rebuilt.Dispatches.ShouldContainKey(ConversationB().Value);
     }
@@ -629,16 +657,18 @@ public sealed class ConversationAsyncProjectionHandlerTest
     {
         InMemoryReadModelStore store = new();
         using CancellationTokenSource callerCancellation = new();
-        int saveAttempts = 0;
-        store.ConcurrentWriteBeforeTrySave = () =>
+        var guarded = new Hexalith.Conversations.Server.Tests.ResolutionMetadata.ResolutionGuardedStore(store)
         {
-            if (Interlocked.Increment(ref saveAttempts) == 4)
+            AfterSave = (_, value) =>
             {
-                callerCancellation.Cancel();
-            }
+                if (value is ConversationProjectionIndexReadModel index
+                    && index.Dispatches.TryGetValue(Conversation.Value, out var dispatch) && !dispatch.IsPending)
+                    callerCancellation.Cancel();
+                return Task.CompletedTask;
+            },
         };
 
-        DomainProjectionHandlerResult result = await Handler(store).ProjectAsync(
+        DomainProjectionHandlerResult result = await Handler(guarded).ProjectAsync(
             Request(Tenant, Conversation),
             "dispatch-late-cancellation",
             callerCancellation.Token);
@@ -1047,8 +1077,11 @@ public sealed class ConversationAsyncProjectionHandlerTest
         public override DateTimeOffset GetUtcNow() => now;
     }
 
-    private sealed class FailCompletedIndexSaveOnceReadModelStore(InMemoryReadModelStore inner) : IReadModelStore, IReadModelExpiringStore
+    private sealed class FailCompletedIndexSaveOnceReadModelStore(InMemoryReadModelStore inner) : IReadModelStore, IReadModelExpiringStore, IReadModelBatchStore
     {
+
+        public Task<ReadModelBatchResult> ExecuteAsync(ReadModelBatch batch, CancellationToken cancellationToken = default)
+            => inner.ExecuteAsync(batch, cancellationToken);
         private int _failed;
 
         public Task<ReadModelEntry<TValue>> GetAsync<TValue>(
@@ -1147,8 +1180,11 @@ public sealed class ConversationAsyncProjectionHandlerTest
             => inner.TrySaveAsync(storeName, key, value, etag, cancellationToken);
     }
 
-    private sealed class StallCompletionLedgerReadStore(InMemoryReadModelStore inner) : IReadModelStore, IReadModelExpiringStore
+    private sealed class StallCompletionLedgerReadStore(InMemoryReadModelStore inner) : IReadModelStore, IReadModelExpiringStore, IReadModelBatchStore
     {
+
+        public Task<ReadModelBatchResult> ExecuteAsync(ReadModelBatch batch, CancellationToken cancellationToken = default)
+            => inner.ExecuteAsync(batch, cancellationToken);
         private int _ledgerReads;
 
         public async Task<ReadModelEntry<TValue>> GetAsync<TValue>(
@@ -1190,8 +1226,11 @@ public sealed class ConversationAsyncProjectionHandlerTest
             => inner.TrySaveWithTimeToLiveAsync(storeName, key, value, etag, timeToLive, cancellationToken);
     }
 
-    private sealed class SubstituteCompletionLedgerStore(InMemoryReadModelStore inner) : IReadModelStore, IReadModelExpiringStore
+    private sealed class SubstituteCompletionLedgerStore(InMemoryReadModelStore inner) : IReadModelStore, IReadModelExpiringStore, IReadModelBatchStore
     {
+
+        public Task<ReadModelBatchResult> ExecuteAsync(ReadModelBatch batch, CancellationToken cancellationToken = default)
+            => inner.ExecuteAsync(batch, cancellationToken);
         private int _ledgerReads;
 
         public ConversationProjectionDispatchLedger? SubstitutedLedger { get; private set; }

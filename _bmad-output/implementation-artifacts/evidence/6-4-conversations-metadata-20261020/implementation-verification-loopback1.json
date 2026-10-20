@@ -1,0 +1,288 @@
+{
+  "scope": "Review loopback 1 final routine Debug/source verification only; no production, package or native permission acceptance",
+  "sourceOverride": "/home/administrator/projects/hexalith/eventstore",
+  "sourceRevision": "f6b545cd02632f662136d0b4b8e6952baa7afec3",
+  "sourceAuditCaptureSha256": "27f8b76ca7fd8fa51d8e1812fdc41a6a23459b8c0999a67eba9637dfd7629435",
+  "sourceRevisionRecheck": {
+    "previouslyObservedRevision": "0785238dfe88e5d85b282a2edbdcbd0494d51b34",
+    "finallyObservedAndCompiledRevision": "f6b545cd02632f662136d0b4b8e6952baa7afec3",
+    "trackedSourceAndBuildDiff": "",
+    "relevantSourceWorkingTreeDiff": "",
+    "sixAuditedContractSha256": {
+      "src/Hexalith.EventStore.Contracts/Queries/OriginatingQueryContext.cs": "a69d7b497b9000b2b76c2a1c4046c65154b2ce5ce363c84c44e8731c88b709d1",
+      "src/Hexalith.EventStore.Contracts/Queries/QueryCallerAuthority.cs": "1729de65ba8e7e7c4851f3625dfbecdb2154fbbbfc275cfd392af4bfec86a93f",
+      "src/Hexalith.EventStore.DomainService/VerifiedQueryCaller.cs": "b799b9b224ed6c9119608a0c79139f10b62e2460ee1f929c6c5140dc6fc8fa1a",
+      "src/Hexalith.EventStore.DomainService/DomainQueryDispatcher.cs": "d6866e9e51c106c3eed0e3d005e4971f6987edc6c5fdccb7e64ee8e8afe32fc9",
+      "src/Hexalith.EventStore.ServiceDefaults/Authentication/QueryCallerAuthorityBinding.cs": "8423c2eb21eb640ec5bbc96167ee54bf5ac0b063c3bf174551148bd14524e8e1",
+      "src/Hexalith.EventStore/Controllers/QueriesController.cs": "b70ccbd1af468639d82ebe34a483d249026ee7e11f10f96566793dd11f63ba03"
+    },
+    "interpretation": "External historical evidence/tool changes moved sibling HEAD. Runtime/build files and original six audited contracts are byte-identical. Final copied DomainService binary informational version identifies the final compiled source commit."
+  },
+  "compiledSourceEvidence": {
+    "binaryPath": "tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.EventStore.DomainService.dll",
+    "sha256": "7693b27d6b553fd99cb04b09257727650a7b1f7379afc7edd91f5e84b730b32d",
+    "stringsMatchingFinalSourceRevision": [
+      "03.126.0+f6b545cd02632f662136d0b4b8e6952baa7afec3"
+    ]
+  },
+  "historicalEvidenceBoundaryGate": "not-applicable",
+  "builds": [
+    {
+      "command": "dotnet build tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --configuration Debug -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore --no-restore -m:1",
+      "exitCode": 0,
+      "warnings": 0,
+      "errors": 0,
+      "logArchiveMember": "implementation-server-loopback1-final-build.log",
+      "logSha256": "dd193429edac7c65530050e82a007f989825d13ff267db14d773c7702be86adc"
+    }
+  ],
+  "tests": [
+    {
+      "lane": "focused",
+      "command": "dotnet tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests.dll -class '*ResolutionMetadata*' -class '*ConversationAsyncProjectionHandlerTest' -class '*ConversationQueryRegistrationTest' -result-xml /tmp/conversations-loopback1-focused.xml",
+      "exitCode": 0,
+      "nativeCounters": {
+        "total": "165",
+        "passed": "165",
+        "failed": "0",
+        "errors": "0",
+        "skipped": "0",
+        "not-run": "0"
+      },
+      "sha256": "3d01d2488e2deb9e80bbdd466bcb02bd6da8b8b5d46812f5cde789ebbbad9d1f",
+      "archiveMember": "implementation-server-loopback1-focused-final.xml",
+      "focusedIsSubsetOfFull": true
+    },
+    {
+      "lane": "full",
+      "command": "dotnet tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests.dll -result-xml /tmp/conversations-loopback1-full-server.xml",
+      "exitCode": 0,
+      "nativeCounters": {
+        "total": "987",
+        "passed": "987",
+        "failed": "0",
+        "errors": "0",
+        "skipped": "0",
+        "not-run": "0"
+      },
+      "sha256": "360ebfa15ca459b95e1380feb0844f1266846cecde8fdcde64f9a1d6ff21965e",
+      "archiveMember": "implementation-server-loopback1-full-final.xml",
+      "focusedIsSubsetOfFull": true
+    }
+  ],
+  "contractsEvidencePreserved": {
+    "byteIdenticalToPriorVerifiedSnapshot": true,
+    "paths": [
+      "src/Hexalith.Conversations.Contracts/Serialization/ConversationsJsonContext.cs",
+      "tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs",
+      "src/Hexalith.Conversations.Contracts/Queries/ConversationResolutionMetadataResultV1.cs",
+      "src/Hexalith.Conversations.Contracts/Queries/ConversationResolutionMetadataV1.cs",
+      "src/Hexalith.Conversations.Contracts/Queries/GetConversationResolutionMetadataQuery.cs",
+      "tests/Hexalith.Conversations.Contracts.Tests/Queries/ConversationResolutionMetadataContractTest.cs"
+    ],
+    "priorVerificationRecord": "implementation-verification.json",
+    "priorReceiptsArchiveSha256": "8df5d0794d9c39cdf3a4f3281cb2ec7e3d8bd09606ffc032d68066a1d1758c17",
+    "interpretation": "Contracts were restored byte-for-byte, so earlier 2/2 focused and 622/622 affected Debug source evidence remains historical applicable evidence; no Contracts rerun or package qualification is claimed."
+  },
+  "sourceFiles": [
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationResolutionMetadataResultV1.cs",
+      "bytes": 840,
+      "sha256": "d918916abfb3cfc61e83a9271df658d3dd564372856ade4c8df3eb7fe368e45e"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationResolutionMetadataV1.cs",
+      "bytes": 587,
+      "sha256": "ee03cfd31c165ed43fe19ea86ddc0ac392ddf761c4e282ed42232081cf3e048b"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/GetConversationResolutionMetadataQuery.cs",
+      "bytes": 397,
+      "sha256": "62fccfc71fd7b5108ed54d4a1f45bb89e4c04acb8ec07c32348c74da7a9ad2b8"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Serialization/ConversationsJsonContext.cs",
+      "bytes": 13586,
+      "sha256": "6ad5e059e34ca885a6fcef149154515a4b65a2888c800495c25a351f6c733d06"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs",
+      "bytes": 44652,
+      "sha256": "48f1ae33a2aa50b01be6c0f9493171d3ff8f48eebcb7ff3cd772866592cfd880"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs",
+      "bytes": 4971,
+      "sha256": "2171ae4b375a4fb9bf7845a200b42b5464e04319355eaaf7e819245b5d9f218e"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs",
+      "bytes": 20512,
+      "sha256": "08c8219b8ba439590fc49b01539d337c9d4696ffb7e688d8da27de59a89c87b1"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs",
+      "bytes": 21347,
+      "sha256": "810474e37e66e3c5dfa0d307a24d36db26355cf403b4dccdbfbbbff6e5d203d3"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationResolutionGeneration.cs",
+      "bytes": 2116,
+      "sha256": "8a0ea6a5c45087260b7db386d0565311494a6b49982fcfa93aa94d2e4f6037f0"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationResolutionMetadataBarrier.cs",
+      "bytes": 540,
+      "sha256": "97adbf3f211859285af43277d4fa52d67d83279372485f146b0bd84cccf0c530"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationResolutionMetadataPersistence.cs",
+      "bytes": 15076,
+      "sha256": "d2d6c864ecec70a005b021dfef9078f6ba8dd855db7e4542580f2baae902b183"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationResolutionMetadataProof.cs",
+      "bytes": 692,
+      "sha256": "856a74698d34bf3e136ab0214c8efa30f4d7d8659d04f113dc561ba5e61a6ca1"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationResolutionMetadataReadModel.cs",
+      "bytes": 3638,
+      "sha256": "772f59975d24fba4e1c1826c857eeda1ed3ac41988cd91ff1a55d9ead7eb6949"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationResolutionScoringPolicy.cs",
+      "bytes": 1236,
+      "sha256": "286f0518141cfcdfbe2350ead212f8391e5670bd5d3f873df03d26587cb24b3c"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/IConversationProjectionReadStore.cs",
+      "bytes": 3965,
+      "sha256": "a015bc5545f338e250d13b23669a87a62e5ab8bba86edd8a46296623cd6a6b4c"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Queries/ConversationQueryServiceCollectionExtensions.cs",
+      "bytes": 6279,
+      "sha256": "0efb29bc9cb896375ce9885743802c9ff5b5d387c2157a4e44daf913692594e8"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Queries/ConversationResolutionMetadataAuthorization.cs",
+      "bytes": 7026,
+      "sha256": "98e31586810fdba8baf1e2887c212826f7e39d43c52cc9e4eeee3f340ca2f5bf"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Queries/GetConversationResolutionMetadataDomainQueryHandler.cs",
+      "bytes": 4652,
+      "sha256": "35871de49602d7ca75bcce57000118c4b32a1533fba2a797b0482ee19e45430b"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs",
+      "bytes": 71258,
+      "sha256": "ce81042ba5b69f05ed035989cdcc4ec9bfba2a6e004361d961a8a202a68715f3"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/Queries/ConversationResolutionMetadataContractTest.cs",
+      "bytes": 2318,
+      "sha256": "f0aaddf0feffd4f0eb64a3b053234ea4fd20fd16555fc7c978a85347ca8dc109"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs",
+      "bytes": 63657,
+      "sha256": "a7a3157965c9bb50d9f680bba9475c91988df7221af6030681c3506502474142"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationResolutionMetadataProjectionTest.cs",
+      "bytes": 27633,
+      "sha256": "133314cb5078412365442fcbbcadfbe11b8e4b63de009183c5227b973ffabe75"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationResolutionMetadataRecoveryTest.cs",
+      "bytes": 25611,
+      "sha256": "a07f493cedf250d8b57854413e715622d50cf37e84cee557aef4df2a7ec063d9"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Queries/ConversationQueryRegistrationTest.cs",
+      "bytes": 4863,
+      "sha256": "415f4454448cd79f7eec7f392be4e933fc4d8bda77f3e196beb39b974f735687"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Queries/ConversationResolutionMetadataQueryHandlerTest.cs",
+      "bytes": 19090,
+      "sha256": "ae6f4661fee332ccf53e115ab3a4a38249a69537756d785ff27df570eb692841"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionGuardedStore.cs",
+      "bytes": 4591,
+      "sha256": "e0ac44d0b552119359c996e70cd5fd9021033076c1a7f5f0d0db79f279de05b5"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionMetadataAccess.cs",
+      "bytes": 2062,
+      "sha256": "1534b92042e12abe18a7a69969d13842309fd5715556e644536036e8596e49e9"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionMetadataFixture.cs",
+      "bytes": 6779,
+      "sha256": "6d1ccd12ba933d85d29f6ff190da977b78cf2613f3715b55a8ddfe0d22d159cf"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionTenantStore.cs",
+      "bytes": 704,
+      "sha256": "61c9a167e6072e651edcaa64054720b130636a2eb0040d5c6bc0367809f3bace"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionTestTimeProvider.cs",
+      "bytes": 268,
+      "sha256": "1368674c0cb5334f96d5b27c5d60c502d4eb9816831245ebc85e80b6bf480f3b"
+    }
+  ],
+  "staticChecks": {
+    "command": "git diff --check",
+    "exitCode": 0,
+    "output": "",
+    "newlineAndWhitespace": "PASS: 30 implementation C# files; original tracked EOL styles preserved, new C# files CRLF."
+  },
+  "limitations": [
+    "The production owner access service and default health still lack matching current native permission revision/watermark; query conservatively yields empty unavailable evidence. No invented version or authorization lease.",
+    "Legacy-coexisting native SDK rebuild default markers do not retain the original rich immutable plan. Actual fresh dispatcher retry after first proof install with a clock advanced one hour reports Failed/projection_handler_failure. Narrow query rejects envelope ETags and withholds prior metadata; absent prior generation remains safe-denial. This existing native rebuild availability dependency remains open.",
+    "The separate 28-boundary six-operation matrix resumes the original actual SDK-produced immutable batch through a fresh adapter after install/commit/compaction/receipt interruption. It proves native immutable-plan resumption and persisted-state query safety, not production rediscovery of an unretained plan after process loss.",
+    "Rich live detail/index writes retain established monotonic CAS and can exceed 1 MiB. Only bounded metadata/fence data enters retained live manifests. Terminal recovery retains pending proof while an unfenced rich writer may resume. A direct-writer barrier requires a strictly newer deterministic generation to clear.",
+    "Source tests do not qualify production authority signing/enrollment, immutable package tuple, parent Story 6.4 acceptance or its blocked tracking."
+  ],
+  "archive": {
+    "path": "source-verification-loopback1-receipts.zip",
+    "sha256": "d4274f2287bc43b8db67a660abd16ffd5eed14f20ad577d39bb694fe56857d8b",
+    "members": [
+      {
+        "name": "implementation-server-loopback1-final-build.log",
+        "bytes": 3774,
+        "sha256": "dd193429edac7c65530050e82a007f989825d13ff267db14d773c7702be86adc"
+      },
+      {
+        "name": "implementation-server-loopback1-focused-final.xml",
+        "bytes": 127178,
+        "sha256": "3d01d2488e2deb9e80bbdd466bcb02bd6da8b8b5d46812f5cde789ebbbad9d1f"
+      },
+      {
+        "name": "implementation-server-loopback1-focused-final.log",
+        "bytes": 491,
+        "sha256": "01bc0d92052d274d5247be298073a91ccdd3c4cdea6223fa4706399631e1b64c"
+      },
+      {
+        "name": "implementation-server-loopback1-full-final.xml",
+        "bytes": 725042,
+        "sha256": "360ebfa15ca459b95e1380feb0844f1266846cecde8fdcde64f9a1d6ff21965e"
+      },
+      {
+        "name": "implementation-server-loopback1-full-final.log",
+        "bytes": 22332,
+        "sha256": "4b5c52af11a9f9d9f077f7823cd76b1883d7ff1da00a0608f3f44700b6ec7c8e"
+      },
+      {
+        "name": "implementation-loopback1-whitespace.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  }
+}
