@@ -56,13 +56,14 @@ public sealed class ConversationResolutionMetadataProjectionTest
         TaskCompletionSource resume = new(TaskCreationOptions.RunContinuationsAsynchronously);
         fixture.Guard.BeforeBatch = batch =>
         {
-            inMetadata = batch.Scope.ProjectionType == "resolution-metadata";
+            inMetadata = batch.Scope.ProjectionType == ConversationAsyncProjectionHandler.ConversationReadModelProjectionType;
             if (inMetadata)
             {
                 isolatedBatch = batch;
                 batch.Operations.Select(operation => operation.Key).ShouldBe([
                     ConversationProjectionReadModelKeys.ResolutionFenceKey(Tenant, Conversation),
-                    ConversationProjectionReadModelKeys.ResolutionMetadataKey(Tenant, Conversation)]);
+                    ConversationProjectionReadModelKeys.ResolutionMetadataKey(Tenant, Conversation),
+                    ConversationProjectionReadModelKeys.ResolutionSelectionKey(Tenant, Conversation)]);
             }
             else batch.Operations.ShouldAllBe(operation => operation.Key != ConversationProjectionReadModelKeys.ResolutionMetadataKey(Tenant, Conversation)
                 && operation.Key != ConversationProjectionReadModelKeys.ResolutionProofKey(Tenant, Conversation));
@@ -83,7 +84,7 @@ public sealed class ConversationResolutionMetadataProjectionTest
             if (type == typeof(ConversationResolutionMetadataProof) && writer is null)
             {
                 writer = fixture.Handler(fixture.Guard).ProjectAsync(ResolutionMetadataFixture.Request(changedProject: true), "dispatch-race", Token);
-                await installed.Task.WaitAsync(Token);
+                await installed.Task.WaitAsync(TimeSpan.FromSeconds(5), Token);
             }
         };
         try
@@ -188,7 +189,7 @@ public sealed class ConversationResolutionMetadataProjectionTest
 
     public static IEnumerable<object[]> BatchInterruptionPoints()
     {
-        foreach (string stage in new[] { "resolution-metadata" })
+        foreach (string stage in new[] { ConversationAsyncProjectionHandler.ConversationReadModelProjectionType })
         {
             int count = 2;
             foreach (ReadModelBatchPhase phase in new[] { ReadModelBatchPhase.BeforeInstallOperation, ReadModelBatchPhase.AfterInstallOperation })
@@ -309,7 +310,7 @@ public sealed class ConversationResolutionMetadataProjectionTest
         await fixture.ProjectAsync();
         var old = fixture.Metadata;
         var plan = await fixture.Handler().PrepareRebuildAsync(ResolutionMetadataFixture.Request(changedProject: true), "rebuild-new", Token);
-        plan.Operations.Count.ShouldBe(6);
+        plan.Operations.Count.ShouldBe(7);
         plan.Operations.Single(operation => operation.Key == ConversationProjectionReadModelKeys.ResolutionMetadataKey(Tenant, Conversation))
             .Concurrency.ShouldNotBe(ReadModelBatchConcurrency.CreateOnly);
         (await fixture.Reader().ReadResolutionMetadataAsync(Tenant, Conversation, Token)).ShouldBe(old);
@@ -467,7 +468,7 @@ public sealed class ConversationResolutionMetadataProjectionTest
             .ProjectAsync(ResolutionMetadataFixture.Request(), "dispatch-a", Token);
         try
         {
-            await reached.Task.WaitAsync(Token);
+            await reached.Task.WaitAsync(TimeSpan.FromSeconds(5), Token);
             fixture.Proof.Current!.IsPending.ShouldBeTrue();
             await Should.ThrowAsync<ConversationProjectionConsistencyException>(async () =>
                 await fixture.Reader().ReadResolutionMetadataAsync(Tenant, Conversation, Token));

@@ -12,7 +12,9 @@ public class ResolutionRawReadProxy : DispatchProxy
 
     protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
     {
-        if (targetMethod!.Name == "get_SupportsTransaction") return targetMethod.Invoke(Inner, args);
+        ArgumentNullException.ThrowIfNull(targetMethod);
+        ArgumentNullException.ThrowIfNull(args);
+        if (targetMethod.Name == "get_SupportsTransaction") return targetMethod.Invoke(Inner, args);
         if (targetMethod.Name != "ReadAsync")
         {
             Writes++;

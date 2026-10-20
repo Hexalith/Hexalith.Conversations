@@ -23,6 +23,7 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
         [
             ConversationProjectionReadModelKeys.ResolutionFenceKey(tenantId, conversationId),
             ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenantId, conversationId),
+            ConversationProjectionReadModelKeys.ResolutionSelectionKey(tenantId, conversationId),
         ];
         foreach (string key in participants)
         {
@@ -32,7 +33,14 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
                 key, cancellationToken).ConfigureAwait(false);
             if (!result.IsResolved)
             {
-                throw new InvalidOperationException("An interrupted generation batch remains unavailable for recovery.");
+                // Historical metadata batches used explicitly hashed private scope tokens. Recover only that
+                // exact old protocol; it never supplies a native selected owner or current authority.
+                result = await recovery.RecoverPendingAsync(new(ConversationProjectionReadModelKeys.StateStoreName,
+                    tenantId.Value, ConversationProjectionHandler.ConversationDomain,
+                    conversationId.Value, ConversationAsyncProjectionHandler.ConversationReadModelProjectionType, "pending-discovery"),
+                    key, cancellationToken).ConfigureAwait(false);
+                if (!result.IsResolved)
+                    throw new InvalidOperationException("An interrupted generation batch remains unavailable for recovery.");
             }
         }
     }
@@ -105,13 +113,28 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
 
         // The entire immutable manifest defines the retry identity, including its expected ETags. An
         // optimistic conflict gets a new manifest; interrupted identical work resumes the same SDK batch.
-        string batchId = Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(
-            operations.Select(operation => new { operation.Key, operation.Concurrency,
-                Value = Convert.ToBase64String(operation.CanonicalValue.Span) }))));
+        string selectionKey = ConversationProjectionReadModelKeys.ResolutionSelectionKey(model.TenantId, model.ConversationId);
+        var priorSelection = await store.GetAsync<ConversationResolutionNativeSelection>(
+            ConversationProjectionReadModelKeys.StateStoreName, selectionKey, cancellationToken).ConfigureAwait(false);
+        string batchId = Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(new
+        {
+            Operations = operations.Select(operation => new { operation.Key, operation.Concurrency,
+                Value = Convert.ToBase64String(operation.CanonicalValue.Span) }),
+            SelectionConcurrency = Concurrency(priorSelection),
+            Generation = model.Digest(),
+        })));
+        ConversationResolutionNativeSelection? selected = ConversationResolutionNativeSelection.From(model, batchId);
+        if (selected is not null)
+        {
+            operations.Add(ReadModelBatchOperation.Write(selectionKey, selected, Concurrency(priorSelection)));
+        }
         ReadModelBatchResult result = await batches.ExecuteAsync(new(new(
-            ConversationProjectionReadModelKeys.StateStoreName, ConversationProjectionReadModelKeys.ResolutionStorageToken(model.TenantId.Value), ConversationProjectionHandler.ConversationDomain,
-            ConversationProjectionReadModelKeys.ResolutionStorageToken(model.ConversationId.Value), "resolution-metadata", batchId), operations)
-            { RetainManifestForRecovery = true }, cancellationToken).ConfigureAwait(false);
+            ConversationProjectionReadModelKeys.StateStoreName,
+            selected is null ? ConversationProjectionReadModelKeys.ResolutionStorageToken(model.TenantId.Value) : model.TenantId.Value,
+            ConversationProjectionHandler.ConversationDomain,
+            selected is null ? ConversationProjectionReadModelKeys.ResolutionStorageToken(model.ConversationId.Value) : model.ConversationId.Value,
+            selected is null ? "resolution-metadata" : ConversationAsyncProjectionHandler.ConversationReadModelProjectionType, batchId), operations)
+            { RetainManifestForRecovery = true, OwnerSelection = selected?.ProjectionOwner }, cancellationToken).ConfigureAwait(false);
         if (result.IsSuccess)
         {
             return;
@@ -145,7 +168,7 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
     }
 
     /// <summary>Recovers the original source generation after the bounded ledger expires.</summary>
-    internal async Task<DateTimeOffset?> RecoverGeneratedAtAsync(
+    internal async Task<ConversationResolutionGeneration?> RecoverGenerationAsync(
         TenantId tenantId, ConversationId conversationId, string dispatchId, string fingerprint,
         CancellationToken cancellationToken)
     {
@@ -167,12 +190,13 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
         ConversationResolutionGeneration original = found[0];
         if (found.Any(generation => generation.TenantId != tenantId || generation.ConversationId != conversationId
             || generation.RequestFingerprint != fingerprint || generation.Freshness != original.Freshness
-            || generation.SubsetDigest != original.SubsetDigest))
+            || generation.SubsetDigest != original.SubsetDigest
+            || generation.SourceHeadSequence != original.SourceHeadSequence || generation.SourceHeadMessageId != original.SourceHeadMessageId))
         {
             throw new ArgumentException("The lasting dispatch identity was reused for different input.");
         }
 
-        return original.Freshness.ProjectionGeneratedAt;
+        return original;
     }
 
     /// <summary>Retains unavailable proof while an unfenced rich writer may still resume.</summary>

@@ -45,6 +45,7 @@ public sealed class ConversationQueryRegistrationTest
             .. QueryCallerAuthorityBinding.Bind(query).Select(pair => new Claim(pair.Key, pair.Value)),
         ];
         accessor.HttpContext!.User = new(new ClaimsIdentity(claims, "Workload"));
+        accessor.HttpContext.Request.Headers[EventStoreWorkloadAuthenticationDefaults.AssertionHeaderName] = "verified-owner-hop";
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
         builder.Services.AddConversationTenantAccess();
         builder.Services.AddSingleton(accessor);
@@ -54,7 +55,7 @@ public sealed class ConversationQueryRegistrationTest
         builder.Services.AddSingleton<IConversationTenantProjectionSignal>(fixture.Access);
         builder.Services.AddSingleton<TimeProvider>(fixture.Time);
         if (queriesFirst) builder.Services.AddConversationQueries(_ => { });
-        builder.AddEventStoreDomainService(typeof(ConversationQueryHandler).Assembly);
+        builder.AddEventStoreDomainService(typeof(ConversationsAssemblyMarker).Assembly, typeof(ServerAssemblyMarker).Assembly);
         if (!queriesFirst) builder.Services.AddConversationQueries(_ => { });
         Type[] expected = [.. typeof(ConversationQueryHandler).Assembly.GetTypes()
             .Where(type => type.IsClass && !type.IsAbstract && typeof(IDomainQueryHandler).IsAssignableFrom(type))];
@@ -63,13 +64,18 @@ public sealed class ConversationQueryRegistrationTest
         enrolled.Select(descriptor => descriptor.ImplementationType).ShouldBe(expected, ignoreOrder: true);
         enrolled.ShouldContain(descriptor => descriptor.ImplementationType == typeof(GetConversationResolutionMetadataDomainQueryHandler));
         expected.Length.ShouldBeGreaterThan(1);
-        await using ServiceProvider provider = builder.Services.BuildServiceProvider();
-        using IServiceScope scope = provider.CreateScope();
+        await using WebApplication app = builder.Build();
+        app.UseEventStoreDomainService();
+        using IServiceScope scope = app.Services.CreateScope();
+        scope.ServiceProvider.GetRequiredService<DelegatedOwnerQueryClient>().ShouldNotBeNull();
         scope.ServiceProvider.GetServices<IDomainQueryHandler>().Count().ShouldBe(expected.Length);
         QueryResult result = await DomainQueryDispatcher.ExecuteAsync(scope.ServiceProvider, query, TestContext.Current.CancellationToken);
         result.Success.ShouldBeTrue();
-        result.GetPayload().GetProperty("metadata").GetProperty("projectId").GetString().ShouldBe("project-original");
-        fixture.Access.Checks.ShouldBe(2);
+        result.GetPayload().GetProperty("metadata").ValueKind.ShouldBe(System.Text.Json.JsonValueKind.Null);
+        result.GetPayload().GetProperty("freshness").ValueKind.ShouldBe(System.Text.Json.JsonValueKind.Null);
+        result.GetPayload().GetProperty("authorizedAt").ValueKind.ShouldBe(System.Text.Json.JsonValueKind.Null);
+        fixture.Access.Checks.ShouldBe(0);
+        fixture.Guard.ReadKeys.ShouldBeEmpty();
         fixture.Guard.ForbiddenAttempts.ShouldBe(0);
         fixture.Guard.ReadKeys.ShouldAllBe(key => key.StartsWith("projection:conversations-resolution", StringComparison.Ordinal)
             || key.StartsWith("projection:conversations-dispatch:", StringComparison.Ordinal));

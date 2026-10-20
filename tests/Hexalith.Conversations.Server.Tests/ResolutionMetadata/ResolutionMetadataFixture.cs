@@ -28,8 +28,9 @@ internal sealed class ResolutionMetadataFixture
     public ResolutionTestTimeProvider Time { get; } = new(Started.AddSeconds(10));
     public InMemoryReadModelStore Store { get; } = new();
     public ResolutionMetadataAccess Access { get; } = new();
+    public ResolutionNativeEvidence Native { get; }
     public ResolutionGuardedStore Guard { get; }
-    public ResolutionMetadataFixture() => Guard = new(Store);
+    public ResolutionMetadataFixture() { Guard = new(Store); Native = new(this); }
     public ConversationAsyncProjectionHandler Handler(IReadModelStore? store = null)
         => new(new(), new(store ?? Store), store ?? Store, Time);
     public ConversationProjectionReadStore Reader(IReadModelStore? store = null) => new(store ?? Store);
@@ -40,12 +41,12 @@ internal sealed class ResolutionMetadataFixture
         ConversationEventMetadata metadata = new(SchemaVersion.Current, "event-create", ConversationEventType.ConversationCreated,
             tenantId, conversationId, "correlation", Started, new PartyId("actor"), "cause");
         ConversationCreated created = new(metadata, ProjectId: new("project-original"), Label: label);
-        List<ProjectionEventDto> events = [new(nameof(ConversationCreated), JsonSerializer.SerializeToUtf8Bytes(created, JsonSerializerOptions.Web), "json", 1, Started, "correlation")];
+        List<ProjectionEventDto> events = [new(nameof(ConversationCreated), JsonSerializer.SerializeToUtf8Bytes(created, JsonSerializerOptions.Web), "json", 1, Started, "correlation", "source-message-1")];
         if (changedProject)
         {
             ConversationProjectChanged changed = new(metadata with { EventType = ConversationEventType.ConversationProjectChanged,
                 OccurredAt = Started.AddSeconds(1), EventId = "event-change" }, new("project-original"), new("project-new"));
-            events.Add(new(nameof(ConversationProjectChanged), JsonSerializer.SerializeToUtf8Bytes(changed, JsonSerializerOptions.Web), "json", 2, Started.AddSeconds(1), "correlation"));
+            events.Add(new(nameof(ConversationProjectChanged), JsonSerializer.SerializeToUtf8Bytes(changed, JsonSerializerOptions.Web), "json", 2, Started.AddSeconds(1), "correlation", "source-message-2"));
         }
 
         return new(tenantId.Value, ConversationProjectionHandler.ConversationDomain, conversationId.Value, [.. events]);
@@ -85,7 +86,7 @@ internal sealed class ResolutionMetadataFixture
         if (verified) claims.AddRange(QueryCallerAuthorityBinding.Bind(query).Select(pair => new Claim(pair.Key, pair.Value)));
         accessor.HttpContext!.User = new(new ClaimsIdentity(claims, "Workload"));
         var handler = new GetConversationResolutionMetadataDomainQueryHandler(
-            new(access ?? Access, accessor, signal ?? Access, Time), Reader(Guard));
+            new(access ?? Access, accessor, signal ?? Access, Time), Reader(Guard), Native);
         await using ServiceProvider provider = new ServiceCollection().AddSingleton(accessor)
             .AddSingleton<IDomainQueryHandler>(handler).BuildServiceProvider();
         try

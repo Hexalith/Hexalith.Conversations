@@ -210,7 +210,7 @@ public sealed class ConversationResolutionMetadataRecoveryTest
         };
         Task<DomainProjectionHandlerResult> loser = fixture.Handler(fixture.Guard)
             .ProjectAsync(ResolutionMetadataFixture.Request(label: "loser"), "dispatch-a", Token);
-        await reached.Task.WaitAsync(Token);
+        await reached.Task.WaitAsync(TimeSpan.FromSeconds(5), Token);
         await fixture.ProjectAsync("dispatch-z", label: "winner");
         resume.TrySetResult();
         var result = await loser;
@@ -245,7 +245,7 @@ public sealed class ConversationResolutionMetadataRecoveryTest
             }
         };
         Task paused = new ConversationProjectionReadModelWriter(fixture.Guard).PersistAsync(direct, Token);
-        await reached.Task.WaitAsync(Token);
+        await reached.Task.WaitAsync(TimeSpan.FromSeconds(5), Token);
         var same = await fixture.Handler().ProjectAsync(ResolutionMetadataFixture.Request(changedProject: true), "dispatch-direct", Token);
         same.Status.ShouldNotBe(ProjectionDispatchStatus.Completed);
         fixture.Proof.Barrier.ShouldNotBeNull();
@@ -281,7 +281,7 @@ public sealed class ConversationResolutionMetadataRecoveryTest
         };
         Task<DomainProjectionHandlerResult> writer = fixture.Handler(fixture.Guard)
             .ProjectAsync(ResolutionMetadataFixture.Request(changedProject: true), "dispatch-paused-live", Token);
-        await reached.Task.WaitAsync(Token);
+        await reached.Task.WaitAsync(TimeSpan.FromSeconds(5), Token);
         (await new ConversationProjectionReadModelWriter(fixture.Store)
             .TryReconcileTerminalDispatchAsync(Tenant, Conversation, "dispatch-paused-live", Token)).ShouldBeTrue();
         (await new ConversationResolutionMetadataPersistence(fixture.Store)
@@ -316,7 +316,7 @@ public sealed class ConversationResolutionMetadataRecoveryTest
         fixture.Guard.BeforeBatch = batch =>
         {
             produced = batch;
-            batch.Operations.Count.ShouldBe(6);
+            batch.Operations.Count.ShouldBe(7);
             batch.RetainManifestForRecovery.ShouldBeFalse();
             return Task.CompletedTask;
         };
@@ -554,7 +554,7 @@ public sealed class ConversationResolutionMetadataRecoveryTest
             }
         };
         Task<ProjectionDispatchResponse> rebuild = RebuildAsync(fixture);
-        await reached.Task.WaitAsync(Token);
+        await reached.Task.WaitAsync(TimeSpan.FromSeconds(5), Token);
         ProjectionRequest live = ResolutionMetadataFixture.Request(changedProject: true);
         var source = JsonSerializer.Deserialize<ConversationProjectChanged>(live.Events[1].Payload, JsonSerializerOptions.Web)!;
         ConversationMetadataUpdated updated = new(source.Metadata with { EventId = "live-third", EventType = ConversationEventType.ConversationMetadataUpdated,
@@ -612,7 +612,7 @@ public sealed class ConversationResolutionMetadataRecoveryTest
             {
                 writer = rebuild ? RebuildAsync(fixture) : fixture.Handler().ProjectAsync(
                     ResolutionMetadataFixture.Request(changedProject: true), "dispatch-raw-live", Token);
-                await installed.Task.WaitAsync(Token);
+                await installed.Task.WaitAsync(TimeSpan.FromSeconds(5), Token);
             }
         };
         try

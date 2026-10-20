@@ -113,8 +113,9 @@ public static class ConversationQueryServiceCollectionExtensions
             UnavailablePrivilegedOperationalJustificationReviewSource.Instance);
         services.AddScoped<ConversationPrivilegedJustificationReviewService>();
         services.AddScoped<ConversationQueryHandler>();
-        services.AddHttpContextAccessor();
+        services.AddEventStoreDelegatedOwnerQueries();
         services.TryAddScoped<ConversationResolutionMetadataAuthorization>();
+        services.TryAddScoped<IConversationResolutionNativeEvidence, ConversationResolutionNativeEvidence>();
         // The SDK discovers every IDomainQueryHandler in this assembly in either composition order.
         return services;
     }

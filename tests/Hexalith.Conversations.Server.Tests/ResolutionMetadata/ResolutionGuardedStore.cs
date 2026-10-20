@@ -22,7 +22,8 @@ internal sealed class ResolutionGuardedStore(InMemoryReadModelStore inner) : IRe
     {
         Reads.Add(typeof(T));
         ReadKeys.Add(key);
-        bool allowed = typeof(T) == typeof(ConversationResolutionMetadataReadModel) && key.StartsWith("projection:conversations-resolution:", StringComparison.Ordinal)
+        bool allowed = typeof(T) == typeof(ConversationResolutionNativeSelection) && key.StartsWith("projection:conversations-resolution-selection:", StringComparison.Ordinal)
+            || typeof(T) == typeof(ConversationResolutionMetadataReadModel) && key.StartsWith("projection:conversations-resolution:", StringComparison.Ordinal)
             || typeof(T) == typeof(ConversationResolutionMetadataProof) && key.StartsWith("projection:conversations-resolution-proof:", StringComparison.Ordinal)
             || typeof(T) == typeof(ConversationProjectionDispatchLedger) && key.StartsWith("projection:conversations-dispatch:", StringComparison.Ordinal);
         if (ForbidLegacyReads && !allowed)

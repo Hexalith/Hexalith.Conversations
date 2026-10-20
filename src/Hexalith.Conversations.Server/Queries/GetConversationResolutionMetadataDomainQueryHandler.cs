@@ -11,10 +11,12 @@ namespace Hexalith.Conversations.Server.Queries;
 
 /// <summary>Serves isolated, owner-authorized metadata solely for internal Projects equality scoring.</summary>
 /// <param name="authorization">The fixed-purpose exact-resource authorization boundary.</param>
+/// <param name="native">The strict native source and permission gate; absence withholds metadata.</param>
 /// <param name="store">The isolated projection read seam.</param>
 public sealed class GetConversationResolutionMetadataDomainQueryHandler(
     ConversationResolutionMetadataAuthorization authorization,
-    IConversationProjectionReadStore store) : IDomainQueryHandler
+    IConversationProjectionReadStore store,
+    IConversationResolutionNativeEvidence? native = null) : IDomainQueryHandler
 {
     /// <inheritdoc/>
     public string Domain => "conversations";
@@ -47,6 +49,11 @@ public sealed class GetConversationResolutionMetadataDomainQueryHandler(
                 return Unavailable();
             }
 
+            var tenantBefore = native is null ? null : await native.ReadTenantAsync(query, cancellationToken).ConfigureAwait(false);
+            if (tenantBefore is null) return Unavailable();
+            if (!tenantBefore.Allowed) return QueryResult.Failure("safe-denial");
+            if (authorization.UsesNativeEvidence && first.PermissionVersion != JsonSerializer.Serialize(tenantBefore.NativeProof, JsonSerializerOptions.Web))
+                return Unavailable();
             ConversationResolutionMetadataReadModel? metadata = await store.ReadResolutionMetadataAsync(tenant, resource, cancellationToken)
                 .ConfigureAwait(false);
             if (metadata is null)
@@ -59,6 +66,8 @@ public sealed class GetConversationResolutionMetadataDomainQueryHandler(
                 return Unavailable();
             }
 
+            var resourceBefore = await native!.ReadProjectionAsync(metadata, cancellationToken).ConfigureAwait(false);
+            if (resourceBefore is null) return Unavailable();
             var final = await authorization.CheckAsync(tenant, resource, query.UserId, ConversationResolutionMetadataAuthorization.ScoringPurpose, cancellationToken).ConfigureAwait(false);
             if (final.Denied)
             {
@@ -79,9 +88,20 @@ public sealed class GetConversationResolutionMetadataDomainQueryHandler(
                 return Unavailable();
             }
 
+            var resourceAfter = await native!.ReadProjectionAsync(confirmed, cancellationToken).ConfigureAwait(false);
+            // Native permission is sampled after the final awaited resource I/O. Revoke/regrant cannot
+            // borrow the earlier Allowed decision, even if it restores the same role at a new native prefix.
+            var tenantAfter = await native.ReadTenantAsync(query, cancellationToken).ConfigureAwait(false);
+            if (tenantAfter is { Allowed: false }) return QueryResult.Failure("safe-denial");
+            if (tenantAfter is null || tenantAfter.NativeProof != tenantBefore.NativeProof
+                || tenantAfter.TenantId != query.TenantId || tenantAfter.PrincipalId != query.UserId
+                || resourceAfter != resourceBefore
+                || authorization.UsesNativeEvidence && final.PermissionVersion != JsonSerializer.Serialize(tenantAfter.NativeProof, JsonSerializerOptions.Web))
+                return Unavailable();
             cancellationToken.ThrowIfCancellationRequested();
-            return Success(new(metadata.Metadata, metadata.Freshness, metadata.Freshness.ProjectionCursor,
-                final.PermissionVersion, final.AuthorizedAt));
+            return Success(new(metadata.Metadata, metadata.Freshness,
+                JsonSerializer.Serialize(resourceAfter.Source, JsonSerializerOptions.Web),
+                JsonSerializer.Serialize(tenantAfter.NativeProof, JsonSerializerOptions.Web), tenantAfter.VerifiedAt));
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

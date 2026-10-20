@@ -140,8 +140,8 @@ public sealed class ConversationResolutionMetadataQueryHandlerTest
         var value = Deserialize(result);
         value.Metadata.ShouldBe(stored.Metadata);
         value.Freshness.ShouldBe(stored.Freshness);
-        value.ResourceVersion.ShouldBe(stored.Freshness.ProjectionCursor);
-        value.PermissionVersion.ShouldBe("[7,\"native-watermark-7\"]");
+        value.ResourceVersion.ShouldBe(JsonSerializer.Serialize(fixture.Native.LastResource, JsonSerializerOptions.Web));
+        value.PermissionVersion.ShouldBe(JsonSerializer.Serialize(fixture.Native.LastTenant, JsonSerializerOptions.Web));
         value.AuthorizedAt.ShouldBe(fixture.Time.Now);
         fixture.Access.Checks.ShouldBe(2);
         fixture.Store.Count.ShouldBe(keys);
@@ -320,6 +320,7 @@ public sealed class ConversationResolutionMetadataQueryHandlerTest
     [InlineData("resource-final-read")]
     public async Task AuthorityAndGenerationMustRemainStableThroughEveryLookup(string scenario)
     {
+        ArgumentNullException.ThrowIfNull(scenario);
         ResolutionMetadataFixture fixture = new();
         await fixture.ProjectAsync();
         int metadataReads = 0;

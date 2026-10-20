@@ -27,6 +27,12 @@ public sealed record ConversationResolutionMetadataReadModel(
     bool IsLabelComplete,
     string? LabelClassification = null)
 {
+    /// <summary>Gets the exact native source-local sequence admitted by the named producer.</summary>
+    public long? SourceHeadSequence { get; init; }
+
+    /// <summary>Gets the actual persisted event identity, never an allocated generation identity.</summary>
+    public string? SourceHeadMessageId { get; init; }
+
     /// <summary>The owner classification bound for internal equality scoring.</summary>
     public const int MaximumLabelLength = 160;
 
@@ -40,7 +46,8 @@ public sealed record ConversationResolutionMetadataReadModel(
             new(summary.ConversationId.Value, summary.ProjectId?.Value,
                 complete ? summary.Label : null, summary.LifecycleState),
             summary.Freshness, models.DispatchId, fingerprint, complete,
-            complete ? ConversationResolutionScoringPolicy.Classification : null);
+            complete ? ConversationResolutionScoringPolicy.Classification : null)
+        { SourceHeadSequence = models.SourceHeadSequence, SourceHeadMessageId = models.SourceHeadMessageId };
     }
 
     /// <summary>Computes a content-free consistency binding over the entire isolated generation.</summary>

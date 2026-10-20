@@ -49,6 +49,10 @@ internal static class ConversationProjectionReadModelKeys
     internal static string ResolutionMetadataKey(TenantId tenantId, ConversationId conversationId)
         => $"projection:conversations-resolution:{ResolutionStorageToken(tenantId.Value)}:{ResolutionStorageToken(conversationId.Value)}";
 
+    /// <summary>Builds the bounded native selected-generation key; it contains no detail or rich manifest.</summary>
+    internal static string ResolutionSelectionKey(TenantId tenantId, ConversationId conversationId)
+        => $"projection:conversations-resolution-selection:{ResolutionStorageToken(tenantId.Value)}:{ResolutionStorageToken(conversationId.Value)}";
+
     /// <summary>Builds the permanent content-free generation-proof key.</summary>
     internal static string ResolutionProofKey(TenantId tenantId, ConversationId conversationId)
         => $"projection:conversations-resolution-proof:{ResolutionStorageToken(tenantId.Value)}:{ResolutionStorageToken(conversationId.Value)}";

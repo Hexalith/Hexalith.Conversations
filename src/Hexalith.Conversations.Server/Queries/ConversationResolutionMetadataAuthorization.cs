@@ -15,15 +15,20 @@ namespace Hexalith.Conversations.Server.Queries;
 /// <param name="access">The existing owner Read authorization service.</param>
 /// <param name="accessor">The SDK-verified request context.</param>
 /// <param name="signal">Native permission health; absence conservatively prevents disclosure.</param>
+/// <param name="native">The production native Tenant Read evidence transport; local health is insufficient for the strict handler.</param>
 /// <param name="timeProvider">The clock for actual owner-check instants.</param>
 public sealed class ConversationResolutionMetadataAuthorization(
     IConversationTenantAccessService access,
     IHttpContextAccessor accessor,
     IConversationTenantProjectionSignal? signal = null,
-    TimeProvider? timeProvider = null)
+    TimeProvider? timeProvider = null,
+    IConversationResolutionNativeEvidence? native = null)
 {
     /// <summary>The fixed owner-classified purpose; callers cannot supply an inspection purpose or grant.</summary>
     public const string ScoringPurpose = ConversationResolutionScoringPolicy.Purpose;
+
+    /// <summary>Whether the production native Tenant evidence path owns this policy decision.</summary>
+    internal bool UsesNativeEvidence => native is not null;
 
     /// <summary>Requires SDK verification of this exact query and its original authority.</summary>
     internal bool IsVerifiedScoringQuery(QueryEnvelope query)
@@ -36,6 +41,7 @@ public sealed class ConversationResolutionMetadataAuthorization(
             || query.AuthenticatedWorkloadId != "projects" || !query.IsDelegated
             || query.OriginalActorId != query.UserId || origin.OriginalActorId != query.UserId
             || !Canonical(query.UserId) || string.IsNullOrWhiteSpace(query.TenantId) || string.IsNullOrWhiteSpace(query.AggregateId)
+            || query.Payload is not { Length: <= 8192 }
             || query.IsGlobalAdmin || query.Paging is not null || (query.EntityId is not null && query.EntityId != query.AggregateId)
             || (origin.IsDelegated && !Canonical(origin.DelegationId))
             || (!origin.IsDelegated && origin.DelegationId is not null)
@@ -65,6 +71,18 @@ public sealed class ConversationResolutionMetadataAuthorization(
             return (true, null, default);
         }
 
+        if (native is not null)
+        {
+            VerifiedQueryCaller? verified = VerifiedQueryCaller.Get(accessor.HttpContext);
+            if (verified?.Query is not { } query || query.TenantId != tenant.Value || query.AggregateId != resource.Value
+                || query.UserId != actor) return (true, null, default);
+            var evidence = await native.ReadTenantAsync(query, cancellationToken).ConfigureAwait(false);
+            DateTimeOffset now = (timeProvider ?? TimeProvider.System).GetUtcNow();
+            if (evidence is null || evidence.TenantId != tenant.Value || evidence.PrincipalId != actor
+                || evidence.VerifiedAt > now) return (false, null, now);
+            return (!evidence.Allowed, evidence.Allowed ? JsonSerializer.Serialize(evidence.NativeProof, JsonSerializerOptions.Web) : null,
+                evidence.VerifiedAt);
+        }
         ConversationTenantProjectionHealth before = await GetHealthAsync(tenant.Value, cancellationToken)
             .ConfigureAwait(false);
         ConversationTenantAccessDecision decision = await access.CheckAccessAsync(
@@ -96,6 +114,14 @@ public sealed class ConversationResolutionMetadataAuthorization(
     /// <summary>Confirms native permission evidence did not change during the last resource lookup.</summary>
     internal async ValueTask<bool> ConfirmVersionAsync(TenantId tenant, string expected, CancellationToken cancellationToken)
     {
+        if (native is not null)
+        {
+            VerifiedQueryCaller? verified = VerifiedQueryCaller.Get(accessor.HttpContext);
+            if (verified?.Query is not { } query || query.TenantId != tenant.Value) return false;
+            var evidence = await native.ReadTenantAsync(query, cancellationToken).ConfigureAwait(false);
+            return evidence is { Allowed: true } && evidence.TenantId == tenant.Value && evidence.PrincipalId == query.UserId
+                && JsonSerializer.Serialize(evidence.NativeProof, JsonSerializerOptions.Web) == expected;
+        }
         ConversationTenantProjectionHealth health = await GetHealthAsync(tenant.Value, cancellationToken)
             .ConfigureAwait(false);
         return Current(health)

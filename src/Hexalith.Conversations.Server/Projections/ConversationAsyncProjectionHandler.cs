@@ -166,9 +166,10 @@ public sealed class ConversationAsyncProjectionHandler :
         {
             await _resolution.RecoverWritesAsync(new TenantId(request.TenantId),
                 new ConversationId(request.AggregateId), cancellationToken).ConfigureAwait(false);
-            candidateGeneratedAt = await _resolution.RecoverGeneratedAtAsync(
+            ConversationResolutionGeneration? originalGeneration = await _resolution.RecoverGenerationAsync(
                 new TenantId(request.TenantId), new ConversationId(request.AggregateId), dispatchId,
-                requestFingerprint, cancellationToken).ConfigureAwait(false) ?? candidateGeneratedAt;
+                requestFingerprint, cancellationToken).ConfigureAwait(false);
+            candidateGeneratedAt = originalGeneration?.Freshness.ProjectionGeneratedAt ?? candidateGeneratedAt;
             ConversationProjectionDispatchLedger ledger = await AcquireDispatchAsync(
                 request,
                 dispatchId,
@@ -181,6 +182,8 @@ public sealed class ConversationAsyncProjectionHandler :
                 ledger.ProjectionGeneratedAt) with
             {
                 DispatchId = dispatchId,
+                SourceHeadSequence = originalGeneration is null ? request.Events.LastOrDefault()?.SequenceNumber : originalGeneration.SourceHeadSequence,
+                SourceHeadMessageId = originalGeneration is null ? request.Events.LastOrDefault()?.MessageId : originalGeneration.SourceHeadMessageId,
             };
             // A completed ledger is only a completion if the generation it describes is still readable. The
             // ledger lives under a third key family, so derived-state deletion or a store rollback can leave it
@@ -302,15 +305,15 @@ public sealed class ConversationAsyncProjectionHandler :
             }
         }
 
+        ConversationResolutionGeneration? originalGeneration = await _resolution.RecoverGenerationAsync(new TenantId(request.TenantId),
+            new ConversationId(request.AggregateId), operationId, requestFingerprint, cancellationToken).ConfigureAwait(false);
         ConversationProjectedReadModels models = Materialize(
-            request,
-            events,
-            existingLedger?.ProjectionGeneratedAt
-                ?? await _resolution.RecoverGeneratedAtAsync(new TenantId(request.TenantId),
-                    new ConversationId(request.AggregateId), operationId, requestFingerprint, cancellationToken).ConfigureAwait(false)
+            request, events, existingLedger?.ProjectionGeneratedAt ?? originalGeneration?.Freshness.ProjectionGeneratedAt
                 ?? _timeProvider.GetUtcNow()) with
         {
             DispatchId = operationId,
+            SourceHeadSequence = originalGeneration is null ? request.Events.LastOrDefault()?.SequenceNumber : originalGeneration.SourceHeadSequence,
+            SourceHeadMessageId = originalGeneration is null ? request.Events.LastOrDefault()?.MessageId : originalGeneration.SourceHeadMessageId,
         };
 
         if (!AllowsPersistence(models.Detail.Freshness)
@@ -435,6 +438,13 @@ public sealed class ConversationAsyncProjectionHandler :
                 ConversationProjectionDispatchStatus.Completed)
             : existingLedger with { Status = ConversationProjectionDispatchStatus.Completed };
 
+        ConversationResolutionNativeSelection? nativeSelection = ConversationResolutionNativeSelection.From(metadata, operationId, rebuild: true);
+        var priorSelection = await _store.GetAsync<ConversationResolutionNativeSelection>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ResolutionSelectionKey(metadata.TenantId, metadata.ConversationId), cancellationToken).ConfigureAwait(false);
+        List<ReadModelBatchOperation> nativeOperations = nativeSelection is null ? [] :
+            [ReadModelBatchOperation.Write(ConversationProjectionReadModelKeys.ResolutionSelectionKey(metadata.TenantId, metadata.ConversationId),
+                nativeSelection, WriteConcurrency(priorSelection))];
         return new DomainProjectionRebuildPlan(
             ConversationProjectionReadModelKeys.StateStoreName,
             [
@@ -458,6 +468,7 @@ public sealed class ConversationAsyncProjectionHandler :
                 ReadModelBatchOperation.Write(
                     ConversationProjectionReadModelKeys.ResolutionFenceKey(metadata.TenantId, metadata.ConversationId),
                     rebuiltProof, WriteConcurrency(persistedFence)),
+                .. nativeOperations,
             ]);
     }
 
@@ -472,7 +483,11 @@ public sealed class ConversationAsyncProjectionHandler :
             projectionGeneratedAt,
             DefaultStaleAfter,
             isRebuilding: false,
-            metadataWriteFailed: false);
+            metadataWriteFailed: false) with
+        {
+            SourceHeadSequence = request.Events.LastOrDefault()?.SequenceNumber,
+            SourceHeadMessageId = request.Events.LastOrDefault()?.MessageId,
+        };
 
     private async Task<ConversationProjectionDispatchLedger> AcquireDispatchAsync(
         ProjectionRequest request,
