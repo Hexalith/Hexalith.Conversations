@@ -2,7 +2,7 @@
 title: 'Story 11.2: Build the reproducible minimal-module fixture against live platform APIs'
 type: 'feature'
 created: '2026-10-18'
-status: 'done'
+status: 'in-progress'
 baseline_commit: 'cc7647d0c6f942e3f8b0cc3a204af30621089cc0'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -100,6 +100,58 @@ context:
 | EC proof generator: stale DLL by mtime, `dotnet --version` vs `global.json`, output path containment, empty Include in platform refs | low | defer | Local-lane tool robustness; none affects the committed candidate. |
 | EC `--inventory-only` still runs `check_predecessor` | false | reject | AC-11.2-01 requires the Story 11.1 record check with the inventory. |
 | EC reader successor reports `ASSERTION_STRENGTH_WEAKENED` instead of a distinct code | low | reject | The frozen 10.4 code is the contract. |
+
+### Review Findings (2026-10-19, third pass, `cc7647d..1f38912` without lock files and generated evidence)
+
+- [x] [Review][Decision] AC-11.2-02 and AC-11.2-03 are recorded as exit 0 / PASS but never measured — The route hard-codes `exitCode=0, result='PASS'` and cites the proof JSON as both result files. The proof hard-codes `lockedMode` and `warningsAsErrors`, so a stale lock file that `--locked-mode` would reject still passes. "Repository-approved sources" is neither checked nor recorded: there is no `nuget.config`, and the frozen inventory allows none in the fixture. Resolved 2026-10-20 (Jerome): measured receipts. (blind-hunter+edge-case-hunter+acceptance-auditor, medium)
+- [ ] [Review][Patch] Measure AC-11.2-02 and AC-11.2-03: run each frozen command through a receipt wrapper that captures the exit code and console log (`artifacts/v9/11.2/AC-11.2-02.log`, `AC-11.2-03.log`). Bind both receipts in the route. Take `lockedMode` and `warningsAsErrors` in the proof from those receipts, and record the restore sources from `.nupkg.metadata` [_bmad/scripts/generate_story_record.py:10277]
+- [ ] [Review][Patch] Record-route fixture commits nothing on a clean tree, so all 26 `test_story_112_*` tests error at setup and `ci / repository` is red at `1f38912` (run 39204841905: 2038 passed, 26 errors); add `--allow-empty` [_bmad/scripts/tests/test_generate_story_record.py:12921] (verification-gap+acceptance-auditor, high)
+- [ ] [Review][Patch] The proof binds Debug-built platform assemblies under a Release build. All five `resolvedPublicApis.assemblies` embed `obj/Debug/net10.0` PDB paths and equal `references/Hexalith.EventStore/src/*/bin/Debug` outputs, which the umbrella Debug build also writes. A `.slnx` build sets `ShouldUnsetParentConfigurationAndPlatform` for the out-of-solution references, which drops `Configuration=Release`. Set it to `false` in the fixture props [tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props:4] (found in triage while verifying the path-bound hash claims, medium)
+- [ ] [Review][Patch] The record route's `rederive=False` branch skips the proof's lock files, guidance Markdown and source digests, and platform project hashes. A probe committed a lock-file edit after the proof, and the record still came out PASS, with live `fixture.lockFiles` differing from the stale `restore.lockFiles` [_bmad/scripts/verify_minimal_module_fixture.py:538] (blind-hunter+edge-case-hunter+acceptance-auditor+verification-gap, medium)
+- [ ] [Review][Patch] The proof's `candidate` does not bind SC-11.2: there is no commit and no `references/Hexalith.EventStore` gitlink, so platform identity rests on csproj hashes and build-dependent DLL hashes. Add both fields to the closed schema, the generator, the Markdown and `verify_proof`, and have the route check them against the candidate [_bmad/scripts/generate_minimal_module_fixture_proof.py:166] (blind-hunter+acceptance-auditor, medium)
+- [ ] [Review][Patch] No test exercises the `rederive=False` proof comparison: disabling it leaves all 26 route tests passing. Add a test that commits a fixture edit after the proof and expects rejection [_bmad/scripts/tests/test_generate_story_record.py:13042] (verification-gap, medium)
+- [ ] [Review][Patch] `v2_11_2_publication_check` is untested: `publication_check=None` leaves all 26 tests passing. Add a published-proof-drift variant [_bmad/scripts/tests/test_generate_story_record.py:13196] (verification-gap, medium)
+- [ ] [Review][Patch] The schema `else` test passes for the wrong reason (the 11.1 `thinGuidanceExecution` requirement); assert the `fixtureProofExecution` exclusion itself [_bmad/scripts/tests/test_generate_story_record.py:13082] (verification-gap, low)
+- [ ] [Review][Patch] The receipt-to-scenario digest loop and the `predecessors` check in `v2_11_2_pair_errors` are never reached; add `receipts[0].sha256` and `predecessors` mutations [_bmad/scripts/generate_story_record.py:10135] (verification-gap, low)
+- [ ] [Review][Patch] The AC-11.2-05 repository-only assertion is vacuous: the absolute path always contains `/tests/fixtures/`. Assert on the fixture-relative path [tests/Hexalith.Conversations.Contracts.Tests/Documentation/DomainModuleAuthoringTemplateValidationTest.cs:299] (edge-case-hunter, low)
+- [ ] [Review][Patch] The fixture projection binds payloads with default options instead of `EventStorePayloadSerialization.Options`, which every platform reader uses [tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs:62] (edge-case-hunter, low)
+- [ ] [Review][Patch] The ledger drops the triaged "empty Include in platform refs" item, and the three 11.2 entries sit under the 11.1 heading [_bmad-output/implementation-artifacts/deferred-work.md:600] (blind-hunter, low)
+- [x] [Review][Defer] The AC-11.2-01 receipt does not carry HEAD or the predecessor digests, and the route sets the candidate from HEAD [_bmad/scripts/verify_minimal_module_fixture.py:556] — deferred: this extends the owner-accepted 11.1 deferral "receipts bound to the candidate only by mtime and name"; the route reuses `v2_11_1_read_receipt` (medium).
+- [x] [Review][Defer] Assembly hashes embed the absolute checkout path (no `ContinuousIntegrationBuild`/`PathMap`), so `rederive=True` cannot reproduce at another path [tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props:4] — deferred: platform assemblies take the submodule's own props, which this story may not edit. This follows the existing path-bound record convention and is settled with the deferred fixture CI lane (medium).
+- [x] [Review][Defer] The registration test never shows that the platform host discovered `ConversationAggregate`, and command handling calls the aggregate directly [tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs:48] — deferred: medium, unverified. Settle it by dispatching `CreateConversation` through the platform host's in-process command path.
+- [x] [Review][Defer] The planning text says the 13 paths are in "ordinal order", but the frozen digest `4fa26d6f…` matches only the listed order (sorted order gives `49521de4…`) [_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md] — deferred: the fix edits planning text, and this frozen spec repeats the wording; the code follows the digest (low).
+
+#### Rejected
+
+- BH `dotnet_sdk_version` falls back to `global.json` — low: already in the ledger's 11.2 proof-generator robustness entry.
+- BH/AA/EC conditional, `Choose` and `Target` property groups are ignored, and warning exemptions are not in the proof — low: NU1901–NU1904 and CA2007 mirror the umbrella `Directory.Build.props` and `tests/Directory.Build.props`, and a conditional bypass needs deliberate authoring.
+- BH packability is checked only on the AppHost — low: the fixture props set `IsPackable=false` for every project, so an override needs a deliberate edit.
+- BH/EC the `Validate` filter drops only `dapr/subscribe`, and the endpoint check looks only for `EndpointDataSource` subclasses — low: the verifier's `PLATFORM_RUNTIME_SOURCE` scan and the `module-authored-endpoint` fault cover module routes.
+- BH publication is proven consumer-side and in-process — false: the 2026-10-18 platform-hosted-proof owner decision specifies exactly this.
+- BH/EC/AA the AppHost composes a library it cannot run, and `platformHelper` is a constant — low: Implementation Notes acknowledge it, the frozen inventory has no host executable, and AC-11.2-05 asserts `AddAspireDaprDomainModule` in `AppHost.cs`.
+- BH/AA the fault matrix accepts the expected blocker among several — low: adding or removing a project also drifts the frozen inventory.
+- BH/EC TRX counters, nested `InnerResults` and lenient JUnit names — low: these are runner-produced receipts, and the change would be hardening only.
+- BH bare `pytest.raises` without `match=` — low: the demonstrated gaps are carried as patches above.
+- BH/EC/VG the reader-successor pin skips migration reconstruction and needs re-pinning per edit, and its `a3e6c15` test is collect-ignored — low: the pin design is from pre-story `7f67adb`, and CI still guards the rule through `test_approved_assertion_correction_preserves_every_other_entry_byte`.
+- AA the `a3e6c15` re-pin of the 10.4 reader digests is undeclared — rejected: the fix edits this spec.
+- BH/AA lifecycle bookkeeping (status, stale candidate in Implementation Notes, `review_loop_iteration`, baseline before `7f67adb`) — rejected: the fix edits this spec, and this review's status sync sets the lifecycle fields.
+- BH/EC `ScaffoldSmokeTest` exempts all of `tests/fixtures/` — false: Implementation Notes record this as a deliberate rule for self-contained fixtures.
+- BH the IdentityModel pin is not in the guidance, and the README omits prerequisites — low: the guidance is a Story 11.1 output (Never), and the contract commands are the run source of truth.
+- BH the generator maps its own schema failure to BLOCKED — false: an own-output schema failure is a generator defect, not a fixture verdict.
+- BH/EC receipts use `text eol=lf` — low: this is the same convention as the 10.4 receipts.
+- BH/EC/VG `.slnx` project drift raises no blocker — low: the proof binds the slnx bytes, and drift needs a deliberate edit.
+- EC/AA a symlinked frozen path skips the containment and LF checks — low: the route requires `fixtureFileCount == 13`, so no PASS record can follow.
+- EC lowercase or semicolon package ids, a per-project lock opt-out, and the MSBuild 2003 xmlns — low: hardening only.
+- EC the verifier passes without `--test-result` — low: every contract command supplies it.
+- EC a malformed lock JSON gives a traceback — low: the input is NuGet-generated, and the run still exits nonzero.
+- EC `verifier.Blocked` surfaces as `INTERNAL_ERROR` — low: the route still fails closed.
+- EC the proof pair is already committed at the candidate — low: not a workflow path.
+- EC a checkout path containing `bin` or `obj` — false: the C# test fails loudly.
+- AA the internal-symbol and not-run rows have no fault — low: an internal reference fails to compile (CS0122), and not-run outcomes are counted.
+- AA the module configures event subscription — false: `UseEventStoreDomainService` maps the routes only when a consumer is registered, and the module authors no route or worker.
+- AA a source file under a nested `bin` or `obj` escapes the inventory — low: only deliberate evasion reaches it.
+- AA `BLOCKED` is written as a blocker code — low: it is the exit-2 result state and never reaches the record.
+- VG `ci / admin-web` is red in the same run — false for this diff: it is a Playwright `captureScreenshot` protocol error.
 
 ## Verification
 
