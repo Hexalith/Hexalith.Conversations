@@ -13337,19 +13337,37 @@ def story113_trx(method, candidate='1' * 40, evidence='2' * 64):
     return ElementTree.tostring(root)
 
 
-def story113_fault_receipt(generator, candidate='1' * 40, evidence='2' * 64):
+def story113_fault_receipt(generator, repository, candidate, evidence):
+    """A consumer control with real input snapshots; the measured matrix exercises main()."""
     _, verifier, _ = generator.v2_11_3_modules()
+    from test_sm2_evidence import mutate
+    baseline = verifier.verify(repository, candidate=candidate)
+    assert baseline['result'] == 'PASS'
+    before = {path: (repository/path).read_bytes() for path in verifier.measurement_input_paths(repository)
+              if (repository/path).is_file()}
+    before_hash = verifier.measurement_input_sha256(repository)
     root = ElementTree.Element('testsuites')
     suite = ElementTree.SubElement(root, 'testsuite', tests=str(len(verifier.FAULT_EXPECTATIONS)), failures='0', errors='0', skipped='0')
     for fault, code in verifier.FAULT_EXPECTATIONS.items():
         blocked = fault == 'history-unavailable'
+        mutate(repository, json.loads(before[verifier.generator.JSON_PATH]), fault)
+        mutated_hash = verifier.measurement_input_sha256(repository)
+        for path in verifier.measurement_input_paths(repository):
+            if path not in before and (repository/path).is_file(): (repository/path).unlink()
+        for path, content in before.items(): (repository/path).write_bytes(content)
+        assert mutated_hash != before_hash
+        ledger = [dict(id='check', subject='mutated input', state='SKIPPED' if blocked else 'FAIL')]
+        observed = dict(baseline, result='BLOCKED' if blocked else 'FAIL', blockers=[code], assertionLedger=ledger)
         case = ElementTree.SubElement(suite, 'testcase', classname='_bmad.scripts.tests.test_sm2_evidence', name=f'test_checkpoint_c_fault_matrix[{fault}]')
         props = ElementTree.SubElement(case, 'properties')
         values = dict(story113_source_revision=candidate, story113_evidence_sha256=evidence,
                       story113_fault_id=fault, story113_expected_code=code, story113_observed_blockers=json.dumps([code]),
                       story113_observed_result='BLOCKED' if blocked else 'FAIL', story113_observed_exit='2' if blocked else '1',
-                      story113_before_sha256='3'*64, story113_after_sha256='3'*64,
-                      story113_assertion_ledger=json.dumps([dict(id='check', subject='mutated input', state='SKIPPED' if blocked else 'FAIL')]))
+                      story113_before_sha256=before_hash, story113_after_sha256=before_hash,
+                      story113_mutated_sha256=mutated_hash,
+                      story113_baseline_exit='0', story113_restored_exit='0',
+                      story113_baseline_report=json.dumps(baseline), story113_restored_report=json.dumps(baseline),
+                      story113_observed_report=json.dumps(observed), story113_assertion_ledger=json.dumps(ledger))
         for name, value in values.items():
             ElementTree.SubElement(props, 'property', name=name, value=value)
     return ElementTree.tostring(root)
@@ -13374,13 +13392,16 @@ def test_story_113_native_receipt_binds_its_named_test_and_source(method):
             generator.v2_11_3_trx(mutated, name, '1'*40, '2'*64, metrics)
 
 
-def test_story_113_fault_receipt_requires_the_exact_observed_restored_matrix():
+def test_story_113_fault_receipt_requires_the_exact_observed_restored_matrix(sm2_repository):
     generator = load_generator()
-    content = story113_fault_receipt(generator)
-    rows = generator.v2_11_3_mutations(content, '1'*40, '2'*64)
+    gen, _, chain = generator.v2_11_3_modules()
+    candidate = chain.fixture.git_head(WORKSPACE)
+    evidence = generator.v2_sha256((sm2_repository/gen.JSON_PATH).read_bytes())
+    content = story113_fault_receipt(generator, sm2_repository, candidate, evidence)
+    rows = generator.v2_11_3_mutations(content, candidate, evidence, repository=sm2_repository)
     assert len(rows) == 28 and all(row['detected'] and row['restored'] for row in rows)
-    root = ElementTree.fromstring(content)
-    for mutation in ('missing-fault', 'stale-revision', 'false-expected-code', 'vacuous-ledger', 'undetected', 'not-restored', 'skipped', 'duplicate-property'):
+    for mutation in ('missing-fault', 'stale-revision', 'false-expected-code', 'vacuous-ledger', 'undetected', 'not-restored', 'skipped', 'duplicate-property',
+                     'zero-snapshots', 'zero-mutation', 'unchanged-mutation', 'baseline-exit', 'restored-exit', 'baseline-report', 'restored-report', 'observed-report', 'observed-exit'):
         draft = ElementTree.fromstring(content)
         suite = draft.find('testsuite')
         case = suite.find('testcase')
@@ -13394,7 +13415,19 @@ def test_story_113_fault_receipt_requires_the_exact_observed_restored_matrix():
         elif mutation == 'not-restored': values['story113_after_sha256'].set('value', '4'*64)
         elif mutation == 'skipped': ElementTree.SubElement(case, 'skipped')
         elif mutation == 'duplicate-property': props.append(deepcopy(props[0]))
-        with pytest.raises(ValueError): generator.v2_11_3_mutations(ElementTree.tostring(draft), '1'*40, '2'*64)
+        elif mutation == 'zero-snapshots':
+            for name in ('story113_before_sha256', 'story113_after_sha256'): values[name].set('value', '0'*64)
+        elif mutation == 'zero-mutation': values['story113_mutated_sha256'].set('value', '0'*64)
+        elif mutation == 'unchanged-mutation': values['story113_mutated_sha256'].set('value', values['story113_before_sha256'].get('value'))
+        elif mutation in ('baseline-exit', 'restored-exit', 'observed-exit'):
+            values['story113_' + mutation.replace('-', '_')].set('value', '0' if mutation == 'observed-exit' else '1')
+        elif mutation in ('baseline-report', 'restored-report', 'observed-report'):
+            name = 'story113_' + mutation.replace('-', '_')
+            report = json.loads(values[name].get('value'))
+            report['result'] = 'PASS' if mutation == 'observed-report' else 'FAIL'
+            values[name].set('value', json.dumps(report))
+        with pytest.raises(ValueError):
+            generator.v2_11_3_mutations(ElementTree.tostring(draft), candidate, evidence, repository=sm2_repository)
 
 
 def test_story_113_schema_requires_its_closed_execution_and_summary():
@@ -13408,7 +13441,7 @@ def test_story_113_schema_requires_its_closed_execution_and_summary():
     assert generator.v2_11_3_pair_errors(record) == ['Story 11.3 execution facts are malformed']
 
 
-def test_story_113_closed_route_dispatches_generation_and_insertion(monkeypatch):
+def test_story_113_closed_route_dispatches_generation(monkeypatch):
     generator = load_generator()
     calls = []
     def generate(options):
@@ -13418,11 +13451,6 @@ def test_story_113_closed_route_dispatches_generation_and_insertion(monkeypatch)
     options = {'--contract': generator.V2_11_3_CONTRACT}
     assert generator.v2_generate(options) == b'generated\n'
     assert calls == [('generate', options)]
-    monkeypatch.setattr(generator, 'v2_11_3_verify_inserted', lambda options: b'inserted\n')
-    monkeypatch.setattr(generator, 'v2_write_stdout', lambda content: calls.append(('stdout', content)))
-    monkeypatch.setattr(generator, 'v2_parse_arguments', lambda argv: dict(options, **{generator.V2_VERIFY_OPTION: generator.V2_11_3_SPEC}))
-    assert generator.v2_main([]) == 0
-    assert calls[-1] == ('stdout', b'inserted\n')
 
 
 from test_sm2_evidence import committed_facts, sm2_repository  # noqa: E402,F401 - shared read-only fixture
@@ -13452,7 +13480,7 @@ def story113_fixture(sm2_repository, monkeypatch):
     receipts = dict(zip(generator.V2_11_3_RECEIPTS, [
         story113_trx(methods[0], candidate, evidence_hash), story113_trx(methods[1], candidate, evidence_hash),
         gen.serialize(verifier.verify(repository)), gen.serialize(chain.verify(repository)),
-        story113_fault_receipt(generator, candidate, evidence_hash)]))
+        story113_fault_receipt(generator, repository, candidate, evidence_hash)]))
     return generator, repository, options, receipts
 
 
@@ -13475,6 +13503,131 @@ def test_story_113_route_derives_current_metrics_receipts_and_closed_record(stor
         elif mutate == 'fault': draft['sm2Execution']['mutationLedger'][0]['afterSha256'] = 'f'*64
         elif mutate == 'summary': draft['summary']['required'] = 6
         assert generator.v2_11_3_pair_errors(draft)
+
+
+@pytest.mark.parametrize('state', ['FAIL', 'SKIPPED'])
+def test_story_113_resigned_pair_rejects_nonpassing_assertions(story113_fixture, state):
+    generator, _, options, receipts = story113_fixture
+    record = json.loads(generator.v2_11_3_generate(options, read_receipt=receipts.get))
+    record['scenarios'][0]['assertionLedger'][0]['state'] = state
+    _, j, m = generator.v2_finalize(record)
+    assert 'Story 11.3 requires the compatible closed 7/7/0/0/0/0 PASS set' in generator.v2_verify_pair(j, m)
+
+
+@pytest.mark.parametrize('insertion', [False, True])
+def test_story_113_upstream_failure_retains_fail_exit_and_exact_diagnostics(story113_fixture, monkeypatch, insertion):
+    generator, repository, options, receipts = story113_fixture
+    gen, verifier, _ = generator.v2_11_3_modules()
+    if insertion:
+        generator.v2_11_3_generate(options, read_receipt=receipts.get)
+        original_blob = generator.v2_committed_blob
+        path = options['--output-json']
+        monkeypatch.setattr(generator, 'v2_committed_blob', lambda root, revision, name:
+                            (repository/path).read_bytes() if name == path else original_blob(root, revision, name))
+        options = dict(options, **{generator.V2_VERIFY_OPTION: generator.V2_11_3_SPEC})
+    codes = ['SM2_MEASUREMENT_INVALID', 'OQ2_DECISION_INVALID']
+    monkeypatch.setattr(verifier, 'verify', lambda *args, **kwargs: dict(result='FAIL', blockers=codes))
+    monkeypatch.setattr(generator, 'v2_parse_arguments', lambda argv: options)
+    output = io.StringIO()
+    with redirect_stdout(output):
+        status = generator.v2_main([])
+    failure = json.loads(output.getvalue())
+    assert status == 1 and failure['exitCode'] == 1 and failure['result'] == 'FAIL'
+    assert failure['blockers'] == ['RECORD_NOT_DERIVED']
+    assert [row['message'] for row in failure['diagnostics']] == ['upstream verifier FAIL: ' + code for code in codes]
+    assert not generator.v2_schema_errors(generator.v2_load_schemas()[1]['failure'], failure)
+
+
+def test_story_113_byte_bound_sources_survive_autocrlf_checkout(tmp_path):
+    generator = load_generator()
+    repository = tmp_path/'checkout'
+    repository.mkdir()
+    run_git(repository, 'init', '--quiet')
+    (repository/'.gitattributes').write_bytes((WORKSPACE/'.gitattributes').read_bytes())
+    paths = list(generator.V2_11_3_SOURCES)
+    originals = {}
+    for path in paths:
+        target = repository/path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        originals[path] = (WORKSPACE/path).read_bytes()
+        target.write_bytes(originals[path])
+    run_git(repository, 'add', '--', '.gitattributes', *paths)
+    run_git(repository, 'commit', '--quiet', '-m', 'test: preserve story source checkout bytes')
+    for path in paths: (repository/path).unlink()
+    run_git(repository, '-c', 'core.autocrlf=true', 'checkout', '--', *paths)
+    assert {path: (repository/path).read_bytes() for path in paths} == originals
+    assert all(b'\r\n' not in originals[path] for path in paths if path.endswith('.py'))
+    assert originals[paths[-1]].count(b'\r\n') == originals[paths[-1]].count(b'\n')
+
+
+def test_story_113_actual_insertion_wrapper_replays_provenance_and_detects_metric_drift(tmp_path, monkeypatch, committed_facts):
+    generator = load_generator()
+    gen, verifier, chain = generator.v2_11_3_modules()
+    repository = tmp_path/'publication'
+    run_git(tmp_path, 'clone', '--quiet', '--shared', '--no-checkout', str(WORKSPACE), str(repository))
+    run_git(repository, 'checkout', '--quiet', 'HEAD')
+    paths = ['docs/release-evidence/story-11.3-final-record-v2.' + extension for extension in ('json', 'md')]
+    publication = [*paths, gen.JSON_PATH, gen.MARKDOWN_PATH, *generator.V2_11_3_RECEIPTS]
+    run_git(repository, 'rm', '--quiet', '--ignore-unmatch', '--', *publication)
+    for path in (*generator.V2_11_3_SOURCES, '.gitattributes'):
+        (repository/path).write_bytes((WORKSPACE/path).read_bytes())
+    run_git(repository, 'add', '--', '.gitattributes', *generator.V2_11_3_SOURCES)
+    run_git(repository, 'commit', '--quiet', '-m', 'test: prepare story measurement candidate')
+    candidate = run_git(repository, 'rev-parse', 'HEAD').stdout.strip()
+    # Cache only immutable real Git facts from this clone, including its new C commit.
+    cache = {}
+    def real_facts(root, request):
+        key = (str(root), json.dumps(request, sort_keys=True))
+        if key not in cache: cache[key] = committed_facts.original(root, request)
+        return deepcopy(cache[key])
+    monkeypatch.setattr(chain.current, 'bridge', real_facts)
+    j, m = gen.finalize(gen.build_signable(repository, candidate=candidate))
+    (repository/gen.JSON_PATH).write_bytes(j)
+    (repository/gen.MARKDOWN_PATH).write_bytes(m)
+    contract = json.loads((repository/generator.V2_11_3_CONTRACT).read_bytes())
+    methods = [shlex.split(contract['scenarios'][i]['command'])[shlex.split(contract['scenarios'][i]['command']).index('-method')+1] for i in (1, 2)]
+    evidence = generator.v2_sha256(j)
+    receipt_bytes = [story113_trx(method, candidate, evidence) for method in methods]
+    receipt_bytes += [gen.serialize(verifier.verify(repository, candidate=candidate)), gen.serialize(chain.verify(repository, candidate)),
+                      story113_fault_receipt(generator, repository, candidate, evidence)]
+    for path, content in zip(generator.V2_11_3_RECEIPTS, receipt_bytes):
+        (repository/path).parent.mkdir(parents=True, exist_ok=True)
+        (repository/path).write_bytes(content)
+    options = {'--repository': str(repository), '--contract': generator.V2_11_3_CONTRACT,
+               '--output-json': paths[0], '--output-markdown': paths[1], '--format': 'bundle'}
+    derived = generator.v2_11_3_generate(options)
+    run_git(repository, 'add', '--force', '--', *publication)
+    run_git(repository, 'commit', '--quiet', '-m', 'test: publish measured story record')
+    spec = repository/generator.V2_11_3_SPEC
+    def insert(markdown):
+        content = spec.read_bytes()
+        region = generator.v2_record_region(content)
+        if region is None:
+            content += b'\n' + generator.RECORD_BEGIN_MARKER.encode() + b'\n' + markdown + generator.RECORD_END_MARKER.encode() + b'\n'
+        else: content = content[:region[0]] + markdown + content[region[1]:]
+        spec.write_bytes(content)
+    insert((repository/paths[1]).read_bytes())
+    verify_options = dict(options, **{generator.V2_VERIFY_OPTION: generator.V2_11_3_SPEC})
+    def unavailable(root):
+        raise subprocess.TimeoutExpired(['dotnet', '--version'], 60)
+    monkeypatch.setattr(gen, 'versions', unavailable)
+    try:
+        assert generator.v2_11_3_verify_inserted(verify_options) == derived
+    except generator.V2Stop as stop:
+        pytest.fail(str(stop.findings))
+    record = json.loads(derived)
+    record['sm2Execution']['metrics']['physicalLoc'] += 1
+    _, changed_j, changed_m = generator.v2_finalize(record)
+    assert not generator.v2_verify_pair(changed_j, changed_m)  # correctly re-signed, internally consistent pair
+    (repository/paths[0]).write_bytes(changed_j)
+    (repository/paths[1]).write_bytes(changed_m)
+    run_git(repository, 'add', '--', *paths)
+    run_git(repository, 'commit', '--quiet', '-m', 'test: change measured record LOC')
+    insert(changed_m)
+    with pytest.raises(generator.V2Stop) as caught:
+        generator.v2_11_3_verify_inserted(verify_options)
+    assert [row['code'] for row in caught.value.findings] == ['RECORD_CONTENT_DRIFT']
+    assert caught.value.findings[0]['message'] == 'record differs from independently recomputed source candidate and current receipts'
 
 
 @pytest.mark.parametrize('fault', ['missing-receipt', 'stale-trx', 'stale-json', 'empty-matrix', 'source-drift', 'unrelated-dirt', 'upstream-blocked'])

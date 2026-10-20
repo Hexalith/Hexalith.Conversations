@@ -8,6 +8,7 @@ import importlib.metadata
 import json
 from pathlib import Path
 import platform
+import re
 import subprocess
 import sys
 
@@ -118,14 +119,27 @@ def sensitivity(files: int) -> dict:
 def versions(repository: Path) -> dict:
     tools = {}
     for name, args in (('dotnetSdk', ['dotnet', '--version']), ('git', ['git', '--version'])):
-        result = subprocess.run(args, cwd=repository, capture_output=True, text=True, timeout=60, check=False)
+        try:
+            result = subprocess.run(args, cwd=repository, capture_output=True, text=True, timeout=60, check=False)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise EvidenceError('HISTORY_UNAVAILABLE', 'tool version unavailable: ' + name) from error
         if result.returncode or not result.stdout.strip():
             raise EvidenceError('HISTORY_UNAVAILABLE', 'tool version unavailable: ' + name)
         tools[name] = result.stdout.strip()
     return dict(python=platform.python_version(), jsonschema=importlib.metadata.version('jsonschema'), **tools)
 
 
-def build_signable(repository: Path, *, candidate: str = 'HEAD') -> dict:
+def valid_versions(recorded: dict) -> bool:
+    """Validate historical generation provenance without inspecting the current environment."""
+    patterns = dict(python=r'[0-9]+\.[0-9]+\.[0-9]+[0-9A-Za-z.+-]*',
+                    jsonschema=r'[0-9]+\.[0-9]+\.[0-9]+[0-9A-Za-z.+-]*',
+                    dotnetSdk=r'[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?',
+                    git=r'git version [0-9]+\.[0-9]+(?:\.[0-9A-Za-z]+)*(?: [ -~]+)?')
+    return isinstance(recorded, dict) and set(recorded) == set(patterns) and all(
+        isinstance(recorded[key], str) and re.fullmatch(pattern, recorded[key]) for key, pattern in patterns.items())
+
+
+def build_signable(repository: Path, *, candidate: str = 'HEAD', _recorded_versions: dict | None = None) -> dict:
     commit = fixture.resolve_commit(repository, candidate)
     measurement = measure(repository, commit)
     for path, digest in HISTORY_PINS.items():
@@ -135,6 +149,9 @@ def build_signable(repository: Path, *, candidate: str = 'HEAD') -> dict:
     if candidate_result['result'] != 'PASS':
         raise EvidenceError(candidate_result['blockers'][0], 'checkpoint chain does not verify')
     contract = json.loads(chain.read(repository, chain.CONTRACT))
+    provenance = versions(repository) if _recorded_versions is None else dict(_recorded_versions)
+    if not valid_versions(provenance):
+        raise EvidenceError('SM2_MEASUREMENT_INVALID', 'invalid generation tool provenance')
     return dict(schemaVersion=SCHEMA_VERSION,
                 candidate=dict(storyId='11.3', checkpoint='C', commit=commit,
                                planningCandidate=contract['authority']['planningCandidate'],
@@ -144,7 +161,7 @@ def build_signable(repository: Path, *, candidate: str = 'HEAD') -> dict:
                     ownerDecision='2026-10-20: retain the accepted estimated reference of 58 files / 1,460 LOC; comparison confidence remains low.',
                     sm1BaselineLoc=13289, history=[dict(path=path, sha256=digest) for path, digest in HISTORY_PINS.items()]),
                 measurement=measurement, comparison=comparison(measurement['fileCount'], measurement['physicalLoc']),
-                singleFileSensitivity=sensitivity(measurement['fileCount']), toolVersions=versions(repository),
+                singleFileSensitivity=sensitivity(measurement['fileCount']), toolVersions=provenance,
                 command=contract['scenarios'][0]['command'])
 
 

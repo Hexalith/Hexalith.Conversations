@@ -9,7 +9,7 @@ from __future__ import annotations
 import argparse
 from decimal import Decimal, ROUND_HALF_UP
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import sys
 
 import jsonschema
@@ -59,6 +59,38 @@ FAULT_EXPECTATIONS = {
 
 digest = chain.current.digest
 
+# The snapshot covers every input read by the cost/chain measurement, both evidence
+# formats, and all non-generated fixture files (including additions/removals).
+# Temporary Git pointers, implementation/test copies and bin/obj are not inputs.
+MEASUREMENT_INPUTS = tuple(sorted({
+    chain.CONTRACT, chain.AUTHORITY, generator.SCHEMA, generator.JSON_PATH, generator.MARKDOWN_PATH,
+    'global.json', 'Hexalith.Conversations.slnx', 'docs/domain-module-authoring-template.md',
+    'docs/release-evidence/thin-authoring-guidance-v2.schema.json', fixture.PROOF_SCHEMA_PATH,
+    fixture.GUIDANCE_JSON, fixture.GUIDANCE_MARKDOWN, fixture.PROOF_JSON_PATH, fixture.PROOF_MARKDOWN_PATH,
+    records.V2_11_1_SPEC, records.V2_11_2_SPEC, *chain.RECORDS, *(path for path, _ in HISTORY),
+    '_bmad-output/planning-artifacts/v9/story-contracts/11.1.json',
+    '_bmad-output/planning-artifacts/v9/story-contracts/11.2.json',
+    'docs/release-evidence/consume-promote-keep-story-6-2-disposition-v1.json',
+    'docs/release-evidence/story-7.4-final-record-v2.json', 'docs/release-evidence/story-10.4-final-record-v2.json',
+    *(f'artifacts/v9/11.1/AC-11.1-0{number}.{extension}' for number, extension in ((3, 'trx'), (4, 'trx'), (5, 'json'), (6, 'xml'))),
+    'artifacts/v9/11.2/AC-11.2-01.json', 'artifacts/v9/11.2/AC-11.2-05.trx',
+    'artifacts/v9/11.2/AC-11.2-07.xml', fixture.TEST_RESULT_PATH, *fixture.COMMAND_RECEIPTS.values(),
+    *fixture.FROZEN_PATHS,
+    *(f'{fixture.FIXTURE_ROOT}/{PurePosixPath(project).parent}/packages.lock.json' for project in fixture.EXPECTED_PROJECTS),
+}))
+
+
+def measurement_input_paths(repository: Path) -> list[str]:
+    return sorted(set(MEASUREMENT_INPUTS) | {fixture.FIXTURE_ROOT + '/' + path
+                                           for path in fixture.fixture_files(repository / fixture.FIXTURE_ROOT)})
+
+
+def measurement_input_sha256(repository: Path) -> str:
+    """Hash sorted path/content-digest rows; missing fixed inputs have an explicit null value."""
+    contents = {path: digest(chain.read(repository, path)) if (repository / path).is_file() else None
+                for path in measurement_input_paths(repository)}
+    return digest(fixture.canonical(contents))
+
 
 def verify(repository: Path, evidence: str = generator.JSON_PATH, markdown: str = generator.MARKDOWN_PATH,
            require_oq2_decision: bool = True, *, candidate: str | None = None) -> dict:
@@ -83,6 +115,9 @@ def verify(repository: Path, evidence: str = generator.JSON_PATH, markdown: str 
                   and digest(records.v2_committed_blob(repository, commit, path) or b'') == expected_hash,
                   'SM1_BASELINE_MUTATED' if index == 0 else 'SM2_V1_HISTORY_MUTATED')
         historical = doc['historicalBaseline']
+        check('history:owner-decision', 'approved estimated reference and comparison confidence',
+              historical['ownerDecision'] == '2026-10-20: retain the accepted estimated reference of 58 files / 1,460 LOC; comparison confidence remains low.',
+              'SM2_MEASUREMENT_INVALID')
         check('history:bindings', 'independent historical pins', historical['history'] == [
             dict(path=path, sha256=expected) for path, expected in HISTORY], 'SM2_V1_HISTORY_MUTATED')
         check('history:SM1', '13,289', historical['sm1BaselineLoc'] == 13289
@@ -92,6 +127,10 @@ def verify(repository: Path, evidence: str = generator.JSON_PATH, markdown: str 
         graph_errors, _ = fixture.check_graph(repository, fixture.FIXTURE_ROOT)
         check('ownership', 'no prohibited platform ownership', not graph_errors, 'SM2_INCLUSION_RULE_VIOLATION')
         measurement = doc['measurement']
+        check('measurement:definitions', 'physical and nonblank line meanings',
+              measurement['physicalLocMetric'] == 'All physical lines, including blank and comment lines; a final newline adds no empty line.'
+              and measurement['nonblankLocMetric'] == 'Physical lines with at least one non-whitespace character, reported separately.',
+              'SM2_MEASUREMENT_INVALID')
         rows = measurement['paths']
         paths = [row.get('path') for row in rows]
         apphost_paths = [path for path in fixture.FROZEN_PATHS if '.AppHost/' in path]
@@ -132,6 +171,9 @@ def verify(repository: Path, evidence: str = generator.JSON_PATH, markdown: str 
               and measurement['excludedFiles'] == [dict(**row, reason='Generated dependency lock, excluded from hand-authored file and LOC totals.')
                                                    for row in inv['lockFiles']], 'SM2_INCLUSION_RULE_VIOLATION')
         c = doc['comparison']
+        check('comparison:dimensions', 'files decide; physical LOC supports',
+              c['decisiveDimension'] == 'hand-authored module-owned file count' and c['supportingDimension'] == 'physical LOC',
+              'SM2_MEASUREMENT_INVALID')
         reduce_files = str((Decimal(58-13)*100/58).quantize(Decimal('.01'), rounding=ROUND_HALF_UP))
         reduce_loc = str((Decimal(1460-physical)*100/1460).quantize(Decimal('.01'), rounding=ROUND_HALF_UP))
         check('comparison:arithmetic', 'reductions independently recomputed',
@@ -152,7 +194,9 @@ def verify(repository: Path, evidence: str = generator.JSON_PATH, markdown: str 
         check('sensitivity', 'single-file decisions and threshold margin', ss['maximumFilesMeetingTarget'] == 29
               and ss['additionalFilesBeforeFailure'] == 16 and ss['filesAfterAddingOne'] == 14
               and ss['filesAfterRemovingOne'] == 12 and ss['addingOneFlipsAttainment'] is False
-              and ss['removingOneFlipsAttainment'] is False and ss['singleFileDecisionsThatFlip'] == [], 'SM2_MEASUREMENT_INVALID')
+              and ss['removingOneFlipsAttainment'] is False and ss['singleFileDecisionsThatFlip'] == []
+              and ss['explanation'] == 'All 13 frozen authored paths are mandatory. Including or excluding one file does not flip the measured result; the historical 29-file figure sat exactly at 50.00%.',
+              'SM2_MEASUREMENT_INVALID')
         binding = chain.verify(repository, commit)
         report['assertionLedger'] += [dict(row, id='chain:' + row['id']) for row in binding['assertionLedger']]
         report['blockers'] += binding['blockers']
@@ -164,8 +208,8 @@ def verify(repository: Path, evidence: str = generator.JSON_PATH, markdown: str 
         check('candidate:binding', 'compatible A-C chain', doc['candidate'] == expected_candidate
               and doc['provenance'] == binding['bindings'], 'CHECKPOINT_CANDIDATE_MISMATCH')
         check('command', 'exact contract generation command', doc['command'] == contract['scenarios'][0]['command'], 'EVIDENCE_FORMAT_DRIFT')
-        check('tools', 'actual Python, jsonschema, Git and .NET SDK versions',
-              doc['toolVersions'] == generator.versions(repository), 'SM2_MEASUREMENT_INVALID')
+        check('tools', 'recorded generation provenance bound by the canonical payload',
+              generator.valid_versions(doc['toolVersions']), 'SM2_MEASUREMENT_INVALID')
         schema = json.loads(chain.read(repository, generator.SCHEMA))
         check('schema', 'closed SM-2 v2 shape', not list(jsonschema.Draft202012Validator(schema).iter_errors(doc)), 'EVIDENCE_FORMAT_DRIFT')
         payload = {key: value for key, value in doc.items() if key != 'digests'}

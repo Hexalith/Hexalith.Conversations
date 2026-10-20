@@ -2,9 +2,12 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from contextlib import redirect_stdout
+from io import StringIO
 import json
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 
 import pytest
@@ -35,6 +38,7 @@ def committed_facts():
         if key not in cache:
             cache[key] = original(ROOT, request)
         return deepcopy(cache[key])
+    bridge.original = original
     return bridge
 
 
@@ -70,9 +74,13 @@ def snapshot(repository):
             if path.is_file()}
 
 
-def snapshot_hash(contents):
-    return chain.current.digest(fixture.canonical({path: chain.current.digest(content)
-                                                  for path, content in sorted(contents.items())}))
+def run_verifier_cli(repository):
+    """Observe the public entry point's JSON and returned exit, without inferred mappings."""
+    output = StringIO()
+    with redirect_stdout(output):
+        observed_exit = verifier.main(['--repository', str(repository), '--evidence', generator.JSON_PATH,
+                                      '--markdown', generator.MARKDOWN_PATH, '--require-oq2-decision'])
+    return observed_exit, json.loads(output.getvalue())
 
 
 def test_independent_generation_is_byte_identical(sm2_repository):
@@ -176,13 +184,19 @@ def test_checkpoint_c_fault_matrix(sm2_repository, fault, record_property):
     repo = sm2_repository
     before = snapshot(repo)
     doc = json.loads(before[generator.JSON_PATH])
+    baseline_hash = verifier.measurement_input_sha256(repo)
+    baseline_exit, baseline = run_verifier_cli(repo)
+    assert baseline_exit == 0 and baseline['result'] == 'PASS' and not baseline['blockers'], 'FAULT_NOT_DETECTED: baseline must pass'
     observed = None
     try:
         mutate(repo, doc, fault)
-        observed = verifier.verify(repo)
+        mutated_hash = verifier.measurement_input_sha256(repo)
+        assert mutated_hash != baseline_hash, 'FAULT_NOT_DETECTED: mutation did not change measured inputs'
+        observed_exit, observed = run_verifier_cli(repo)
         expected = verifier.FAULT_EXPECTATIONS[fault]
         assert expected in observed['blockers'], 'FAULT_NOT_DETECTED: ' + repr(observed)
         assert observed['result'] == ('BLOCKED' if fault == 'history-unavailable' else 'FAIL'), 'FAULT_NOT_DETECTED'
+        assert observed_exit == (2 if fault == 'history-unavailable' else 1), 'FAULT_NOT_DETECTED: CLI exit differs'
         assert observed['assertionLedger'], 'FAULT_NOT_DETECTED: vacuous ledger'
     finally:
         for path in tuple(snapshot(repo)):
@@ -194,13 +208,90 @@ def test_checkpoint_c_fault_matrix(sm2_repository, fault, record_property):
             target.write_bytes(content)
         after = snapshot(repo)
         assert after == before, 'FIXTURE_NOT_RESTORED'
+        restored_hash = verifier.measurement_input_sha256(repo)
+        restored_exit, restored = run_verifier_cli(repo)
+        assert restored_hash == baseline_hash and restored_exit == 0 and restored == baseline, 'FIXTURE_NOT_RESTORED: restored verification must pass'
     record_property('story113_source_revision', fixture.git_head(ROOT))
     record_property('story113_evidence_sha256', verifier.digest(before[generator.JSON_PATH]))
     record_property('story113_fault_id', fault)
     record_property('story113_expected_code', verifier.FAULT_EXPECTATIONS[fault])
     record_property('story113_observed_blockers', json.dumps(observed['blockers']))
     record_property('story113_observed_result', observed['result'])
-    record_property('story113_observed_exit', '2' if observed['result'] == 'BLOCKED' else '1')
-    record_property('story113_before_sha256', snapshot_hash(before))
-    record_property('story113_after_sha256', snapshot_hash(after))
+    record_property('story113_observed_exit', str(observed_exit))
+    record_property('story113_before_sha256', baseline_hash)
+    record_property('story113_mutated_sha256', mutated_hash)
+    record_property('story113_after_sha256', restored_hash)
+    record_property('story113_baseline_exit', str(baseline_exit))
+    record_property('story113_restored_exit', str(restored_exit))
+    record_property('story113_baseline_report', json.dumps(baseline))
+    record_property('story113_restored_report', json.dumps(restored))
+    record_property('story113_observed_report', json.dumps(observed))
     record_property('story113_assertion_ledger', json.dumps(observed['assertionLedger']))
+
+
+@pytest.mark.parametrize('section,field', [
+    ('measurement', 'physicalLocMetric'), ('measurement', 'nonblankLocMetric'),
+    ('comparison', 'decisiveDimension'), ('comparison', 'supportingDimension'),
+    ('historicalBaseline', 'ownerDecision'), ('singleFileSensitivity', 'explanation'),
+])
+def test_resigned_metric_meanings_cannot_contradict_the_measurement(sm2_repository, section, field):
+    repo = sm2_repository
+    document = json.loads((repo / generator.JSON_PATH).read_bytes())
+    document[section][field] = 'The historical estimate is an unconditional high-confidence LOC decision.'
+    j, md = generator.finalize({key: value for key, value in document.items() if key != 'digests'})
+    (repo / generator.JSON_PATH).write_bytes(j)
+    (repo / generator.MARKDOWN_PATH).write_bytes(md)
+    status, observed = run_verifier_cli(repo)
+    assert status == 1 and observed['result'] == 'FAIL'
+    assert 'SM2_MEASUREMENT_INVALID' in observed['blockers']
+
+
+def test_recorded_generation_versions_survive_unrelated_environment_upgrades(sm2_repository, monkeypatch):
+    repo = sm2_repository
+    document = json.loads((repo / generator.JSON_PATH).read_bytes())
+    upgraded = dict(python='4.0.0', jsonschema='10.0.0', dotnetSdk='20.0.100', git='git version 5.0.0')
+    monkeypatch.setattr(generator, 'versions', lambda repository: upgraded)
+    assert run_verifier_cli(repo)[0] == 0  # independent verification never probes current versions
+    assert generator.finalize(generator.build_signable(repo, _recorded_versions=document['toolVersions'])) == (
+        (repo / generator.JSON_PATH).read_bytes(), (repo / generator.MARKDOWN_PATH).read_bytes())
+    fresh = generator.build_signable(repo)
+    assert fresh['toolVersions'] == upgraded and fresh['measurement'] == document['measurement']
+
+
+def test_generation_tool_timeout_is_a_controlled_blocker(sm2_repository, monkeypatch, capsys):
+    original = generator.subprocess.run
+    def timeout(args, **kwargs):
+        if args == ['dotnet', '--version']:
+            raise subprocess.TimeoutExpired(args, 60)
+        return original(args, **kwargs)
+    monkeypatch.setattr(generator.subprocess, 'run', timeout)
+    with pytest.raises(generator.EvidenceError) as caught:
+        generator.versions(sm2_repository)
+    assert caught.value.code == 'HISTORY_UNAVAILABLE'
+    assert run_verifier_cli(sm2_repository)[0] == 0  # historical verification does not probe the timed-out tool
+    assert generator.main(['--repository', str(sm2_repository), '--contract', chain.CONTRACT,
+                           '--fixture-proof', fixture.PROOF_JSON_PATH, '--baseline', generator.BASELINE,
+                           '--output-json', generator.JSON_PATH, '--output-markdown', generator.MARKDOWN_PATH]) == 2
+    assert 'HISTORY_UNAVAILABLE: tool version unavailable: dotnetSdk' in capsys.readouterr().err
+
+
+def test_recorded_git_provenance_allows_vendor_versions():
+    recorded = dict(python='3.13.5', jsonschema='4.25.1', dotnetSdk='10.0.402', git='git version 2.50.1 (Apple Git-155)')
+    assert generator.valid_versions(recorded)
+    assert not generator.valid_versions(dict(recorded, git='git version 2.50.1\nforged'))
+
+
+def test_measurement_snapshot_has_explicit_portable_inputs(sm2_repository):
+    repo = sm2_repository
+    before = verifier.measurement_input_sha256(repo)
+    (repo / '.git').write_text('a different temporary Git pointer\n')
+    (repo / fixture.FIXTURE_ROOT / 'src/bin').mkdir()
+    (repo / fixture.FIXTURE_ROOT / 'src/bin/generated.dll').write_bytes(b'generated output')
+    assert verifier.measurement_input_sha256(repo) == before
+    target = repo / fixture.FIXTURE_ROOT / 'Added.cs'
+    target.write_bytes(b'// authored source\n')
+    assert verifier.measurement_input_sha256(repo) != before
+    target.unlink()
+    assert verifier.measurement_input_sha256(repo) == before
+    (repo / fixture.FROZEN_PATHS[0]).unlink()
+    assert verifier.measurement_input_sha256(repo) != before

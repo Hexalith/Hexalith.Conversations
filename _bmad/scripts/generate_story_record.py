@@ -10453,9 +10453,13 @@ def v2_11_3_trx(content, method, candidate, evidence_sha256, metrics):
     return testcase['test']
 
 
-def v2_11_3_mutations(content, candidate, evidence_sha256):
+def v2_11_3_mutations(content, candidate, evidence_sha256, *, repository):
     """Consume actual fault observations and restoration hashes, never infer them from case names."""
     _, verifier, _ = v2_11_3_modules()
+    baseline = verifier.verify(repository, candidate=candidate)
+    if baseline['result'] != 'PASS' or baseline['evidenceSha256'] != evidence_sha256:
+        raise ValueError('fault receipt requires independently verified baseline PASS')
+    baseline_hash = verifier.measurement_input_sha256(repository)
     try:
         parsed = v2_parse_junit(content)
     except ElementTree.ParseError as error:
@@ -10480,6 +10484,10 @@ def v2_11_3_mutations(content, candidate, evidence_sha256):
         ledger = json.loads(properties['story113_assertion_ledger'])
         expected_state, expected_exit = ('BLOCKED', '2') if fault == 'history-unavailable' else ('FAIL', '1')
         before, after = properties['story113_before_sha256'], properties['story113_after_sha256']
+        mutated = properties['story113_mutated_sha256']
+        baseline_report = json.loads(properties['story113_baseline_report'])
+        restored_report = json.loads(properties['story113_restored_report'])
+        observed_report = json.loads(properties['story113_observed_report'])
         known_codes = set(verifier.FAULT_EXPECTATIONS.values())
         if (not isinstance(blockers, list) or blockers != sorted(set(blockers)) or not set(blockers) <= known_codes
                 or verifier.FAULT_EXPECTATIONS[fault] not in blockers or not isinstance(ledger, list) or not ledger
@@ -10488,8 +10496,14 @@ def v2_11_3_mutations(content, candidate, evidence_sha256):
                 or len({row['id'] for row in ledger}) != len(ledger)
                 or not any(row['state'] == ('SKIPPED' if expected_state == 'BLOCKED' else 'FAIL') for row in ledger)
                 or properties.get('story113_observed_result') != expected_state
-                or properties.get('story113_observed_exit') != expected_exit or before != after
-                or re.fullmatch(r'[0-9a-f]{64}', before) is None):
+                or properties.get('story113_observed_exit') != expected_exit
+                or before != baseline_hash or after != baseline_hash
+                or re.fullmatch(r'[0-9a-f]{64}', mutated) is None or mutated in (baseline_hash, '0'*64)
+                or properties.get('story113_baseline_exit') != '0' or properties.get('story113_restored_exit') != '0'
+                or baseline_report != baseline or restored_report != baseline
+                or not isinstance(observed_report, dict) or set(observed_report) != set(baseline)
+                or observed_report.get('result') != expected_state or observed_report.get('blockers') != blockers
+                or observed_report.get('assertionLedger') != ledger):
             raise ValueError('fault observation, exact blocker, ledger or byte-identical restoration differs')
         observed[fault] = dict(id=fault, expectedBlocker=verifier.FAULT_EXPECTATIONS[fault], observedBlockers=blockers,
                                beforeSha256=before, afterSha256=after, detected=True, restored=True, result='PASS')
@@ -10504,7 +10518,8 @@ def v2_11_3_pair_errors(record):
         facts, scenarios = record['sm2Execution'], record['scenarios']
         if (record['summary'] != dict(required=7, passed=7, failed=0, blocked=0, skipped=0, notRun=0)
                 or [row['scenarioId'] for row in scenarios] != list(V2_11_3_SCENARIOS)
-                or any(row['result'] != 'PASS' or row['exitCode'] != 0 or row['blockers'] or not row['assertionLedger'] for row in scenarios)
+                or any(row['result'] != 'PASS' or row['exitCode'] != 0 or row['blockers'] or not row['assertionLedger']
+                       or any(assertion['state'] != 'PASS' for assertion in row['assertionLedger']) for row in scenarios)
                 or record['predecessors'] != ['11.2'] or facts['sourceRevisionId'] != record['candidate']['commit']
                 or facts['checkpoints']['C'] != record['candidate']['commit']):
             return ['Story 11.3 requires the compatible closed 7/7/0/0/0/0 PASS set']
@@ -10563,11 +10578,14 @@ def v2_11_3_generate(options, *, candidate=None, read_receipt=None, verify_only=
         raise V2Stop([v2_finding('CANDIDATE_UNRESOLVABLE', '11.3',
                                 'upstream verification is BLOCKED: ' + ', '.join(binding['blockers'] + verified['blockers']))], '11.3')
     if binding['result'] != 'PASS' or verified['result'] != 'PASS':
-        raise ValueError('candidate chain or independent SM-2 verification failed: ' + ', '.join(binding['blockers'] + verified['blockers']))
+        upstream = binding['blockers'] + verified['blockers']
+        raise V2Stop([v2_finding('RECORD_NOT_DERIVED', '11.3', 'upstream verifier FAIL: ' + code)
+                      for code in upstream] or [v2_finding('RECORD_NOT_DERIVED', '11.3', 'upstream verifier reported FAIL without blockers')], '11.3')
     evidence_bytes = v2_10_1_artifact_bytes(repository, gen.JSON_PATH)
     evidence = v2_parse_json(evidence_bytes)
     if evidence['candidate']['commit'] != candidate: raise ValueError('SM-2 evidence is stale for this source candidate')
-    if gen.finalize(gen.build_signable(repository, candidate=candidate)) != (evidence_bytes, v2_10_1_artifact_bytes(repository, gen.MARKDOWN_PATH)):
+    replay = dict(_recorded_versions=evidence['toolVersions']) if verify_only else {}
+    if gen.finalize(gen.build_signable(repository, candidate=candidate, **replay)) != (evidence_bytes, v2_10_1_artifact_bytes(repository, gen.MARKDOWN_PATH)):
         raise ValueError('SM-2 pair differs from deterministic regeneration')
     candidate_time = int(decode(run_git(repository, 'show', '-s', '--format=%ct', candidate).stdout).strip())
     measured, receipts, ledger = {}, [], []
@@ -10586,7 +10604,7 @@ def v2_11_3_generate(options, *, candidate=None, read_receipt=None, verify_only=
             if v2_parse_json(content) != expected: raise ValueError(identity + ' receipt differs from independent current verification')
             execution = expected['assertionLedger']
         else:
-            ledger = v2_11_3_mutations(content, candidate, v2_sha256(evidence_bytes))
+            ledger = v2_11_3_mutations(content, candidate, v2_sha256(evidence_bytes), repository=repository)
             execution = [dict(id=identity+'#'+row['id'], subject=row['expectedBlocker'], state='PASS') for row in ledger]
         execution = [dict(id=f'{identity}#{index+1:04d}', subject=row['id']+'::'+row['subject'], state=row['state'])
                      for index, row in enumerate(execution)]

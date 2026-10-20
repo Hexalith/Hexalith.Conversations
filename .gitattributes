@@ -64,3 +64,12 @@ artifacts/v9/11.2/*.log text eol=lf
 artifacts/v9/11.3/*.json text eol=lf
 artifacts/v9/11.3/*.xml text eol=lf
 artifacts/v9/11.3/*.trx text eol=lf
+# Story 11.3 binds these implementation bytes across Git checkout policies.
+_bmad/scripts/generate_sm2_evidence.py text eol=lf
+_bmad/scripts/verify_sm2_evidence.py text eol=lf
+_bmad/scripts/verify_story_candidate.py text eol=lf
+_bmad/scripts/generate_story_record.py text eol=lf
+_bmad/scripts/tests/test_sm2_evidence.py text eol=lf
+_bmad/scripts/tests/test_generate_story_record.py text eol=lf
+_bmad/schemas/story-final-record-v2.schema.json text eol=lf
+tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthoringCostBaselineValidationTest.cs -text diff
