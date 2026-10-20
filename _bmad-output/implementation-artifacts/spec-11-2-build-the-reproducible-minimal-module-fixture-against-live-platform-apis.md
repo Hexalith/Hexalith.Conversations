@@ -2,7 +2,7 @@
 title: 'Story 11.2: Build the reproducible minimal-module fixture against live platform APIs'
 type: 'feature'
 created: '2026-10-18'
-status: 'in-progress'
+status: 'done'
 baseline_commit: 'cc7647d0c6f942e3f8b0cc3a204af30621089cc0'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -192,7 +192,7 @@ Final verification: `python3 -m pytest -q _bmad/scripts/tests/test_minimal_modul
 - [x] [Review][Decision] `ci / repository` is red at the publication, and its fix is a source change the completion gate forbids after the record-only commit — Line 299 of `DomainModuleAuthoringTemplateValidationTest.cs` changed the file digest from `e50659d3…` to `0888d86a…`, but `APPROVED_READER_SUCCESSORS` still pins `e50659d3…`. CI run 39362622671 at `05d3820` (job 118432123438): 3 failed, 2093 passed (`test_approved_assertion_correction_preserves_every_other_entry_byte[none]`, `test_complete_fault_matrix_readers[EXEMPTION…]`, `[READER_INVENTORY…]`). The re-pin, and every patch below, is a later source commit that `v2_11_1_descendant_errors` rejects ("publication boundary or later source changed"). Choose: withdraw the publication and rebind against a corrective candidate, or accept the current record and land fixes as routine post-done work (the 9.2 precedent). Resolved 2026-10-20 (Jerome): withdraw and rebind; the re-pin rides in the corrective candidate [_bmad/scripts/evidence_boundary_adoption.py:32] (acceptance-auditor, high)
 - [x] [Review][Decision] The published proof cannot be re-verified after it is committed — `verify_proof` compares `candidate.commit` with `candidate_commit or HEAD`, the verifier CLI has no candidate option, and `rederive=True` re-derives through `build_signable`, which always binds HEAD. Measured at `364889e`: `verify_minimal_module_fixture.py … --proof-json docs/release-evidence/thin-module-fixture-proof-v1.json` exits 1 with `FIXTURE_PROOF_DRIFT`; with `candidate_commit='71aa15e…'` and `rederive=True` the only differing field is `candidate.commit`. A proof is always committed after its candidate, so the real checker never passes on the committed repository, and Story 11.3 must bind this proof. Choose: thread the candidate through `build_signable` and add `--candidate` to the CLI, or take the candidate from the proof (ancestor of HEAD, same EventStore gitlink), or defer to Story 11.3. Resolved 2026-10-20 (Jerome): thread the candidate through `build_signable` and add `--candidate` [_bmad/scripts/verify_minimal_module_fixture.py:588] (edge-case-hunter+acceptance-auditor, medium)
 - [x] [Review][Patch] A no-op locked restore does not validate lock files, and the retained AC-11.2-02 receipt is a no-op ("All projects are up-to-date for restore"). Reproduced in a scratch project: after editing `resolved` in `packages.lock.json`, `dotnet restore --locked-mode` exits 0 as a no-op; with `obj/project.nuget.cache` removed it fails `NU1403`. The wrapper must remove the four fixture `obj/project.nuget.cache` files before running the frozen command [_bmad/scripts/run_minimal_module_command.py:28] (blind-hunter+acceptance-auditor, medium)
-- [x] [Review][Defer] The `ProjectReference` `ItemDefinitionGroup` gives in-solution references a global property the solution build lacks, so `MinimalModule.Contracts` and `MinimalModule.Server` each build twice (retained `AC-11.2-03.log`; reproduced with a two-project scratch `.slnx`, single build without it) [tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props:27] — deferred: the per-reference patch, measured at `cb11f93`, built each fixture project once, but the SDK's transitive references of the Tests project lack that metadata, so `Client`, `ServiceDefaults` and `Contracts` also built in Debug into the shared `references/Hexalith.EventStore/src/*/bin/Debug`. The frozen 13-path inventory admits no build file that sets the policy globally, so the measured-good `ItemDefinitionGroup` is restored. Settle by listing the platform projects in the fixture `.slnx` if the thin-module recipe accepts it (blind-hunter+edge-case-hunter, medium)
+- [x] [Review][Defer] The `ProjectReference` `ItemDefinitionGroup` gives in-solution references a global property the solution build lacks, so `MinimalModule.Contracts` and `MinimalModule.Server` each build twice (retained `AC-11.2-03.log`; reproduced with a two-project scratch `.slnx`, single build without it) [tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props:27] — deferred: the per-reference patch, measured at `cb11f93`, built each fixture project once, but the SDK's transitive references of the Tests project lack that metadata, so `Client`, `ServiceDefaults` and `Contracts` also built in Debug into the shared `references/Hexalith.EventStore/src/*/bin/Debug`. The frozen 13-path inventory admits no build file that sets the policy globally, so the measured-good `ItemDefinitionGroup` is restored. The risk is observed, not theoretical: the `aeca17f` AC-11.2-03 receipt records three `MSB3026` copy retries between the two `Server` instances (recovered, exit 0). Settle by listing the platform projects in the fixture `.slnx`, which also changes the verifier's exact solution-project rule, if the thin-module recipe accepts it (blind-hunter+edge-case-hunter, medium)
 - [x] [Review][Patch] `verify_proof(rederive=False)` never compares `restore.sources` or `build.toolVersions.aspireAppHostSdk`, so a re-signed proof with an invented feed or SDK passes the record route — the same class as the fixed BH04/EC01 [_bmad/scripts/verify_minimal_module_fixture.py:640] (blind-hunter+edge-case-hunter+acceptance-auditor, medium)
 - [x] [Review][Patch] `restore_sources` is pinned only to the value a hard-coded default returns: replacing its body with `return ["https://api.nuget.org/v3/index.json"]` passes every test. Add a non-default-feed case and a missing-metadata case expecting `MINIMAL_FIXTURE_RESTORE_FAILED` [_bmad/scripts/tests/test_minimal_module_fixture.py:143] (verification-gap, medium)
 - [x] [Review][Patch] No test feeds a successful wrapper receipt to `command_receipt`: adding a key to the wrapper's receipt passes every test but breaks every real receipt. Extend the wrapper test with an exit-0 run accepted by `verifier.command_receipt` [_bmad/scripts/tests/test_minimal_module_fixture.py:305] (verification-gap+blind-hunter, medium)
@@ -223,6 +223,8 @@ Final verification: `python3 -m pytest -q _bmad/scripts/tests/test_minimal_modul
 - AA the final-verification text claims a green run with the evidence-boundary verifier not-applicable — rejected: the fix edits this spec; the CI failure is the first decision.
 - AA AC-11.2-04 registration is partial — already deferred in the third pass.
 
+Fourth-pass verification (2026-10-20). Corrective candidate `aeca17f` sits on the owner's `/pushall` commit `cb11f93`, which carried the patches and recorded all ten moved root gitlinks (EventStore `5d140359cc40`); publication `15c5727` holds exactly the ten bound paths. Every new guard was killed by a reverting mutation: untracked sources, folder order, the Release-output check, no-op cache removal, source and AppHost-SDK binding, candidate threading, and the route's receipt binding. AC-11.2-01 to AC-11.2-08 exited 0. The locked restore re-restored all four fixture projects instead of taking the no-op path, all five platform projects built once in Release, fixture tests passed 6/6, and the AppHost boundary test passed 1/1. The fault matrix detected and restored 31/31 mutations. The proof and record pairs were byte-identical across regeneration, the summary equals the contract's `8/8/0/0/0/0`, and `--verify-inserted-record` exited 0. The CI repository lane (`_bmad/scripts/tests` plus `tests/tooling/test_evidence_boundary_current.py`, supersession suite ignored) ran in a clean worktree at `aeca17f`: **2113 passed, 0 failed, 0 skipped**, including the three reader-successor tests that failed in CI run 39362622671.
+
 ## Verification
 
 **Third-pass repair checks (2026-10-20):**
@@ -237,5 +239,220 @@ Final verification: `python3 -m pytest -q _bmad/scripts/tests/test_minimal_modul
 - `python3 -m pytest -q _bmad/scripts/tests/test_minimal_module_fixture.py _bmad/scripts/tests/test_generate_story_record.py` -- expected: pass
 
 <!-- STORY-FINAL-RECORD:BEGIN -->
-<!-- Fresh source-bound final record pending fourth-pass remeasurement. -->
+# Story 11.2 Final Record
+
+<!-- hexalith.conversations.story-final-record.v2 markdown projection -->
+
+Generated by `_bmad/scripts/generate_story_record.py` from the committed candidate and measured scenario results. The JSON record is authoritative; this rendering is bound to it by digest.
+
+- Schema: `hexalith.conversations.story-final-record.v2`
+- Result: `PASS`
+- Story: `11.2`
+- Candidate: `aeca17f120aa731d0d47b79b7d1b54fb63144bb8`
+- JSON content SHA-256 (all three digest fields zeroed): `760538f79116b9169c9690fbeed74618eb9c1faa353ab7d57ae90468a2d89a99`
+
+## Authority
+
+| Field | Value |
+| --- | --- |
+| Epic | `epic-6-authority-2026-08-03-v10` |
+| Architecture | `conversations-architecture-2026-08-03-v10` |
+| Planning candidate | `1e9a61126d3b7a55b514b7c7c8942d5af03355e5` |
+| Bundle digest | `159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055` |
+
+## Root gitlinks
+
+| Path | Mode | Commit |
+| --- | --- | --- |
+| `references/Hexalith.AI.Tools` | `160000` | `3f194e17174994d308ec84af9ee2b5aa68674d0d` |
+| `references/Hexalith.Builds` | `160000` | `6a38cb0f2e74977d7457fc59e6af79457ed8196a` |
+| `references/Hexalith.Commons` | `160000` | `5c23c818f639c5bb3175f964c5549440bd5b876d` |
+| `references/Hexalith.EventStore` | `160000` | `5d140359cc4021156ef32e8cb5e7bfa763a1f00c` |
+| `references/Hexalith.Folders` | `160000` | `9bacd7f62848c23222dc7309635eb65dc6e5ed9c` |
+| `references/Hexalith.FrontComposer` | `160000` | `a2196fd67d6da3e9e56200847f6ea3b51419fc0a` |
+| `references/Hexalith.McpCli` | `160000` | `b616db3092a9b1c5af196538a3de37a5c7f2d7ca` |
+| `references/Hexalith.Memories` | `160000` | `72a97345b4230e39627cd2026934a547df7d43a4` |
+| `references/Hexalith.Parties` | `160000` | `4d4be476687cff4210774ec62558131ff8659558` |
+| `references/Hexalith.Platform` | `160000` | `bb81fc9e98533246cfeed43ffcce08866a2a57f6` |
+| `references/Hexalith.Projects` | `160000` | `12a7668c5cc8f6a07537dfaa8aef2b81c7b5c5c0` |
+| `references/Hexalith.Tenants` | `160000` | `243d0c4a3f845e3f582a32c08e373651d978ff0e` |
+
+## Inventory
+
+| Inventory | SHA-256 |
+| --- | --- |
+| `V9-11.2-ENTRY-v1` | `2aa59728bdc866263bf31a5f258fb80935fa07485459f795f07f6eb60eb123ac` |
+
+## Predecessors
+
+- `11.1`
+
+## Scenarios
+
+| Scenario | Exit | Result | Blockers | Assertions | Result file | Result file SHA-256 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `AC-11.2-01` | `0` | `PASS` | `none` | `3` | `artifacts/v9/11.2/AC-11.2-01.json` | `04460bce7bbeb2fc0026b4d7d929a265e3d43fdd0703a8877d756a6310ea75b8` |
+| `AC-11.2-02` | `0` | `PASS` | `none` | `1` | `artifacts/v9/11.2/AC-11.2-02.log` | `16ef294f919830b63836c305458cfaecc1011b0478356b5d2c87e7418e9a3673` |
+| `AC-11.2-03` | `0` | `PASS` | `none` | `1` | `artifacts/v9/11.2/AC-11.2-03.log` | `006a2b78126123ee02c4538aab709380bad94956b1d0594269e44faf0bbac08e` |
+| `AC-11.2-04` | `0` | `PASS` | `none` | `1` | `artifacts/v9/11.2/minimal-module.trx` | `d884ecf23c2e8075bd3e4fb06c73f562baf1c95eb18707bf3edc2e1e7dca9b12` |
+| `AC-11.2-05` | `0` | `PASS` | `none` | `1` | `artifacts/v9/11.2/AC-11.2-05.trx` | `03206037eab295ec9f13f69a7fb82fbf623df6513d28f5e2376c1d28e95b4b4a` |
+| `AC-11.2-06` | `0` | `PASS` | `none` | `2` | none | none |
+| `AC-11.2-07` | `0` | `PASS` | `none` | `1` | `artifacts/v9/11.2/AC-11.2-07.xml` | `1afb8255d8feb8ce96c95bee3b355c5750bbcd3d8c86f20c1852306d5909dc90` |
+| `AC-11.2-08` | `0` | `PASS` | `none` | `2` | none | none |
+
+### `AC-11.2-01`
+
+Command: `python3 _bmad/scripts/verify_minimal_module_fixture.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --fixture tests/fixtures/Hexalith.Conversations.MinimalModule --inventory-only --output artifacts/v9/11.2/AC-11.2-01.json`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-11.2-01#0001` | `exact frozen fixture inventory verified at the committed candidate` | `PASS` |
+| `AC-11.2-01#0002` | `candidate is the committed HEAD` | `PASS` |
+| `AC-11.2-01#0003` | `Story 11.1 final-record v2 and guidance digests recomputed` | `PASS` |
+
+### `AC-11.2-02`
+
+Command: `dotnet restore tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx --locked-mode`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-11.2-02#0001` | `measured locked restore with resolved NuGet sources` | `PASS` |
+
+### `AC-11.2-03`
+
+Command: `dotnet build tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx --configuration Release --no-restore`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-11.2-03#0001` | `measured warnings-as-errors Release build using public platform APIs` | `PASS` |
+
+### `AC-11.2-04`
+
+Command: `dotnet tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/bin/Release/net10.0/Hexalith.Conversations.MinimalModule.Tests.dll -automated sync -failSkips -trx artifacts/v9/11.2/minimal-module.trx`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-11.2-04#0001` | `non-vacuous minimal-module tests with zero failed, skipped or not-run` | `PASS` |
+
+### `AC-11.2-05`
+
+Command: `dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.DomainModuleAuthoringTemplateValidationTest.MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary -trx artifacts/v9/11.2/AC-11.2-05.trx`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-11.2-05#0001` | `MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary` | `PASS` |
+
+### `AC-11.2-06`
+
+Command: `python3 _bmad/scripts/generate_minimal_module_fixture_proof.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --fixture tests/fixtures/Hexalith.Conversations.MinimalModule --test-result artifacts/v9/11.2/minimal-module.trx --output-json docs/release-evidence/thin-module-fixture-proof-v1.json --output-markdown docs/release-evidence/thin-module-fixture-proof-v1.md`
+
+| Bound output | SHA-256 |
+| --- | --- |
+| `docs/release-evidence/thin-module-fixture-proof-v1.json` | `01e384e6578d57e09d78e686a4cf6420123c0fbc69419f29946e6235d2fef0c3` |
+| `docs/release-evidence/thin-module-fixture-proof-v1.md` | `845d7b4d9414b918695636dd9f35843a3a815091f74fa16ff1116f09d9b2f758` |
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-11.2-06#0001` | `proof JSON and Markdown are deterministic, schema-valid and bound by the signable-payload digest` | `PASS` |
+| `AC-11.2-06#0002` | `proof binds commands, tool versions, public API hashes, AppHost facts, inventory and results` | `PASS` |
+
+### `AC-11.2-07`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_minimal_module_fixture.py -k checkpoint_b_fault_matrix --junitxml=artifacts/v9/11.2/AC-11.2-07.xml`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-11.2-07#0001` | `checkpoint B fault matrix, every mutation detected and restored` | `PASS` |
+
+### `AC-11.2-08`
+
+Command: `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --format bundle --output-json docs/release-evidence/story-11.2-final-record-v2.json --output-markdown docs/release-evidence/story-11.2-final-record-v2.md`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-11.2-08#0001` | `AC-11.2-01 through AC-11.2-07 and Story 11.1 are current and compatible` | `PASS` |
+| `AC-11.2-08#0002` | `record binds SC-11.2, Story 11.1, fixture, proof, receipts and mutation ledger` | `PASS` |
+
+## Minimal-module fixture proof
+
+- Story 11.1 record: `docs/release-evidence/story-11.1-final-record-v2.json` (`6ff02bf2f6a71dea275c420d7860a9a62b9423d245046703b8c906363a91667a`)
+- Guidance bundle: `4f078797f4b5c85aef91b3ea9cedd29dac25a3f28b62dcdca1d8a2db4335c0e2`; signable payload `9ce146a26cd693261392928a2f767d3752b0101f6097e8a0bc7757784a07ef80`
+- Fixture inventory `V9-MINIMAL-MODULE-FIXTURE-v1`: `4fa26d6fa11a365339d9ea39c79e38751340847cf963fe71a82c37062f7df15c` (13 paths under `tests/fixtures/Hexalith.Conversations.MinimalModule`)
+- Fixture sources: `9b5beaa19196baad80753c2cfe1a1f7c25df140bfd7ee492624417d45356aac0`
+- Proof JSON: `docs/release-evidence/thin-module-fixture-proof-v1.json` (`01e384e6578d57e09d78e686a4cf6420123c0fbc69419f29946e6235d2fef0c3`)
+- Proof Markdown: `docs/release-evidence/thin-module-fixture-proof-v1.md` (`845d7b4d9414b918695636dd9f35843a3a815091f74fa16ff1116f09d9b2f758`)
+- Proof schema: `docs/release-evidence/thin-module-fixture-proof-v1.schema.json` (`6e944259e9ead83e1a70b62c6e0fc597702b3fcb32e4c2e160b616cd9b89efa7`)
+- Proof signable payload: `9b36d4f82d9399273a0ff1ed06d74a7a3c2101855c99dc43fb3b057528ba1529`
+- Resolved public APIs: `1804793127fe191daad322941d0764c9b186499c6d4dd646aea698dae6927a89`
+- Measured test result: `d884ecf23c2e8075bd3e4fb06c73f562baf1c95eb18707bf3edc2e1e7dca9b12`
+
+| Lock file | SHA-256 |
+| --- | --- |
+| `tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/packages.lock.json` | `52cbaccb8876b9df65fa7e691cf18b6755378e69aa50451ad5e4e211fcac0314` |
+| `tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/packages.lock.json` | `d9f8362c9a38b3ad08481559e89dbebc92c474a06e1579923182f4419796295c` |
+| `tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/packages.lock.json` | `78b06f0a95f4be921ace42500c2eba6e7578c0dccb162a2400d838c9b15a2423` |
+| `tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/packages.lock.json` | `7a55c490e0263300eb97079fffc684ca61b1f00acd057bcf213f7f743744d104` |
+
+| Receipt | Path | SHA-256 |
+| --- | --- | --- |
+| `AC-11.2-01` | `artifacts/v9/11.2/AC-11.2-01.json` | `04460bce7bbeb2fc0026b4d7d929a265e3d43fdd0703a8877d756a6310ea75b8` |
+| `AC-11.2-02` | `artifacts/v9/11.2/AC-11.2-02.log` | `16ef294f919830b63836c305458cfaecc1011b0478356b5d2c87e7418e9a3673` |
+| `AC-11.2-03` | `artifacts/v9/11.2/AC-11.2-03.log` | `006a2b78126123ee02c4538aab709380bad94956b1d0594269e44faf0bbac08e` |
+| `AC-11.2-04` | `artifacts/v9/11.2/minimal-module.trx` | `d884ecf23c2e8075bd3e4fb06c73f562baf1c95eb18707bf3edc2e1e7dca9b12` |
+| `AC-11.2-05` | `artifacts/v9/11.2/AC-11.2-05.trx` | `03206037eab295ec9f13f69a7fb82fbf623df6513d28f5e2376c1d28e95b4b4a` |
+| `AC-11.2-07` | `artifacts/v9/11.2/AC-11.2-07.xml` | `1afb8255d8feb8ce96c95bee3b355c5750bbcd3d8c86f20c1852306d5909dc90` |
+
+## Fault injection
+
+30 observed mutation results are bound to the retained receipts.
+
+| Fault | Expected blocker | Detected | Restored |
+| --- | --- | --- | --- |
+| `inventory-path-added` | `MINIMAL_FIXTURE_INVENTORY_DRIFT` | `True` | `True` |
+| `inventory-path-removed` | `MINIMAL_FIXTURE_INVENTORY_DRIFT` | `True` | `True` |
+| `inventory-path-renamed` | `MINIMAL_FIXTURE_INVENTORY_DRIFT` | `True` | `True` |
+| `inventory-crlf-edit` | `MINIMAL_FIXTURE_INVENTORY_DRIFT` | `True` | `True` |
+| `inventory-lock-file-misplaced` | `MINIMAL_FIXTURE_INVENTORY_DRIFT` | `True` | `True` |
+| `apphost-none` | `APPHOST_BOUNDARY_INVALID` | `True` | `True` |
+| `apphost-second` | `APPHOST_BOUNDARY_INVALID` | `True` | `True` |
+| `apphost-packable` | `APPHOST_BOUNDARY_INVALID` | `True` | `True` |
+| `apphost-publishable` | `APPHOST_BOUNDARY_INVALID` | `True` | `True` |
+| `reusable-aspire-library-added` | `REUSABLE_ASPIRE_LIBRARY_PRESENT` | `True` | `True` |
+| `service-defaults-project-added` | `REUSABLE_ASPIRE_LIBRARY_PRESENT` | `True` | `True` |
+| `service-defaults-reference-added` | `REUSABLE_ASPIRE_LIBRARY_PRESENT` | `True` | `True` |
+| `platform-runtime-project-reference-added` | `REUSABLE_ASPIRE_LIBRARY_PRESENT` | `True` | `True` |
+| `dapr-package-added` | `REUSABLE_ASPIRE_LIBRARY_PRESENT` | `True` | `True` |
+| `module-authored-endpoint` | `REUSABLE_ASPIRE_LIBRARY_PRESENT` | `True` | `True` |
+| `internals-visible-to-item` | `NONPUBLIC_PLATFORM_API_USED` | `True` | `True` |
+| `internals-visible-to-attribute` | `NONPUBLIC_PLATFORM_API_USED` | `True` | `True` |
+| `nonpublic-reflection` | `NONPUBLIC_PLATFORM_API_USED` | `True` | `True` |
+| `lock-file-missing` | `MINIMAL_FIXTURE_RESTORE_FAILED` | `True` | `True` |
+| `lock-file-policy-disabled` | `MINIMAL_FIXTURE_RESTORE_FAILED` | `True` | `True` |
+| `warnings-as-errors-disabled` | `MINIMAL_FIXTURE_BUILD_FAILED` | `True` | `True` |
+| `build-output-missing` | `MINIMAL_FIXTURE_BUILD_FAILED` | `True` | `True` |
+| `tests-zero` | `MINIMAL_FIXTURE_TESTS_VACUOUS` | `True` | `True` |
+| `tests-skipped` | `MINIMAL_FIXTURE_TESTS_VACUOUS` | `True` | `True` |
+| `tests-failed` | `MINIMAL_FIXTURE_TESTS_VACUOUS` | `True` | `True` |
+| `capability-test-missing` | `MINIMAL_FIXTURE_TESTS_VACUOUS` | `True` | `True` |
+| `proof-json-edited` | `FIXTURE_PROOF_DRIFT` | `True` | `True` |
+| `proof-markdown-edited` | `FIXTURE_PROOF_DRIFT` | `True` | `True` |
+| `result-edited` | `FIXTURE_PROOF_DRIFT` | `True` | `True` |
+| `fixture-edited-after-proof` | `FIXTURE_PROOF_DRIFT` | `True` | `True` |
+
+## Outputs
+
+| Output | Path |
+| --- | --- |
+| JSON | `docs/release-evidence/story-11.2-final-record-v2.json` |
+| Markdown | `docs/release-evidence/story-11.2-final-record-v2.md` |
+
+## Rollback boundary
+
+remove only the frozen fixture, fixture proof generator, validator, results, generated proof, and Story 11.2 record; retain Story 11.1.
+
+## Summary
+
+| Required | Passed | Failed | Blocked | Skipped | Not run |
+| --- | --- | --- | --- | --- | --- |
+| `8` | `8` | `0` | `0` | `0` | `0` |
 <!-- STORY-FINAL-RECORD:END -->
