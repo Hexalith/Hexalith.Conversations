@@ -192,6 +192,31 @@ def eventstore_gitlink(repository: Path, commit: str) -> dict:
     return {"path": path, "mode": parts[0], "commit": parts[2]}
 
 
+def check_platform_checkout(repository: Path, candidate: str | None = None) -> list[dict]:
+    """Require the measured platform sources to be the clean checkout pinned by the candidate."""
+    candidate = candidate or git_head(repository)
+    if candidate is None:
+        return [{"code": BLOCK_PROOF, "message": "the platform checkout requires a committed candidate"}]
+    try:
+        expected = eventstore_gitlink(repository, candidate)
+    except Blocked as error:
+        return [{"code": BLOCK_PROOF, "message": str(error)}]
+    root = repository / expected["path"]
+    if not root.is_dir():
+        return [{"code": BLOCK_PROOF, "message": "the EventStore checkout is unavailable"}]
+    top = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=root,
+                         capture_output=True, text=True, check=False)
+    if top.returncode or Path(top.stdout.strip()).resolve() != root.resolve():
+        return [{"code": BLOCK_PROOF, "message": "the EventStore checkout is not initialized at the platform root"}]
+    if git_head(root) != expected["commit"]:
+        return [{"code": BLOCK_PROOF, "message": "the EventStore checkout HEAD differs from the candidate gitlink"}]
+    status = subprocess.run(["git", "status", "--porcelain=v1", "--untracked-files=no", "--ignore-submodules=none"],
+                            cwd=root, capture_output=True, text=True, check=False)
+    if status.returncode or status.stdout.strip():
+        return [{"code": BLOCK_PROOF, "message": "the EventStore checkout has tracked source changes"}]
+    return []
+
+
 def command_receipt(repository: Path, scenario: str, content: bytes | None = None) -> dict:
     """Validate the measured exit and policy for an exact frozen restore/build command."""
     path = COMMAND_RECEIPTS[scenario]
@@ -517,12 +542,14 @@ def check_predecessor(repository: Path) -> dict:
     }
 
 
-def verify(repository: Path, fixture: str, inventory_only: bool, test_result: str | None = None) -> tuple[list[dict], dict]:
+def verify(repository: Path, fixture: str, inventory_only: bool, test_result: str | None = None,
+           candidate_commit: str | None = None) -> tuple[list[dict], dict]:
     blockers, inventory = check_inventory(repository, fixture)
     facts: dict = {"inventory": inventory, "predecessor": check_predecessor(repository)}
     head = git_head(repository) if is_git_repository(repository) else None
     facts["candidate"] = {"commit": head}
     if not inventory_only:
+        blockers += check_platform_checkout(repository, candidate_commit or head)
         graph_blockers, graph = check_graph(repository, fixture)
         blockers += graph_blockers
         facts.update(graph)
@@ -559,6 +586,9 @@ def verify_proof(repository: Path, fixture: str, proof_json: str, proof_markdown
         problems.append("the proof JSON bytes are not canonical")
     try:
         candidate = candidate_commit or git_head(repository)
+        platform_blockers = check_platform_checkout(repository, candidate)
+        if platform_blockers:
+            return platform_blockers
         if (committed["candidate"]["commit"] != candidate
                 or committed["candidate"]["eventStoreGitlink"] != eventstore_gitlink(repository, candidate)):
             problems.append("the proof candidate or EventStore gitlink differs")
@@ -587,6 +617,22 @@ def verify_proof(repository: Path, fixture: str, proof_json: str, proof_markdown
                 resolved = proof.lock_packages(read_file(repository, row["path"]))
                 packages.update(resolved)
                 locks.append({**row, "packageCount": len(resolved)})
+            contract = json.loads(read_file(repository, CONTRACT_PATH))
+            commands = {section: next(row["command"] for row in contract["scenarios"] if row["id"] == scenario)
+                        for section, scenario in proof.COMMAND_SCENARIOS.items()}
+            if any(committed[section]["command"] != command for section, command in commands.items()):
+                problems.append("the proof execution commands differ from the frozen contract")
+            test_blockers, tests = check_tests(read_file(repository, test_result))
+            xunit = next((version for name, version, _ in sorted(packages) if name == "xunit.v3"), "")
+            expected_tests = {
+                "command": commands["tests"], "toolVersions": {"xunitV3": xunit},
+                "resultFile": {"path": test_result, "sha256": sha256_bytes(read_file(repository, test_result))},
+                **tests["counts"], "cases": tests["cases"],
+                "capabilities": [{"capability": key, "test": tests["capabilities"][key]}
+                                 for key in CAPABILITY_TESTS if key in tests["capabilities"]],
+            }
+            if test_blockers or committed["tests"] != expected_tests:
+                problems.append("the proof test facts differ from the retained TRX or lock files")
             for section, scenario in (("restore", "AC-11.2-02"), ("build", "AC-11.2-03")):
                 measured = command_receipt(repository, scenario)
                 if committed[section]["receipt"] != {key: measured[key] for key in ("path", "sha256", "exitCode")}:

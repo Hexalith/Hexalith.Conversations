@@ -12917,12 +12917,12 @@ def story112_fixture(tmp_path_factory):
         target = repository / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((WORKSPACE / relative).read_bytes())
-    run_git(repository, "add", "--force", "--", ".")
-    run_git(repository, "commit", "--quiet", "--allow-empty", "-m", "test: story 11.2 candidate fixture")
-    # Generated, untracked inputs: platform project files, build outputs and the measured result.
     from test_minimal_module_fixture import PLATFORM_STUBS, write_platform_stubs, write_measured_command_inputs  # noqa: PLC0415
 
     write_platform_stubs(repository)
+    run_git(repository, "add", "--force", "--", ".")
+    run_git(repository, "commit", "--quiet", "--allow-empty", "-m", "test: story 11.2 candidate fixture")
+    # Generated, untracked inputs: build outputs and the measured result.
     names = {Path(path).stem for path in PLATFORM_STUBS}
     tests_bin = repository / STORY_112_FIXTURE_ROOT / "tests/Hexalith.Conversations.MinimalModule.Tests" / proof.OUTPUT_DIRECTORY
     tests_bin.mkdir(parents=True, exist_ok=True)
@@ -13059,6 +13059,26 @@ def test_story_112_proof_drift_in_the_worktree_is_rejected(story112_fixture):
             generator.v2_11_2_generate(options, read_receipt=stale.get)
     finally:
         (repository / verifier.TEST_RESULT_PATH).write_bytes(receipts[verifier.TEST_RESULT_PATH])
+
+
+@pytest.mark.parametrize("variant", ["different-head", "dirty-source"])
+def test_story_112_route_rejects_platform_checkout_drift(story112_fixture, tmp_path, variant):
+    generator, verifier, repository, options, receipts = story112_fixture
+    from test_minimal_module_fixture import write_platform_stubs  # noqa: PLC0415
+
+    clone = tmp_path / "platform-drift"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    write_platform_stubs(clone)
+    story112_write_receipts(clone, receipts)
+    for relative in (verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH):
+        (clone / relative).write_bytes((repository / relative).read_bytes())
+    platform = clone / "references/Hexalith.EventStore"
+    if variant == "different-head":
+        run_git(platform, "commit", "--quiet", "--allow-empty", "-m", "test: advance the platform checkout")
+    else:
+        (platform / "src/PlatformFixture.cs").write_text("// Changed platform source.\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="fixture does not verify: FIXTURE_PROOF_DRIFT"):
+        generator.v2_11_2_generate({**options, "--repository": str(clone)}, read_receipt=receipts.get)
 
 
 @pytest.mark.parametrize("relative", ["README.md", "src/Hexalith.Conversations.MinimalModule.Server/packages.lock.json"])

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -126,6 +127,17 @@ def write_platform_stubs(repo: Path) -> None:
         items = "".join(f'    <ProjectReference Include="{reference}" />\n' for reference in references)
         target.write_text(f'<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n{items}  </ItemGroup>\n</Project>\n',
                           encoding="utf-8", newline="\n")
+    # A real, deterministic local checkout proves the same identity/cleanliness contract as the live submodule.
+    platform = repo / proof.PLATFORM_ROOT
+    (platform / "src/PlatformFixture.cs").write_text("// Hermetic platform source.\n", encoding="utf-8", newline="\n")
+    git(platform, "init", "--quiet")
+    git(platform, "config", "user.email", "fixture@example.invalid")
+    git(platform, "config", "user.name", "Fixture")
+    git(platform, "config", "core.autocrlf", "false")
+    git(platform, "add", "--all")
+    subprocess.run(["git", "commit", "--quiet", "-m", "test: platform fixture"], cwd=platform,
+                   env={**os.environ, "GIT_AUTHOR_DATE": "2000-01-01T00:00:00Z",
+                        "GIT_COMMITTER_DATE": "2000-01-01T00:00:00Z"}, check=True, capture_output=True)
 
 
 def write_measured_command_inputs(repo: Path) -> dict[str, bytes]:
@@ -164,8 +176,6 @@ def repo(tmp_path: Path) -> Path:
     git(tmp_path, "config", "user.name", "Fixture")
     git(tmp_path, "config", "core.autocrlf", "false")
     git(tmp_path, "add", "--all")
-    git(tmp_path, "rm", "--cached", "-r", "--quiet", "--", "references/Hexalith.EventStore")
-    git(tmp_path, "update-index", "--add", "--cacheinfo", "160000," + "1" * 40 + ",references/Hexalith.EventStore")
     git(tmp_path, "commit", "--quiet", "-m", "test: fixture candidate")
     # Build outputs and the measured result are generated, untracked inputs.
     names = {Path(path).stem for path in PLATFORM_STUBS}
@@ -220,6 +230,57 @@ def test_proof_rejects_resigned_candidate_identity_drift(repo: Path, field: str)
     assert "candidate or EventStore gitlink differs" in errors[0]["message"]
 
 
+@pytest.mark.parametrize("field", ["counts", "cases", "capabilities", "xunit", "restore-command", "build-command", "tests-command"])
+def test_proof_without_assembly_rederivation_rejects_resigned_execution_facts(repo: Path, field: str) -> None:
+    bundle = json.loads((repo / JSON_OUT).read_bytes())
+    if field == "counts":
+        bundle["tests"]["total"] += 1
+        bundle["tests"]["passed"] += 1
+    elif field == "cases":
+        bundle["tests"]["cases"].append("InventedTest")
+    elif field == "capabilities":
+        bundle["tests"]["capabilities"].pop()
+    elif field == "xunit":
+        bundle["tests"]["toolVersions"]["xunitV3"] = "999.0.0"
+    else:
+        bundle[field.removesuffix("-command")]["command"] += " --unrecorded-option"
+    json_text, markdown = proof.finalize(proof.signable_of(bundle))
+    (repo / JSON_OUT).write_text(json_text, encoding="utf-8", newline="\n")
+    (repo / MD_OUT).write_text(markdown, encoding="utf-8", newline="\n")
+    errors = verifier.verify_proof(repo, FIXTURE, JSON_OUT, MD_OUT, TRX, rederive=False)
+    assert errors and errors[0]["code"] == verifier.BLOCK_PROOF
+    expected = "execution commands" if field.endswith("-command") else "test facts"
+    assert expected in errors[0]["message"]
+
+
+@pytest.mark.parametrize("variant", ["different-head", "dirty-source", "staged-source", "uninitialized"])
+def test_platform_checkout_is_checked_before_measurement_and_proof_acceptance(repo: Path, monkeypatch, variant: str) -> None:
+    platform = repo / proof.PLATFORM_ROOT
+    if variant == "different-head":
+        git(platform, "commit", "--quiet", "--allow-empty", "-m", "test: advance the platform checkout")
+    elif variant == "uninitialized":
+        shutil.rmtree(platform / ".git")
+    else:
+        (platform / "src/PlatformFixture.cs").write_text("// Changed platform source.\n", encoding="utf-8")
+        if variant == "staged-source":
+            git(platform, "add", "src/PlatformFixture.cs")
+    errors = verifier.verify_proof(repo, FIXTURE, JSON_OUT, MD_OUT, TRX, rederive=False)
+    assert errors and errors[0]["code"] == verifier.BLOCK_PROOF
+    expected = {"different-head": "HEAD differs", "uninitialized": "not initialized"}.get(variant, "tracked source changes")
+    assert expected in errors[0]["message"]
+    result = generate(repo)
+    assert result.returncode == 1 and verifier.BLOCK_PROOF in result.stderr and expected in result.stderr
+    real_run = subprocess.run
+
+    def no_dotnet(arguments, **kwargs):
+        assert arguments[0] == "git", "measurement must reject the checkout before executing dotnet"
+        return real_run(arguments, **kwargs)
+
+    monkeypatch.setattr(command_runner.subprocess, "run", no_dotnet)
+    with pytest.raises(ValueError, match=expected):
+        command_runner.measure(repo, "AC-11.2-02")
+
+
 @pytest.mark.parametrize("binding", ["lock-file", "guidance-markdown", "guidance-source", "platform-project"])
 def test_proof_without_assembly_rederivation_checks_every_source_binding(repo: Path, binding: str) -> None:
     bundle = json.loads((repo / JSON_OUT).read_bytes())
@@ -227,11 +288,11 @@ def test_proof_without_assembly_rederivation_checks_every_source_binding(repo: P
         target = repo / bundle["restore"]["lockFiles"][0]["path"]
         target.write_bytes(target.read_bytes() + b"\n")
     elif binding == "platform-project":
-        target = repo / bundle["resolvedPublicApis"]["projects"][0]["path"]
-        target.write_bytes(target.read_bytes() + b"\n")
+        bundle["resolvedPublicApis"]["projects"][0]["sha256"] = "2" * 64
     else:
         field = "bundleMarkdownSha256" if binding == "guidance-markdown" else "sourceSha256"
         bundle["guidanceDigest"][field] = "2" * 64
+    if binding != "lock-file":
         json_text, markdown = proof.finalize(proof.signable_of(bundle))
         (repo / JSON_OUT).write_text(json_text, encoding="utf-8", newline="\n")
         (repo / MD_OUT).write_text(markdown, encoding="utf-8", newline="\n")
@@ -243,8 +304,11 @@ def test_proof_without_assembly_rederivation_checks_every_source_binding(repo: P
 @pytest.mark.parametrize("scenario", tuple(verifier.COMMAND_RECEIPTS))
 def test_command_wrapper_executes_the_frozen_command_and_retains_failure(repo: Path, monkeypatch, scenario: str) -> None:
     calls = []
+    real_run = subprocess.run
 
     def execute(arguments, **kwargs):
+        if arguments[0] == "git":
+            return real_run(arguments, **kwargs)
         calls.append(arguments)
         if "msbuild" in arguments:
             return subprocess.CompletedProcess(arguments, 0, "true\n", "")

@@ -1,8 +1,0 @@
-{
-  "schemaVersion": "hexalith.conversations.minimal-module-command-receipt.v1",
-  "scenarioId": "AC-11.2-02",
-  "command": "dotnet restore tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx --locked-mode",
-  "exitCode": 0,
-  "consoleLog": "  Determining projects to restore...\n/home/administrator/projects/hexalith/conversations/tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h [/home/administrator/projects/hexalith/conversations/tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx]\n  All projects are up-to-date for restore.\n",
-  "lockedMode": true
-}

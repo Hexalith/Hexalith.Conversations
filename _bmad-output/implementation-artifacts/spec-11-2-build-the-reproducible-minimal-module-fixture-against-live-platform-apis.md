@@ -2,7 +2,7 @@
 title: 'Story 11.2: Build the reproducible minimal-module fixture against live platform APIs'
 type: 'feature'
 created: '2026-10-18'
-status: 'in-progress'
+status: 'in-review'
 baseline_commit: 'cc7647d0c6f942e3f8b0cc3a204af30621089cc0'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -155,6 +155,34 @@ context:
 - AA `BLOCKED` is written as a blocker code — low: it is the exit-2 result state and never reaches the record.
 - VG `ci / admin-web` is red in the same run — false for this diff: it is a Playwright `captureScreenshot` protocol error.
 
+### Build review triage (2026-10-20)
+
+All three workflow layers completed before classification. Rows below retain every finding before grouping.
+
+| Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- |
+| BH01 historical package-refresh profile now rejects accepted October 8 evidence | medium | defer | Reproduced `python3 _bmad/scripts/check_package_refresh_environment.py --repository . --check`: exit 1, `REFRESH_SDK_DRIFT`. The changed pins originate in pre-existing commit `7f67adb8bb67b668dd37d64e9d4795e37dcfb758`; record a separate historical-profile repair. |
+| BH02 execution receipts lack candidate/input/output digests | medium | carried defer | Carried: the owner-accepted 11.1 receipt binding and third-pass AC-11.2-01 deferral use `v2_11_1_read_receipt` freshness/name checks. The new command receipts use that same consumer; do not create another provenance scheme in this patch. |
+| BH03 advertised EventStore gitlink can differ from actual checkout | medium | patch | The root status helper ignores submodules, while project and assembly hashes read their checkout. Require platform HEAD and tracked-source cleanliness to match the candidate gitlink. |
+| BH04 static proof accepts contradictory test totals/cases/capabilities/xUnit | medium | patch | Re-signed proofs with invented totals pass `rederive=False`; derive the deterministic test facts from the retained TRX and locked packages. |
+| BH05 static proof accepts contradictory commands and SDK text | medium | patch / carried limitation | Compare all three execution commands with the frozen contract. SDK probing/fallback robustness remains the existing deferred generator item; this patch adds no execution-receipt schema. |
+| BH06 package origins lack a new approved-feed policy | medium | carried owner decision | Carried: the third-pass owner decision resolved the approved-sources finding with measured receipts and actual `.nupkg.metadata` origins. The measured fixture resolves solely from nuget.org; no new feed-approval policy was requested. |
+| BH07 omitted solution entries escape the graph checker | low | carried reject | Carried: the prior `.slnx` drift finding was rejected because the proof binds its bytes and the bypass requires deliberate fixture editing. |
+| BH08 conditional AppHost packability escapes static parsing | low | carried reject | Carried: conditional/Choose/Target bypasses were rejected as deliberate authoring; the normal fixture has unconditional non-shipping properties. |
+| BH09 symlinked expected fixture path yields twelve facts | low | carried reject | Carried: the third-pass symlink finding was rejected because a closed record requires thirteen fixture facts, so no PASS record follows. |
+| BH10 no live fixture CI lane | medium (unverified lane gap) | carried defer | Carried: the existing ledger already requires an EventStore/Aspire fixture execution lane. Local fixture execution passed; do not duplicate the deferred entry. |
+| BH11 AppHost composes the module library as a runnable resource | low | carried reject | Carried: the frozen in-process proof decision and implementation notes explicitly acknowledge this fixture shape; no runtime AppHost round trip is claimed. |
+| EC01 re-signed proof accepts invented deterministic execution facts | medium | patch | Same demonstrated test-count, case, xUnit and command contradictions as BH04/BH05. Recorded package origins remain governed by the existing measured-source decision. |
+| EC02 platform source revision/dirt is ignored | medium | patch | Same platform checkout binding defect as BH03; check both measured proof generation and record acceptance. |
+| EC03 dangling README symlink passes inventory | low | carried reject | Carried: the same twelve-fact inventory bypass and thirteen-fact record guard were adjudicated in the third pass. |
+| EC04 empty solution passes graph validation | low | carried reject | Carried: the same solution-drift finding remains a deliberate-edit hardening item. |
+| EC05 aborted TRX summary is not reconciled with result rows | low | carried reject | Carried: the third-pass TRX-counter finding was rejected as runner-receipt hardening. Native fixture execution in this run exited zero with six results and no skips. |
+| EC06 second proof output write fails after replacing JSON | low | reject | A filesystem failure exits generation and the resulting mismatched pair is rejected by proof verification. Transactional rollback adds branches for an uncommon local-tool failure. |
+| VG01 normal CI does not execute the live fixture | medium (unverified lane gap) | carried defer | Carried: same previously recorded fixture CI lane; local tests and the retained proof are current for this source attempt. |
+| VG02 static proof counts and commands can contradict retained inputs | medium | patch | The review's hermetic probes demonstrate accepted contradictory metadata. Add focused negative coverage for source-derived deterministic facts. |
+
+Surviving patch groups: deterministic proof metadata (BH04/BH05/EC01/VG02), and platform checkout identity (BH03/EC02). Both groups are fixed: 53 fixture-verifier tests and 39 Story 11.2 route tests passed. The pre-existing package-refresh profile defect is separately deferred.
+
 ## Verification
 
 **Third-pass repair checks (2026-10-20):**
@@ -169,5 +197,5 @@ context:
 - `python3 -m pytest -q _bmad/scripts/tests/test_minimal_module_fixture.py _bmad/scripts/tests/test_generate_story_record.py` -- expected: pass
 
 <!-- STORY-FINAL-RECORD:BEGIN -->
-<!-- Fresh source-bound final record pending regeneration. -->
+<!-- Fresh source-bound final record pending review-fix remeasurement. -->
 <!-- STORY-FINAL-RECORD:END -->

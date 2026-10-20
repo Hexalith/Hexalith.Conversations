@@ -10265,7 +10265,8 @@ def v2_11_2_generate(options, *, candidate=None, read_receipt=None, verify_only=
 
     # AC-11.2-01 owner-approved candidate rule: committed HEAD, Story 11.1 digests recomputed.
     if supplied and candidate != head: raise ValueError('the candidate is not the committed HEAD')
-    blockers, facts = verifier.verify(repository, verifier.FIXTURE_ROOT, False, verifier.TEST_RESULT_PATH)
+    blockers, facts = verifier.verify(repository, verifier.FIXTURE_ROOT, False, verifier.TEST_RESULT_PATH,
+                                       candidate_commit=candidate)
     if blockers: raise ValueError('the fixture does not verify: ' + ', '.join(item['code'] for item in blockers))
     predecessor = facts['predecessor']
 

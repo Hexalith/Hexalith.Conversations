@@ -18,6 +18,9 @@ import verify_minimal_module_fixture as verifier
 
 
 def measure(repository: Path, scenario: str) -> dict:
+    blockers = verifier.check_platform_checkout(repository)
+    if blockers:
+        raise ValueError("; ".join(item["message"] for item in blockers))
     contract = json.loads(verifier.read_file(repository, verifier.CONTRACT_PATH))
     command = next(row["command"] for row in contract["scenarios"] if row["id"] == scenario)
     arguments = shlex.split(command)
@@ -43,7 +46,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--scenario", required=True, choices=tuple(verifier.COMMAND_RECEIPTS))
     args = parser.parse_args(argv)
     repository = Path(args.repository)
-    receipt = measure(repository, args.scenario)
+    try:
+        receipt = measure(repository, args.scenario)
+    except ValueError as error:
+        print(f"{verifier.BLOCK_PROOF}: {error}", file=sys.stderr)
+        return 1
     target = repository / verifier.COMMAND_RECEIPTS[args.scenario]
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8", newline="\n")
