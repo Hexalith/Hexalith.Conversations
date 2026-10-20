@@ -1,0 +1,694 @@
+{
+  "schemaVersion": "hexalith.conversations.sm2-verification-result.v1",
+  "result": "PASS",
+  "candidate": "32d0ea8c3f52c4ff7ebaa24e3e3d7c32a9bc395f",
+  "evidenceSha256": "6fc80f6e3d4f12bc88263cecf87e7827e0bcfae3ba43c3c0a53046aef3b3b50a",
+  "metrics": {
+    "fileCount": 13,
+    "physicalLoc": 451,
+    "nonblankLoc": 396,
+    "fileReductionPercentage": "77.59",
+    "locReductionPercentage": "69.11",
+    "measurementConfidence": "high",
+    "comparisonConfidence": "low",
+    "oq2Decision": "accepted"
+  },
+  "assertionLedger": [
+    {
+      "id": "history:docs/release-evidence/consume-promote-keep-inventory-v1.json",
+      "subject": "docs/release-evidence/consume-promote-keep-inventory-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "history:docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json",
+      "subject": "docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "history:docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.md",
+      "subject": "docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.md",
+      "state": "PASS"
+    },
+    {
+      "id": "history:docs/release-evidence/oq-2-target-interpretation-decision-v1.json",
+      "subject": "docs/release-evidence/oq-2-target-interpretation-decision-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "history:bindings",
+      "subject": "independent historical pins",
+      "state": "PASS"
+    },
+    {
+      "id": "history:SM1",
+      "subject": "13,289",
+      "state": "PASS"
+    },
+    {
+      "id": "inventory:exact",
+      "subject": "13 frozen authored sources",
+      "state": "PASS"
+    },
+    {
+      "id": "ownership",
+      "subject": "no prohibited platform ownership",
+      "state": "PASS"
+    },
+    {
+      "id": "inclusion:AppHost",
+      "subject": "both AppHost authored paths count",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:once",
+      "subject": "all 13 paths classified exactly once",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:tests/fixtures/Hexalith.Conversations.MinimalModule/README.md",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/README.md",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:tests/fixtures/Hexalith.Conversations.MinimalModule/README.md",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/README.md",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/Hexalith.Conversations.MinimalModule.Contracts.csproj",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/Hexalith.Conversations.MinimalModule.Contracts.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/Hexalith.Conversations.MinimalModule.Contracts.csproj",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/Hexalith.Conversations.MinimalModule.Contracts.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/CreateConversation.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/CreateConversation.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/CreateConversation.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/CreateConversation.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/ConversationCreated.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/ConversationCreated.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/ConversationCreated.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/ConversationCreated.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/Hexalith.Conversations.MinimalModule.Server.csproj",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/Hexalith.Conversations.MinimalModule.Server.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/Hexalith.Conversations.MinimalModule.Server.csproj",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/Hexalith.Conversations.MinimalModule.Server.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationAggregate.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationAggregate.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationAggregate.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationAggregate.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/AppHost.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/AppHost.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "classification:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/AppHost.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/AppHost.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:totals",
+      "subject": "independently counted files, physical and nonblank LOC",
+      "state": "PASS"
+    },
+    {
+      "id": "measurement:exclusions",
+      "subject": "generated locks, build outputs, and platform sources",
+      "state": "PASS"
+    },
+    {
+      "id": "comparison:arithmetic",
+      "subject": "reductions independently recomputed",
+      "state": "PASS"
+    },
+    {
+      "id": "comparison:confidence",
+      "subject": "measured high, estimated comparison low",
+      "state": "PASS"
+    },
+    {
+      "id": "OQ2:decision",
+      "subject": "inclusive threshold evaluated before rounding",
+      "state": "PASS"
+    },
+    {
+      "id": "sensitivity",
+      "subject": "single-file decisions and threshold margin",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:authority",
+      "subject": "_bmad-output/planning-artifacts/v9/story-contracts/11.3.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:pair:11.1",
+      "subject": "docs/release-evidence/story-11.1-final-record-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:pair:11.2",
+      "subject": "docs/release-evidence/story-11.2-final-record-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:accepted-publication:docs/release-evidence/story-11.1-final-record-v2.json",
+      "subject": "984daa891ad6afafa378bff305748bf3e62bc04c",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:accepted-publication:docs/release-evidence/story-11.1-final-record-v2.md",
+      "subject": "984daa891ad6afafa378bff305748bf3e62bc04c",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:accepted-publication:docs/release-evidence/story-11.2-final-record-v2.json",
+      "subject": "984daa891ad6afafa378bff305748bf3e62bc04c",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:accepted-publication:docs/release-evidence/story-11.2-final-record-v2.md",
+      "subject": "984daa891ad6afafa378bff305748bf3e62bc04c",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:accepted-publication:docs/release-evidence/thin-module-fixture-proof-v1.json",
+      "subject": "984daa891ad6afafa378bff305748bf3e62bc04c",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:accepted-publication:docs/release-evidence/thin-module-fixture-proof-v1.md",
+      "subject": "984daa891ad6afafa378bff305748bf3e62bc04c",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:predecessor:insertion:_bmad-output/implementation-artifacts/spec-11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance.md",
+      "subject": "docs/release-evidence/story-11.1-final-record-v2.md",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:predecessor:insertion:_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md",
+      "subject": "docs/release-evidence/story-11.2-final-record-v2.md",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:ancestry:1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+      "subject": "09007a08f63773923694f09e9c49f972d6df81ae",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:ancestry:09007a08f63773923694f09e9c49f972d6df81ae",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "subject": "32d0ea8c3f52c4ff7ebaa24e3e3d7c32a9bc395f",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:predecessor:B-A",
+      "subject": "docs/release-evidence/story-11.1-final-record-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:repository",
+      "subject": "repository",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:candidate",
+      "subject": "candidate",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:baseline",
+      "subject": "baseline",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:diff",
+      "subject": "diff",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:gitlinks",
+      "subject": "gitlinks",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:roots:tree",
+      "subject": "roots:tree",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:helper:result",
+      "subject": "neutral Git facts must pass",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:gitlinks:raw-diff",
+      "subject": "B to C raw modes",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:gitlinks:B-C",
+      "subject": "all root gitlinks",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+      "subject": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:_bmad-output/planning-artifacts/v9/story-contracts/11.1.json",
+      "subject": "_bmad-output/planning-artifacts/v9/story-contracts/11.1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:_bmad-output/planning-artifacts/v9/story-contracts/11.2.json",
+      "subject": "_bmad-output/planning-artifacts/v9/story-contracts/11.2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:_bmad-output/planning-artifacts/v9/story-contracts/11.3.json",
+      "subject": "_bmad-output/planning-artifacts/v9/story-contracts/11.3.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:artifacts/v9/11.1/AC-11.1-03.trx",
+      "subject": "artifacts/v9/11.1/AC-11.1-03.trx",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:artifacts/v9/11.1/AC-11.1-04.trx",
+      "subject": "artifacts/v9/11.1/AC-11.1-04.trx",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:artifacts/v9/11.1/AC-11.1-05.json",
+      "subject": "artifacts/v9/11.1/AC-11.1-05.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:artifacts/v9/11.1/AC-11.1-06.xml",
+      "subject": "artifacts/v9/11.1/AC-11.1-06.xml",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:artifacts/v9/11.2/AC-11.2-01.json",
+      "subject": "artifacts/v9/11.2/AC-11.2-01.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:artifacts/v9/11.2/AC-11.2-02.log",
+      "subject": "artifacts/v9/11.2/AC-11.2-02.log",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:artifacts/v9/11.2/AC-11.2-03.log",
+      "subject": "artifacts/v9/11.2/AC-11.2-03.log",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:artifacts/v9/11.2/AC-11.2-05.trx",
+      "subject": "artifacts/v9/11.2/AC-11.2-05.trx",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:artifacts/v9/11.2/AC-11.2-07.xml",
+      "subject": "artifacts/v9/11.2/AC-11.2-07.xml",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:artifacts/v9/11.2/minimal-module.trx",
+      "subject": "artifacts/v9/11.2/minimal-module.trx",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:docs/domain-module-authoring-template.md",
+      "subject": "docs/domain-module-authoring-template.md",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:docs/release-evidence/story-11.1-final-record-v2.json",
+      "subject": "docs/release-evidence/story-11.1-final-record-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:docs/release-evidence/story-11.1-final-record-v2.md",
+      "subject": "docs/release-evidence/story-11.1-final-record-v2.md",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:docs/release-evidence/story-11.2-final-record-v2.json",
+      "subject": "docs/release-evidence/story-11.2-final-record-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:docs/release-evidence/story-11.2-final-record-v2.md",
+      "subject": "docs/release-evidence/story-11.2-final-record-v2.md",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:docs/release-evidence/thin-authoring-guidance-v2.json",
+      "subject": "docs/release-evidence/thin-authoring-guidance-v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:docs/release-evidence/thin-authoring-guidance-v2.md",
+      "subject": "docs/release-evidence/thin-authoring-guidance-v2.md",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:docs/release-evidence/thin-authoring-guidance-v2.schema.json",
+      "subject": "docs/release-evidence/thin-authoring-guidance-v2.schema.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:docs/release-evidence/thin-module-fixture-proof-v1.json",
+      "subject": "docs/release-evidence/thin-module-fixture-proof-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:docs/release-evidence/thin-module-fixture-proof-v1.md",
+      "subject": "docs/release-evidence/thin-module-fixture-proof-v1.md",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:docs/release-evidence/thin-module-fixture-proof-v1.schema.json",
+      "subject": "docs/release-evidence/thin-module-fixture-proof-v1.schema.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/README.md",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/README.md",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/ConversationCreated.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/ConversationCreated.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/CreateConversation.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/CreateConversation.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/Hexalith.Conversations.MinimalModule.Contracts.csproj",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/Hexalith.Conversations.MinimalModule.Contracts.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/packages.lock.json",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/packages.lock.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationAggregate.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationAggregate.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/Hexalith.Conversations.MinimalModule.Server.csproj",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/Hexalith.Conversations.MinimalModule.Server.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/packages.lock.json",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/packages.lock.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/AppHost.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/AppHost.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/packages.lock.json",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/packages.lock.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:input:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/packages.lock.json",
+      "subject": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/packages.lock.json",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:_bmad-output/planning-artifacts/v9/story-contracts/11.1.json",
+      "subject": "09007a08f63773923694f09e9c49f972d6df81ae",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:_bmad-output/planning-artifacts/v9/story-contracts/11.2.json",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:fixture:tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:fixture:tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:fixture:tests/fixtures/Hexalith.Conversations.MinimalModule/README.md",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:fixture:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/Hexalith.Conversations.MinimalModule.Contracts.csproj",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:fixture:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/CreateConversation.cs",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:fixture:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/ConversationCreated.cs",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:fixture:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/Hexalith.Conversations.MinimalModule.Server.csproj",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:fixture:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationAggregate.cs",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:fixture:tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:fixture:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:fixture:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:fixture:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:fixture:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/AppHost.cs",
+      "subject": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:guidance:source",
+      "subject": "09007a08f63773923694f09e9c49f972d6df81ae",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:guidance:json",
+      "subject": "09007a08f63773923694f09e9c49f972d6df81ae",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:guidance:markdown",
+      "subject": "09007a08f63773923694f09e9c49f972d6df81ae",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:original:guidance:schema",
+      "subject": "09007a08f63773923694f09e9c49f972d6df81ae",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:guidance:verified",
+      "subject": "Checkpoint A source, review, deterministic pair",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:proof:binding",
+      "subject": "Checkpoint B original candidate and proof pair",
+      "state": "PASS"
+    },
+    {
+      "id": "chain:fixture:original-B",
+      "subject": "frozen inventory and public-API graph at B",
+      "state": "PASS"
+    },
+    {
+      "id": "candidate:binding",
+      "subject": "compatible A-C chain",
+      "state": "PASS"
+    },
+    {
+      "id": "command",
+      "subject": "exact contract generation command",
+      "state": "PASS"
+    },
+    {
+      "id": "tools",
+      "subject": "actual Python, jsonschema, Git and .NET SDK versions",
+      "state": "PASS"
+    },
+    {
+      "id": "schema",
+      "subject": "closed SM-2 v2 shape",
+      "state": "PASS"
+    },
+    {
+      "id": "formats",
+      "subject": "canonical JSON, complete Markdown and payload digests",
+      "state": "PASS"
+    }
+  ],
+  "blockers": []
+}
