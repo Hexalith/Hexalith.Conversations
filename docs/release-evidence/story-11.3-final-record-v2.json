@@ -8,7 +8,7 @@
     "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
   },
   "candidate": {
-    "commit": "afaa149e463d2182dc906924a0981810a386c215",
+    "commit": "4b2179dff163c3f50bc2154c22b1ff5c246c1f7f",
     "gitlinks": [
       {
         "path": "references/Hexalith.AI.Tools",
@@ -96,11 +96,11 @@
       "outputFiles": [
         {
           "path": "docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json",
-          "sha256": "e758d5cbe615a44e1bb5ea3154f5a5ef4ca9227e19b1ed0b884f601ca04cb6b3"
+          "sha256": "bb2c28d0c22a01784bb1686032be9105bd57fd1e1d8ecf688ba5754719573969"
         },
         {
           "path": "docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md",
-          "sha256": "23ce050d420547c8142c2fc942d44442220d568e51fed2bcdb27faeaeccf6054"
+          "sha256": "675e2a493ba7556aa2999907dd7ebcb6c5d2b06d8a0e9a182641545b2fbc69e8"
         }
       ]
     },
@@ -119,7 +119,7 @@
       ],
       "resultFile": {
         "path": "artifacts/v9/11.3/AC-11.3-02.trx",
-        "sha256": "e6c2e4533d8840e5789bda74f3581bfcc90bb0afab3cab52644dcf9e60e9d4d7"
+        "sha256": "9fd20698822b0355d20683a8167d3e8c2acf6b26b1b29c23c05b31b0736e95ae"
       }
     },
     {
@@ -137,7 +137,7 @@
       ],
       "resultFile": {
         "path": "artifacts/v9/11.3/AC-11.3-03.trx",
-        "sha256": "93e7e226da4cb9121920e50bd6e2ea98f77cb93626f2b8fa130214ae7d66872c"
+        "sha256": "bf2eb26388d4119bbb0c278c9b3533329c011a81f4b2f8a2a51131501a3d4806"
       }
     },
     {
@@ -439,7 +439,7 @@
         },
         {
           "id": "AC-11.3-04#0059",
-          "subject": "chain:ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8::afaa149e463d2182dc906924a0981810a386c215",
+          "subject": "chain:ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8::4b2179dff163c3f50bc2154c22b1ff5c246c1f7f",
           "state": "PASS"
         },
         {
@@ -840,7 +840,7 @@
       ],
       "resultFile": {
         "path": "artifacts/v9/11.3/AC-11.3-04.json",
-        "sha256": "e93daed0678562298667aa4b54bd96ff2a72eda7009bc73e3d110e53bdc33bf1"
+        "sha256": "c8c6ca504514b77181f896151acc4883dc2fc0ff7483791c3ddb56fc1d6949a3"
       }
     },
     {
@@ -917,7 +917,7 @@
         },
         {
           "id": "AC-11.3-05#0014",
-          "subject": "ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8::afaa149e463d2182dc906924a0981810a386c215",
+          "subject": "ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8::4b2179dff163c3f50bc2154c22b1ff5c246c1f7f",
           "state": "PASS"
         },
         {
@@ -1293,7 +1293,7 @@
       ],
       "resultFile": {
         "path": "artifacts/v9/11.3/AC-11.3-05.json",
-        "sha256": "bf5a11f6c2a8fa13d3fd94e365cc6d40a1d3909056dc60e9d654d8e9e5f564c1"
+        "sha256": "dc187cc284cdc934d5907cbea9438ea0538cc37887dd6f02fd7d1c40143dd1bd"
       }
     },
     {
@@ -1446,7 +1446,7 @@
       ],
       "resultFile": {
         "path": "artifacts/v9/11.3/AC-11.3-06.xml",
-        "sha256": "ead7c16ea855c2f7bcc6b942d43093c8f5cf5b3f6d542ca4fec1904673d7bf74"
+        "sha256": "f58e373e696e752e8e28a0d14638019291424ebda4b567fc9d336f33cfc9876a"
       }
     },
     {
@@ -1473,11 +1473,11 @@
   "outputs": {
     "json": {
       "path": "docs/release-evidence/story-11.3-final-record-v2.json",
-      "sha256": "9b6baacae33296895bd892e056548332f42ee220a8f76b4673199d7f812e6630"
+      "sha256": "aaf943164988b39d783d43af6ebfbccb7318710a88a9d4feabf2713ef2a70989"
     },
     "markdown": {
       "path": "docs/release-evidence/story-11.3-final-record-v2.md",
-      "sha256": "245dc4dd7508535503e6057d4381ca805c90cf6ac910c703f2aa19cc9a3a2cbd"
+      "sha256": "0721a9c3099f8d9fbc58407ecfa116f813dae43bdfad28bd469d04d86d546556"
     }
   },
   "summary": {
@@ -1488,10 +1488,10 @@
     "skipped": 0,
     "notRun": 0
   },
-  "renderedMarkdownSha256": "245dc4dd7508535503e6057d4381ca805c90cf6ac910c703f2aa19cc9a3a2cbd",
+  "renderedMarkdownSha256": "0721a9c3099f8d9fbc58407ecfa116f813dae43bdfad28bd469d04d86d546556",
   "sm2Execution": {
     "bindingRule": "SC-11.3 is the committed source candidate; original A/B publications, all authored bytes, immutable history, current receipts and the qualified OQ-2 decision are independently verified",
-    "sourceRevisionId": "afaa149e463d2182dc906924a0981810a386c215",
+    "sourceRevisionId": "4b2179dff163c3f50bc2154c22b1ff5c246c1f7f",
     "contract": {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/11.3.json",
       "sha256": "10ee26812edf866ca5e78564c0af1ae5aeceaf0c595a42052a72372951e15d9c"
@@ -1499,7 +1499,7 @@
     "checkpoints": {
       "A": "09007a08f63773923694f09e9c49f972d6df81ae",
       "B": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
-      "C": "afaa149e463d2182dc906924a0981810a386c215"
+      "C": "4b2179dff163c3f50bc2154c22b1ff5c246c1f7f"
     },
     "sourceFiles": [
       {
@@ -1520,7 +1520,7 @@
       },
       {
         "path": "_bmad/scripts/tests/test_sm2_evidence.py",
-        "sha256": "40c0314420782c28487bd4222572287348bb0d27f742de6bfa592a57a198f7f2"
+        "sha256": "161a115a702b2aa6821831bf74fa64fff564c95e78c2fd269ad413050660e6de"
       },
       {
         "path": "_bmad/scripts/tests/test_generate_story_record.py",
@@ -1739,38 +1739,38 @@
     },
     "evidence": {
       "jsonPath": "docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json",
-      "jsonSha256": "e758d5cbe615a44e1bb5ea3154f5a5ef4ca9227e19b1ed0b884f601ca04cb6b3",
+      "jsonSha256": "bb2c28d0c22a01784bb1686032be9105bd57fd1e1d8ecf688ba5754719573969",
       "markdownPath": "docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md",
-      "markdownSha256": "23ce050d420547c8142c2fc942d44442220d568e51fed2bcdb27faeaeccf6054",
+      "markdownSha256": "675e2a493ba7556aa2999907dd7ebcb6c5d2b06d8a0e9a182641545b2fbc69e8",
       "schemaPath": "docs/release-evidence/minimal-module-authoring-cost-sm2-v2.schema.json",
       "schemaSha256": "690341d59bc350c23e51d9faa5ea74d4e014eda99b57b8b50b7ddc21fb30dc82",
-      "signablePayloadSha256": "cd2ffdb56b084de1c43e2ebcbb28f3b65ebbac14fbb892f6f68e104b7fc63ff0"
+      "signablePayloadSha256": "2e91010f7af708eb7773073b36b6215f13e17b8cba8f0d42adb60dce6f96c5f6"
     },
     "receipts": [
       {
         "scenarioId": "AC-11.3-02",
         "path": "artifacts/v9/11.3/AC-11.3-02.trx",
-        "sha256": "e6c2e4533d8840e5789bda74f3581bfcc90bb0afab3cab52644dcf9e60e9d4d7"
+        "sha256": "9fd20698822b0355d20683a8167d3e8c2acf6b26b1b29c23c05b31b0736e95ae"
       },
       {
         "scenarioId": "AC-11.3-03",
         "path": "artifacts/v9/11.3/AC-11.3-03.trx",
-        "sha256": "93e7e226da4cb9121920e50bd6e2ea98f77cb93626f2b8fa130214ae7d66872c"
+        "sha256": "bf2eb26388d4119bbb0c278c9b3533329c011a81f4b2f8a2a51131501a3d4806"
       },
       {
         "scenarioId": "AC-11.3-04",
         "path": "artifacts/v9/11.3/AC-11.3-04.json",
-        "sha256": "e93daed0678562298667aa4b54bd96ff2a72eda7009bc73e3d110e53bdc33bf1"
+        "sha256": "c8c6ca504514b77181f896151acc4883dc2fc0ff7483791c3ddb56fc1d6949a3"
       },
       {
         "scenarioId": "AC-11.3-05",
         "path": "artifacts/v9/11.3/AC-11.3-05.json",
-        "sha256": "bf5a11f6c2a8fa13d3fd94e365cc6d40a1d3909056dc60e9d654d8e9e5f564c1"
+        "sha256": "dc187cc284cdc934d5907cbea9438ea0538cc37887dd6f02fd7d1c40143dd1bd"
       },
       {
         "scenarioId": "AC-11.3-06",
         "path": "artifacts/v9/11.3/AC-11.3-06.xml",
-        "sha256": "ead7c16ea855c2f7bcc6b942d43093c8f5cf5b3f6d542ca4fec1904673d7bf74"
+        "sha256": "f58e373e696e752e8e28a0d14638019291424ebda4b567fc9d336f33cfc9876a"
       }
     ],
     "mutationLedger": [
@@ -1781,8 +1781,8 @@
           "CHECKPOINT_CANDIDATE_MISMATCH",
           "SM2_SOURCE_INVENTORY_DRIFT"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1795,8 +1795,8 @@
           "SM2_MEASUREMENT_INVALID",
           "SM2_SOURCE_INVENTORY_DRIFT"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1809,8 +1809,8 @@
           "SM2_INCLUSION_RULE_VIOLATION",
           "SM2_MEASUREMENT_INVALID"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1823,8 +1823,8 @@
           "SM2_APPHOST_COST_OMITTED",
           "SM2_INCLUSION_RULE_VIOLATION"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1837,8 +1837,8 @@
           "SM2_APPHOST_COST_OMITTED",
           "SM2_INCLUSION_RULE_VIOLATION"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1850,8 +1850,8 @@
           "EVIDENCE_FORMAT_DRIFT",
           "SM2_INCLUSION_RULE_VIOLATION"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1863,8 +1863,8 @@
           "EVIDENCE_FORMAT_DRIFT",
           "SM2_INCLUSION_RULE_VIOLATION"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1876,8 +1876,8 @@
           "EVIDENCE_FORMAT_DRIFT",
           "SM2_INCLUSION_RULE_VIOLATION"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1889,8 +1889,8 @@
           "EVIDENCE_FORMAT_DRIFT",
           "SM2_MEASUREMENT_INVALID"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1901,8 +1901,8 @@
         "observedBlockers": [
           "SM2_MEASUREMENT_INVALID"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1913,8 +1913,8 @@
         "observedBlockers": [
           "SM2_MEASUREMENT_INVALID"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1925,8 +1925,8 @@
         "observedBlockers": [
           "SM2_MEASUREMENT_INVALID"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1937,8 +1937,8 @@
         "observedBlockers": [
           "SM2_MEASUREMENT_INVALID"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1949,8 +1949,8 @@
         "observedBlockers": [
           "SM1_BASELINE_MUTATED"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1961,8 +1961,8 @@
         "observedBlockers": [
           "SM2_V1_HISTORY_MUTATED"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1973,8 +1973,8 @@
         "observedBlockers": [
           "SM2_V1_HISTORY_MUTATED"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1985,8 +1985,8 @@
         "observedBlockers": [
           "SM2_V1_HISTORY_MUTATED"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -1997,8 +1997,8 @@
         "observedBlockers": [
           "SM2_MEASUREMENT_INVALID"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -2010,8 +2010,8 @@
           "EVIDENCE_FORMAT_DRIFT",
           "SM2_MEASUREMENT_INVALID"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -2022,8 +2022,8 @@
         "observedBlockers": [
           "OQ2_DECISION_INVALID"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -2034,8 +2034,8 @@
         "observedBlockers": [
           "SM2_MEASUREMENT_INVALID"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -2046,8 +2046,8 @@
         "observedBlockers": [
           "EVIDENCE_FORMAT_DRIFT"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -2058,8 +2058,8 @@
         "observedBlockers": [
           "EVIDENCE_FORMAT_DRIFT"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -2070,8 +2070,8 @@
         "observedBlockers": [
           "EVIDENCE_FORMAT_DRIFT"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -2082,8 +2082,8 @@
         "observedBlockers": [
           "CHECKPOINT_CANDIDATE_MISMATCH"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -2094,8 +2094,8 @@
         "observedBlockers": [
           "CHECKPOINT_CANDIDATE_MISMATCH"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -2106,8 +2106,8 @@
         "observedBlockers": [
           "CHECKPOINT_CANDIDATE_MISMATCH"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
@@ -2118,8 +2118,8 @@
         "observedBlockers": [
           "HISTORY_UNAVAILABLE"
         ],
-        "beforeSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
-        "afterSha256": "411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9",
+        "beforeSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
+        "afterSha256": "f4a4d2e8faf0cb14fec24fa32ebae42579ffc82b2951ec7c7f0cdbe7e1817b1a",
         "detected": true,
         "restored": true,
         "result": "PASS"
