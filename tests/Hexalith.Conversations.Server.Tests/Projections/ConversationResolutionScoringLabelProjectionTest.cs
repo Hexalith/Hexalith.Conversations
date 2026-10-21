@@ -55,6 +55,7 @@ public sealed class ConversationResolutionScoringLabelProjectionTest
         ProjectionRequest next = original with { Events = [.. original.Events,
             new(nameof(ConversationMetadataUpdated), JsonSerializer.SerializeToUtf8Bytes(classified, JsonSerializerOptions.Web),
                 "json", 2, ResolutionMetadataFixture.Started.AddSeconds(1), "correlation", "source-message-2")] };
+        next = await ResolutionMetadataFixture.AdmitNativeAsync(next);
         (await fixture.Handler().ProjectAsync(next, "native-reclassified", Token)).Status.ShouldBe(ProjectionDispatchStatus.Completed);
         fixture.Metadata.IsLabelComplete.ShouldBeTrue();
         fixture.Metadata.Metadata.SafeLabel.ShouldBe(created.Label);
@@ -80,6 +81,7 @@ public sealed class ConversationResolutionScoringLabelProjectionTest
         ProjectionRequest request = initial with { Events = [.. initial.Events,
             new(nameof(ConversationMetadataUpdated), JsonSerializer.SerializeToUtf8Bytes(updated, JsonSerializerOptions.Web),
                 "json", 2, ResolutionMetadataFixture.Started.AddSeconds(1), "correlation", "source-message-2")] };
+        request = await ResolutionMetadataFixture.AdmitNativeAsync(request);
         (await fixture.Handler().ProjectAsync(request, "updated-label", Token)).Status.ShouldBe(ProjectionDispatchStatus.Completed);
         fixture.Metadata.IsLabelComplete.ShouldBeFalse();
         fixture.Metadata.LabelPurpose.ShouldBeNull();
@@ -104,6 +106,7 @@ public sealed class ConversationResolutionScoringLabelProjectionTest
         ProjectionRequest next = original with { Events = [.. original.Events, new(nameof(ConversationMetadataUpdated),
             JsonSerializer.SerializeToUtf8Bytes(updated, JsonSerializerOptions.Web), "json", 2,
             ResolutionMetadataFixture.Started.AddSeconds(1), "correlation", "source-message-2")] };
+        next = await ResolutionMetadataFixture.AdmitNativeAsync(next);
         (await fixture.Handler().ProjectAsync(next, "unrelated-metadata", Token)).Status.ShouldBe(ProjectionDispatchStatus.Completed);
         fixture.Metadata.Metadata.SafeLabel.ShouldBe(created.Label);
         fixture.Metadata.LabelPurpose.ShouldBe(created.ResolutionScoringLabel!.Purpose);

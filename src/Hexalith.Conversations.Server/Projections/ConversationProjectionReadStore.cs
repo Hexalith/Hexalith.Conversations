@@ -85,7 +85,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             throw new ConversationProjectionConsistencyException();
         }
 
-        if (generation is null || generation.IsPending || metadata.Value is null || string.IsNullOrEmpty(metadata.ETag)
+        if (generation is null || generation.NativeSourceProof is null || generation.IsPending || metadata.Value is null || string.IsNullOrEmpty(metadata.ETag)
             || generation.TenantId != tenantId || generation.ConversationId != conversationId
             || !generation.Matches(metadata.Value))
         {

@@ -35,7 +35,8 @@ public sealed class ConversationResolutionNativeEvidence(DelegatedOwnerQueryClie
         var selected = await store.GetAsync<ConversationResolutionNativeSelection>(ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionSelectionKey(metadata.TenantId, metadata.ConversationId), cancellationToken).ConfigureAwait(false);
         ProjectionOwnerSelection? selection = selected.Value?.ProjectionOwner;
-        if (string.IsNullOrEmpty(selected.ETag) || selection is null || selection.OwnerGeneration != metadata.Digest()
+        if (metadata.NativeSourceProof is null || selected.Value?.NativeSourceProof != metadata.NativeSourceProof
+            || string.IsNullOrEmpty(selected.ETag) || selection is null || selection.OwnerGeneration != metadata.Digest()
             || selection.TenantId != metadata.TenantId.Value || selection.AggregateId != metadata.ConversationId.Value
             || selection.Domain != ConversationProjectionHandler.ConversationDomain
             || selection.ProjectionName != ConversationAsyncProjectionHandler.ConversationReadModelProjectionType
@@ -49,7 +50,7 @@ public sealed class ConversationResolutionNativeEvidence(DelegatedOwnerQueryClie
             cancellationToken).ConfigureAwait(false);
         if (!result.Success) return null;
         ProjectionCurrentProof? proof = result.GetPayload().Deserialize<ProjectionCurrentProof>(JsonSerializerOptions.Web);
-        return proof?.Owner.Selection == selection && proof.Source.TenantId == selection.TenantId
+        return proof?.Source == metadata.NativeSourceProof && proof.Owner.Selection == selection && proof.Source.TenantId == selection.TenantId
             && proof.Source.Domain == selection.Domain && proof.Source.AggregateId == selection.AggregateId
             && proof.Source.HeadSequence == selection.AppliedSequence && proof.Source.HeadMessageId == selection.MessageId ? proof : null;
     }

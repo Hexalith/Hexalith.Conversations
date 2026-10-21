@@ -45,11 +45,9 @@ internal sealed class ResolutionNativeEvidence(ResolutionMetadataFixture fixture
             ConversationProjectionReadModelKeys.ResolutionSelectionKey(metadata.TenantId, metadata.ConversationId));
         if (!Available || selection?.ProjectionOwner.OwnerGeneration != metadata.Digest())
             return Task.FromResult<ProjectionCurrentProof?>(null);
-        var identity = new AggregateIdentity(metadata.TenantId.Value, ConversationProjectionHandler.ConversationDomain, metadata.ConversationId.Value);
-        var proof = NativeSourceProofCodec.CreateSeed(identity, Incarnation);
-        for (int index = 1; index <= metadata.SourceHeadSequence!.Value; index++)
-            proof = NativeSourceProofCodec.ExtendDigest(proof, identity, index, index == metadata.SourceHeadSequence.Value
-                ? metadata.SourceHeadMessageId! : "message-" + index, metadata.RequestFingerprint);
+        NativeSourceProof? proof = metadata.NativeSourceProof;
+        if (proof is null) return Task.FromResult<ProjectionCurrentProof?>(null);
+        proof = proof with { SourceIncarnation = Incarnation };
         LastResource = proof;
         return Task.FromResult<ProjectionCurrentProof?>(new(proof, new(selection.ProjectionOwner, "fixture-receipt", Receipt ?? metadata.RequestFingerprint), Catalog));
     }

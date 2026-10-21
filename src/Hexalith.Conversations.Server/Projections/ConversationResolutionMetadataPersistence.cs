@@ -191,6 +191,7 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
         if (found.Any(generation => generation.TenantId != tenantId || generation.ConversationId != conversationId
             || generation.RequestFingerprint != fingerprint || generation.Freshness != original.Freshness
             || generation.SubsetDigest != original.SubsetDigest
+            || generation.NativeAdmission != original.NativeAdmission || generation.NativeSourceProof != original.NativeSourceProof
             || generation.SourceHeadSequence != original.SourceHeadSequence || generation.SourceHeadMessageId != original.SourceHeadMessageId))
         {
             throw new ArgumentException("The lasting dispatch identity was reused for different input.");

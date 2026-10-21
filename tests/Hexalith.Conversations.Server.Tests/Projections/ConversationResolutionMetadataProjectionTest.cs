@@ -41,7 +41,10 @@ public sealed class ConversationResolutionMetadataProjectionTest
         ConversationId conversation = new(" conversation: /日本 ");
         (await fixture.Handler().ProjectAsync(ResolutionMetadataFixture.Request(tenantId: tenant, conversationId: conversation),
             "dispatch-opaque", Token)).Status.ShouldBe(ProjectionDispatchStatus.Completed);
-        (await fixture.Reader().ReadResolutionMetadataAsync(tenant, conversation, Token))!.Metadata.ConversationId.ShouldBe(conversation.Value);
+        fixture.Store.Snapshot<ConversationResolutionMetadataReadModel>("statestore",
+            ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenant, conversation))!.Metadata.ConversationId.ShouldBe(conversation.Value);
+        await Should.ThrowAsync<ConversationProjectionConsistencyException>(async () =>
+            await fixture.Reader().ReadResolutionMetadataAsync(tenant, conversation, Token));
         (await fixture.Reader().ReadResolutionMetadataAsync(tenant, new(conversation.Value.Trim()), Token)).ShouldBeNull();
     }
 

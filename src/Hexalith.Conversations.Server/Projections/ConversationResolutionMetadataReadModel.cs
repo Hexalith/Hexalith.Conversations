@@ -27,6 +27,14 @@ public sealed record ConversationResolutionMetadataReadModel(
     bool IsLabelComplete,
     string? LabelClassification = null)
 {
+    /// <summary>Gets the original frozen admission decision; omitted for legacy generations.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ConversationProjectionNativeAdmission? NativeAdmission { get; init; }
+
+    /// <summary>Gets the original SDK-verified native incarnation and complete prefix; absent for legacy input.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public Hexalith.EventStore.Contracts.Streams.NativeSourceProof? NativeSourceProof { get; init; }
+
     /// <summary>Gets the exact native source-local sequence admitted by the named producer.</summary>
     public long? SourceHeadSequence { get; init; }
 
@@ -55,7 +63,7 @@ public sealed record ConversationResolutionMetadataReadModel(
                 complete ? summary.Label : null, summary.LifecycleState),
             summary.Freshness, models.DispatchId, fingerprint, complete,
             complete ? ConversationResolutionScoringPolicy.Classification : null)
-        { SourceHeadSequence = models.SourceHeadSequence, SourceHeadMessageId = models.SourceHeadMessageId,
+        { NativeAdmission = models.NativeAdmission, NativeSourceProof = models.NativeSourceProof, SourceHeadSequence = models.SourceHeadSequence, SourceHeadMessageId = models.SourceHeadMessageId,
             LabelPurpose = complete ? scoring!.Purpose : null };
     }
 
@@ -76,5 +84,12 @@ public sealed record ConversationResolutionMetadataReadModel(
                 && ConversationResolutionScoringPolicy.CanClassify(Metadata.SafeLabel, ConversationResolutionScoringPolicy.Purpose)
             : Metadata.SafeLabel is null && LabelClassification is null && LabelPurpose is null)
         && !string.IsNullOrWhiteSpace(DispatchId)
+        && (NativeAdmission is null || NativeAdmission.AdmittedProof == NativeSourceProof
+            && (NativeSourceProof is null || NativeAdmission.ProducerHint == NativeSourceProof))
+        && (NativeSourceProof is null || NativeSourceProof is { Erased: false } proof
+            && proof.HeadSequence == SourceHeadSequence && proof.HeadMessageId == SourceHeadMessageId
+            && Hexalith.EventStore.Client.Streams.NativeSourceProofCodec.IsValid(proof,
+                new(TenantId.Value, ConversationProjectionHandler.ConversationDomain, ConversationId.Value),
+                proof.HeadSequence, proof.RetainedFloor))
         && RequestFingerprint is { Length: 64 } && RequestFingerprint.All(Uri.IsHexDigit);
 }

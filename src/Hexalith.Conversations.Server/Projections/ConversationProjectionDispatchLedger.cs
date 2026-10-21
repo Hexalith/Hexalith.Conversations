@@ -14,4 +14,9 @@ public sealed record ConversationProjectionDispatchLedger(
     TenantId TenantId,
     ConversationId ConversationId,
     DateTimeOffset ProjectionGeneratedAt,
-    ConversationProjectionDispatchStatus Status);
+    ConversationProjectionDispatchStatus Status)
+{
+    /// <summary>Gets the first durable admission decision; omitted by legacy ledger records.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ConversationProjectionNativeAdmission? NativeAdmission { get; init; }
+}

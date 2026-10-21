@@ -17,6 +17,14 @@ public sealed record ConversationProjectedReadModels(
     ConversationSummaryProjectionV1 Summary,
     ConversationDetailProjectionV1 Detail)
 {
+    /// <summary>Gets the original frozen admission decision; omitted for legacy generations.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ConversationProjectionNativeAdmission? NativeAdmission { get; init; }
+
+    /// <summary>Gets the original SDK-verified native incarnation and complete prefix; absent for legacy input.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public Hexalith.EventStore.Contracts.Streams.NativeSourceProof? NativeSourceProof { get; init; }
+
     /// <summary>
     /// Gets the projected conversation summary.
     /// </summary>

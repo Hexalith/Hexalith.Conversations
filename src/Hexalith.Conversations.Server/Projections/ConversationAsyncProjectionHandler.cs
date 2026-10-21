@@ -94,6 +94,24 @@ public sealed class ConversationAsyncProjectionHandler :
         {
             return retried;
         }
+        if (retried.Status == ProjectionDispatchStatus.Failed)
+        {
+            if (request.NativeSourceProof is not null) return retried;
+            var ledger = await _store.GetAsync<ConversationProjectionDispatchLedger>(ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.DispatchLedgerKey(dispatchId), cancellationToken).ConfigureAwait(false);
+            var proof = await _store.GetAsync<ConversationResolutionMetadataProof>(ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.ResolutionProofKey(new TenantId(request.TenantId), new ConversationId(request.AggregateId)),
+                cancellationToken).ConfigureAwait(false);
+            var fence = await _store.GetAsync<ConversationResolutionMetadataProof>(ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.ResolutionFenceKey(new TenantId(request.TenantId), new ConversationId(request.AggregateId)),
+                cancellationToken).ConfigureAwait(false);
+            bool IsNative(ConversationResolutionGeneration? generation) => generation?.DispatchId == dispatchId
+                && (generation.NativeAdmission is not null || generation.NativeSourceProof is not null);
+            if (ledger.Value?.NativeAdmission is not null
+                || IsNative(proof.Value?.Current) || IsNative(proof.Value?.PreviousCompleted)
+                || IsNative(fence.Value?.Current) || IsNative(fence.Value?.PreviousCompleted))
+                return retried;
+        }
 
         bool reconciled = await _writer.TryReconcileTerminalDispatchAsync(
                 new TenantId(request.TenantId),
@@ -181,13 +199,18 @@ public sealed class ConversationAsyncProjectionHandler :
                 dispatchId,
                 requestFingerprint,
                 candidateGeneratedAt,
+                originalGeneration,
                 cancellationToken).ConfigureAwait(false);
+            if (originalGeneration is not null && ledger.NativeAdmission != originalGeneration.NativeAdmission)
+                throw new ArgumentException("The original generation admission decision changed.");
             ConversationProjectedReadModels models = Materialize(
                 request,
                 events,
                 ledger.ProjectionGeneratedAt) with
             {
                 DispatchId = dispatchId,
+                NativeAdmission = ledger.NativeAdmission,
+                NativeSourceProof = ledger.NativeAdmission is { } admission ? admission.AdmittedProof : originalGeneration?.NativeSourceProof,
                 SourceHeadSequence = originalGeneration is null ? request.Events.LastOrDefault()?.SequenceNumber : originalGeneration.SourceHeadSequence,
                 SourceHeadMessageId = originalGeneration is null ? request.Events.LastOrDefault()?.MessageId : originalGeneration.SourceHeadMessageId,
             };
@@ -322,6 +345,10 @@ public sealed class ConversationAsyncProjectionHandler :
                 ?? _timeProvider.GetUtcNow()) with
         {
             DispatchId = operationId,
+            NativeAdmission = existingLedger is not null ? existingLedger.NativeAdmission
+                : originalGeneration is not null ? originalGeneration.NativeAdmission : request.NativeSourceProof is null ? null : new(request.NativeSourceProof, request.VerifiedNativeSourceProof),
+            NativeSourceProof = existingLedger is not null ? existingLedger.NativeAdmission?.AdmittedProof ?? (existingLedger.NativeAdmission is null ? originalGeneration?.NativeSourceProof : null)
+                : originalGeneration is not null ? originalGeneration.NativeSourceProof : request.VerifiedNativeSourceProof,
             SourceHeadSequence = originalGeneration is null ? request.Events.LastOrDefault()?.SequenceNumber : originalGeneration.SourceHeadSequence,
             SourceHeadMessageId = originalGeneration is null ? request.Events.LastOrDefault()?.MessageId : originalGeneration.SourceHeadMessageId,
         };
@@ -445,7 +472,7 @@ public sealed class ConversationAsyncProjectionHandler :
                 models.Summary.TenantId,
                 models.Summary.ConversationId,
                 models.Summary.Freshness.ProjectionGeneratedAt,
-                ConversationProjectionDispatchStatus.Completed)
+                ConversationProjectionDispatchStatus.Completed) { NativeAdmission = models.NativeAdmission }
             : existingLedger with { Status = ConversationProjectionDispatchStatus.Completed };
 
         ConversationResolutionNativeSelection? nativeSelection = ConversationResolutionNativeSelection.From(metadata, operationId, rebuild: true);
@@ -495,6 +522,7 @@ public sealed class ConversationAsyncProjectionHandler :
             isRebuilding: false,
             metadataWriteFailed: false) with
         {
+            NativeSourceProof = request.VerifiedNativeSourceProof,
             SourceHeadSequence = request.Events.LastOrDefault()?.SequenceNumber,
             SourceHeadMessageId = request.Events.LastOrDefault()?.MessageId,
         };
@@ -504,6 +532,7 @@ public sealed class ConversationAsyncProjectionHandler :
         string dispatchId,
         string requestFingerprint,
         DateTimeOffset projectionGeneratedAt,
+        ConversationResolutionGeneration? originalGeneration,
         CancellationToken cancellationToken)
     {
         string ledgerKey = ConversationProjectionReadModelKeys.DispatchLedgerKey(dispatchId);
@@ -526,7 +555,9 @@ public sealed class ConversationAsyncProjectionHandler :
                 new TenantId(request.TenantId),
                 new ConversationId(request.AggregateId),
                 projectionGeneratedAt,
-                ConversationProjectionDispatchStatus.Pending);
+                ConversationProjectionDispatchStatus.Pending)
+            { NativeAdmission = originalGeneration is not null ? originalGeneration.NativeAdmission
+                : request.NativeSourceProof is null ? null : new(request.NativeSourceProof, request.VerifiedNativeSourceProof) };
             IReadModelExpiringStore expiringStore = _expiringStore
                 ?? throw new InvalidOperationException("The read-model store does not support expiring dispatch ledgers.");
             if (await expiringStore.TrySaveWithTimeToLiveAsync(
@@ -662,6 +693,8 @@ public sealed class ConversationAsyncProjectionHandler :
         {
             throw new ArgumentException("The projection dispatch ledger changed identity before completion.", nameof(current));
         }
+        if (current.NativeAdmission != expected.NativeAdmission)
+            throw new ArgumentException("The original native admission decision changed before completion.", nameof(current));
     }
 
     private static Task BackoffAsync(int attempt, CancellationToken cancellationToken)
@@ -674,7 +707,7 @@ public sealed class ConversationAsyncProjectionHandler :
     /// be shaped.
     /// </summary>
     /// <remarks>
-    /// Correlation identifiers, message identifiers, user identifiers and backfilled global positions
+    /// For legacy unhinted input, correlation identifiers, message identifiers, user identifiers and backfilled global positions
     /// legitimately differ between two deliveries of the same dispatch. Hashing the whole serialized request
     /// would treat those differences as identity reuse and fail the dispatch terminally. The fingerprint
     /// therefore covers the route, tenant, aggregate, and each event's sequence, type and payload, plus the
@@ -686,6 +719,8 @@ public sealed class ConversationAsyncProjectionHandler :
     /// <c>envelope.Timestamp</c>), so a redelivery of the same event reproduces the same value and converges.
     /// A per-delivery timestamp must never enter this fingerprint.
     /// </para>
+    /// Hinted native input instead binds every exact event field with length-prefixed segments, including
+    /// timestamp offset. Its first durable admission decision remains separate from this input identity.
     /// </remarks>
     private static string ComputeRequestFingerprint(ProjectionRequest request)
     {
@@ -695,9 +730,20 @@ public sealed class ConversationAsyncProjectionHandler :
         AppendFingerprintSegment(hash, request.AggregateId);
         foreach (ProjectionEventDto evt in request.Events ?? [])
         {
-            AppendFingerprintSegment(hash, evt.SequenceNumber.ToString(CultureInfo.InvariantCulture));
-            AppendFingerprintSegment(hash, evt.EventTypeName);
-            AppendFingerprintSegment(hash, evt.SerializationFormat);
+            if (request.NativeSourceProof is not null)
+            {
+                AppendNativeFingerprintSegment(hash, "native-input-v1");
+                AppendNativeFingerprintSegment(hash, evt.SequenceNumber.ToString(CultureInfo.InvariantCulture));
+                AppendNativeFingerprintSegment(hash, evt.EventTypeName);
+                AppendNativeFingerprintSegment(hash, evt.SerializationFormat);
+                AppendNativeFingerprintSegment(hash, evt.Payload?.Length.ToString(CultureInfo.InvariantCulture));
+            }
+            else
+            {
+                AppendFingerprintSegment(hash, evt.SequenceNumber.ToString(CultureInfo.InvariantCulture));
+                AppendFingerprintSegment(hash, evt.EventTypeName);
+                AppendFingerprintSegment(hash, evt.SerializationFormat);
+            }
             if (ConversationProjectionEventDecoder.IsPositionOnlyEventType(evt.EventTypeName))
             {
                 AppendFingerprintSegment(hash, evt.Timestamp.UtcTicks.ToString(CultureInfo.InvariantCulture));
@@ -705,8 +751,27 @@ public sealed class ConversationAsyncProjectionHandler :
 
             hash.AppendData(evt.Payload ?? []);
             hash.AppendData(FingerprintSeparator);
+            if (request.NativeSourceProof is not null)
+            {
+                AppendNativeFingerprintSegment(hash, evt.Timestamp.ToString("O", CultureInfo.InvariantCulture));
+                AppendNativeFingerprintSegment(hash, evt.MessageId);
+                AppendNativeFingerprintSegment(hash, evt.CorrelationId);
+                AppendNativeFingerprintSegment(hash, evt.UserId);
+                AppendNativeFingerprintSegment(hash, evt.GlobalPosition.ToString(CultureInfo.InvariantCulture));
+                AppendNativeFingerprintSegment(hash, evt.MetadataVersion?.ToString(CultureInfo.InvariantCulture));
+                AppendNativeFingerprintSegment(hash, evt.StoredPayloadVersion?.ToString(CultureInfo.InvariantCulture));
+                AppendNativeFingerprintSegment(hash, evt.EffectivePayload?.Length.ToString(CultureInfo.InvariantCulture));
+                hash.AppendData(evt.EffectivePayload ?? []);
+                AppendNativeFingerprintSegment(hash, evt.StoredDigest?.Length.ToString(CultureInfo.InvariantCulture));
+                hash.AppendData(evt.StoredDigest ?? []);
+            }
         }
 
+        if (request.NativeSourceProof is { } nativeProof)
+        {
+            AppendFingerprintSegment(hash, "sdk-native-source-v1");
+            hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(nativeProof, JsonSerializerOptions.Web));
+        }
         return Convert.ToHexStringLower(hash.GetHashAndReset());
     }
 
@@ -714,6 +779,14 @@ public sealed class ConversationAsyncProjectionHandler :
     {
         hash.AppendData(Encoding.UTF8.GetBytes(value ?? string.Empty));
         hash.AppendData(FingerprintSeparator);
+    }
+
+    private static void AppendNativeFingerprintSegment(IncrementalHash hash, string? value)
+    {
+        Span<byte> length = stackalloc byte[4];
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(length, value is null ? -1 : Encoding.UTF8.GetByteCount(value));
+        hash.AppendData(length);
+        if (value is not null) hash.AppendData(Encoding.UTF8.GetBytes(value));
     }
 
     /// <summary>
@@ -788,6 +861,8 @@ public sealed class ConversationAsyncProjectionHandler :
             || detail.Value.Summary.ConversationId != conversationId
             || detail.Value.Detail.ConversationId != conversationId
             || detail.Value.Summary.Freshness != detail.Value.Detail.Freshness
+            || detail.Value.NativeSourceProof != expected.NativeSourceProof
+            || detail.Value.NativeAdmission != expected.NativeAdmission
             || detail.Value.ResolutionScoringLabel != expected.ResolutionScoringLabel
             || detail.Value.Summary.Freshness.ProjectionGeneratedAt.UtcTicks != ledger.ProjectionGeneratedAt.UtcTicks
             || !JsonElement.DeepEquals(
@@ -815,6 +890,7 @@ public sealed class ConversationAsyncProjectionHandler :
                 || actualLedger.Value.Status != ConversationProjectionDispatchStatus.Completed
                 || actualLedger.Value.DispatchId != ledger.DispatchId || actualLedger.Value.RequestFingerprint != ledger.RequestFingerprint
                 || actualLedger.Value.TenantId != tenantId || actualLedger.Value.ConversationId != conversationId
+                || actualLedger.Value.NativeAdmission != ledger.NativeAdmission
                 || actualLedger.Value.ProjectionGeneratedAt != generation.Freshness.ProjectionGeneratedAt))
             {
                 return false;
@@ -867,7 +943,7 @@ public sealed class ConversationAsyncProjectionHandler :
 
         return await GenerationIsDurableAsync(detail.Value,
             new(winner.DispatchId, winner.RequestFingerprint, winner.TenantId, winner.ConversationId,
-                winner.Freshness.ProjectionGeneratedAt, ConversationProjectionDispatchStatus.Completed),
+                winner.Freshness.ProjectionGeneratedAt, ConversationProjectionDispatchStatus.Completed) { NativeAdmission = winner.NativeAdmission },
             cancellationToken, requireCompletedProof: true).ConfigureAwait(false);
     }
 
@@ -879,6 +955,8 @@ public sealed class ConversationAsyncProjectionHandler :
     {
         if (!string.Equals(ledger.DispatchId, dispatchId, StringComparison.Ordinal)
             || !string.Equals(ledger.RequestFingerprint, requestFingerprint, StringComparison.Ordinal)
+            || ledger.NativeAdmission is { } admission && (admission.ProducerHint != request.NativeSourceProof
+                || admission.AdmittedProof is not null && admission.AdmittedProof != admission.ProducerHint)
             || ledger.TenantId.Value != request.TenantId
             || ledger.ConversationId.Value != request.AggregateId)
         {

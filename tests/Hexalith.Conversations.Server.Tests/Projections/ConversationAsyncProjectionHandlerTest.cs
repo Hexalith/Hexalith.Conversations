@@ -148,8 +148,11 @@ public sealed class ConversationAsyncProjectionHandlerTest
         DomainProjectionHandlerResult retried = await handler.ProjectAsync(request, "dispatch-partial", TestContext.Current.CancellationToken);
 
         retried.Status.ShouldBe(ProjectionDispatchStatus.Completed);
-        (await readStore.ReadResolutionMetadataAsync(Tenant, Conversation, TestContext.Current.CancellationToken))
-            .ShouldNotBeNull();
+        // Recovery converges legacy state but cannot manufacture original native provenance.
+        inner.Snapshot<ConversationResolutionMetadataReadModel>(ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ResolutionMetadataKey(Tenant, Conversation))!.NativeSourceProof.ShouldBeNull();
+        await Should.ThrowAsync<ConversationProjectionConsistencyException>(async () =>
+            await readStore.ReadResolutionMetadataAsync(Tenant, Conversation, TestContext.Current.CancellationToken));
         inner.Snapshot<ConversationProjectionIndexReadModel>(
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!

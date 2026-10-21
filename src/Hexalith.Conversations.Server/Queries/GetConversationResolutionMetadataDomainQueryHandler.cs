@@ -67,7 +67,7 @@ public sealed class GetConversationResolutionMetadataDomainQueryHandler(
             }
 
             var resourceBefore = await native!.ReadProjectionAsync(metadata, cancellationToken).ConfigureAwait(false);
-            if (resourceBefore is null) return Unavailable();
+            if (resourceBefore is null || metadata.NativeSourceProof is null || resourceBefore.Source != metadata.NativeSourceProof) return Unavailable();
             var final = await authorization.CheckAsync(tenant, resource, query.UserId, ConversationResolutionMetadataAuthorization.ScoringPurpose, cancellationToken).ConfigureAwait(false);
             if (final.Denied)
             {

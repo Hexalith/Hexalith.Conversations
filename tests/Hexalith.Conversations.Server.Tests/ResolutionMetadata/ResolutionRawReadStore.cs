@@ -23,7 +23,7 @@ internal sealed class ResolutionRawReadStore(InMemoryReadModelStore inner) : IRe
         Observer.AfterRead = AfterRawRead;
         Type protocol = typeof(IReadModelStore).Assembly.GetType("Hexalith.EventStore.Client.Projections.ReadModelBatchProtocol")!;
         Task resolution = (Task)protocol.GetMethod("ResolveVisibleAsync", BindingFlags.Public | BindingFlags.Static)!
-            .Invoke(null, [Observer, key, cancellationToken])!;
+            .Invoke(null, [Observer, key, cancellationToken, null])!;
         await resolution;
         object entry = resolution.GetType().GetProperty("Result")!.GetValue(resolution)!;
         Type entryType = entry.GetType();

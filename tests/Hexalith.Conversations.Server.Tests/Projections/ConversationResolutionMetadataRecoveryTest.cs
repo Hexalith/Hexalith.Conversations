@@ -8,6 +8,7 @@ using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Tests.ResolutionMetadata;
+using Hexalith.EventStore.Client.Gateway;
 using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Contracts.Projections;
 using Hexalith.EventStore.DomainService;
@@ -199,6 +200,7 @@ public sealed class ConversationResolutionMetadataRecoveryTest
         var next = request with { Events = [.. request.Events, new(nameof(ConversationMetadataUpdated),
             JsonSerializer.SerializeToUtf8Bytes(classified, JsonSerializerOptions.Web), "json", 2,
             ResolutionMetadataFixture.Started.AddSeconds(1), "correlation", "source-message-2")] };
+        next = await ResolutionMetadataFixture.AdmitNativeAsync(next);
         (await fixture.Handler().ProjectAsync(next, "dispatch-native", Token)).Status.ShouldBe(ProjectionDispatchStatus.Completed);
         fixture.Metadata.LabelPurpose.ShouldBe(ConversationResolutionScoringPolicy.Purpose);
         fixture.Metadata.Metadata.SafeLabel.ShouldBe("Scoring label");
@@ -275,7 +277,8 @@ public sealed class ConversationResolutionMetadataRecoveryTest
             ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation))!;
         JsonSerializer.SerializeToUtf8Bytes(detail).Length.ShouldBeGreaterThan(1_048_576);
         JsonSerializer.Serialize(detail).ShouldContain(transcript);
-        (await fixture.Reader().ReadResolutionMetadataAsync(Tenant, Conversation, Token))!.Metadata.SafeLabel.ShouldBe("Scoring label");
+        await Should.ThrowAsync<ConversationProjectionConsistencyException>(async () =>
+            await fixture.Reader().ReadResolutionMetadataAsync(Tenant, Conversation, Token));
     }
 
     [Fact]
@@ -359,7 +362,8 @@ public sealed class ConversationResolutionMetadataRecoveryTest
                 EventType = ConversationEventType.ConversationMetadataUpdated, OccurredAt = ResolutionMetadataFixture.Started.AddSeconds(2) }, "Scoring label");
             valid = valid with { Events = [.. valid.Events, new(nameof(ConversationMetadataUpdated),
                 JsonSerializer.SerializeToUtf8Bytes(updated, JsonSerializerOptions.Web), "json", 3,
-                ResolutionMetadataFixture.Started.AddSeconds(2), "correlation")] };
+                ResolutionMetadataFixture.Started.AddSeconds(2), "correlation", "source-message-3")] };
+            valid = await ResolutionMetadataFixture.AdmitNativeAsync(valid);
         }
         (await fixture.Handler().ProjectAsync(valid, "dispatch-z-winner", Token)).Status.ShouldBe(ProjectionDispatchStatus.Completed);
         var winner = fixture.Metadata;
@@ -657,14 +661,20 @@ public sealed class ConversationResolutionMetadataRecoveryTest
         interrupted.ShouldBeTrue();
         fixture.Store.BatchFaultHook = null;
         (await fixture.Handler(fixture.Guard).ProjectAsync(request, "dispatch-long", Token)).Status.ShouldBe(ProjectionDispatchStatus.Completed);
-        var model = (await fixture.Reader().ReadResolutionMetadataAsync(tenant, conversation, Token))!;
+        var model = fixture.Store.Snapshot<ConversationResolutionMetadataReadModel>("statestore",
+            ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenant, conversation))!;
+        await Should.ThrowAsync<ConversationProjectionConsistencyException>(async () =>
+            await fixture.Reader().ReadResolutionMetadataAsync(tenant, conversation, Token));
         model.TenantId.ShouldBe(tenant);
         model.ConversationId.ShouldBe(conversation);
         model.Metadata.ConversationId.ShouldBe(conversation.Value);
         ConversationId adjacent = new(conversation.Value + "other");
         (await fixture.Handler().ProjectAsync(ResolutionMetadataFixture.Request(tenantId: tenant, conversationId: adjacent),
             "dispatch-adjacent", Token)).Status.ShouldBe(ProjectionDispatchStatus.Completed);
-        (await fixture.Reader().ReadResolutionMetadataAsync(tenant, adjacent, Token))!.ConversationId.ShouldBe(adjacent);
+        fixture.Store.Snapshot<ConversationResolutionMetadataReadModel>("statestore",
+            ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenant, adjacent))!.ConversationId.ShouldBe(adjacent);
+        await Should.ThrowAsync<ConversationProjectionConsistencyException>(async () =>
+            await fixture.Reader().ReadResolutionMetadataAsync(tenant, adjacent, Token));
         (await fixture.Reader().ReadResolutionMetadataAsync(new(tenant.Value + "other"), conversation, Token)).ShouldBeNull();
         ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenant, adjacent)
             .ShouldNotBe(ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenant, conversation));
@@ -790,7 +800,8 @@ public sealed class ConversationResolutionMetadataRecoveryTest
                 ConversationResolutionScoringPolicy.Classification),
         };
         live = live with { Events = [.. live.Events, new(nameof(ConversationMetadataUpdated), JsonSerializer.SerializeToUtf8Bytes(updated, JsonSerializerOptions.Web),
-            "json", 3, ResolutionMetadataFixture.Started.AddSeconds(2), "correlation")] };
+            "json", 3, ResolutionMetadataFixture.Started.AddSeconds(2), "correlation", "source-message-3")] };
+        live = await ResolutionMetadataFixture.AdmitNativeAsync(live);
         var first = await fixture.Handler().ProjectAsync(live, "dispatch-live-winner", Token);
         try
         {
@@ -901,13 +912,20 @@ public sealed class ConversationResolutionMetadataRecoveryTest
 
     private static async Task<ProjectionDispatchResponse> RebuildAsync(ResolutionMetadataFixture fixture)
     {
+        ProjectionRequest original = ResolutionMetadataFixture.Request(changedProject: true);
+        var gateway = new ResolutionProjectionGateway(original);
+        ProjectionRequest request = JsonSerializer.Deserialize<ProjectionRequest>(
+            JsonSerializer.Serialize(original, JsonSerializerOptions.Web), JsonSerializerOptions.Web)!;
+        request.VerifiedNativeSourceProof.ShouldBeNull();
+        request.NativeSourceProof.ShouldBe(gateway.Proof);
         await using ServiceProvider provider = new ServiceCollection().AddSingleton<IReadModelBatchStore>(fixture.Guard)
+            .AddSingleton<IEventStoreGatewayClient>(gateway)
             .AddSingleton<IDomainProjectionHandler>(new ConversationProjectionHandler(new(), fixture.Time))
             .AddSingleton<IAsyncDomainProjectionHandler>(fixture.Handler()).BuildServiceProvider();
         string fingerprint = ProjectionRouteCatalogFingerprint.Compute("conversations-service", "v1",
             [new ProjectionDispatchRoute(ConversationProjectionHandler.ConversationDomain, ConversationAsyncProjectionHandler.ConversationReadModelProjectionType)]);
         return await DomainProjectionDispatcher.RebuildAsync(provider,
-            new(ResolutionMetadataFixture.Request(changedProject: true), [ConversationAsyncProjectionHandler.ConversationReadModelProjectionType],
+            new(request, [ConversationAsyncProjectionHandler.ConversationReadModelProjectionType],
                 "rebuild-all-boundaries", fingerprint), new ProjectionDispatchOptions(),
             new DomainProjectionIdentityOptions { AppId = "conversations-service", ServiceVersion = "v1" }, Token);
     }

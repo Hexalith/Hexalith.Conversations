@@ -15,6 +15,14 @@ public sealed record ConversationResolutionGeneration(
     TenantId TenantId, ConversationId ConversationId, string DispatchId,
     string RequestFingerprint, ProjectionFreshnessV1 Freshness, string SubsetDigest, bool IsPending)
 {
+    /// <summary>Gets the original frozen admission decision; omitted for legacy generations.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ConversationProjectionNativeAdmission? NativeAdmission { get; init; }
+
+    /// <summary>Gets the original SDK-verified native incarnation and complete prefix; absent for legacy input.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public Hexalith.EventStore.Contracts.Streams.NativeSourceProof? NativeSourceProof { get; init; }
+
     /// <summary>Gets the original named producer's source-local head, absent for legacy generations.</summary>
     public long? SourceHeadSequence { get; init; }
 
@@ -25,7 +33,7 @@ public sealed record ConversationResolutionGeneration(
     internal static ConversationResolutionGeneration From(ConversationResolutionMetadataReadModel model, bool pending)
         => new(model.TenantId, model.ConversationId, model.DispatchId, model.RequestFingerprint,
             model.Freshness, model.Digest(), pending)
-        { SourceHeadSequence = model.SourceHeadSequence, SourceHeadMessageId = model.SourceHeadMessageId };
+        { NativeAdmission = model.NativeAdmission, NativeSourceProof = model.NativeSourceProof, SourceHeadSequence = model.SourceHeadSequence, SourceHeadMessageId = model.SourceHeadMessageId };
 
     /// <summary>Compares using native position then ordinal dispatch identity.</summary>
     internal int CompareTo(ConversationResolutionGeneration other)
@@ -39,5 +47,7 @@ public sealed record ConversationResolutionGeneration(
         => model.IsWellFormed() && TenantId == model.TenantId && ConversationId == model.ConversationId
             && DispatchId == model.DispatchId && RequestFingerprint == model.RequestFingerprint
             && Freshness == model.Freshness && SubsetDigest == model.Digest()
+            && NativeSourceProof == model.NativeSourceProof
+            && NativeAdmission == model.NativeAdmission
             && SourceHeadSequence == model.SourceHeadSequence && SourceHeadMessageId == model.SourceHeadMessageId;
 }

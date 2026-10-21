@@ -9,6 +9,7 @@ using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Client.Projections;
+using Hexalith.EventStore.Client.Gateway;
 using Hexalith.EventStore.Contracts.Projections;
 using Hexalith.EventStore.Contracts.Queries;
 using Hexalith.EventStore.DomainService;
@@ -53,7 +54,25 @@ internal sealed class ResolutionMetadataFixture
             events.Add(new(nameof(ConversationProjectChanged), JsonSerializer.SerializeToUtf8Bytes(changed, JsonSerializerOptions.Web), "json", 2, Started.AddSeconds(1), "correlation", "source-message-2"));
         }
 
-        return new(tenantId.Value, ConversationProjectionHandler.ConversationDomain, conversationId.Value, [.. events]);
+        ProjectionRequest request = new(tenantId.Value, ConversationProjectionHandler.ConversationDomain, conversationId.Value, [.. events]);
+        try { return AdmitNativeAsync(request).GetAwaiter().GetResult(); }
+        catch (ArgumentException) { return request; } // opaque legacy-only fixture identity
+    }
+
+    internal static async Task<ProjectionRequest> AdmitNativeAsync(ProjectionRequest request,
+        string incarnation = "01ARZ3NDEKTSV4RRFFQ69G5FAV")
+    {
+        var gateway = new ResolutionProjectionGateway(request, incarnation);
+        var capture = new ResolutionProjectionCapture();
+        using ServiceProvider services = new ServiceCollection().AddSingleton<IAsyncDomainProjectionHandler>(capture)
+            .AddSingleton<IEventStoreGatewayClient>(gateway).BuildServiceProvider();
+        var catalog = new DomainProjectionCatalogRegistry();
+        const string fingerprint = "fixture-native-provenance";
+        catalog.Register(fingerprint, [new(capture.Domain, capture.ProjectionType)]);
+        await DomainProjectionDispatcher.DispatchAsync(services,
+            new(request with { NativeSourceProof = gateway.Proof }, [capture.ProjectionType], "fixture-admission", fingerprint),
+            new(), catalog, TestContext.Current.CancellationToken);
+        return capture.Request!;
     }
 
     public async Task ProjectAsync(string dispatch = "dispatch-a", string? label = "Scoring label", bool changedProject = false)
