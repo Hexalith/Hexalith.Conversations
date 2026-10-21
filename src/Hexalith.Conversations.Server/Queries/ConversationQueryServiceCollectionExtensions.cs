@@ -115,6 +115,7 @@ public static class ConversationQueryServiceCollectionExtensions
         services.AddScoped<ConversationQueryHandler>();
         services.AddEventStoreDelegatedOwnerQueries();
         services.TryAddScoped<ConversationResolutionMetadataAuthorization>();
+        services.TryAddScoped<GetConversationAdvisoryMetadataDomainQueryHandler>();
         services.TryAddScoped<IConversationResolutionNativeEvidence, ConversationResolutionNativeEvidence>();
         // The SDK discovers every IDomainQueryHandler in this assembly in either composition order.
         return services;

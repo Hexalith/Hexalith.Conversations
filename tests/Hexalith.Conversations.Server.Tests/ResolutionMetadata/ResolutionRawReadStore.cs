@@ -13,7 +13,13 @@ internal sealed class ResolutionRawReadStore(InMemoryReadModelStore inner) : IRe
     internal int Writes { get; private set; }
     internal Func<string, Task>? AfterRawRead { get; set; }
 
-    public async Task<ReadModelEntry<T>> GetAsync<T>(string storeName, string key, CancellationToken cancellationToken = default) where T : class
+    public Task<ReadModelEntry<T>> GetAsync<T>(string storeName, string key, CancellationToken cancellationToken = default) where T : class
+        => ReadAsync<T>(storeName, key, false, cancellationToken);
+
+    public Task<ReadModelEntry<T>> GetCompactedAsync<T>(string storeName, string key, CancellationToken cancellationToken = default) where T : class
+        => ReadAsync<T>(storeName, key, true, cancellationToken);
+
+    private async Task<ReadModelEntry<T>> ReadAsync<T>(string storeName, string key, bool compacted, CancellationToken cancellationToken) where T : class
     {
         Type accessorType = typeof(InMemoryReadModelStore).GetNestedType("InMemoryBatchAccessor", BindingFlags.NonPublic)!;
         Type contract = typeof(IReadModelStore).Assembly.GetType("Hexalith.EventStore.Client.Projections.IReadModelBatchStateAccessor")!;
@@ -22,9 +28,18 @@ internal sealed class ResolutionRawReadStore(InMemoryReadModelStore inner) : IRe
             binder: null, args: [inner, storeName], culture: null)!;
         Observer.AfterRead = AfterRawRead;
         Type protocol = typeof(IReadModelStore).Assembly.GetType("Hexalith.EventStore.Client.Projections.ReadModelBatchProtocol")!;
-        Task resolution = (Task)protocol.GetMethod("ResolveVisibleAsync", BindingFlags.Public | BindingFlags.Static)!
-            .Invoke(null, [Observer, key, cancellationToken, null])!;
-        await resolution;
+        Task resolution;
+        try
+        {
+            resolution = (Task)protocol.GetMethod(compacted ? "ReadCompactedAsync" : "ResolveVisibleAsync",
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)!
+                .Invoke(null, [Observer, key, cancellationToken, null])!;
+            await resolution;
+        }
+        catch (TargetInvocationException exception) when (exception.InnerException is InvalidOperationException)
+        {
+            throw exception.InnerException;
+        }
         object entry = resolution.GetType().GetProperty("Result")!.GetValue(resolution)!;
         Type entryType = entry.GetType();
         bool exists = (bool)entryType.GetProperty("Exists")!.GetValue(entry)!;

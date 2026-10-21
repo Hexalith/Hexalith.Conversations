@@ -611,15 +611,12 @@ public sealed class ConversationResolutionMetadataRecoveryTest
         retry.Outcomes.ShouldAllBe(outcome => outcome.Status == ProjectionDispatchStatus.Failed
             && outcome.ReasonCode == ProjectionDispatchReasonCodes.HandlerFailure);
         var query = await fixture.DispatchAsync();
-        if (previous is null)
+        // A physical pending envelope is known incomplete evidence even for an initially empty
+        // read model. The strict SDK read reports Unavailable before any legacy marker hydration.
+        query.Success.ShouldBeTrue();
+        query.GetPayload().GetProperty("metadata").ValueKind.ShouldBe(JsonValueKind.Null);
+        if (previous is not null)
         {
-            query.Success.ShouldBeFalse();
-            query.ErrorMessage.ShouldBe("safe-denial");
-        }
-        else
-        {
-            query.Success.ShouldBeTrue();
-            query.GetPayload().GetProperty("metadata").ValueKind.ShouldBe(JsonValueKind.Null);
             fixture.Metadata.ShouldBe(previous);
             var proof = await fixture.Store.GetAsync<ConversationResolutionMetadataProof>("statestore",
                 ConversationProjectionReadModelKeys.ResolutionProofKey(Tenant, Conversation), Token);
@@ -830,7 +827,7 @@ public sealed class ConversationResolutionMetadataRecoveryTest
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task ActualNativeRawEnvelopeAndMarkerReadsRemainContentFreeWithoutWrites(bool rebuild)
+    public async Task ActualNativeCompactedReadsRefuseEnvelopesBeforeAnyMarkerAndWithoutWrites(bool rebuild)
     {
         ResolutionMetadataFixture fixture = new();
         await fixture.ProjectAsync();
@@ -861,9 +858,8 @@ public sealed class ConversationResolutionMetadataRecoveryTest
         {
             await Should.ThrowAsync<ConversationProjectionConsistencyException>(async () =>
                 await fixture.Reader(raw).ReadResolutionMetadataAsync(Tenant, Conversation, Token));
-            raw.Observer.Reads.ShouldContain(read => read.Key.StartsWith("hxrmb:v1:marker:", StringComparison.Ordinal));
-            raw.Observer.Reads.ShouldAllBe(read => read.Key.StartsWith("hxrmb:v1:marker:", StringComparison.Ordinal)
-                || read.Key.StartsWith("projection:conversations-resolution:", StringComparison.Ordinal)
+            raw.Observer.Reads.ShouldNotContain(read => read.Key.StartsWith("hxrmb:v1:marker:", StringComparison.Ordinal));
+            raw.Observer.Reads.ShouldAllBe(read => read.Key.StartsWith("projection:conversations-resolution:", StringComparison.Ordinal)
                 || read.Key.StartsWith("projection:conversations-resolution-proof:", StringComparison.Ordinal)
                 || read.Key.StartsWith("projection:conversations-dispatch:", StringComparison.Ordinal));
             foreach (var read in raw.Observer.Reads)

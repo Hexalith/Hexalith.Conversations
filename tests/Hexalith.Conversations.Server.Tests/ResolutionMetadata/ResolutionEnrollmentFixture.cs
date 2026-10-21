@@ -26,16 +26,23 @@ internal sealed class ResolutionEnrollmentFixture : IAsyncDisposable, IHttpReque
 {
     public const string Route = ConversationAsyncProjectionHandler.ConversationReadModelProjectionType;
     public WebApplication App { get; }
-    public InMemoryDaprStateClient Backend { get; } = new();
+    public InMemoryDaprStateClient Backend { get; }
     public DaprReadModelStore Store { get; }
-    public ResolutionTestTimeProvider Time { get; } = new(ResolutionMetadataFixture.Started.AddSeconds(10));
+    public ResolutionTestTimeProvider Time { get; }
     public ProjectionRequest Input { get; }
     public ResolutionProjectionGateway Gateway { get; }
     public bool CanHaveBody => true;
+    private readonly bool _enroll;
+    private readonly Action<IServiceCollection>? _configure;
+    private bool _disposed;
 
-    public ResolutionEnrollmentFixture(bool enroll = true, Action<IServiceCollection>? configure = null)
+    public ResolutionEnrollmentFixture(bool enroll = true, Action<IServiceCollection>? configure = null,
+        InMemoryDaprStateClient? backend = null, ResolutionTestTimeProvider? time = null, ProjectionRequest? originalInput = null)
     {
-        ProjectionRequest original = ResolutionMetadataFixture.Request();
+        _enroll = enroll; _configure = configure;
+        Backend = backend ?? new();
+        Time = time ?? new(ResolutionMetadataFixture.Started.AddSeconds(10));
+        ProjectionRequest original = originalInput ?? ResolutionMetadataFixture.Request();
         var gateway = Gateway = new ResolutionProjectionGateway(original);
         Input = JsonSerializer.Deserialize<ProjectionRequest>(JsonSerializer.Serialize(original with
             { NativeSourceProof = gateway.Proof }, JsonSerializerOptions.Web), JsonSerializerOptions.Web)!;
@@ -100,5 +107,18 @@ internal sealed class ResolutionEnrollmentFixture : IAsyncDisposable, IHttpReque
             ConversationProjectionReadModelKeys.ResolutionMetadataKey(ResolutionMetadataFixture.Tenant,
                 ResolutionMetadataFixture.Conversation), TestContext.Current.CancellationToken)).Value!;
 
-    public ValueTask DisposeAsync() => App.DisposeAsync();
+    public async Task<ResolutionEnrollmentFixture> RestartAsync(DateTimeOffset now)
+    {
+        await DisposeAsync();
+        // Only durable storage and original public input survive. Build a new container, handlers,
+        // read-model adapter, gateway and clock; no admitted request or scoped service is retained.
+        return new(_enroll, _configure, Backend, new(now), Input);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        await App.DisposeAsync();
+    }
 }

@@ -32,8 +32,16 @@ public sealed class ConversationResolutionNativeEvidence(DelegatedOwnerQueryClie
     public async Task<ProjectionCurrentProof?> ReadProjectionAsync(ConversationResolutionMetadataReadModel metadata, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(metadata);
-        var selected = await store.GetAsync<ConversationResolutionNativeSelection>(ConversationProjectionReadModelKeys.StateStoreName,
-            ConversationProjectionReadModelKeys.ResolutionSelectionKey(metadata.TenantId, metadata.ConversationId), cancellationToken).ConfigureAwait(false);
+        ReadModelEntry<ConversationResolutionNativeSelection> selected;
+        try
+        {
+            selected = await store.GetCompactedAsync<ConversationResolutionNativeSelection>(ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.ResolutionSelectionKey(metadata.TenantId, metadata.ConversationId), cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or NotSupportedException)
+        {
+            return null;
+        }
         ProjectionOwnerSelection? selection = selected.Value?.ProjectionOwner;
         if (metadata.NativeSourceProof is null || selected.Value?.NativeSourceProof != metadata.NativeSourceProof
             || string.IsNullOrEmpty(selected.ETag) || selection is null || selection.OwnerGeneration != metadata.Digest()
@@ -42,9 +50,10 @@ public sealed class ConversationResolutionNativeEvidence(DelegatedOwnerQueryClie
             || selection.ProjectionName != ConversationAsyncProjectionHandler.ConversationReadModelProjectionType
             || selection.AppliedSequence != metadata.SourceHeadSequence || selection.MessageId != metadata.SourceHeadMessageId
             || selection.FreshnessVersion != metadata.Freshness.ProjectionCursor
-            // A coordinated legacy rebuild receipt can carry a rich original manifest before terminal
-            // compaction. This strict query must refuse before asking any proof reader to load that row.
-            || selection.ReceiptProjectionName is not null) return null;
+            // Only the SDK's original content-free completion discriminator is safe. Legacy rebuild
+            // markers and arbitrary receipt names can carry rich input and refuse before transport.
+            || selection.ReceiptProjectionName is not null
+                && selection.ReceiptProjectionName != ReadModelRebuildCompletion.ReceiptProjectionName) return null;
         QueryResult result = await client.InvokeAsync(new(selection.TenantId, selection.Domain, selection.AggregateId,
             InspectProjectionCurrentQuery.QueryType, Payload: JsonSerializer.SerializeToElement(new InspectProjectionCurrentQuery(selection), JsonSerializerOptions.Web)),
             cancellationToken).ConfigureAwait(false);

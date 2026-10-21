@@ -155,6 +155,7 @@ public sealed class ConversationNativeCurrentQueryTests
         await fixture.ProjectAsync();
         var model = fixture.Metadata;
         var selection = ConversationResolutionNativeSelection.From(model, "actual-rebuild", rebuild: true)!;
+        selection = selection with { ProjectionOwner = selection.ProjectionOwner with { ReceiptProjectionName = "rebuild" } };
         fixture.Store.SeedRaw("statestore", ConversationProjectionReadModelKeys.ResolutionSelectionKey(model.TenantId, model.ConversationId), selection);
         var evidence = new ConversationResolutionNativeEvidence(null!, fixture.Guard);
         fixture.Guard.ForbidLegacyReads = true; fixture.Guard.ForbidWrites = true;

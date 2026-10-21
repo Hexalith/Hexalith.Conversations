@@ -269,7 +269,7 @@ public sealed class ConversationResolutionNativeEnrollmentTest
     }
 
     [Fact]
-    public async Task GuardedRebuildRetainsOriginalEvidenceAndKeepsContentFreePromotionGated()
+    public async Task GuardedRebuildRetainsOriginalEvidenceAndPublishesContentFreeSdkCompletion()
     {
         await using var fixture = new ResolutionEnrollmentFixture();
         var catalog = await fixture.CatalogAsync();
@@ -285,15 +285,13 @@ public sealed class ConversationResolutionNativeEnrollmentTest
         var selected = (await fixture.Store.GetAsync<ConversationResolutionNativeSelection>("statestore",
             ConversationProjectionReadModelKeys.ResolutionSelectionKey(ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation), Token)).Value!;
         selected.NativeSourceProof.ShouldBe(fixture.Input.NativeSourceProof);
-        selected.ProjectionOwner.ReceiptProjectionName.ShouldBe("rebuild");
+        selected.ProjectionOwner.ReceiptProjectionName.ShouldBe(ReadModelRebuildCompletion.ReceiptProjectionName);
         (await fixture.OwnerAsync(catalog.CatalogFingerprint!)).Proof.ShouldNotBeNull().Selection.ShouldBe(selected.ProjectionOwner);
-        // An SDK receipt alone does not qualify content-free post-rebuild promotion. The existing
-        // owner query refuses the coordinated generation before invoking delegated transport.
-        fixture.Backend.ReadKeys.Clear();
-        fixture.Backend.BeforeRead = key => key.ShouldBe(ConversationProjectionReadModelKeys.ResolutionSelectionKey(
-            ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation));
+        int writes = fixture.Backend.WrittenKeys.Count;
+        fixture.Backend.BeforeRead = key => key.StartsWith("hxrmb:v1:marker:", StringComparison.Ordinal).ShouldBeFalse();
         fixture.Backend.BeforeWrite = _ => throw new Xunit.Sdk.XunitException("Rebuild read attempted mutation.");
-        (await new ConversationResolutionNativeEvidence(null!, fixture.Store).ReadProjectionAsync(metadata, Token)).ShouldBeNull();
-        fixture.Backend.ReadKeys.ShouldHaveSingleItem();
+        (await new ConversationProjectionReadStore(fixture.Store).ReadResolutionMetadataAsync(
+            ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation, Token)).ShouldBe(metadata);
+        fixture.Backend.WrittenKeys.Count.ShouldBe(writes);
     }
 }

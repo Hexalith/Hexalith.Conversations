@@ -310,23 +310,35 @@ public sealed class ConversationResolutionMetadataQueryHandlerTest
     }
 
     [Fact]
-    public async Task RealAccessServiceCannotInventCurrentRevisionFromHealthySignalOrTenantObservation()
+    public async Task RealAccessServicePreservesOnlyCheckedHealthAndStillRequiresNativeEvidence()
     {
         ResolutionMetadataFixture fixture = new();
+        await fixture.ProjectAsync();
         ResolutionTenantStore tenantStore = new();
         var defaultSignal = new DefaultConversationTenantProjectionSignal(tenantStore, NullLogger<DefaultConversationTenantProjectionSignal>.Instance);
         var realAccess = new ConversationTenantAccessService(tenantStore, defaultSignal, NullLogger<ConversationTenantAccessService>.Instance);
+        var unsupported = await realAccess.CheckAccessAsync(ConversationTenantAccessRequirement.Read,
+            ResolutionMetadataFixture.Tenant, "actor", cancellationToken: TestContext.Current.CancellationToken);
+        unsupported.IsAllowed.ShouldBeTrue();
+        unsupported.ProjectionVersion.ShouldBeNull(); unsupported.ProjectionWatermark.ShouldBeNull();
         AssertUnavailable(await fixture.DispatchAsync(access: realAccess, signal: defaultSignal));
         fixture.Guard.Reads.ShouldBeEmpty();
-        // Even a separately supplied healthy revision cannot fill the revision dropped by Commons' allowed decision.
+
+        // A real decision preserves the exact health checked by its evaluator; it cannot manufacture native proof.
         var currentSignalAccess = new ConversationTenantAccessService(tenantStore, fixture.Access, NullLogger<ConversationTenantAccessService>.Instance);
         var allowed = await currentSignalAccess.CheckAccessAsync(ConversationTenantAccessRequirement.Read,
-            ResolutionMetadataFixture.Tenant, "actor", cancellationToken: TestContext.Current!.CancellationToken);
+            ResolutionMetadataFixture.Tenant, "actor", cancellationToken: TestContext.Current.CancellationToken);
         allowed.IsAllowed.ShouldBeTrue();
-        allowed.ProjectionVersion.ShouldBeNull();
-        allowed.ProjectionWatermark.ShouldBeNull();
+        allowed.ProjectionVersion.ShouldBe(fixture.Access.Health.Version);
+        allowed.ProjectionWatermark.ShouldBe(fixture.Access.Health.Watermark);
+        fixture.Native.Available = false;
         AssertUnavailable(await fixture.DispatchAsync(access: currentSignalAccess));
         fixture.Guard.Reads.ShouldBeEmpty();
+        fixture.Native.Available = true;
+        var current = Deserialize(await fixture.DispatchAsync(access: currentSignalAccess));
+        current.Metadata.ShouldBe(fixture.Metadata.Metadata);
+        current.ResourceVersion.ShouldBe(JsonSerializer.Serialize(fixture.Native.LastResource, JsonSerializerOptions.Web));
+        current.PermissionVersion.ShouldBe(JsonSerializer.Serialize(fixture.Native.LastTenant, JsonSerializerOptions.Web));
     }
 
     [Theory]

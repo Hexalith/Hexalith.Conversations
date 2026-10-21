@@ -53,11 +53,24 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
     public async ValueTask<ConversationResolutionMetadataReadModel?> ReadResolutionMetadataAsync(
         TenantId tenantId, ConversationId conversationId, CancellationToken cancellationToken = default)
     {
+        try
+        {
+            return await ReadResolutionMetadataCoreAsync(tenantId, conversationId, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or NotSupportedException)
+        {
+            throw new ConversationProjectionConsistencyException();
+        }
+    }
+
+    private async ValueTask<ConversationResolutionMetadataReadModel?> ReadResolutionMetadataCoreAsync(
+        TenantId tenantId, ConversationId conversationId, CancellationToken cancellationToken = default)
+    {
         ArgumentNullException.ThrowIfNull(tenantId);
         ArgumentNullException.ThrowIfNull(conversationId);
         string proofKey = ConversationProjectionReadModelKeys.ResolutionProofKey(tenantId, conversationId);
         ReadModelEntry<ConversationResolutionMetadataProof> before = await _store
-            .GetAsync<ConversationResolutionMetadataProof>(ConversationProjectionReadModelKeys.StateStoreName,
+            .GetCompactedAsync<ConversationResolutionMetadataProof>(ConversationProjectionReadModelKeys.StateStoreName,
                 proofKey, cancellationToken).ConfigureAwait(false);
         // The outer proof rejects pending/invalidated observations before touching an envelope-wrapped
         // metadata key. Retained live manifests contain only this bounded subset and a content-free fence.
@@ -68,14 +81,14 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         }
 
         ReadModelEntry<ConversationResolutionMetadataReadModel> metadata = await _store
-            .GetAsync<ConversationResolutionMetadataReadModel>(ConversationProjectionReadModelKeys.StateStoreName,
+            .GetCompactedAsync<ConversationResolutionMetadataReadModel>(ConversationProjectionReadModelKeys.StateStoreName,
                 ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenantId, conversationId), cancellationToken)
             .ConfigureAwait(false);
         ReadModelEntry<ConversationResolutionMetadataProof> after;
         ConversationResolutionGeneration? generation = before.Value?.Current;
         if (generation is null && metadata.Value is null)
         {
-            after = await _store.GetAsync<ConversationResolutionMetadataProof>(
+            after = await _store.GetCompactedAsync<ConversationResolutionMetadataProof>(
                 ConversationProjectionReadModelKeys.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
             if (after.Value is null && after.ETag == before.ETag)
             {
@@ -93,7 +106,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         }
 
         ReadModelEntry<ConversationProjectionDispatchLedger> ledger = await _store
-            .GetAsync<ConversationProjectionDispatchLedger>(ConversationProjectionReadModelKeys.StateStoreName,
+            .GetCompactedAsync<ConversationProjectionDispatchLedger>(ConversationProjectionReadModelKeys.StateStoreName,
                 ConversationProjectionReadModelKeys.DispatchLedgerKey(generation.DispatchId), cancellationToken)
             .ConfigureAwait(false);
         if (ledger.Value is not null && (ledger.Value.Status != ConversationProjectionDispatchStatus.Completed
@@ -105,7 +118,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             throw new ConversationProjectionConsistencyException();
         }
 
-        after = await _store.GetAsync<ConversationResolutionMetadataProof>(
+        after = await _store.GetCompactedAsync<ConversationResolutionMetadataProof>(
             ConversationProjectionReadModelKeys.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrEmpty(after.ETag) || before.ETag != after.ETag || before.Value != after.Value)
         {

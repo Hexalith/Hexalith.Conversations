@@ -125,6 +125,25 @@ internal sealed class ResolutionMetadataFixture
         }
     }
 
+    public async Task<QueryResult> DispatchAdvisoryAsync(QueryEnvelope? query = null, bool verified = true,
+        CancellationToken? cancellationToken = null, IConversationTenantAccessService? access = null)
+    {
+        query ??= Query() with { QueryType = GetConversationAdvisoryMetadataQuery.QueryType };
+        Guard.ForbidLegacyReads = true;
+        Guard.ForbidWrites = true;
+        IHttpContextAccessor accessor = new HttpContextAccessor { HttpContext = new DefaultHttpContext() };
+        List<Claim> claims =
+        [
+            new(EventStoreWorkloadAuthenticationDefaults.WorkloadClaimType, "eventstore"),
+            new(EventStoreWorkloadAuthenticationDefaults.OperationClaimType, EventStoreWorkloadOperations.DomainServiceQuery),
+        ];
+        if (verified) claims.AddRange(QueryCallerAuthorityBinding.Bind(query).Select(pair => new Claim(pair.Key, pair.Value)));
+        accessor.HttpContext!.User = new(new ClaimsIdentity(claims, "Workload"));
+        await using ServiceProvider provider = new ServiceCollection().AddSingleton(accessor)
+            .AddSingleton<IDomainQueryHandler>(new GetConversationAdvisoryMetadataDomainQueryHandler(access ?? Access, accessor, Guard)).BuildServiceProvider();
+        return await DomainQueryDispatcher.ExecuteAsync(provider, query, cancellationToken ?? TestContext.Current.CancellationToken);
+    }
+
     public async Task EraseAsync(string key)
     {
         (bool exists, string etag) = await Store.TryReadEtagAsync("statestore", key, TestContext.Current.CancellationToken);

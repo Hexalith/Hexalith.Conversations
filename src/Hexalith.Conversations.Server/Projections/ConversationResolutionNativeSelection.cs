@@ -1,3 +1,4 @@
+using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Contracts.Projections;
 using Hexalith.EventStore.Contracts.Identity;
 
@@ -22,6 +23,6 @@ public sealed record ConversationResolutionNativeSelection(string ProjectionVers
             ? new(model.Freshness.ProjectionCursor, new(1, model.TenantId.Value, ConversationProjectionHandler.ConversationDomain,
                 model.ConversationId.Value, ConversationAsyncProjectionHandler.ConversationReadModelProjectionType,
                 model.ConversationId.Value, model.Digest(), model.SourceHeadSequence.Value, model.SourceHeadMessageId,
-                batchId, model.Freshness.ProjectionCursor) { ReceiptProjectionName = rebuild ? "rebuild" : null }) { NativeSourceProof = model.NativeSourceProof } : null;
+                batchId, model.Freshness.ProjectionCursor) { ReceiptProjectionName = rebuild ? ReadModelRebuildCompletion.ReceiptProjectionName : null }) { NativeSourceProof = model.NativeSourceProof } : null;
     }
 }

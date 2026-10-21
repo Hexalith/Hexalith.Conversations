@@ -18,7 +18,13 @@ internal sealed class ResolutionGuardedStore(InMemoryReadModelStore inner) : IRe
     public List<Type> Reads { get; } = [];
     public List<string> ReadKeys { get; } = [];
 
-    public async Task<ReadModelEntry<T>> GetAsync<T>(string storeName, string key, CancellationToken cancellationToken = default) where T : class
+    public Task<ReadModelEntry<T>> GetAsync<T>(string storeName, string key, CancellationToken cancellationToken = default) where T : class
+        => ReadAsync<T>(storeName, key, false, cancellationToken);
+
+    public Task<ReadModelEntry<T>> GetCompactedAsync<T>(string storeName, string key, CancellationToken cancellationToken = default) where T : class
+        => ReadAsync<T>(storeName, key, true, cancellationToken);
+
+    private async Task<ReadModelEntry<T>> ReadAsync<T>(string storeName, string key, bool compacted, CancellationToken cancellationToken) where T : class
     {
         Reads.Add(typeof(T));
         ReadKeys.Add(key);
@@ -32,7 +38,8 @@ internal sealed class ResolutionGuardedStore(InMemoryReadModelStore inner) : IRe
             throw new Xunit.Sdk.XunitException("Forbidden detail/index/hydration read.");
         }
 
-        var result = await inner.GetAsync<T>(storeName, key, cancellationToken);
+        var result = compacted ? await inner.GetCompactedAsync<T>(storeName, key, cancellationToken)
+            : await inner.GetAsync<T>(storeName, key, cancellationToken);
         if (AfterRead is not null) await AfterRead(typeof(T), key);
         return result;
     }

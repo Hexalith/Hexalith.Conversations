@@ -27,9 +27,8 @@ public sealed class ConversationTenantAccessService(
     private readonly ILogger<ConversationTenantAccessService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    private readonly ITenantAccessProjectionHealthProvider _projectionHealth =
-        new ConversationTenantProjectionHealthProvider(
-            projectionSignal ?? throw new ArgumentNullException(nameof(projectionSignal)));
+    private readonly IConversationTenantProjectionSignal _projectionSignal =
+        projectionSignal ?? throw new ArgumentNullException(nameof(projectionSignal));
 
     private readonly ITenantAccessStateStore _stateStore =
         new ConversationTenantAccessStateStore(
@@ -47,6 +46,7 @@ public sealed class ConversationTenantAccessService(
         TenantId? idempotencyTenantId = null,
         CancellationToken cancellationToken = default)
     {
+        ConversationTenantProjectionHealthProvider projectionHealth = new(_projectionSignal);
         TenantAccessEvaluation<ConversationTenantAccessRequirement> evaluation =
             await TenantAccessEvaluator.EvaluateAsync(
                 requirement,
@@ -60,7 +60,7 @@ public sealed class ConversationTenantAccessService(
                 ],
                 callerPrincipalId,
                 _stateStore,
-                _projectionHealth,
+                projectionHealth,
                 static requirement => Enum.IsDefined(requirement),
                 static status => Enum.IsDefined((TenantStatus)status),
                 static status => (TenantStatus)status == TenantStatus.Active,
@@ -69,6 +69,13 @@ public sealed class ConversationTenantAccessService(
                 static (role, requirement) => HasPermission((TenantRole)role, requirement),
                 _logger,
                 cancellationToken).ConfigureAwait(false);
+
+        // The shared evaluator carries health evidence only on health denials. Preserve the same
+        // observation it evaluated for an allowed decision, isolated to this invocation.
+        if (evaluation.IsAllowed && projectionHealth.ObservedHealth is { } health)
+        {
+            evaluation = evaluation with { ProjectionVersion = health.Version, ProjectionWatermark = health.Watermark };
+        }
 
         return ToConversationDecision(evaluation, trustedTenantId);
     }
@@ -154,6 +161,8 @@ public sealed class ConversationTenantAccessService(
         IConversationTenantProjectionSignal projectionSignal)
         : ITenantAccessProjectionHealthProvider
     {
+        public TenantAccessProjectionHealth? ObservedHealth { get; private set; }
+
         public async ValueTask<TenantAccessProjectionHealth?> GetProjectionHealthAsync(
             string tenantId,
             CancellationToken cancellationToken = default)
@@ -164,7 +173,7 @@ public sealed class ConversationTenantAccessService(
             // Defense-in-depth: a non-conforming signal that returns a null health record must fail
             // closed through the shared evaluator's null-health path (TenantAccessUnavailable, retryable),
             // matching the pre-promotion ConversationTenantAccessService behavior, instead of throwing an NRE.
-            return health is null
+            return ObservedHealth = health is null
                 ? null
                 : new TenantAccessProjectionHealth(
                     health.Version,
