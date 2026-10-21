@@ -1,0 +1,6 @@
+<Project>
+  <!-- Opt-in compatibility suite only; do not alter the frozen project or its dependencies. -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Hexalith.Conversations.MinimalModule.Tests'">
+    <Compile Include="$(MSBuildThisFileDirectory)RegisteredCommandTests.cs" Link="Compatibility/RegisteredCommandTests.cs" />
+  </ItemGroup>
+</Project>

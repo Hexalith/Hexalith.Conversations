@@ -33,6 +33,66 @@ jobs:
       aspire-continue-on-error: false
       aspire-timeout-minutes: 20
 
+  minimal-module-compatibility:
+    name: ci / minimal-module platform compatibility
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          submodules: false
+
+      - name: Initialize only the pinned root platform and build dependencies
+        run: git submodule update --init -- references/Hexalith.Builds references/Hexalith.EventStore
+
+      - name: Initialize .NET
+        uses: actions/setup-dotnet@v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Set up Python for result validation
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Test missing and unsuccessful result detection
+        run: python3 -m unittest discover -s tests/tooling -p 'test_minimal_module_compatibility_results.py'
+
+      - name: Locked restore and build the platform-backed fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p TestResults/minimal-module
+          fixture="tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx"
+          compatibility="$PWD/tests/compatibility/MinimalModule/RegisteredCommand.targets"
+          dotnet restore "$fixture" --locked-mode -p:Configuration=Release \
+            "-p:CustomAfterMicrosoftCommonTargets=$compatibility" \
+            2>&1 | tee TestResults/minimal-module/restore.log
+          dotnet build "$fixture" --configuration Release --no-restore \
+            "-p:CustomAfterMicrosoftCommonTargets=$compatibility" \
+            2>&1 | tee TestResults/minimal-module/build.log
+
+      - name: Run all six fixture tests and the registered-command assertion without skips
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/bin/Release/net10.0/Hexalith.Conversations.MinimalModule.Tests.dll \
+            -automated sync -failSkips -result-xml "$PWD/TestResults/minimal-module/results.xml" \
+            2>&1 | tee TestResults/minimal-module/tests.log
+          python3 tests/compatibility/MinimalModule/verify_results.py TestResults/minimal-module/results.xml \
+            2>&1 | tee TestResults/minimal-module/verification.log
+
+      - name: Upload platform compatibility results
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: minimal-module-platform-compatibility
+          path: TestResults/minimal-module/*
+          retention-days: 7
+
   testsupport-windows:
     name: ci / TestSupport Windows descendant cleanup
     runs-on: windows-latest

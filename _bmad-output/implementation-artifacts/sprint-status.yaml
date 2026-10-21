@@ -377,7 +377,7 @@ action_items:
     epic: 11
     action: "Consolidate the existing Checkpoint B gaps: exercise CreateConversation through the registered public in-process command processor and add a platform-backed fixture locked restore/build/test lane with zero failures or skips, retaining the approved no-live-Dapr scope."
     owner: "Platform integration / CI owner"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-11-retro-2026-10-21.md"
   - id: "epic-11-retro-item-48-disclose-fixture-file-layout-exception"
     epic: 11
