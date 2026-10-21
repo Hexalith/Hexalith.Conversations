@@ -38,7 +38,9 @@ and rejection, using disposable Git history without a historical publication rep
 The five native `EvidenceBoundaryAdoptionValidationTest` ACs replay the complete
 frozen Story 10.4 source, publication and gitlink boundary. Routine conformance
 excludes that class under [current-change policy](current-change-validation.md);
-the current Python job retains live helper, reader, guidance and fault coverage.
+the current Python job retains live helper and guidance fault coverage, and runs
+the reader fault matrix on the frozen Story 10.4 reader bytes. Live reader bytes
+are checked only when the class is invoked by name.
 The class remains unchanged and explicitly invocable against the accepted
 checkpoint, as documented in the historical [evidence-boundary runbook](evidence-boundary-validation.md).
 Later main can legitimately fail that historical replay. Preserve its result

@@ -266,7 +266,8 @@ jobs:
             -result-trx TestResults/conformance/portable.trx \
             -noLogo
           # The five adoption ACs replay the full frozen 10.4 boundary at HEAD.
-          # Keep explicit historical invocation; live adoption faults run in repository.
+          # Keep explicit historical invocation. The repository lane runs reader faults on
+          # frozen 10.4 reader bytes; live reader bytes are checked only by naming this class.
           # Reproduction and mutation proof: docs/runbooks/epic-10-fault-regressions.md.
           uv run --frozen --no-sync dotnet "$internal" -failSkips \
             -class- "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest" \
