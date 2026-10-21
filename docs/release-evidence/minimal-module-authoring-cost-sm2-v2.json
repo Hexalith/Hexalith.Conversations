@@ -3,14 +3,14 @@
   "candidate": {
     "storyId": "11.3",
     "checkpoint": "C",
-    "commit": "4b2179dff163c3f50bc2154c22b1ff5c246c1f7f",
+    "commit": "f91eba32a96b205171e0e3eea14f7447274d0c28",
     "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
     "contractPath": "_bmad-output/planning-artifacts/v9/story-contracts/11.3.json",
     "contractSha256": "10ee26812edf866ca5e78564c0af1ae5aeceaf0c595a42052a72372951e15d9c",
     "checkpoints": {
       "A": "09007a08f63773923694f09e9c49f972d6df81ae",
       "B": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
-      "C": "4b2179dff163c3f50bc2154c22b1ff5c246c1f7f"
+      "C": "f91eba32a96b205171e0e3eea14f7447274d0c28"
     },
     "gitlinks": [
       {
@@ -491,7 +491,7 @@
   },
   "command": "python3 _bmad/scripts/generate_sm2_evidence.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.3.json --fixture-proof docs/release-evidence/thin-module-fixture-proof-v1.json --baseline docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json --output-json docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json --output-markdown docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md",
   "digests": {
-    "signablePayloadSha256": "2e91010f7af708eb7773073b36b6215f13e17b8cba8f0d42adb60dce6f96c5f6",
-    "markdownSha256": "675e2a493ba7556aa2999907dd7ebcb6c5d2b06d8a0e9a182641545b2fbc69e8"
+    "signablePayloadSha256": "f9ca0ea9e72b11f996dc61d6b22a3948caadc56069ce89db72139854d764dcd0",
+    "markdownSha256": "7cf1983a4f00fa9afd7b1c8e8c7cc8cdab0258e24752fa92bf25f8ea2df6489c"
   }
 }

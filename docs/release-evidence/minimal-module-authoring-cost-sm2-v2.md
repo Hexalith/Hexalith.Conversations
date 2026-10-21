@@ -1,6 +1,6 @@
 # Minimal-module authoring cost — SM-2 v2
 
-Candidate: `4b2179dff163c3f50bc2154c22b1ff5c246c1f7f`. Checkpoint C.
+Candidate: `f91eba32a96b205171e0e3eea14f7447274d0c28`. Checkpoint C.
 
 Measured: **13 files**, **451 physical LOC**, **396 nonblank LOC**.
 Reference: **58 estimated files / 1,460 estimated LOC**. File reduction **77.59%**; indicative LOC reduction **69.11%**.
@@ -11,7 +11,7 @@ OQ-2: `accepted` — `met-on-accepted-estimate`. Measurement confidence `high`; 
 - Fixture physical LOC includes blank and comment lines. Historical LOC represents estimated nonblank logical skeleton lines; the LOC reduction is indicative and is not a like-for-like physical LOC comparison.
 - File reduction alone decides OQ-2 at the inclusive 50% threshold before rounding; LOC is supporting evidence only.
 
-Signable payload: `2e91010f7af708eb7773073b36b6215f13e17b8cba8f0d42adb60dce6f96c5f6`
+Signable payload: `f9ca0ea9e72b11f996dc61d6b22a3948caadc56069ce89db72139854d764dcd0`
 
 ## Complete measured payload
 
@@ -21,14 +21,14 @@ Signable payload: `2e91010f7af708eb7773073b36b6215f13e17b8cba8f0d42adb60dce6f96c
   "candidate": {
     "storyId": "11.3",
     "checkpoint": "C",
-    "commit": "4b2179dff163c3f50bc2154c22b1ff5c246c1f7f",
+    "commit": "f91eba32a96b205171e0e3eea14f7447274d0c28",
     "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
     "contractPath": "_bmad-output/planning-artifacts/v9/story-contracts/11.3.json",
     "contractSha256": "10ee26812edf866ca5e78564c0af1ae5aeceaf0c595a42052a72372951e15d9c",
     "checkpoints": {
       "A": "09007a08f63773923694f09e9c49f972d6df81ae",
       "B": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
-      "C": "4b2179dff163c3f50bc2154c22b1ff5c246c1f7f"
+      "C": "f91eba32a96b205171e0e3eea14f7447274d0c28"
     },
     "gitlinks": [
       {
