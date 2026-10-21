@@ -308,6 +308,8 @@ public sealed class MinimalModuleAuthoringCostBaselineValidationTest(ITestOutput
             "14de3c86628cb4f900008be42d086a7699ae0869b3b791f92c810ab921192e03", "SM2-v1");
         manifest.Add("docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.md",
             "1cb37b3ddbc9186748c7556a87e5c08feb15d8dee30f4a1b0362bcd5536297fd", "SM2-v1");
+        manifest.Add("docs/release-evidence/oq-2-target-interpretation-decision-v1.json",
+            "06281924d9760f05f638c4a74661de9cd973f88c773d7ad3263ee25a830a3e06", "SM2-v1");
         AssertionLedger ledger = new();
         manifest.Verify(root, manifest.ComputeSignablePayloadHash(), ledger);
         ledger.Evaluate().Result.ShouldBe("PASS", "SM1_BASELINE_MUTATED or SM2_V1_HISTORY_MUTATED");

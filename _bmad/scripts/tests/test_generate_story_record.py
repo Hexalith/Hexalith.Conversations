@@ -13390,6 +13390,11 @@ def test_story_113_native_receipt_binds_its_named_test_and_source(method):
                     content.replace(b'Contracts.Tests.dll', b'Other.Tests.dll')):
         with pytest.raises(ValueError):
             generator.v2_11_3_trx(mutated, name, '1'*40, '2'*64, metrics)
+    if method == 'SmTwoV2ShouldCountEveryHandAuthoredFixtureFileIncludingAppHost':
+        for mutated in (content.replace(b'story113_measured_totals=13/451/396', b'story113_measured_totals=13/452/396'),
+                        content.replace(b'story113_measured_totals=13/451/396\n', b'')):
+            with pytest.raises(ValueError, match='independently measured totals differ'):
+                generator.v2_11_3_trx(mutated, name, '1'*40, '2'*64, metrics)
 
 
 def test_story_113_fault_receipt_requires_the_exact_observed_restored_matrix(sm2_repository):
@@ -13544,20 +13549,22 @@ def test_story_113_byte_bound_sources_survive_autocrlf_checkout(tmp_path):
     repository.mkdir()
     run_git(repository, 'init', '--quiet')
     (repository/'.gitattributes').write_bytes((WORKSPACE/'.gitattributes').read_bytes())
-    paths = list(generator.V2_11_3_SOURCES)
+    paths = [*generator.V2_11_3_SOURCES, 'artifacts/v9/11.3/AC-11.3-04.json', 'artifacts/v9/11.3/AC-11.3-05.json']
     originals = {}
     for path in paths:
         target = repository/path
         target.parent.mkdir(parents=True, exist_ok=True)
         originals[path] = (WORKSPACE/path).read_bytes()
         target.write_bytes(originals[path])
-    run_git(repository, 'add', '--', '.gitattributes', *paths)
+    run_git(repository, 'add', '--force', '--', '.gitattributes', *paths)
     run_git(repository, 'commit', '--quiet', '-m', 'test: preserve story source checkout bytes')
     for path in paths: (repository/path).unlink()
     run_git(repository, '-c', 'core.autocrlf=true', 'checkout', '--', *paths)
     assert {path: (repository/path).read_bytes() for path in paths} == originals
     assert all(b'\r\n' not in originals[path] for path in paths if path.endswith('.py'))
-    assert originals[paths[-1]].count(b'\r\n') == originals[paths[-1]].count(b'\n')
+    native = originals['tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthoringCostBaselineValidationTest.cs']
+    assert native.count(b'\r\n') == native.count(b'\n')
+    assert all(b'\r\n' not in originals[path] for path in paths if path.endswith('.json'))
 
 
 def test_story_113_actual_insertion_wrapper_replays_provenance_and_detects_metric_drift(tmp_path, monkeypatch, committed_facts):

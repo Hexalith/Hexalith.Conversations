@@ -94,6 +94,7 @@ def measurement_input_sha256(repository: Path) -> str:
 
 def verify(repository: Path, evidence: str = generator.JSON_PATH, markdown: str = generator.MARKDOWN_PATH,
            require_oq2_decision: bool = True, *, candidate: str | None = None) -> dict:
+    """Always check OQ-2; retain the legacy decision argument for existing callers."""
     report = dict(schemaVersion='hexalith.conversations.sm2-verification-result.v1', result='BLOCKED',
                   candidate=None, evidenceSha256=None, metrics={}, assertionLedger=[], blockers=[])
 
@@ -186,10 +187,9 @@ def verify(repository: Path, evidence: str = generator.JSON_PATH, markdown: str 
               and c['referenceConfidence'] == 'low' and c['referenceMeasurementType'] == 'estimated'
               and c['limitations'] == generator.LIMITATIONS, 'SM2_MEASUREMENT_INVALID')
         attained = (58 - len(fixture.FROZEN_PATHS)) * 100 >= 58 * 50
-        if require_oq2_decision:
-            check('OQ2:decision', 'inclusive threshold evaluated before rounding',
-                  c['oq2Decision'] == ('accepted' if attained else 'rejected')
-                  and c['result'] == ('met-on-accepted-estimate' if attained else 'not-met-on-accepted-estimate'), 'OQ2_DECISION_INVALID')
+        check('OQ2:decision', 'inclusive threshold evaluated before rounding',
+              c['oq2Decision'] == ('accepted' if attained else 'rejected')
+              and c['result'] == ('met-on-accepted-estimate' if attained else 'not-met-on-accepted-estimate'), 'OQ2_DECISION_INVALID')
         ss = doc['singleFileSensitivity']
         check('sensitivity', 'single-file decisions and threshold margin', ss['maximumFilesMeetingTarget'] == 29
               and ss['additionalFilesBeforeFailure'] == 16 and ss['filesAfterAddingOne'] == 14
@@ -242,7 +242,8 @@ def main(argv=None) -> int:
     parser.add_argument('--repository', required=True)
     parser.add_argument('--evidence', required=True)
     parser.add_argument('--markdown', required=True)
-    parser.add_argument('--require-oq2-decision', action='store_true')
+    parser.add_argument('--require-oq2-decision', action='store_true',
+                        help='Retained for compatibility; OQ-2 is always verified.')
     parser.add_argument('--output')
     args = parser.parse_args(argv)
     repository = Path(args.repository).resolve()
@@ -253,8 +254,7 @@ def main(argv=None) -> int:
             result['blockers'] = sorted(set(result['blockers'] + ['EVIDENCE_FORMAT_DRIFT']))
         else:
             target = records.v2_output_target(repository, args.output)
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(generator.serialize(result))
+            records.v2_write_outputs([(target, generator.serialize(result))])
     print(json.dumps(result, indent=2))
     return {'PASS': 0, 'FAIL': 1, 'BLOCKED': 2}[result['result']]
 

@@ -196,10 +196,8 @@ def main(argv=None) -> int:
             finish(result)
             content = json.dumps(result, indent=2) + '\n'
         else:
-            target = repository / args.output
-            records.v2_output_target(repository, args.output)
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text(content, encoding='utf-8')
+            target = records.v2_output_target(repository, args.output)
+            records.v2_write_outputs([(target, content.encode('utf-8'))])
     print(content, end='')
     return {'PASS': 0, 'FAIL': 1, 'BLOCKED': 2}[result['result']]
 

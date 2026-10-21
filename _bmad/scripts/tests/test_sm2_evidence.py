@@ -47,7 +47,8 @@ def sm2_repository(tmp_path, monkeypatch, committed_facts):
     repository = tmp_path / 'repository'
     repository.mkdir()
     # Read-only object access to real accepted A/B history, without cloning or entering a submodule.
-    (repository / '.git').write_text('gitdir: ' + str(ROOT / '.git') + '\n')
+    git_directory = records.run_git(ROOT, 'rev-parse', '--absolute-git-dir').stdout.decode().strip()
+    (repository / '.git').write_text('gitdir: ' + git_directory + '\n')
     a, b = (json.loads((ROOT / path).read_bytes()) for path in (chain.RECORDS[0], chain.RECORDS[2]))
     inputs = {chain.CONTRACT, chain.AUTHORITY, generator.SCHEMA, 'global.json', 'Hexalith.Conversations.slnx',
               guidance.SOURCE_PATH, records.V2_11_1_SPEC, records.V2_11_2_SPEC,
@@ -113,6 +114,88 @@ def test_candidate_respects_failed_or_skipped_neutral_facts(sm2_repository, monk
     assert next(row for row in result['assertionLedger'] if row['id'] == 'unanticipated:helper-check')['state'] == state
     if code:
         assert code in result['blockers']
+
+
+@pytest.mark.parametrize('relationship', [0, 1, 2], ids=['planning-A', 'A-B', 'B-C'])
+def test_candidate_rejects_each_incompatible_ancestry(sm2_repository, monkeypatch, relationship):
+    baseline = chain.verify(sm2_repository)
+    ancestry = [row for row in baseline['assertionLedger'] if row['id'].startswith('ancestry:')]
+    assert len(ancestry) == 3 and all(row['state'] == 'PASS' for row in ancestry)
+    rejected = ancestry[relationship]
+    original = records.run_git
+    def incompatible(repository, *args, **kwargs):
+        result = original(repository, *args, **kwargs)
+        if args == ('merge-base', '--is-ancestor', rejected['id'].removeprefix('ancestry:'), rejected['subject']):
+            result.returncode = 1
+        return result
+    monkeypatch.setattr(records, 'run_git', incompatible)
+    result = chain.verify(sm2_repository)
+    assert result['result'] == 'FAIL' and chain.MISMATCH in result['blockers']
+    assert next(row for row in result['assertionLedger'] if row['id'] == rejected['id'])['state'] == 'FAIL'
+
+
+@pytest.mark.parametrize('identity', ['gitlinks:raw-diff', 'gitlinks:B-C'])
+def test_candidate_rejects_each_gitlink_boundary(sm2_repository, monkeypatch, identity):
+    original = chain.current.bridge
+    def incompatible(repository, request):
+        result = original(repository, request)
+        if identity == 'gitlinks:raw-diff':
+            result['diff'].append(dict(path='references/unapproved', sourceMode='160000', destinationMode='000000'))
+        else:
+            result['rootGitlinks'][0]['commit'] = 'f' * 40
+        return result
+    monkeypatch.setattr(chain.current, 'bridge', incompatible)
+    result = chain.verify(sm2_repository)
+    assert result['result'] == 'FAIL' and chain.MISMATCH in result['blockers']
+    assert next(row for row in result['assertionLedger'] if row['id'] == identity)['state'] == 'FAIL'
+
+
+def test_repository_fixture_accepts_a_gitdir_pointer(tmp_path, monkeypatch, committed_facts):
+    linked = tmp_path / 'linked'
+    linked.mkdir()
+    git_directory = records.run_git(ROOT, 'rev-parse', '--absolute-git-dir').stdout.decode().strip()
+    (linked / '.git').write_text('gitdir: ' + git_directory + '\n')
+    for path in ROOT.iterdir():
+        if path.name != '.git':
+            (linked / path.name).symlink_to(path, target_is_directory=path.is_dir())
+    monkeypatch.setattr(sys.modules[__name__], 'ROOT', linked)
+    repo = sm2_repository.__wrapped__(tmp_path, monkeypatch, committed_facts)
+    assert fixture.git_head(repo) == fixture.git_head(linked)
+    assert verifier.verify(repo)['result'] == 'PASS'
+
+
+def test_oq2_decision_is_checked_without_the_optional_cli_flag(sm2_repository):
+    repo = sm2_repository
+    mutate(repo, json.loads((repo / generator.JSON_PATH).read_bytes()), 'decision')
+    output = StringIO()
+    with redirect_stdout(output):
+        status = verifier.main(['--repository', str(repo), '--evidence', generator.JSON_PATH,
+                                '--markdown', generator.MARKDOWN_PATH])
+    result = json.loads(output.getvalue())
+    assert status == 1 and result['result'] == 'FAIL'
+    assert 'OQ2_DECISION_INVALID' in result['blockers']
+    assert next(row for row in result['assertionLedger'] if row['id'] == 'OQ2:decision')['state'] == 'FAIL'
+
+
+@pytest.mark.parametrize('module,path', [(verifier, 'artifacts/v9/11.3/AC-11.3-04.json'),
+                                        (chain, 'artifacts/v9/11.3/AC-11.3-05.json')], ids=['measurement', 'candidate'])
+def test_verifier_receipts_replace_hardlinks_with_exact_lf_bytes(sm2_repository, module, path, capsys):
+    repo = sm2_repository
+    original = repo / 'original-receipt.json'
+    original.write_bytes(b'original\r\n')
+    target = repo / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.hardlink_to(original)
+    arguments = ['--repository', str(repo), '--output', path]
+    if module is verifier:
+        arguments += ['--evidence', generator.JSON_PATH, '--markdown', generator.MARKDOWN_PATH]
+    else:
+        arguments += ['--authority-bundle', chain.AUTHORITY, '--contract', chain.CONTRACT]
+    assert module.main(arguments) == 0
+    printed = json.loads(capsys.readouterr().out)
+    assert target.read_bytes() == (json.dumps(printed, indent=2) + '\n').encode()
+    assert b'\r\n' not in target.read_bytes()
+    assert original.read_bytes() == b'original\r\n' and not target.samefile(original)
 
 
 @pytest.mark.parametrize('files,decision,reduction', [(28, 'accepted', '51.72'), (29, 'accepted', '50.00'),
