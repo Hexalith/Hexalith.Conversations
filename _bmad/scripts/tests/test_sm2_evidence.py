@@ -281,6 +281,7 @@ def test_checkpoint_c_fault_matrix(sm2_repository, fault, record_property):
         assert observed['result'] == ('BLOCKED' if fault == 'history-unavailable' else 'FAIL'), 'FAULT_NOT_DETECTED'
         assert observed_exit == (2 if fault == 'history-unavailable' else 1), 'FAULT_NOT_DETECTED: CLI exit differs'
         assert observed['assertionLedger'], 'FAULT_NOT_DETECTED: vacuous ledger'
+        assert observed['metrics'] == {}, 'FAULT_NOT_DETECTED: failed verification must not publish measurement claims'
     finally:
         for path in tuple(snapshot(repo)):
             if path not in before:
@@ -312,21 +313,35 @@ def test_checkpoint_c_fault_matrix(sm2_repository, fault, record_property):
     record_property('story113_assertion_ledger', json.dumps(observed['assertionLedger']))
 
 
-@pytest.mark.parametrize('section,field', [
-    ('measurement', 'physicalLocMetric'), ('measurement', 'nonblankLocMetric'),
-    ('comparison', 'decisiveDimension'), ('comparison', 'supportingDimension'),
-    ('historicalBaseline', 'ownerDecision'), ('singleFileSensitivity', 'explanation'),
+@pytest.mark.parametrize('section,field,value,blocker,assertion', [
+    ('measurement', 'physicalLocMetric', 'logical source lines', 'SM2_MEASUREMENT_INVALID', 'measurement:definitions'),
+    ('measurement', 'nonblankLocMetric', 'all physical lines', 'SM2_MEASUREMENT_INVALID', 'measurement:definitions'),
+    ('comparison', 'decisiveDimension', 'LOC', 'SM2_MEASUREMENT_INVALID', 'comparison:dimensions'),
+    ('comparison', 'supportingDimension', 'files', 'SM2_MEASUREMENT_INVALID', 'comparison:dimensions'),
+    ('historicalBaseline', 'ownerDecision', 'unconditional high-confidence estimate', 'SM2_MEASUREMENT_INVALID', 'history:owner-decision'),
+    ('singleFileSensitivity', 'explanation', 'excluding one file flips attainment', 'SM2_MEASUREMENT_INVALID', 'sensitivity'),
+    ('comparison', 'limitations', [], 'SM2_MEASUREMENT_INVALID', 'comparison:confidence'),
+    ('measurement', 'exclusions', [], 'SM2_INCLUSION_RULE_VIOLATION', 'measurement:exclusions'),
+    ('measurement', 'excludedFiles', [], 'SM2_INCLUSION_RULE_VIOLATION', 'measurement:exclusions'),
+    ('measurement', 'paths', 'wrong-category', 'SM2_INCLUSION_RULE_VIOLATION', 'classification:' + fixture.FROZEN_PATHS[0]),
+    (None, 'command', 'python3 unapproved.py', 'EVIDENCE_FORMAT_DRIFT', 'command'),
+    ('toolVersions', 'python', 'unversioned', 'SM2_MEASUREMENT_INVALID', 'tools'),
 ])
-def test_resigned_metric_meanings_cannot_contradict_the_measurement(sm2_repository, section, field):
+def test_resigned_metric_meanings_cannot_contradict_the_measurement(sm2_repository, section, field, value, blocker, assertion):
     repo = sm2_repository
     document = json.loads((repo / generator.JSON_PATH).read_bytes())
-    document[section][field] = 'The historical estimate is an unconditional high-confidence LOC decision.'
+    if field == 'paths':
+        document[section][field][0]['category'] = 'AppHost'
+    else:
+        (document[section] if section else document)[field] = value
     j, md = generator.finalize({key: value for key, value in document.items() if key != 'digests'})
     (repo / generator.JSON_PATH).write_bytes(j)
     (repo / generator.MARKDOWN_PATH).write_bytes(md)
     status, observed = run_verifier_cli(repo)
     assert status == 1 and observed['result'] == 'FAIL'
-    assert 'SM2_MEASUREMENT_INVALID' in observed['blockers']
+    assert blocker in observed['blockers']
+    assert next(row for row in observed['assertionLedger'] if row['id'] == assertion)['state'] == 'FAIL'
+    assert observed['metrics'] == {}
 
 
 def test_recorded_generation_versions_survive_unrelated_environment_upgrades(sm2_repository, monkeypatch):

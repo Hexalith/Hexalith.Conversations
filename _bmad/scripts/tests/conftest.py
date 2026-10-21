@@ -12,11 +12,17 @@ Commit `0db6207`, the owner's accepted routine-change simplification (see
   live preservation-manifest binding checks from CI. The V18 suite still passes;
   the preservation-traceability rc2 suite rebinds published Epic 6 evidence to the
   live routes and SDK pin, so any route or SDK change turns it red.
+* The owner's 2026-10-21 Story 11.3 review decision retires its live-candidate
+  measurement suite and dependent record cases from routine collection. Name
+  either test file explicitly to reproduce the accepted checkpoint or run its
+  contracted fault matrix; the remaining hermetic record tests stay current.
 
 They stay in Git for historical reproduction: name a file explicitly, for example
 `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py`.
 Directory collection leaves them out, so they are not reported as skipped tests.
 """
+
+from pathlib import Path
 
 collect_ignore = [
     "test_check_lifecycle_gate_preflight.py",
@@ -36,9 +42,24 @@ collect_ignore = [
     "test_publish_v29_post_v28_root_gitlink_authority.py",
     "test_publish_v9_planning_authority.py",
     "test_resolve_current_planning_authority.py",
+    "test_sm2_evidence.py",
     "test_verify_evidence_boundary.py",
     # Story 9.2 v3/v4 successor acceptance needs built tiers and submodules, so it
     # cannot pass in the Python-only lane (owner decision 2026-10-10).
     "test_verify_story92_successor_v3_scope.py",
     "test_verify_story92_successor_v4_acceptance.py",
 ]
+
+
+def pytest_collection_modifyitems(config, items):
+    """Retain explicit Story 11.3 reproduction without coupling routine CI to HEAD."""
+    explicit = {Path(str(argument).split('::', 1)[0]).resolve() for argument in config.args}
+    retired = [item for item in items
+               if item.path.name == 'test_generate_story_record.py'
+               and item.name.startswith('test_story_113_')
+               and {'sm2_repository', 'committed_facts'}.intersection(item.fixturenames)
+               and item.path.resolve() not in explicit]
+    if retired:
+        selected = set(retired)
+        items[:] = [item for item in items if item not in selected]
+        config.hook.pytest_deselected(items=retired)

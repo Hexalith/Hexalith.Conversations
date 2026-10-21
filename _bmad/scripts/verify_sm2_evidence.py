@@ -216,9 +216,10 @@ def verify(repository: Path, evidence: str = generator.JSON_PATH, markdown: str 
         check('formats', 'canonical JSON, complete Markdown and payload digests', raw == generator.serialize(doc)
               and md == generator.render_markdown(doc) and doc['digests']['markdownSha256'] == digest(md)
               and doc['digests']['signablePayloadSha256'] == digest(fixture.canonical(payload)), 'EVIDENCE_FORMAT_DRIFT')
-        report['metrics'] = dict(fileCount=13, physicalLoc=physical, nonblankLoc=nonblank,
-                                 fileReductionPercentage=reduce_files, locReductionPercentage=reduce_loc,
-                                 measurementConfidence='high', comparisonConfidence='low', oq2Decision=c['oq2Decision'])
+        if not report['blockers']:
+            report['metrics'] = dict(fileCount=13, physicalLoc=physical, nonblankLoc=nonblank,
+                                     fileReductionPercentage=reduce_files, locReductionPercentage=reduce_loc,
+                                     measurementConfidence='high', comparisonConfidence='low', oq2Decision=c['oq2Decision'])
     except generator.EvidenceError as error:
         report['blockers'].append(error.code)
         report['assertionLedger'].append(dict(id='tool:unavailable', subject=str(error),
@@ -252,6 +253,7 @@ def main(argv=None) -> int:
         if args.output != 'artifacts/v9/11.3/AC-11.3-04.json':
             result['result'] = 'FAIL'
             result['blockers'] = sorted(set(result['blockers'] + ['EVIDENCE_FORMAT_DRIFT']))
+            result['metrics'] = {}
         else:
             target = records.v2_output_target(repository, args.output)
             records.v2_write_outputs([(target, generator.serialize(result))])

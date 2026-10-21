@@ -270,7 +270,8 @@ public sealed class MinimalModuleAuthoringCostBaselineValidationTest(ITestOutput
         foreach (JsonElement row in rows)
         {
             string path = row.GetProperty("path").GetString()!;
-            row.GetProperty("included").GetBoolean().ShouldBeTrue("SM2_INCLUSION_RULE_VIOLATION");
+            row.GetProperty("included").GetBoolean().ShouldBeTrue(
+                path.Contains(".AppHost/", StringComparison.Ordinal) ? "SM2_APPHOST_COST_OMITTED" : "SM2_INCLUSION_RULE_VIOLATION");
             row.GetProperty("category").GetString().ShouldNotBeNullOrWhiteSpace("SM2_INCLUSION_RULE_VIOLATION");
             row.GetProperty("reason").GetString().ShouldNotBeNullOrWhiteSpace("SM2_INCLUSION_RULE_VIOLATION");
             byte[] bytes = RepositoryLocator.ReadAllBytes(Path.Combine(root, path));

@@ -13444,6 +13444,17 @@ def test_story_113_schema_requires_its_closed_execution_and_summary():
     record.pop('fixtureProofExecution')
     assert generator.v2_schema_errors(schema, record)
     assert generator.v2_11_3_pair_errors(record) == ['Story 11.3 execution facts are malformed']
+    published = json.loads((WORKSPACE / 'docs/release-evidence/story-11.3-final-record-v2.json').read_bytes())
+    assert not generator.v2_schema_errors(schema, published)
+    clause = next(row for row in schema.schema['allOf']
+                  if row.get('if', {}).get('properties', {}).get('storyId', {}).get('const') == '11.3')
+    isolated = jsonschema.Draft202012Validator(clause)
+    assert list(isolated.iter_errors(dict(storyId='11.3', sm2Execution={}))) == []
+    errors = list(isolated.iter_errors(dict(storyId='11.3')))
+    assert len(errors) == 1 and errors[0].validator == 'required' and 'sm2Execution' in errors[0].message
+    assert list(isolated.iter_errors(dict(storyId='11.2'))) == []
+    errors = list(isolated.iter_errors(dict(storyId='11.2', sm2Execution={})))
+    assert len(errors) == 1 and errors[0].validator == 'not'
 
 
 def test_story_113_closed_route_dispatches_generation(monkeypatch):
@@ -13500,7 +13511,15 @@ def test_story_113_route_derives_current_metrics_receipts_and_closed_record(stor
         comparisonConfidence='low', oq2Decision='accepted')
     assert len(record['sm2Execution']['receipts']) == 5
     assert len(record['sm2Execution']['mutationLedger']) == 28
-    assert not generator.v2_verify_pair(first, (repository / options['--output-markdown']).read_bytes())
+    markdown = (repository / options['--output-markdown']).read_bytes()
+    assert not generator.v2_verify_pair(first, markdown)
+    assert b'## Measured SM-2 and OQ-2\n' in markdown
+    assert b'- Measured: 13 files; 451 physical LOC; 396 nonblank LOC.\n' in markdown
+    for receipt in record['sm2Execution']['receipts']:
+        row = '| ' + ' | '.join('`' + receipt[key] + '`' for key in ('scenarioId', 'path', 'sha256')) + ' |\n'
+        assert row.encode() in markdown
+    assert b'28 measured faults detected with byte-identical restoration.\n' in markdown
+    assert b'| Fault | Expected blocker | Observed blockers | Before SHA-256 | After SHA-256 | Restored |\n' in markdown
     for mutate in ('metrics', 'receipt', 'fault', 'summary'):
         draft = deepcopy(record)
         if mutate == 'metrics': draft['sm2Execution']['metrics']['comparisonConfidence'] = 'high'
@@ -13657,7 +13676,7 @@ def test_story_113_actual_insertion_wrapper_replays_provenance_and_detects_metri
     assert caught.value.findings[0]['message'] == 'record differs from independently recomputed source candidate and current receipts'
 
 
-@pytest.mark.parametrize('fault', ['missing-receipt', 'stale-trx', 'stale-json', 'empty-matrix', 'source-drift', 'unrelated-dirt', 'upstream-blocked'])
+@pytest.mark.parametrize('fault', ['missing-receipt', 'stale-trx', 'stale-json', 'empty-matrix', 'source-drift', 'regeneration-drift', 'upstream-blocked'])
 def test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence(story113_fixture, monkeypatch, fault):
     generator, repository, options, receipts = story113_fixture
     receipts = dict(receipts)
@@ -13669,7 +13688,24 @@ def test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence(story113_
         receipts[generator.V2_11_3_RECEIPTS[2]] = json.dumps(report).encode()
     elif fault == 'empty-matrix': receipts[generator.V2_11_3_RECEIPTS[-1]] = b'<testsuites><testsuite tests="0" failures="0" errors="0" skipped="0" /></testsuites>'
     elif fault == 'source-drift': (repository / generator.V2_11_3_SOURCES[0]).write_bytes(b'changed source\n')
-    elif fault == 'unrelated-dirt': monkeypatch.setattr(generator, 'worktree_path_status', lambda root: {'src/unrelated.cs': 'modified'})
+    elif fault == 'regeneration-drift':
+        gen, verifier, chain = generator.v2_11_3_modules()
+        evidence = json.loads((repository / gen.JSON_PATH).read_bytes())
+        evidence['measurement']['paths'][0]['reason'] = 'A changed but nonempty authored-source reason.'
+        j, m = gen.finalize({key: value for key, value in evidence.items() if key != 'digests'})
+        (repository / gen.JSON_PATH).write_bytes(j)
+        (repository / gen.MARKDOWN_PATH).write_bytes(m)
+        candidate = evidence['candidate']['commit']
+        evidence_hash = generator.v2_sha256(j)
+        # Rebuild each native and verifier receipt against the re-signed evidence.
+        contract = json.loads((repository / generator.V2_11_3_CONTRACT).read_bytes())
+        for index, path in enumerate(generator.V2_11_3_RECEIPTS[:2], 1):
+            tokens = shlex.split(contract['scenarios'][index]['command'])
+            receipts[path] = story113_trx(tokens[tokens.index('-method') + 1], candidate, evidence_hash)
+        receipts[generator.V2_11_3_RECEIPTS[2]] = gen.serialize(verifier.verify(repository))
+        receipts[generator.V2_11_3_RECEIPTS[3]] = gen.serialize(chain.verify(repository))
+        receipts[generator.V2_11_3_RECEIPTS[4]] = story113_fault_receipt(generator, repository, candidate, evidence_hash)
+        assert json.loads(receipts[generator.V2_11_3_RECEIPTS[2]])['result'] == 'PASS'
     elif fault == 'upstream-blocked':
         _, verifier, _ = generator.v2_11_3_modules()
         monkeypatch.setattr(verifier, 'verify', lambda *args, **kwargs: dict(result='BLOCKED', blockers=['HISTORY_UNAVAILABLE']))
@@ -13677,4 +13713,26 @@ def test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence(story113_
             generator.v2_11_3_generate(options, read_receipt=receipts.get)
         assert generator.v2_failure_document(caught.value.findings, '11.3')['result'] == 'BLOCKED'
         return
-    with pytest.raises(ValueError): generator.v2_11_3_generate(options, read_receipt=receipts.get)
+    with pytest.raises(ValueError, match='deterministic regeneration' if fault == 'regeneration-drift' else None):
+        generator.v2_11_3_generate(options, read_receipt=receipts.get)
+
+
+@pytest.mark.parametrize('insertion', [False, True])
+def test_story_113_dirty_worktree_reports_its_stable_blocker(story113_fixture, monkeypatch, insertion):
+    generator, repository, options, receipts = story113_fixture
+    if insertion:
+        generator.v2_11_3_generate(options, read_receipt=receipts.get)
+        original_blob = generator.v2_committed_blob
+        path = options['--output-json']
+        monkeypatch.setattr(generator, 'v2_committed_blob', lambda root, revision, name:
+                            (repository / path).read_bytes() if name == path else original_blob(root, revision, name))
+        options = dict(options, **{generator.V2_VERIFY_OPTION: generator.V2_11_3_SPEC})
+    monkeypatch.setattr(generator, 'worktree_path_status', lambda root: {'src/unrelated.cs': 'modified'})
+    monkeypatch.setattr(generator, 'v2_parse_arguments', lambda argv: options)
+    output = io.StringIO()
+    with redirect_stdout(output):
+        status = generator.v2_main([])
+    failure = json.loads(output.getvalue())
+    assert status == 1 and failure['result'] == 'FAIL' and failure['blockers'] == ['WORKTREE_NOT_CLEAN']
+    assert 'src/unrelated.cs' in failure['diagnostics'][0]['message']
+    assert not generator.v2_schema_errors(generator.v2_load_schemas()[1]['failure'], failure)

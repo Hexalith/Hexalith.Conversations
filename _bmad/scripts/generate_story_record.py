@@ -10565,7 +10565,8 @@ def v2_11_3_generate(options, *, candidate=None, read_receipt=None, verify_only=
     if findings or authority is None: raise ValueError('Story 11.3 authority does not bind')
     allowed = set(paths) | set(V2_11_3_RECEIPTS) | {gen.JSON_PATH, gen.MARKDOWN_PATH, V2_11_3_SPEC, V2_SPRINT_PATH}
     dirt = set(worktree_path_status(repository)) - allowed
-    if dirt: raise ValueError('working tree differs outside publication and lifecycle files: ' + v2_path_summary(dirt))
+    if dirt: raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN', 'working-tree',
+                                    'working tree differs outside publication and lifecycle files: ' + v2_path_summary(dirt))], '11.3')
     sources = []
     for path in V2_11_3_SOURCES:
         content = v2_committed_blob(repository, candidate, path)

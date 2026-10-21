@@ -40,7 +40,8 @@ LIMITATIONS = [
     'File reduction alone decides OQ-2 at the inclusive 50% threshold before rounding; LOC is supporting evidence only.',
 ]
 EXCLUSION_POLICY = [
-    dict(pattern='**/bin/**; **/obj/**', reason='Generated build outputs are not hand-authored module-owned files.'),
+    dict(pattern='**/bin/**', reason='Generated build outputs are not hand-authored module-owned files.'),
+    dict(pattern='**/obj/**', reason='Generated build outputs are not hand-authored module-owned files.'),
     dict(pattern='**/packages.lock.json', reason='NuGet-generated dependency locks are retained and hash-bound by Checkpoint B, excluded from authored cost.'),
     dict(pattern='references/**', reason='Shared platform libraries and runtime boilerplate are platform-owned, outside the fixture.'),
 ]

@@ -641,3 +641,12 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2.md`
   summary: Add a successful metadata query regression using native evidence in both authorization and the query handler.
   evidence: VG-F01 verified that successful fixture tests construct authorization without native evidence while native composition only tests unavailable output, so a null native permission version could escape detection; this pre-existing coverage gap belongs to the native metadata prerequisite.
+
+## Deferred from: Story 11.3 group-1 review completion (2026-10-21)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2.md`
+  summary: Restore compatibility between the native metadata prerequisite and the root-pinned EventStore SDK so the native CI build lanes compile.
+  evidence: Group-1 verification-gap finding, high, pre-existing (BH-F01). CS0246 for TenantReadAuthorityResult and ProjectionCurrentProof was observed in build-and-test and conformance at 75e9ddb and 339b2df. Story 11.3 forbids dependency/submodule changes; keep the native metadata prerequisite's existing blocker explicit. This completion entry is included in the source candidate before the atomic publication boundary.
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2.md`
+  summary: Generalize the closed Story 11.3 candidate verifier for the Story 12.1 contract and its PREDECESSOR_CANDIDATE_MISMATCH result.
+  evidence: Group-1 verification-gap finding, low. verify_story_candidate.py currently accepts only the 11.3 contract and receipt; backlog AC-12.1-01 invokes it with a different contract and currently returns FAIL. Story 12.1 owns that extension. This completion entry is included in the source candidate before the atomic publication boundary.
