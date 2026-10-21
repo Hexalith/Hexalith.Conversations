@@ -1,11 +1,11 @@
 {
   "schemaVersion": "hexalith.conversations.story-candidate-result.v1",
   "result": "PASS",
-  "candidate": "fc46334ff45fc9e677f31f09e5daf2a1b871fc7c",
+  "candidate": "11fd90ef91baffd6042d9a5030420310123a5054",
   "checkpoints": {
     "A": "09007a08f63773923694f09e9c49f972d6df81ae",
     "B": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
-    "C": "fc46334ff45fc9e677f31f09e5daf2a1b871fc7c"
+    "C": "11fd90ef91baffd6042d9a5030420310123a5054"
   },
   "gitlinks": [
     {
@@ -307,7 +307,7 @@
     },
     {
       "id": "ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
-      "subject": "fc46334ff45fc9e677f31f09e5daf2a1b871fc7c",
+      "subject": "11fd90ef91baffd6042d9a5030420310123a5054",
       "state": "PASS"
     },
     {
