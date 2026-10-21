@@ -659,3 +659,13 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2.md`
   summary: Verify explicit null-label reclassification through event replay, persisted metadata completeness and a successful null-safe-label query result.
   evidence: VG-R01, pre-existing native metadata regression gap. The positive metadata-update replay uses a non-null label; null coverage only exercises creation, serialization or mismatch rejection. Parameterize ExplicitNativeMetadataReclassificationAdmitsALegacyLabelWithoutRewritingHistory for null/non-null and assert classification/purpose, persisted completeness and returned metadata. This belongs to the Story 6.4 native metadata prerequisite.
+
+- source_spec: none
+  summary: Epic 11 retrospective A-2 — unify A/B output alias protection using the contained atomic writer.
+  evidence: The user chose the recommended split, A-1 first; A-2 is independently shippable and remains open as epic-11-retro-item-46-unify-ab-output-alias-protection.
+- source_spec: none
+  summary: Epic 11 retrospective A-3 — prove registered fixture commands and add current-platform compatibility CI.
+  evidence: The user chose the recommended split, A-1 first; A-3 is independently shippable and remains open as epic-11-retro-item-47-prove-registered-fixture-commands-and-current-platform-compatibility.
+- source_spec: none
+  summary: Epic 11 retrospective A-4 — disclose the frozen fixture file-layout exception and measurement sensitivity.
+  evidence: The user chose the recommended split, A-1 first; A-4 is independently shippable and remains open as epic-11-retro-item-48-disclose-fixture-file-layout-exception.

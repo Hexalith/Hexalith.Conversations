@@ -293,7 +293,9 @@ def check_inventory(repository: Path, fixture: str) -> tuple[list[dict], dict]:
     for relative in FROZEN_RELATIVE:
         path = root / relative
         full = f"{fixture}/{relative}"
-        if path.is_symlink() or not path.is_file():
+        ancestors = [repository / parent for parent in PurePosixPath(full).parents if parent != PurePosixPath(".")]
+        if path.is_symlink() or any(parent.is_symlink() for parent in ancestors) or not path.is_file():
+            problems.append(f"{relative} is not a regular non-symlink file")
             continue
         try:
             path.resolve(strict=True).relative_to(root.resolve(strict=True))
@@ -316,6 +318,8 @@ def check_inventory(repository: Path, fixture: str) -> tuple[list[dict], dict]:
             problems.append(f"{relative} is not source-controlled")
         files.append({"path": full, "sha256": sha256_bytes(data), "bytes": len(data),
                       "lines": text.count("\n") + (0 if text.endswith("\n") or not text else 1)})
+    if [row["path"] for row in files] != list(FROZEN_PATHS):
+        problems.append("evaluated rows differ from the frozen inventory")
     blockers = [{"code": BLOCK_INVENTORY, "message": "; ".join(sorted(set(problems)))}] if problems else []
     facts = {
         "id": INVENTORY_ID,
@@ -366,21 +370,28 @@ def graph_facts(repository: Path, fixture: str) -> dict:
     """Static project-graph facts of the fixture: projects, AppHost, references and policy."""
     root = repository / fixture
     defaults = parse_properties(root / "Directory.Build.props")
-    solution_text = ""
+    solution_projects = []
     try:
-        solution_text = (root / "Hexalith.Conversations.MinimalModule.slnx").read_text(encoding="utf-8")
-    except OSError:
+        solution = ElementTree.parse(root / "Hexalith.Conversations.MinimalModule.slnx").getroot()
+        if solution.tag == "Solution":
+            entries = solution.findall("Project") + solution.findall("Folder/Project")
+            solution_projects = sorted(item.get("Path", "") for item in entries)
+    except (OSError, ElementTree.ParseError, LookupError):
         pass
+    project_paths = [relative for relative in fixture_files(root) if relative.endswith(".csproj")]
     projects = {}
-    for relative in fixture_files(root):
-        if relative.endswith(".csproj"):
+    for relative in project_paths:
+        try:
             projects[relative] = parse_project(root / relative)
+        except (Blocked, LookupError):
+            if relative in EXPECTED_PROJECTS:
+                raise
     apphosts = [name for name, project in projects.items()
                 if project["sdk"].startswith("Aspire.AppHost") or PurePosixPath(name).stem.endswith(".AppHost")]
-    solution_projects = sorted(re.findall(r'Project Path="([^"]+)"', solution_text))
     return {
         "defaults": defaults,
         "projects": projects,
+        "projectPaths": project_paths,
         "appHosts": apphosts,
         "solutionProjects": solution_projects,
     }
@@ -432,8 +443,9 @@ def check_graph(repository: Path, fixture: str) -> tuple[list[dict], dict]:
         for package in project["packageReferences"]:
             if PLATFORM_RUNTIME_PACKAGE.search(package) or ASPIRE_PACKAGE.search(package):
                 problems[BLOCK_REUSABLE].append(f"{name} references platform runtime package {package}")
-    if sorted(projects) != sorted(EXPECTED_PROJECTS) or facts["solutionProjects"] != sorted(EXPECTED_PROJECTS):
-        extra = sorted(set(projects) - set(EXPECTED_PROJECTS))
+    if facts["projectPaths"] != sorted(EXPECTED_PROJECTS) or facts["solutionProjects"] != sorted(EXPECTED_PROJECTS):
+        problems[BLOCK_APPHOST].append("project files and solution entries must each equal the four frozen projects")
+        extra = sorted(set(facts["projectPaths"]) - set(EXPECTED_PROJECTS))
         if any(ASPIRE_NAME.search(PurePosixPath(item).stem) for item in extra):
             problems[BLOCK_REUSABLE].append("an additional Aspire or ServiceDefaults project exists")
 

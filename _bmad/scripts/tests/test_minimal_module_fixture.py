@@ -460,6 +460,174 @@ def test_committed_fixture_inventory_is_exact_and_source_controlled(tmp_path: Pa
     graph_blockers, graph = verifier.check_graph(ROOT, FIXTURE)
     assert graph_blockers == [], graph_blockers
     assert graph["appHost"]["count"] == 1 and graph["appHost"]["isPackable"] is False
+    assert graph["graph"]["solutionProjects"] == sorted(verifier.EXPECTED_PROJECTS)
+
+
+def test_inventory_only_cli_rejects_identical_byte_external_symlink(repo: Path) -> None:
+    target = repo / FIXTURE / "README.md"
+    saved = target.read_bytes()
+    pristine = snapshot(repo)
+    external = repo.parent / f"{repo.name}-external-readme.md"
+    external.write_bytes(saved)
+    target.unlink()
+    target.symlink_to(external)
+    try:
+        assert target.is_symlink() and target.read_bytes() == saved
+        assert verify(repo, inventory_only=True) == (1, [verifier.BLOCK_INVENTORY])
+        report = json.loads((repo / OUT).read_bytes())
+        assert report["result"] == "FAIL" and "fixtureFileCount" not in report
+    finally:
+        target.unlink()
+        target.write_bytes(saved)
+        assert not target.is_symlink() and target.read_bytes() == saved
+        assert external.read_bytes() == saved
+        assert snapshot(repo) == pristine, "FIXTURE_NOT_RESTORED"
+        assert verify(repo, inventory_only=True) == (0, [])
+
+
+@pytest.mark.parametrize("replacement", ["missing", "directory", "invalid-utf8", "dangling-symlink"])
+def test_inventory_rejects_unevaluated_frozen_rows(repo: Path, replacement: str) -> None:
+    target = repo / FIXTURE / "README.md"
+    saved = target.read_bytes()
+    pristine = snapshot(repo)
+    target.unlink()
+    if replacement == "directory":
+        target.mkdir()
+    elif replacement == "invalid-utf8":
+        target.write_bytes(b"\xff")
+    elif replacement == "dangling-symlink":
+        target.symlink_to(repo.parent / f"{repo.name}-missing-readme.md")
+    try:
+        blockers, facts = verifier.check_inventory(repo, FIXTURE)
+        assert [row["code"] for row in blockers] == [verifier.BLOCK_INVENTORY]
+        assert [row["path"] for row in facts["paths"]] == [
+            path for path in verifier.FROZEN_PATHS if path != f"{FIXTURE}/README.md"]
+    finally:
+        if target.is_dir():
+            target.rmdir()
+        elif target.exists() or target.is_symlink():
+            target.unlink()
+        target.write_bytes(saved)
+        assert snapshot(repo) == pristine, "FIXTURE_NOT_RESTORED"
+        assert verifier.check_inventory(repo, FIXTURE)[0] == []
+
+
+@pytest.mark.parametrize("directory", ["tests", FIXTURE, f"{FIXTURE}/src/Hexalith.Conversations.MinimalModule.Contracts"])
+def test_inventory_rejects_symlinked_directories_and_restores_bytes(repo: Path, directory: str) -> None:
+    target = repo / directory
+    pristine = snapshot(repo)
+    saved = snapshot(target)
+    external = repo.parent / f"{repo.name}-external-directory"
+    target.rename(external)
+    target.symlink_to(external, target_is_directory=True)
+    try:
+        blockers, _ = verifier.check_inventory(repo, FIXTURE)
+        assert target.is_symlink()
+        assert [row["code"] for row in blockers] == [verifier.BLOCK_INVENTORY]
+    finally:
+        target.unlink()
+        assert snapshot(external) == saved
+        external.rename(target)
+        assert snapshot(repo) == pristine, "FIXTURE_NOT_RESTORED"
+        assert verifier.check_inventory(repo, FIXTURE)[0] == []
+
+
+@pytest.mark.parametrize("project", verifier.EXPECTED_PROJECTS)
+def test_graph_rejects_missing_solution_project_and_restores_bytes(repo: Path, project: str) -> None:
+    solution = repo / FIXTURE / "Hexalith.Conversations.MinimalModule.slnx"
+    saved = solution.read_bytes()
+    pristine = snapshot(repo)
+    entry = f'<Project Path="{project}" />'.encode()
+    assert saved.count(entry) == 1
+    solution.write_bytes(saved.replace(entry, b""))
+    try:
+        blockers, facts = verifier.check_graph(repo, FIXTURE)
+        assert sorted(facts["graph"]["projects"]) == sorted(verifier.EXPECTED_PROJECTS)
+        assert len(facts["graph"]["solutionProjects"]) == 3
+        assert [row["code"] for row in blockers] == [verifier.BLOCK_APPHOST]
+    finally:
+        solution.write_bytes(saved)
+        assert snapshot(repo) == pristine, "FIXTURE_NOT_RESTORED"
+        assert verifier.check_graph(repo, FIXTURE)[0] == []
+
+
+@pytest.mark.parametrize("mutation", ["duplicate", "unexpected", "commented-apphost", "missing-path", "malformed",
+                                      "unknown-encoding", "invalid-container", "invalid-folder-container"])
+def test_graph_rejects_invalid_solution_entries_and_restores_bytes(repo: Path, mutation: str) -> None:
+    solution = repo / FIXTURE / "Hexalith.Conversations.MinimalModule.slnx"
+    saved = solution.read_bytes()
+    pristine = snapshot(repo)
+    entry = f'<Project Path="{verifier.APPHOST_PROJECT}" />'.encode()
+    if mutation == "duplicate":
+        changed = saved.replace(entry, entry + b"\n    " + entry)
+    elif mutation == "unexpected":
+        changed = saved.replace(b"</Solution>", b'<Project Path="extra.csproj" /></Solution>')
+    elif mutation == "commented-apphost":
+        changed = saved.replace(entry, b"<!-- " + entry + b" -->")
+    elif mutation == "missing-path":
+        changed = saved.replace(b"</Solution>", b"<Project /></Solution>")
+    elif mutation == "unknown-encoding":
+        assert verify(repo) == (0, [])
+        changed = b'<?xml version="1.0" encoding="unknown-encoding"?>\n' + saved
+    elif mutation == "invalid-container":
+        changed = saved.replace(b"<Solution>", b"<Solution><NotASolutionFolder>").replace(
+            b"</Solution>", b"</NotASolutionFolder></Solution>")
+    elif mutation == "invalid-folder-container":
+        changed = saved.replace(entry, b"<NotASolutionFolder>" + entry + b"</NotASolutionFolder>")
+    else:
+        changed = saved.replace(b"</Solution>", b"")
+    solution.write_bytes(changed)
+    try:
+        blockers, _ = verifier.check_graph(repo, FIXTURE)
+        assert [row["code"] for row in blockers] == [verifier.BLOCK_APPHOST]
+        if mutation == "unknown-encoding":
+            assert verify(repo) == (1, [verifier.BLOCK_APPHOST])
+            assert json.loads((repo / OUT).read_bytes())["result"] == "FAIL"
+    finally:
+        solution.write_bytes(saved)
+        assert snapshot(repo) == pristine, "FIXTURE_NOT_RESTORED"
+        assert verifier.check_graph(repo, FIXTURE)[0] == []
+
+
+def test_graph_accepts_equivalent_solution_xml_and_restores_bytes(repo: Path) -> None:
+    solution = repo / FIXTURE / "Hexalith.Conversations.MinimalModule.slnx"
+    saved = solution.read_bytes()
+    entries = [f"  <Project\n    Path = '{path}' />" for path in reversed(verifier.EXPECTED_PROJECTS)]
+    solution.write_text("<Solution>\n" + "\n".join(entries) + "\n</Solution>\n", encoding="utf-8", newline="\n")
+    try:
+        blockers, facts = verifier.check_graph(repo, FIXTURE)
+        assert blockers == []
+        assert facts["graph"]["solutionProjects"] == sorted(verifier.EXPECTED_PROJECTS)
+    finally:
+        solution.write_bytes(saved)
+        assert solution.read_bytes() == saved, "FIXTURE_NOT_RESTORED"
+
+
+@pytest.mark.parametrize("mutation", ["missing", "unexpected", "unexpected-malformed", "unexpected-encoding"])
+def test_graph_requires_exact_physical_project_set(repo: Path, mutation: str) -> None:
+    path = verifier.EXPECTED_PROJECTS[0] if mutation == "missing" else "extra.csproj"
+    project = repo / FIXTURE / path
+    saved = project.read_bytes() if project.exists() else None
+    pristine = snapshot(repo)
+    if mutation == "missing":
+        project.unlink()
+    elif mutation == "unexpected-malformed":
+        project.write_bytes(b"")
+    elif mutation == "unexpected-encoding":
+        project.write_bytes(b'<?xml version="1.0" encoding="unknown-encoding"?><Project />')
+    else:
+        project.write_text('<Project Sdk="Microsoft.NET.Sdk" />\n', encoding="utf-8", newline="\n")
+    try:
+        blockers, facts = verifier.check_graph(repo, FIXTURE)
+        assert facts["graph"]["solutionProjects"] == sorted(verifier.EXPECTED_PROJECTS)
+        assert [row["code"] for row in blockers] == [verifier.BLOCK_APPHOST]
+    finally:
+        if saved is None:
+            project.unlink()
+        else:
+            project.write_bytes(saved)
+        assert snapshot(repo) == pristine, "FIXTURE_NOT_RESTORED"
+        assert verifier.check_graph(repo, FIXTURE)[0] == []
 
 
 # --- fault mutations -------------------------------------------------------------------------------------
