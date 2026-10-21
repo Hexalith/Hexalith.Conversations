@@ -2,7 +2,7 @@
 title: 'Epic 11 retro A-1: enforce fixture inventory and solution equality'
 type: 'bugfix'
 created: '2026-10-21'
-status: 'in-progress'
+status: 'done'
 route: 'oneshot'
 review_loop_iteration: 0
 context: []
@@ -34,6 +34,13 @@ context: []
 - Scoped historical evidence-boundary gate: not-applicable (routine A-1 maintenance without an evidence-republication requirement). Story final-record generation: not-applicable (no numbered story or new story contract). Accepted Story 11.2/11.3 records remain immutable.
 
 - Independent Blind Hunter review returned four reproducible related gaps. Patches reject symlinks in frozen-path ancestors, count only direct Solution/Folder project entries, handle unsupported XML encodings, and retain discovered physical paths even when an unexpected project cannot be parsed. New standalone cases cover each; no public CLI or accepted evidence format changes.
+
+- Final verification after all four review patches: 93 fixture cases passed with zero failures/errors/skips (`/tmp/epic11-a1-fixture-final.xml`), and 41 Story 11.2 record-route cases passed with 1,364 deselected and zero failures/errors/skips (`/tmp/epic11-a1-record-routes-final.xml`). The 15 targeted review-patch cases also passed (`/tmp/epic11-a1-review-patches.xml`).
+- Final inventory-only CLI: PASS/0 (`/tmp/epic11-a1-inventory-final.json`), 13 evaluated rows and the frozen digest. Current graph: no blockers; physical and solution project lists each equal the four frozen projects. Accepted fixture/evidence/receipt paths and the retrospective retain zero diff.
+- Completion closes only sprint action item 45. Actions 46–48 remain open and their split is recorded in `deferred-work.md`. All four review findings were patched; no further review findings were deferred.
+- The exact local commit message passed pinned commitlint 21.2.3 with zero problems or warnings using `node_modules/.bin/commitlint --config commitlint.config.mjs --edit /tmp/epic11-a1-commit-message.txt --verbose`; successful evidence is retained at `/tmp/epic11-a1-commitlint.log`.
+
+- Concurrent workspace update: the external `/pushall` commit `ef3947078cb5ccf3d2b81ca684490e565e8cd04f` captured the implementation, deferrals, and pre-completion spec while final checks ran. Tested Python sources have no diff against that commit. Preserve its root-submodule updates; the build completion commit contains only this spec’s final notes/status and sprint action 45.
 
 ## Review Triage Log
 

@@ -365,7 +365,7 @@ action_items:
     epic: 11
     action: "Reject symlinked or missing evaluated fixture rows and require exact solution-project equality; preserve passing controls, an inventory-only CLI symlink failure and a missing-AppHost graph failure with byte restoration."
     owner: "Fixture verifier owner / Quality"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-11-retro-2026-10-21.md"
   - id: "epic-11-retro-item-46-unify-ab-output-alias-protection"
     epic: 11
