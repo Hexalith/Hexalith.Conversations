@@ -9995,7 +9995,7 @@ def v2_11_1_generate(options, *, candidate=None, read_receipt=None, verify_only=
     if findings or authority is None: raise V2Stop(findings or [v2_finding('AUTHORITY_BINDING_INVALID', V2_11_1_CONTRACT, 'authority does not bind')], '11.1')
     receipt_paths = {f'{V2_11_1_RECEIPT_DIR}AC-11.1-0{n}.{ext}' for n, ext in ((3, 'trx'), (4, 'trx'), (5, 'json'), (6, 'xml'))}
     dirt = set(worktree_path_status(repository)) - set(paths) - receipt_paths
-    if dirt: raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN', 'working-tree', 'working tree differs outside the record pair and receipts: ' + v2_path_summary(dirt))], '11.1')
+    if dirt: raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN', 'working-tree', 'working tree differs outside the record pair and receipts: ' + v2_path_summary(sorted(dirt)))], '11.1')
     candidate_time = int(decode(run_git(repository, 'show', '-s', '--format=%ct', candidate).stdout).strip())
 
     # AC-11.1-01 owner-approved substitution: committed HEAD candidate, recomputed predecessor digests.
@@ -10291,7 +10291,7 @@ def v2_11_2_generate(options, *, candidate=None, read_receipt=None, verify_only=
     receipt_paths = {f'{V2_11_2_RECEIPT_DIR}AC-11.2-01.json', f'{V2_11_2_RECEIPT_DIR}AC-11.2-05.trx',
                      f'{V2_11_2_RECEIPT_DIR}AC-11.2-07.xml', verifier.TEST_RESULT_PATH, *verifier.COMMAND_RECEIPTS.values()}
     dirt = set(worktree_path_status(repository)) - set(paths) - receipt_paths - set(proof_paths) - {V2_11_2_SPEC, V2_SPRINT_PATH}
-    if dirt: raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN', 'working-tree', 'working tree differs outside the record pair, proof pair, receipts and lifecycle files: ' + v2_path_summary(dirt))], '11.2')
+    if dirt: raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN', 'working-tree', 'working tree differs outside the record pair, proof pair, receipts and lifecycle files: ' + v2_path_summary(sorted(dirt)))], '11.2')
     candidate_time = int(decode(run_git(repository, 'show', '-s', '--format=%ct', candidate).stdout).strip())
 
     # AC-11.2-01 owner-approved candidate rule: committed HEAD, Story 11.1 digests recomputed.
@@ -10566,7 +10566,7 @@ def v2_11_3_generate(options, *, candidate=None, read_receipt=None, verify_only=
     allowed = set(paths) | set(V2_11_3_RECEIPTS) | {gen.JSON_PATH, gen.MARKDOWN_PATH, V2_11_3_SPEC, V2_SPRINT_PATH}
     dirt = set(worktree_path_status(repository)) - allowed
     if dirt: raise V2Stop([v2_finding('WORKTREE_NOT_CLEAN', 'working-tree',
-                                    'working tree differs outside publication and lifecycle files: ' + v2_path_summary(dirt))], '11.3')
+                                    'working tree differs outside publication and lifecycle files: ' + v2_path_summary(sorted(dirt)))], '11.3')
     sources = []
     for path in V2_11_3_SOURCES:
         content = v2_committed_blob(repository, candidate, path)

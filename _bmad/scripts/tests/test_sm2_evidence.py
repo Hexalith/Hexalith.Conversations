@@ -326,7 +326,7 @@ def test_checkpoint_c_fault_matrix(sm2_repository, fault, record_property):
     ('comparison', 'limitations', [], 'SM2_MEASUREMENT_INVALID', 'comparison:confidence'),
     ('measurement', 'exclusions', [], 'SM2_INCLUSION_RULE_VIOLATION', 'measurement:exclusions'),
     ('measurement', 'excludedFiles', [], 'SM2_INCLUSION_RULE_VIOLATION', 'measurement:exclusions'),
-    ('measurement', 'paths', 'wrong-category', 'SM2_INCLUSION_RULE_VIOLATION', 'classification:' + fixture.FROZEN_PATHS[0]),
+    ('measurement', 'paths', 'AppHost', 'SM2_INCLUSION_RULE_VIOLATION', 'classification:' + fixture.FROZEN_PATHS[0]),
     (None, 'command', 'python3 unapproved.py', 'EVIDENCE_FORMAT_DRIFT', 'command'),
     ('toolVersions', 'python', 'unversioned', 'SM2_MEASUREMENT_INVALID', 'tools'),
 ])
@@ -334,7 +334,7 @@ def test_resigned_metric_meanings_cannot_contradict_the_measurement(sm2_reposito
     repo = sm2_repository
     document = json.loads((repo / generator.JSON_PATH).read_bytes())
     if field == 'paths':
-        document[section][field][0]['category'] = 'AppHost'
+        document[section][field][0]['category'] = value
     else:
         (document[section] if section else document)[field] = value
     j, md = generator.finalize({key: value for key, value in document.items() if key != 'digests'})

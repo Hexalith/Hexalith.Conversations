@@ -13,9 +13,11 @@ Commit `0db6207`, the owner's accepted routine-change simplification (see
   the preservation-traceability rc2 suite rebinds published Epic 6 evidence to the
   live routes and SDK pin, so any route or SDK change turns it red.
 * The owner's 2026-10-21 Story 11.3 review decision retires its live-candidate
-  measurement suite and dependent record cases from routine collection. Name
-  either test file explicitly to reproduce the accepted checkpoint or run its
-  contracted fault matrix; the remaining hermetic record tests stay current.
+  measurement suite and dependent record cases from routine collection. They
+  measure the live `HEAD`, so name either test file explicitly at the accepted
+  candidate checkout to reproduce the checkpoint, or run its contracted fault
+  matrix. The remaining record cases are not coupled to live candidate history
+  and stay current.
 
 They stay in Git for historical reproduction: name a file explicitly, for example
 `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py`.
