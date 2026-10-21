@@ -216,8 +216,11 @@ def mutate(repo, doc, fault):
     elif fault == 'source-missing':
         (repo / fixture.FROZEN_PATHS[2]).unlink()
     elif fault == 'platform-ownership-added':
-        target = repo / fixture.FROZEN_PATHS[7]
-        target.write_bytes(target.read_bytes() + b'// Module-owned runtime: AddOpenTelemetry\n')
+        target = repo / next(path for path in fixture.FROZEN_PATHS if path.endswith('/ConversationModule.cs'))
+        content = target.read_bytes()
+        registration = b'        ArgumentNullException.ThrowIfNull(builder);\n'
+        assert content.count(registration) == 1
+        target.write_bytes(content.replace(registration, registration + b'        _ = builder.Services.AddOpenTelemetry();\n', 1))
     elif fault in ('apphost-omitted', 'apphost-project-omitted', 'source-omitted'):
         suffix = 'AppHost.cs' if fault == 'apphost-omitted' else '.AppHost.csproj' if fault == 'apphost-project-omitted' else 'README.md'
         m['paths'] = [row for row in m['paths'] if not row['path'].endswith(suffix)]

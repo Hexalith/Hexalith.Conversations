@@ -2,7 +2,7 @@
 title: 'Story 11.3: Generate authoritative SM-2 v2 evidence and decide OQ-2'
 type: 'feature'
 created: '2026-10-20'
-status: 'in-progress'
+status: 'in-review'
 baseline_commit: '984daa891ad6afafa378bff305748bf3e62bc04c'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -283,6 +283,34 @@ Rejected (37):
 
 - The exact required two-file Python command passed **1,465 tests**, exit 0, with zero failures/errors/skips (`/tmp/story113-latest-python.log`, `/tmp/story113-latest-python.xml`); 54 test-tool warnings are retained in the log. Together with the disjoint 730-case current lane, this verifies 2,195 Python cases. The source files stayed fixed throughout the HEAD-bound run.
 
+### Independent group-1 completion review, 2026-10-21
+
+All three context-free layers inspected the full preserved-baseline diff. Each finding has its own verdict before grouping. The source, publication and passing measurements recorded above remain historical observations; the ownership fault patch requires a fresh source-bound publication.
+
+| Finding | Verdict | Evidence and disposition |
+| --- | --- | --- |
+| BH-R01: standalone schema can be weakened alongside re-signed evidence | low | The standalone verifier uses its installed schema, so coordinated edits to that validator source and evidence can pass its shape check. The accepted-publication route first rejects changed source through dirt and exact committed-byte checks, including this schema in `V2_11_3_SOURCES`. No accepted record can bypass those guards. Reject additional standalone implementation-integrity guards for this unlikely coordinated source/data tamper; the demonstrated accepted-publication boundary remains intact. |
+| BH-R02: missing input overrides an evaluated failure | low | Carried: same verifier, mixed unavailable/invalid state and disposition as BH-F02 and the earlier FAIL/BLOCKED precedence finding. Both outcomes halt and all blocker codes remain visible. Reject as previously recorded. |
+| BH-R03: invalid receipt output path emits no structured JSON | low | Carried: the earlier incomplete-exception-mapping finding explicitly covers `v2_output_target` and corrupt output states, including BH-F06. The CLI fails loudly without publishing an accepted record; fixed contracted paths and the source-bound publication gate retain the boundary. Reject as previously recorded. |
+| BH-R04: future timestamp in final tenant sample | medium | Carried: BH-F09, same query-handler final sample and missing clock check. This predates the authoring-evidence run and is already deferred to the native metadata prerequisite; do not append it again. |
+| BH-R05: completed dispatch omits selection durability | medium | Carried: EC-F01, same fast path and missing selected-owner row. Existing native metadata deferral remains; do not append it again. |
+| BH-R06: successful query fixtures bypass native authorization | medium | Carried: VG-F01, same fixture constructor and missing successful native composition coverage. Existing deferral remains; do not append it again. |
+| BH-R07: root-pinned SDK cannot compile native metadata interfaces | high | Carried: group-1 CI compile deferral/BH-F01, same missing `TenantReadAuthorityResult` and `ProjectionCurrentProof` APIs. The source-side ledger already records this independently of SM-2 acceptance; do not append it again. |
+| BH-R08: native rebuild lacks restart rediscovery | medium | The prerequisite's retained source verification explicitly records failure of fresh-dispatcher rediscovery after proof installation; captured-plan resumption does not settle restart recovery. This production availability dependency predates Story 11.3. Defer to the native metadata prerequisite without claiming native delivery acceptance. |
+| BH-R09: default retirement also excludes hermetic measurement cases | false | Jerome explicitly chose whole-file `collect_ignore` for `test_sm2_evidence.py` and explicit-file reproduction. These threshold/provenance helpers belong to that retired checkpoint; all remain executable by name and passed in the 1,465-case run. Splitting them into a new routine file is an optional policy change, not a missing implementation of the approved retirement. |
+| BH-R10: ownership fault mutates only a comment | low | Verified: `platform-ownership-added` appends a comment to the copied aggregate and therefore tests only the forbidden-token match. Patch the existing fault to insert a real telemetry registration into the copied registration method; retain its exact identity/blocker and byte-identical restoration. |
+| EC-R01: completed dispatch omits selection durability | medium | Carried: same location and claim as EC-F01/BH-R05; retain the existing native metadata deferral without another ledger entry. |
+| EC-R02: final tenant sample accepts future timestamp | medium | Carried: same location and claim as BH-F09/BH-R04; retain the existing native metadata deferral without another ledger entry. |
+| VG-R01: null-label reclassification replay lacks executing coverage | medium | Pre-verified regression gap: the positive metadata-update replay uses a non-null label; null cases cover creation/serialization or rejection. A future non-null-value adoption guard could silently leave valid legacy classified absence unavailable. This production projection change predates this run. Defer a null/non-null replay and persisted/query completeness regression to the native metadata prerequisite. |
+
+The sole patch is BH-R10; it is a direct correction to the existing test mutant and introduces no public surface or guard. BH-R08 and VG-R01 are separate pre-existing deferred roots. All carried dispositions remain unchanged, and no frozen intent or spec requirement changes are needed.
+
+### Completion-review patch verification
+
+- BH-R10 now inserts `_ = builder.Services.AddOpenTelemetry();` inside the copied module's registration method. The targeted fault passed with the same blocker and exact restoration; the original fixture remains unchanged. The source patch changes only the existing Python mutant.
+- Required post-review verification passed: **1,465** two-file Python cases, zero failures/errors/skips, exit 0 (`/tmp/story113-final-brdsb43k/postreview-python.xml`); **730** disjoint remaining current-tooling cases, zero failures/errors/skips, exit 0 (`/tmp/story113-final-brdsb43k/postreview-current.xml`). Combined coverage is 2,195 Python cases. The prior 638-test Debug Contracts PASS remains applicable because native code and tests did not change.
+- The first source/publication attempt in this run was `afaa149e463d2182dc906924a0981810a386c215` / `e606a2e8405f2ed5ad396af6000e6dd9af6619d9`; all seven commands and deterministic-pair checks passed there. Its source-bound Release build had zero warnings/errors. Both 7.3 guards and insertion verification passed. Its nine measured files are preserved in Git and under `/tmp/story113-final-brdsb43k/superseded-pre-final-review`. The realistic ownership fault and source-side deferrals require a new source candidate and atomic publication.
+
 ## Verification
 
 - Run seven exact commands in `_bmad-output/planning-artifacts/v9/story-contracts/11.3.json`; focused Debug builds before required Release receipts.
@@ -299,8 +327,8 @@ Generated by `_bmad/scripts/generate_story_record.py` from the committed candida
 - Schema: `hexalith.conversations.story-final-record.v2`
 - Result: `PASS`
 - Story: `11.3`
-- Candidate: `318e8436f60acd2b2a0ae8b30053fbebe47c2d8b`
-- JSON content SHA-256 (all three digest fields zeroed): `f592a38e2b861ec33a1363de13f95256709036d3961fdb1acce8c444e6c06216`
+- Candidate: `afaa149e463d2182dc906924a0981810a386c215`
+- JSON content SHA-256 (all three digest fields zeroed): `9b6baacae33296895bd892e056548332f42ee220a8f76b4673199d7f812e6630`
 
 ## Authority
 
@@ -343,11 +371,11 @@ Generated by `_bmad/scripts/generate_story_record.py` from the committed candida
 | Scenario | Exit | Result | Blockers | Assertions | Result file | Result file SHA-256 |
 | --- | --- | --- | --- | --- | --- | --- |
 | `AC-11.3-01` | `0` | `PASS` | `none` | `1` | none | none |
-| `AC-11.3-02` | `0` | `PASS` | `none` | `1` | `artifacts/v9/11.3/AC-11.3-02.trx` | `a35a4077e36bf51f91248911404ffb1f57e47d43531af5a72d35afe7b06c22ec` |
-| `AC-11.3-03` | `0` | `PASS` | `none` | `1` | `artifacts/v9/11.3/AC-11.3-03.trx` | `041db015bba77e16d04af745b043e14635a9ba6c909a00aea2115ffebfd88272` |
-| `AC-11.3-04` | `0` | `PASS` | `none` | `138` | `artifacts/v9/11.3/AC-11.3-04.json` | `d430299e95d4b0bbb3669aca1b7ae81d27d1e31017328d69230b93e3fd469ec5` |
-| `AC-11.3-05` | `0` | `PASS` | `none` | `88` | `artifacts/v9/11.3/AC-11.3-05.json` | `b7b5b3d713f788f87793e1d1982c8ea12557e270115eee7c87a4248a9ecece6a` |
-| `AC-11.3-06` | `0` | `PASS` | `none` | `28` | `artifacts/v9/11.3/AC-11.3-06.xml` | `6dea6ee866f5ef346d06ad712fdf4103a24ac13bf65e8e0eb22e30d689837d7a` |
+| `AC-11.3-02` | `0` | `PASS` | `none` | `1` | `artifacts/v9/11.3/AC-11.3-02.trx` | `e6c2e4533d8840e5789bda74f3581bfcc90bb0afab3cab52644dcf9e60e9d4d7` |
+| `AC-11.3-03` | `0` | `PASS` | `none` | `1` | `artifacts/v9/11.3/AC-11.3-03.trx` | `93e7e226da4cb9121920e50bd6e2ea98f77cb93626f2b8fa130214ae7d66872c` |
+| `AC-11.3-04` | `0` | `PASS` | `none` | `138` | `artifacts/v9/11.3/AC-11.3-04.json` | `e93daed0678562298667aa4b54bd96ff2a72eda7009bc73e3d110e53bdc33bf1` |
+| `AC-11.3-05` | `0` | `PASS` | `none` | `88` | `artifacts/v9/11.3/AC-11.3-05.json` | `bf5a11f6c2a8fa13d3fd94e365cc6d40a1d3909056dc60e9d654d8e9e5f564c1` |
+| `AC-11.3-06` | `0` | `PASS` | `none` | `28` | `artifacts/v9/11.3/AC-11.3-06.xml` | `ead7c16ea855c2f7bcc6b942d43093c8f5cf5b3f6d542ca4fec1904673d7bf74` |
 | `AC-11.3-07` | `0` | `PASS` | `none` | `1` | none | none |
 
 ### `AC-11.3-01`
@@ -356,8 +384,8 @@ Command: `python3 _bmad/scripts/generate_sm2_evidence.py --repository . --contra
 
 | Bound output | SHA-256 |
 | --- | --- |
-| `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json` | `210777619d82034d924ed6d09d1fd81bf4085ea9ba76af607a50f19a5fc49fb2` |
-| `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md` | `db01c3e3e73dc73a019c086aa842000087d17ec7ad358a1cd8c256bbd48565c5` |
+| `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json` | `e758d5cbe615a44e1bb5ea3154f5a5ef4ca9227e19b1ed0b884f601ca04cb6b3` |
+| `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md` | `23ce050d420547c8142c2fc942d44442220d568e51fed2bcdb27faeaeccf6054` |
 
 | Assertion | Subject | State |
 | --- | --- | --- |
@@ -443,7 +471,7 @@ Command: `python3 _bmad/scripts/verify_sm2_evidence.py --repository . --evidence
 | `AC-11.3-04#0056` | `chain:predecessor:insertion:_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md::docs/release-evidence/story-11.2-final-record-v2.md` | `PASS` |
 | `AC-11.3-04#0057` | `chain:ancestry:1e9a61126d3b7a55b514b7c7c8942d5af03355e5::09007a08f63773923694f09e9c49f972d6df81ae` | `PASS` |
 | `AC-11.3-04#0058` | `chain:ancestry:09007a08f63773923694f09e9c49f972d6df81ae::aeca17f120aa731d0d47b79b7d1b54fb63144bb8` | `PASS` |
-| `AC-11.3-04#0059` | `chain:ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8::318e8436f60acd2b2a0ae8b30053fbebe47c2d8b` | `PASS` |
+| `AC-11.3-04#0059` | `chain:ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8::afaa149e463d2182dc906924a0981810a386c215` | `PASS` |
 | `AC-11.3-04#0060` | `chain:predecessor:B-A::docs/release-evidence/story-11.1-final-record-v2.json` | `PASS` |
 | `AC-11.3-04#0061` | `chain:repository::repository` | `PASS` |
 | `AC-11.3-04#0062` | `chain:candidate::candidate` | `PASS` |
@@ -543,7 +571,7 @@ Command: `python3 _bmad/scripts/verify_story_candidate.py --repository . --autho
 | `AC-11.3-05#0011` | `predecessor:insertion:_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md::docs/release-evidence/story-11.2-final-record-v2.md` | `PASS` |
 | `AC-11.3-05#0012` | `ancestry:1e9a61126d3b7a55b514b7c7c8942d5af03355e5::09007a08f63773923694f09e9c49f972d6df81ae` | `PASS` |
 | `AC-11.3-05#0013` | `ancestry:09007a08f63773923694f09e9c49f972d6df81ae::aeca17f120aa731d0d47b79b7d1b54fb63144bb8` | `PASS` |
-| `AC-11.3-05#0014` | `ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8::318e8436f60acd2b2a0ae8b30053fbebe47c2d8b` | `PASS` |
+| `AC-11.3-05#0014` | `ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8::afaa149e463d2182dc906924a0981810a386c215` | `PASS` |
 | `AC-11.3-05#0015` | `predecessor:B-A::docs/release-evidence/story-11.1-final-record-v2.json` | `PASS` |
 | `AC-11.3-05#0016` | `repository::repository` | `PASS` |
 | `AC-11.3-05#0017` | `candidate::candidate` | `PASS` |
@@ -664,9 +692,9 @@ Command: `python3 _bmad/scripts/generate_story_record.py --repository . --contra
 
 ## Measured SM-2 and OQ-2
 
-- Evidence JSON: `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json` (`210777619d82034d924ed6d09d1fd81bf4085ea9ba76af607a50f19a5fc49fb2`)
-- Evidence Markdown: `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md` (`db01c3e3e73dc73a019c086aa842000087d17ec7ad358a1cd8c256bbd48565c5`)
-- Signable payload: `5d19ee7b9f494db63be3008b98480bc9011bcc6da62a381a5f0f565c1c3c8b8b`
+- Evidence JSON: `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json` (`e758d5cbe615a44e1bb5ea3154f5a5ef4ca9227e19b1ed0b884f601ca04cb6b3`)
+- Evidence Markdown: `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md` (`23ce050d420547c8142c2fc942d44442220d568e51fed2bcdb27faeaeccf6054`)
+- Signable payload: `cd2ffdb56b084de1c43e2ebcbb28f3b65ebbac14fbb892f6f68e104b7fc63ff0`
 - Measured: 13 files; 451 physical LOC; 396 nonblank LOC.
 - Reduction against 58 estimated files / 1,460 estimated LOC: 77.59% files; 69.11% indicative LOC.
 - OQ-2: `accepted`, qualified against the accepted estimate. Measurement confidence high; comparison confidence low.
@@ -676,15 +704,15 @@ Command: `python3 _bmad/scripts/generate_story_record.py --repository . --contra
 | --- | --- |
 | `A` | `09007a08f63773923694f09e9c49f972d6df81ae` |
 | `B` | `aeca17f120aa731d0d47b79b7d1b54fb63144bb8` |
-| `C` | `318e8436f60acd2b2a0ae8b30053fbebe47c2d8b` |
+| `C` | `afaa149e463d2182dc906924a0981810a386c215` |
 
 | Receipt | Path | SHA-256 |
 | --- | --- | --- |
-| `AC-11.3-02` | `artifacts/v9/11.3/AC-11.3-02.trx` | `a35a4077e36bf51f91248911404ffb1f57e47d43531af5a72d35afe7b06c22ec` |
-| `AC-11.3-03` | `artifacts/v9/11.3/AC-11.3-03.trx` | `041db015bba77e16d04af745b043e14635a9ba6c909a00aea2115ffebfd88272` |
-| `AC-11.3-04` | `artifacts/v9/11.3/AC-11.3-04.json` | `d430299e95d4b0bbb3669aca1b7ae81d27d1e31017328d69230b93e3fd469ec5` |
-| `AC-11.3-05` | `artifacts/v9/11.3/AC-11.3-05.json` | `b7b5b3d713f788f87793e1d1982c8ea12557e270115eee7c87a4248a9ecece6a` |
-| `AC-11.3-06` | `artifacts/v9/11.3/AC-11.3-06.xml` | `6dea6ee866f5ef346d06ad712fdf4103a24ac13bf65e8e0eb22e30d689837d7a` |
+| `AC-11.3-02` | `artifacts/v9/11.3/AC-11.3-02.trx` | `e6c2e4533d8840e5789bda74f3581bfcc90bb0afab3cab52644dcf9e60e9d4d7` |
+| `AC-11.3-03` | `artifacts/v9/11.3/AC-11.3-03.trx` | `93e7e226da4cb9121920e50bd6e2ea98f77cb93626f2b8fa130214ae7d66872c` |
+| `AC-11.3-04` | `artifacts/v9/11.3/AC-11.3-04.json` | `e93daed0678562298667aa4b54bd96ff2a72eda7009bc73e3d110e53bdc33bf1` |
+| `AC-11.3-05` | `artifacts/v9/11.3/AC-11.3-05.json` | `bf5a11f6c2a8fa13d3fd94e365cc6d40a1d3909056dc60e9d654d8e9e5f564c1` |
+| `AC-11.3-06` | `artifacts/v9/11.3/AC-11.3-06.xml` | `ead7c16ea855c2f7bcc6b942d43093c8f5cf5b3f6d542ca4fec1904673d7bf74` |
 
 ## Fault injection
 
@@ -692,34 +720,34 @@ Command: `python3 _bmad/scripts/generate_story_record.py --repository . --contra
 
 | Fault | Expected blocker | Observed blockers | Before SHA-256 | After SHA-256 | Restored |
 | --- | --- | --- | --- | --- | --- |
-| `source-added` | `SM2_SOURCE_INVENTORY_DRIFT` | `CHECKPOINT_CANDIDATE_MISMATCH, SM2_SOURCE_INVENTORY_DRIFT` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `source-missing` | `SM2_SOURCE_INVENTORY_DRIFT` | `CHECKPOINT_CANDIDATE_MISMATCH, SM2_MEASUREMENT_INVALID, SM2_SOURCE_INVENTORY_DRIFT` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `platform-ownership-added` | `SM2_INCLUSION_RULE_VIOLATION` | `CHECKPOINT_CANDIDATE_MISMATCH, SM2_INCLUSION_RULE_VIOLATION, SM2_MEASUREMENT_INVALID` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `apphost-omitted` | `SM2_APPHOST_COST_OMITTED` | `EVIDENCE_FORMAT_DRIFT, SM2_APPHOST_COST_OMITTED, SM2_INCLUSION_RULE_VIOLATION` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `apphost-project-omitted` | `SM2_APPHOST_COST_OMITTED` | `EVIDENCE_FORMAT_DRIFT, SM2_APPHOST_COST_OMITTED, SM2_INCLUSION_RULE_VIOLATION` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `path-duplicated` | `SM2_INCLUSION_RULE_VIOLATION` | `EVIDENCE_FORMAT_DRIFT, SM2_INCLUSION_RULE_VIOLATION` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `path-unclassified` | `SM2_INCLUSION_RULE_VIOLATION` | `EVIDENCE_FORMAT_DRIFT, SM2_INCLUSION_RULE_VIOLATION` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `source-omitted` | `SM2_INCLUSION_RULE_VIOLATION` | `EVIDENCE_FORMAT_DRIFT, SM2_INCLUSION_RULE_VIOLATION` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `declared-files` | `SM2_MEASUREMENT_INVALID` | `EVIDENCE_FORMAT_DRIFT, SM2_MEASUREMENT_INVALID` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `declared-loc` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `declared-nonblank` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `source-hash` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `physical-loc-row` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `sm1-mutated` | `SM1_BASELINE_MUTATED` | `SM1_BASELINE_MUTATED` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `v1-json-mutated` | `SM2_V1_HISTORY_MUTATED` | `SM2_V1_HISTORY_MUTATED` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `v1-markdown-mutated` | `SM2_V1_HISTORY_MUTATED` | `SM2_V1_HISTORY_MUTATED` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `history-declaration-rehashed` | `SM2_V1_HISTORY_MUTATED` | `SM2_V1_HISTORY_MUTATED` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `arithmetic` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `confidence` | `SM2_MEASUREMENT_INVALID` | `EVIDENCE_FORMAT_DRIFT, SM2_MEASUREMENT_INVALID` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `decision` | `OQ2_DECISION_INVALID` | `OQ2_DECISION_INVALID` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `sensitivity` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `payload-digest` | `EVIDENCE_FORMAT_DRIFT` | `EVIDENCE_FORMAT_DRIFT` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `markdown` | `EVIDENCE_FORMAT_DRIFT` | `EVIDENCE_FORMAT_DRIFT` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `unknown-property` | `EVIDENCE_FORMAT_DRIFT` | `EVIDENCE_FORMAT_DRIFT` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `checkpoint-candidate` | `CHECKPOINT_CANDIDATE_MISMATCH` | `CHECKPOINT_CANDIDATE_MISMATCH` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `predecessor-binding` | `CHECKPOINT_CANDIDATE_MISMATCH` | `CHECKPOINT_CANDIDATE_MISMATCH` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `checkpoint-input-drift` | `CHECKPOINT_CANDIDATE_MISMATCH` | `CHECKPOINT_CANDIDATE_MISMATCH` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
-| `history-unavailable` | `HISTORY_UNAVAILABLE` | `HISTORY_UNAVAILABLE` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `7a8e80c3222d25811451957b1fa81f50b94aae13e27fe754da97da682c4d6221` | `True` |
+| `source-added` | `SM2_SOURCE_INVENTORY_DRIFT` | `CHECKPOINT_CANDIDATE_MISMATCH, SM2_SOURCE_INVENTORY_DRIFT` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `source-missing` | `SM2_SOURCE_INVENTORY_DRIFT` | `CHECKPOINT_CANDIDATE_MISMATCH, SM2_MEASUREMENT_INVALID, SM2_SOURCE_INVENTORY_DRIFT` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `platform-ownership-added` | `SM2_INCLUSION_RULE_VIOLATION` | `CHECKPOINT_CANDIDATE_MISMATCH, SM2_INCLUSION_RULE_VIOLATION, SM2_MEASUREMENT_INVALID` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `apphost-omitted` | `SM2_APPHOST_COST_OMITTED` | `EVIDENCE_FORMAT_DRIFT, SM2_APPHOST_COST_OMITTED, SM2_INCLUSION_RULE_VIOLATION` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `apphost-project-omitted` | `SM2_APPHOST_COST_OMITTED` | `EVIDENCE_FORMAT_DRIFT, SM2_APPHOST_COST_OMITTED, SM2_INCLUSION_RULE_VIOLATION` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `path-duplicated` | `SM2_INCLUSION_RULE_VIOLATION` | `EVIDENCE_FORMAT_DRIFT, SM2_INCLUSION_RULE_VIOLATION` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `path-unclassified` | `SM2_INCLUSION_RULE_VIOLATION` | `EVIDENCE_FORMAT_DRIFT, SM2_INCLUSION_RULE_VIOLATION` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `source-omitted` | `SM2_INCLUSION_RULE_VIOLATION` | `EVIDENCE_FORMAT_DRIFT, SM2_INCLUSION_RULE_VIOLATION` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `declared-files` | `SM2_MEASUREMENT_INVALID` | `EVIDENCE_FORMAT_DRIFT, SM2_MEASUREMENT_INVALID` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `declared-loc` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `declared-nonblank` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `source-hash` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `physical-loc-row` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `sm1-mutated` | `SM1_BASELINE_MUTATED` | `SM1_BASELINE_MUTATED` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `v1-json-mutated` | `SM2_V1_HISTORY_MUTATED` | `SM2_V1_HISTORY_MUTATED` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `v1-markdown-mutated` | `SM2_V1_HISTORY_MUTATED` | `SM2_V1_HISTORY_MUTATED` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `history-declaration-rehashed` | `SM2_V1_HISTORY_MUTATED` | `SM2_V1_HISTORY_MUTATED` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `arithmetic` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `confidence` | `SM2_MEASUREMENT_INVALID` | `EVIDENCE_FORMAT_DRIFT, SM2_MEASUREMENT_INVALID` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `decision` | `OQ2_DECISION_INVALID` | `OQ2_DECISION_INVALID` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `sensitivity` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `payload-digest` | `EVIDENCE_FORMAT_DRIFT` | `EVIDENCE_FORMAT_DRIFT` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `markdown` | `EVIDENCE_FORMAT_DRIFT` | `EVIDENCE_FORMAT_DRIFT` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `unknown-property` | `EVIDENCE_FORMAT_DRIFT` | `EVIDENCE_FORMAT_DRIFT` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `checkpoint-candidate` | `CHECKPOINT_CANDIDATE_MISMATCH` | `CHECKPOINT_CANDIDATE_MISMATCH` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `predecessor-binding` | `CHECKPOINT_CANDIDATE_MISMATCH` | `CHECKPOINT_CANDIDATE_MISMATCH` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `checkpoint-input-drift` | `CHECKPOINT_CANDIDATE_MISMATCH` | `CHECKPOINT_CANDIDATE_MISMATCH` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
+| `history-unavailable` | `HISTORY_UNAVAILABLE` | `HISTORY_UNAVAILABLE` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `411553ed26a12a8a1189dcadbb6ea10578a0e8e429f32f943a867a80333bc6a9` | `True` |
 
 ## Outputs
 

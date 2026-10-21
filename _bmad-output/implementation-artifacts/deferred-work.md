@@ -650,3 +650,12 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2.md`
   summary: Generalize the closed Story 11.3 candidate verifier for the Story 12.1 contract and its PREDECESSOR_CANDIDATE_MISMATCH result.
   evidence: Group-1 verification-gap finding, low. verify_story_candidate.py currently accepts only the 11.3 contract and receipt; backlog AC-12.1-01 invokes it with a different contract and currently returns FAIL. Story 12.1 owns that extension. This completion entry is included in the source candidate before the atomic publication boundary.
+
+## Deferred from: Story 11.3 completion review (2026-10-21)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2.md`
+  summary: Prove native rebuild restart rediscovery using original request and dispatch identity after proof installation.
+  evidence: BH-R08, pre-existing native metadata availability dependency. The prerequisite's retained verification records a fresh dispatcher returning Failed/projection_handler_failure after proof installation; captured-plan resumption does not prove restart rediscovery. Keep native delivery acceptance withheld until the upstream recovery path succeeds without a query-visible rich manifest.
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2.md`
+  summary: Verify explicit null-label reclassification through event replay, persisted metadata completeness and a successful null-safe-label query result.
+  evidence: VG-R01, pre-existing native metadata regression gap. The positive metadata-update replay uses a non-null label; null coverage only exercises creation, serialization or mismatch rejection. Parameterize ExplicitNativeMetadataReclassificationAdmitsALegacyLabelWithoutRewritingHistory for null/non-null and assert classification/purpose, persisted completeness and returned metadata. This belongs to the native metadata prerequisite.
