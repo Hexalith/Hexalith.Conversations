@@ -3,14 +3,14 @@
   "candidate": {
     "storyId": "11.3",
     "checkpoint": "C",
-    "commit": "318e8436f60acd2b2a0ae8b30053fbebe47c2d8b",
+    "commit": "afaa149e463d2182dc906924a0981810a386c215",
     "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
     "contractPath": "_bmad-output/planning-artifacts/v9/story-contracts/11.3.json",
     "contractSha256": "10ee26812edf866ca5e78564c0af1ae5aeceaf0c595a42052a72372951e15d9c",
     "checkpoints": {
       "A": "09007a08f63773923694f09e9c49f972d6df81ae",
       "B": "aeca17f120aa731d0d47b79b7d1b54fb63144bb8",
-      "C": "318e8436f60acd2b2a0ae8b30053fbebe47c2d8b"
+      "C": "afaa149e463d2182dc906924a0981810a386c215"
     },
     "gitlinks": [
       {
@@ -411,7 +411,11 @@
     "nonblankLocMetric": "Physical lines with at least one non-whitespace character, reported separately.",
     "exclusions": [
       {
-        "pattern": "**/bin/**; **/obj/**",
+        "pattern": "**/bin/**",
+        "reason": "Generated build outputs are not hand-authored module-owned files."
+      },
+      {
+        "pattern": "**/obj/**",
         "reason": "Generated build outputs are not hand-authored module-owned files."
       },
       {
@@ -487,7 +491,7 @@
   },
   "command": "python3 _bmad/scripts/generate_sm2_evidence.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.3.json --fixture-proof docs/release-evidence/thin-module-fixture-proof-v1.json --baseline docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json --output-json docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json --output-markdown docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md",
   "digests": {
-    "signablePayloadSha256": "5d19ee7b9f494db63be3008b98480bc9011bcc6da62a381a5f0f565c1c3c8b8b",
-    "markdownSha256": "db01c3e3e73dc73a019c086aa842000087d17ec7ad358a1cd8c256bbd48565c5"
+    "signablePayloadSha256": "cd2ffdb56b084de1c43e2ebcbb28f3b65ebbac14fbb892f6f68e104b7fc63ff0",
+    "markdownSha256": "23ce050d420547c8142c2fc942d44442220d568e51fed2bcdb27faeaeccf6054"
   }
 }
