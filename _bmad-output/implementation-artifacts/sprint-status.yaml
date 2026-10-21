@@ -37,7 +37,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 2026-10-21
+last_updated: 10-21-2026 19:32
 # V14 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-18-v14 and conversations-architecture-2026-08-18-v14 are candidate-bound by v9-authority-bundle-v1.json. GLOBAL IMPLEMENTATION HOLD remains ACTIVE; IR-0 was not run, A2 and A3 are done, A4-A6 remain open, and all successor stories including Epic 16 remain backlog.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
 project: Conversations
@@ -109,7 +109,7 @@ development_status:
   11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance: done
   11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis: done
   11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2: done
-  epic-11-retrospective: optional
+  epic-11-retrospective: done
   epic-12: backlog
   12-1-approve-derived-key-ownership-lifecycle-and-rollback: backlog
   12-2-freeze-the-benchmark-method-and-signal-quality-algorithm: backlog
@@ -361,3 +361,27 @@ action_items:
     owner: "Evidence tooling owner"
     status: done
     ref: "_bmad-output/implementation-artifacts/epic-10-retro-2026-10-18.md"
+  - id: "epic-11-retro-item-45-enforce-fixture-inventory-and-solution-equality"
+    epic: 11
+    action: "Reject symlinked or missing evaluated fixture rows and require exact solution-project equality; preserve passing controls, an inventory-only CLI symlink failure and a missing-AppHost graph failure with byte restoration."
+    owner: "Fixture verifier owner / Quality"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-11-retro-2026-10-21.md"
+  - id: "epic-11-retro-item-46-unify-ab-output-alias-protection"
+    epic: 11
+    action: "At an approved A/B maintenance candidate, reuse the contained atomic output writer for pairs and receipts; prove symlink/hardlink output aliases cannot alter source or historical evidence, consolidating existing writer deferrals."
+    owner: "Evidence tooling owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-11-retro-2026-10-21.md"
+  - id: "epic-11-retro-item-47-prove-registered-fixture-commands-and-current-platform-compatibility"
+    epic: 11
+    action: "Consolidate the existing Checkpoint B gaps: exercise CreateConversation through the registered public in-process command processor and add a platform-backed fixture locked restore/build/test lane with zero failures or skips, retaining the approved no-live-Dapr scope."
+    owner: "Platform integration / CI owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-11-retro-2026-10-21.md"
+  - id: "epic-11-retro-item-48-disclose-fixture-file-layout-exception"
+    epic: 11
+    action: "Document the scoped frozen multi-type-file exception and 13-versus-18 file sensitivity; preserve accepted evidence and low comparison confidence, and use the normal one-type-per-file convention for future comparable measurements unless explicitly excepted."
+    owner: "Architecture / Product owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-11-retro-2026-10-21.md"
