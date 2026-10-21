@@ -1072,6 +1072,8 @@ internal static class ContractSamples
         Freshness,
         FreshnessV1,
         new GetConversationQuery(Version, Tenant, "caller-001", "correlation-001", Conversation),
+        new ConversationResolutionScoringLabel("Case 123", ConversationResolutionScoringLabel.SupportedPurpose,
+            ConversationResolutionScoringLabel.OwnerClassification),
         new GetConversationResolutionMetadataQuery(),
         new ConversationResolutionMetadataV1(Conversation.Value, Project.Value, "Case 123", "Open"),
         new ConversationResolutionMetadataResultV1(

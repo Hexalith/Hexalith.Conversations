@@ -3,7 +3,10 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Queries;
 
 namespace Hexalith.Conversations.Contracts.Events;
 
@@ -24,6 +27,10 @@ public sealed record ConversationCreated(
     string? Label = null,
     ProviderCorrelationMetadata? ProviderCorrelation = null)
 {
+    /// <summary>Gets the explicit native classification of Label for the fixed internal scoring purpose.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ConversationResolutionScoringLabel? ResolutionScoringLabel { get; init; }
+
     /// <summary>
     /// Gets the public creation timestamp from metadata.
     /// </summary>

@@ -109,7 +109,7 @@ public sealed class ConversationProjectionMaterializer
             trustPosture,
             evidenceEntries);
 
-        return new(summary, detail);
+        return new(summary, detail) { ResolutionScoringLabel = builder.ResolutionScoringLabel };
     }
 
     private static ProjectionFreshnessV1 CreateFreshness(
@@ -614,6 +614,9 @@ public sealed class ConversationProjectionMaterializer
             get; private set;
         }
 
+        /// <summary>Gets the explicitly classified native label folded with this owner prefix.</summary>
+        public ConversationResolutionScoringLabel? ResolutionScoringLabel { get; private set; }
+
         public string? Label
         {
             get; private set;
@@ -802,6 +805,7 @@ public sealed class ConversationProjectionMaterializer
                     _participants.Clear();
                     _attributes.Clear();
                     Label = null;
+                    ResolutionScoringLabel = null;
                     BusinessReference = null;
                     ProviderCorrelation = null;
                     break;
@@ -887,6 +891,12 @@ public sealed class ConversationProjectionMaterializer
 
         private void Apply(ConversationCreated e)
         {
+            if (WasCreated || e.ResolutionScoringLabel is { } scoring && scoring.Value != e.Label)
+            {
+                Poisoned = true;
+                return;
+            }
+
             WasCreated = true;
             if (_lifecycleState == InitializingState)
             {
@@ -894,6 +904,7 @@ public sealed class ConversationProjectionMaterializer
             }
 
             Label ??= e.Label;
+            ResolutionScoringLabel = e.ResolutionScoringLabel;
             BusinessReference ??= e.BusinessReference;
             ProjectId ??= e.ProjectId;
             FolderId ??= e.FolderId;
@@ -979,9 +990,19 @@ public sealed class ConversationProjectionMaterializer
         {
             // Replace-all semantics: empty/null Attributes = no-op; non-empty = full replace.
             // Producers cannot signal per-key deletion through this event.
+            if (e.ResolutionScoringLabel is { } scoring && (scoring.Value != e.Label || scoring.Value != (e.Label ?? Label)))
+            {
+                Poisoned = true;
+                return;
+            }
             if (e.Label is not null)
             {
                 Label = e.Label;
+                ResolutionScoringLabel = null;
+            }
+            if (e.ResolutionScoringLabel is not null)
+            {
+                ResolutionScoringLabel = e.ResolutionScoringLabel;
             }
 
             if (e.BusinessReference is not null)

@@ -164,6 +164,12 @@ public sealed class ConversationAsyncProjectionHandler :
 
         try
         {
+            // An old implicit classification has a different stable subset. Never reopen its proof,
+            // recreate an expired ledger or recover writes as an implicit format migration.
+            if (await HasImplicitScoringGenerationAsync(request, dispatchId, cancellationToken).ConfigureAwait(false))
+            {
+                return DomainProjectionHandlerResult.Failed(ProjectionDispatchReasonCodes.UnsupportedCapability);
+            }
             await _resolution.RecoverWritesAsync(new TenantId(request.TenantId),
                 new ConversationId(request.AggregateId), cancellationToken).ConfigureAwait(false);
             ConversationResolutionGeneration? originalGeneration = await _resolution.RecoverGenerationAsync(
@@ -286,6 +292,10 @@ public sealed class ConversationAsyncProjectionHandler :
         }
 
         string requestFingerprint = ComputeRequestFingerprint(request);
+        if (await HasImplicitScoringGenerationAsync(request, operationId, cancellationToken).ConfigureAwait(false))
+        {
+            throw new DomainProjectionRebuildRejectedException(ProjectionDispatchReasonCodes.UnsupportedCapability);
+        }
         ReadModelEntry<ConversationProjectionDispatchLedger> persistedLedger = await _store
             .GetAsync<ConversationProjectionDispatchLedger>(
                 ConversationProjectionReadModelKeys.StateStoreName,
@@ -724,6 +734,18 @@ public sealed class ConversationAsyncProjectionHandler :
             && (freshness.ReasonCode == ProjectionFreshnessReasonCode.Current
                 || freshness.ReasonCode == ProjectionFreshnessReasonCode.StaleThresholdExceeded);
 
+    /// <summary>Refuses old implicitly classified output before any producer mutation of the stable dispatch.</summary>
+    private async Task<bool> HasImplicitScoringGenerationAsync(
+        ProjectionRequest request, string dispatchId, CancellationToken cancellationToken)
+    {
+        var existing = await _store.GetAsync<ConversationResolutionMetadataReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ResolutionMetadataKey(new TenantId(request.TenantId),
+                new ConversationId(request.AggregateId)), cancellationToken).ConfigureAwait(false);
+        return existing.Value is { IsLabelComplete: true, LabelPurpose: null } generation
+            && generation.DispatchId == dispatchId;
+    }
+
     private async Task<bool> GenerationIsDurableAsync(
         ConversationProjectedReadModels expected,
         ConversationProjectionDispatchLedger ledger,
@@ -766,6 +788,7 @@ public sealed class ConversationAsyncProjectionHandler :
             || detail.Value.Summary.ConversationId != conversationId
             || detail.Value.Detail.ConversationId != conversationId
             || detail.Value.Summary.Freshness != detail.Value.Detail.Freshness
+            || detail.Value.ResolutionScoringLabel != expected.ResolutionScoringLabel
             || detail.Value.Summary.Freshness.ProjectionGeneratedAt.UtcTicks != ledger.ProjectionGeneratedAt.UtcTicks
             || !JsonElement.DeepEquals(
                 JsonSerializer.SerializeToElement(detail.Value.Summary),

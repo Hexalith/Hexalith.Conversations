@@ -3,7 +3,10 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Queries;
 
 namespace Hexalith.Conversations.Contracts.Events;
 
@@ -18,4 +21,9 @@ public sealed record ConversationMetadataUpdated(
     ConversationEventMetadata Metadata,
     string? Label = null,
     BusinessReference? BusinessReference = null,
-    IReadOnlyDictionary<string, string>? Attributes = null);
+    IReadOnlyDictionary<string, string>? Attributes = null)
+{
+    /// <summary>Gets an explicit native reclassification of the supplied Label for internal equality scoring.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ConversationResolutionScoringLabel? ResolutionScoringLabel { get; init; }
+}

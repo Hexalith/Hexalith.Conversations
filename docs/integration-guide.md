@@ -34,6 +34,14 @@ Compatibility discovery is exposed through `ConversationContractCompatibility.Cu
 
 CORE preconditions are exposed through `ConversationCorePreconditionCatalog.All`. They cover projection freshness, audit availability, supported schema versions, contract compatibility, participant identity validation, idempotency behavior, projection health, and required configuration. The canonical table is [CORE Preconditions and Onboarding Diagnostics](../src/Hexalith.Conversations.Contracts/README.md#core-preconditions-and-onboarding-diagnostics).
 
+## Resolution Scoring Label Opt-in
+
+The optional `ResolutionScoringLabel` fields on creation and metadata command/event contracts record explicit owner classification for internal Projects equality scoring. Use the exact supported purpose and owner classification with the same native `Label`; the value is bounded to 160 characters and existing safe-metadata rules. A classified null records explicit absence only when the native label is null. Ordinary labels remain descriptive. See [Resolution Scoring Labels (Source Contracts)](../src/Hexalith.Conversations.Contracts/README.md#resolution-scoring-labels-source-contracts) for the exact constants, constructor compatibility and rejection rules.
+
+Native creation and replay preserve opt-in. A label update without classification invalidates it; attribute-only and business-reference-only updates preserve it. Explicit reclassification requires a later supported native event and changes idempotent command meaning. Old implicitly classified metadata without persisted purpose remains unavailable, and its original dispatch is refused without modifying stored generations. Reads perform no migration or classification.
+
+This source/replay capability does not add a deployed metadata-mutation route. Production mutation dispatch/adoption and writer enrollment, current native owner authority, guard/rebuild support, installation coverage and qualification must be established independently before relying on the internal scoring read. Existing delegation and permission checks still apply; label classification supplies no authorization. Projects RTI and parent resolution implementation remain gated.
+
 ## .NET Client Workflow
 
 The snippets below are embedded instead of placed in a standalone sample project because the v1 deliverable is documentation plus deterministic docs validation. They are validated by contract tests against the shipped type and member names, while avoiding a globally runnable host or extra build dependencies.

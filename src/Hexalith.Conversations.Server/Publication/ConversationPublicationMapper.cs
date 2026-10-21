@@ -67,7 +67,7 @@ public static class ConversationPublicationMapper
                 e.ProjectId,
                 e.FolderId,
                 e.Label,
-                e.ProviderCorrelation),
+                e.ProviderCorrelation) { ResolutionScoringLabel = e.ResolutionScoringLabel },
             ParticipantAddedDomainEvent e => new ParticipantAdded(
                 e.Metadata,
                 e.ParticipantPartyId,

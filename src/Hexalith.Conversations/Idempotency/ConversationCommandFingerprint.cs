@@ -75,7 +75,10 @@ public sealed record ConversationCommandFingerprint(
                     .Concat(Optional("business.value", command.BusinessReference?.Value))
                     .Concat(Optional("project.id", command.ProjectId?.Value))
                     .Concat(Optional("folder.id", command.FolderId?.Value))
-                    .Concat(Optional("label", command.Label))));
+                    .Concat(Optional("label", command.Label))
+                    .Concat(Optional("resolution.label.value", command.ResolutionScoringLabel?.Value))
+                    .Concat(Optional("resolution.label.purpose", command.ResolutionScoringLabel?.Purpose))
+                    .Concat(Optional("resolution.label.classification", command.ResolutionScoringLabel?.Classification))));
     }
 
     private static ConversationCommandFingerprint CreateForAppendMessage(AppendMessageCommand command)
@@ -157,7 +160,10 @@ public sealed record ConversationCommandFingerprint(
                     .Concat(Optional("label", command.Label))
                     .Concat(Optional("business.system", command.BusinessReference?.System))
                     .Concat(Optional("business.value", command.BusinessReference?.Value))
-                    .Concat(SafeAttributes(command.Attributes))));
+                    .Concat(SafeAttributes(command.Attributes))
+                    .Concat(Optional("resolution.label.value", command.ResolutionScoringLabel?.Value))
+                    .Concat(Optional("resolution.label.purpose", command.ResolutionScoringLabel?.Purpose))
+                    .Concat(Optional("resolution.label.classification", command.ResolutionScoringLabel?.Classification))));
     }
 
     private static ConversationCommandFingerprint CreateForClose(CloseConversationCommand command)

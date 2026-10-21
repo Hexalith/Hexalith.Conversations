@@ -3,7 +3,10 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Queries;
 
 namespace Hexalith.Conversations.Contracts.Commands;
 
@@ -24,4 +27,9 @@ public sealed record CreateConversationCommand(
     FolderId? FolderId = null,
     string? Label = null,
     ProviderCorrelationMetadata? ProviderCorrelation = null,
-    CallerMetadata? CallerMetadata = null);
+    CallerMetadata? CallerMetadata = null)
+{
+    /// <summary>Gets the explicit native classification of Label for the fixed internal scoring purpose.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ConversationResolutionScoringLabel? ResolutionScoringLabel { get; init; }
+}

@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Projections;
+using Hexalith.Conversations.Contracts.Queries;
 
 namespace Hexalith.Conversations.Server.Projections;
 
@@ -30,6 +31,10 @@ public sealed record ConversationProjectedReadModels(
     /// Gets the stable dispatch identity that produced this internal persisted generation.
     /// </summary>
     public string DispatchId { get; init; } = string.Empty;
+
+    /// <summary>Gets the native classification folded with this generation; never inferred from descriptive Label.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ConversationResolutionScoringLabel? ResolutionScoringLabel { get; init; }
 
     /// <summary>Gets the exact source-local sequence supplied by the named producer, separate from projection position.</summary>
     public long? SourceHeadSequence { get; init; }

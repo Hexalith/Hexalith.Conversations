@@ -34,13 +34,17 @@ internal sealed class ResolutionMetadataFixture
     public ConversationAsyncProjectionHandler Handler(IReadModelStore? store = null)
         => new(new(), new(store ?? Store), store ?? Store, Time);
     public ConversationProjectionReadStore Reader(IReadModelStore? store = null) => new(store ?? Store);
-    public static ProjectionRequest Request(string? label = "Scoring label", bool changedProject = false, TenantId? tenantId = null, ConversationId? conversationId = null)
+    public static ProjectionRequest Request(string? label = "Scoring label", bool changedProject = false, TenantId? tenantId = null, ConversationId? conversationId = null, bool classifyLabel = true)
     {
         tenantId ??= Tenant;
         conversationId ??= Conversation;
         ConversationEventMetadata metadata = new(SchemaVersion.Current, "event-create", ConversationEventType.ConversationCreated,
             tenantId, conversationId, "correlation", Started, new PartyId("actor"), "cause");
-        ConversationCreated created = new(metadata, ProjectId: new("project-original"), Label: label);
+        ConversationCreated created = new(metadata, ProjectId: new("project-original"), Label: label)
+        {
+            ResolutionScoringLabel = classifyLabel && ConversationResolutionScoringPolicy.CanClassify(label, ConversationResolutionScoringPolicy.Purpose)
+                ? new(label, ConversationResolutionScoringLabel.SupportedPurpose, ConversationResolutionScoringLabel.OwnerClassification) : null,
+        };
         List<ProjectionEventDto> events = [new(nameof(ConversationCreated), JsonSerializer.SerializeToUtf8Bytes(created, JsonSerializerOptions.Web), "json", 1, Started, "correlation", "source-message-1")];
         if (changedProject)
         {

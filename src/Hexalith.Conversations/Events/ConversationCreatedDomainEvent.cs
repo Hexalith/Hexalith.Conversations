@@ -3,8 +3,11 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.EventStore.Contracts.Events;
 
 namespace Hexalith.Conversations.Events;
@@ -34,6 +37,10 @@ public sealed record ConversationCreatedDomainEvent(
     string? IdempotencyKey = null,
     ProviderCorrelationMetadata? ProviderCorrelation = null) : IEventPayload
 {
+    /// <summary>Gets the explicit native classification of Label for the fixed internal scoring purpose.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ConversationResolutionScoringLabel? ResolutionScoringLabel { get; init; }
+
     /// <summary>
     /// Gets the Conversations event metadata.
     /// </summary>

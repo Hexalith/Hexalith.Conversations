@@ -33,21 +33,30 @@ public sealed record ConversationResolutionMetadataReadModel(
     /// <summary>Gets the actual persisted event identity, never an allocated generation identity.</summary>
     public string? SourceHeadMessageId { get; init; }
 
+    /// <summary>Gets the native label purpose persisted with this isolated generation.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? LabelPurpose { get; init; }
+
     /// <summary>The owner classification bound for internal equality scoring.</summary>
-    public const int MaximumLabelLength = 160;
+    public const int MaximumLabelLength = ConversationResolutionScoringLabel.MaximumLength;
 
     /// <summary>Builds the classified subset without truncating over-bound labels.</summary>
     internal static ConversationResolutionMetadataReadModel From(
         ConversationProjectedReadModels models, string fingerprint)
     {
         var summary = models.Summary;
-        bool complete = ConversationResolutionScoringPolicy.CanClassify(summary.Label, ConversationResolutionScoringPolicy.Purpose);
+        ConversationResolutionScoringLabel? scoring = models.ResolutionScoringLabel;
+        bool complete = scoring is not null && scoring.Value == summary.Label
+            && scoring.Purpose == ConversationResolutionScoringPolicy.Purpose
+            && scoring.Classification == ConversationResolutionScoringPolicy.Classification
+            && ConversationResolutionScoringPolicy.CanClassify(scoring.Value, scoring.Purpose);
         return new(summary.TenantId, summary.ConversationId,
             new(summary.ConversationId.Value, summary.ProjectId?.Value,
                 complete ? summary.Label : null, summary.LifecycleState),
             summary.Freshness, models.DispatchId, fingerprint, complete,
             complete ? ConversationResolutionScoringPolicy.Classification : null)
-        { SourceHeadSequence = models.SourceHeadSequence, SourceHeadMessageId = models.SourceHeadMessageId };
+        { SourceHeadSequence = models.SourceHeadSequence, SourceHeadMessageId = models.SourceHeadMessageId,
+            LabelPurpose = complete ? scoring!.Purpose : null };
     }
 
     /// <summary>Computes a content-free consistency binding over the entire isolated generation.</summary>
@@ -63,8 +72,9 @@ public sealed record ConversationResolutionMetadataReadModel(
         && Metadata.SafeLabel?.Length is not > MaximumLabelLength
         && (IsLabelComplete
             ? LabelClassification == ConversationResolutionScoringPolicy.Classification
+                && LabelPurpose == ConversationResolutionScoringPolicy.Purpose
                 && ConversationResolutionScoringPolicy.CanClassify(Metadata.SafeLabel, ConversationResolutionScoringPolicy.Purpose)
-            : Metadata.SafeLabel is null && LabelClassification is null)
+            : Metadata.SafeLabel is null && LabelClassification is null && LabelPurpose is null)
         && !string.IsNullOrWhiteSpace(DispatchId)
         && RequestFingerprint is { Length: 64 } && RequestFingerprint.All(Uri.IsHexDigit);
 }

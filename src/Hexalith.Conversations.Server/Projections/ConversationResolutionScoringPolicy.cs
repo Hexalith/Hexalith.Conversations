@@ -1,4 +1,5 @@
 using Hexalith.Conversations.Contracts.Governance;
+using Hexalith.Conversations.Contracts.Queries;
 
 namespace Hexalith.Conversations.Server.Projections;
 
@@ -6,10 +7,10 @@ namespace Hexalith.Conversations.Server.Projections;
 internal static class ConversationResolutionScoringPolicy
 {
     /// <summary>The only supported purpose; inspection is never implied.</summary>
-    internal const string Purpose = "projects-internal-equality-scoring";
+    internal const string Purpose = ConversationResolutionScoringLabel.SupportedPurpose;
 
     /// <summary>Persisted owner policy provenance, independent of any caller or grant.</summary>
-    internal const string Classification = "conversations-owner-safe-metadata-equality-v1";
+    internal const string Classification = ConversationResolutionScoringLabel.OwnerClassification;
 
     /// <summary>Classifies the owner label only under the explicit scoring purpose and safe metadata rules.</summary>
     internal static bool CanClassify(string? label, string purpose)

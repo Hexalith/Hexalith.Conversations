@@ -105,6 +105,12 @@ internal static class CreateConversationValidation
                 metadata.CausationId);
         }
 
+        if (publicCommand.ResolutionScoringLabel is { } scoring && scoring.Value != publicCommand.Label)
+        {
+            return Reject(ConversationErrorCode.CommandValidationFailed, "scoring_label_mismatch",
+                metadata.SchemaVersion, metadata.CorrelationId, metadata.CausationId);
+        }
+
         return null;
     }
 

@@ -13,6 +13,22 @@ namespace Hexalith.Conversations.Server.Tests.Queries;
 public sealed class ConversationResolutionMetadataQueryHandlerTest
 {
     [Theory]
+    [InlineData(null)]
+    [InlineData("inspection")]
+    public async Task OlderImplicitClassificationOrAnotherPurposeCannotAuthorizeScoring(string? purpose)
+    {
+        ResolutionMetadataFixture fixture = new();
+        await fixture.ProjectAsync();
+        var unsupported = fixture.Metadata with { LabelPurpose = purpose };
+        fixture.Store.SeedRaw("statestore", ConversationProjectionReadModelKeys.ResolutionMetadataKey(
+            ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation), unsupported);
+        fixture.Store.SeedRaw("statestore", ConversationProjectionReadModelKeys.ResolutionProofKey(
+            ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation),
+            new ConversationResolutionMetadataProof(ConversationResolutionGeneration.From(unsupported, false)));
+        AssertUnavailable(await fixture.DispatchAsync());
+    }
+
+    [Theory]
     [InlineData("version")]
     [InlineData("watermark")]
     public async Task NonNullDecisionEvidenceMustIndependentlyMatchStableHealthySignalBeforeLookup(string mismatch)

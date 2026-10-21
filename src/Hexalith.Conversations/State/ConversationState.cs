@@ -9,6 +9,7 @@ using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
+using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Events;
 
@@ -149,6 +150,9 @@ public sealed partial class ConversationState
         private set;
     }
 
+    /// <summary>Gets the explicit replayed owner classification; legacy labels leave this absent.</summary>
+    public ConversationResolutionScoringLabel? ResolutionScoringLabel { get; private set; }
+
     /// <summary>
     /// Gets the optional UI label that is not identity.
     /// </summary>
@@ -282,6 +286,10 @@ public sealed partial class ConversationState
     public void Apply(ConversationCreatedDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        if (e.ResolutionScoringLabel is { } scoring && scoring.Value != e.Label)
+        {
+            throw new InvalidOperationException("The native scoring label does not match its classified label.");
+        }
         _sourceRevision++;
 
         if (IsCreated)
@@ -306,6 +314,7 @@ public sealed partial class ConversationState
         ProjectId = e.ProjectId;
         FolderId = e.FolderId;
         Label = e.Label;
+        ResolutionScoringLabel = e.ResolutionScoringLabel;
         IdempotencyKey = e.IdempotencyKey;
         ProviderCorrelation = e.ProviderCorrelation;
     }
@@ -493,7 +502,7 @@ public sealed partial class ConversationState
             e.ProjectId,
             e.FolderId,
             e.Label,
-            ProviderCorrelation: e.ProviderCorrelation));
+            ProviderCorrelation: e.ProviderCorrelation) { ResolutionScoringLabel = e.ResolutionScoringLabel });
     }
 
     /// <summary>
@@ -634,11 +643,20 @@ public sealed partial class ConversationState
     public void Apply(ConversationMetadataUpdated e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        if (e.ResolutionScoringLabel is { } scoring && (scoring.Value != e.Label || scoring.Value != (e.Label ?? Label)))
+        {
+            throw new InvalidOperationException("The native scoring classification does not match its metadata update.");
+        }
         _sourceRevision++;
 
         if (e.Label is not null)
         {
             Label = e.Label;
+            ResolutionScoringLabel = null;
+        }
+        if (e.ResolutionScoringLabel is not null)
+        {
+            ResolutionScoringLabel = e.ResolutionScoringLabel;
         }
 
         if (e.BusinessReference is not null)

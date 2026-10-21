@@ -65,7 +65,10 @@ public sealed partial class ConversationAggregate : EventStoreAggregate<Conversa
             publicCommand.FolderId,
             publicCommand.Label,
             commandMetadata.IdempotencyKey,
-            publicCommand.ProviderCorrelation);
+            publicCommand.ProviderCorrelation)
+        {
+            ResolutionScoringLabel = publicCommand.ResolutionScoringLabel,
+        };
 
         return DomainResult.Success(new IEventPayload[] { created });
     }

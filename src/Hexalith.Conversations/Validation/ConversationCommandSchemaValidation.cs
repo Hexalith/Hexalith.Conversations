@@ -96,6 +96,13 @@ internal static class ConversationCommandSchemaValidation
                 metadata.CausationId);
         }
 
+        if (command is UpdateConversationMetadataCommand { ResolutionScoringLabel: { } scoring } scoringUpdate
+            && scoring.Value != scoringUpdate.Label)
+        {
+            return Reject(ConversationErrorCode.CommandValidationFailed, "scoring_label_mismatch",
+                metadata.SchemaVersion, metadata.CorrelationId, metadata.CausationId);
+        }
+
         return null;
     }
 
