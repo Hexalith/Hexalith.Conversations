@@ -2,7 +2,7 @@
 title: 'Story 11.3: Generate authoritative SM-2 v2 evidence and decide OQ-2'
 type: 'feature'
 created: '2026-10-20'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '984daa891ad6afafa378bff305748bf3e62bc04c'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -124,6 +124,50 @@ All surviving entries route to `patch`: direct corrections to demonstrated measu
 - Every surviving independent-review finding has its patch and executing regression coverage. BH-01 remains rejected from this build's measurement intent; it predates the run and production projection code is unchanged. Frozen intent and all historical/predecessor/fixture bytes remain preserved.
 
 - Inserted-record verification passed at the reviewed publication using both system Python and `uv run --frozen --no-sync`, exit 0, with summary `7/7/0/0/0/0` (`/tmp/story113-reviewed-insertion.log`, `/tmp/story113-reviewed-insertion-uv.log`). The implementation spec is `done`; the owned sprint row is `review`, as directed by the rendered build completion workflow. Nothing was deferred.
+
+### Review Findings (code review, 2026-10-20)
+
+Scope: `6c7c3ce..d359f4f`, source and tests only (11 files). The generated SM-2 v2 pair, the final record and the `artifacts/v9/11.3/` receipts were not reviewed in this pass. Review layers: Blind Hunter, Edge Case Hunter, Verification Gap, Acceptance Auditor. Every patch below edits a `V2_11_3_SOURCES` path, so applying any of them means withdrawing the publication and regenerating it from a new candidate.
+
+- [x] [Review][Patch] Describe the retired live reader-strength check [.github/workflows/ci.yml:269] — decision resolved 2026-10-21 by Jerome: accept the retirement and do not re-pin. Story 11.3 edited `MinimalModuleAuthoringCostBaselineValidationTest.cs`, a 10.4-governed reader, and `32d0ea8` switched both repository-lane reader fault tests to bytes frozen at the 10.4 candidate. The live `reader:strength` row is a byte tripwire (exact migrated bytes or a pinned successor digest), not a strength measure, so routine CI keeps fault detection only. Applied: the CI comment and `docs/runbooks/epic-10-fault-regressions.md:41` now say that reader faults run on frozen 10.4 bytes and that live reader bytes are checked only by naming `EvidenceBoundaryAdoptionValidationTest`. `APPROVED_READER_SUCCESSORS` stays unchanged as history. Focused check: `tests/tooling/test_release_tooling.py` and `_bmad/scripts/tests/test_check_package_refresh_environment.py`, 100 passed. Both docs edits are uncommitted and belong in the next 11.3 candidate. (medium; blind-hunter+acceptance-auditor+verification-gap)
+- [ ] [Review][Patch] Candidate-chain ancestry and gitlink rules have no failing case [_bmad/scripts/verify_story_candidate.py:94] — replacing the ancestry result with `True`, or deleting the `gitlinks:raw-diff`/`gitlinks:B-C` checks (:125, :128), leaves every test green. Add negative cases that assert each ledger row fails. (medium; verification-gap)
+- [ ] [Review][Patch] `sm2_repository` gitdir pointer breaks in linked worktrees [_bmad/scripts/tests/test_sm2_evidence.py:50] — there `ROOT/.git` is a file, and Git reports "not a git repository" (reproduced). Use `git rev-parse --absolute-git-dir`. (medium; blind-hunter+edge-case-hunter)
+- [ ] [Review][Patch] AC-11.3-02 TRX measured-totals binding is never exercised [_bmad/scripts/generate_story_record.py:10449] — add totals-differ and totals-missing variants to `test_story_113_native_receipt_binds_its_named_test_and_source`. (low; verification-gap)
+- [ ] [Review][Patch] Native historical-baseline test omits the fourth pinned history file [tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthoringCostBaselineValidationTest.cs:304] — Python pins four history files and C# pins three. Add `oq-2-target-interpretation-decision-v1.json` (`06281924…`) to the manifest. This edit interacts with the decision above. (low; blind-hunter+edge-case-hunter+verification-gap)
+- [ ] [Review][Patch] Verifier reports an unchecked OQ-2 decision when the flag is omitted [_bmad/scripts/verify_sm2_evidence.py:189] — the CLI flag defaults to off, yet `metrics.oq2Decision` copies the declared value. Check the decision unconditionally; the contract command and every caller already require it. (low; blind-hunter+edge-case-hunter)
+- [ ] [Review][Patch] Receipt writers bypass the atomic byte-exact output helper [_bmad/scripts/verify_sm2_evidence.py:255] — the in-place `write_bytes`/`write_text` calls follow hard links and translate newlines on Windows. Use `records.v2_write_outputs` in both verifiers (also `_bmad/scripts/verify_story_candidate.py:199`). (low; blind-hunter+edge-case-hunter+verification-gap)
+- [ ] [Review][Patch] Story 11.3 receipt LF policy is untested [_bmad/scripts/tests/test_generate_story_record.py:13547] — add the AC-11.3-04 and AC-11.3-05 JSON receipts to the autocrlf checkout round-trip. (low; verification-gap)
+- [ ] [Review][Patch] The autocrlf test locates the C# source by tuple position [_bmad/scripts/tests/test_generate_story_record.py:13560] — look it up by path instead of `paths[-1]`. (low; blind-hunter)
+Completion note (2026-10-21): concurrent commit `f00d30b` (`build: sync local changes via /pushall`, Story 6.4 Server files) was pushed after record-only publication `28823f3`. `v2_11_1_descendant_errors` returns `[]` at `d359f4f` but `publication boundary or later source changed` at `f00d30b`. Story 11.3 therefore cannot pass `--verify-inserted-record` at HEAD. The `done` transition requires a new source candidate that includes the review changes, followed by the seven contract commands, a new atomic publication and record insertion.
+
+Rejected (25):
+
+- `ContractSamples.cs` also fails the live 10.4 reader-strength check (Story 6.4, `beacc09`) — low: moot once the live check is retired; it was not changed by Story 11.3.
+
+- Line counting differs between generator, verifier and C# — false: the 13 sources are a frozen, hash-pinned LF inventory. Any divergence fails loudly (`SM2_MEASUREMENT_INVALID`) and never accepts a wrong count; the independent counter is deliberate (verify_sm2_evidence.py:149).
+- `sensitivity()` literals contradict computed flags at 29/30 files — low: production only reaches 13 files, and the verifier pins every value. Only test-only calls see the contradiction.
+- Final-record schema hard-codes 13 / 77.59 / accepted — false: with the frozen 13-path inventory and the pinned 58-file reference, these are the only reachable values. Any other count fails earlier with its own blocker.
+- `v2_11_3_pair_errors` lacks arithmetic and receipt/scenario pairing checks — low: no consumer relies on the pair check alone. Inserted-record verification regenerates and byte-compares, and the `RECORD_CONTENT_DRIFT` test proves it.
+- Tool versions replayed only in `verify_only` — low: this is the round-1 BH-10/11 disposition. A tool upgrade mid-run fails loudly, and the CI repository lane passed at `fc46334`.
+- A wrong `--output` path forces FAIL without a ledger row, and over BLOCKED — low: the contract commands fix the path, and the run still halts.
+- Incomplete exception mapping (`v2_output_target` ValueError, `SchemaError`, `GateError`, `IndexError`, `V2OutputDrift`) — low: only corrupted Git, schema or output states reach these paths, and they fail loudly.
+- Printed and written receipts use different JSON serializations — low: stdout is not bound evidence and carries the same values.
+- CLI path guards, write branches and the schema-branch negative test are untested — low: AC-07 checks the AC-04/05 receipts against fresh verification and byte-compares the AC-01 pair, so a regression surfaces at the next publication.
+- The A→B→C chain accepts C = B, or a C before the predecessor publication — false: the 11.1/11.2 records and proof must exist at C with accepted bytes (verify_story_candidate.py:130-135). That check fails at B and before `984daa8`.
+- Lazy imports can raise an uncaught `ImportError` — false: sibling modules ship together, and both SM-2 scripts import `jsonschema` at module load.
+- Generator measurement blockers (AC-01) are never exercised — low: the independent verifier rechecks inventory, ownership and committed bytes, so a generator regression still fails AC-04.
+- "Invalid acceptance" is untested, and the verifier threshold uses constants — low: the frozen 13-path inventory makes an invalid acceptance impossible to construct. The `decision` fault covers decision tampering.
+- No fault changes the `13,289` value itself — false: any value change alters the pinned SM-1 digest, which `sm1-mutated` proves is detected. A declared-value change is blocked by the schema `const` and by `history:SM1`.
+- The exit code is chosen from the first sorted blocker — low: it needs a contrived FAIL/BLOCKED code mix, and both exits halt.
+- The verifier reuses generator constants for limitations, exclusions and rendering — low: both scripts are hash-bound sources, and decisive semantics have used independent literals since round 1.
+- AC-01/AC-07 scenario results are written, not observed — low: AC-01 is proven by byte-identical regeneration at the candidate, and AC-07 is self-referential.
+- `generate_thin_authoring_guidance.Blocked` escapes `verify_story_candidate` — low: the class mismatch is confirmed. Guidance inputs are read earlier through the bound-input loop, so only a deleted predecessor record reaches it, and it fails loudly.
+- A raised `HELPER_FAILURE` becomes `HELPER_UNAVAILABLE` BLOCKED — low: both states halt, and it needs a TestSupport build failure.
+- FAIL/BLOCKED precedence differs between `chain.finish`, the SM-2 verifier and the record route (including a malformed csproj or tampered candidate commit) — low: both states halt, every blocker code is kept, and the mixed case needs concurrent unavailability.
+- A deleted history file reports a different blocker than `*_MUTATED` — low: the run halts, and deletion is not the contracted mutation.
+- A malformed receipt or committed record surfaces as `INTERNAL_ERROR` — low: the run halts loudly on corrupted inputs.
+- Evidence is re-read between hashing and binding — low: this needs a concurrent edit during one generator process.
+- Frozen reader paths still come from the live snapshot — low: any drift there fails loudly through the PASS and blob assertions.
 
 ## Verification
 
