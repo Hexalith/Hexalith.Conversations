@@ -130,14 +130,14 @@ All surviving entries route to `patch`: direct corrections to demonstrated measu
 Scope: `6c7c3ce..d359f4f`, source and tests only (11 files). The generated SM-2 v2 pair, the final record and the `artifacts/v9/11.3/` receipts were not reviewed in this pass. Review layers: Blind Hunter, Edge Case Hunter, Verification Gap, Acceptance Auditor. Every patch below edits a `V2_11_3_SOURCES` path, so applying any of them means withdrawing the publication and regenerating it from a new candidate.
 
 - [x] [Review][Patch] Describe the retired live reader-strength check [.github/workflows/ci.yml:269] — decision resolved 2026-10-21 by Jerome: accept the retirement and do not re-pin. Story 11.3 edited `MinimalModuleAuthoringCostBaselineValidationTest.cs`, a 10.4-governed reader, and `32d0ea8` switched both repository-lane reader fault tests to bytes frozen at the 10.4 candidate. The live `reader:strength` row is a byte tripwire (exact migrated bytes or a pinned successor digest), not a strength measure, so routine CI keeps fault detection only. Applied: the CI comment and `docs/runbooks/epic-10-fault-regressions.md:41` now say that reader faults run on frozen 10.4 bytes and that live reader bytes are checked only by naming `EvidenceBoundaryAdoptionValidationTest`. `APPROVED_READER_SUCCESSORS` stays unchanged as history. Focused check: `tests/tooling/test_release_tooling.py` and `_bmad/scripts/tests/test_check_package_refresh_environment.py`, 100 passed. Both docs edits are uncommitted and belong in the next 11.3 candidate. (medium; blind-hunter+acceptance-auditor+verification-gap)
-- [ ] [Review][Patch] Candidate-chain ancestry and gitlink rules have no failing case [_bmad/scripts/verify_story_candidate.py:94] — replacing the ancestry result with `True`, or deleting the `gitlinks:raw-diff`/`gitlinks:B-C` checks (:125, :128), leaves every test green. Add negative cases that assert each ledger row fails. (medium; verification-gap)
-- [ ] [Review][Patch] `sm2_repository` gitdir pointer breaks in linked worktrees [_bmad/scripts/tests/test_sm2_evidence.py:50] — there `ROOT/.git` is a file, and Git reports "not a git repository" (reproduced). Use `git rev-parse --absolute-git-dir`. (medium; blind-hunter+edge-case-hunter)
-- [ ] [Review][Patch] AC-11.3-02 TRX measured-totals binding is never exercised [_bmad/scripts/generate_story_record.py:10449] — add totals-differ and totals-missing variants to `test_story_113_native_receipt_binds_its_named_test_and_source`. (low; verification-gap)
-- [ ] [Review][Patch] Native historical-baseline test omits the fourth pinned history file [tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthoringCostBaselineValidationTest.cs:304] — Python pins four history files and C# pins three. Add `oq-2-target-interpretation-decision-v1.json` (`06281924…`) to the manifest. This edit interacts with the decision above. (low; blind-hunter+edge-case-hunter+verification-gap)
-- [ ] [Review][Patch] Verifier reports an unchecked OQ-2 decision when the flag is omitted [_bmad/scripts/verify_sm2_evidence.py:189] — the CLI flag defaults to off, yet `metrics.oq2Decision` copies the declared value. Check the decision unconditionally; the contract command and every caller already require it. (low; blind-hunter+edge-case-hunter)
-- [ ] [Review][Patch] Receipt writers bypass the atomic byte-exact output helper [_bmad/scripts/verify_sm2_evidence.py:255] — the in-place `write_bytes`/`write_text` calls follow hard links and translate newlines on Windows. Use `records.v2_write_outputs` in both verifiers (also `_bmad/scripts/verify_story_candidate.py:199`). (low; blind-hunter+edge-case-hunter+verification-gap)
-- [ ] [Review][Patch] Story 11.3 receipt LF policy is untested [_bmad/scripts/tests/test_generate_story_record.py:13547] — add the AC-11.3-04 and AC-11.3-05 JSON receipts to the autocrlf checkout round-trip. (low; verification-gap)
-- [ ] [Review][Patch] The autocrlf test locates the C# source by tuple position [_bmad/scripts/tests/test_generate_story_record.py:13560] — look it up by path instead of `paths[-1]`. (low; blind-hunter)
+- [x] [Review][Patch] Candidate-chain ancestry and gitlink rules have no failing case [_bmad/scripts/verify_story_candidate.py:94] — replacing the ancestry result with `True`, or deleting the `gitlinks:raw-diff`/`gitlinks:B-C` checks (:125, :128), leaves every test green. Add negative cases that assert each ledger row fails. (medium; verification-gap)
+- [x] [Review][Patch] `sm2_repository` gitdir pointer breaks in linked worktrees [_bmad/scripts/tests/test_sm2_evidence.py:50] — there `ROOT/.git` is a file, and Git reports "not a git repository" (reproduced). Use `git rev-parse --absolute-git-dir`. (medium; blind-hunter+edge-case-hunter)
+- [x] [Review][Patch] AC-11.3-02 TRX measured-totals binding is never exercised [_bmad/scripts/generate_story_record.py:10449] — add totals-differ and totals-missing variants to `test_story_113_native_receipt_binds_its_named_test_and_source`. (low; verification-gap)
+- [x] [Review][Patch] Native historical-baseline test omits the fourth pinned history file [tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthoringCostBaselineValidationTest.cs:304] — Python pins four history files and C# pins three. Add `oq-2-target-interpretation-decision-v1.json` (`06281924…`) to the manifest. This edit interacts with the decision above. (low; blind-hunter+edge-case-hunter+verification-gap)
+- [x] [Review][Patch] Verifier reports an unchecked OQ-2 decision when the flag is omitted [_bmad/scripts/verify_sm2_evidence.py:189] — the CLI flag defaults to off, yet `metrics.oq2Decision` copies the declared value. Check the decision unconditionally; the contract command and every caller already require it. (low; blind-hunter+edge-case-hunter)
+- [x] [Review][Patch] Receipt writers bypass the atomic byte-exact output helper [_bmad/scripts/verify_sm2_evidence.py:255] — the in-place `write_bytes`/`write_text` calls follow hard links and translate newlines on Windows. Use `records.v2_write_outputs` in both verifiers (also `_bmad/scripts/verify_story_candidate.py:199`). (low; blind-hunter+edge-case-hunter+verification-gap)
+- [x] [Review][Patch] Story 11.3 receipt LF policy is untested [_bmad/scripts/tests/test_generate_story_record.py:13547] — add the AC-11.3-04 and AC-11.3-05 JSON receipts to the autocrlf checkout round-trip. (low; verification-gap)
+- [x] [Review][Patch] The autocrlf test locates the C# source by tuple position [_bmad/scripts/tests/test_generate_story_record.py:13560] — look it up by path instead of `paths[-1]`. (low; blind-hunter)
 Completion note (2026-10-21): concurrent commit `f00d30b` (`build: sync local changes via /pushall`, Story 6.4 Server files) was pushed after record-only publication `28823f3`. `v2_11_1_descendant_errors` returns `[]` at `d359f4f` but `publication boundary or later source changed` at `f00d30b`. Story 11.3 therefore cannot pass `--verify-inserted-record` at HEAD. The `done` transition requires a new source candidate that includes the review changes, followed by the seven contract commands, a new atomic publication and record insertion.
 
 Rejected (25):
@@ -169,6 +169,46 @@ Rejected (25):
 - Evidence is re-read between hashing and binding — low: this needs a concurrent edit during one generator process.
 - Frozen reader paths still come from the live snapshot — low: any drift there fails loudly through the PASS and blob assertions.
 
+### Review follow-up verification, 2026-10-21
+
+- Completed all eight remaining review patches in source candidate `11fd90ef91baffd6042d9a5030420310123a5054`. Negative tests now fail each of the three ancestry ledger rows and both Gitlink boundaries. The fixture resolves an absolute Git directory through a `.git` file; native receipts reject missing or false measured totals; the native historical manifest independently pins all four history files. OQ-2 is checked even without the legacy flag, both verifier receipts use atomic byte-exact replacement, and the checkout test covers their LF bytes and locates the CRLF consumer by path.
+- The reader-strength retirement documentation was already committed as `7f500a6fec4a0e82f5522799440cd524216c0e42` before this run's entry `75e9ddb94cadf83af5dcc9ad49110d4f82c3e650`. The earlier note that those documentation edits were uncommitted is retained as its historical observation.
+- The exact two-file Python suite passed 1,456 tests, exit 0 (`/tmp/story113-followup-python.log`, `/tmp/story113-followup-python.xml`). The disjoint remaining current repository lane passed 730 tests, exit 0 (`/tmp/story113-followup-current-remaining.log`, `/tmp/story113-followup-current-remaining.xml`); together they cover all 2,186 current CI-selected Python cases. The initially overlapping current-lane run was deliberately interrupted after 463 passes, exit 2, to avoid duplicate execution (`/tmp/story113-followup-current.log`); it is not reported as a passing completed run.
+- Debug and source-bound Release builds passed with zero warnings/errors. The full Debug Contracts assembly passed 638 tests with zero failed/skipped/not-run (`/tmp/story113-followup-contracts-debug.trx`). The initial `--no-restore` Debug attempt failed on stale duplicate Commons assembly assets; the normal restoring build resolved it without tracked dependency changes (`/tmp/story113-review-debug-build-restored.log`). In an isolated native test root, mutation of the fourth history file caused the native historical test to fail, and byte-identical restoration returned it to PASS (`/tmp/story113-native-fourth-history.json`).
+- All seven exact Story 11.3 commands passed against the new source candidate, summary `7/7/0/0/0/0`; both generated pairs repeated byte-identically (`/tmp/story113-followup-acceptance/results.json`, `/tmp/story113-followup-acceptance-progress.log`). Each native receipt has one named passing test, and AC-06 has exactly 28 real CLI faults with observed blockers, distinct mutated snapshots, verified baseline/restored PASS and byte-identical restoration.
+- Atomic replacement publication `423aa984e81b2676f427fe263908fe3a11826dad` is the direct single-parent child of the source candidate and changes exactly the nine contracted output paths. All committed blobs equal the measured bytes; both exact messages passed pinned commitlint. Superseded publication files were preserved under `/tmp/story113-followup-superseded-publication`. The fixture, guidance, predecessor records/specs, historical pins and root Gitlinks remain unchanged.
+- Both Story 7.3 guards passed at the new source candidate. The effective Story 11.3 SM-2 and candidate-chain verifiers are PASS/0 without blockers. Retired Story 10.3/10.4 publisher applicability is recorded separately as `not-applicable`/0 with `allowed=true` (`/tmp/story113-followup-retired-scope-applicability.json`); no retired publisher was invoked and no failed/blocked result was converted to PASS. Implementation remains in progress pending the parent workflow's independent review and completion transition.
+
+- Inserted-record verification passed at publication `423aa984e81b2676f427fe263908fe3a11826dad`, exit 0, with summary `7/7/0/0/0/0` (`/tmp/story113-followup-insertion.log`). The final record remains byte-identical to the committed Markdown pair; only this route-owned review log and the completed review checkboxes accompany the insertion.
+
+### Independent follow-up review, 2026-10-21
+
+All three context-free reviewers inspected the complete baseline diff. Each finding below has an individual verdict before grouping. The prior source, publication and passing measurements above remain historical observations; the receipt-containment patch requires a fresh source candidate and publication before completion.
+
+| Finding | Verdict | Evidence and route |
+| --- | --- | --- |
+| BH-F01: default production SDK graph does not provide the native metadata APIs | medium | The root-pinned EventStore sources lack the named APIs; the Story 6.4 evidence already records its separate source override and explicitly withholds native/package acceptance. This predates entry `75e9ddb94cadf83af5dcc9ad49110d4f82c3e650`. Rejected from this authoring-evidence intent: its frozen boundaries forbid dependency/submodule changes, and the prerequisite's own record already retains this blocker. |
+| BH-F02: unavailable schema overrides a failed OQ-2 assertion | low | Carried: the existing rejected FAIL/BLOCKED precedence finding covers the same verifier and mixed unavailable/invalid state. Both results halt, all blocker codes remain visible, and the scenario requires concurrent input loss. Rejected as before; no new guard is introduced. |
+| BH-F03: raised HELPER_FAILURE becomes HELPER_UNAVAILABLE | low | Carried: the existing rejected helper-exception mapping finding describes this exact path. An actual returned helper FAIL is preserved; the raised build-failure path halts with its unavailable-tooling result. Rejected as before. |
+| BH-F04: deliberately fabricated mutation digests and assertion rows can pass the receipt consumer | low | The probe demonstrates intentional receipt fabrication. The source-bound measured matrix executes the real CLI, observes baseline/failure/restored results and restores exact snapshots; the synthetic consumer-control fixture is explicitly separate. Independently proving an arbitrary fabricated mutant requires replay or additional per-fault guards. That complexity addresses an unlikely everyday defect and exceeds a direct correction, so reject. |
+| BH-F05: extra known blocker codes violate an exact blocker-set contract | false | The effective contract requires each mutation's named exact blocker to occur, while legitimate inventory mutations also produce candidate-binding blockers. Its frozen matrix names expected blocker identities rather than complete singleton sets. The consumer retains observed sets and checks their known identities; the claimed singleton-set requirement is absent. Reject. |
+| BH-F06: invalid receipt output paths escape CLI exception handlers | low | Carried: the existing rejected incomplete-exception-mapping finding explicitly names v2_output_target ValueError and corrupted output states. Contracted paths remain fixed and any such exception halts generation/publication. Rejected as before. |
+| BH-F07: routine CI no longer checks live reader bytes | medium | Carried: Jerome explicitly accepted retirement on 2026-10-21 and prohibited re-pinning. The committed CI/runbook wording documents frozen historical fault reproduction and the separately named live test. Reject the proposed reinstatement because it contradicts that owner decision. |
+| BH-F08: linked receipt parent bypasses containment | medium | Independently reproduced: v2_11_1_read_receipt reads an external receipt through a linked artifacts/v9/11.3 parent; v2_10_1_artifact_bytes rejects the same path. Patch: delegate filesystem receipt reads to the existing contained reader while preserving candidate-time freshness and injectable consumer controls; add an executing parent-link regression. |
+| BH-F09: final native tenant sample can publish future VerifiedAt | medium | The handler's final sample compares identity/proof but omits the clock check used by authorization, and the native adapter accepts an upstream timestamp. This production query code predates this run and is independent of fixture cost evidence. Defer to the native metadata prerequisite. |
+| BH-F10: repeated reports make AC-06 XML large | low | The receipt deliberately retains actual baseline/restored CLI reports and distinct observations, as required by the preceding review fixes. Deduplication needs a format/consumer change; roughly 3.9 MB is tolerable for this bounded evidence bundle. Reject the additional complexity. |
+| EC-F01: completed dispatch does not repair missing native selection | medium | GenerationIsDurableAsync reads proof/fence/metadata/detail/index/ledger but omits the selection consumed by ReadProjectionAsync. The completed-dispatch fast path can therefore leave a missing selected-owner row unrepaired. This predates this run; defer to the native metadata prerequisite. |
+| VG-F01: successful metadata tests bypass native authorization | medium | Pre-verified gap: ResolutionMetadataFixture constructs authorization without native evidence, and the native-composition registration control expects unavailable output. A null native permission version could evade those assertions. This predates this run; defer a successful native-authorization regression to the native metadata prerequisite. |
+
+The sole patch is BH-F08. BH-F09, EC-F01 and VG-F01 remain separate deferred entries because their causes differ. No captured intent or spec requirement changes are needed. Every frozen matrix row has executing positive/fault coverage in the 1,456-case suite and the measured 28-case receipt; the containment regression is additional coverage for the demonstrated path boundary.
+
+### Receipt-containment patch verification
+
+- BH-F08 is implemented by routing the shared filesystem receipt read through the existing contained-artifact helper. Candidate-time freshness and injectable consumer controls remain intact. The new production-route regression passes with a regular-file control and rejects an external receipt reached through a linked parent; its temporary directory restores afterward. Four focused controls passed (`/tmp/story113-linked-parent-focused.log`).
+- Required full re-verification passed: 1,457 two-file Python cases, zero failures/errors/skips, exit 0 (`/tmp/story113-containment-python.log`, `/tmp/story113-containment-python.xml`), including the named linked-parent regression; the disjoint remaining current lane passed 730, zero failures/errors/skips, exit 0 (`/tmp/story113-containment-current.log`, `/tmp/story113-containment-current.xml`). Combined current Python coverage is 2,187 cases. The earlier 638-test Debug Contracts result remains applicable because this patch changes Python receipt reading and tests only.
+- The frozen intent is byte-identical to this run's entry. A Git comparison against that entry confirms the fixture, guidance, historical baselines, predecessor records, root declarations and gitlinks remain unchanged. Superseded publication files were copied byte-for-byte to `/tmp/story113-containment-superseded-kjkgmi0g`; Git retains their original publication commit.
+- BH-F09, EC-F01 and VG-F01 were appended separately to the deferred-work ledger for the pre-existing native metadata prerequisite. All other review findings retain their individual dispositions above. Fresh committed-source measurement and publication follow this verified patch; completion remains gated on those new receipts and record insertion.
+
 ## Verification
 
 - Run seven exact commands in `_bmad-output/planning-artifacts/v9/story-contracts/11.3.json`; focused Debug builds before required Release receipts.
@@ -185,8 +225,8 @@ Generated by `_bmad/scripts/generate_story_record.py` from the committed candida
 - Schema: `hexalith.conversations.story-final-record.v2`
 - Result: `PASS`
 - Story: `11.3`
-- Candidate: `fc46334ff45fc9e677f31f09e5daf2a1b871fc7c`
-- JSON content SHA-256 (all three digest fields zeroed): `694e18597f1c511eba82338385f0377ee3f609b114d7fb3289012e97a8dbf8e6`
+- Candidate: `11fd90ef91baffd6042d9a5030420310123a5054`
+- JSON content SHA-256 (all three digest fields zeroed): `02ebe89182bb9d99f70052157df2a970edfe5d4ce6bd9fc94789ff4f684d8e50`
 
 ## Authority
 
@@ -229,11 +269,11 @@ Generated by `_bmad/scripts/generate_story_record.py` from the committed candida
 | Scenario | Exit | Result | Blockers | Assertions | Result file | Result file SHA-256 |
 | --- | --- | --- | --- | --- | --- | --- |
 | `AC-11.3-01` | `0` | `PASS` | `none` | `1` | none | none |
-| `AC-11.3-02` | `0` | `PASS` | `none` | `1` | `artifacts/v9/11.3/AC-11.3-02.trx` | `8fe3f957f994fee8964130a8010795fca3e0cbbbd8595b7828a4ef7326efa546` |
-| `AC-11.3-03` | `0` | `PASS` | `none` | `1` | `artifacts/v9/11.3/AC-11.3-03.trx` | `e3e53e693bfb147c6cc573f344cb77089172234d1dbedf17e64432d69c23b6ec` |
-| `AC-11.3-04` | `0` | `PASS` | `none` | `138` | `artifacts/v9/11.3/AC-11.3-04.json` | `c63643df96821085f1e3084675eb78a282909972de04a0b5c7b4fa0732e85c40` |
-| `AC-11.3-05` | `0` | `PASS` | `none` | `88` | `artifacts/v9/11.3/AC-11.3-05.json` | `354d27757a37a10912b524d8a62766e86ea36e0f64eaeb7bdfbbf654a894b0cf` |
-| `AC-11.3-06` | `0` | `PASS` | `none` | `28` | `artifacts/v9/11.3/AC-11.3-06.xml` | `e92e1c055ec81367f9dc6f365e31aee15dcbb4b0126e6f29109c447b40155f59` |
+| `AC-11.3-02` | `0` | `PASS` | `none` | `1` | `artifacts/v9/11.3/AC-11.3-02.trx` | `2b290d988ea5fafda57539193672272cecb2a1b911cd63d5b47fb772e44617a1` |
+| `AC-11.3-03` | `0` | `PASS` | `none` | `1` | `artifacts/v9/11.3/AC-11.3-03.trx` | `53d162fffe02cc0fad96bed709dd4b8f41fefb54033c5084a4e9d798bd81da57` |
+| `AC-11.3-04` | `0` | `PASS` | `none` | `138` | `artifacts/v9/11.3/AC-11.3-04.json` | `1641406ed199892b4f16310e8a356b1c62c465a82b4a2d42a84355f50d930211` |
+| `AC-11.3-05` | `0` | `PASS` | `none` | `88` | `artifacts/v9/11.3/AC-11.3-05.json` | `9d409329ec18cd17c2dc64f10d7d0fc4a2db9f6d77416e0be290deded22513af` |
+| `AC-11.3-06` | `0` | `PASS` | `none` | `28` | `artifacts/v9/11.3/AC-11.3-06.xml` | `cfb4c36a6ff1369406eabef6608a713127749e26eeea8dc08e26c93f3891be7c` |
 | `AC-11.3-07` | `0` | `PASS` | `none` | `1` | none | none |
 
 ### `AC-11.3-01`
@@ -242,8 +282,8 @@ Command: `python3 _bmad/scripts/generate_sm2_evidence.py --repository . --contra
 
 | Bound output | SHA-256 |
 | --- | --- |
-| `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json` | `217a2fbb2781245641862b7134676ac8313158de0a4b0d04e970981e6cde261e` |
-| `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md` | `cb9601517150fd92971a07c2a4c8f07736807c0a15d651e42349d7f7972d386b` |
+| `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json` | `e5baeca9f8b7b508313ca6280fd50c1ded51ce8fd9baced47f29a724848b333a` |
+| `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md` | `797ca633b84eeae5d2f715fde1e0302ca56dcc2dcdcdf1baa64e2c3a47929eb1` |
 
 | Assertion | Subject | State |
 | --- | --- | --- |
@@ -329,7 +369,7 @@ Command: `python3 _bmad/scripts/verify_sm2_evidence.py --repository . --evidence
 | `AC-11.3-04#0056` | `chain:predecessor:insertion:_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md::docs/release-evidence/story-11.2-final-record-v2.md` | `PASS` |
 | `AC-11.3-04#0057` | `chain:ancestry:1e9a61126d3b7a55b514b7c7c8942d5af03355e5::09007a08f63773923694f09e9c49f972d6df81ae` | `PASS` |
 | `AC-11.3-04#0058` | `chain:ancestry:09007a08f63773923694f09e9c49f972d6df81ae::aeca17f120aa731d0d47b79b7d1b54fb63144bb8` | `PASS` |
-| `AC-11.3-04#0059` | `chain:ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8::fc46334ff45fc9e677f31f09e5daf2a1b871fc7c` | `PASS` |
+| `AC-11.3-04#0059` | `chain:ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8::11fd90ef91baffd6042d9a5030420310123a5054` | `PASS` |
 | `AC-11.3-04#0060` | `chain:predecessor:B-A::docs/release-evidence/story-11.1-final-record-v2.json` | `PASS` |
 | `AC-11.3-04#0061` | `chain:repository::repository` | `PASS` |
 | `AC-11.3-04#0062` | `chain:candidate::candidate` | `PASS` |
@@ -429,7 +469,7 @@ Command: `python3 _bmad/scripts/verify_story_candidate.py --repository . --autho
 | `AC-11.3-05#0011` | `predecessor:insertion:_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md::docs/release-evidence/story-11.2-final-record-v2.md` | `PASS` |
 | `AC-11.3-05#0012` | `ancestry:1e9a61126d3b7a55b514b7c7c8942d5af03355e5::09007a08f63773923694f09e9c49f972d6df81ae` | `PASS` |
 | `AC-11.3-05#0013` | `ancestry:09007a08f63773923694f09e9c49f972d6df81ae::aeca17f120aa731d0d47b79b7d1b54fb63144bb8` | `PASS` |
-| `AC-11.3-05#0014` | `ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8::fc46334ff45fc9e677f31f09e5daf2a1b871fc7c` | `PASS` |
+| `AC-11.3-05#0014` | `ancestry:aeca17f120aa731d0d47b79b7d1b54fb63144bb8::11fd90ef91baffd6042d9a5030420310123a5054` | `PASS` |
 | `AC-11.3-05#0015` | `predecessor:B-A::docs/release-evidence/story-11.1-final-record-v2.json` | `PASS` |
 | `AC-11.3-05#0016` | `repository::repository` | `PASS` |
 | `AC-11.3-05#0017` | `candidate::candidate` | `PASS` |
@@ -550,9 +590,9 @@ Command: `python3 _bmad/scripts/generate_story_record.py --repository . --contra
 
 ## Measured SM-2 and OQ-2
 
-- Evidence JSON: `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json` (`217a2fbb2781245641862b7134676ac8313158de0a4b0d04e970981e6cde261e`)
-- Evidence Markdown: `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md` (`cb9601517150fd92971a07c2a4c8f07736807c0a15d651e42349d7f7972d386b`)
-- Signable payload: `a84944a912b0f01e686c7c73384dc154a87f6e6c5a73fc4baa597cdef776121c`
+- Evidence JSON: `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json` (`e5baeca9f8b7b508313ca6280fd50c1ded51ce8fd9baced47f29a724848b333a`)
+- Evidence Markdown: `docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md` (`797ca633b84eeae5d2f715fde1e0302ca56dcc2dcdcdf1baa64e2c3a47929eb1`)
+- Signable payload: `21732a0420006e0479e1208f2ee0449993180a62027e4a300be9c11a18264bab`
 - Measured: 13 files; 451 physical LOC; 396 nonblank LOC.
 - Reduction against 58 estimated files / 1,460 estimated LOC: 77.59% files; 69.11% indicative LOC.
 - OQ-2: `accepted`, qualified against the accepted estimate. Measurement confidence high; comparison confidence low.
@@ -562,15 +602,15 @@ Command: `python3 _bmad/scripts/generate_story_record.py --repository . --contra
 | --- | --- |
 | `A` | `09007a08f63773923694f09e9c49f972d6df81ae` |
 | `B` | `aeca17f120aa731d0d47b79b7d1b54fb63144bb8` |
-| `C` | `fc46334ff45fc9e677f31f09e5daf2a1b871fc7c` |
+| `C` | `11fd90ef91baffd6042d9a5030420310123a5054` |
 
 | Receipt | Path | SHA-256 |
 | --- | --- | --- |
-| `AC-11.3-02` | `artifacts/v9/11.3/AC-11.3-02.trx` | `8fe3f957f994fee8964130a8010795fca3e0cbbbd8595b7828a4ef7326efa546` |
-| `AC-11.3-03` | `artifacts/v9/11.3/AC-11.3-03.trx` | `e3e53e693bfb147c6cc573f344cb77089172234d1dbedf17e64432d69c23b6ec` |
-| `AC-11.3-04` | `artifacts/v9/11.3/AC-11.3-04.json` | `c63643df96821085f1e3084675eb78a282909972de04a0b5c7b4fa0732e85c40` |
-| `AC-11.3-05` | `artifacts/v9/11.3/AC-11.3-05.json` | `354d27757a37a10912b524d8a62766e86ea36e0f64eaeb7bdfbbf654a894b0cf` |
-| `AC-11.3-06` | `artifacts/v9/11.3/AC-11.3-06.xml` | `e92e1c055ec81367f9dc6f365e31aee15dcbb4b0126e6f29109c447b40155f59` |
+| `AC-11.3-02` | `artifacts/v9/11.3/AC-11.3-02.trx` | `2b290d988ea5fafda57539193672272cecb2a1b911cd63d5b47fb772e44617a1` |
+| `AC-11.3-03` | `artifacts/v9/11.3/AC-11.3-03.trx` | `53d162fffe02cc0fad96bed709dd4b8f41fefb54033c5084a4e9d798bd81da57` |
+| `AC-11.3-04` | `artifacts/v9/11.3/AC-11.3-04.json` | `1641406ed199892b4f16310e8a356b1c62c465a82b4a2d42a84355f50d930211` |
+| `AC-11.3-05` | `artifacts/v9/11.3/AC-11.3-05.json` | `9d409329ec18cd17c2dc64f10d7d0fc4a2db9f6d77416e0be290deded22513af` |
+| `AC-11.3-06` | `artifacts/v9/11.3/AC-11.3-06.xml` | `cfb4c36a6ff1369406eabef6608a713127749e26eeea8dc08e26c93f3891be7c` |
 
 ## Fault injection
 
@@ -578,34 +618,34 @@ Command: `python3 _bmad/scripts/generate_story_record.py --repository . --contra
 
 | Fault | Expected blocker | Observed blockers | Before SHA-256 | After SHA-256 | Restored |
 | --- | --- | --- | --- | --- | --- |
-| `source-added` | `SM2_SOURCE_INVENTORY_DRIFT` | `CHECKPOINT_CANDIDATE_MISMATCH, SM2_SOURCE_INVENTORY_DRIFT` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `source-missing` | `SM2_SOURCE_INVENTORY_DRIFT` | `CHECKPOINT_CANDIDATE_MISMATCH, SM2_MEASUREMENT_INVALID, SM2_SOURCE_INVENTORY_DRIFT` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `platform-ownership-added` | `SM2_INCLUSION_RULE_VIOLATION` | `CHECKPOINT_CANDIDATE_MISMATCH, SM2_INCLUSION_RULE_VIOLATION, SM2_MEASUREMENT_INVALID` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `apphost-omitted` | `SM2_APPHOST_COST_OMITTED` | `EVIDENCE_FORMAT_DRIFT, SM2_APPHOST_COST_OMITTED, SM2_INCLUSION_RULE_VIOLATION` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `apphost-project-omitted` | `SM2_APPHOST_COST_OMITTED` | `EVIDENCE_FORMAT_DRIFT, SM2_APPHOST_COST_OMITTED, SM2_INCLUSION_RULE_VIOLATION` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `path-duplicated` | `SM2_INCLUSION_RULE_VIOLATION` | `EVIDENCE_FORMAT_DRIFT, SM2_INCLUSION_RULE_VIOLATION` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `path-unclassified` | `SM2_INCLUSION_RULE_VIOLATION` | `EVIDENCE_FORMAT_DRIFT, SM2_INCLUSION_RULE_VIOLATION` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `source-omitted` | `SM2_INCLUSION_RULE_VIOLATION` | `EVIDENCE_FORMAT_DRIFT, SM2_INCLUSION_RULE_VIOLATION` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `declared-files` | `SM2_MEASUREMENT_INVALID` | `EVIDENCE_FORMAT_DRIFT, SM2_MEASUREMENT_INVALID` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `declared-loc` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `declared-nonblank` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `source-hash` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `physical-loc-row` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `sm1-mutated` | `SM1_BASELINE_MUTATED` | `SM1_BASELINE_MUTATED` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `v1-json-mutated` | `SM2_V1_HISTORY_MUTATED` | `SM2_V1_HISTORY_MUTATED` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `v1-markdown-mutated` | `SM2_V1_HISTORY_MUTATED` | `SM2_V1_HISTORY_MUTATED` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `history-declaration-rehashed` | `SM2_V1_HISTORY_MUTATED` | `SM2_V1_HISTORY_MUTATED` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `arithmetic` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `confidence` | `SM2_MEASUREMENT_INVALID` | `EVIDENCE_FORMAT_DRIFT, SM2_MEASUREMENT_INVALID` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `decision` | `OQ2_DECISION_INVALID` | `OQ2_DECISION_INVALID` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `sensitivity` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `payload-digest` | `EVIDENCE_FORMAT_DRIFT` | `EVIDENCE_FORMAT_DRIFT` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `markdown` | `EVIDENCE_FORMAT_DRIFT` | `EVIDENCE_FORMAT_DRIFT` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `unknown-property` | `EVIDENCE_FORMAT_DRIFT` | `EVIDENCE_FORMAT_DRIFT` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `checkpoint-candidate` | `CHECKPOINT_CANDIDATE_MISMATCH` | `CHECKPOINT_CANDIDATE_MISMATCH` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `predecessor-binding` | `CHECKPOINT_CANDIDATE_MISMATCH` | `CHECKPOINT_CANDIDATE_MISMATCH` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `checkpoint-input-drift` | `CHECKPOINT_CANDIDATE_MISMATCH` | `CHECKPOINT_CANDIDATE_MISMATCH` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
-| `history-unavailable` | `HISTORY_UNAVAILABLE` | `HISTORY_UNAVAILABLE` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `a693cf21beeaa5cf7b7d914cf91092dc33553c4739624581719995657d7b8711` | `True` |
+| `source-added` | `SM2_SOURCE_INVENTORY_DRIFT` | `CHECKPOINT_CANDIDATE_MISMATCH, SM2_SOURCE_INVENTORY_DRIFT` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `source-missing` | `SM2_SOURCE_INVENTORY_DRIFT` | `CHECKPOINT_CANDIDATE_MISMATCH, SM2_MEASUREMENT_INVALID, SM2_SOURCE_INVENTORY_DRIFT` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `platform-ownership-added` | `SM2_INCLUSION_RULE_VIOLATION` | `CHECKPOINT_CANDIDATE_MISMATCH, SM2_INCLUSION_RULE_VIOLATION, SM2_MEASUREMENT_INVALID` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `apphost-omitted` | `SM2_APPHOST_COST_OMITTED` | `EVIDENCE_FORMAT_DRIFT, SM2_APPHOST_COST_OMITTED, SM2_INCLUSION_RULE_VIOLATION` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `apphost-project-omitted` | `SM2_APPHOST_COST_OMITTED` | `EVIDENCE_FORMAT_DRIFT, SM2_APPHOST_COST_OMITTED, SM2_INCLUSION_RULE_VIOLATION` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `path-duplicated` | `SM2_INCLUSION_RULE_VIOLATION` | `EVIDENCE_FORMAT_DRIFT, SM2_INCLUSION_RULE_VIOLATION` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `path-unclassified` | `SM2_INCLUSION_RULE_VIOLATION` | `EVIDENCE_FORMAT_DRIFT, SM2_INCLUSION_RULE_VIOLATION` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `source-omitted` | `SM2_INCLUSION_RULE_VIOLATION` | `EVIDENCE_FORMAT_DRIFT, SM2_INCLUSION_RULE_VIOLATION` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `declared-files` | `SM2_MEASUREMENT_INVALID` | `EVIDENCE_FORMAT_DRIFT, SM2_MEASUREMENT_INVALID` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `declared-loc` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `declared-nonblank` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `source-hash` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `physical-loc-row` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `sm1-mutated` | `SM1_BASELINE_MUTATED` | `SM1_BASELINE_MUTATED` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `v1-json-mutated` | `SM2_V1_HISTORY_MUTATED` | `SM2_V1_HISTORY_MUTATED` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `v1-markdown-mutated` | `SM2_V1_HISTORY_MUTATED` | `SM2_V1_HISTORY_MUTATED` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `history-declaration-rehashed` | `SM2_V1_HISTORY_MUTATED` | `SM2_V1_HISTORY_MUTATED` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `arithmetic` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `confidence` | `SM2_MEASUREMENT_INVALID` | `EVIDENCE_FORMAT_DRIFT, SM2_MEASUREMENT_INVALID` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `decision` | `OQ2_DECISION_INVALID` | `OQ2_DECISION_INVALID` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `sensitivity` | `SM2_MEASUREMENT_INVALID` | `SM2_MEASUREMENT_INVALID` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `payload-digest` | `EVIDENCE_FORMAT_DRIFT` | `EVIDENCE_FORMAT_DRIFT` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `markdown` | `EVIDENCE_FORMAT_DRIFT` | `EVIDENCE_FORMAT_DRIFT` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `unknown-property` | `EVIDENCE_FORMAT_DRIFT` | `EVIDENCE_FORMAT_DRIFT` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `checkpoint-candidate` | `CHECKPOINT_CANDIDATE_MISMATCH` | `CHECKPOINT_CANDIDATE_MISMATCH` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `predecessor-binding` | `CHECKPOINT_CANDIDATE_MISMATCH` | `CHECKPOINT_CANDIDATE_MISMATCH` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `checkpoint-input-drift` | `CHECKPOINT_CANDIDATE_MISMATCH` | `CHECKPOINT_CANDIDATE_MISMATCH` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
+| `history-unavailable` | `HISTORY_UNAVAILABLE` | `HISTORY_UNAVAILABLE` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `8ac6d47bd4eea08b595d7e9b1c84de715f3748e3c4c2e24cf1fbf3f4b14782f8` | `True` |
 
 ## Outputs
 

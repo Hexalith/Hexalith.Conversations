@@ -9918,7 +9918,7 @@ def v2_11_1_read_receipt(repository, path, candidate_time, read_receipt):
     target = repository / path
     if target.is_symlink() or not target.is_file(): raise ValueError('receipt missing: ' + path)
     if int(target.stat().st_mtime) < candidate_time: raise ValueError('receipt is older than the candidate: ' + path)
-    return target.read_bytes()
+    return v2_10_1_artifact_bytes(repository, path)
 
 
 def v2_11_1_receipts(repository, contract, candidate, candidate_time, read_receipt=None):

@@ -629,3 +629,15 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-6-4-conversations-resolution-metadata-prerequisite.md`
   summary: Restore native EventStore default rebuild-plan rediscovery after process loss while preserving content-free query marker reads (high, pre-existing availability dependency).
   evidence: At EventStore source f6b545cd02632f662136d0b4b8e6952baa7afec3 (runtime source unchanged from c9f47dd5ba72918445dfd24a674a5b2c310589bd), legacy-handler coexistence makes BindRebuildBatch return an unretained default batch. A fresh DomainProjectionDispatcher retry after first proof installation, original request/dispatch ID only and clock advanced one hour, returns Failed/projection_handler_failure; envelope reads lack stable ETags and the original plan is not rediscovered. Metadata is withheld. The separate 28-boundary captured-plan tests prove immutable-plan resumption only. Native recovery must retain/recover original identity/ETags without a rich manifest becoming query-visible; no module workaround or production acceptance is claimed.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2.md`
+  summary: Validate the final native tenant sample timestamp before publishing resolution metadata.
+  evidence: BH-F09 found that GetConversationResolutionMetadataDomainQueryHandler compares final identity/proof but omits the future-time check used by ConversationResolutionMetadataAuthorization; this production code predates the Story 11.3 continuation and belongs to the native metadata prerequisite.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2.md`
+  summary: Repair missing or corrupt native owner-selection rows when a completed metadata dispatch is redelivered.
+  evidence: EC-F01 found that GenerationIsDurableAsync omits ResolutionSelectionKey, allowing the completed fast path to leave ReadProjectionAsync unavailable after selection loss; this pre-existing production recovery behavior belongs to the native metadata prerequisite.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2.md`
+  summary: Add a successful metadata query regression using native evidence in both authorization and the query handler.
+  evidence: VG-F01 verified that successful fixture tests construct authorization without native evidence while native composition only tests unavailable output, so a null native permission version could escape detection; this pre-existing coverage gap belongs to the native metadata prerequisite.

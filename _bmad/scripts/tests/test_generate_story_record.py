@@ -13510,6 +13510,26 @@ def test_story_113_route_derives_current_metrics_receipts_and_closed_record(stor
         assert generator.v2_11_3_pair_errors(draft)
 
 
+def test_story_113_disk_receipts_reject_linked_parent(story113_fixture):
+    generator, repository, options, receipts = story113_fixture
+    story111_write_receipts(repository, receipts)
+    regular = generator.v2_11_3_generate(options)
+    assert json.loads(regular)['summary'] == dict(required=7, passed=7, failed=0, blocked=0, skipped=0, notRun=0)
+    parent = repository / 'artifacts/v9/11.3'
+    outside = repository.parent / 'external-story113-receipts'
+    parent.rename(outside)
+    parent.symlink_to(outside, target_is_directory=True)
+    try:
+        receipt = repository / generator.V2_11_3_RECEIPTS[0]
+        assert receipt.is_file() and not receipt.is_symlink()
+        assert not receipt.resolve().is_relative_to(repository)
+        with pytest.raises(ValueError, match='linked artifact path: artifacts/v9/11.3/AC-11.3-02.trx'):
+            generator.v2_11_3_generate(options)
+    finally:
+        parent.unlink()
+        outside.rename(parent)
+
+
 @pytest.mark.parametrize('state', ['FAIL', 'SKIPPED'])
 def test_story_113_resigned_pair_rejects_nonpassing_assertions(story113_fixture, state):
     generator, _, options, receipts = story113_fixture
