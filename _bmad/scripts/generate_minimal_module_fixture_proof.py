@@ -20,6 +20,7 @@ from pathlib import Path, PurePosixPath
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import verify_minimal_module_fixture as verifier  # noqa: E402
+import authoring_outputs as output_writer  # noqa: E402
 
 SCHEMA_VERSION = "hexalith.conversations.thin-module-fixture-proof.v1"
 PLATFORM_ROOT = "references/Hexalith.EventStore"
@@ -377,11 +378,17 @@ def main(argv: list[str] | None = None) -> int:
     except Blocked as error:
         print(f"BLOCKED: {error}", file=sys.stderr)
         return 2
-    for relative, text in ((args.output_json, json_text), (args.output_markdown, markdown)):
-        target = repository / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        with open(target, "w", encoding="utf-8", newline="\n") as handle:
-            handle.write(text)
+    try:
+        output_writer.write_outputs(repository, [(args.output_json, json_text.encode("utf-8")),
+                                                  (args.output_markdown, markdown.encode("utf-8"))],
+                                    (verifier.CONTRACT_PATH, verifier.PROOF_SCHEMA_PATH,
+                                     args.test_result.replace("\\", "/"), verifier.GUIDANCE_JSON, verifier.GUIDANCE_MARKDOWN,
+                                     verifier.STORY_11_1_RECORD_JSON, verifier.STORY_11_1_RECORD_MARKDOWN,
+                                     "global.json", *verifier.FROZEN_PATHS, *verifier.COMMAND_RECEIPTS.values()),
+                                    readonly_roots=(verifier.FIXTURE_ROOT, PLATFORM_ROOT))
+    except output_writer.OutputError as error:
+        print(f"BLOCKED: {error}", file=sys.stderr)
+        return 2
     print("PASS")
     return 0
 

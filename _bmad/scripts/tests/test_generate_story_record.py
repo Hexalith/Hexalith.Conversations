@@ -12551,6 +12551,7 @@ STORY_111_OVERLAY = (
     "docs/release-evidence/thin-authoring-guidance-v2.schema.json",
     "_bmad/schemas/story-final-record-v2.schema.json",
     "_bmad/scripts/generate_story_record.py",
+    "_bmad/scripts/authoring_outputs.py",
     "_bmad/scripts/generate_thin_authoring_guidance.py",
     "_bmad/scripts/verify_thin_authoring_guidance.py",
 )
@@ -12578,6 +12579,9 @@ def story111_fixture(tmp_path_factory):
         target = repository / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((WORKSPACE / relative).read_bytes())
+    # This disposable fixture owns a fresh publication; accepted workspace bytes stay immutable.
+    run_git(repository, "rm", "--force", "--", "docs/release-evidence/thin-authoring-guidance-v2.json",
+            "docs/release-evidence/thin-authoring-guidance-v2.md")
     approved = gen.main([
         "--repository", str(repository), "--contract", generator.V2_11_1_CONTRACT,
         "--schema", "docs/release-evidence/thin-authoring-guidance-v2.schema.json",
@@ -12871,6 +12875,7 @@ def test_story_111_verify_inserted_rejects_boundary_and_region_violations(story1
 
 STORY_112_FIXTURE_ROOT = "tests/fixtures/Hexalith.Conversations.MinimalModule"
 STORY_112_OVERLAY = (
+    "_bmad/scripts/authoring_outputs.py",
     "docs/release-evidence/thin-module-fixture-proof-v1.schema.json",
     "_bmad/schemas/story-final-record-v2.schema.json",
     "_bmad/scripts/generate_story_record.py",
@@ -12921,6 +12926,8 @@ def story112_fixture(tmp_path_factory):
         write_measured_command_inputs, write_platform_assemblies, write_platform_stubs)
 
     write_platform_stubs(repository)
+    # Withdraw only the copied proof before measuring this disposable source candidate.
+    run_git(repository, "rm", "--force", "--", verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH)
     run_git(repository, "add", "--force", "--", ".")
     run_git(repository, "commit", "--quiet", "--allow-empty", "-m", "test: story 11.2 candidate fixture")
     # Generated, untracked inputs: build outputs and the measured result.

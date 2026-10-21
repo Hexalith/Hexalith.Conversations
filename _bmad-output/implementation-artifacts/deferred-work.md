@@ -669,3 +669,9 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: none
   summary: Epic 11 retrospective A-4 — disclose the frozen fixture file-layout exception and measurement sensitivity.
   evidence: The user chose the recommended split, A-1 first; A-4 is independently shippable and remains open as epic-11-retro-item-48-disclose-fixture-file-layout-exception.
+
+## Resolved by Epic 11 retrospective A-2 (2026-10-21)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-epic-11-retro-a2-output-alias-protection.md`
+  summary: Resolved the consolidated A/B output containment, atomic pair/receipt writing, source/history alias protection, and shared predictable staging/restoration-alias deferrals.
+  evidence: Action epic-11-retro-item-46-unify-ab-output-alias-protection is done after 270 passing post-review cases (122 A/B, 72 record/writer, 76 output cases), zero failures/errors/skips. The A/B adapter reuses the contained atomic writer; source/historical byte controls, symlink/hardlink aliases, transaction-path collisions, exclusive temporaries, custom Git administration, measured inputs, FIFO rejection, literal-backslash paths, and rollback are verified. This resolution supersedes the writer-only open scope in the earlier A-2 split entry, Story 11.1 atomic-writing deferral, Story 11.2 output-containment deferral, and Story 7.3 temporary-alias deferral. Existing entries remain historical; unrelated receipt/candidate binding, stale assembly discovery, SDK comparison, empty project references, registered command/CI coverage, and file-layout disclosure remain outside this resolution. Accepted publications were not regenerated.

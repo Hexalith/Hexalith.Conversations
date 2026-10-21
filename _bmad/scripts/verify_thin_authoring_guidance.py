@@ -15,6 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import generate_thin_authoring_guidance as gen  # noqa: E402
+import authoring_outputs as output_writer  # noqa: E402
 
 SCHEMA_PATH = "docs/release-evidence/thin-authoring-guidance-v2.schema.json"
 RESULT_SCHEMA = "hexalith.conversations.thin-authoring-guidance-result.v1"
@@ -108,10 +109,12 @@ def main(argv: list[str] | None = None) -> int:
         blockers, result, code = [{"code": "BLOCKED", "message": str(error)}], "BLOCKED", 2
     report = {"schemaVersion": RESULT_SCHEMA, "result": result, "blockers": blockers}
     if args.output:
-        target = repository / args.output
-        target.parent.mkdir(parents=True, exist_ok=True)
-        with open(target, "w", encoding="utf-8", newline="\n") as handle:
-            handle.write(json.dumps(report, indent=2) + "\n")
+        try:
+            output_writer.write_outputs(repository, [(args.output, (json.dumps(report, indent=2) + "\n").encode("utf-8"))],
+                                        (args.evidence, args.markdown, SCHEMA_PATH, gen.SOURCE_PATH, gen.CONTRACT_PATH,
+                                         *(path for _, path, _ in gen.PREDECESSORS)))
+        except output_writer.OutputError as error:
+            blockers, result, code = [{"code": "BLOCKED", "message": str(error)}], "BLOCKED", 2
     for blocker in blockers:
         print(f"{blocker['code']}: {blocker['message']}", file=sys.stderr)
     print(result)

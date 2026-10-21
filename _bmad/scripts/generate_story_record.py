@@ -4874,17 +4874,21 @@ def v2_restore_outputs(replaced: list[Path], originals: dict[Path, bytes | None]
     for target in reversed(replaced):
         original = originals[target]
         temporary = target.with_name(f".{target.name}.{os.getpid()}.restore")
+        created = False
         try:
             if original is None:
                 target.unlink(missing_ok=True)
             else:
-                temporary.write_bytes(original)
+                with temporary.open("xb") as handle:
+                    created = True
+                    handle.write(original)
                 os.replace(temporary, target)
         except OSError:
             restored = False
         finally:
             try:
-                temporary.unlink(missing_ok=True)
+                if created:
+                    temporary.unlink(missing_ok=True)
             except OSError:
                 pass
     return restored
@@ -4900,6 +4904,11 @@ def v2_write_outputs(targets: list[tuple[Path, bytes]]) -> None:
     The raised error's `restored` attribute is True only when every restore
     succeeded; callers must not claim a restore that did not complete.
     """
+    destinations = [Path(os.path.abspath(target)) for target, _ in targets]
+    reserved = {target.with_name(f".{target.name}.{os.getpid()}.{phase}")
+                for target in destinations for phase in ("tmp", "restore")}
+    if len(set(destinations)) != len(destinations) or set(destinations) & reserved:
+        raise ValueError("output destinations collide with each other or transaction temporaries")
     staged: list[tuple[Path, Path]] = []
     originals: dict[Path, bytes | None] = {}
     replaced: list[Path] = []
@@ -4908,11 +4917,11 @@ def v2_write_outputs(targets: list[tuple[Path, bytes]]) -> None:
             target.parent.mkdir(parents=True, exist_ok=True)
             originals[target] = target.read_bytes() if target.exists() else None
             temporary = target.with_name(f".{target.name}.{os.getpid()}.tmp")
-            with temporary.open("wb") as handle:
+            with temporary.open("xb") as handle:
+                staged.append((temporary, target))
                 handle.write(content)
                 handle.flush()
                 os.fsync(handle.fileno())
-            staged.append((temporary, target))
         try:
             for temporary, target in staged:
                 os.replace(temporary, target)

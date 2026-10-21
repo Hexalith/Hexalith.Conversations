@@ -71,9 +71,10 @@ def test_generator_is_deterministic_and_verifier_passes(repo: Path) -> None:
     assert bundle["reviewDecision"]["decision"] == "approved"
 
 
-def test_committed_bundle_matches_current_source_and_reports_review_state(tmp_path: Path) -> None:
-    code, blockers = verify(ROOT, review=False, output=tmp_path / "result.json")
-    assert (code, blockers) == (0, [])
+def test_committed_bundle_matches_current_source_and_reports_review_state() -> None:
+    result = run("verify_thin_authoring_guidance.py", "--repository", ".", "--evidence", JSON_OUT,
+                 "--markdown", MD_OUT, cwd=ROOT)
+    assert result.returncode == 0 and result.stdout.strip() == "PASS", result.stderr
 
 
 def edit_source(repo: Path, old: str, new: str) -> None:

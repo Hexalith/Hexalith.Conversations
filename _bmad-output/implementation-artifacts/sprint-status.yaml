@@ -371,7 +371,7 @@ action_items:
     epic: 11
     action: "At an approved A/B maintenance candidate, reuse the contained atomic output writer for pairs and receipts; prove symlink/hardlink output aliases cannot alter source or historical evidence, consolidating existing writer deferrals."
     owner: "Evidence tooling owner"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-11-retro-2026-10-21.md"
   - id: "epic-11-retro-item-47-prove-registered-fixture-commands-and-current-platform-compatibility"
     epic: 11

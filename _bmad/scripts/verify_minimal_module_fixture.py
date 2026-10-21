@@ -24,6 +24,7 @@ import xml.etree.ElementTree as ElementTree
 from pathlib import Path, PurePosixPath
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import authoring_outputs as output_writer  # noqa: E402
 
 CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/11.2.json"
 FIXTURE_ROOT = "tests/fixtures/Hexalith.Conversations.MinimalModule"
@@ -681,17 +682,19 @@ def verify_proof(repository: Path, fixture: str, proof_json: str, proof_markdown
     return [{"code": BLOCK_PROOF, "message": "; ".join(problems)}] if problems else []
 
 
-def write_report(repository: Path, output: str | None, blockers: list[dict], result: str, facts: dict | None) -> None:
+def write_report(repository: Path, output: str | None, blockers: list[dict], result: str, facts: dict | None,
+                 readonly: tuple[str, ...] = ()) -> None:
     if not output:
         return
     report = {"schemaVersion": RESULT_SCHEMA, "result": result, "blockers": blockers}
     if facts is not None and result == "PASS":
         report["inventorySha256"] = facts["inventory"]["sha256"]
         report["fixtureFileCount"] = len(facts["inventory"]["paths"])
-    target = repository / output
-    target.parent.mkdir(parents=True, exist_ok=True)
-    with open(target, "w", encoding="utf-8", newline="\n") as handle:
-        handle.write(json.dumps(report, indent=2) + "\n")
+    output_writer.write_outputs(repository, [(output, (json.dumps(report, indent=2) + "\n").encode("utf-8"))],
+                                (*readonly, CONTRACT_PATH, PROOF_SCHEMA_PATH, PROOF_JSON_PATH, PROOF_MARKDOWN_PATH,
+                                 GUIDANCE_JSON, GUIDANCE_MARKDOWN, STORY_11_1_RECORD_JSON, STORY_11_1_RECORD_MARKDOWN,
+                                 "global.json", TEST_RESULT_PATH, *FROZEN_PATHS, *COMMAND_RECEIPTS.values()),
+                                readonly_roots=(FIXTURE_ROOT, "references/Hexalith.EventStore"))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -726,7 +729,11 @@ def main(argv: list[str] | None = None) -> int:
         result, code = ("FAIL", 1) if blockers else ("PASS", 0)
     except Blocked as error:
         blockers, result, code = [{"code": "BLOCKED", "message": str(error)}], "BLOCKED", 2
-    write_report(repository, args.output, blockers, result, facts)
+    try:
+        write_report(repository, args.output, blockers, result, facts,
+                     tuple(path for path in (args.proof_json, args.proof_markdown, args.test_result) if path))
+    except output_writer.OutputError as error:
+        blockers, result, code = [{"code": "BLOCKED", "message": str(error)}], "BLOCKED", 2
     for blocker in blockers:
         print(f"{blocker['code']}: {blocker['message']}", file=sys.stderr)
     print(result)

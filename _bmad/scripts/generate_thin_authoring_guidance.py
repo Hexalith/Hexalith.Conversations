@@ -16,6 +16,8 @@ import re
 import sys
 from pathlib import Path
 
+import authoring_outputs as output_writer
+
 SCHEMA_VERSION = "hexalith.conversations.thin-authoring-guidance.v2"
 SOURCE_PATH = "docs/domain-module-authoring-template.md"
 CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/11.1.json"
@@ -416,9 +418,13 @@ def main(argv: list[str] | None = None) -> int:
                   "boundSignablePayloadSha256": payload_digest}
     else:  # preserve a still-bound existing decision so regeneration is idempotent
         try:
-            existing = json.loads((repository / args.output_json).read_text(encoding="utf-8"))["reviewDecision"]
+            existing_path = output_writer.output_target(repository, args.output_json)
+            existing = json.loads(existing_path.read_text(encoding="utf-8"))["reviewDecision"]
             if isinstance(existing, dict) and existing.get("boundSignablePayloadSha256") == payload_digest:
                 review = existing
+        except output_writer.OutputError as error:
+            print(f"BLOCKED: {error}", file=sys.stderr)
+            return 2
         except (OSError, ValueError, KeyError, TypeError):
             review = None
 
@@ -429,11 +435,13 @@ def main(argv: list[str] | None = None) -> int:
     except Exception as error:  # schema or import failure is a blocked environment, not a content verdict
         print(f"BLOCKED: generated bundle failed schema validation: {error}", file=sys.stderr)
         return 2
-    for relative, text in ((args.output_json, json_text), (args.output_markdown, markdown)):
-        target = repository / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        with open(target, "w", encoding="utf-8", newline="\n") as handle:
-            handle.write(text)
+    try:
+        output_writer.write_outputs(repository, [(args.output_json, json_text.encode("utf-8")),
+                                                  (args.output_markdown, markdown.encode("utf-8"))],
+                                    (SOURCE_PATH, CONTRACT_PATH, args.schema, *(path for _, path, _ in PREDECESSORS)))
+    except output_writer.OutputError as error:
+        print(f"BLOCKED: {error}", file=sys.stderr)
+        return 2
     print("PASS")
     return 0
 
