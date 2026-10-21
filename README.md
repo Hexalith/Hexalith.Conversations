@@ -121,6 +121,13 @@ Future implementation stories should keep the current readiness decisions and AD
 - `_bmad-output/implementation-artifacts/readiness-gates.md`
 - `docs/adrs/index.md`
 
+## Module Authoring Evidence
+
+The [minimal-module file-layout disclosure](docs/minimal-module-file-layout-disclosure.md)
+explains Epic 11's frozen 13-file sample, its scoped C# convention exception, and the
+hypothetical 18-file sensitivity. The accepted SM-2 comparison remains qualified
+against an estimated reference with low comparison confidence.
+
 ## Local Validation
 
 Use the repository-pinned .NET SDK from `global.json`:

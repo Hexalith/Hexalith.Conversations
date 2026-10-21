@@ -383,5 +383,5 @@ action_items:
     epic: 11
     action: "Document the scoped frozen multi-type-file exception and 13-versus-18 file sensitivity; preserve accepted evidence and low comparison confidence, and use the normal one-type-per-file convention for future comparable measurements unless explicitly excepted."
     owner: "Architecture / Product owner"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-11-retro-2026-10-21.md"
