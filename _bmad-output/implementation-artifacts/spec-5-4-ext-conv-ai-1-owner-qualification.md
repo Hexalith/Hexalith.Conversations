@@ -49,7 +49,7 @@ Complete the six-seam EXT-CONV-AI-1 delivery for Agents Story 5.4, including the
 - [x] Add the separate SDK-hosted EventStore-backed conformance receiver and exact receipt lookup, with focused tests. Supply configuration requirements that fail closed without separately enrolled workload identity; do not claim installation from a source build.
 - [ ] Bind and install the actual Party, current worker, approval issuer, complete source/catalogue/publication authority and receiver configuration once independently verified inputs exist.
 - [x] Enforce OQ prerequisites before Live operations and pin receiver qualification scope independently of caller expectations; preserve existing C1–C4 assertions and refusal evidence.
-- [ ] Run focused Local and receiver checks, review the change, and retain commands/results. Record externally blocked qualification separately.
+- [x] Run focused Local and receiver checks, review the change, and retain commands/results. Record externally blocked qualification separately.
 - [ ] Run exactly one approved C1–C4 qualification on the accepted installed target set; prepare the complete replacement packet with full canonical commit, exact command, manifest/configuration/plan/anchor hashes and evidence. Do not invent missing fields or acceptance.
 
 **Acceptance Criteria:**
@@ -92,6 +92,14 @@ Component review on 2026-10-22 covers the current source diff, not completion of
 | Verification 2: runner ordering untested | medium / patch | Existing Python tests call helpers directly; moving guards after a request would evade them. Execute the actual runner with synthetic Git/HTTP boundaries and prove missing prerequisites and repeated attempts make zero requests. |
 | Verification 3: retained-target positive case missing | medium / patch | Existing retry test keeps one current target; removing historical target allowance would pass. Add an old-target receipt lookup after current-target rollover. |
 | Package API inspection: native reader constructor | high / patch | The pinned 3.126.1 NuGet API has no source-only `(gateway, clock, bool)` overload. Use its four-argument native-proof constructor with explicit null timeout; retain native proof requirements. |
+| Runner execution: timestamp parsing | high / patch | PowerShell's default JSON date conversion made valid manifest UTC bounds fail text validation. Keep JSON timestamps as strings with PowerShell 7.5 `DateKind String`; the actual-runner positive case now reaches all lanes. |
+| Edge follow-up: equivalent UTC representations | medium / patch | Literal comparisons rejected equivalent `Z` and `+00:00` bounds after effects. Validate increasing explicit UTC input before reservation and compare parsed zero-offset response bounds. Positive, invalid-input zero-effects and changed-response-window cases pass. |
+
+All source patches above are applied. Verification-gap follow-up confirmed CI/Local enrollment, actual-runner guards and retained-target lookup. Edge follow-up confirmed method, journal and UTC-window fixes with no unresolved defect in those fixes. The pre-existing absent host transport remains required delivery work; it is not waived or counted as installed.
+
+Final focused verification: the five-project Local command passed 2,032 tests (including 31 receiver cases), with zero failures/skips. The repeated 37-case six-seam matrix is a subset, not an additional test count. Helper tests passed 34 cases and five subtests; actual-runner synthetic Git/HTTP tests passed 11 cases, including interruption evidence and zero-request refusals. These are local component/control-flow evidence only. All failed development runs are retained alongside passing reruns. No Live cohort attempt was reserved or executed.
+
+The shared repository recorded earlier component work in `6655e38743e57ffb85278278dde216663150bd01` during the run. Later review fixes remain uncommitted; this observed commit is not the complete reviewed immutable target. The committed Agents register is unchanged and still pins the previous accepted target. The detached blocked replacement packet records null installed hashes and target rather than inventing acceptance. This spec remains in progress because installation, current authority, enrollment and C1–C4 persisted qualification are incomplete.
 
 ## Verification
 

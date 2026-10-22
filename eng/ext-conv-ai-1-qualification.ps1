@@ -24,13 +24,13 @@ function Read-OqPayload($Body, [switch]$RequireSdk) {
     if ($Body.success -isnot [bool] -or -not $Body.success) { throw 'OQ_QUERY_UNAVAILABLE' }
     if ($Body.Contains('payload') -and $null -ne $Body.payload) {
         if ($RequireSdk -or $Body.payload -isnot [System.Collections.IDictionary] -or
-            $Body.Contains('payloadBytes') -and -not [string]::IsNullOrEmpty($Body.payloadBytes)) { throw 'OQ_QUERY_INVALID' }
+            ($Body.Contains('payloadBytes') -and -not [string]::IsNullOrEmpty($Body.payloadBytes))) { throw 'OQ_QUERY_INVALID' }
         return $Body.payload
     }
     try {
         $bytes = [Convert]::FromBase64String($Body.payloadBytes)
         $json = [Text.UTF8Encoding]::new($false, $true).GetString($bytes)
-        $decoded = $json | ConvertFrom-Json -AsHashtable -ErrorAction Stop
+        $decoded = $json | ConvertFrom-Json -AsHashtable -DateKind String -ErrorAction Stop
     }
     catch { throw 'OQ_QUERY_INVALID' }
     if ($decoded -isnot [System.Collections.IDictionary]) { throw 'OQ_QUERY_INVALID' }

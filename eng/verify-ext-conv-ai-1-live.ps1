@@ -1,3 +1,4 @@
+#Requires -Version 7.5
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)][string]$ArtifactsPath,
@@ -80,7 +81,7 @@ if (-not $LiveManifest -or -not (Test-Path -LiteralPath $LiveManifest -PathType 
 }
 try {
     $manifestBytes = [IO.File]::ReadAllBytes((Resolve-Path -LiteralPath $LiveManifest).Path)
-    $manifest = [Text.UTF8Encoding]::new($false, $true).GetString($manifestBytes) | ConvertFrom-Json -AsHashtable
+    $manifest = [Text.UTF8Encoding]::new($false, $true).GetString($manifestBytes) | ConvertFrom-Json -AsHashtable -DateKind String
 }
 catch { Block 'LIVE_MANIFEST_INVALID' 'The installed runtime manifest is not valid JSON.' }
 Assert-Live ($manifest.schemaVersion -eq 1) 'LIVE_MANIFEST_INVALID' 'The runtime manifest schema version must be 1.'
@@ -118,6 +119,14 @@ Assert-Live ($manifest.workerPrincipalId -ne $manifest.servicePartyId) 'WORKER_I
 Assert-Live ($manifest.receiverTargetVersion -cmatch '^[0-9a-f]{40}$' -and
     $manifest.rolloverReceiverTargetVersion -cmatch '^[0-9a-f]{40}$' -and
     $manifest.receiverTargetVersion -cne $manifest.rolloverReceiverTargetVersion) 'RECEIVER_TARGET_INVALID' 'Initial and rollover receiver targets must be distinct canonical commits.'
+try {
+    $from = [DateTimeOffset]::Parse($manifest.createdFromInclusive, [Globalization.CultureInfo]::InvariantCulture)
+    $to = [DateTimeOffset]::Parse($manifest.createdToExclusive, [Globalization.CultureInfo]::InvariantCulture)
+    if ($manifest.createdFromInclusive -cnotmatch '(Z|\+00:00)$' -or
+        $manifest.createdToExclusive -cnotmatch '(Z|\+00:00)$' -or
+        $from.Offset -ne [TimeSpan]::Zero -or $to.Offset -ne [TimeSpan]::Zero -or $from -ge $to) { throw 'Invalid UTC window' }
+}
+catch { Block 'RUNTIME_WINDOW_INVALID' 'The installed count window must be an increasing explicit UTC half-open interval.' }
 $bases = $manifest.bases
 $credentials = $manifest.credentialReferences
 $operations = $manifest.operations
@@ -213,7 +222,7 @@ function Invoke-Live([string]$name) {
         ResponseSha256 = $digest; Target = $operation.base }
     Save-Evidence
     $body = $null
-    try { $body = $response.Content | ConvertFrom-Json -AsHashtable }
+    try { $body = $response.Content | ConvertFrom-Json -AsHashtable -DateKind String }
     catch { Fail 'LIVE_RESPONSE_INVALID' "Operation $name returned invalid JSON." }
     return @{ Name = $name; Status = [int]$response.StatusCode; Body = $body; Receiver = ($operation.base -ceq 'receiver') }
 }
@@ -271,8 +280,16 @@ Assert-ConformanceIdentity $receiverIdentity $manifest.receiverTargetVersion
     $edited = Assert-Outcome (Invoke-Live 'c1EditedRead') 'Available'
     $null = Assert-Outcome (Invoke-Live 'c1Delete') 'Available'
     $deleted = Assert-Outcome (Invoke-Live 'c1DeletedRead') 'Available'
-    $from = [DateTimeOffset]::Parse($manifest.createdFromInclusive, [Globalization.CultureInfo]::InvariantCulture)
-    $to = [DateTimeOffset]::Parse($manifest.createdToExclusive, [Globalization.CultureInfo]::InvariantCulture)
+    $countFrom = [DateTimeOffset]::MinValue
+    $countTo = [DateTimeOffset]::MinValue
+    $countWindowMatches = $count.createdFromInclusive -is [string] -and $count.createdToExclusive -is [string] -and
+        [DateTimeOffset]::TryParse($count.createdFromInclusive, [Globalization.CultureInfo]::InvariantCulture,
+            [Globalization.DateTimeStyles]::None, [ref]$countFrom) -and
+        [DateTimeOffset]::TryParse($count.createdToExclusive, [Globalization.CultureInfo]::InvariantCulture,
+            [Globalization.DateTimeStyles]::None, [ref]$countTo) -and
+        $count.createdFromInclusive -cmatch '(Z|\+00:00)$' -and $count.createdToExclusive -cmatch '(Z|\+00:00)$' -and
+        $countFrom.Offset -eq [TimeSpan]::Zero -and $countTo.Offset -eq [TimeSpan]::Zero -and
+        $countFrom -eq $from -and $countTo -eq $to
     Assert-Live ($from.Offset -eq [TimeSpan]::Zero -and $to.Offset -eq [TimeSpan]::Zero -and $from -lt $to -and
         $catalogue.complete -eq $true -and $catalogue.tenantId -eq $manifest.tenantId -and
         -not [string]::IsNullOrWhiteSpace($catalogue.checkpoint)) 'C1_CATALOGUE_UNAVAILABLE' 'The authenticated complete tenant catalogue and UTC half-open window are required.'
@@ -299,8 +316,7 @@ Assert-ConformanceIdentity $receiverIdentity $manifest.receiverTargetVersion
         $zeroSource.tenantId -eq $manifest.tenantId -and $zeroSource.isCreated -eq $true -and
         $zeroSource.isDeleted -eq $false -and $zeroSource.agentCallCount -eq 0 -and
         [long]$zeroSource.sourceRevision -gt 0 -and [long]$count.count -eq $eligible.Count -and
-        $count.createdFromInclusive -eq $manifest.createdFromInclusive -and
-        $count.createdToExclusive -eq $manifest.createdToExclusive -and
+        $countWindowMatches -and
         $count.catalogCheckpoint -eq $catalogue.checkpoint) 'C1_PERSISTENCE_MISMATCH' 'Membership, deterministic posting, current content, facilitator or source count was not independently persisted.'
     Record-Lane 'C1' @{ MemberSourceRevision = $participant.sourceRevision; MessageId = $manifest.messageId; CountCheckpoint = $count.catalogCheckpoint }
 
