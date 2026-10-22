@@ -26,6 +26,7 @@ jobs:
         tests/Hexalith.Conversations.Client.Tests
         tests/Hexalith.Conversations.Tests
         tests/Hexalith.Conversations.Server.Tests
+        tests/Hexalith.Conversations.DeletionConformance.Tests
         tests/Hexalith.Conversations.TestSupport.Tests
       integration-test-projects: |
         tests/Hexalith.Conversations.IntegrationTests
@@ -200,6 +201,13 @@ jobs:
           _bmad/scripts/tests tests/tooling/test_evidence_boundary_current.py
           --ignore=_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py
           --junitxml=TestResults/bmad-scripts/bmad-scripts.xml
+
+      - name: Test Conversations owner qualification guards
+        run: >-
+          uv run --frozen --no-sync python3 -m pytest -q -ra -p no:cacheprovider
+          tests/tooling/test_ext_conv_ai_1_qualification.py
+          tests/tooling/test_ext_conv_ai_1_live_runner.py
+          --junitxml=TestResults/bmad-scripts/conversations-owner-qualification.xml
 
       - name: Upload repository tooling evidence
         if: always()

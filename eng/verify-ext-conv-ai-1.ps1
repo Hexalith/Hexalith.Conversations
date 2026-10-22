@@ -66,7 +66,7 @@ if ($LASTEXITCODE -ne 0 -or $eventStoreVersion -notmatch '\A\d+\.\d+\.\d+(?:-[0-
 }
 $eventStoreVersion | Set-Content -LiteralPath (Join-Path $ArtifactsPath 'eventstore-version.log')
 $properties += "-p:HexalithEventStoreVersion=$eventStoreVersion"
-$projects = @('Hexalith.Conversations.Contracts.Tests', 'Hexalith.Conversations.Tests', 'Hexalith.Conversations.Server.Tests', 'Hexalith.Conversations.Client.Tests')
+$projects = @('Hexalith.Conversations.Contracts.Tests', 'Hexalith.Conversations.Tests', 'Hexalith.Conversations.Server.Tests', 'Hexalith.Conversations.Client.Tests', 'Hexalith.Conversations.DeletionConformance.Tests')
 foreach ($name in $projects) {
     $project = Join-Path $repository "tests/$name/$name.csproj"
     Invoke-Checked (@('build', $project, '-c', 'Debug', '--artifacts-path', $ArtifactsPath, '-m:1') + $properties) (Join-Path $ArtifactsPath "$name-build.log")
