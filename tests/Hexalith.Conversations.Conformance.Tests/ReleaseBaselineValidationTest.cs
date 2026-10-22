@@ -42,7 +42,7 @@ public sealed class ReleaseBaselineValidationTest
 {
     private const string ContractsNamespacePrefix = "Hexalith.Conversations.Contracts";
     private const string SnapshotArtifactFileName = "public-contract-shape-baseline-v1.json";
-    private const string CurrentSnapshotArtifactFileName = "public-contract-shape-story-9.2-v2.json";
+    private const string CurrentSnapshotArtifactFileName = "public-contract-shape-story-6.4-v3.json";
 
     private static readonly JsonSerializerOptions WebOptions = new(JsonSerializerDefaults.Web);
 

@@ -1,0 +1,429 @@
+{
+  "artifactKind": "reviewed-additive-public-contract-successor",
+  "version": "story-6.4-v3",
+  "sourceRevision": "591ee3b3fa09cee761f6d56b7f82fa0d16cd04ed",
+  "previousSnapshot": {
+    "path": "docs/release-evidence/public-contract-shape-story-9.2-v2.json",
+    "sha256": "0160a2be428c681d22c014afa109fc80eb97706fe6f47367ac571b9a9a7595f8"
+  },
+  "currentSnapshot": {
+    "path": "docs/release-evidence/public-contract-shape-story-6.4-v3.json",
+    "sha256": "ee61d0e210e5d43b9ae906e0ed422cd791d24722c5074c995bf14fea3c5041ec"
+  },
+  "scopeApproval": {
+    "source": "Hexalith.Projects/_bmad-output/implementation-artifacts/spec-6-4-resolve-projects-with-transient-current-explanations.md; approved 2026-10-21 advisory scope reset and 2026-10-22 publication CI repairs",
+    "retainedOwnerSource": "Hexalith.Projects/_bmad-output/implementation-artifacts/spec-6-4-prerequisite-current-authorized-resolution-evidence.md; native scoring-label follow-up 2026-10-20 and completed owner work preserved by the approved 2026-10-21 reset",
+    "decision": "Record the already-authorized query/scoring additions; no new owner or Quality decision is claimed. No release authority is granted."
+  },
+  "retainedTypeCount": 219,
+  "currentTypeCount": 225,
+  "removedTypes": [],
+  "removedOrChangedPriorMembers": [],
+  "addedTypes": {
+    "Hexalith.Conversations.Contracts.Queries.ConversationResolutionMetadataResultV1": {
+      "namespace": "Hexalith.Conversations.Contracts.Queries",
+      "name": "ConversationResolutionMetadataResultV1",
+      "kind": "record",
+      "isAbstract": false,
+      "isSealed": true,
+      "interfaces": [
+        "System.IEquatable<Hexalith.Conversations.Contracts.Queries.ConversationResolutionMetadataResultV1>"
+      ],
+      "properties": [
+        {
+          "name": "AuthorizedAt",
+          "type": "System.DateTimeOffset?",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        },
+        {
+          "name": "Freshness",
+          "type": "Hexalith.Conversations.Contracts.Projections.ProjectionFreshnessV1",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        },
+        {
+          "name": "Metadata",
+          "type": "Hexalith.Conversations.Contracts.Queries.ConversationResolutionMetadataV1",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        },
+        {
+          "name": "PermissionVersion",
+          "type": "System.String",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        },
+        {
+          "name": "ResourceVersion",
+          "type": "System.String",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        }
+      ],
+      "constructors": [
+        {
+          "name": "(ctor)",
+          "parameters": [
+            {
+              "name": "Metadata",
+              "type": "Hexalith.Conversations.Contracts.Queries.ConversationResolutionMetadataV1"
+            },
+            {
+              "name": "Freshness",
+              "type": "Hexalith.Conversations.Contracts.Projections.ProjectionFreshnessV1"
+            },
+            {
+              "name": "ResourceVersion",
+              "type": "System.String"
+            },
+            {
+              "name": "PermissionVersion",
+              "type": "System.String"
+            },
+            {
+              "name": "AuthorizedAt",
+              "type": "System.DateTimeOffset?"
+            }
+          ]
+        }
+      ],
+      "methods": [
+        {
+          "name": "Deconstruct",
+          "returnType": "System.Void",
+          "parameters": [
+            {
+              "name": "Metadata",
+              "type": "Hexalith.Conversations.Contracts.Queries.ConversationResolutionMetadataV1&"
+            },
+            {
+              "name": "Freshness",
+              "type": "Hexalith.Conversations.Contracts.Projections.ProjectionFreshnessV1&"
+            },
+            {
+              "name": "ResourceVersion",
+              "type": "System.String&"
+            },
+            {
+              "name": "PermissionVersion",
+              "type": "System.String&"
+            },
+            {
+              "name": "AuthorizedAt",
+              "type": "System.Nullable`1[[System.DateTimeOffset, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]&"
+            }
+          ]
+        }
+      ]
+    },
+    "Hexalith.Conversations.Contracts.Queries.ConversationResolutionMetadataV1": {
+      "namespace": "Hexalith.Conversations.Contracts.Queries",
+      "name": "ConversationResolutionMetadataV1",
+      "kind": "record",
+      "isAbstract": false,
+      "isSealed": true,
+      "interfaces": [
+        "System.IEquatable<Hexalith.Conversations.Contracts.Queries.ConversationResolutionMetadataV1>"
+      ],
+      "properties": [
+        {
+          "name": "ConversationId",
+          "type": "System.String",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        },
+        {
+          "name": "LifecycleState",
+          "type": "System.String",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        },
+        {
+          "name": "ProjectId",
+          "type": "System.String",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        },
+        {
+          "name": "SafeLabel",
+          "type": "System.String",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        }
+      ],
+      "constructors": [
+        {
+          "name": "(ctor)",
+          "parameters": [
+            {
+              "name": "ConversationId",
+              "type": "System.String"
+            },
+            {
+              "name": "ProjectId",
+              "type": "System.String"
+            },
+            {
+              "name": "SafeLabel",
+              "type": "System.String"
+            },
+            {
+              "name": "LifecycleState",
+              "type": "System.String"
+            }
+          ]
+        }
+      ],
+      "methods": [
+        {
+          "name": "Deconstruct",
+          "returnType": "System.Void",
+          "parameters": [
+            {
+              "name": "ConversationId",
+              "type": "System.String&"
+            },
+            {
+              "name": "ProjectId",
+              "type": "System.String&"
+            },
+            {
+              "name": "SafeLabel",
+              "type": "System.String&"
+            },
+            {
+              "name": "LifecycleState",
+              "type": "System.String&"
+            }
+          ]
+        }
+      ]
+    },
+    "Hexalith.Conversations.Contracts.Queries.GetConversationAdvisoryMetadataQuery": {
+      "namespace": "Hexalith.Conversations.Contracts.Queries",
+      "name": "GetConversationAdvisoryMetadataQuery",
+      "kind": "record",
+      "isAbstract": false,
+      "isSealed": true,
+      "interfaces": [
+        "System.IEquatable<Hexalith.Conversations.Contracts.Queries.GetConversationAdvisoryMetadataQuery>"
+      ],
+      "fields": [
+        {
+          "name": "QueryType",
+          "type": "System.String",
+          "isConstant": true,
+          "isStatic": true
+        }
+      ],
+      "constructors": [
+        {
+          "name": "(ctor)",
+          "parameters": []
+        }
+      ]
+    },
+    "Hexalith.Conversations.Contracts.Queries.GetConversationResolutionMetadataQuery": {
+      "namespace": "Hexalith.Conversations.Contracts.Queries",
+      "name": "GetConversationResolutionMetadataQuery",
+      "kind": "record",
+      "isAbstract": false,
+      "isSealed": true,
+      "interfaces": [
+        "System.IEquatable<Hexalith.Conversations.Contracts.Queries.GetConversationResolutionMetadataQuery>"
+      ],
+      "fields": [
+        {
+          "name": "QueryType",
+          "type": "System.String",
+          "isConstant": true,
+          "isStatic": true
+        }
+      ],
+      "constructors": [
+        {
+          "name": "(ctor)",
+          "parameters": []
+        }
+      ]
+    },
+    "Hexalith.Conversations.Contracts.Queries.ConversationResolutionScoringLabel": {
+      "namespace": "Hexalith.Conversations.Contracts.Queries",
+      "name": "ConversationResolutionScoringLabel",
+      "kind": "record",
+      "isAbstract": false,
+      "isSealed": true,
+      "interfaces": [
+        "System.IEquatable<Hexalith.Conversations.Contracts.Queries.ConversationResolutionScoringLabel>"
+      ],
+      "properties": [
+        {
+          "name": "Classification",
+          "type": "System.String",
+          "canRead": true,
+          "canWrite": false,
+          "isStatic": false
+        },
+        {
+          "name": "Purpose",
+          "type": "System.String",
+          "canRead": true,
+          "canWrite": false,
+          "isStatic": false
+        },
+        {
+          "name": "Value",
+          "type": "System.String",
+          "canRead": true,
+          "canWrite": false,
+          "isStatic": false
+        }
+      ],
+      "fields": [
+        {
+          "name": "MaximumLength",
+          "type": "System.Int32",
+          "isConstant": true,
+          "isStatic": true
+        },
+        {
+          "name": "OwnerClassification",
+          "type": "System.String",
+          "isConstant": true,
+          "isStatic": true
+        },
+        {
+          "name": "SupportedPurpose",
+          "type": "System.String",
+          "isConstant": true,
+          "isStatic": true
+        }
+      ],
+      "constructors": [
+        {
+          "name": "(ctor)",
+          "parameters": [
+            {
+              "name": "value",
+              "type": "System.String"
+            },
+            {
+              "name": "purpose",
+              "type": "System.String"
+            },
+            {
+              "name": "classification",
+              "type": "System.String"
+            }
+          ]
+        }
+      ]
+    },
+    "Hexalith.Conversations.Contracts.Queries.ConversationAdvisoryMetadataResult": {
+      "namespace": "Hexalith.Conversations.Contracts.Queries",
+      "name": "ConversationAdvisoryMetadataResult",
+      "kind": "record",
+      "isAbstract": false,
+      "isSealed": true,
+      "interfaces": [
+        "System.IEquatable<Hexalith.Conversations.Contracts.Queries.ConversationAdvisoryMetadataResult>"
+      ],
+      "properties": [
+        {
+          "name": "Incomplete",
+          "type": "System.Boolean",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        },
+        {
+          "name": "Metadata",
+          "type": "Hexalith.Conversations.Contracts.Queries.ConversationResolutionMetadataV1",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        }
+      ],
+      "constructors": [
+        {
+          "name": "(ctor)",
+          "parameters": [
+            {
+              "name": "Metadata",
+              "type": "Hexalith.Conversations.Contracts.Queries.ConversationResolutionMetadataV1"
+            },
+            {
+              "name": "Incomplete",
+              "type": "System.Boolean"
+            }
+          ]
+        }
+      ],
+      "methods": [
+        {
+          "name": "Deconstruct",
+          "returnType": "System.Void",
+          "parameters": [
+            {
+              "name": "Metadata",
+              "type": "Hexalith.Conversations.Contracts.Queries.ConversationResolutionMetadataV1&"
+            },
+            {
+              "name": "Incomplete",
+              "type": "System.Boolean&"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "addedMembers": {
+    "Hexalith.Conversations.Contracts.Events.ConversationMetadataUpdated": [
+      {
+        "name": "ResolutionScoringLabel",
+        "type": "Hexalith.Conversations.Contracts.Queries.ConversationResolutionScoringLabel",
+        "canRead": true,
+        "canWrite": true,
+        "isStatic": false
+      }
+    ],
+    "Hexalith.Conversations.Contracts.Commands.CreateConversationCommand": [
+      {
+        "name": "ResolutionScoringLabel",
+        "type": "Hexalith.Conversations.Contracts.Queries.ConversationResolutionScoringLabel",
+        "canRead": true,
+        "canWrite": true,
+        "isStatic": false
+      }
+    ],
+    "Hexalith.Conversations.Contracts.Events.ConversationCreated": [
+      {
+        "name": "ResolutionScoringLabel",
+        "type": "Hexalith.Conversations.Contracts.Queries.ConversationResolutionScoringLabel",
+        "canRead": true,
+        "canWrite": true,
+        "isStatic": false
+      }
+    ],
+    "Hexalith.Conversations.Contracts.Commands.UpdateConversationMetadataCommand": [
+      {
+        "name": "ResolutionScoringLabel",
+        "type": "Hexalith.Conversations.Contracts.Queries.ConversationResolutionScoringLabel",
+        "canRead": true,
+        "canWrite": true,
+        "isStatic": false
+      }
+    ]
+  },
+  "compatibility": "All 219 prior types and all prior members, constructors and signatures are unchanged. Four types gain only the optional ResolutionScoringLabel property; six query/scoring DTOs are added."
+}

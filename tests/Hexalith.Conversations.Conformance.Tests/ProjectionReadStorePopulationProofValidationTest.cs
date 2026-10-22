@@ -22,6 +22,10 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
 {
     private const string ProofJsonFileName = "projection-read-store-population-proof-v2.json";
     private const string ProofMarkdownFileName = "projection-read-store-population-proof-v2.md";
+    private const string CurrentCrossTenantSuccessorFileName = "projection-read-store-population-story-6.4-v3.json";
+    private const string CurrentCrossTenantSuccessorSha256 = "1fb37a601b8b682420a6e1a2039126cb8fb92f1e6f5ff83b1b34b4afa7a6f31a";
+    private const string HistoricalCrossTenantTest = "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CrossTenantEventShouldFailWithoutWritingEitherTenantScope";
+    private const string CurrentCrossTenantTest = "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CrossTenantEventShouldFailWithOnlyAnAcceptedRoutePositionBarrier";
     private const string BaselineFileName = "sm-c2-hot-path-baseline-v1.json";
     private const string PostFileName = "sm-c2-hot-path-post-v1.json";
     // 856ee99 is the proof's last production/gitlink candidate. 850228f is a later evidence-only
@@ -1139,6 +1143,11 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
     /// <param name="testCase">The fully qualified test name recorded by the scenario.</param>
     private static void AssertBoundTestStillExists(string testCase)
     {
+        if (testCase == HistoricalCrossTenantTest)
+        {
+            ValidateCurrentCrossTenantSuccessor();
+            return;
+        }
         string methodName = testCase[(testCase.LastIndexOf('.') + 1)..];
         methodName.ShouldNotBeNullOrWhiteSpace(testCase);
 
@@ -1152,6 +1161,46 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         declared.ShouldBeTrue(
             $"the bound run artifact names {testCase}, but no test source declares {methodName}; a renamed or "
             + "deleted bound test must not leave the committed artifact silently authoritative");
+    }
+
+    private static void ValidateCurrentCrossTenantSuccessor()
+    {
+        string path = Path.Combine(ReleaseEvidenceDirectory(), CurrentCrossTenantSuccessorFileName);
+        ComputeSha256(path).ShouldBe(CurrentCrossTenantSuccessorSha256);
+        using JsonDocument document = LoadEvidence(CurrentCrossTenantSuccessorFileName);
+        JsonElement successor = document.RootElement;
+        successor.GetProperty("artifactVersion").GetString().ShouldBe("projection-read-store-population-story-6.4-v3");
+        successor.GetProperty("authorityEffect").GetString().ShouldBe("none");
+        successor.GetProperty("currentReadiness").GetString().ShouldBe("not-established");
+        successor.GetProperty("sourceRevision").GetString().ShouldBe("591ee3b3fa09cee761f6d56b7f82fa0d16cd04ed");
+        successor.GetProperty("historicalTestCase").GetString().ShouldBe(HistoricalCrossTenantTest);
+        successor.GetProperty("currentTestCase").GetString().ShouldBe(CurrentCrossTenantTest);
+        successor.GetProperty("historicalProof").GetProperty("path").GetString().ShouldBe(ProofRepositoryPath);
+        successor.GetProperty("historicalRun").GetProperty("path").GetString()
+            .ShouldBe("docs/release-evidence/projection-read-store-population-proof-v2-deterministic.xunit.xml");
+        foreach (string field in new[] { "historicalProof", "historicalRun", "currentSource", "currentRun" })
+            ValidateBinding(successor.GetProperty(field));
+        successor.GetProperty("historicalClaim").GetProperty("writes").GetInt32().ShouldBe(0);
+        JsonElement claim = successor.GetProperty("currentClaim");
+        claim.GetProperty("persistedKeyCount").GetInt32().ShouldBe(1);
+        claim.GetProperty("conversationViewWrites").GetInt32().ShouldBe(0);
+        claim.GetProperty("tenantIndexWrites").GetInt32().ShouldBe(0);
+        claim.GetProperty("onlyAcceptedRoutePositionBarrier").GetBoolean().ShouldBeTrue();
+        claim.GetProperty("status").GetString().ShouldBe("Failed");
+        claim.GetProperty("reason").GetString().ShouldBe("HandlerFailure");
+        successor.GetProperty("currentSource").GetProperty("path").GetString()
+            .ShouldBe("tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs");
+        string source = RepositoryLocator.ReadAllText(Path.Combine(FindRepositoryRoot(), successor.GetProperty("currentSource").GetProperty("path").GetString()!));
+        Regex.IsMatch(source, @"\[Fact\]\s+public async Task CrossTenantEventShouldFailWithOnlyAnAcceptedRoutePositionBarrier\(\)")
+            .ShouldBeTrue("the actual current successor test must remain declared and enabled");
+        XDocument execution = XDocument.Load(Path.Combine(FindRepositoryRoot(), successor.GetProperty("currentRun").GetProperty("path").GetString()!));
+        XElement assembly = execution.Descendants("assembly").Single();
+        assembly.Attribute("passed")!.Value.ShouldBe("1");
+        assembly.Attribute("failed")!.Value.ShouldBe("0");
+        assembly.Attribute("skipped")!.Value.ShouldBe("0");
+        XElement test = assembly.Descendants("test").Single();
+        test.Attribute("name")!.Value.ShouldBe(CurrentCrossTenantTest);
+        test.Attribute("result")!.Value.ShouldBe("Pass");
     }
 
     private static void ValidateBinding(JsonElement binding)

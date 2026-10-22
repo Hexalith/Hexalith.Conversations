@@ -62,10 +62,10 @@ internal sealed class ResolutionMetadataFixture
     internal static async Task<ProjectionRequest> AdmitNativeAsync(ProjectionRequest request,
         string incarnation = "01ARZ3NDEKTSV4RRFFQ69G5FAV")
     {
-        var gateway = new ResolutionProjectionGateway(request, incarnation);
+        using var gateway = new ResolutionProjectionGateway(request, incarnation);
         var capture = new ResolutionProjectionCapture();
         using ServiceProvider services = new ServiceCollection().AddSingleton<IAsyncDomainProjectionHandler>(capture)
-            .AddSingleton<IEventStoreGatewayClient>(gateway).BuildServiceProvider();
+            .AddSingleton<IEventStoreGatewayClient>(gateway.Client).BuildServiceProvider();
         var catalog = new DomainProjectionCatalogRegistry();
         const string fingerprint = "fixture-native-provenance";
         catalog.Register(fingerprint, [new(capture.Domain, capture.ProjectionType)]);

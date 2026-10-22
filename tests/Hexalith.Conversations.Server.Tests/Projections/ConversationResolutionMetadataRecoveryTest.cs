@@ -909,13 +909,13 @@ public sealed class ConversationResolutionMetadataRecoveryTest
     private static async Task<ProjectionDispatchResponse> RebuildAsync(ResolutionMetadataFixture fixture)
     {
         ProjectionRequest original = ResolutionMetadataFixture.Request(changedProject: true);
-        var gateway = new ResolutionProjectionGateway(original);
+        using var gateway = new ResolutionProjectionGateway(original);
         ProjectionRequest request = JsonSerializer.Deserialize<ProjectionRequest>(
             JsonSerializer.Serialize(original, JsonSerializerOptions.Web), JsonSerializerOptions.Web)!;
         request.VerifiedNativeSourceProof.ShouldBeNull();
         request.NativeSourceProof.ShouldBe(gateway.Proof);
         await using ServiceProvider provider = new ServiceCollection().AddSingleton<IReadModelBatchStore>(fixture.Guard)
-            .AddSingleton<IEventStoreGatewayClient>(gateway)
+            .AddSingleton<IEventStoreGatewayClient>(gateway.Client)
             .AddSingleton<IDomainProjectionHandler>(new ConversationProjectionHandler(new(), fixture.Time))
             .AddSingleton<IAsyncDomainProjectionHandler>(fixture.Handler()).BuildServiceProvider();
         string fingerprint = ProjectionRouteCatalogFingerprint.Compute("conversations-service", "v1",

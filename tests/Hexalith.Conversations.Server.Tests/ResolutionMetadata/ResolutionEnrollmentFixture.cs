@@ -49,7 +49,7 @@ internal sealed class ResolutionEnrollmentFixture : IAsyncDisposable, IHttpReque
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
         builder.Services.AddSingleton<DaprClient>(Backend);
         builder.Services.AddSingleton<TimeProvider>(Time);
-        builder.Services.AddSingleton<IEventStoreGatewayClient>(gateway);
+        builder.Services.AddSingleton<IEventStoreGatewayClient>(gateway.Client);
         builder.Services.AddSingleton<IOptions<ReadModelBatchOptions>>(Options.Create(new ReadModelBatchOptions { TimeProvider = Time }));
         builder.AddEventStoreDomainService(typeof(ConversationsAssemblyMarker).Assembly, typeof(ServerAssemblyMarker).Assembly);
         builder.Services.AddConversationTenantAccess();
@@ -120,5 +120,6 @@ internal sealed class ResolutionEnrollmentFixture : IAsyncDisposable, IHttpReque
         if (_disposed) return;
         _disposed = true;
         await App.DisposeAsync();
+        Gateway.Dispose();
     }
 }

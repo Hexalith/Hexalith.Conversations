@@ -1,10 +1,13 @@
 using System.Security.Cryptography;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+using Hexalith.EventStore.Testing.Http;
+using Microsoft.Extensions.Options;
 using Hexalith.EventStore.Client.Gateway;
 using Hexalith.EventStore.Client.Streams;
-using Hexalith.EventStore.Contracts.Commands;
 using Hexalith.EventStore.Contracts.Identity;
 using Hexalith.EventStore.Contracts.Projections;
-using Hexalith.EventStore.Contracts.Queries;
 using Hexalith.EventStore.Contracts.Streams;
 
 namespace Hexalith.Conversations.Server.Tests.ResolutionMetadata;
@@ -12,9 +15,11 @@ namespace Hexalith.Conversations.Server.Tests.ResolutionMetadata;
 // Source fixture only: payload-derived digest stand-ins exercise native paging and admission.
 // Actual raw-envelope codec interoperability is covered in SDK Server.Tests. This fixture
 // establishes neither production native provenance nor installation authority.
-internal sealed class ResolutionProjectionGateway : IEventStoreGatewayClient
+internal sealed class ResolutionProjectionGateway : IDisposable
 {
     private readonly StreamReadEvent[] _events;
+    private readonly HttpClient _httpClient;
+    public IEventStoreGatewayClient Client { get; }
     public NativeSourceProof Proof { get; }
     public bool Unavailable { get; set; }
     public ResolutionProjectionGateway(ProjectionRequest request, string incarnation = "01ARZ3NDEKTSV4RRFFQ69G5FAV")
@@ -31,18 +36,22 @@ internal sealed class ResolutionProjectionGateway : IEventStoreGatewayClient
         foreach (StreamReadEvent item in _events)
             proof = NativeSourceProofCodec.ExtendDigest(proof, identity, item.SequenceNumber, item.MessageId, item.NativeEventDigest!);
         Proof = proof;
+        _httpClient = new(new MockHttpMessageHandler(async (message, token) =>
+        {
+            var read = await message.Content!.ReadFromJsonAsync<StreamReadRequest>(JsonSerializerOptions.Web, token).ConfigureAwait(false);
+            return Unavailable ? new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+                : new HttpResponseMessage(HttpStatusCode.OK) { Content = JsonContent.Create(Page(read!), options: JsonSerializerOptions.Web) };
+        })) { BaseAddress = new Uri("https://resolution-fixture.invalid/") };
+        Client = new EventStoreGatewayClient(_httpClient, Options.Create(new EventStoreGatewayClientOptions()));
     }
-    public Task<StreamReadPage> ReadStreamAsync(StreamReadRequest request, CancellationToken cancellationToken = default)
+    private StreamReadPage Page(StreamReadRequest request)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        if (Unavailable) throw new EventStoreGatewayException(503, "native source unavailable");
         StreamReadEvent[] events = request.ToSequence == 0 ? [] : _events.Where(item => item.SequenceNumber > request.FromSequence
             && item.SequenceNumber <= request.ToSequence).Take(request.PageSize).ToArray();
-        return Task.FromResult(new StreamReadPage(request.Tenant, request.Domain, request.AggregateId, events,
+        return new StreamReadPage(request.Tenant, request.Domain, request.AggregateId, events,
             new(request.FromSequence, request.ToSequence, events.LastOrDefault()?.SequenceNumber, Proof.HeadSequence,
-                events.Length, events.Length > 0 && events[^1].SequenceNumber < Math.Min(request.ToSequence ?? Proof.HeadSequence, Proof.HeadSequence), null) { NativeProof = Proof }));
+                events.Length, events.Length > 0 && events[^1].SequenceNumber < Math.Min(request.ToSequence ?? Proof.HeadSequence, Proof.HeadSequence), null) { NativeProof = Proof });
     }
-    public Task<SubmitCommandResponse> SubmitCommandAsync(SubmitCommandRequest request, CancellationToken cancellationToken = default) => throw new NotSupportedException();
-    public Task<EventStoreQueryResult> SubmitQueryAsync(SubmitQueryRequest request, string? ifNoneMatch = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
-    public Task<EventStoreQueryResult<T>> SubmitQueryAsync<T>(SubmitQueryRequest request, string? ifNoneMatch = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+    public void Dispose() => _httpClient.Dispose();
 }

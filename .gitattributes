@@ -73,3 +73,6 @@ _bmad/scripts/tests/test_sm2_evidence.py text eol=lf
 _bmad/scripts/tests/test_generate_story_record.py text eol=lf
 _bmad/schemas/story-final-record-v2.schema.json text eol=lf
 tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthoringCostBaselineValidationTest.cs -text diff
+
+# Story 6.4 current cross-Tenant execution is byte-hashed by its additive proof successor.
+docs/release-evidence/projection-read-store-population-story-6.4-v3-cross-tenant.xunit.xml text eol=lf

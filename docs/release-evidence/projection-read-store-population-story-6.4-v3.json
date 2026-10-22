@@ -1,0 +1,38 @@
+{
+  "artifactVersion": "projection-read-store-population-story-6.4-v3",
+  "sourceRevision": "591ee3b3fa09cee761f6d56b7f82fa0d16cd04ed",
+  "authorityEffect": "none",
+  "currentReadiness": "not-established",
+  "historicalProof": {
+    "path": "docs/release-evidence/projection-read-store-population-proof-v2.json",
+    "sha256": "b4bcdb5b181be66780f251ad8a3b563b7554e34e0fb4d255d46a3a17addfaf7c"
+  },
+  "historicalRun": {
+    "path": "docs/release-evidence/projection-read-store-population-proof-v2-deterministic.xunit.xml",
+    "sha256": "c8cbdb09e25548652735535d1b55e86d0f2ccc1c424747c305b339f6068d8f0d"
+  },
+  "historicalTestCase": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CrossTenantEventShouldFailWithoutWritingEitherTenantScope",
+  "historicalClaim": {
+    "writes": 0,
+    "status": "Failed",
+    "reason": "HandlerFailure"
+  },
+  "currentTestCase": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CrossTenantEventShouldFailWithOnlyAnAcceptedRoutePositionBarrier",
+  "currentSource": {
+    "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs",
+    "sha256": "627032500ac94600c02fea0bd6a6249de5fd93fdb82240a44e096a854b6b76f2"
+  },
+  "currentRun": {
+    "path": "docs/release-evidence/projection-read-store-population-story-6.4-v3-cross-tenant.xunit.xml",
+    "sha256": "7a8749ea3b5b9c009277a955f6e3306d0626bbcacfade7031aebc7948f01e252"
+  },
+  "currentClaim": {
+    "persistedKeyCount": 1,
+    "conversationViewWrites": 0,
+    "tenantIndexWrites": 0,
+    "onlyAcceptedRoutePositionBarrier": true,
+    "status": "Failed",
+    "reason": "HandlerFailure"
+  },
+  "rationale": "The historical zero-write assertion and its passing machine output are retained unchanged for their historical source. Current rejection may persist exactly one content-free accepted-route position barrier, never Conversation views or a foreign-tenant view. This successor binds actual current execution; it grants no release or production authority."
+}

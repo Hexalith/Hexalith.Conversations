@@ -99,14 +99,41 @@ public sealed class PublicContractShapeSnapshotGenerationTest
     public void CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting()
     {
         string root = FindRepositoryRoot();
-        string baselinePath = Path.Combine(root, "docs", "release-evidence", "public-contract-shape-story-9.2-v2.json");
+        string baselinePath = Path.Combine(root, "docs", "release-evidence", "public-contract-shape-story-6.4-v3.json");
         string committedBaseline = RepositoryLocator.ReadAllText(baselinePath);
         string currentSnapshot = JsonSerializer.Serialize(BuildSnapshot(), SnapshotOptions);
 
         currentSnapshot.ShouldBe(
             committedBaseline,
-            "The full live public contract shape differs from the additive Story 9.2 successor. "
+            "The full live public contract shape differs from the reviewed additive Story 6.4 successor. "
             + "Review the member-level diff and obtain explicit approval instead of regenerating the baseline.");
+    }
+
+    [Fact]
+    public void CurrentSuccessorShouldPreserveEveryPriorTypeAndMemberOutsideTheApprovedAdditions()
+    {
+        string priorPath = Path.Combine(FindRepositoryRoot(), "docs", "release-evidence", "public-contract-shape-story-9.2-v2.json");
+        var prior = JsonSerializer.Deserialize<PublicContractShapeSnapshotV1>(RepositoryLocator.ReadAllText(priorPath), SnapshotOptions)!;
+        PublicContractShapeSnapshotV1 current = BuildSnapshot();
+        string[] addedTypes = ["ConversationAdvisoryMetadataResult", "ConversationResolutionMetadataResultV1", "ConversationResolutionMetadataV1",
+            "ConversationResolutionScoringLabel", "GetConversationAdvisoryMetadataQuery", "GetConversationResolutionMetadataQuery"];
+        string[] expandedTypes = ["CreateConversationCommand", "UpdateConversationMetadataCommand", "ConversationCreated", "ConversationMetadataUpdated"];
+        var originalNames = prior.Types.Select(type => $"{type.Namespace}.{type.Name}").ToHashSet(StringComparer.Ordinal);
+        current.Types.Where(type => !originalNames.Contains($"{type.Namespace}.{type.Name}"))
+            .Select(type => $"{type.Namespace}.{type.Name}").Order(StringComparer.Ordinal)
+            .ShouldBe(addedTypes.Select(name => $"Hexalith.Conversations.Contracts.Queries.{name}").Order(StringComparer.Ordinal));
+        foreach (PublicTypeShape retained in prior.Types)
+        {
+            PublicTypeShape actual = current.Types.Single(type => type.Namespace == retained.Namespace && type.Name == retained.Name);
+            if (expandedTypes.Contains(retained.Name, StringComparer.Ordinal))
+            {
+                actual.Properties!.Single(property => property.Name == "ResolutionScoringLabel").ShouldBe(new PropertyShape(
+                    "ResolutionScoringLabel", "Hexalith.Conversations.Contracts.Queries.ConversationResolutionScoringLabel", true, true, false));
+                actual = actual with { Properties = actual.Properties!.Where(property => property.Name != "ResolutionScoringLabel").ToArray() };
+            }
+            JsonSerializer.Serialize(actual, SnapshotOptions).ShouldBe(JsonSerializer.Serialize(retained, SnapshotOptions), retained.Name);
+        }
+        current.Types.Count.ShouldBe(prior.Types.Count + addedTypes.Length);
     }
 
     [Fact]

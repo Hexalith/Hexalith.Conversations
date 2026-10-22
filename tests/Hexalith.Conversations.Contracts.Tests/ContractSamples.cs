@@ -1075,6 +1075,9 @@ internal static class ContractSamples
         new ConversationResolutionScoringLabel("Case 123", ConversationResolutionScoringLabel.SupportedPurpose,
             ConversationResolutionScoringLabel.OwnerClassification),
         new GetConversationResolutionMetadataQuery(),
+        new GetConversationAdvisoryMetadataQuery(),
+        new ConversationAdvisoryMetadataResult(new(Conversation.Value, Project.Value, "Case 123", "Open"), false),
+        new ConversationAdvisoryMetadataResult(null, true),
         new ConversationResolutionMetadataV1(Conversation.Value, Project.Value, "Case 123", "Open"),
         new ConversationResolutionMetadataResultV1(
             new(Conversation.Value, Project.Value, "Case 123", "Open"), FreshnessV1,
