@@ -112,6 +112,7 @@ development_status:
   epic-11-retrospective: done
   epic-12: backlog
   12-1-approve-derived-key-ownership-lifecycle-and-rollback: backlog
+  #  Story 16.3 is still backlog and gates 12.1. Should I retain the gate and pause, or record an explicit exception for 12.1 ADR/tooling work only?
   12-2-freeze-the-benchmark-method-and-signal-quality-algorithm: backlog
   12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior: backlog
   12-4-produce-candidate-bound-evidence-and-enforce-universal-sm-c2: backlog
