@@ -43,7 +43,7 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
         }
         try
         {
-            string type = NormalizeRestrictedType(envelope.CommandType);
+            string type = NormalizeCommandType(envelope.CommandType);
             object? command = type switch
             {
                 nameof(AddAgentParticipant) => JsonSerializer.Deserialize<AddAgentParticipant>(envelope.Payload, Options),
@@ -53,22 +53,17 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
                 nameof(RecordConversationDeletionDelivery) => JsonSerializer.Deserialize<RecordConversationDeletionDelivery>(envelope.Payload, Options),
                 nameof(EditConversationMessageCommand) => JsonSerializer.Deserialize<EditConversationMessageCommand>(envelope.Payload, Options),
                 nameof(DeleteConversationMessageCommand) => JsonSerializer.Deserialize<DeleteConversationMessageCommand>(envelope.Payload, Options),
+                nameof(CreateConversation) => JsonSerializer.Deserialize<CreateConversation>(envelope.Payload, Options),
+                nameof(AddParticipant) => JsonSerializer.Deserialize<AddParticipant>(envelope.Payload, Options),
+                nameof(ReassignConversationProject) => JsonSerializer.Deserialize<ReassignConversationProject>(envelope.Payload, Options),
+                nameof(SetConversationRetentionPolicy) => JsonSerializer.Deserialize<SetConversationRetentionPolicy>(envelope.Payload, Options),
+                nameof(MarkConversationContentSensitive) => JsonSerializer.Deserialize<MarkConversationContentSensitive>(envelope.Payload, Options),
+                nameof(RedactMessageContent) => JsonSerializer.Deserialize<RedactMessageContent>(envelope.Payload, Options),
                 _ => null
             };
-            // Existing general commands require an explicitly independent operation grant. The Agent grant
-            // cannot authorize arbitrary participant management through a legacy dispatch alias.
-            if (command is null && RestrictedTypes.Any(t => t.Name == type))
-            {
-                return Reject(ConversationAgentsOutcome.Invalid);
-            }
             if (command is null)
             {
-                var general = await authority.AuthorizeAsync(envelope.UserId, new TenantId(envelope.TenantId),
-                    new ConversationId(envelope.AggregateId), "GeneralCommand", cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
-                cancellationToken.ThrowIfCancellationRequested();
-                return ConversationAgentQueryService.CheckAuthority(general, envelope.UserId, new TenantId(envelope.TenantId), false)
-                    == ConversationAgentsOutcome.Available && !general.OrganizationIdentityConfirmed && general.PartyId is not null
-                    ? DomainServiceAdmissionResult.Accepted() : Reject(ConversationAgentsOutcome.Denied);
+                return Reject(ConversationAgentsOutcome.Invalid);
             }
             var (metadata, conversation) = command switch
             {
@@ -79,11 +74,29 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
                 RecordConversationDeletionDelivery c => (c.PublicCommand.Metadata, c.PublicCommand.ConversationId),
                 EditConversationMessageCommand c => (c.Metadata, c.ConversationId),
                 DeleteConversationMessageCommand c => (c.Metadata, c.ConversationId),
+                CreateConversation c => (c.PublicCommand.Metadata, c.ConversationId),
+                AddParticipant c => (c.PublicCommand.Metadata, c.PublicCommand.ConversationId),
+                ReassignConversationProject c => (c.PublicCommand.Metadata, c.PublicCommand.ConversationId),
+                SetConversationRetentionPolicy c => (c.PublicCommand.Metadata, c.PublicCommand.ConversationId),
+                MarkConversationContentSensitive c => (c.PublicCommand.Metadata, c.PublicCommand.ConversationId),
+                RedactMessageContent c => (c.PublicCommand.Metadata, c.PublicCommand.ConversationId),
                 _ => throw new InvalidOperationException()
             };
-            if (metadata.TenantId.Value != envelope.TenantId || conversation.Value != envelope.AggregateId)
+            if (metadata.TenantId.Value != envelope.TenantId || conversation is null || conversation.Value != envelope.AggregateId)
             {
                 return Reject(ConversationAgentsOutcome.Denied);
+            }
+            // A general-operation grant authorizes only the authenticated human Party and exact payload scope.
+            if (command is CreateConversation or AddParticipant or ReassignConversationProject
+                or SetConversationRetentionPolicy or MarkConversationContentSensitive or RedactMessageContent)
+            {
+                var general = await authority.AuthorizeAsync(envelope.UserId, metadata.TenantId,
+                    conversation, "GeneralCommand", cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+                return ConversationAgentQueryService.CheckAuthority(general, envelope.UserId, metadata.TenantId, false)
+                    == ConversationAgentsOutcome.Available && !general.OrganizationIdentityConfirmed && general.PartyId is not null
+                    && general.PartyId == metadata.ActorPartyId
+                    ? DomainServiceAdmissionResult.Accepted() : Reject(ConversationAgentsOutcome.Denied);
             }
             bool independent = command is ApproveConversationDeletion or RecordConversationDeletionDelivery;
             bool service = command is AddAgentParticipant or AppendAgentMessage or RemoveAgentParticipant;
@@ -189,14 +202,18 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
         typeof(RemoveAgentParticipant), typeof(ApproveConversationDeletion), typeof(RecordConversationDeletionDelivery),
         typeof(EditConversationMessageCommand), typeof(DeleteConversationMessageCommand)];
 
-    private static string NormalizeRestrictedType(string discriminator)
+    private static readonly Type[] KnownTypes = [.. RestrictedTypes, typeof(CreateConversation), typeof(AddParticipant),
+        typeof(ReassignConversationProject), typeof(SetConversationRetentionPolicy), typeof(MarkConversationContentSensitive),
+        typeof(RedactMessageContent)];
+
+    private static string NormalizeCommandType(string discriminator)
     {
         string[] pieces = discriminator.Split(',', 2);
         string name = pieces[0].Trim();
-        Type? contract = RestrictedTypes.SingleOrDefault(t => name == t.Name || name == t.FullName);
+        Type? contract = KnownTypes.SingleOrDefault(t => name == t.Name || name == t.FullName);
         if (contract is null)
         {
-            if (RestrictedTypes.Any(t => name.Split('.').Last() == t.Name))
+            if (KnownTypes.Any(t => name.Split('.').Last() == t.Name))
             {
                 throw new JsonException("Unsupported restricted command alias.");
             }

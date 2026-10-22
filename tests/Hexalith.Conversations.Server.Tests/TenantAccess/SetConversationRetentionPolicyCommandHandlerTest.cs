@@ -32,6 +32,41 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
     private static readonly DateTimeOffset CreatedAt = new(2026, 5, 19, 9, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset AppliedAt = new(2026, 5, 19, 9, 5, 0, TimeSpan.Zero);
 
+    /// <summary>Approved deletion refuses retention changes before recording audit evidence.</summary>
+    [Fact]
+    public async Task HandleAsyncShouldRejectApprovedDeletionBeforeAudit()
+    {
+        ConversationState state = CreatedState();
+        state.Apply(new ConversationDeletionApprovedDomainEvent(
+            new(SchemaVersion.Current, "event-deletion-approved", ConversationEventType.ConversationDeletionApproved,
+                Tenant, Conversation, "correlation-a", AppliedAt, Actor),
+            new("local-deletion-signal", Tenant, Conversation, ConversationState.AgentSourceStream(Tenant, Conversation),
+                state.SourceRevision + 1, "local-approval"), AuditEvidence()));
+        state.IsDeleted.ShouldBeTrue();
+        state.Lifecycle.ShouldBe(ConversationLifecycleState.Open);
+        long sourceRevision = state.SourceRevision;
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance, Tenant, "user-1"));
+        SetConversationRetentionPolicyCommandHandler handler = new(access, audit);
+        int loadCount = 0;
+
+        DomainResult result = await handler.HandleAsync(Command(), "user-1", _ =>
+        {
+            loadCount++;
+            return ValueTask.FromResult<ConversationState?>(state);
+        }, "event-retention-after-deletion", Tenant, cancellationToken: TestContext.Current.CancellationToken);
+
+        result.IsRejection.ShouldBeTrue();
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+        rejection.ReasonCode.ShouldBe("conversation_not_open");
+        loadCount.ShouldBe(1);
+        audit.CallCount.ShouldBe(0);
+        state.SourceRevision.ShouldBe(sourceRevision);
+        state.ActiveRetentionPolicy.ShouldBeNull();
+    }
+
     /// <summary>
     /// Tenant or governance denial happens before aggregate load and before audit proof.
     /// </summary>

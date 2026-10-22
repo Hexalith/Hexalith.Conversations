@@ -69,7 +69,7 @@ internal static class ReassignConversationProjectValidation
                 metadata.CausationId);
         }
 
-        if (state.Lifecycle != ConversationLifecycleState.Open)
+        if (state.IsDeleted || state.Lifecycle != ConversationLifecycleState.Open)
         {
             return Reject(
                 ConversationErrorCode.CommandValidationFailed,

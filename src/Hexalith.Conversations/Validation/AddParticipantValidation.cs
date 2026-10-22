@@ -75,7 +75,7 @@ internal static class AddParticipantValidation
 
         // Non-Open lifecycle is collapsed to a single content-safe reason so callers cannot
         // distinguish Closed from Archived (or any future lifecycle value) from a rejection.
-        if (state.Lifecycle != ConversationLifecycleState.Open)
+        if (state.IsDeleted || state.Lifecycle != ConversationLifecycleState.Open)
         {
             return Reject(
                 ConversationErrorCode.CommandValidationFailed,

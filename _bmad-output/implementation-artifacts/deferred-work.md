@@ -697,3 +697,31 @@ public contracts or domain behavior during publication reconciliation.
 - source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-owner-qualification.md`
   summary: Install the production Conversations-to-conformance-receiver transport with current owner-qualified authority and independently enrolled identities before EXT-CONV-AI-1 qualification.
   evidence: No production IConversationDeletionReceiver host adapter or installed current bindings were found; the new SDK receipt domain supplies a receiver protocol only. This pre-existing gap remains required delivery work and blocks the in-progress owner qualification; it is not an availability waiver.
+
+
+## Resolved by five deferred admission and replay safeguards (2026-10-22)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-admission-and-replay-safeguards.md`
+  summary: Resolved BH-R2-01, binding all six implemented legacy command payload actors and scopes to the authenticated human Party and envelope.
+  evidence: ConversationAgentAdmissionStage recognizes short, full and assembly-qualified legacy wrappers, validates tenant/conversation identity, compares ActorPartyId with the admitted Party, and refuses malformed or unsupported payloads and aliases. ConversationAdmissionSafeguardTests covers each wrapper and alias with accepted identities and independently altered actor, tenant and conversation fields.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-admission-and-replay-safeguards.md`
+  summary: Resolved BH-R2-02, refusing legacy participant, project and governance mutations after approved source deletion.
+  evidence: All five existing legacy mutation validators include IsDeleted in their content-safe conversation_not_open gate. ApprovedDeletionRejectsEveryLegacyMutation proves positive controls before deletion and rejection after serialized deletion replay while preserving the source's deletion checkpoint and domain state.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-admission-and-replay-safeguards.md`
+  summary: Resolved BH-R2-03, binding restricted membership and posting wrapper timestamps to portable OperationTimestamp.
+  evidence: Both aggregate handlers require present portable timestamps equal to wrapper timestamps before any retry/no-op branch. Regression cases cover missing and contradictory evidence before initial append and after persistence while preserving equivalent instants expressed with nonzero offsets; an exact original post retry remains valid after an independently admitted later human edit.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-admission-and-replay-safeguards.md`
+  summary: Resolved BH-R2-06, rejecting null, empty or whitespace retained message-edit text before replay-state mutation.
+  evidence: ConversationState validates retained edit text before changing revision or content. BlankRetainedEditCannotMutateOrBecomeAuthoritative proves unchanged direct state, malformed_payload from the replay verifier, and unavailable serialized-source/query results; valid retained edits preserve original intent and current provenance.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-admission-and-replay-safeguards.md`
+  summary: Resolved BH-R2-07, preserving immutable delivery attempt targets during deletion replay.
+  evidence: Retained Attempt and Acknowledge events cannot rebind any previously recorded attempt target, including older attempts. Direct rejection leaves state unchanged and serialized source reads fail closed. Same-target retries and command-generated target-conflict quarantine remain replayable, preserving the original attempt mapping.
+
+These five resolutions supersede only the named October 8 package-publication deferrals. Original ledger entries and historical evidence remain unchanged; BH-R2-04, BH-R2-05 and the other package-publication follow-ups remain outside this batch.
+
+
+## Deferred from: five deferred admission and replay safeguards review (2026-10-22)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-admission-and-replay-safeguards.md`
+  summary: Decide whether existing restricted membership no-op retries must reject explicitly supplied default or pre-2000 matching timestamps.
+  evidence: Verified low-impact pre-existing behavior: AddAgentParticipant returns NoOp for existing matching membership before IsValidOccurrence checks the wrapper year. Portable/wrapper binding now rejects missing or contradictory values, but matching invalid instants can still reach that old no-op branch. No membership or event is changed; enforcing occurrence shape before retry recognition should preserve legitimate old timestamps after later source events.

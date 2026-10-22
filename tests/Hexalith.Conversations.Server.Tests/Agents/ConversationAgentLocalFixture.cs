@@ -133,6 +133,9 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
     /// <summary>Mutates only synthetic returned source evidence for boundary regressions.</summary>
     public Func<AuthoritativeEventStream, AuthoritativeEventStream>? TransformSource { get; set; }
 
+    /// <summary>Gets or sets an optional transformation of otherwise successful synthetic authority evidence.</summary>
+    public Func<ConversationAgentAuthorization, ConversationAgentAuthorization>? TransformAuthority { get; set; }
+
     /// <summary>Whether source head evidence is incomplete.</summary>
     public bool CorruptHead
     {
@@ -177,7 +180,7 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
         => new(SchemaVersion.Current, Tenant, actor ?? Agent, "correlation-1", IdempotencyKey: key);
     /// <summary>Exact restricted AiAgent Member intent.</summary>
     public AddAgentParticipant Membership => new(new(CommandMetadata(), CurrentConversation, Agent,
-        ParticipantType.AiAgent, ParticipantRole.Member), At.AddMinutes(1), "membership-event");
+        ParticipantType.AiAgent, ParticipantRole.Member, OperationTimestamp: At.AddMinutes(1)), At.AddMinutes(1), "membership-event");
     /// <summary>Exact deterministic posting intent.</summary>
     public AppendAgentMessage Posting => new(new(CommandMetadata(key: "post-key"), CurrentConversation, new MessageId("message-original"), Agent,
         "Original content", AgentProvenance: new("agent-call-trace", true, false), OperationTimestamp: At.AddMinutes(2)), At.AddMinutes(2), "post-event");
@@ -229,9 +232,10 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
         {
             return Task.FromResult(new ConversationAgentAuthorization(ConversationAgentsOutcome.Denied));
         }
-        return Task.FromResult(new ConversationAgentAuthorization(ConversationAgentsOutcome.Available, Tenant, authenticatedPrincipalId,
+        var authorization = new ConversationAgentAuthorization(ConversationAgentsOutcome.Available, Tenant, authenticatedPrincipalId,
             authenticatedPrincipalId == "source-worker" ? null : authenticatedPrincipalId == "agents-service" ? Agent : Human, "current-authority-1",
-            authenticatedPrincipalId == "agents-service" && !WrongOrganization));
+            authenticatedPrincipalId == "agents-service" && !WrongOrganization);
+        return Task.FromResult(TransformAuthority?.Invoke(authorization) ?? authorization);
     }
 
     /// <inheritdoc />

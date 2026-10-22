@@ -44,6 +44,10 @@ public sealed partial class ConversationAggregate
         {
             return AgentReject(ConversationAgentsOutcome.Denied);
         }
+        if (!HasBoundOccurrence(request.OperationTimestamp, command.AddedAt))
+        {
+            return AgentReject(ConversationAgentsOutcome.Invalid);
+        }
         if (state.WasAgentRemoved(request.ParticipantPartyId))
         {
             return AgentReject(ConversationAgentsOutcome.PrincipalRemovedFromConversation);
@@ -125,6 +129,10 @@ public sealed partial class ConversationAggregate
         if (request.Metadata.ActorPartyId != request.AuthorPartyId)
         {
             return AgentReject(ConversationAgentsOutcome.Denied);
+        }
+        if (!HasBoundOccurrence(request.OperationTimestamp, command.PostedAt))
+        {
+            return AgentReject(ConversationAgentsOutcome.Invalid);
         }
         if (state.WasAgentRemoved(request.AuthorPartyId))
         {
@@ -383,6 +391,9 @@ public sealed partial class ConversationAggregate
 
     private static bool IsValidOccurrence(DateTimeOffset value, ConversationState state)
         => value.Year >= 2000 && value >= state.LastEventAt;
+
+    private static bool HasBoundOccurrence(DateTimeOffset? portable, DateTimeOffset occurrence)
+        => portable is { } timestamp && timestamp == occurrence;
 
     private static ConversationEventMetadata AgentMetadata(ConversationCommandMetadata metadata, ConversationId conversation,
         string eventId, ConversationEventType type, DateTimeOffset occurrence)

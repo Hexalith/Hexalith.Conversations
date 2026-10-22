@@ -84,6 +84,7 @@ public sealed partial class ConversationState
     public void Apply(MessageEditedDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        ArgumentException.ThrowIfNullOrWhiteSpace(e.Text);
         _sourceRevision++;
         int index = FindMessageIndex(e.MessageId);
         ConversationMessage original = _messages[index];
@@ -144,6 +145,11 @@ public sealed partial class ConversationState
     public void Apply(ConversationDeletionDeliveryRecordedDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        if (e.Action != ConversationDeletionDeliveryAction.Quarantine
+            && _deliveryAttemptTargets.TryGetValue(e.DeliveryAttemptId, out string? target) && target != e.TargetVersion)
+        {
+            throw new InvalidOperationException("Delivery replay attempt target mismatch.");
+        }
         _sourceRevision++;
         if (_deletionSource.Signal != e.Signal || e.PreviousDeliveryRevision != _deletionSource.DeliveryRevision
             || _deletionSource.Outcome == ConversationAgentsOutcome.Quarantined)
