@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Queries;
+using Hexalith.Conversations.Contracts.TrustStates;
+using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.Conversations.Server.Tests.ResolutionMetadata;
@@ -58,14 +60,25 @@ public sealed class ConversationAdvisoryMetadataQueryHandlerTest
     [InlineData("resource")]
     [InlineData("pending")]
     [InlineData("schema")]
+    [InlineData("Rebuilding")]
+    [InlineData("Unavailable")]
+    [InlineData("Forbidden")]
     public async Task MalformedOrPendingMetadataWithholdsObservations(string mutation)
     {
+        ArgumentNullException.ThrowIfNull(mutation);
         var f = new ResolutionMetadataFixture(); await f.ProjectAsync();
         string key = ConversationProjectionReadModelKeys.ResolutionMetadataKey(ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation);
         var value = f.Metadata;
         if (mutation == "tenant") value = value with { TenantId = new TenantId("foreign") };
         if (mutation == "resource") value = value with { Metadata = value.Metadata with { ConversationId = "other" } };
         if (mutation == "schema") value = value with { Freshness = new(new(2), value.Freshness.ProjectionCursor, value.Freshness.LastAppliedEventPosition, value.Freshness.LastAppliedEventTimestamp, value.Freshness.ProjectionGeneratedAt, value.Freshness.LagDuration, value.Freshness.IsStale, value.Freshness.FreshnessState, value.Freshness.ReasonCode) };
+        if (mutation is "Rebuilding" or "Unavailable" or "Forbidden")
+        {
+            var old = value.Freshness;
+            value = value with { Freshness = new(old.ProjectionContractSchemaVersion, old.ProjectionCursor, old.LastAppliedEventPosition,
+                old.LastAppliedEventTimestamp, old.ProjectionGeneratedAt, old.LagDuration, false, ProjectionTrustState.Parse(mutation),
+                ProjectionFreshnessReasonCode.Parse(mutation.ToLowerInvariant())) };
+        }
         if (mutation == "pending") f.Store.SeedRaw("statestore", ConversationProjectionReadModelKeys.ResolutionProofKey(
             ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation), new ConversationResolutionMetadataProof(null));
         f.Store.SeedRaw("statestore", key, value);
@@ -162,6 +175,27 @@ public sealed class ConversationAdvisoryMetadataQueryHandlerTest
         result.Metadata.ShouldBeNull(); result.Incomplete.ShouldBeTrue();
         f.Guard.Reads.ShouldContain(typeof(ConversationResolutionMetadataReadModel));
         f.Guard.ReadKeys.Count(key => key == proofKey).ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task ExistingSummaryWithoutIsolatedMetadataIsIncompleteWhileAbsentSummaryIsDenied()
+    {
+        var f = new ResolutionMetadataFixture(); await f.ProjectAsync();
+        await f.EraseAsync(ConversationProjectionReadModelKeys.ResolutionMetadataKey(ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation));
+        var result = Payload(await f.DispatchAdvisoryAsync());
+        result.Metadata.ShouldBeNull(); result.Incomplete.ShouldBeTrue();
+        f.Guard.ReadKeys.ShouldContain(ConversationProjectionReadModelKeys.TenantIndexKey(ResolutionMetadataFixture.Tenant));
+        f.Guard.ReadKeys.ShouldNotContain(ConversationProjectionReadModelKeys.ConversationKey(ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation));
+        var absent = new ResolutionMetadataFixture();
+        (await absent.DispatchAdvisoryAsync()).ErrorMessage.ShouldBe("safe-denial");
+    }
+
+    [Fact]
+    public async Task RetryableOwnerDenialReturnsUnavailableWithoutMetadataReads()
+    {
+        var f = new ResolutionMetadataFixture(); await f.ProjectAsync(); f.Access.RetryableDenial = true;
+        var result = Payload(await f.DispatchAdvisoryAsync());
+        result.Metadata.ShouldBeNull(); result.Incomplete.ShouldBeTrue(); f.Guard.Reads.ShouldBeEmpty();
     }
 
     private static ConversationAdvisoryMetadataResult Payload(QueryResult result)

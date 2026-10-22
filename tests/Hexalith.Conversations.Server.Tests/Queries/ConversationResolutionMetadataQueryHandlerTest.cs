@@ -159,7 +159,7 @@ public sealed class ConversationResolutionMetadataQueryHandlerTest
         value.ResourceVersion.ShouldBe(JsonSerializer.Serialize(fixture.Native.LastResource, JsonSerializerOptions.Web));
         value.PermissionVersion.ShouldBe(JsonSerializer.Serialize(fixture.Native.LastTenant, JsonSerializerOptions.Web));
         value.AuthorizedAt.ShouldBe(fixture.Time.Now);
-        fixture.Access.Checks.ShouldBe(2);
+        fixture.Access.Checks.ShouldBe(3);
         fixture.Store.Count.ShouldBe(keys);
         fixture.Metadata.ShouldBe(stored);
         fixture.Guard.Reads.ShouldAllBe(type => type == typeof(ConversationResolutionMetadataReadModel)
@@ -339,6 +339,19 @@ public sealed class ConversationResolutionMetadataQueryHandlerTest
         current.Metadata.ShouldBe(fixture.Metadata.Metadata);
         current.ResourceVersion.ShouldBe(JsonSerializer.Serialize(fixture.Native.LastResource, JsonSerializerOptions.Web));
         current.PermissionVersion.ShouldBe(JsonSerializer.Serialize(fixture.Native.LastTenant, JsonSerializerOptions.Web));
+    }
+
+    [Fact]
+    public async Task LocalHealthWithPreservedPermissionEvidenceCannotReplaceNativeAuthorization()
+    {
+        ResolutionMetadataFixture fixture = new(); await fixture.ProjectAsync();
+        var decision = await fixture.Access.CheckAccessAsync(ConversationTenantAccessRequirement.Read,
+            ResolutionMetadataFixture.Tenant, "actor", ResolutionMetadataFixture.Tenant,
+            aggregateTenantId: ResolutionMetadataFixture.Tenant, projectionTenantId: ResolutionMetadataFixture.Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+        decision.IsAllowed.ShouldBeTrue(); decision.ProjectionVersion.ShouldNotBeNull(); decision.ProjectionWatermark.ShouldNotBeNull();
+        AssertUnavailable(await fixture.DispatchAsync(nativeAuthorization: false));
+        fixture.Guard.Reads.ShouldBeEmpty();
     }
 
     [Theory]

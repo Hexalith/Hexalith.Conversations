@@ -49,7 +49,14 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
             var entry = await store.GetCompactedAsync<ConversationResolutionMetadataReadModel>(
                 ConversationProjectionReadModelKeys.StateStoreName,
                 ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenant, resource), cancellationToken).ConfigureAwait(false);
-            if (entry.Value is null) return QueryResult.Failure("safe-denial");
+            if (entry.Value is null)
+            {
+                var summaries = await store.GetCompactedAsync<ConversationProjectionIndexReadModel>(
+                    ConversationProjectionReadModelKeys.StateStoreName,
+                    ConversationProjectionReadModelKeys.TenantIndexKey(tenant), cancellationToken).ConfigureAwait(false);
+                return summaries.Value?.Summaries?.Any(summary => summary.TenantId == tenant && summary.ConversationId == resource) == true
+                    ? Unavailable() : QueryResult.Failure("safe-denial");
+            }
             var value = entry.Value;
             if (string.IsNullOrEmpty(entry.ETag) || value.TenantId != tenant || value.ConversationId != resource
                 || value.Metadata is null || value.Metadata.ConversationId != resource.Value || value.Freshness is null

@@ -83,32 +83,16 @@ public sealed class ConversationResolutionMetadataAuthorization(
             return (!evidence.Allowed, evidence.Allowed ? JsonSerializer.Serialize(evidence.NativeProof, JsonSerializerOptions.Web) : null,
                 evidence.VerifiedAt);
         }
-        ConversationTenantProjectionHealth before = await GetHealthAsync(tenant.Value, cancellationToken)
-            .ConfigureAwait(false);
+        // Preserve the legacy constructor parameter for callers, but local health cannot certify native authority.
+        _ = signal;
         ConversationTenantAccessDecision decision = await access.CheckAccessAsync(
             ConversationTenantAccessRequirement.Read, tenant, actor, routeTenantId: tenant,
             aggregateTenantId: tenant, projectionTenantId: tenant, cancellationToken: cancellationToken).ConfigureAwait(false);
-        DateTimeOffset checkedAt = (timeProvider ?? TimeProvider.System).GetUtcNow();
-        ConversationTenantProjectionHealth after = await GetHealthAsync(tenant.Value, cancellationToken)
-            .ConfigureAwait(false);
-        if (!decision.IsAllowed)
-        {
-            bool unavailable = decision.DenialReason is ConversationTenantAccessDenialReason.TenantAccessUnavailable
-                or ConversationTenantAccessDenialReason.TenantAccessStale or ConversationTenantAccessDenialReason.TenantAccessGapDetected
-                or ConversationTenantAccessDenialReason.TenantAccessRolledBack or ConversationTenantAccessDenialReason.TenantProjectionPoisoned
-                or ConversationTenantAccessDenialReason.MalformedProjection;
-            return (!unavailable, null, checkedAt);
-        }
-
-        if (decision.Requirement != ConversationTenantAccessRequirement.Read || decision.TenantId != tenant
-            || decision.CallerPrincipalId != actor || !Current(before) || !Current(after) || before != after
-            || decision.ProjectionVersion != before.Version || decision.ProjectionWatermark != before.Watermark)
-        {
-            return (false, null, checkedAt);
-        }
-
-        // This is a bounded encoding of the native tuple, not a revision allocator or authorization lease.
-        return (false, JsonSerializer.Serialize(new object[] { before.Version!.Value, before.Watermark! }), checkedAt);
+        bool unavailable = decision.IsRetryable || decision.DenialReason is ConversationTenantAccessDenialReason.TenantAccessUnavailable
+            or ConversationTenantAccessDenialReason.TenantAccessStale or ConversationTenantAccessDenialReason.TenantAccessGapDetected
+            or ConversationTenantAccessDenialReason.TenantAccessRolledBack or ConversationTenantAccessDenialReason.TenantProjectionPoisoned
+            or ConversationTenantAccessDenialReason.MalformedProjection;
+        return (!decision.IsAllowed && !unavailable, null, (timeProvider ?? TimeProvider.System).GetUtcNow());
     }
 
     /// <summary>Confirms native permission evidence did not change during the last resource lookup.</summary>
@@ -122,20 +106,10 @@ public sealed class ConversationResolutionMetadataAuthorization(
             return evidence is { Allowed: true } && evidence.TenantId == tenant.Value && evidence.PrincipalId == query.UserId
                 && JsonSerializer.Serialize(evidence.NativeProof, JsonSerializerOptions.Web) == expected;
         }
-        ConversationTenantProjectionHealth health = await GetHealthAsync(tenant.Value, cancellationToken)
-            .ConfigureAwait(false);
-        return Current(health)
-            && JsonSerializer.Serialize(new object[] { health.Version!.Value, health.Watermark! }) == expected;
+        return false;
     }
-
-    private ValueTask<ConversationTenantProjectionHealth> GetHealthAsync(string tenant, CancellationToken cancellationToken)
-        => signal?.GetProjectionHealthAsync(tenant, cancellationToken)
-            ?? ValueTask.FromResult(ConversationTenantProjectionHealth.Healthy);
 
     private static bool Canonical(string? value) => !string.IsNullOrWhiteSpace(value) && value == value.Trim();
     private static bool Compatible(IReadOnlyList<string>? values, string expected)
         => values is null || values.Count == 0 || values.Contains(expected, StringComparer.Ordinal);
-    private static bool Current(ConversationTenantProjectionHealth? health)
-        => health is { IsStale: false, HasGap: false, HasRollback: false, IsPoisoned: false, Version: >= 0 }
-            && !string.IsNullOrWhiteSpace(health.Watermark) && health.Watermark.Length <= 1024;
 }

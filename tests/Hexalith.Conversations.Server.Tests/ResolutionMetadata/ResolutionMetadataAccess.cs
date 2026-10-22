@@ -10,6 +10,7 @@ internal sealed class ResolutionMetadataAccess : IConversationTenantAccessServic
     public Action<int>? OnCheck { get; set; }
     public Func<int, Task>? BeforeDecision { get; set; }
     public bool Denied { get; set; }
+    public bool RetryableDenial { get; set; }
     public bool MissingDecisionEvidence { get; set; }
     public long? DecisionVersionOverride { get; set; }
     public string? DecisionWatermarkOverride { get; set; }
@@ -28,6 +29,8 @@ internal sealed class ResolutionMetadataAccess : IConversationTenantAccessServic
         Checks++;
         OnCheck?.Invoke(Checks);
         if (BeforeDecision is not null) await BeforeDecision(Checks);
+        if (RetryableDenial) return ConversationTenantAccessDecision.Denied(requirement, trustedTenantId, callerPrincipalId,
+            ConversationTenantAccessDenialReason.TenantAccessUnavailable, isRetryable: true);
         return Denied
             ? ConversationTenantAccessDecision.Denied(requirement, trustedTenantId, callerPrincipalId, ConversationTenantAccessDenialReason.MissingMember)
             : ConversationTenantAccessDecision.Allowed(requirement, trustedTenantId!, callerPrincipalId!,

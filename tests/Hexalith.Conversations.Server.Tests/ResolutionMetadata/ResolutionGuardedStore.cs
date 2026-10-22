@@ -6,6 +6,7 @@ namespace Hexalith.Conversations.Server.Tests.ResolutionMetadata;
 
 internal sealed class ResolutionGuardedStore(InMemoryReadModelStore inner) : IReadModelStore, IReadModelBatchStore, IReadModelExpiringStore, IReadModelPendingBatchRecoveryStore
 {
+    public bool AllowSummaryIndexReads { get; set; }
     public bool ForbidLegacyReads { get; set; }
     public bool ForbidWrites { get; set; }
     public int ForbiddenAttempts { get; private set; }
@@ -28,7 +29,8 @@ internal sealed class ResolutionGuardedStore(InMemoryReadModelStore inner) : IRe
     {
         Reads.Add(typeof(T));
         ReadKeys.Add(key);
-        bool allowed = typeof(T) == typeof(ConversationResolutionNativeSelection) && key.StartsWith("projection:conversations-resolution-selection:", StringComparison.Ordinal)
+        bool allowed = AllowSummaryIndexReads && typeof(T) == typeof(ConversationProjectionIndexReadModel) && key.StartsWith("projection:conversations-index:", StringComparison.Ordinal)
+            || typeof(T) == typeof(ConversationResolutionNativeSelection) && key.StartsWith("projection:conversations-resolution-selection:", StringComparison.Ordinal)
             || typeof(T) == typeof(ConversationResolutionMetadataReadModel) && key.StartsWith("projection:conversations-resolution:", StringComparison.Ordinal)
             || typeof(T) == typeof(ConversationResolutionMetadataProof) && key.StartsWith("projection:conversations-resolution-proof:", StringComparison.Ordinal)
             || typeof(T) == typeof(ConversationProjectionDispatchLedger) && key.StartsWith("projection:conversations-dispatch:", StringComparison.Ordinal);

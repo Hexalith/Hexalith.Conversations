@@ -94,7 +94,7 @@ internal sealed class ResolutionMetadataFixture
     };
 
     public async Task<QueryResult> DispatchAsync(QueryEnvelope? query = null, bool verified = true,
-        IConversationTenantAccessService? access = null, IConversationTenantProjectionSignal? signal = null,
+        IConversationTenantAccessService? access = null, IConversationTenantProjectionSignal? signal = null, bool nativeAuthorization = true,
         CancellationToken? cancellationToken = null)
     {
         query ??= Query();
@@ -109,7 +109,7 @@ internal sealed class ResolutionMetadataFixture
         if (verified) claims.AddRange(QueryCallerAuthorityBinding.Bind(query).Select(pair => new Claim(pair.Key, pair.Value)));
         accessor.HttpContext!.User = new(new ClaimsIdentity(claims, "Workload"));
         var handler = new GetConversationResolutionMetadataDomainQueryHandler(
-            new(access ?? Access, accessor, signal ?? Access, Time), Reader(Guard), Native);
+            new(access ?? Access, accessor, signal ?? Access, Time, nativeAuthorization ? new ResolutionPolicyNativeEvidence(this, access ?? Access, signal ?? Access) : null), Reader(Guard), Native);
         await using ServiceProvider provider = new ServiceCollection().AddSingleton(accessor)
             .AddSingleton<IDomainQueryHandler>(handler).BuildServiceProvider();
         try
@@ -129,6 +129,7 @@ internal sealed class ResolutionMetadataFixture
         CancellationToken? cancellationToken = null, IConversationTenantAccessService? access = null)
     {
         query ??= Query() with { QueryType = GetConversationAdvisoryMetadataQuery.QueryType };
+        Guard.AllowSummaryIndexReads = true;
         Guard.ForbidLegacyReads = true;
         Guard.ForbidWrites = true;
         IHttpContextAccessor accessor = new HttpContextAccessor { HttpContext = new DefaultHttpContext() };
