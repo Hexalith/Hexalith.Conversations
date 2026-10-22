@@ -258,7 +258,6 @@ def test_b_cli_writers_preserve_measured_generated_inputs(output_case, kind):
     assert source.read_bytes() == saved and not any(path.exists() for path in outputs)
 
 
-@pytest.mark.skipif(not hasattr(os, "mkfifo"), reason="FIFOs are POSIX filesystem objects")
 @pytest.mark.parametrize("output_case", ["guidance-json"], indirect=True)
 def test_review_reuse_rejects_a_fifo_without_opening_it(output_case):
     repo, module, args, outputs, source, _ = output_case
@@ -266,6 +265,7 @@ def test_review_reuse_rejects_a_fifo_without_opening_it(output_case):
         index = args.index(option)
         del args[index:index + 2]
     outputs[0].parent.mkdir(parents=True)
+    assert hasattr(os, "mkfifo"), "FIFO support is required by the POSIX tooling lane"
     os.mkfifo(outputs[0])
     saved = source.read_bytes()
     result = subprocess.run([sys.executable, module.__file__, *args], cwd=repo,
