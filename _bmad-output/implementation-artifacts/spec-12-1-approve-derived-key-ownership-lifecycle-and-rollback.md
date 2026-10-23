@@ -39,13 +39,16 @@ context:
 
 ## Open Questions
 
-1. **Entry:** Required predecessor `16.3` is backlog; the hold lift covers only `7.1-SCHEMAS`. **Keep the gate** (wait for predecessor/entry authorization), or **authorize bounded 12.1 exception** (ADR/tooling now, documented substituted checks, runtime/release restrictions retained, digest approval later). Neither marks 16.3 done.
+1. **Entry:** `12.1.json` requires `16.3`, still draft/backlog without scoped entry approval. **Keep the gate** (wait for predecessor/entry approval), or **authorize bounded preparation** (ADR/tooling now; disclose the missing predecessor; acceptance/completion blocked; digest approval later). Neither marks 16.3 done. The lift covers only `7.1-SCHEMAS`; current-change policy retires routine authority gates but grants no product safety approval.
 
 ## Code Map
 
-- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs` and adjacent writers — grammar/order/TTL/recovery; read only.
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs` — seven families: conversation, tenant index, dispatch ledger, resolution metadata, selection, proof and fence. Spell out the tenant-wide index and ledger exceptions; runtime stays read only.
+- `src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs` — `ProjectAsync` orders pending proof/index, rich writes, metadata/selection, durability checks, proof/fence completion, then ledger completion; `PrepareRebuildAsync` covers seven families. Only the ledger explicitly expires.
+- `src/Hexalith.Conversations.Server/Projections/ConversationResolutionMetadataPersistence.cs` and `ConversationProjectionReadStore.cs` — writer recovery and read-side proof checks; lasting proof outlives the ledger. Label general migration/deletion/backfill as proposed.
 - `_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md` — final record; distinguish its candidate from `docs/release-evidence/consume-promote-keep-story-6-2-disposition-v1.json`'s deletion candidate.
-- `_bmad/scripts/{generate_thin_authoring_guidance,evidence_boundary_current,authoring_outputs}.py` — canonical pairs, neutral Git bridge, safe writers. Native readers reuse `tests/Hexalith.Conversations.TestSupport/`.
+- `_bmad/scripts/{generate_thin_authoring_guidance,verify_thin_authoring_guidance,evidence_boundary_current,authoring_outputs}.py` — canonical pairs, excluded approval, neutral Git bridge and contained atomic writers. Native readers reuse `tests/Hexalith.Conversations.TestSupport/`; pin ownership independently in consuming test source.
+- `tests/Hexalith.Conversations.Server.Tests/Projections/{ConversationAsyncProjectionHandlerTest,ConversationResolutionMetadataRecoveryTest,ConversationResolutionMetadataProjectionTest}.cs` — existing ordering/rebuild/recovery evidence.
 
 ## Tasks & Acceptance
 
