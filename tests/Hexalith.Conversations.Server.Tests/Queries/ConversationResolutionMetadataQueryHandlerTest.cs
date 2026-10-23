@@ -193,6 +193,88 @@ public sealed class ConversationResolutionMetadataQueryHandlerTest
         result.Freshness!.ProjectionGeneratedAt.ShouldBe(generation);
     }
 
+    /// <summary>Withholds future native evidence independently at each authorization or initial lookup boundary.</summary>
+    /// <param name="sample">The one-based native permission sample to date in the future.</param>
+    /// <returns>A task representing the metadata disclosure check.</returns>
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    public async Task FutureNativeVerificationIsWithheldAtEachAuthorizationAndInitialLookupBoundary(int sample)
+    {
+        ResolutionMetadataFixture fixture = new();
+        await fixture.ProjectAsync();
+        fixture.Native.TenantVerificationTime = (read, now) => read == sample ? now.AddTicks(1) : now;
+
+        AssertUnavailable(await fixture.DispatchAsync());
+
+        fixture.Native.TenantReads.ShouldBe(sample);
+        if (sample <= 2) fixture.Guard.Reads.ShouldBeEmpty();
+        fixture.Guard.ForbiddenAttempts.ShouldBe(0);
+    }
+
+    /// <summary>Validates the native verification instant sampled after the final resource read.</summary>
+    /// <param name="offsetTicks">The final verification offset from the owner clock.</param>
+    /// <param name="available">Whether current metadata may be disclosed.</param>
+    /// <returns>A task representing the final sample check.</returns>
+    [Theory]
+    [InlineData(-1, true)]
+    [InlineData(0, true)]
+    [InlineData(1, false)]
+    public async Task FinalNativeVerificationMustNotBeInTheFutureAfterTheLastProjectionRead(int offsetTicks, bool available)
+    {
+        ResolutionMetadataFixture fixture = new();
+        await fixture.ProjectAsync();
+        ConversationResolutionMetadataReadModel stored = fixture.Metadata;
+        int keys = fixture.Store.Count;
+        DateTimeOffset finalVerification = fixture.Time.Now.AddTicks(offsetTicks);
+        fixture.Native.OnProjection = read =>
+        {
+            if (read == 2) fixture.Native.TenantVerificationTime = (_, _) => finalVerification;
+        };
+
+        QueryResult result = await fixture.DispatchAsync();
+
+        fixture.Native.ProjectionReads.ShouldBe(2);
+        if (available)
+        {
+            var value = Deserialize(result);
+            value.Metadata.ShouldBe(stored.Metadata);
+            value.Freshness.ShouldBe(stored.Freshness);
+            value.PermissionVersion.ShouldBe(JsonSerializer.Serialize(fixture.Native.LastTenant, JsonSerializerOptions.Web));
+            value.AuthorizedAt.ShouldBe(finalVerification);
+        }
+        else
+        {
+            AssertUnavailable(result);
+        }
+        fixture.Store.Count.ShouldBe(keys);
+        fixture.Metadata.ShouldBe(stored);
+        fixture.Guard.ForbiddenAttempts.ShouldBe(0);
+    }
+
+    /// <summary>Allows a current final sample after the clock advances during resource I/O.</summary>
+    /// <returns>A task representing the current-clock and immutable-generation checks.</returns>
+    [Fact]
+    public async Task FinalNativeVerificationUsesTheClockAfterResourceIoWithoutChangingProjectionGenerationTime()
+    {
+        ResolutionMetadataFixture fixture = new();
+        await fixture.ProjectAsync();
+        DateTimeOffset generation = fixture.Metadata.Freshness.ProjectionGeneratedAt;
+        DateTimeOffset started = fixture.Time.Now;
+        fixture.Native.OnProjection = read =>
+        {
+            if (read == 2) fixture.Time.Now = fixture.Time.Now.AddMinutes(1);
+        };
+
+        var value = Deserialize(await fixture.DispatchAsync());
+
+        value.Metadata.ShouldBe(fixture.Metadata.Metadata);
+        value.AuthorizedAt.ShouldBe(started.AddMinutes(1));
+        value.Freshness!.ProjectionGeneratedAt.ShouldBe(generation);
+    }
+
     [Fact]
     public async Task SupportedAggregateLength256IsPreservedExactly()
     {

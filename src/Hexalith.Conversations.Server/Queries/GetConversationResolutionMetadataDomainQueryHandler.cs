@@ -50,7 +50,7 @@ public sealed class GetConversationResolutionMetadataDomainQueryHandler(
             }
 
             var tenantBefore = native is null ? null : await native.ReadTenantAsync(query, cancellationToken).ConfigureAwait(false);
-            if (tenantBefore is null) return Unavailable();
+            if (tenantBefore is null || !authorization.IsVerificationCurrent(tenantBefore.VerifiedAt)) return Unavailable();
             if (!tenantBefore.Allowed) return QueryResult.Failure("safe-denial");
             if (authorization.UsesNativeEvidence && first.PermissionVersion != JsonSerializer.Serialize(tenantBefore.NativeProof, JsonSerializerOptions.Web))
                 return Unavailable();
@@ -92,8 +92,9 @@ public sealed class GetConversationResolutionMetadataDomainQueryHandler(
             // Native permission is sampled after the final awaited resource I/O. Revoke/regrant cannot
             // borrow the earlier Allowed decision, even if it restores the same role at a new native prefix.
             var tenantAfter = await native.ReadTenantAsync(query, cancellationToken).ConfigureAwait(false);
-            if (tenantAfter is { Allowed: false }) return QueryResult.Failure("safe-denial");
-            if (tenantAfter is null || tenantAfter.NativeProof != tenantBefore.NativeProof
+            if (tenantAfter is null || !authorization.IsVerificationCurrent(tenantAfter.VerifiedAt)) return Unavailable();
+            if (!tenantAfter.Allowed) return QueryResult.Failure("safe-denial");
+            if (tenantAfter.NativeProof != tenantBefore.NativeProof
                 || tenantAfter.TenantId != query.TenantId || tenantAfter.PrincipalId != query.UserId
                 || resourceAfter != resourceBefore
                 || authorization.UsesNativeEvidence && final.PermissionVersion != JsonSerializer.Serialize(tenantAfter.NativeProof, JsonSerializerOptions.Web))

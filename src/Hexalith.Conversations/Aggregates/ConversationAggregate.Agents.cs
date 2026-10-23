@@ -44,7 +44,7 @@ public sealed partial class ConversationAggregate
         {
             return AgentReject(ConversationAgentsOutcome.Denied);
         }
-        if (!HasBoundOccurrence(request.OperationTimestamp, command.AddedAt))
+        if (command.AddedAt.Year < 2000 || !HasBoundOccurrence(request.OperationTimestamp, command.AddedAt))
         {
             return AgentReject(ConversationAgentsOutcome.Invalid);
         }

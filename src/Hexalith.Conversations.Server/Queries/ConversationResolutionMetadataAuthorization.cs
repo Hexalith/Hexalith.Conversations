@@ -30,6 +30,12 @@ public sealed class ConversationResolutionMetadataAuthorization(
     /// <summary>Whether the production native Tenant evidence path owns this policy decision.</summary>
     internal bool UsesNativeEvidence => native is not null;
 
+    /// <summary>Checks that native verification does not claim an instant beyond the current owner clock.</summary>
+    /// <param name="verifiedAt">The native verification instant.</param>
+    /// <returns>Whether the verification instant is no later than the current owner clock.</returns>
+    internal bool IsVerificationCurrent(DateTimeOffset verifiedAt)
+        => verifiedAt <= (timeProvider ?? TimeProvider.System).GetUtcNow();
+
     /// <summary>Requires SDK verification of this exact query and its original authority.</summary>
     internal bool IsVerifiedScoringQuery(QueryEnvelope query)
     {
@@ -77,9 +83,9 @@ public sealed class ConversationResolutionMetadataAuthorization(
             if (verified?.Query is not { } query || query.TenantId != tenant.Value || query.AggregateId != resource.Value
                 || query.UserId != actor) return (true, null, default);
             var evidence = await native.ReadTenantAsync(query, cancellationToken).ConfigureAwait(false);
-            DateTimeOffset now = (timeProvider ?? TimeProvider.System).GetUtcNow();
             if (evidence is null || evidence.TenantId != tenant.Value || evidence.PrincipalId != actor
-                || evidence.VerifiedAt > now) return (false, null, now);
+                || !IsVerificationCurrent(evidence.VerifiedAt))
+                return (false, null, (timeProvider ?? TimeProvider.System).GetUtcNow());
             return (!evidence.Allowed, evidence.Allowed ? JsonSerializer.Serialize(evidence.NativeProof, JsonSerializerOptions.Web) : null,
                 evidence.VerifiedAt);
         }
@@ -104,6 +110,7 @@ public sealed class ConversationResolutionMetadataAuthorization(
             if (verified?.Query is not { } query || query.TenantId != tenant.Value) return false;
             var evidence = await native.ReadTenantAsync(query, cancellationToken).ConfigureAwait(false);
             return evidence is { Allowed: true } && evidence.TenantId == tenant.Value && evidence.PrincipalId == query.UserId
+                && IsVerificationCurrent(evidence.VerifiedAt)
                 && JsonSerializer.Serialize(evidence.NativeProof, JsonSerializerOptions.Web) == expected;
         }
         return false;

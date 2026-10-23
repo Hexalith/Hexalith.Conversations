@@ -37,6 +37,11 @@ public sealed class ConversationResolutionNativeEnrollmentTest
         metadata.NativeAdmission.ShouldBeNull();
         metadata.NativeSourceProof.ShouldBeNull();
         JsonSerializer.Serialize(metadata, JsonSerializerOptions.Web).ShouldNotContain("nativeAdmission");
+        int writes = fixture.Backend.WrittenKeys.Count;
+        fixture.Backend.BeforeWrite = _ => throw new Xunit.Sdk.XunitException("Completed legacy redelivery attempted mutation.");
+        (await fixture.PostAsync<ProjectionDispatchResponse>("/project/v2/reconcile", request)).Outcomes[0].Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        (await fixture.MetadataAsync()).ShouldBe(metadata);
+        fixture.Backend.WrittenKeys.Count.ShouldBe(writes);
     }
 
     [Theory]
@@ -292,6 +297,14 @@ public sealed class ConversationResolutionNativeEnrollmentTest
         fixture.Backend.BeforeWrite = _ => throw new Xunit.Sdk.XunitException("Rebuild read attempted mutation.");
         (await new ConversationProjectionReadStore(fixture.Store).ReadResolutionMetadataAsync(
             ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation, Token)).ShouldBe(metadata);
+        fixture.Backend.WrittenKeys.Count.ShouldBe(writes);
+        fixture.Time.Now = fixture.Time.Now.AddHours(1);
+        (await fixture.PostAsync<ProjectionDispatchResponse>("/project/v2/reconcile", request))
+            .Outcomes[0].Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        (await fixture.MetadataAsync()).ShouldBe(metadata);
+        (await fixture.Store.GetAsync<ConversationResolutionNativeSelection>("statestore",
+            ConversationProjectionReadModelKeys.ResolutionSelectionKey(ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation), Token))
+            .Value.ShouldBe(selected);
         fixture.Backend.WrittenKeys.Count.ShouldBe(writes);
     }
 }

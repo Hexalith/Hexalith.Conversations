@@ -268,6 +268,45 @@ public sealed class ConversationAdmissionSafeguardTests
         fixture.PersistedEvents.Count.ShouldBe(2);
     }
 
+    /// <summary>Matching invalid membership instants cannot bypass validation through an existing member.</summary>
+    /// <param name="year">The default or pre-2000 occurrence year.</param>
+    [Theory]
+    [InlineData(1)]
+    [InlineData(1999)]
+    public async Task MembershipRejectsMatchingInvalidOccurrenceBeforeAppendAndRetry(int year)
+    {
+        var fixture = new F();
+        AddAgentParticipant valid = fixture.Membership;
+        DateTimeOffset invalidAt = year == 1 ? default : new(year, 12, 31, 23, 59, 59, TimeSpan.Zero);
+        AddAgentParticipant invalid = valid with
+        {
+            PublicCommand = valid.PublicCommand with { OperationTimestamp = invalidAt },
+            AddedAt = invalidAt,
+        };
+        var initial = await fixture.ReplayAsync();
+        string initialState = JsonSerializer.Serialize(initial, F.Options);
+        string initialSource = JsonSerializer.Serialize(fixture.PersistedEvents, F.Options);
+
+        AssertInvalid(ConversationAggregate.Handle(invalid, initial));
+
+        JsonSerializer.Serialize(initial, F.Options).ShouldBe(initialState);
+        JsonSerializer.Serialize(fixture.PersistedEvents, F.Options).ShouldBe(initialSource);
+        fixture.Persist(ConversationAggregate.Handle(valid, initial));
+        var persisted = await fixture.ReplayAsync();
+        string persistedState = JsonSerializer.Serialize(persisted, F.Options);
+        string persistedSource = JsonSerializer.Serialize(fixture.PersistedEvents, F.Options);
+
+        AssertInvalid(ConversationAggregate.Handle(invalid, persisted));
+
+        JsonSerializer.Serialize(persisted, F.Options).ShouldBe(persistedState);
+        JsonSerializer.Serialize(fixture.PersistedEvents, F.Options).ShouldBe(persistedSource);
+        var retry = ConversationAggregate.Handle(valid, persisted);
+        retry.IsNoOp.ShouldBeTrue();
+        retry.Events.ShouldBeEmpty();
+        (await fixture.ReplayAsync()).Participants.Count.ShouldBe(1);
+        fixture.PersistedEvents.Count.ShouldBe(2);
+    }
+
     /// <summary>Posting timestamps remain required and bound when a message is already persisted.</summary>
     /// <param name="mutation">The missing or contradictory occurrence evidence.</param>
     [Theory]

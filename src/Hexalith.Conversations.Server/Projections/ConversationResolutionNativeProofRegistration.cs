@@ -1,4 +1,5 @@
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.DomainService;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +23,9 @@ public static class ConversationResolutionNativeProofRegistration
         // mutations remain under the same ConversationAsyncProjectionHandler and SDK batch protocols.
         LegacyCoexistence = new(typeof(ConversationAsyncProjectionHandler), typeof(ConversationProjectionHandler)),
     };
+
+    /// <summary>Gets the registered SDK binding for producer-side selected-owner receipt verification.</summary>
+    internal static ReadModelOwnerProofBinding OwnerProofBinding => Registration.Binding;
 
     /// <summary>Opts in to exact source handler coverage without activating or qualifying any native source guard.</summary>
     public static IServiceCollection AddConversationResolutionNativeProof(this IServiceCollection services)

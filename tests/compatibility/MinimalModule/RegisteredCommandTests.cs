@@ -3,6 +3,7 @@ using Hexalith.Conversations.MinimalModule.Contracts;
 using Hexalith.Conversations.MinimalModule.Server;
 using Hexalith.EventStore.Client.Handlers;
 using Hexalith.EventStore.Contracts.Commands;
+using Hexalith.EventStore.Contracts.Replay;
 using Hexalith.EventStore.Contracts.Results;
 using Hexalith.EventStore.DomainService;
 using Microsoft.AspNetCore.Builder;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Hexalith.Conversations.MinimalModule.Tests;
 
-/// <summary>Checks command registration against the platform without changing the measured fixture.</summary>
+/// <summary>Checks registered command, replay and state rehydration without changing the measured fixture.</summary>
 public sealed class RegisteredCommandTests
 {
     /// <summary>Dispatches through the registered domain key and verifies the emitted state and replay no-op.</summary>
@@ -48,20 +49,35 @@ public sealed class RegisteredCommandTests
         emitted.SerializationFormat.ShouldBe("json");
         ConversationCreated created = JsonSerializer.Deserialize<ConversationCreated>(emitted.Payload).ShouldNotBeNull();
         created.ShouldBe(new ConversationCreated(command.ConversationId, command.Title));
-        ConversationState state = new();
-        state.Apply(created);
-        state.Created.ShouldBeTrue();
-        state.Title.ShouldBe(command.Title);
+        using IServiceScope replayScope = app.Services.CreateScope();
+        AggregateReconstructionResult reconstruction = await DomainServiceRequestRouter.ReplayAsync(
+            replayScope.ServiceProvider,
+            new AggregateReconstructionRequest(
+                envelope.TenantId, envelope.Domain, nameof(ConversationAggregate), envelope.AggregateId, 1,
+                [new ReplayEventEnvelope(1, emitted.EventTypeName, emitted.Payload, emitted.SerializationFormat, 1,
+                    envelope.MessageId, envelope.CorrelationId, envelope.CausationId)],
+                IncludeTimeline: false, RequestId: envelope.CorrelationId),
+            TestContext.Current.CancellationToken);
+        reconstruction.Status.ShouldBe(AggregateReconstructionStatus.Succeeded);
+        reconstruction.ErrorCategory.ShouldBe(AggregateReconstructionErrorCategory.None);
+        reconstruction.LastAppliedSequenceNumber.ShouldBe(1);
+        reconstruction.FailedSequenceNumber.ShouldBeNull();
+        reconstruction.StateJson.ShouldNotBeNullOrWhiteSpace();
+        JsonElement serializedState;
+        using (JsonDocument document = JsonDocument.Parse(reconstruction.StateJson))
+        {
+            serializedState = document.RootElement.Clone();
+        }
+        serializedState.GetProperty("created").GetBoolean().ShouldBeTrue();
+        serializedState.GetProperty("title").GetString().ShouldBe(command.Title);
 
         using IServiceScope nextRequestScope = app.Services.CreateScope();
         DomainServiceWireResult replay = await DomainServiceRequestRouter.ProcessAsync(
             nextRequestScope.ServiceProvider,
-            new DomainServiceRequest(envelope with { MessageId = "registered-create-2" }, state),
+            new DomainServiceRequest(envelope with { MessageId = "registered-create-2" }, serializedState),
             TestContext.Current.CancellationToken);
 
         replay.IsRejection.ShouldBeFalse();
         replay.Events.ShouldBeEmpty();
-        state.Created.ShouldBeTrue();
-        state.Title.ShouldBe(command.Title);
     }
 }

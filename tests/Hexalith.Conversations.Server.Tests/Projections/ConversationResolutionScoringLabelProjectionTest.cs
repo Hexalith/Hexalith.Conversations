@@ -35,13 +35,17 @@ public sealed class ConversationResolutionScoringLabelProjectionTest
         fixture.Store.Count.ShouldBe(count);
     }
 
-    [Fact]
-    public async Task ExplicitNativeMetadataReclassificationAdmitsALegacyLabelWithoutRewritingHistory()
+    [Theory]
+    [InlineData(null)]
+    [InlineData("Scoring label")]
+    public async Task ExplicitNativeMetadataReclassificationAdmitsALegacyLabelWithoutRewritingHistory(string? label)
     {
         ResolutionMetadataFixture fixture = new();
-        ProjectionRequest original = ResolutionMetadataFixture.Request(classifyLabel: false);
+        ProjectionRequest original = ResolutionMetadataFixture.Request(label: label, classifyLabel: false);
+        byte[] originalPayload = original.Events[0].Payload.ToArray();
         (await fixture.Handler().ProjectAsync(original, "legacy-label", Token)).Status.ShouldBe(ProjectionDispatchStatus.Completed);
-        fixture.Metadata.IsLabelComplete.ShouldBeFalse();
+        // Absence is already complete under current main; explicit classification must still replay.
+        fixture.Metadata.IsLabelComplete.ShouldBe(label is null);
         var created = JsonSerializer.Deserialize<ConversationCreated>(original.Events[0].Payload, JsonSerializerOptions.Web)!;
         ConversationMetadataUpdated classified = new(created.Metadata with
         {
@@ -60,10 +64,20 @@ public sealed class ConversationResolutionScoringLabelProjectionTest
         fixture.Metadata.IsLabelComplete.ShouldBeTrue();
         fixture.Metadata.Metadata.SafeLabel.ShouldBe(created.Label);
         fixture.Metadata.LabelPurpose.ShouldBe(ConversationResolutionScoringLabel.SupportedPurpose);
-        next.Events[0].Payload.ShouldBe(original.Events[0].Payload);
+        fixture.Metadata.LabelClassification.ShouldBe(ConversationResolutionScoringLabel.OwnerClassification);
+        fixture.Metadata.NativeSourceProof.ShouldBe(next.NativeSourceProof);
+        fixture.Proof.Current!.Matches(fixture.Metadata).ShouldBeTrue();
+        original.Events[0].Payload.ShouldBe(originalPayload);
+        next.Events[0].Payload.ShouldBe(originalPayload);
         var result = await fixture.DispatchAsync();
         result.Success.ShouldBeTrue();
-        result.GetPayload().GetProperty("metadata").GetProperty("safeLabel").GetString().ShouldBe(created.Label);
+        ConversationResolutionMetadataResultV1 returned = result.GetPayload().Deserialize<ConversationResolutionMetadataResultV1>(JsonSerializerOptions.Web)!;
+        returned.Metadata.ShouldBe(fixture.Metadata.Metadata);
+        returned.Metadata!.SafeLabel.ShouldBe(label);
+        returned.ResourceVersion.ShouldBe(JsonSerializer.Serialize(next.NativeSourceProof, JsonSerializerOptions.Web));
+        returned.PermissionVersion.ShouldNotBeNull();
+        result.GetPayload().GetProperty("metadata").GetProperty("safeLabel").ValueKind
+            .ShouldBe(label is null ? JsonValueKind.Null : JsonValueKind.String);
     }
 
     [Fact]

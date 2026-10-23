@@ -725,3 +725,31 @@ These five resolutions supersede only the named October 8 package-publication de
 - source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-admission-and-replay-safeguards.md`
   summary: Decide whether existing restricted membership no-op retries must reject explicitly supplied default or pre-2000 matching timestamps.
   evidence: Verified low-impact pre-existing behavior: AddAgentParticipant returns NoOp for existing matching membership before IsValidOccurrence checks the wrapper year. Portable/wrapper binding now rejects missing or contradictory values, but matching invalid instants can still reach that old no-op branch. No membership or event is changed; enforcing occurrence shape before retry recognition should preserve legitimate old timestamps after later source events.
+
+
+## Resolved by five deferred metadata, recovery and replay fixes (2026-10-23)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-metadata-recovery-and-replay.md`
+  summary: Resolved BH-F09 by withholding metadata when a native tenant verification sample claims a future instant, including the final sample after resource I/O.
+  evidence: The handler and authorization confirmation reuse the authorization clock. Regressions isolate each native sampling boundary and cover final-only future evidence, past/current samples and an advancing clock while preserving persisted generation time.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-metadata-recovery-and-replay.md`
+  summary: Resolved EC-F01 by requiring a durable matching native owner selection before treating a metadata generation as completed, and repairing missing or semantically corrupt selections on producer redelivery.
+  evidence: Durability verifies selection identity, source proof, stable ETag and the existing SDK owner receipt where available. Native endpoint regressions exercise deletion, semantic corruption including batch identity, interrupted repair, restored persisted end state and successful owner proof; legacy and rebuilt completed retries remain mutation-free. Unparseable storage bytes and upstream default rebuild-plan restart rediscovery remain outside this typed-row repair.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-metadata-recovery-and-replay.md`
+  summary: Resolved VG-R01 by proving explicit null-label reclassification through event replay, persisted metadata completeness and an authorized metadata query.
+  evidence: The existing reclassification regression now covers null/non-null labels and asserts owner classification/purpose, native proof, original event bytes and complete returned metadata, including JSON-null safeLabel.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-metadata-recovery-and-replay.md`
+  summary: Resolved the deferred invalid membership timestamp no-op by rejecting explicitly supplied matching default/pre-2000 timestamps before retry recognition.
+  evidence: Behavioral cases reject both shapes before initial append and after serialized membership replay while preserving state/source and valid retries. Monotonic-time validation remains after exact retry recognition; supported offsets and valid original retries after later source events remain covered.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-metadata-recovery-and-replay.md`
+  summary: Resolved the Epic 11 A-3 public replay and serialized-state rehydration coverage gap in the external compatibility assertion.
+  evidence: The registered-command assertion now invokes public ReplayAsync in a fresh scope, verifies the replay outcome, sequence and serialized state, and submits detached JSON state to registered processing in another scope. All seven compatibility tests pass through the exact identity/counter guard; the frozen fixture, locks and accepted historical evidence are unchanged. This is in-process SDK behavior coverage, not persistence evidence.
+
+These additive resolutions supersede only the five named open scopes. The separate native-success coverage gap was already closed at entry and is not counted again.
+
+
+## Deferred from: five deferred metadata, recovery and replay review (2026-10-23)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-metadata-recovery-and-replay.md`
+  summary: Provide platform-supported recovery for unreadable raw selected-owner storage bytes while preserving unknown interrupted-batch evidence.
+  evidence: R1, medium, pre-existing SDK boundary. ReadModelBatchEnvelope.IsEnvelope classifies malformed JSON as envelope-like; pending recovery refuses invalid evidence before Conversations can perform typed-row durability checks, and the writer uses that same store. Missing/semantically corrupt selection rows now converge; raw malformed storage remains fail-closed. A safe SDK recovery seam and malformed-byte/redelivery regression are required before claiming repair of this separate storage fault; bypassing or erasing possible envelope evidence in the module is not safe.

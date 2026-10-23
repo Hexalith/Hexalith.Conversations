@@ -3,10 +3,13 @@
 This CI-only compatibility suite compiles and runs the frozen Story 11.2 fixture against
 the EventStore revision committed by Conversations. It runs the original six tests and
 adds one registered-command assertion through the public in-process domain router.
-The new assertion resolves the keyed processor, checks the serialized creation event,
-applies it to typed state, and checks that a second command in a fresh service scope
-emits no event. Public replay routing and serialized-state rehydration are separate
-coverage follow-ups; this lane does not claim a wire round trip or persistence proof.
+The assertion resolves the keyed processor, checks the serialized creation event,
+replays it through the public in-process router in a fresh service scope, and checks
+the successful replay sequence and serialized state. It then supplies a detached JSON
+state snapshot to a second registered command in another scope and requires no emitted
+event. That no-op observes rehydration of the `Created` flag through the SDK; it does not
+observe `Title` after rehydration or establish persistence. The serialized title is
+checked at the replay output boundary.
 
 The external `RegisteredCommand.targets` import adds the assertion only to the fixture
 test project. The measured 13 paths, project graph, lock files, accepted authoring-cost

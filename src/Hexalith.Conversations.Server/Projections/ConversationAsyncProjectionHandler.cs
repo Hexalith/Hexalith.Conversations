@@ -848,6 +848,47 @@ public sealed class ConversationAsyncProjectionHandler :
             return false;
         }
 
+        ReadModelEntry<ConversationResolutionNativeSelection>? selected = null;
+        ConversationResolutionNativeSelection? expectedSelection = ConversationResolutionNativeSelection.From(metadata, ledger.DispatchId);
+        if (expectedSelection is not null)
+        {
+            selected = await _store.GetAsync<ConversationResolutionNativeSelection>(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.ResolutionSelectionKey(tenantId, conversationId), cancellationToken).ConfigureAwait(false);
+            if (string.IsNullOrEmpty(selected.ETag) || selected.Value?.ProjectionOwner is not { } owner
+                || string.IsNullOrWhiteSpace(owner.BatchId)
+                || owner.ReceiptProjectionName is not null && owner.ReceiptProjectionName != ReadModelRebuildCompletion.ReceiptProjectionName)
+            {
+                return false;
+            }
+
+            expectedSelection = expectedSelection with
+            {
+                ProjectionOwner = expectedSelection.ProjectionOwner with
+                {
+                    BatchId = owner.BatchId,
+                    ReceiptProjectionName = owner.ReceiptProjectionName,
+                },
+            };
+            if (selected.Value != expectedSelection)
+            {
+                return false;
+            }
+
+            if (_store is IReadModelOwnerProofStore ownerProofStore)
+            {
+                // Local receipt verification uses the registered binding; catalog negotiation belongs
+                // to the dispatcher. The SDK checks the original batch identity and completed receipt.
+                ProjectionOwnerProofResult ownerProof = await ownerProofStore.ReadOwnerProofAsync(
+                    new(tenantId.Value, Domain, conversationId.Value, ProjectionType, string.Empty),
+                    ConversationResolutionNativeProofRegistration.OwnerProofBinding, cancellationToken).ConfigureAwait(false);
+                if (ownerProof.Proof?.Selection != owner)
+                {
+                    return false;
+                }
+            }
+        }
+
         ReadModelEntry<ConversationProjectedReadModels> detail = await _store
             .GetAsync<ConversationProjectedReadModels>(
                 ConversationProjectionReadModelKeys.StateStoreName,
@@ -900,7 +941,11 @@ public sealed class ConversationAsyncProjectionHandler :
         var confirmedProof = await _store.GetAsync<ConversationResolutionMetadataProof>(
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionProofKey(tenantId, conversationId), cancellationToken).ConfigureAwait(false);
+        ReadModelEntry<ConversationResolutionNativeSelection>? confirmedSelection = selected is null ? null
+            : await _store.GetAsync<ConversationResolutionNativeSelection>(ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.ResolutionSelectionKey(tenantId, conversationId), cancellationToken).ConfigureAwait(false);
         return confirmedProof.Value == proof.Value && confirmedProof.ETag == proof.ETag
+            && (selected is null || confirmedSelection == selected)
             && !string.IsNullOrEmpty(index.ETag) && index.Value is not null
             && index.Value.Dispatches.TryGetValue(conversationId.Value, out ConversationProjectionDispatchReference? reference)
             && !reference.IsPending
