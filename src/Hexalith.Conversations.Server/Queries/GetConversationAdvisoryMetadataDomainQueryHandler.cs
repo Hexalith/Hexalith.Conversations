@@ -90,9 +90,6 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
         var decision = await access.CheckAccessAsync(ConversationTenantAccessRequirement.Read, tenant, actor,
             routeTenantId: tenant, aggregateTenantId: tenant, projectionTenantId: tenant, cancellationToken: token).ConfigureAwait(false);
         if (!decision.IsAllowed && decision.IsRetryable) throw new InvalidOperationException("Owner authorization unavailable.");
-        if (decision.IsAllowed && (decision.ProjectionVersion is not >= 0
-            || string.IsNullOrWhiteSpace(decision.ProjectionWatermark) || decision.ProjectionWatermark.Length > 1024))
-            throw new InvalidOperationException("Owner authorization evidence unavailable.");
         return decision.IsAllowed && decision.Requirement == ConversationTenantAccessRequirement.Read
             && decision.TenantId == tenant && decision.CallerPrincipalId == actor;
     }

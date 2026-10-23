@@ -13,6 +13,7 @@ namespace Hexalith.Conversations.Server.Tests.ResolutionMetadata;
 
 internal sealed class ResolutionNativeEvidence(ResolutionMetadataFixture fixture) : IConversationResolutionNativeEvidence
 {
+    public TimeSpan TenantVerifiedAtOffset { get; set; }
     public bool Available { get; set; } = true;
     public string? Receipt { get; set; }
     public string Catalog { get; set; } = "fixture-catalog";
@@ -34,7 +35,7 @@ internal sealed class ResolutionNativeEvidence(ResolutionMetadataFixture fixture
         for (int index = 1; index <= health.Version.Value; index++)
             proof = NativeSourceProofCodec.ExtendDigest(proof, identity, index, "tenant-message-" + index, digest);
         LastTenant = proof;
-        return Task.FromResult<TenantReadAuthorityResult?>(new(query.TenantId, query.UserId, !fixture.Access.Denied, proof, fixture.Time.Now));
+        return Task.FromResult<TenantReadAuthorityResult?>(new(query.TenantId, query.UserId, !fixture.Access.Denied, proof, fixture.Time.Now + TenantVerifiedAtOffset));
     }
 
     public Task<ProjectionCurrentProof?> ReadProjectionAsync(ConversationResolutionMetadataReadModel metadata, CancellationToken cancellationToken)

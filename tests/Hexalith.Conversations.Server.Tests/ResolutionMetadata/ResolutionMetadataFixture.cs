@@ -129,6 +129,7 @@ internal sealed class ResolutionMetadataFixture
         CancellationToken? cancellationToken = null, IConversationTenantAccessService? access = null)
     {
         query ??= Query() with { QueryType = GetConversationAdvisoryMetadataQuery.QueryType };
+        int priorArguments = Access.Arguments.Count;
         Guard.AllowSummaryIndexReads = true;
         Guard.ForbidLegacyReads = true;
         Guard.ForbidWrites = true;
@@ -142,7 +143,23 @@ internal sealed class ResolutionMetadataFixture
         accessor.HttpContext!.User = new(new ClaimsIdentity(claims, "Workload"));
         await using ServiceProvider provider = new ServiceCollection().AddSingleton(accessor)
             .AddSingleton<IDomainQueryHandler>(new GetConversationAdvisoryMetadataDomainQueryHandler(access ?? Access, accessor, Guard)).BuildServiceProvider();
-        return await DomainQueryDispatcher.ExecuteAsync(provider, query, cancellationToken ?? TestContext.Current.CancellationToken);
+        try
+        {
+            return await DomainQueryDispatcher.ExecuteAsync(provider, query, cancellationToken ?? TestContext.Current.CancellationToken);
+        }
+        finally
+        {
+            Guard.ForbiddenAttempts.ShouldBe(0);
+            Guard.ReadKeys.ShouldAllBe(key => key.StartsWith("projection:conversations-resolution:", StringComparison.Ordinal)
+                || key.StartsWith("projection:conversations-resolution-proof:", StringComparison.Ordinal)
+                || key.StartsWith("projection:conversations-index:", StringComparison.Ordinal));
+            if (access is null)
+            {
+                Access.Arguments.Skip(priorArguments).ShouldAllBe(argument => argument.Requirement == ConversationTenantAccessRequirement.Read
+                    && argument.Tenant != null && argument.Tenant.Value == query.TenantId && argument.Actor == query.UserId
+                    && argument.Route == argument.Tenant && argument.Aggregate == argument.Tenant && argument.Projection == argument.Tenant);
+            }
+        }
     }
 
     public async Task EraseAsync(string key)

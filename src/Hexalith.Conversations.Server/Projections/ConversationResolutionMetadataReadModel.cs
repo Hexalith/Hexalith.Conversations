@@ -54,7 +54,7 @@ public sealed record ConversationResolutionMetadataReadModel(
     {
         var summary = models.Summary;
         ConversationResolutionScoringLabel? scoring = models.ResolutionScoringLabel;
-        bool complete = scoring is not null && scoring.Value == summary.Label
+        bool complete = scoring is null ? summary.Label is null : scoring.Value == summary.Label
             && scoring.Purpose == ConversationResolutionScoringPolicy.Purpose
             && scoring.Classification == ConversationResolutionScoringPolicy.Classification
             && ConversationResolutionScoringPolicy.CanClassify(scoring.Value, scoring.Purpose);
@@ -64,7 +64,7 @@ public sealed record ConversationResolutionMetadataReadModel(
             summary.Freshness, models.DispatchId, fingerprint, complete,
             complete ? ConversationResolutionScoringPolicy.Classification : null)
         { NativeAdmission = models.NativeAdmission, NativeSourceProof = models.NativeSourceProof, SourceHeadSequence = models.SourceHeadSequence, SourceHeadMessageId = models.SourceHeadMessageId,
-            LabelPurpose = complete ? scoring!.Purpose : null };
+            LabelPurpose = complete ? ConversationResolutionScoringPolicy.Purpose : null };
     }
 
     /// <summary>Computes a content-free consistency binding over the entire isolated generation.</summary>

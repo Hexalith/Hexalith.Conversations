@@ -42,7 +42,11 @@ A metadata event with a non-null `Label` and no classification invalidates prior
 
 Older isolated metadata may contain an implicit classification but no persisted purpose. It remains unavailable for scoring. Redelivery of that original dispatch, including rebuild preparation, returns an unsupported-capability refusal before recovery, ledger or proof writes; its stored bytes are retained. Recovery requires a later supported native generation with explicit classification. Query execution does not migrate, repair or classify historical data.
 
-These are source contracts and replay behavior. This change adds no deployed metadata-mutation route or production writer enrollment. Mutation dispatch/adoption, current native owner authorization, Conversation guard enrollment, rebuild completion, installation coverage and qualification remain separate gates. The internal resolution metadata read additionally requires its existing verified delegation and current resource/Tenant proofs. Scoring classification grants no inspection or resource permission, and Projects RTI and parent resolution implementation remain gated.
+These are source contracts and replay behavior. This change adds no deployed metadata-mutation route or production writer enrollment. Mutation dispatch/adoption, Conversation guard enrollment, rebuild completion, installation coverage and qualification remain separate gates.
+
+The strict `GetConversationResolutionMetadataQuery` retains verified delegation and current native resource/Tenant proof requirements. Its proof and qualification gates do not apply to the explicit `GetConversationAdvisoryMetadataQuery`, which reads isolated committed metadata between two ordinary owner Read authorization checks bound to the verified Tenant, actor and resource. Advisory matching may use lagging metadata; missing classification, unusable metadata or unavailable dependencies produce omitted observations and explicit incomplete coverage. Unclassified labels remain omitted, and query execution performs no migration or repair.
+
+Advisory metadata supports unselected Project suggestions without requiring Projects RTI or the strict parent-resolution prerequisites. It supplies no context, first-response, inspection, resource or confirmation authority. Scoring classification grants no permission; confirmation independently reauthorizes the association and context reads retain their own stronger guarantees.
 
 ## Typed Errors
 

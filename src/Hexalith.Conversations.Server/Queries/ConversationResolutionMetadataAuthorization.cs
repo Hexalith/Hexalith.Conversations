@@ -14,9 +14,9 @@ namespace Hexalith.Conversations.Server.Queries;
 /// <summary>Classifies the narrow scoring purpose and binds current Read decisions to the exact target.</summary>
 /// <param name="access">The existing owner Read authorization service.</param>
 /// <param name="accessor">The SDK-verified request context.</param>
-/// <param name="signal">Native permission health; absence conservatively prevents disclosure.</param>
-/// <param name="native">The production native Tenant Read evidence transport; local health is insufficient for the strict handler.</param>
+/// <param name="signal">The retained compatibility parameter; local health does not certify strict native authority.</param>
 /// <param name="timeProvider">The clock for actual owner-check instants.</param>
+/// <param name="native">The production native Tenant Read evidence transport; local health is insufficient for the strict handler.</param>
 public sealed class ConversationResolutionMetadataAuthorization(
     IConversationTenantAccessService access,
     IHttpContextAccessor accessor,

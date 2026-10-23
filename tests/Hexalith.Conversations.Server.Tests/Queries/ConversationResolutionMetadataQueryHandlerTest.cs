@@ -12,6 +12,17 @@ namespace Hexalith.Conversations.Server.Tests.Queries;
 
 public sealed class ConversationResolutionMetadataQueryHandlerTest
 {
+    [Fact]
+    public async Task FutureNativeTenantEvidenceIsUnavailableBeforeMetadataReads()
+    {
+        var fixture = new ResolutionMetadataFixture(); await fixture.ProjectAsync();
+        fixture.Native.TenantVerifiedAtOffset = TimeSpan.FromSeconds(1);
+        var result = await fixture.DispatchAsync();
+        result.Success.ShouldBeTrue(); result.GetPayload().GetProperty("metadata").ValueKind.ShouldBe(JsonValueKind.Null);
+        fixture.Guard.Reads.ShouldBeEmpty();
+    }
+
+
     [Theory]
     [InlineData(null)]
     [InlineData("inspection")]

@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
@@ -77,8 +78,20 @@ public sealed class ConversationQueryRegistrationTest
         fixture.Access.Checks.ShouldBe(0);
         fixture.Guard.ReadKeys.ShouldBeEmpty();
         fixture.Guard.ForbiddenAttempts.ShouldBe(0);
-        fixture.Guard.ReadKeys.ShouldAllBe(key => key.StartsWith("projection:conversations-resolution", StringComparison.Ordinal)
-            || key.StartsWith("projection:conversations-dispatch:", StringComparison.Ordinal));
+        QueryEnvelope advisory = query with { QueryType = GetConversationAdvisoryMetadataQuery.QueryType };
+        claims = [
+            new(EventStoreWorkloadAuthenticationDefaults.WorkloadClaimType, "eventstore"),
+            new(EventStoreWorkloadAuthenticationDefaults.OperationClaimType, EventStoreWorkloadOperations.DomainServiceQuery),
+            .. QueryCallerAuthorityBinding.Bind(advisory).Select(pair => new Claim(pair.Key, pair.Value)),
+        ];
+        accessor.HttpContext.User = new(new ClaimsIdentity(claims, "Workload"));
+        var advisoryResult = await DomainQueryDispatcher.ExecuteAsync(scope.ServiceProvider, advisory, TestContext.Current.CancellationToken);
+        advisoryResult.Success.ShouldBeTrue();
+        advisoryResult.GetPayload().GetProperty("metadata").GetProperty("projectId").GetString().ShouldBe("project-original");
+        advisoryResult.GetPayload().GetProperty("incomplete").GetBoolean().ShouldBeFalse();
+        fixture.Access.Checks.ShouldBe(2);
+        fixture.Guard.ReadKeys.ShouldNotBeEmpty();
+        fixture.Guard.ForbiddenAttempts.ShouldBe(0);
     }
 
     [Fact]

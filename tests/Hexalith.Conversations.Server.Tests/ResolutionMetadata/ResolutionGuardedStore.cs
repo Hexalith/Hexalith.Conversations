@@ -6,6 +6,7 @@ namespace Hexalith.Conversations.Server.Tests.ResolutionMetadata;
 
 internal sealed class ResolutionGuardedStore(InMemoryReadModelStore inner) : IReadModelStore, IReadModelBatchStore, IReadModelExpiringStore, IReadModelPendingBatchRecoveryStore
 {
+    public bool EmptyMetadataETag { get; set; }
     public bool AllowSummaryIndexReads { get; set; }
     public bool ForbidLegacyReads { get; set; }
     public bool ForbidWrites { get; set; }
@@ -43,7 +44,7 @@ internal sealed class ResolutionGuardedStore(InMemoryReadModelStore inner) : IRe
         var result = compacted ? await inner.GetCompactedAsync<T>(storeName, key, cancellationToken)
             : await inner.GetAsync<T>(storeName, key, cancellationToken);
         if (AfterRead is not null) await AfterRead(typeof(T), key);
-        return result;
+        return EmptyMetadataETag && typeof(T) == typeof(ConversationResolutionMetadataReadModel) ? new(result.Value, string.Empty) : result;
     }
 
     public Task SaveAsync<T>(string storeName, string key, T value, CancellationToken cancellationToken = default) where T : class

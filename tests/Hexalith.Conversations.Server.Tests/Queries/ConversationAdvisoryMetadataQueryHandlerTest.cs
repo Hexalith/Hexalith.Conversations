@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Hexalith.Conversations.Server.Tests.Queries;
 
-public sealed class ConversationAdvisoryMetadataQueryHandlerTest
+public sealed partial class ConversationAdvisoryMetadataQueryHandlerTest
 {
     [Fact]
     public async Task CommittedMetadataWithoutNativeProofUsesTwoReadChecksAndLeavesBytesUnchanged()
@@ -50,12 +50,17 @@ public sealed class ConversationAdvisoryMetadataQueryHandlerTest
         var denied = new ResolutionMetadataFixture(); await denied.ProjectAsync(); denied.Access.Denied = true;
         var rejected = await denied.DispatchAdvisoryAsync();
         rejected.ErrorMessage.ShouldBe(absent.ErrorMessage); rejected.Success.ShouldBeFalse(); denied.Guard.Reads.ShouldBeEmpty();
-        var foreign = await missing.DispatchAdvisoryAsync(ResolutionMetadataFixture.Query() with
+        denied.Access.Denied = false; denied.Access.AllowedTenant = ResolutionMetadataFixture.Tenant.Value;
+        var foreign = await denied.DispatchAdvisoryAsync(ResolutionMetadataFixture.Query() with
             { QueryType = GetConversationAdvisoryMetadataQuery.QueryType, TenantId = "foreign" });
         foreign.ErrorMessage.ShouldBe(absent.ErrorMessage);
+        denied.Guard.ReadKeys.ShouldBeEmpty();
     }
 
     [Theory]
+    [InlineData("missing-etag")]
+    [InlineData("dispatch")]
+    [InlineData("lifecycle")]
     [InlineData("tenant")]
     [InlineData("resource")]
     [InlineData("pending")]
@@ -69,6 +74,9 @@ public sealed class ConversationAdvisoryMetadataQueryHandlerTest
         var f = new ResolutionMetadataFixture(); await f.ProjectAsync();
         string key = ConversationProjectionReadModelKeys.ResolutionMetadataKey(ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation);
         var value = f.Metadata;
+        if (mutation == "missing-etag") f.Guard.EmptyMetadataETag = true;
+        if (mutation == "dispatch") value = value with { DispatchId = " dispatch " };
+        if (mutation == "lifecycle") value = value with { Metadata = value.Metadata with { LifecycleState = "Purged" } };
         if (mutation == "tenant") value = value with { TenantId = new TenantId("foreign") };
         if (mutation == "resource") value = value with { Metadata = value.Metadata with { ConversationId = "other" } };
         if (mutation == "schema") value = value with { Freshness = new(new(2), value.Freshness.ProjectionCursor, value.Freshness.LastAppliedEventPosition, value.Freshness.LastAppliedEventTimestamp, value.Freshness.ProjectionGeneratedAt, value.Freshness.LagDuration, value.Freshness.IsStale, value.Freshness.FreshnessState, value.Freshness.ReasonCode) };
@@ -110,7 +118,7 @@ public sealed class ConversationAdvisoryMetadataQueryHandlerTest
     }
 
     [Fact]
-    public async Task DefaultNonsignalStorePermissionCannotDiscloseWithoutProjectionEvidence()
+    public async Task DefaultNonsignalStorePermissionDisclosesCommittedMetadata()
     {
         var f = new ResolutionMetadataFixture(); await f.ProjectAsync();
         var services = new ServiceCollection(); services.AddLogging(); services.AddConversationTenantAccess();
@@ -127,7 +135,7 @@ public sealed class ConversationAdvisoryMetadataQueryHandlerTest
             ResolutionMetadataFixture.Tenant, "actor", cancellationToken: TestContext.Current.CancellationToken);
         decision.IsAllowed.ShouldBeTrue(); decision.ProjectionVersion.ShouldBeNull(); decision.ProjectionWatermark.ShouldBeNull();
         var result = Payload(await f.DispatchAdvisoryAsync(access: access));
-        result.Metadata.ShouldBeNull(); result.Incomplete.ShouldBeTrue(); f.Guard.Reads.ShouldBeEmpty();
+        result.Metadata.ShouldNotBeNull(); result.Incomplete.ShouldBeFalse();
     }
 
     [Theory]
@@ -135,7 +143,7 @@ public sealed class ConversationAdvisoryMetadataQueryHandlerTest
     [InlineData("negative")]
     [InlineData("blank")]
     [InlineData("oversized")]
-    public async Task FinalPermissionRequiresUsableProjectionEvidence(string mutation)
+    public async Task OrdinaryFinalPermissionDoesNotRequireProjectionEvidence(string mutation)
     {
         var f = new ResolutionMetadataFixture(); await f.ProjectAsync();
         f.Access.OnCheck = n =>
@@ -147,7 +155,7 @@ public sealed class ConversationAdvisoryMetadataQueryHandlerTest
             if (mutation == "oversized") f.Access.DecisionWatermarkOverride = new string('w', 1025);
         };
         var result = Payload(await f.DispatchAdvisoryAsync());
-        result.Metadata.ShouldBeNull(); result.Incomplete.ShouldBeTrue(); f.Access.Checks.ShouldBe(2);
+        result.Metadata.ShouldNotBeNull(); result.Incomplete.ShouldBeFalse(); f.Access.Checks.ShouldBe(2);
     }
 
     [Fact]
@@ -160,15 +168,26 @@ public sealed class ConversationAdvisoryMetadataQueryHandlerTest
         result.Metadata.ShouldBeNull(); result.Incomplete.ShouldBeTrue();
     }
 
-    [Fact]
-    public async Task FenceChangedDuringAdvisoryReadWithholdsMetadata()
+    [Theory]
+    [InlineData("null-current")]
+    [InlineData("completed-replacement")]
+    [InlineData("pending-current")]
+    [InlineData("barrier")]
+    public async Task FenceChangedDuringAdvisoryReadWithholdsMetadata(string mutation)
     {
         var f = new ResolutionMetadataFixture(); await f.ProjectAsync();
         string proofKey = ConversationProjectionReadModelKeys.ResolutionProofKey(ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation);
+        var proof = f.Proof;
         f.Guard.AfterRead = (type, _) =>
         {
             if (type == typeof(ConversationResolutionMetadataReadModel))
-                f.Store.SeedRaw("statestore", proofKey, new ConversationResolutionMetadataProof(null));
+                f.Store.SeedRaw("statestore", proofKey, mutation switch
+                {
+                    "completed-replacement" => proof with { Current = proof.Current! with { DispatchId = "replacement" } },
+                    "pending-current" => proof with { Current = proof.Current! with { IsPending = true } },
+                    "barrier" => proof with { Barrier = new(99, "barrier") },
+                    _ => new ConversationResolutionMetadataProof(null),
+                });
             return Task.CompletedTask;
         };
         var result = Payload(await f.DispatchAdvisoryAsync());
