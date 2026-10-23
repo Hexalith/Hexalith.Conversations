@@ -3,6 +3,7 @@
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -168,6 +169,53 @@ class RootSubmoduleCheckTests(unittest.TestCase):
             self.assertEqual(
                 ["root .gitmodules must be a resolved regular indexed file"], checker.check(root)
             )
+
+    def test_indexed_configuration_without_declarations_has_specific_diagnostic(self) -> None:
+        for content in ("", "# root submodules\n", "[other]\n\tsetting = value\n"):
+            with self.subTest(content=content), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                subprocess.run(["git", "init", "-q", str(root)], check=True)
+                (root / ".gitmodules").write_text(content, encoding="utf-8")
+                subprocess.run(["git", "-C", str(root), "add", "--", ".gitmodules"], check=True)
+
+                self.assertEqual(["no root submodules declared"], checker.check(root))
+                result = subprocess.run(
+                    [sys.executable, str(SCRIPT), "--repository", str(root)],
+                    capture_output=True, text=True, check=False,
+                )
+                self.assertEqual(1, result.returncode)
+                self.assertEqual("", result.stdout)
+                self.assertEqual(
+                    "root submodules: no root submodules declared\n", result.stderr
+                )
+
+    def test_no_declarations_still_reports_undeclared_gitlinks(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.fixture(root)
+            (root / ".gitmodules").write_text("# no declarations\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(root), "add", "--", ".gitmodules"], check=True)
+            self.assertEqual(
+                ["no root submodules declared",
+                 "references/One: indexed under references/ but not declared"],
+                checker.check(root),
+            )
+
+    def test_malformed_indexed_configuration_retains_git_error(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.fixture(root)
+            (root / ".gitmodules").write_text("[unterminated\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(root), "add", "--", ".gitmodules"], check=True)
+            with self.assertRaisesRegex(ValueError, "bad config line"):
+                checker.check(root)
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), "--repository", str(root)],
+                capture_output=True, text=True, check=False,
+            )
+            self.assertEqual(1, result.returncode)
+            self.assertIn("bad config line", result.stderr)
+            self.assertNotIn("no root submodules declared", result.stderr)
 
 
 if __name__ == "__main__":

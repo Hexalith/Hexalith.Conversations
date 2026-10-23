@@ -1,0 +1,60 @@
+---
+title: 'Close five deferred repository tooling safeguards'
+type: 'bugfix'
+created: '2026-10-23'
+status: 'done'
+route: 'oneshot'
+review_loop_iteration: 0
+baseline_commit: '772f7af574504492da77efe467293ccd2261906e'
+context:
+  - '{project-root}/docs/runbooks/current-change-validation.md'
+---
+
+<frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
+
+## Intent
+
+**Problem:** Five open deferred tooling issues remain: empty indexed submodule declarations produce an opaque Git error; unstaged nested gitlink movement escapes promotion dirt detection; successor lifecycle verification couples sprint keys to spec filenames; empty platform project references silently disappear from fixture proofs; and Story 7.2 project-selection and approved-skip coverage uses idealized fixtures.
+
+**Approach:** Complete these five scopes in one requested batch. Interpret only the configuration query's no-match exit as empty declarations while preserving malformed-config failures. Detect nested revision movement while continuing to ignore nested file dirt. Resolve successor lifecycle keys from the unique exact numeric story identity in the sprint tracker, retaining historical overrides. Reject blank direct and transitive project references with a stable restore failure. Prove generator test-project selection in a mixed solution and exact approved-skip handling using disposable fixtures. Preserve accepted evidence, fixture sources and locks, historical ledger entries, CI policy, dependency versions, gitlinks and sprint lifecycle values. Verify, review, commit and push to main as requested, then inspect CI.
+
+</frozen-after-approval>
+
+## Implementation Notes
+
+- Clean main at the full baseline above. Five scopes explicitly requested; implementation choices are settled and introduce no public API, data migration or deployment. Use the one-shot route. Push is authorized by the user.
+- Sources: October 23 root-checker diagnostic follow-up; July 27 unstaged nested gitlink finding (both review passes); October 11 lifecycle key finding; October 19 fixture proof's empty Include finding; September 25 Story 7.2 mixed-solution/approved-skip coverage gap. Other old reports, including silent unrelated worktrees and stale copied-assembly acceptance, already have guards and are not counted. Investigation rejected the old generator-CI deferral: c1aa20ab52460d3445a7bb8de10aea62d1224788 intentionally removed BMAD CI coverage and tests that policy explicitly.
+- `scripts/check-root-submodules.py` and `tests/tooling/test_check_root_submodules.py`: narrowly permit Git config exit 1 for no matching settings. Cover empty, comment-only, unrelated settings, undeclared gitlinks, malformed configuration and real CLI diagnostics.
+- `_bmad/scripts/verify_submodule_promotion.py` and its pytest suite: detect unstaged nested gitlink revision changes without recursively scanning or modifying nested worktrees. Retain staged-move, nested file dirt and uninitialized controls; nested fixtures are disposable test repositories only.
+- `_bmad/scripts/generate_story_record.py` and its pytest suite: derive one matching key from the development_status mapping; reject missing/ambiguous/malformed tracking evidence with BASELINE_NOT_TRUSTWORTHY. Cover divergent spec/tracker slugs and numeric story collisions while preserving historical retained-candidate mappings.
+- `_bmad/scripts/generate_minimal_module_fixture_proof.py` and `_bmad/scripts/tests/test_minimal_module_fixture.py`: validate direct and nested reference Includes before normalization, preserving supported property-based references and valid graph closure. Use hermetic fixtures, retaining accepted fixture/evidence bytes.
+- `_bmad/scripts/tests/test_generate_story_record.py`: extend the synthetic Story 7.2 solution with source projects and File entries; prove only test projects contribute results. Add an approved-skip positive control and exact project/test identity negatives without changing any accepted contract or real story frontmatter.
+- Verification: affected Python suites, existing npm tooling checks, both Story 7.3 workflow checks and staged whitespace. Record the existing minimal-module locked-restore CI failure separately; do not modify its frozen graph or weaken locked restore. Historical evidence-boundary and final-record gates are not-applicable to this routine unnumbered batch.
+- Implemented the four validation corrections and the separate fixture-coverage scope. Root-checker and promotion tests pass together: 104 tests plus three subtests via `uv run --frozen --no-sync python -m pytest -q tests/tooling/test_check_root_submodules.py _bmad/scripts/tests/test_verify_submodule_promotion.py`. The real indexed root check also passes. Both new Git defect regressions were red before correction; malformed config also uses Git exit 1 in this environment, so no-match recognition additionally requires empty stdout and stderr.
+- Targeted generator regressions pass: 22 tests, 1402 deselected, receipt `/tmp/five-deferred-generator-targeted.xml`. Independent current-tracker resolution succeeds for twelve successor story identities, including 10.1–10.4 and 11.1–11.3. Historical retained mappings require no tracker. Broader generator and fixture suites remain running before finalization.
+- Both Story 7.3 workflow-surface scenarios pass at the current tree using their exact operational output paths `artifacts/v9/7.3/AC-7.3-01.json` and `AC-7.3-02.json`; no accepted publication is regenerated. The ledger's entry bytes remain an unchanged prefix, and no accepted fixture, evidence, planning or gitlink path is changed.
+- Baseline remote CI run 39973823552 at the entry commit already failed `ci / minimal-module platform compatibility` at `Locked restore and build the platform-backed fixture`; repository, build-and-test, conformance, admin-web, TestSupport Windows, release-tooling and Aspire jobs passed. The earlier ledger describes its frozen lock-graph NU1004 dependency drift. This batch does not alter the locks or dependency pins and makes no claim to resolve that separate scope.
+- The complete affected minimal-module proof suite passes: 102 tests, zero failures/errors/skips, receipt `/tmp/conversations-five-tooling-fixture.xml`. Only hermetic test outputs were generated. The required context-free Blind Hunter review is running; no configured review layer is skipped.
+- Blind Hunter returned six findings. Review patches tighten the flat tracker grammar, preserve UTF-8 story keys and inline comments through lifecycle masking, preserve valid ProjectReference Update/Remove item modifiers, and make the solution-item regression point at a tests-directory project. The pre-existing global skip-approval contract is retained and its separate assembly-scoping question is deferred explicitly; test and ledger wording now claim exact test-name identity only.
+- Initial `npm test` ran while the malformed-config correction was still being applied and retained the earlier helper import: 91 of 92 tests passed, with that one new negative control red. The complete final root unittest run passes all 14 tests. A fresh full npm run is in progress against the corrected implementation.
+- The broad generator run was intentionally bounded after 143 passing cases, zero failures and 22 deselections (KeyboardInterrupt exit 2); it is not counted as a complete passing suite. The affected shared-fixture and lifecycle tests are being run as a separate complete selection.
+
+## Review Triage Log
+
+- R1 — medium, patch: the tracker scanner could ignore malformed rows or a quoted second story key and falsely resolve unique identity. Reject unsupported flat-mapping syntax and duplicate keys explicitly; add quoted ambiguity and malformed-row controls.
+- R2 — low, patch: the newly exercised inline-comment shape was accepted by key resolution but rejected by the lifecycle mask. Permit an unchanged inline comment while masking only the status; reject altered comments.
+- R3 — medium, patch: a UTF-8 tracker key could reach the lifecycle verifier's ASCII encoding and raise. Encode the resolved key consistently as UTF-8 and cover actual lifecycle transitions with non-ASCII titles.
+- R4 — medium, patch: blank-Include validation treated valid Update/Remove item modifiers as new declarations. Exclude modifiers from direct graph parsing and transitive edge enumeration while still rejecting blank Include declarations.
+- R5 — medium, defer: the existing skip policy is a global test-name map with no assembly field. Different synthetic project-prefixed names prove exact name matching, not assembly isolation for duplicate fully qualified names. Preserve that contract, correct the coverage claims and record the separate policy decision in the ledger.
+- R6 — low, patch: a Markdown File entry did not independently exercise XML element discrimination. Use a committed tests-directory .csproj solution item and prove that it creates no test-result requirement.
+- R2 follow-up — low, patch: independent verification found that tab-separated status comments passed lifecycle matching but failed scanner comment stripping. Validate the raw plain scalar/comment grammar consistently, including tabs, and add the tab-comment lifecycle control.
+- R5 wording clarification: the earlier Implementation Notes shorthand “exact project/test identity negatives” refers to different project-prefixed test-name strings in disposable fixtures. It does not assert assembly-scoped approvals; the final test name, resolution entry and deferred contract question state this narrower guarantee. Earlier notes are retained as append-only implementation history.
+
+## Final Verification
+
+- The post-review minimal-module proof suite passes all 104 cases with zero failures/errors/skips: `uv run --frozen --no-sync python3 -m pytest -q -p no:cacheprovider _bmad/scripts/tests/test_minimal_module_fixture.py --junitxml=/tmp/conversations-five-tooling-fixture-final.xml`.
+- Independent verification confirmed all six review dispositions, including explicit blank-Include rejection and preservation of valid item modifiers. It identified only the tab-comment consistency case above as a correction still being validated.
+- The retained baseline CI log `/tmp/conversations-five-tooling-baseline-ci.log` confirms exit 1/NU1004 from `dotnet restore "$fixture" --locked-mode -p:Configuration=Release "-p:CustomAfterMicrosoftCommonTargets=$compatibility"`, with the workflow's fixture and compatibility variables bound to their tracked paths. The drift affects EventStore ServiceDefaults and Aspire lock graphs and predates this batch. No gate is weakened.
+- Final affected generator selection passes all 85 cases, including all consumers of the changed shared Story 7.2 fixture and the relevant retention/lifecycle/Story 10.1 cases. Receipt `/tmp/five-deferred-generator-affected-final.xml`; exact 53-function selection `/tmp/five-deferred-generator-affected-nodes.txt`. The final-source scanner/lifecycle selection passes 34 cases, including ASCII/UTF-8 keys, absent/space/tab comments and quoted-value rejection; receipt `/tmp/five-deferred-generator-scanner-final.xml`. All twelve real tracker identities still resolve. No attributable failure remains.
+- Fresh `npm test` passes all 92 tests; log `/tmp/conversations-five-tooling-npm-final.log`. Root/promotion suites pass 104 tests plus three subtests; the real root declaration check, both workflow-surface checks and whitespace pass. Accepted evidence, fixture/locks, dependencies, CI policy and sprint rows remain unchanged; the historical ledger is an unchanged prefix.
+- The exact full commit message passed the pinned `node_modules/.bin/commitlint --config commitlint.config.mjs --edit /tmp/conversations-five-tooling-commitmsg.txt --verbose` with zero problems/warnings; successful evidence `/tmp/conversations-five-tooling-commitlint.log`. Fetch confirmed main and origin/main were identical before the task commit. This unnumbered routine batch has no story contract requiring publication; historical final-record and evidence-boundary gates remain not-applicable.

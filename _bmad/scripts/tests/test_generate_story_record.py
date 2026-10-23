@@ -3630,9 +3630,19 @@ def build_v2_7_2_repository(tmp_path: Path) -> dict[str, object]:
         encoding="utf-8",
     )
     slnx = repository / "Hexalith.Conversations.slnx"
-    slnx.write_text("<Solution><Folder Name=\"/tests/\">" + "".join(
+    slnx.write_text("<Solution><Folder Name=\"/src/\">"
+                   '<Project Path="src/Fixture.Domain/Fixture.Domain.csproj" />'
+                   '</Folder><Folder Name="/solution-items/">'
+                   '<File Path="tests/SolutionItem/Extra.csproj" />'
+                   '</Folder><Folder Name="/tests/">' + "".join(
         f'<Project Path="tests/{name}/{name}.csproj" />' for name in STORY_7_2_PROJECTS
     ) + "</Folder></Solution>\n", encoding="utf-8")
+    source_project = repository / "src/Fixture.Domain/Fixture.Domain.csproj"
+    source_project.parent.mkdir(parents=True)
+    source_project.write_text("<Project />\n", encoding="utf-8")
+    solution_item = repository / "tests/SolutionItem/Extra.csproj"
+    solution_item.parent.mkdir(parents=True)
+    solution_item.write_text("<Project />\n", encoding="utf-8")
     for name in STORY_7_2_PROJECTS:
         path = repository / f"tests/{name}/{name}.csproj"
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -3693,6 +3703,10 @@ def test_v2_derives_required_test_totals(tmp_path: Path) -> None:
     assert measured["testTotals"] == {"total": expected_total, "executed": expected_total,
                                       "passed": expected_total, "failed": 0, "skipped": 0}
     assert all(row["counts"]["total"] == 2 for row in measured["testProjects"])
+    assert "src/Fixture.Domain/Fixture.Domain.csproj" in measured["changedPaths"]
+    assert "tests/SolutionItem/Extra.csproj" in measured["changedPaths"]
+    assert all(row["projectPath"].startswith("tests/") for row in measured["testProjects"])
+    assert not (repository / "artifacts/v9/7.2/test-results/Extra.trx").exists()
     assert measured["baseline"] == fixture["baseline"]
     assert measured["changedPaths"] == sorted(measured["changedPaths"])
     assert measured["predecessorRecord"]["sha256"] == sha256_file(
@@ -3794,6 +3808,48 @@ def test_v2_blocks_unapproved_skip(tmp_path: Path) -> None:
                                  .replace(b'passed="2"', b'passed="1"').replace(b'notExecuted="0"', b'notExecuted="1"')
                                  .replace(b'executed="2"', b'executed="1"')),
         "TEST_SKIPPED")
+
+
+@pytest.mark.parametrize("policy", ["exact", "wrong-prefix", "wrong-name", "absent"])
+def test_v2_story_7_2_skip_policy_requires_the_exact_test_identity(
+    tmp_path: Path, policy: str,
+) -> None:
+    """A synthetic committed approval admits only its complete skipped-test identity."""
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    project = STORY_7_2_PROJECTS[0]
+    approved = {
+        "exact": f"{project}.S0",
+        "wrong-prefix": f"{STORY_7_2_PROJECTS[1]}.S0",
+        "wrong-name": f"{project}.S01",
+    }.get(policy)
+    if approved is not None:
+        spec = repository / STORY_7_2_SPEC_PATH
+        spec.write_text(spec.read_text(encoding="utf-8").replace(
+            "allowed_skipped_tests: []",
+            f"allowed_skipped_tests:\n  - test: '{approved}'\n    reason: 'Hermetic approval fixture.'",
+            1,
+        ), encoding="utf-8")
+        v2_git(repository, "add", "--", STORY_7_2_SPEC_PATH)
+        v2_git(repository, "commit", "-m", "test: commit synthetic skip approval")
+        v2_7_2_results(repository)
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name, passed=1 if name == project else 2,
+                     skipped=1 if name == project else 0)
+    result = v2_run(v2_7_2_arguments(repository))
+    if policy != "exact":
+        failure = v2_assert_failure(result, {"TEST_SKIPPED"})
+        assert failure["blockers"] == ["TEST_SKIPPED"]
+        return
+    record = v2_7_2_assert_pass(repository, result)
+    total = 2 * len(STORY_7_2_PROJECTS)
+    assert record["measurements"]["testTotals"] == {
+        "total": total, "executed": total - 1, "passed": total - 1, "failed": 0, "skipped": 1,
+    }
+    skipped_project = next(row for row in record["measurements"]["testProjects"] if row["project"] == project)
+    assert skipped_project["counts"] == {
+        "total": 2, "executed": 1, "passed": 1, "failed": 0, "skipped": 1,
+    }
 
 
 def test_v2_blocks_not_run(tmp_path: Path) -> None:
@@ -7613,6 +7669,8 @@ def test_v2_successor_retention_config_resolves_exactly_one_spec(tmp_path: Path)
     assert absent.value.findings[0]["code"] == "BASELINE_NOT_TRUSTWORTHY"
     first = folder / "spec-8-2-enforce-the-validator.md"
     first.write_text("# Fixture\n")
+    (folder / "sprint-status.yaml").write_text(
+        "development_status:\n  8-2-enforce-the-validator: in-progress\n", encoding="utf-8")
     assert module.v2_retention_config(tmp_path, contract) == (
         "8.2", first.relative_to(tmp_path).as_posix(), "8-2-enforce-the-validator", True
     )
@@ -7626,6 +7684,101 @@ def test_v2_successor_retention_config_resolves_exactly_one_spec(tmp_path: Path)
     )
 
 
+@pytest.mark.parametrize("story_id", ["8.2", "10.1", "10.2", "10.10"])
+def test_v2_successor_retention_config_uses_the_exact_tracked_story(tmp_path: Path, story_id: str) -> None:
+    module = load_generator()
+    epic, story = story_id.split(".")
+    folder = tmp_path / "_bmad-output/implementation-artifacts"
+    folder.mkdir(parents=True)
+    spec = folder / f"spec-{epic}-{story}-different-spec-title.md"
+    spec.write_text("# Fixture\n", encoding="utf-8")
+    key = f"{epic}-{story}-tracked-title"
+    (folder / "sprint-status.yaml").write_text(
+        f"# {key}-comment: done\ndevelopment_status:\n"
+        f"  # {key}-comment: done\n"
+        f"  {epic}-{int(story) + 10}-another-story: done\n"
+        f"  {int(epic) + 1}-{story}-another-epic: done\n"
+        f"  {key}: in-progress # current story\n"
+        f"retrospective_actions:\n  {key}-outside: done\n", encoding="utf-8")
+    assert module.v2_retention_config(
+        tmp_path, f"_bmad-output/planning-artifacts/v9/story-contracts/{story_id}.json"
+    ) == (story_id, spec.relative_to(tmp_path).as_posix(), key, True)
+
+
+@pytest.mark.parametrize("key", ["10-1-tracked-title", "10-1-révision"])
+@pytest.mark.parametrize("comment", ["", " # preserved status comment", "\t# preserved status comment"])
+def test_v2_successor_retention_config_and_lifecycle_preserve_utf8_keys_and_comments(
+    tmp_path: Path, monkeypatch, key: str, comment: str,
+) -> None:
+    module = load_generator()
+    folder = tmp_path / "_bmad-output/implementation-artifacts"
+    folder.mkdir(parents=True)
+    spec = folder / "spec-10-1-different-spec-title.md"
+    spec.write_text("# Fixture\n", encoding="utf-8")
+    before = ("last_updated: 2026-10-23\ndevelopment_status:\n"
+              f"  {key}: in-progress{comment}\n").encode("utf-8")
+    (folder / "sprint-status.yaml").write_bytes(before)
+    assert module.v2_retention_config(
+        tmp_path, "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"
+    ) == ("10.1", spec.relative_to(tmp_path).as_posix(), key, True)
+    after = before.replace(b": in-progress", b": review")
+    blobs = {("candidate", module.V2_7_2_SPRINT_PATH): before,
+             ("lifecycle", module.V2_7_2_SPRINT_PATH): after}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _root, revision, path: blobs.get((revision, path)))
+    assert module.v2_sprint_status_only_change(tmp_path, "candidate", "lifecycle", key)
+    changed_comment = (after.replace(b"preserved status comment", b"changed status comment") if comment
+                       else after.replace(b": review", b": review # added status comment"))
+    blobs[("lifecycle", module.V2_7_2_SPRINT_PATH)] = changed_comment
+    assert not module.v2_sprint_status_only_change(tmp_path, "candidate", "lifecycle", key)
+
+
+@pytest.mark.parametrize("tracker", [
+    None,
+    b"last_updated: 2026-10-23\n",
+    b"development_status:\n",
+    b"development_status:\n  10-10-another-story: done\n",
+    b"development_status:\n  epic-10: in-progress\nother:\n  10-1-outside: done\n",
+    b"development_status:\n  notes:\n    10-1-nested: done\n",
+    b"development_status:\n  10-1-first: done\n  10-1-second: done\n",
+    b"development_status:\n  10-1-duplicate: done\n  10-1-duplicate: done\n",
+    b"development_status:\n  10-1-first: done\ndevelopment_status:\n  10-1-second: done\n",
+    b"development_status:\n  '10-1-only': done\n",
+    b"development_status:\n  10-1-first: done\n  '10-1-second': done\n",
+    b'development_status:\n  10-1-first: done\n  "10-1-second": done\n',
+    b"development_status:\n  10-1-first: done\n  malformed row\n",
+    b"development_status:\n  10-1-first: done\n\t10-1-second: done\n",
+    b"development_status:\n  10-1-first:\n",
+    b"development_status:\n  10-1-first: {status: done}\n",
+    b"development_status:\n  10-1-first: [done]\n",
+    b"development_status:\n  10-1-first: 'in-progress'\n",
+    b'development_status:\n  10-1-first: "in-progress"\n',
+    b"development_status:\n  10-1-first: done\n  epic-10: done\n  epic-10: done\n",
+    b"development_status:\n  10-1-invalid-\xff: done\n",
+], ids=["missing", "missing-section", "empty", "different-story", "outside-section", "nested-row",
+        "ambiguous", "duplicate-key", "duplicate-section", "quoted-only", "quoted-duplicate",
+        "double-quoted-duplicate", "malformed-row", "tab-indentation", "empty-value", "mapping-value",
+        "list-value", "single-quoted-value", "double-quoted-value", "duplicate-other-key", "invalid-encoding"])
+def test_v2_successor_retention_config_rejects_missing_or_ambiguous_tracker(
+    tmp_path: Path, tracker: bytes | None,
+) -> None:
+    module = load_generator()
+    folder = tmp_path / "_bmad-output/implementation-artifacts"
+    folder.mkdir(parents=True)
+    (folder / "spec-10-1-fixture.md").write_text("# Fixture\n", encoding="utf-8")
+    if tracker is not None:
+        (folder / "sprint-status.yaml").write_bytes(tracker)
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_retention_config(tmp_path, "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json")
+    assert [row["code"] for row in failure.value.findings] == ["BASELINE_NOT_TRUSTWORTHY"]
+    assert failure.value.findings[0]["subject"] == module.V2_7_2_SPRINT_PATH
+
+
+def test_v2_successor_retention_config_preserves_historical_mappings_without_a_tracker(tmp_path: Path) -> None:
+    module = load_generator()
+    for contract, expected in module.V2_RETAINED_CANDIDATES.items():
+        assert module.v2_retention_config(tmp_path, contract) == expected
+
+
 def test_story101_lifecycle_uses_tracked_sprint_key_and_timestamp(tmp_path: Path, monkeypatch) -> None:
     module = load_generator()
     folder = tmp_path / "_bmad-output/implementation-artifacts"
@@ -7633,6 +7786,8 @@ def test_story101_lifecycle_uses_tracked_sprint_key_and_timestamp(tmp_path: Path
     spec = folder / "spec-10-1-neutral-testsupport-and-safe-git-facts.md"
     spec.write_text("# Fixture\n", encoding="utf-8")
     key = "10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner"
+    (folder / "sprint-status.yaml").write_text(
+        f"development_status:\n  {key}: in-progress\n", encoding="utf-8")
     assert module.v2_retention_config(
         tmp_path, "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"
     ) == ("10.1", spec.relative_to(tmp_path).as_posix(), key, True)

@@ -8,6 +8,7 @@ import os
 import shutil
 import subprocess
 import sys
+import xml.etree.ElementTree as ElementTree
 from pathlib import Path
 
 import pytest
@@ -225,6 +226,74 @@ def test_generator_is_deterministic_schema_valid_and_verifier_passes(repo: Path)
     for section, scenario in (("restore", "AC-11.2-02"), ("build", "AC-11.2-03")):
         assert bundle[section]["receipt"]["sha256"] == verifier.sha256_bytes((repo / verifier.COMMAND_RECEIPTS[scenario]).read_bytes())
     assert (repo / MD_OUT).read_bytes().endswith(b"\n") and b"\r" not in (repo / MD_OUT).read_bytes()
+
+
+@pytest.mark.parametrize("include", [None, "", "   ", "\t\n "])
+@pytest.mark.parametrize("transitive", [False, True])
+def test_platform_closure_rejects_blank_project_reference_includes(
+    tmp_path: Path, include: str | None, transitive: bool,
+) -> None:
+    relative = (f"{PLATFORM_SRC}/Example/Example.csproj" if transitive
+                else "fixture/Example.csproj")
+    project_path = tmp_path / relative
+    project_path.parent.mkdir(parents=True)
+    project = ElementTree.Element("Project")
+    group = ElementTree.SubElement(project, "ItemGroup")
+    ElementTree.SubElement(group, "ProjectReference", {} if include is None else {"Include": include})
+    ElementTree.ElementTree(project).write(project_path, encoding="utf-8")
+    references = ([f"$(FixtureEventStoreRoot)/src/Example/Example.csproj"] if transitive
+                  else verifier.parse_project(project_path)["projectReferences"])
+
+    with pytest.raises(proof.ProofError) as error:
+        proof.resolve_platform_closure(tmp_path, "fixture", {"Example.csproj": {"projectReferences": references}})
+
+    assert error.value.code == verifier.BLOCK_RESTORE
+    assert error.value.message == f"project reference Include is blank: {relative}"
+
+
+def test_platform_closure_preserves_valid_and_property_based_references(tmp_path: Path) -> None:
+    platform = tmp_path / PLATFORM_SRC
+    for name, references in (
+        ("Parent", ['..\\Child\\Child.csproj', '$(OptionalRoot)/Optional.csproj']),
+        ("Child", []),
+    ):
+        path = platform / name / f"{name}.csproj"
+        path.parent.mkdir(parents=True)
+        project = ElementTree.Element("Project")
+        group = ElementTree.SubElement(project, "ItemGroup")
+        for reference in references:
+            ElementTree.SubElement(group, "ProjectReference", {"Include": reference})
+        ElementTree.ElementTree(project).write(path, encoding="utf-8")
+    projects = {"Example.csproj": {"projectReferences": [
+        "$(FixtureEventStoreRoot)\\src\\Parent\\Parent.csproj",
+        "$(OptionalRoot)/Optional.csproj", "../Local/Local.csproj",
+    ]}}
+
+    assert proof.resolve_platform_closure(tmp_path, "fixture", projects) == [
+        f"{PLATFORM_SRC}/Child/Child.csproj", f"{PLATFORM_SRC}/Parent/Parent.csproj",
+    ]
+
+
+@pytest.mark.parametrize("modifier", ["Update", "Remove"])
+def test_platform_closure_preserves_item_modifiers_without_treating_them_as_edges(
+    tmp_path: Path, modifier: str,
+) -> None:
+    paths = ["fixture/Example.csproj", f"{PLATFORM_SRC}/Parent/Parent.csproj",
+             f"{PLATFORM_SRC}/Child/Child.csproj"]
+    references = ["$(FixtureEventStoreRoot)/src/Parent/Parent.csproj", "../Child/Child.csproj", None]
+    for relative, reference in zip(paths, references):
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True)
+        project = ElementTree.Element("Project")
+        group = ElementTree.SubElement(project, "ItemGroup")
+        if reference is not None:
+            ElementTree.SubElement(group, "ProjectReference", {"Include": reference})
+        ElementTree.SubElement(group, "ProjectReference", {modifier: "$(OtherRoot)/Unused.csproj"})
+        ElementTree.ElementTree(project).write(path, encoding="utf-8")
+
+    parsed = verifier.parse_project(tmp_path / paths[0])
+    assert parsed["projectReferences"] == [references[0]]
+    assert proof.resolve_platform_closure(tmp_path, "fixture", {"Example.csproj": parsed}) == sorted(paths[1:])
 
 
 @pytest.mark.parametrize("field", ["commit", "eventStoreGitlink"])

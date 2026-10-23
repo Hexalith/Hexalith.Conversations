@@ -87,8 +87,11 @@ def restore_sources(repository: Path, fixture: str, packages: set) -> list[str]:
 def resolve_platform_closure(repository: Path, fixture: str, projects: dict) -> list[str]:
     """Repository-relative platform projects the fixture references, directly and transitively."""
     pending: list[str] = []
-    for project in projects.values():
+    for project_path, project in projects.items():
         for reference in project["projectReferences"]:
+            if not reference.strip():
+                raise ProofError(verifier.BLOCK_RESTORE,
+                                 f"project reference Include is blank: {fixture}/{project_path}")
             normalized = reference.replace("\\", "/")
             if "FixtureEventStoreRoot" in normalized:
                 pending.append(posixpath.normpath(normalized.replace("$(FixtureEventStoreRoot)", PLATFORM_ROOT)))
@@ -104,7 +107,11 @@ def resolve_platform_closure(repository: Path, fixture: str, projects: dict) -> 
         except (OSError, ElementTree.ParseError):
             raise ProofError(verifier.BLOCK_RESTORE, f"platform project is unavailable: {path}") from None
         for item in root.iter("ProjectReference"):
+            if "Include" not in item.attrib and ("Update" in item.attrib or "Remove" in item.attrib):
+                continue  # Item modifiers do not declare reference edges.
             include = item.get("Include", "").replace("\\", "/")
+            if not include.strip():
+                raise ProofError(verifier.BLOCK_RESTORE, f"project reference Include is blank: {path}")
             if "$(" in include:  # conditional source-reference variants are not part of the resolved graph
                 continue
             nested = posixpath.normpath(posixpath.join(posixpath.dirname(path), include))

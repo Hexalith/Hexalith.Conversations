@@ -5171,8 +5171,9 @@ def v2_sprint_status_only_change(
 ) -> bool:
     """Accept one story row, its `last_updated` date, and the header comment date."""
     status = re.compile(
-        rb"(?m)^[ \t]*" + re.escape(sprint_key.encode("ascii")) + rb":[ \t]*"
-        rb"(?P<value>backlog|draft|ready-for-dev|in-progress|in-review|review|done)[ \t]*$"
+        rb"(?m)^[ \t]*" + re.escape(sprint_key.encode("utf-8")) + rb":[ \t]*"
+        rb"(?P<value>backlog|draft|ready-for-dev|in-progress|in-review|review|done)"
+        rb"(?:[ \t]+#[^\r\n]*)?[ \t]*$"
     )
     update_date = re.compile(
         rb"(?m)^last_updated:[ \t]*(?P<value>\d{4}-\d{2}-\d{2}|\d{2}-\d{2}-\d{4} \d{2}:\d{2})[ \t]*$"
@@ -5276,9 +5277,38 @@ def v2_retention_config(repository: Path, contract_path: str) -> tuple[str, str,
         raise V2Stop([v2_finding("BASELINE_NOT_TRUSTWORTHY", contract_path,
                                  "the successor contract must resolve to one story spec")], story_id)
     spec_path = candidates[0].relative_to(repository).as_posix()
-    sprint_key = ("10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner"
-                  if story_id == "10.1" else candidates[0].stem.removeprefix("spec-"))
-    return story_id, spec_path, sprint_key, True
+    try:
+        lines = (repository / V2_7_2_SPRINT_PATH).read_text(encoding="utf-8").splitlines()
+        sections = [index for index, line in enumerate(lines)
+                    if re.fullmatch(r"development_status:[ \t]*(?:#.*)?", line)]
+        if len(sections) != 1:
+            raise ValueError("the sprint tracker must contain one development_status mapping")
+        sprint_keys = []
+        seen_keys = set()
+        for line in lines[sections[0] + 1:]:
+            if not line.strip() or line.lstrip().startswith("#"):
+                continue
+            if not line.startswith((" ", "\t")):
+                break
+            # The tracked sprint format uses two-space, unquoted mapping keys.
+            # Reject unsupported rows rather than hiding another story identity.
+            row = re.fullmatch(r"  ([\w-]+):[ \t]+(.+)", line)
+            raw_status = row.group(2).lstrip() if row is not None else ""
+            if row is None or re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]*(?:[ \t]+#.*)?[ \t]*", raw_status) is None:
+                raise ValueError("the sprint tracker must use flat two-space unquoted scalar rows")
+            key = row.group(1)
+            if key in seen_keys:
+                raise ValueError(f"the sprint tracker repeats a development_status key: {key}")
+            seen_keys.add(key)
+            identity = re.fullmatch(r"(\d+)-(\d+)-.+", key)
+            if identity is not None and tuple(map(int, identity.groups())) == tuple(map(int, match.groups())):
+                sprint_keys.append(key)
+        if len(sprint_keys) != 1:
+            raise ValueError("the successor contract must resolve to one tracked story row")
+    except (OSError, UnicodeError, ValueError) as error:
+        raise V2Stop([v2_finding("BASELINE_NOT_TRUSTWORTHY", V2_7_2_SPRINT_PATH,
+                                 str(error))], story_id) from None
+    return story_id, spec_path, sprint_keys[0], True
 
 
 def v2_designated_successor_outputs(story_id: str) -> tuple[str, str]:

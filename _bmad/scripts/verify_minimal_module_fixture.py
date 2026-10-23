@@ -356,7 +356,8 @@ def parse_project(path: Path) -> dict:
     return {
         "sdk": root.get("Sdk", ""),
         "properties": parse_properties(path),
-        "projectReferences": [item.get("Include", "") for item in root.iter("ProjectReference")],
+        "projectReferences": [item.get("Include", "") for item in root.iter("ProjectReference")
+                              if "Include" in item.attrib or not ("Update" in item.attrib or "Remove" in item.attrib)],
         "packageReferences": [item.get("Include", "") for item in root.iter("PackageReference")],
         "internalsVisibleTo": [item.get("Include", "") for item in root.iter("InternalsVisibleTo")],
         "rawText": path.read_text(encoding="utf-8", errors="replace"),

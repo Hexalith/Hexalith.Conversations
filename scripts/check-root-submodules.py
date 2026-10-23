@@ -14,11 +14,17 @@ SHA = re.compile(r"[0-9a-f]{40}\Z")
 SETTING = re.compile(r"submodule\.(.+)\.(path|url)\Z")
 
 
-def git(root: Path, *args: str) -> bytes:
+def git(root: Path, *args: str, allow_no_match: bool = False) -> bytes:
     result = subprocess.run(
         ["git", "-C", str(root), *args], capture_output=True, check=False
     )
-    if result.returncode:
+    no_match = (
+        allow_no_match
+        and result.returncode == 1
+        and not result.stdout
+        and not result.stderr
+    )
+    if result.returncode and not no_match:
         detail = result.stderr.decode("utf-8", errors="replace").strip()
         raise ValueError(detail or f"git {args[0]} exited {result.returncode}")
     return result.stdout
@@ -59,6 +65,8 @@ def check(root: Path) -> list[str]:
         parts[1],
         "--get-regexp",
         r"^submodule\..*\.(path|url)$",
+        # Config errors also use exit 1; only a silent empty result means no match.
+        allow_no_match=True,
     ).split(b"\0"):
         if not entry:
             continue

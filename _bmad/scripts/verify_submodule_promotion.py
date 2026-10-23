@@ -423,7 +423,8 @@ def submodule_dirt(path: Path, head: str | None) -> tuple[bool, bool]:
         "--porcelain=v1",
         "-z",
         "--untracked-files=all",
-        "--ignore-submodules=all",
+        # Ignore nested working-file dirt but retain nested gitlink revision drift.
+        "--ignore-submodules=dirty",
     )
     tracked = False
     untracked = False

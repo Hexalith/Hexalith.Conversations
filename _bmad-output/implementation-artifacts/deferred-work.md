@@ -791,3 +791,29 @@ These five resolutions supersede only the named validation and tracking scopes. 
 - source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-validation-and-tracking-fixes.md`
   summary: Reconcile the frozen minimal-module fixture's accepted lock graphs with the current root-pinned EventStore dependency graph through the approved fixture successor process.
   evidence: Baseline CI run 39971222910 at b2fa7d93c1a8c0eca6c02fe1c7ecb9418ae5bee4 passed seven external compatibility assertions, then failed locked fixture restore with NU1004 for EventStore ServiceDefaults and Aspire graph drift. The five validation fixes change neither those locks nor dependency pins. Preserve accepted fixture/evidence bytes and the locked-mode gate; do not disable locked restore to conceal the failure.
+
+## Resolved by five deferred repository tooling safeguards (2026-10-23)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-tooling-safeguards.md`
+  summary: Resolved the October 23 root-checker no-declarations diagnostic follow-up.
+  evidence: Empty, comment-only and unrelated indexed configuration produces the intended no-root-submodules diagnostic, while undeclared indexed gitlinks remain visible. Only the configuration query's silent, empty exit 1 is treated as no match; malformed configuration retains its Git error and fails closed.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-tooling-safeguards.md`
+  summary: Resolved the July 27 unstaged nested gitlink dirt blind spot recorded in both review passes.
+  evidence: Promotion inspection ignores nested working-file dirt while detecting staged and unstaged nested revision movement. Disposable repository regressions retain the nested HEAD, contents and parent index, and preserve initialized/uninitialized nontraversal controls. No real dependency or nested submodule was initialized or changed.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-tooling-safeguards.md`
+  summary: Resolved the October 11 generic successor lifecycle key coupling to spec filenames.
+  evidence: Successor retention resolves the unique exact numeric story identity from development_status and rejects missing or ambiguous tracking evidence. Differing spec/tracker slugs and numeric prefix collisions are covered; historical retained-candidate mappings remain authoritative. Current 10.2–10.4 filenames already match their tracker keys, so the original prediction of their immediate failure is not repeated.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-tooling-safeguards.md`
+  summary: Resolved the October 19 fixture-proof empty ProjectReference Include sub-scope.
+  evidence: Direct and transitive missing, empty and whitespace-only Includes fail with the existing restore blocker before graph normalization can silently omit them. Hermetic controls preserve valid Windows-style paths, local references, supported property-based references and transitive platform closure. Accepted fixture and evidence bytes remain unchanged; other sub-scopes in that original ledger entry are not claimed as resolved.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-tooling-safeguards.md`
+  summary: Resolved the September 25 Story 7.2 idealized project-selection and approved-skip regression gap.
+  evidence: Disposable mixed-solution coverage includes source projects and File entries while preserving the exact root test-project inventory and derived totals. Approved skipped-test fixtures exercise exact test-name acceptance and reject lookalike names, different project-prefixed names and absent approvals without changing accepted story contracts or their skip policy. Assembly-specific approval for identical fully qualified test names remains a separate contract question below.
+
+These five additive resolutions supersede only the named scopes. Historical entries remain intact. The recent intentional application-only CI policy and the separate frozen fixture lock-graph drift are unchanged.
+
+## Deferred from: five deferred repository tooling safeguards review (2026-10-23)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-tooling-safeguards.md`
+  summary: Decide whether skipped-test approvals must distinguish identical fully qualified test names in different assemblies.
+  evidence: R5, medium, pre-existing contract limitation. The approved skip shape contains test and reason, and Story 7.2 checks each skipped row's test name against that global map; it has no assembly field. Current negative coverage proves exact name identity, including different project-prefixed names, rather than authorization scoped to an assembly. Two declared assemblies can carry the same fully qualified test name, so per-assembly isolation needs an explicit successor policy and behavior regression; this batch preserves existing approved-skip semantics.

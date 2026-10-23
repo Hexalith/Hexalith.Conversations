@@ -748,6 +748,33 @@ def test_staged_nested_gitlink_change_counts_as_tracked_dirt(tmp_path: Path) -> 
     assert "SUBMODULE_DIRTY_TRACKED" in blocker_codes(result)
 
 
+def test_unstaged_nested_gitlink_change_counts_as_tracked_dirt(tmp_path: Path) -> None:
+    repository, candidate = create_nested_umbrella(tmp_path)
+    parent = repository / "references/Example"
+    nested = parent / "nested/Child"
+    run_git(parent, "submodule", "update", "--init", "nested/Child")
+    original_index = run_git(parent, "ls-files", "--stage", "nested/Child").stdout
+    (nested / "tracked.txt").write_text("new nested commit\n", encoding="utf-8")
+    commit_all(nested, "advance nested submodule")
+    nested_head = run_git(nested, "rev-parse", "HEAD").stdout
+
+    result = run_checker(
+        repository,
+        "--baseline",
+        candidate,
+        "--candidate",
+        candidate,
+        "--submodule",
+        "references/Example",
+    )
+
+    assert result.returncode == 1, payload(result)
+    assert blocker_codes(result) == {"SUBMODULE_DIRTY_TRACKED"}
+    assert run_git(parent, "ls-files", "--stage", "nested/Child").stdout == original_index
+    assert run_git(nested, "rev-parse", "HEAD").stdout == nested_head
+    assert (nested / "tracked.txt").read_text(encoding="utf-8") == "new nested commit\n"
+
+
 def test_unicode_and_space_path_round_trips_through_null_delimited_git_output(
     tmp_path: Path,
 ) -> None:
