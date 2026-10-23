@@ -655,6 +655,188 @@ def test_zero_failed_and_unapproved_skipped_results_block(
     assert code == 0, document["blockers"]
 
 
+def test_deferred_measurements_unevaluated_promotion_cannot_pass(umbrella) -> None:
+    code, document = measured(umbrella, "--baseline", umbrella["candidate"])
+    assert code == 1
+    assert "PROMOTION_GATE_NOT_PASS" in codes(document)
+    assert document["promotion_gate"]["result"] == "pass"
+    assert "SCOPE_NOT_EVALUATED" in {
+        row["code"] for row in document["promotion_gate"]["warnings"]
+    }
+
+    code, document = measured(
+        umbrella, "--baseline", umbrella["candidate"], "--submodule", "references/Example"
+    )
+    assert code == 0, document["blockers"]
+    assert document["promotion_gate"]["evaluated"]
+
+
+def test_deferred_measurements_remote_requirement_reaches_the_checker(umbrella) -> None:
+    arguments = ("--submodule", "references/Example", "--require-remote", "references/Example")
+    code, document = measured(umbrella, *arguments)
+    assert code == 0, document["blockers"]
+
+    repository = umbrella["repository"]
+    submodule = repository / "references/Example"
+    run_git(submodule, "commit", "--allow-empty", "-m", "unpublished source")
+    run_git(repository, "add", "references/Example")
+    run_git(repository, "commit", "-m", "promote unpublished source")
+    write_trx(repository / umbrella["artifact"])
+    code, document = measured(umbrella, "--submodule", "references/Example")
+    assert code == 0, document["blockers"]
+
+    code, document = measured(umbrella, *arguments)
+    assert code == 1
+    assert "PROMOTION_GATE_NOT_PASS" in codes(document)
+    assert "REMOTE_COMMIT_UNAVAILABLE" in codes(document["promotion_gate"])
+    assert document["promotion_gate"]["result"] == "blocked"
+
+
+@pytest.mark.parametrize("occurrences", [1, 2])
+def test_deferred_measurements_skip_occurrences_roundtrip(umbrella, occurrences) -> None:
+    repository = umbrella["repository"]
+    add_test_project(umbrella, "SecondFixture")
+    umbrella["candidate"] = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    story = repository / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "baseline_commit:",
+        f"file_list_commit: '{umbrella['candidate']}'\n"
+        "allowed_skipped_tests:\n  - test: 'Shared.Tests.OptionalLane'\n"
+        "    reason: 'requires an opt-in service'\nbaseline_commit:",
+    ), encoding="utf-8")
+    for project, artifact, skipped in (
+        ("Fixture", umbrella["artifact"], 1),
+        ("SecondFixture", "results/second.trx", occurrences - 1),
+    ):
+        path = repository / artifact
+        write_trx(path, passed=2, skipped=skipped, project=project)
+        path.write_text(path.read_text(encoding="utf-8").replace(
+            f'{project}.S0', 'Shared.Tests.OptionalLane'
+        ), encoding="utf-8")
+    code, bundle = bundled(umbrella, "--test-results", "SecondFixture=results/second.trx")
+    assert code == 0, bundle["document"]["blockers"]
+    assert bundle["document"]["test_results"]["totals"]["skipped"] == occurrences
+    insert_generated_block(umbrella, bundle["markdown"])
+    code, document = historical_fixture(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["test_results"]["totals"]["skipped"] == occurrences
+    assert document["test_results"]["observed_skips"] == {"Shared.Tests.OptionalLane": occurrences}
+    rerendered = load_generator().render_markdown(document)
+    insert_generated_block(umbrella, rerendered)
+    code, verified = historical_fixture(umbrella)
+    assert code == 0, verified["blockers"]
+    assert verified["test_results"]["observed_skips"] == document["test_results"]["observed_skips"]
+
+    # The count must account for every skipped occurrence, not just its identity.
+    observed = "yes" if occurrences == 1 else str(occurrences)
+    for replacement in ("no", str(occurrences + 1), "-1", "1.5", "missing"):
+        insert_generated_block(umbrella, bundle["markdown"].replace(
+            f"| Shared.Tests.OptionalLane | requires an opt-in service | {observed} |",
+            f"| Shared.Tests.OptionalLane | requires an opt-in service | {replacement} |",
+        ))
+        code, document = historical_fixture(umbrella)
+        assert code == 1, replacement
+        assert codes(document) & {"TEST_SKIP_NOT_ALLOWED", "TEST_COUNT_INCONSISTENT"}
+
+
+@pytest.mark.parametrize("legacy", [False, True])
+def test_deferred_measurements_legacy_execution_counts_are_unavailable(umbrella, legacy) -> None:
+    bundle = prepare_generated_record(umbrella)
+    if legacy:
+        block = bundle["markdown"].replace(
+            "| Total | Executed | Passed |", "| Total | Passed |"
+        ).replace(
+            "| Fixture | PARSED | 3 | 3 | 3 | 0 | 0 |",
+            "| Fixture | PARSED | 3 | 3 | 0 | 0 |",
+        ).replace(
+            "| **Total (computed)** | **1 parsed** | **3** | **3** | **3** | **0** | **0** |",
+            "| **Total (computed)** | **1 parsed** | **3** | **3** | **0** | **0** |",
+        )
+        insert_generated_block(umbrella, block)
+    code, document = historical_fixture(umbrella)
+    assert code == 0, document["blockers"]
+    expected = None if legacy else 3
+    assert document["test_results"]["projects"][0]["counts"]["executed"] == expected
+    assert document["test_results"]["totals"]["executed"] == expected
+    if legacy:
+        rendered = load_generator().render_markdown(document)
+        assert "Executed: — (not recorded in the legacy table)." in rendered
+        insert_generated_block(umbrella, rendered)
+        code, verified = historical_fixture(umbrella)
+        assert code == 0, verified["blockers"]
+        assert verified["test_results"]["totals"]["executed"] is None
+
+
+def test_deferred_measurements_mixed_legacy_tables_do_not_invent_totals() -> None:
+    module = load_generator()
+    digest = "a" * 64
+    block = (
+        "### Test Results\n\n"
+        "| Project | State | Total | Executed | Passed | Failed | Skipped | Digest |\n"
+        "| --- | --- | --- | --- | --- | --- | --- | --- |\n"
+        f"| Legacy | PARSED | 2 | 2 | 0 | 0 | {digest} |\n"
+        f"| Modern | PARSED | 3 | 3 | 3 | 0 | 0 | {digest} |\n"
+        "| **Total (computed)** | **2 parsed** | **5** | **5** | **0** | **0** | — |\n"
+    )
+    with pytest.raises(ValueError, match="mixes legacy and modern"):
+        module.parse_recorded_test_results(block)
+
+
+@pytest.mark.parametrize("executed", ["—", "-3", "999"])
+def test_deferred_measurements_modern_execution_evidence_cannot_be_hidden_or_inconsistent(
+    umbrella, executed,
+) -> None:
+    bundle = prepare_generated_record(umbrella)
+    tampered = bundle["markdown"].replace(
+        "| Fixture | PARSED | 3 | 3 | 3 | 0 | 0 |",
+        f"| Fixture | PARSED | 3 | {executed} | 3 | 0 | 0 |",
+    ).replace(
+        "| **Total (computed)** | **1 parsed** | **3** | **3** | **3** | **0** | **0** |",
+        f"| **Total (computed)** | **1 parsed** | **3** | **{executed}** | **3** | **0** | **0** |",
+    )
+    insert_generated_block(umbrella, tampered)
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert "TEST_COUNT_INCONSISTENT" in codes(document)
+
+
+@pytest.mark.parametrize("receipt, total, passed, failed", [
+    ("artifacts/v9/10.4/AC-10.4-01.trx", 1, 1, 0),
+    ("docs/release-evidence/conformance-oracle-pre-split-story-9.2.trx", 415, 412, 3),
+])
+def test_deferred_measurements_native_trx_receipts(tmp_path, receipt, total, passed, failed) -> None:
+    module = load_generator()
+    content = (WORKSPACE / receipt).read_bytes()
+    parsed = module.parse_trx(content)
+    assert parsed["reported"] == dict(total=total, executed=total, passed=passed, failed=failed, skipped=0)
+    assert parsed["recomputed"] == dict(total=total, passed=passed, failed=failed, skipped=0)
+    assert module.count_disagreements(parsed) == []
+    assert parsed["assemblies"] == ["Hexalith.Conversations.Conformance.Tests"]
+    assert len(parsed["code_bases"]) == 1
+    assert len({row["test"] for row in parsed["results"]}) == total
+
+    artifact = tmp_path / "native.trx"
+    artifact.write_bytes(content)
+    for fault in (False, True):
+        if fault:
+            root = ElementTree.fromstring(content)
+            root.find('./{*}ResultSummary/{*}Counters').set('total', str(total + 1))
+            artifact.write_bytes(ElementTree.tostring(root))
+        blockers, warnings = [], []
+        results = module.derive_test_results(
+            tmp_path, [("Hexalith.Conversations.Conformance.Tests", "native.trx")],
+            {"Hexalith.Conversations.Conformance.Tests": "tests/Conformance.csproj"},
+            {}, blockers, warnings,
+        )
+        assert results["projects"][0]["sha256"] == sha256_file(artifact)
+        assert results["totals"]["failed"] == failed
+        assert {row["code"] for row in blockers} == (
+            ({"TEST_RESULTS_FAILED"} if failed else set())
+            | ({"TEST_COUNT_INCONSISTENT"} if fault else set())
+        )
+    assert (WORKSPACE / receipt).read_bytes() == content
+
+
 @pytest.mark.parametrize("scalar, expected", [
     ("'revision' # explanation", "revision"),
     ('"revision"\t# explanation', "revision"),

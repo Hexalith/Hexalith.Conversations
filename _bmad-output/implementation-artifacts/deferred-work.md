@@ -857,3 +857,32 @@ These additive resolutions supersede only the five named scopes. Accepted eviden
   evidence: Record anchors and historical classification share structural-line recognition outside fenced examples. Inline, blockquoted and fenced marker mentions preserve pre-generator classification and remain unchanged during real block insertion; valid generated records remain verifiable, and unmatched, reversed or duplicate structural markers still block.
 
 These five additive resolutions supersede only the named parsing scopes. Other portions of the original compound findings remain separate. Accepted records, fixture sources and locks, historical ledger entries, CI policy and submodule pointers remain unchanged.
+
+## Resolved by five deferred measurement safeguards (2026-10-23)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-measurement-safeguards.md`
+  summary: Resolved the July 30 pass-8 embedded promotion gate's acceptance of SCOPE_NOT_EVALUATED.
+  evidence: Live generation retains the checker document verbatim but returns PROMOTION_GATE_NOT_PASS when its warnings say no scope was evaluated. Disposable CLI controls cover baseline equal to candidate with empty scope and successful explicit scope at that same baseline.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-measurement-safeguards.md`
+  summary: Resolved the July 30 pass-8 missing require-remote pass-through regression.
+  evidence: A disposable local-origin fixture proves a published submodule revision passes, an unpublished revision passes without the remote requirement, and that same revision fails with embedded REMOTE_COMMIT_UNAVAILABLE and outer PROMOTION_GATE_NOT_PASS when require-remote is supplied. This protects existing forwarding behavior; remote cache freshness remains a separate limitation.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-measurement-safeguards.md`
+  summary: Resolved the July 30 pass-8 live/historical mismatch for the same skipped test identity in multiple projects.
+  evidence: The Allowed Skipped Tests table records repeated occurrence counts, retaining legacy yes/no for one/zero, and historical verification sums occurrences. Disposable two-project roundtrips cover one/two occurrences and reject missing, negative, fractional and inconsistent counts. Exact-name global approvals are unchanged; assembly-specific approval remains a separate deferred decision.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-measurement-safeguards.md`
+  summary: Resolved the July 30 pass-8 legacy seven-column shim's fabricated executed counts.
+  evidence: Historical parsing exposes absent execution evidence as JSON null and explicitly disclosed Markdown em dashes while retaining the seven-column layout. Modern tables require numeric execution evidence consistent with Passed plus Failed; modern omissions, negative/inconsistent counts and mixed column layouts fail closed. No accepted record bytes are rewritten.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-measurement-safeguards.md`
+  summary: Resolved the July 30 pass-8 native TRX parsing regression gap.
+  evidence: Parser and project-result derivation consume retained native one-test passing and 415-test failing receipts, asserting actual counters, assembly identity, distinct cases, failure propagation and artifact hashes. Copied counter-fault variants must produce TEST_COUNT_INCONSISTENT; retained source receipt bytes remain untouched. This closes the native-input coverage sub-scope without claiming new binary provenance or completeness guarantees.
+
+These five additive resolutions supersede only the named measurement scopes. Historical ledger entries, accepted evidence, fixture locks, dependency pins, CI policy and gitlinks are unchanged.
+
+## Deferred from: five deferred measurement safeguards review (2026-10-23)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-measurement-safeguards.md`
+  summary: Bind historically recorded skip identities and reasons to their versioned source policy.
+  evidence: R4, medium, pre-existing. A disposable native CLI probe generates a passing skipped-test record, renames its allowance-table identity to Unapproved.Test with a fabricated reason, and historical verification still returns exit 0. Occurrence arithmetic is now checked, but policy-source equality is not. A separately scoped fix must establish the appropriate historical policy source without rewriting accepted records.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-measurement-safeguards.md`
+  summary: Reconcile live output self-accounting with historical File List verification for equal-baseline candidates.
+  evidence: R5, medium, pre-existing. A disposable baseline-equals-candidate run with explicit promotion scope passes live generation; after block insertion, historical verification returns FILE_LIST_DRIFT because the live File List includes its story output while the committed range is empty. The new promotion-scope control correctly proves evaluated scope but does not repair this independent file-boundary contract mismatch.

@@ -1689,6 +1689,8 @@ def parse_recorded_test_results(block: str) -> dict[str, Any]:
     rows = markdown_table_rows(block, "### Test Results")
     if not rows:
         raise ValueError("generated record has no parseable Test Results table")
+    if len({len(row) for row in rows}) != 1:
+        raise ValueError("Test Results mixes legacy and modern column layouts")
     projects: list[dict[str, Any]] = []
     total_row: list[str] | None = None
     for row in rows:
@@ -1704,22 +1706,27 @@ def parse_recorded_test_results(block: str) -> dict[str, Any]:
             raise ValueError(f"test project {values[0]} is not PARSED")
         if len(values) == 8:
             total, executed, passed, failed, skipped, digest = values[2:]
+            executed_count: int | None = int(executed)
         else:
             total, passed, failed, skipped, digest = values[2:]
-            executed = str(int(total) - int(skipped))
+            executed_count = None
         if not re.fullmatch(r"(?:[0-9a-f]{16}|[0-9a-f]{64})", digest):
             raise ValueError(
                 f"test project {values[0]} has no full artifact SHA-256 or legacy 16-digit prefix"
             )
         counts = {
             "total": int(total),
-            "executed": int(executed),
+            "executed": executed_count,
             "passed": int(passed),
             "failed": int(failed),
             "skipped": int(skipped),
         }
         if counts["total"] <= 0:
             raise ValueError(f"test project {values[0]} records zero tests")
+        if any(value < 0 for value in counts.values() if value is not None):
+            raise ValueError(f"test project {values[0]} has negative recorded counts")
+        if executed_count is not None and executed_count != counts["passed"] + counts["failed"]:
+            raise ValueError(f"test project {values[0]} has an inconsistent executed count")
         if counts["total"] != counts["passed"] + counts["failed"] + counts["skipped"]:
             raise ValueError(
                 f"test project {values[0]} has inconsistent recorded counts"
@@ -1737,15 +1744,20 @@ def parse_recorded_test_results(block: str) -> dict[str, Any]:
     if total_row is None or not projects:
         raise ValueError("generated record has no computed total row")
     if len(total_row) == 8:
-        recorded_totals = [int(markdown_value(value)) for value in total_row[2:7]]
+        recorded_totals = [int(value) for value in total_row[2:7]]
         fields = ("total", "executed", "passed", "failed", "skipped")
     else:
         recorded_totals = [int(markdown_value(value)) for value in total_row[2:6]]
         fields = ("total", "passed", "failed", "skipped")
     totals = {
         field: sum(int(project["counts"][field]) for project in projects)
-        for field in ("total", "executed", "passed", "failed", "skipped")
+        for field in ("total", "passed", "failed", "skipped")
     }
+    totals["executed"] = (
+        sum(project["counts"]["executed"] for project in projects)
+        if all(project["counts"]["executed"] is not None for project in projects)
+        else None
+    )
     if recorded_totals != [totals[field] for field in fields]:
         raise ValueError("computed total row disagrees with its project rows")
     parsed_label = total_row[1]
@@ -1838,22 +1850,21 @@ def parse_recorded_promotions(block: str) -> list[dict[str, Any]]:
     return promotions
 
 
-def parse_recorded_skip_policy(block: str) -> tuple[dict[str, str], set[str]]:
+def parse_recorded_skip_policy(block: str) -> tuple[dict[str, str], dict[str, int]]:
     policy: dict[str, str] = {}
-    observed: set[str] = set()
+    observed: dict[str, int] = {}
     for row in markdown_table_rows(block, "### Allowed Skipped Tests"):
         if len(row) != 3:
             raise ValueError(
                 f"Allowed Skipped Tests row has {len(row)} columns, expected 3"
             )
         test, reason, state = [markdown_value(cell) for cell in row]
-        if not test or not reason or state not in ("yes", "no"):
+        if not test or not reason or not (state in ("yes", "no") or re.fullmatch(r"[0-9]+", state)):
             raise ValueError("Allowed Skipped Tests carries an invalid row")
         if test in policy:
             raise ValueError(f"Allowed Skipped Tests repeats {test}")
         policy[test] = reason
-        if state == "yes":
-            observed.add(test)
+        observed[test] = (1 if state == "yes" else 0) if state in ("yes", "no") else int(state)
     return policy, observed
 
 
@@ -2055,16 +2066,17 @@ def verify_live(repository: Path, args: argparse.Namespace) -> dict[str, Any]:
     document["promotion_gate"] = gate
     # Branch on the document's own result: exit 1 and exit 2 both emit valid
     # JSON, and error codes land inside blockers[] outside the frozen table.
-    if gate.get("result") != "pass":
+    unevaluated = [item for item in gate.get("warnings", []) if item.get("code") == "SCOPE_NOT_EVALUATED"]
+    if gate.get("result") != "pass" or unevaluated:
         gate_codes = (
-            ", ".join(item.get("code", "?") for item in gate.get("blockers", []))
+            ", ".join(item.get("code", "?") for item in [*gate.get("blockers", []), *unevaluated])
             or "none"
         )
         blockers.append(
             blocker(
                 "PROMOTION_GATE_NOT_PASS",
                 f"the embedded promotion completion gate reported {gate.get('result')!r} "
-                f"with blockers: {gate_codes}",
+                f"with blockers or unevaluated scope: {gate_codes}",
             )
         )
 
@@ -2298,6 +2310,7 @@ def verify_historical(repository: Path, args: argparse.Namespace) -> dict[str, A
             test_results = parse_recorded_test_results(block)
             skip_policy, observed_skips = parse_recorded_skip_policy(block)
             test_results["allowed_skipped_tests"] = skip_policy
+            test_results["observed_skips"] = observed_skips
             document["test_results"] = test_results
             totals = test_results["totals"]
             document["derived"]["test_results"] = bool(totals and totals["total"] > 0)
@@ -2307,11 +2320,11 @@ def verify_historical(repository: Path, args: argparse.Namespace) -> dict[str, A
                     f"generated record carries {totals['failed']} failed test(s)",
                     story,
                 )
-            if totals and totals["skipped"] != len(observed_skips):
+            if totals and totals["skipped"] != sum(observed_skips.values()):
                 finding(
                     "TEST_SKIP_NOT_ALLOWED",
                     f"generated record carries {totals['skipped']} skipped test(s) but "
-                    f"documents {len(observed_skips)} observed allowance(s)",
+                    f"documents {sum(observed_skips.values())} allowed skipped occurrence(s)",
                     story,
                 )
         except (GateError, ValueError) as error:
@@ -2509,40 +2522,29 @@ def markdown_table_code(value: Any) -> str:
 
 
 def render_counts_table(document: dict[str, Any]) -> list[str]:
-    lines = [
-        "| Test project | State | Total | Executed | Passed | Failed | Skipped | Artifact SHA-256 |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- |",
-    ]
+    totals = document["test_results"]["totals"]
+    legacy = totals is not None and totals["executed"] is None
+    fields = ("total", "passed", "failed", "skipped") if legacy else (
+        "total", "executed", "passed", "failed", "skipped"
+    )
+    headers = ["Test project", "State", *(field.title() for field in fields), "Artifact SHA-256"]
+    lines = ["| " + " | ".join(headers) + " |", "| " + " | ".join("---" for _ in headers) + " |"]
     for item in document["test_results"]["projects"]:
         counts = item["counts"] or {}
         digest = item["sha256"]
-        lines.append(
-            "| {project} | {state} | {total} | {executed} | {passed} | {failed} | {skipped} | {digest} |".format(
-                project=markdown_table_text(item["project"]),
-                state=item["state"],
-                total=counts.get("total", "—"),
-                executed=counts.get("executed", "—"),
-                passed=counts.get("passed", "—"),
-                failed=counts.get("failed", "—"),
-                skipped=counts.get("skipped", "—"),
-                digest=f"`{digest}`" if digest else "—",
-            )
-        )
-    totals = document["test_results"]["totals"]
+        values = [markdown_table_text(item["project"]), item["state"],
+                  *(str(counts.get(field, "—")) for field in fields),
+                  f"`{digest}`" if digest else "—"]
+        lines.append("| " + " | ".join(values) + " |")
     if totals is None:
         lines.append("| **Total** | **NOT_RUN** | — | — | — | — | — | — |")
     else:
-        lines.append(
-            "| **Total (computed)** | **{count} parsed** | **{total}** | **{executed}** | "
-            "**{passed}** | **{failed}** | **{skipped}** | — |".format(
-                count=sum(
-                    1
-                    for item in document["test_results"]["projects"]
-                    if item["state"] == "PARSED"
-                ),
-                **totals,
-            )
-        )
+        count = sum(item["state"] == "PARSED" for item in document["test_results"]["projects"])
+        values = ["**Total (computed)**", f"**{count} parsed**",
+                  *(f"**{totals[field]}**" for field in fields), "—"]
+        lines.append("| " + " | ".join(values) + " |")
+    if legacy:
+        lines.extend(["", "Executed: — (not recorded in the legacy table)."])
     return lines
 
 
@@ -2668,11 +2670,12 @@ def render_markdown(document: dict[str, Any]) -> str:
 
     allowed_skips = document["test_results"].get("allowed_skipped_tests", {})
     if allowed_skips:
-        observed_skips = {
-            test
-            for item in document["test_results"]["projects"]
-            for test in item.get("skipped_tests", [])
-        }
+        observed_skips = document["test_results"].get("observed_skips")
+        if observed_skips is None:
+            observed_skips = {}
+            for item in document["test_results"]["projects"]:
+                for test in item.get("skipped_tests", []):
+                    observed_skips[test] = observed_skips.get(test, 0) + 1
         lines.extend(["### Allowed Skipped Tests", ""])
         lines.append("| Test identity | Reason | Observed |")
         lines.append("| --- | --- | --- |")
@@ -2681,7 +2684,7 @@ def render_markdown(document: dict[str, Any]) -> str:
                 "| {test} | {reason} | {observed} |".format(
                     test=markdown_table_text(test),
                     reason=markdown_table_text(reason),
-                    observed="yes" if test in observed_skips else "no",
+                    observed=("yes" if observed_skips.get(test) == 1 else observed_skips.get(test, "no")),
                 )
             )
         lines.append("")

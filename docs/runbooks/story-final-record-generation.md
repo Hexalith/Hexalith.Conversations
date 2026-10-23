@@ -95,6 +95,20 @@ identity and a non-empty reason appear under the record's versioned
 `allowed_skipped_tests` frontmatter policy. Unused allowances are reported so
 stale exceptions remain visible.
 
+The generated Allowed Skipped Tests table counts occurrences of each exact test
+identity across projects. Its Observed column retains `yes`/`no` for one/zero
+occurrences and uses an integer for repeated occurrences. Historical verification
+compares the sum of these counts with the skipped total. Approval remains keyed
+by exact test name; this does not introduce assembly-specific approval.
+
+Historical seven-column Test Results tables did not record Executed. Their
+execution counts are reported as JSON `null` and rendered as `—`, including the
+computed execution total if any project lacks that evidence. They are never
+inferred from Total minus Skipped. Historical rendering retains seven columns
+and explicitly discloses the unavailable execution count. Modern eight-column
+tables require measured numeric execution counts consistent with Passed plus
+Failed. Mixed column layouts are malformed. Other recorded counters remain verifiable.
+
 Before running those tests, clean-rebuild the committed candidate with
 `-t:Rebuild -p:SourceRevisionId=<candidate>`. Each TRX must identify exactly one
 repository-contained test binary. The generator reads that binary, requires its
@@ -151,7 +165,7 @@ A parseable document is written to stdout on every path, including exit `2`.
 | `FILE_LIST_DRIFT` | The record's list disagrees with the derived set, or the record carries more than one list | Replace the record's File List with the generated one. Never hand-edit either side into agreement. |
 | `SUBMODULE_INTERNAL_PATH` | A path under a root-declared submodule appears in the record's File List | Remove it: it belongs to that repository's own record, and the gitlink belongs in the promotions section. |
 | `CANDIDATE_NOT_FINAL` | The candidate is not an ancestor of HEAD, a non-output path changed after it, or any gitlink moved | Re-run against the committed head; only the story and sprint-status output commits may follow it. |
-| `PROMOTION_GATE_NOT_PASS` | The embedded Story 6.7 checker document reports a result other than `pass` | Remediate the embedded checker's own blockers per `submodule-promotion-completion-gate.md`. |
+| `PROMOTION_GATE_NOT_PASS` | The embedded Story 6.7 checker reports a result other than `pass`, or warns `SCOPE_NOT_EVALUATED` | Remediate the embedded checker's blockers or supply an evaluable baseline/scope per `submodule-promotion-completion-gate.md`. |
 | `BASELINE_NOT_TRUSTWORTHY` | The baseline is missing, `NO_VCS`, unresolvable, or not an ancestor of the candidate | Record a resolvable `baseline_commit` that is an ancestor of the candidate. |
 | `RECORD_NOT_DERIVED` | No artifact was parsed, no candidate resolved, or no replaceable record section found | Supply the missing input. A run that derived nothing proves nothing and can never be read as a pass. |
 | `RECORD_CONTENT_DRIFT` | The inserted block differs from its bundle digest, or a generated historical section is malformed | Insert the bundle Markdown verbatim and verify it before completion. |
