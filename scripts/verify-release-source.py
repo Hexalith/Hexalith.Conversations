@@ -52,12 +52,15 @@ def verify_source(
     get_json: GetJson = default_get_json,
     verify_destinations: Callable[[str, str], None] = verify_absent,
     release_version: str = FIRST_RELEASE_VERSION,
+    *,
+    check_destinations: bool = True,
 ) -> bool:
     """Return false for an exact frozen posture, otherwise prove release source."""
     load_manifest()
     if publish_enabled != "true":
         return False
-    validate_semver(release_version)
+    if check_destinations:
+        validate_semver(release_version)
     if repository != REPOSITORY:
         raise ValueError(f"release repository must be exactly {REPOSITORY}")
     if dispatch_ref != "refs/heads/main":
@@ -112,7 +115,8 @@ def verify_source(
         raise ValueError(
             "EXACT_CI_ABSENT: newest push CI run/attempt for the current main SHA is not successful"
         )
-    verify_destinations(release_version, repository)
+    if check_destinations:
+        verify_destinations(release_version, repository)
     return True
 
 
@@ -123,7 +127,7 @@ def main() -> int:
     parser.add_argument("--dispatch-ref", default=os.environ.get("GITHUB_REF", ""))
     parser.add_argument("--dispatch-sha", default=os.environ.get("GITHUB_SHA", ""))
     parser.add_argument("--workflow", default="ci.yml")
-    parser.add_argument("--destination-state", choices=("absent",), default="absent")
+    parser.add_argument("--destination-state", choices=("absent", "deferred"), default="absent")
     parser.add_argument("--release-version", default=FIRST_RELEASE_VERSION)
     parser.add_argument("--github-output", type=Path)
     args = parser.parse_args()
@@ -134,14 +138,17 @@ def main() -> int:
         args.dispatch_sha,
         args.workflow,
         release_version=args.release_version,
+        check_destinations=args.destination_state == "absent",
     )
     if args.github_output is not None:
         with args.github_output.open("a", encoding="utf-8", newline="\n") as handle:
             handle.write(f"publish-enabled={'true' if enabled else 'false'}\n")
-    if enabled:
-        print(f"Verified live main, exact-source successful CI, and absent {args.release_version} destinations.")
-    else:
+    if not enabled:
         print("Release publication is frozen; publication validation is not applicable.")
+    elif args.destination_state == "deferred":
+        print("Verified live main and exact-source successful CI.")
+    else:
+        print(f"Verified live main, exact-source successful CI, and absent {args.release_version} destinations.")
     return 0
 
 

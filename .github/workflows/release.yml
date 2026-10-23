@@ -2,11 +2,6 @@ name: Release
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: Stable semantic version planned from commits on main
-        required: true
-        type: string
 
 concurrency:
   group: release-production
@@ -17,7 +12,7 @@ permissions:
 
 jobs:
   verify-source:
-    name: Verify exact green main and requested release destinations
+    name: Verify exact green main and planned release destinations
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -25,6 +20,7 @@ jobs:
       contents: read
     outputs:
       publish-enabled: ${{ steps.source.outputs.publish-enabled }}
+      release-version: ${{ steps.plan.outputs.release-version }}
     steps:
       - name: Check out complete release history
         uses: actions/checkout@v7
@@ -37,7 +33,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           PUBLISH_ENABLED: ${{ vars.HEXALITH_RELEASE_PUBLISH_ENABLED }}
-          RELEASE_VERSION: ${{ inputs.version }}
         run: >-
           python3 scripts/verify-release-source.py
           --publish-enabled "${PUBLISH_ENABLED-}"
@@ -45,7 +40,7 @@ jobs:
           --dispatch-ref "${{ github.ref }}"
           --dispatch-sha "${{ github.sha }}"
           --workflow ci.yml
-          --release-version "$RELEASE_VERSION"
+          --destination-state deferred
           --github-output "$GITHUB_OUTPUT"
 
       - name: Set up supported Node
@@ -63,11 +58,24 @@ jobs:
         if: ${{ steps.source.outputs.publish-enabled == 'true' }}
         run: npm audit signatures
 
-      - name: Require the semantic plan to match the requested version
+      - name: Resolve the semantic-release version
+        id: plan
+        if: ${{ steps.source.outputs.publish-enabled == 'true' }}
+        run: npm run verify:release-plan
+
+      - name: Verify planned release destinations
         if: ${{ steps.source.outputs.publish-enabled == 'true' }}
         env:
-          RELEASE_VERSION: ${{ inputs.version }}
-        run: npm run verify:release-plan -- "$RELEASE_VERSION"
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ steps.plan.outputs.release-version }}
+        run: >-
+          python3 scripts/verify-release-source.py
+          --publish-enabled true
+          --repository "${{ github.repository }}"
+          --dispatch-ref "${{ github.ref }}"
+          --dispatch-sha "${{ github.sha }}"
+          --workflow ci.yml
+          --release-version "$RELEASE_VERSION"
 
   release:
     needs: verify-source
@@ -140,7 +148,7 @@ jobs:
       - name: Revalidate current source and release destinations
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_VERSION: ${{ needs.verify-source.outputs.release-version }}
         run: >-
           python3 scripts/verify-release-source.py
           --publish-enabled true
@@ -164,6 +172,11 @@ jobs:
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
         with:
           user: ${{ vars.NUGET_TRUSTED_PUBLISHING_USER }}
+
+      - name: Require the semantic plan to match the resolved version
+        env:
+          RELEASE_VERSION: ${{ needs.verify-source.outputs.release-version }}
+        run: npm run verify:release-plan -- "$RELEASE_VERSION"
 
       - name: Semantic Release
         env:
@@ -195,7 +208,7 @@ jobs:
       - name: Poll official publication endpoints
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_VERSION: ${{ needs.verify-source.outputs.release-version }}
         run: >-
           python3 scripts/verify-release-state.py present "$RELEASE_VERSION"
           --repository "${{ github.repository }}"

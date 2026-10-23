@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "hexalith.conversations.enrollment-observation.v1",
+  "scope": "preparation-working-tree-snapshot",
+  "sourceRevision": "bb6ae6e6574377e8fc628266f16b51a301f9736e",
+  "trackedScanOnly": true,
+  "additiveFilesTrackedAtObservation": false,
+  "acceptedTool": "4.35.1",
+  "restoredVersion": "4.35.1+f8599224457dda99e7c0ae4870147dd51b464feb",
+  "runtimeExecuted": false,
+  "sm2Verified": false,
+  "commands": [
+    {
+      "id": "restore",
+      "command": "dotnet tool restore",
+      "exitCode": 0,
+      "output": "module/validation/restore.txt"
+    },
+    {
+      "id": "version",
+      "command": "dotnet tool run hexalith-module --version",
+      "exitCode": 0,
+      "output": "module/validation/version.txt"
+    },
+    {
+      "id": "manifest",
+      "command": "dotnet tool run hexalith-module -- validate --manifest module/hexalith.module-manifest.v2.json",
+      "exitCode": 1,
+      "output": "module/validation/manifest.txt"
+    },
+    {
+      "id": "adoption-text",
+      "command": "dotnet tool run hexalith-module -- validate --manifest module/hexalith.module-manifest.v2.json --adoption",
+      "exitCode": 1,
+      "output": "module/validation/adoption-text.txt"
+    },
+    {
+      "id": "adoption-json",
+      "command": "dotnet tool run hexalith-module -- validate --manifest module/hexalith.module-manifest.v2.json --adoption --output json",
+      "exitCode": 1,
+      "output": "module/validation/adoption.json"
+    }
+  ]
+}

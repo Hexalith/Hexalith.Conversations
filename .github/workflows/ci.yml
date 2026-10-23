@@ -148,13 +148,11 @@ jobs:
   repository:
     name: ci / repository
     runs-on: ubuntu-latest
-    timeout-minutes: 70
+    timeout-minutes: 5
     steps:
       - name: Check out source
         uses: actions/checkout@v7
         with:
-          # The story-record tests read closed records from earlier commits.
-          fetch-depth: 0
           persist-credentials: false
           submodules: false
 
@@ -163,61 +161,6 @@ jobs:
 
       - name: Test root submodule check
         run: python3 -m unittest discover -s tests/tooling -p 'test_check_root_submodules.py'
-
-      - name: Set up Python
-        uses: actions/setup-python@v7.0.0
-        with:
-          python-version: '3.11'
-
-      - name: Install locked Python tooling
-        run: |
-          python -m pip install --disable-pip-version-check uv==0.12.23
-          uv sync --locked --python 3.11
-
-      # Fails when a governed route loses or misplaces its STORY-COMPLETION-GATE block,
-      # or when a block drifts from the other surfaces or drops a required clause.
-      - name: Verify story completion gate surfaces
-        shell: bash
-        run: |
-          set -euo pipefail
-          for scenario in AC-7.3-01 AC-7.3-02; do
-            uv run --frozen --no-sync python3 _bmad/scripts/verify_story_completion_workflows.py \
-              --repository . \
-              --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json \
-              --scenario "$scenario" \
-              --output "artifacts/v9/7.3/$scenario.json"
-          done
-
-      # The Epic 6 supersession suite reads gitlink commit objects, which need
-      # initialized submodules; it stays in the local lane only.
-      - name: Initialize .NET for the package-free evidence bridge
-        uses: actions/setup-dotnet@v6.0.0
-        with:
-          global-json-file: global.json
-
-      - name: Test BMAD repository tooling
-        run: >-
-          uv run --frozen --no-sync python3 -m pytest -q -ra -p no:cacheprovider
-          _bmad/scripts/tests tests/tooling/test_evidence_boundary_current.py
-          --ignore=_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py
-          --junitxml=TestResults/bmad-scripts/bmad-scripts.xml
-
-      - name: Test Conversations owner qualification guards
-        run: >-
-          uv run --frozen --no-sync python3 -m pytest -q -ra -p no:cacheprovider
-          tests/tooling/test_ext_conv_ai_1_qualification.py
-          tests/tooling/test_ext_conv_ai_1_live_runner.py
-          --junitxml=TestResults/bmad-scripts/conversations-owner-qualification.xml
-
-      - name: Upload repository tooling evidence
-        if: always()
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          name: repository-tooling-results
-          path: |
-            TestResults/bmad-scripts/*.xml
-            artifacts/v9/7.3/*.json
-          retention-days: 7
 
   admin-web:
     name: ci / admin-web
@@ -280,16 +223,6 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Set up Python for live tier controls
-        uses: actions/setup-python@v7.0.0
-        with:
-          python-version: '3.11'
-
-      - name: Install locked tier verification tooling
-        run: |
-          python -m pip install --disable-pip-version-check uv==0.12.23
-          uv sync --locked --python 3.11
-
       - name: Build portable conformance project
         run: >-
           dotnet build
@@ -311,13 +244,9 @@ jobs:
           mkdir -p TestResults/conformance
           portable="tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll"
           internal="tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll"
-          # Retain historical exclusions and all frozen definitions. Each tier's
-          # ConformanceOracleTieringValidationTest compares the live tree with a story
-          # freeze (Story 9.1 in the portable tier, Story 9.2 AC-04/AC-05 in the internal
-          # tier), so routine CI excludes both. The Story 9.2 tier verifier and fault
-          # fixtures retired from CI with them; run them by name to reproduce acceptance.
-          # The portable compile-surface control (AC-02) stays a live guard.
-          uv run --frozen --no-sync dotnet "$portable" -failSkips \
+          # CI tests the application only. Classes that validate BMAD planning, story, or
+          # evidence artifacts, or that run BMAD scripts, run only in BMAD agent work.
+          dotnet "$portable" -failSkips \
             -class- "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest" \
             -class- "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest" \
             -class- "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest" \
@@ -326,18 +255,17 @@ jobs:
             -class- "Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest" \
             -class- "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest" \
             -class- "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest" \
-            -method- "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently" \
-            -method- "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.CurrentControlsAndTierPrerequisiteShouldStayTruthful" \
-            -method- "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap" \
+            -class- "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Tests.OqTwoTargetInterpretationDecisionValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Portable.Tests.PortableCompileSurfaceValidationTest" \
+            -method- "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.AFailingProofResultMustBlockStoryCompletion" \
             -method- "Hexalith.Conversations.Conformance.Tests.SmC2BaselineReconstructionValidationTest.BaselineShouldRecordAnAuditableReconstructionMethod" \
             -parallelMode none \
             -result-trx TestResults/conformance/portable.trx \
             -noLogo
-          # The five adoption ACs replay the full frozen 10.4 boundary at HEAD.
-          # Keep explicit historical invocation. The repository lane runs reader faults on
-          # frozen 10.4 reader bytes; live reader bytes are checked only by naming this class.
-          # Reproduction and mutation proof: docs/runbooks/epic-10-fault-regressions.md.
-          uv run --frozen --no-sync dotnet "$internal" -failSkips \
+          dotnet "$internal" -failSkips \
             -class- "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest" \
             -class- "Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest" \
             -parallelMode none \
@@ -377,15 +305,10 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Set up Python for tooling discovery
+      - name: Set up Python for tooling tests
         uses: actions/setup-python@v7.0.0
         with:
           python-version: '3.11'
-
-      - name: Install locked Python tooling
-        run: |
-          python -m pip install --disable-pip-version-check uv==0.12.23
-          uv sync --locked --python 3.11
 
       - name: Install locked release tooling
         run: npm ci --ignore-scripts
@@ -416,5 +339,4 @@ jobs:
           fi
 
       - name: Run fail-closed tooling tests
-        # unittest imports pytest modules; their function tests run in the repository job.
-        run: uv run --frozen --no-sync npm test
+        run: npm test

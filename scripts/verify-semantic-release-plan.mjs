@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { appendFile, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -9,7 +9,7 @@ import { pathToFileURL } from 'node:url';
 import semanticRelease from 'semantic-release';
 
 const expectedVersion = process.argv[2];
-if (!/^\d+\.\d+\.\d+$/.test(expectedVersion ?? '')) {
+if (process.argv.length > 3 || (expectedVersion !== undefined && !/^\d+\.\d+\.\d+$/.test(expectedVersion))) {
   throw new Error('Expected version must be supplied as a stable semantic version.');
 }
 
@@ -69,9 +69,15 @@ try {
   await rm(temporary, { recursive: true, force: true });
 }
 
-if (result === false || result.nextRelease?.version !== expectedVersion) {
-  const actual = result === false ? 'no release' : (result.nextRelease?.version ?? 'unknown');
-  throw new Error(`Semantic Release planned ${actual}; expected exactly ${expectedVersion}.`);
+const plannedVersion = result === false ? '' : (result.nextRelease?.version ?? '');
+if (!/^\d+\.\d+\.\d+$/.test(plannedVersion) || (expectedVersion !== undefined && plannedVersion !== expectedVersion)) {
+  const actual = result === false ? 'no release' : (plannedVersion || 'unknown');
+  const expectation = expectedVersion === undefined ? '.' : `; expected exactly ${expectedVersion}.`;
+  throw new Error(`Semantic Release planned ${actual}${expectation}`);
 }
 
-process.stdout.write(`Semantic Release plan is exactly ${expectedVersion}.\n`);
+if (process.env.GITHUB_OUTPUT) {
+  await appendFile(process.env.GITHUB_OUTPUT, `release-version=${plannedVersion}\n`);
+}
+
+process.stdout.write(`Semantic Release plan is exactly ${plannedVersion}.\n`);

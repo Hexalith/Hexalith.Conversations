@@ -261,6 +261,20 @@ class ReleaseToolingTests(unittest.TestCase):
         self.assertTrue(enabled)
         self.assertEqual([("1.1.0", release_contract.REPOSITORY)], destinations)
 
+        destinations.clear()
+        enabled = verify_release_source.verify_source(
+            "true",
+            release_contract.REPOSITORY,
+            "refs/heads/main",
+            source_sha,
+            "ci.yml",
+            github,
+            lambda version, repository: destinations.append((version, repository)),
+            check_destinations=False,
+        )
+        self.assertTrue(enabled)
+        self.assertEqual([], destinations)
+
     def test_newest_exact_source_ci_attempt_must_succeed(self) -> None:
         source_sha = "a" * 40
 
@@ -436,6 +450,15 @@ class ReleaseToolingTests(unittest.TestCase):
             )
             self.assertEqual(0, result.returncode, result.stdout + result.stderr)
             self.assertIn("Semantic Release plan is exactly 1.0.0.", result.stdout)
+            output_path = root / "github-output.txt"
+            environment["GITHUB_OUTPUT"] = str(output_path)
+            resolved = subprocess.run(
+                ["node", str(SCRIPTS / "verify-semantic-release-plan.mjs")],
+                cwd=root, env=environment, capture_output=True, text=True, timeout=60,
+            )
+            self.assertEqual(0, resolved.returncode, resolved.stdout + resolved.stderr)
+            self.assertIn("Semantic Release plan is exactly 1.0.0.", resolved.stdout)
+            self.assertEqual("release-version=1.0.0\n", output_path.read_text(encoding="utf-8"))
             self.assertEqual(before, git("for-each-ref", "--format=%(refname) %(objectname)"))
 
     def test_release_assets_reject_missing_and_unexpected_names(self) -> None:
@@ -584,7 +607,12 @@ class ReleaseToolingTests(unittest.TestCase):
         self.assertIn("environment: production", release)
         self.assertIn("HEXALITH_RELEASE_PUBLISH_ENABLED", release)
         self.assertIn("if: ${{ needs.verify-source.outputs.publish-enabled == 'true' }}", release)
+        self.assertNotIn("inputs.version", release)
+        self.assertIn("run: npm run verify:release-plan\n", release)
         self.assertIn('verify:release-plan -- "$RELEASE_VERSION"', release)
+        self.assertIn("needs.verify-source.outputs.release-version", release)
+        self.assertIn("--destination-state deferred", release)
+        self.assertIn("release-version: ${{ steps.plan.outputs.release-version }}", release)
         self.assertIn("NuGet/login@8d196754b4036150537f80ac539e15c2f1028841", release)
         self.assertIn("NUGET_TRUSTED_PUBLISHING_USER: ${{ vars.NUGET_TRUSTED_PUBLISHING_USER }}", release)
         self.assertIn("NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}", release)
@@ -645,14 +673,9 @@ class ReleaseToolingTests(unittest.TestCase):
             "npx --no-install commitlint --config commitlint.config.mjs --verbose <<< \"$PR_TITLE\"",
             ci,
         )
-        for excluded_method in (
-            "PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently",
-            "PreservationTraceabilityManifestValidationTest.CurrentControlsAndTierPrerequisiteShouldStayTruthful",
-            "PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap",
-            "SmC2BaselineReconstructionValidationTest.BaselineShouldRecordAnAuditableReconstructionMethod",
-        ):
-            self.assertEqual(1, ci.count(excluded_method))
-        self.assertNotIn("UxPreservationDispositionValidationTest", ci)
+        # CI tests the application only; BMAD and story tooling runs in BMAD agent work.
+        for bmad_tooling in ("_bmad", "pytest", "uv sync", "uv run"):
+            self.assertNotIn(bmad_tooling, ci)
 
         global_json = json.loads((ROOT / "global.json").read_text(encoding="utf-8"))
         self.assertEqual("Microsoft.Testing.Platform", global_json["test"]["runner"])
