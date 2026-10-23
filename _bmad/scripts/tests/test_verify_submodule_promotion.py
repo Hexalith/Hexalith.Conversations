@@ -536,6 +536,107 @@ def test_uninitialized_unrelated_submodule_reports_stable_diagnostic(
     }
 
 
+@pytest.mark.parametrize("gitfile_fault", ["missing-gitdir", "malformed-gitfile"])
+def test_deferred_unrelated_corrupt_gitfile_warns_without_mutating_state(
+    tmp_path: Path, gitfile_fault: str,
+) -> None:
+    repository, candidate = create_nested_umbrella(tmp_path)
+    parent = repository / "references/Example"
+    nested = parent / "nested/Child"
+    gitfile = parent / ".git"
+    original_gitfile = gitfile.read_bytes()
+    original_metadata = gitfile.stat()
+
+    control = run_checker(repository, "--baseline", candidate, "--candidate", candidate,
+                          "--submodule", "references/Example")
+    assert control.returncode == 0, payload(control)
+    assert warning_codes(control) == set()
+    assert list(nested.iterdir()) == []
+
+    def snapshot() -> dict:
+        return {
+            str(path.relative_to(repository)): (
+                path.read_bytes(), path.stat().st_mode, path.stat().st_mtime_ns,
+            ) if path.is_file() else (None, path.stat().st_mode)
+            for path in repository.rglob("*")
+        }
+
+    try:
+        gitfile.write_bytes(
+            b"gitdir: ../../missing-git-administration\n"
+            if gitfile_fault == "missing-gitdir" else b"not a gitdir file\n"
+        )
+        status_before = run_git(repository, "status", "--porcelain=v1", "--ignore-submodules=all").stdout
+        index_before = run_git(repository, "ls-files", "--stage").stdout
+        state_before = snapshot()
+
+        result = run_checker(repository, "--baseline", candidate, "--candidate", candidate)
+
+        document = payload(result)
+        assert result.returncode == 0, document
+        assert document["result"] == "pass"
+        assert document["evaluated"] == []
+        assert document["blockers"] == []
+        assert warning_codes(result) == {
+            "UNRELATED_SUBMODULE_UNINSPECTABLE", "SCOPE_NOT_EVALUATED",
+        }
+        warning = next(item for item in document["warnings"]
+                       if item["code"] == "UNRELATED_SUBMODULE_UNINSPECTABLE")
+        assert warning["path"] == "references/Example"
+        assert snapshot() == state_before
+        assert run_git(repository, "ls-files", "--stage").stdout == index_before
+        assert run_git(repository, "status", "--porcelain=v1", "--ignore-submodules=all").stdout == status_before
+        assert list(nested.iterdir()) == []
+        assert not (repository / "missing-git-administration").exists()
+    finally:
+        gitfile.write_bytes(original_gitfile)
+        os.chmod(gitfile, original_metadata.st_mode)
+        os.utime(gitfile, ns=(original_metadata.st_atime_ns, original_metadata.st_mtime_ns))
+
+    restored = run_checker(repository, "--baseline", candidate, "--candidate", candidate,
+                           "--submodule", "references/Example")
+    assert restored.returncode == 0, payload(restored)
+    assert list(nested.iterdir()) == []
+
+
+@pytest.mark.parametrize("mismatched_path", ["references/example", "references/EXAMPLE"])
+def test_deferred_case_mismatched_scope_blocks_before_filesystem_inspection(
+    clean_umbrella: tuple[Path, str], mismatched_path: str, monkeypatch,
+) -> None:
+    repository, candidate = clean_umbrella
+    control = run_checker(repository, "--baseline", candidate, "--candidate", candidate,
+                          "--submodule", "references/Example")
+    assert control.returncode == 0, payload(control)
+    index_path = repository / ".git/index"
+    index_before = (index_path.read_bytes(), index_path.stat().st_mtime_ns)
+    head_before = run_git(repository, "rev-parse", "HEAD").stdout
+    submodule_before = run_git(repository / "references/Example", "rev-parse", "HEAD").stdout
+
+    result = run_checker(repository, "--baseline", candidate, "--candidate", candidate,
+                         "--submodule", mismatched_path)
+
+    document = payload(result)
+    assert result.returncode == 1, document
+    assert blocker_codes(result) == {"PATH_NOT_ROOT_DECLARED"}
+    assert document["blockers"][0]["path"] == mismatched_path
+    assert document["evaluated"][0]["path"] == mismatched_path
+    assert document["evaluated"][0]["initialized"] is False
+    assert document["evaluated"][0]["recorded_gitlink"] is None
+    assert (index_path.read_bytes(), index_path.stat().st_mtime_ns) == index_before
+    assert run_git(repository, "rev-parse", "HEAD").stdout == head_before
+    assert run_git(repository / "references/Example", "rev-parse", "HEAD").stdout == submodule_before
+
+    module = load_checker_module()
+
+    def unexpected_inspection(*arguments):
+        raise AssertionError("a case-mismatched declaration must be rejected before filesystem inspection")
+
+    monkeypatch.setattr(module, "own_worktree", unexpected_inspection)
+    blockers = []
+    module.evaluate_path(repository, candidate, mismatched_path, {"references/Example"}, False, blockers)
+    assert [item["code"] for item in blockers] == ["PATH_NOT_ROOT_DECLARED"]
+
+
 def test_candidate_with_no_gitlink_entry_blocks(clean_umbrella: tuple[Path, str]) -> None:
     repository, baseline = clean_umbrella
     run_git(repository, "rm", "--cached", "--force", "references/Example")

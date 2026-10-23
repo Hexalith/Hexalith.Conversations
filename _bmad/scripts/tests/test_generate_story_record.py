@@ -671,6 +671,141 @@ def test_deferred_measurements_unevaluated_promotion_cannot_pass(umbrella) -> No
     assert document["promotion_gate"]["evaluated"]
 
 
+@pytest.mark.parametrize("sprint", ["absent", "committed", "uncommitted"])
+@pytest.mark.parametrize("equal_baseline", [False, True])
+def test_deferred_portability_output_accounting(umbrella, sprint, equal_baseline) -> None:
+    repository = umbrella["repository"]
+    story = repository / umbrella["story"]
+    sprint_path = story.parent / "sprint-status.yaml"
+    if sprint != "absent":
+        sprint_path.write_text("development_status: {}\n", encoding="utf-8")
+        if sprint == "committed":
+            run_git(repository, "add", sprint_path.relative_to(repository).as_posix())
+            run_git(repository, "commit", "-m", "fixture sprint")
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    content = story.read_text(encoding="utf-8").replace(
+        "baseline_commit:", f"file_list_commit: '{candidate}'\nbaseline_commit:",
+    )
+    if equal_baseline:
+        content = content.replace(str(umbrella["baseline"]), candidate)
+    story.write_text(content, encoding="utf-8")
+    write_trx(repository / umbrella["artifact"])
+    code, bundle = bundled(umbrella, "--submodule", "references/Example")
+    assert code == 0, bundle["document"]["blockers"]
+    expected = {umbrella["story"]}
+    if not equal_baseline:
+        expected.add("changed.txt")
+    if sprint != "absent":
+        expected.add(sprint_path.relative_to(repository).as_posix())
+    assert set(bundle["document"]["file_list"]["derived"]) == expected
+    insert_generated_block(umbrella, bundle["markdown"])
+    code, document = historical_fixture(umbrella)
+    assert code == 0, document["blockers"]
+    assert set(document["file_list"]["derived"]) == expected
+    if sprint == "committed":
+        sprint_entry = f"- `{sprint_path.relative_to(repository).as_posix()}` ({'modified' if equal_baseline else 'new'})\n"
+        assert sprint_entry in bundle["markdown"]
+        insert_generated_block(umbrella, bundle["markdown"].replace(sprint_entry, ""))
+        code, document = historical_fixture(umbrella)
+        assert code == 1
+        assert "FILE_LIST_DRIFT" in codes(document)
+        assert document["file_list"]["missing"] == [sprint_path.relative_to(repository).as_posix()]
+        insert_generated_block(umbrella, bundle["markdown"])
+    if sprint != "absent":
+        # Historical verification cannot depend on a former output's presence today.
+        sprint_path.unlink()
+        code, document = historical_fixture(umbrella)
+        assert code == 0, document["blockers"]
+    annotation = "modified" if equal_baseline else "new"
+    original = f"- `{umbrella['story']}` ({annotation})"
+    assert original in bundle["markdown"]
+    insert_generated_block(umbrella, bundle["markdown"].replace(
+        original, "- `seed.txt` (modified)",
+    ))
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert "FILE_LIST_DRIFT" in codes(document)
+    assert document["file_list"]["missing"] == [umbrella["story"]]
+    assert document["file_list"]["unexpected"] == ["seed.txt"]
+
+
+@pytest.mark.parametrize("mode", ["directory", "gitlink"])
+def test_deferred_portability_sprint_output_rejects_incompatible_candidate_modes(umbrella, mode) -> None:
+    repository = umbrella["repository"]
+    story = repository / umbrella["story"]
+    sprint_path = (story.parent / "sprint-status.yaml").relative_to(repository).as_posix()
+    if mode == "directory":
+        directory = repository / sprint_path
+        directory.mkdir()
+        (directory / "tracked.txt").write_text("fixture source\n", encoding="utf-8")
+        run_git(repository, "add", sprint_path)
+    else:
+        run_git(repository, "update-index", "--add", "--cacheinfo", f"160000,{umbrella['candidate']},{sprint_path}")
+    run_git(repository, "commit", "-m", "fixture incompatible sprint mode")
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "baseline_commit:", f"file_list_commit: '{candidate}'\nbaseline_commit:",
+    ).replace(str(umbrella["baseline"]), candidate), encoding="utf-8")
+    write_trx(repository / umbrella["artifact"])
+    code, bundle = bundled(umbrella, "--submodule", "references/Example")
+    assert code == 0, bundle["document"]["blockers"]
+    assert bundle["document"]["file_list"]["derived"] == [umbrella["story"]]
+    insert_generated_block(umbrella, bundle["markdown"])
+    code, document = historical_fixture(umbrella)
+    assert code == 0, document["blockers"]
+    insert_generated_block(umbrella, bundle["markdown"].replace(
+        "### File List\n", f"### File List\n\n- `{sprint_path}` (modified)\n",
+    ))
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert "FILE_LIST_DRIFT" in codes(document)
+
+
+@pytest.mark.parametrize("phase", ["staged-delta", "promotion"])
+def test_deferred_portability_head_movement_cannot_pass(umbrella, monkeypatch, phase) -> None:
+    module = load_generator()
+    repository = umbrella["repository"]
+    candidate = umbrella["candidate"]
+    original = module.run_git
+    moved = False
+    staged_revisions = []
+
+    def observe_git(path, *arguments, **kwargs):
+        nonlocal moved
+        result = original(path, *arguments, **kwargs)
+        if path == repository and arguments[:2] == ("diff-index", "--cached"):
+            staged_revisions.append(arguments[-2])
+            if phase == "staged-delta" and not moved:
+                run_git(repository, "commit", "--allow-empty", "-m", "concurrent fixture commit")
+                moved = True
+        return result
+
+    monkeypatch.setattr(module, "run_git", observe_git)
+    promotion = module.run_promotion_gate
+
+    def observe_promotion(*args):
+        nonlocal moved
+        assert args[2] == candidate
+        result = promotion(*args)
+        if phase == "promotion":
+            run_git(repository, "commit", "--allow-empty", "-m", "concurrent fixture commit")
+            moved = True
+        return result
+
+    monkeypatch.setattr(module, "run_promotion_gate", observe_promotion)
+    args = module.build_parser().parse_args([
+        "--repository", str(repository), "--story", umbrella["story"],
+        "--test-results", f"Fixture={umbrella['artifact']}",
+    ])
+    document = module.verify(args)
+    assert moved
+    assert document["result"] == "blocked"
+    assert "CANDIDATE_NOT_FINAL" in codes(document)
+    assert document["candidate"] == candidate
+    assert document["candidate_binding"]["head"] == candidate
+    assert staged_revisions == [candidate]
+
+
 def test_deferred_measurements_remote_requirement_reaches_the_checker(umbrella) -> None:
     arguments = ("--submodule", "references/Example", "--require-remote", "references/Example")
     code, document = measured(umbrella, *arguments)
@@ -1569,28 +1704,6 @@ def test_a_red_suite_is_legible_in_the_rendered_block(
 # --------------------------------------------------------------------------- #
 
 
-def historical(story: Path) -> tuple[int, dict]:
-    result = subprocess.run(
-        [
-            sys.executable,
-            str(SCRIPT),
-            "--repository",
-            str(WORKSPACE),
-            "--historical",
-            "--story",
-            str(story.relative_to(WORKSPACE)),
-            "--format",
-            "json",
-        ],
-        check=False,
-        capture_output=True,
-        env=GIT_ENV,
-        text=True,
-        timeout=120,
-    )
-    return result.returncode, json.loads(result.stdout)
-
-
 def historical_fixture(fixture: dict[str, object]) -> tuple[int, dict]:
     result = subprocess.run(
         [
@@ -1712,62 +1825,144 @@ def test_readonly_verification_preserves_complete_repository_state(
     assert readonly_repository_snapshot(repository) == before
 
 
-CLOSED_RECORDS = (
-    "spec-6-1-rebaseline-architecture-and-planning-authority.md",
-    "6-2-migrate-conversations-to-platform-owned-hosting.md",
-    "6-7-mechanically-block-incomplete-submodule-promotions-from-completion.md",
-)
-
-
-@pytest.mark.parametrize("name", CLOSED_RECORDS)
-def test_historical_mode_verifies_closed_records_without_mutating_them(
-    name: str,
+@pytest.mark.parametrize("generated", [False, True])
+def test_historical_mode_verifies_disposable_closed_records_without_mutating_them(
+    umbrella, generated,
 ) -> None:
-    record = WORKSPACE / "_bmad-output/implementation-artifacts" / name
-    before = sha256_file(record)
-    code, document = historical(record)
-    assert sha256_file(record) == before, (
-        f"{name} was mutated by a read-only verification"
-    )
+    repository = umbrella["repository"]
+    story = repository / umbrella["story"]
+    expected_paths = sorted(["changed.txt", umbrella["story"]])
+    if generated:
+        prepare_generated_record(umbrella)
+    else:
+        story.write_text(story.read_text(encoding="utf-8").replace(
+            "baseline_commit:", f"file_list_commit: '{umbrella['candidate']}'\nbaseline_commit:",
+        ).replace("### File List\n", "### File List\n\n" + "\n".join(
+            f"- `{path}`" for path in expected_paths
+        ) + "\n"), encoding="utf-8")
+    before = readonly_repository_snapshot(repository)
+    code, document = historical_fixture(umbrella)
+    assert readonly_repository_snapshot(repository) == before
     assert document["mode"] == "historical"
-    expected_classification = (
-        "generated"
-        if name == "6-2-migrate-conversations-to-platform-owned-hosting.md"
-        else "pre-generator"
-    )
-    assert document["classification"] == expected_classification
-    # D4: historical verification is read-only. A sound generated record stays
-    # green, while pre-generator findings are reported without rewriting history.
+    assert document["classification"] == ("generated" if generated else "pre-generator")
     assert code == 0, document["blockers"]
     assert document["result"] == "pass"
-    assert (
-        "former uncommitted working tree is not reconstructed" in document["boundary"]
-    )
+    assert "former uncommitted working tree is not reconstructed" in document["boundary"]
     assert document["promotion_gate"] is None
-
-
-def test_historical_mode_reproduces_story_6_7s_recorded_file_list() -> None:
-    record = WORKSPACE / "_bmad-output/implementation-artifacts" / CLOSED_RECORDS[2]
-    _, document = historical(record)
+    assert document["file_list"]["derived"] == expected_paths
+    assert document["file_list"]["declared"] == expected_paths
     assert document["file_list"]["missing"] == []
     assert document["file_list"]["unexpected"] == []
-    assert len(document["file_list"]["derived"]) == 37
+    if generated:
+        assert document["record"]["anchor"] == "generated-block"
+        assert document["record"]["generated_block"] is True
+        assert document["record"]["declared_list_count"] == 1
+        assert document["warnings"] == []
+    else:
+        assert "RECORD_NOT_DERIVED" in {row["code"] for row in document["warnings"]}
+
+
+@pytest.mark.parametrize("extra_paths", [[], ["first.txt", "second.txt", "nested/third.txt"]])
+def test_historical_mode_reproduces_disposable_committed_file_list(umbrella, extra_paths) -> None:
+    repository = umbrella["repository"]
+    for path in extra_paths:
+        target = repository / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("fixture source\n", encoding="utf-8")
+    if extra_paths:
+        run_git(repository, "add", *extra_paths)
+        run_git(repository, "commit", "-m", "fixture inventory")
+        umbrella["candidate"] = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+        write_trx(repository / umbrella["artifact"])
+    prepare_generated_record(umbrella)
+    code, document = historical_fixture(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["file_list"]["derived"] == sorted(["changed.txt", umbrella["story"], *extra_paths])
+    assert document["file_list"]["missing"] == []
+    assert document["file_list"]["unexpected"] == []
     assert document["promotions"] == []
 
 
-def test_historical_mode_verifies_story_6_2s_generated_record() -> None:
-    record = WORKSPACE / "_bmad-output/implementation-artifacts" / CLOSED_RECORDS[1]
-    code, document = historical(record)
-    assert document["classification"] == "generated"
-    assert document["record"]["anchor"] == "generated-block"
-    assert document["record"]["generated_block"] is True
-    assert document["record"]["declared_list_count"] == 1
-    assert document["file_list"]["derived"] == document["file_list"]["declared"]
+def test_historical_pre_generator_equal_baseline_does_not_add_record_outputs(umbrella) -> None:
+    repository = umbrella["repository"]
+    story = repository / umbrella["story"]
+    sprint = story.parent / "sprint-status.yaml"
+    sprint.write_text("development_status: {}\n", encoding="utf-8")
+    run_git(repository, "add", sprint.relative_to(repository).as_posix())
+    run_git(repository, "commit", "-m", "fixture unchanged sprint")
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "baseline_commit:", f"file_list_commit: '{candidate}'\nbaseline_commit:",
+    ).replace(str(umbrella["baseline"]), candidate), encoding="utf-8")
+    before = readonly_repository_snapshot(repository)
+    code, document = historical_fixture(umbrella)
+    assert readonly_repository_snapshot(repository) == before
+    assert code == 0, document["blockers"]
+    assert document["classification"] == "pre-generator"
+    assert document["file_list"]["derived"] == []
+    assert document["file_list"]["declared"] == []
     assert document["file_list"]["missing"] == []
     assert document["file_list"]["unexpected"] == []
-    assert document["warnings"] == []
-    assert document["blockers"] == []
-    assert code == 0
+
+
+@pytest.mark.parametrize("delta", ["delete", "rename"])
+def test_historical_independent_legacy_record_with_promotion_and_source_removal(umbrella, delta) -> None:
+    """Keep a supported v1 shape independent of the current producer/renderer."""
+    repository = umbrella["repository"]
+    submodule = repository / "references/Example"
+    previous = run_git(submodule, "rev-parse", "HEAD").stdout.strip()
+    (submodule / "tracked.txt").write_text("promoted fixture\n", encoding="utf-8")
+    run_git(submodule, "add", "tracked.txt")
+    run_git(submodule, "commit", "-m", "fixture promotion")
+    promoted = run_git(submodule, "rev-parse", "HEAD").stdout.strip()
+    run_git(repository, "add", "references/Example")
+    expected_paths = sorted(["changed.txt", umbrella["story"], "seed.txt"])
+    if delta == "delete":
+        run_git(repository, "rm", "seed.txt")
+    else:
+        run_git(repository, "mv", "seed.txt", "renamed-seed.txt")
+        expected_paths = sorted([*expected_paths, "renamed-seed.txt"])
+    run_git(repository, "commit", "-m", "fixture source delta and promotion")
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    story = repository / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "baseline_commit:", f"file_list_commit: '{candidate}'\nbaseline_commit:",
+    ).replace("status: 'in-progress'", "status: 'done'"), encoding="utf-8")
+    # The seven-column counts, legacy hash prefix and absent build manifest are
+    # intentional compatibility inputs, not output from generate/render helpers.
+    block = (
+        "<!-- STORY-FINAL-RECORD:BEGIN -->\n"
+        "**Final record** — `story-final-record-v1`, result **PASS**, mode `live`.\n\n"
+        f"Baseline `{umbrella['baseline']}` → candidate `{candidate}`.\n\n"
+        "### File List\n\n" + "\n".join(f"- `{path}`" for path in expected_paths)
+        + "\n\n### Test Results\n\n"
+        "| Test project | State | Total | Passed | Failed | Skipped | Artifact SHA-256 |\n"
+        "| --- | --- | --- | --- | --- | --- | --- |\n"
+        "| Fixture | PARSED | 3 | 3 | 0 | 0 | 0123456789abcdef |\n"
+        "| **Total (computed)** | **1 parsed** | **3** | **3** | **0** | **0** | — |\n\n"
+        "### Allowed Skipped Tests\n\n_None._\n\n"
+        "### Gitlink Promotions\n\n"
+        "| Path | Declared | Mode | Recorded | Baseline |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        f"| references/Example | yes | 160000 | {promoted} | {previous} |\n\n"
+        "<!-- STORY-FINAL-RECORD:END -->\n"
+    )
+    insert_generated_block(umbrella, block)
+    before = readonly_repository_snapshot(repository)
+    code, document = historical_fixture(umbrella)
+    assert readonly_repository_snapshot(repository) == before
+    assert code == 0, document["blockers"]
+    assert document["classification"] == "generated"
+    assert document["file_list"]["derived"] == expected_paths
+    assert document["file_list"]["declared"] == expected_paths
+    assert document["test_results"]["totals"] == {
+        "total": 3, "executed": None, "passed": 3, "failed": 0, "skipped": 0,
+    }
+    assert document["promotions"] == [{
+        "path": "references/Example", "declared": True, "recorded_mode": "160000",
+        "recorded_gitlink": promoted, "baseline_gitlink": previous,
+        "baseline_mode": "160000", "changed_in_range": True,
+    }]
 
 
 def test_historical_mode_parses_generated_counts_and_rejects_tampering(

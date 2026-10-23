@@ -886,3 +886,25 @@ These five additive resolutions supersede only the named measurement scopes. His
 - source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-measurement-safeguards.md`
   summary: Reconcile live output self-accounting with historical File List verification for equal-baseline candidates.
   evidence: R5, medium, pre-existing. A disposable baseline-equals-candidate run with explicit promotion scope passes live generation; after block insertion, historical verification returns FILE_LIST_DRIFT because the live File List includes its story output while the committed range is empty. The new promotion-scope control correctly proves evaluated scope but does not repair this independent file-boundary contract mismatch.
+
+## Resolved by five deferred record portability safeguards (2026-10-23)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-portability-safeguards.md`
+  summary: Resolved the October 23 measurement-review R5 live/historical File List self-accounting mismatch.
+  evidence: Generated historical v1 verification includes the story output and optional sibling sprint output alongside the exact committed source range, including equal-baseline candidates. Disposable native CLI controls cover absent, committed and uncommitted sprint outputs, later output removal and rejection of a missing story plus an unexpected source. Pre-generator committed-range semantics and accepted record bytes are unchanged.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-portability-safeguards.md`
+  summary: Resolved the July 28 and July 30 pass-8 root HEAD observation inconsistency scope.
+  evidence: Live staged-delta and candidate-binding checks share one canonical root head; the embedded promotion checker receives the canonical candidate. A final head comparison blocks observed concurrent movement with CANDIDATE_NOT_FINAL. Deterministic disposable commits during staged-delta and promotion inspection both block. This detects observed head changes without claiming a repository lock, atomic file snapshot or detection of movement away and back between observations.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-portability-safeguards.md`
+  summary: Resolved the July 28 historical pytest coupling to live workspace commit ranges.
+  evidence: Disposable generated and pre-generator records replace the three real-record probes and hard-coded 37-path inventory. Native historical CLI tests compare explicit source inventories across different fixture ranges, preserve complete disposable repository state and retain classification, generated-block and exact-set assertions. Accepted historical files are neither edited nor required as mutable test fixtures.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-portability-safeguards.md`
+  summary: Closed the July 27 pass-2 corrupt unrelated gitdir-file warning verification scope.
+  evidence: The existing UNRELATED_SUBMODULE_UNINSPECTABLE behavior is now covered for a missing gitdir and malformed gitfile, with clean positive controls. Regressions preserve fixture file bytes, modes and mtimes, index/status and empty nested worktrees, then restore the original gitfile. This adds regression evidence for already-correct nonblocking behavior; no production warning policy changed.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-portability-safeguards.md`
+  summary: Closed the July 27 case-mismatched promotion-path verification scope.
+  evidence: Native CLI controls reject lower/upper-case variants with PATH_NOT_ROOT_DECLARED and preserve root/submodule revisions and the index. A direct inspection spy proves exact declaration membership is checked before filesystem inspection, covering the case-insensitive-filesystem concern without requiring such a host. This adds regression evidence for the existing rejection; no production path policy changed.
+
+These five resolutions supersede only the named scopes. Existing behavior verified by new tests is distinguished from production fixes. Historical skip-policy binding, accepted evidence, fixture locks, dependencies, lifecycle tracking, CI policy and gitlinks remain unchanged.
+
+Review strengthened these same scopes with incompatible sprint-mode rejection, committed-sprint omission checks, an equal-baseline pre-generator control and independently authored legacy records containing real promotions, deletions and renames. All six review findings were patched and independently rechecked.

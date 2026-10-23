@@ -63,6 +63,13 @@ stale, since the record is written into a file that is itself in the derived fil
 list. Every ordinary committed path remains in the comparison; timestamps are
 compared at nanosecond precision and a genuinely stale artifact still blocks.
 
+Live inspection pins the root `HEAD` used by staged-delta and candidate-binding
+checks. The embedded promotion checker receives the resolved candidate commit.
+If the root head differs at the final read, generation blocks with
+`CANDIDATE_NOT_FINAL`; rerun after concurrent Git work finishes. This detects
+observed head movement without locking the repository or claiming an atomic
+snapshot of working files.
+
 ## 3. Emit machine-readable test results
 
 Run each declared test project and capture TRX. On this repository's xUnit v3 /
@@ -164,7 +171,7 @@ A parseable document is written to stdout on every path, including exit `2`.
 | `TEST_BUILD_NOT_BOUND` | A TRX omits or reuses its test binary, the binary is outside the repository, its embedded `SourceRevisionId` differs from the candidate, or the TRX predates it | Clean-rebuild the committed candidate with its exact `SourceRevisionId`, then rerun every test and regenerate the record. |
 | `FILE_LIST_DRIFT` | The record's list disagrees with the derived set, or the record carries more than one list | Replace the record's File List with the generated one. Never hand-edit either side into agreement. |
 | `SUBMODULE_INTERNAL_PATH` | A path under a root-declared submodule appears in the record's File List | Remove it: it belongs to that repository's own record, and the gitlink belongs in the promotions section. |
-| `CANDIDATE_NOT_FINAL` | The candidate is not an ancestor of HEAD, a non-output path changed after it, or any gitlink moved | Re-run against the committed head; only the story and sprint-status output commits may follow it. |
+| `CANDIDATE_NOT_FINAL` | The candidate is not an ancestor of HEAD, a non-output path changed after it, any gitlink moved, or the root head changes during live inspection | Re-run against the committed head; only the story and sprint-status output commits may follow it. |
 | `PROMOTION_GATE_NOT_PASS` | The embedded Story 6.7 checker reports a result other than `pass`, or warns `SCOPE_NOT_EVALUATED` | Remediate the embedded checker's blockers or supply an evaluable baseline/scope per `submodule-promotion-completion-gate.md`. |
 | `BASELINE_NOT_TRUSTWORTHY` | The baseline is missing, `NO_VCS`, unresolvable, or not an ancestor of the candidate | Record a resolvable `baseline_commit` that is an ancestor of the candidate. |
 | `RECORD_NOT_DERIVED` | No artifact was parsed, no candidate resolved, or no replaceable record section found | Supply the missing input. A run that derived nothing proves nothing and can never be read as a pass. |
@@ -236,6 +243,18 @@ completion-route integration".
 **read-only**. It performs no writes of any kind and does not run the promotion
 checker, which inspects live submodule worktrees and would therefore claim to
 reconstruct a former working tree.
+
+For generated v1 records, historical File Lists include the committed source
+range plus the story output itself, matching live self-accounting even when
+baseline and candidate are equal. The only optional additional output is the
+story's sibling `sprint-status.yaml`, when recorded in the list or present as a
+regular file at the candidate. A recorded sibling output remains recognizable
+after its removal from a later checkout. A recorded optional output is rejected
+when the candidate records a directory or gitlink at that path. An absent path
+can represent an uncommitted output; a symlink can represent a file output, whose
+former target is not reconstructed. Other paths must match the committed range
+exactly; gitlinks remain promotion state. Pre-generator records retain
+their original committed-range comparison.
 
 Records are classified by their own shape, never by a hard-coded story table. A
 record carrying no `story-final-record-v1` block is `pre-generator`: its AC2- and

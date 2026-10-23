@@ -596,7 +596,7 @@ def committed_path_status(
     return observed
 
 
-def worktree_path_status(repository: Path) -> dict[str, str]:
+def worktree_path_status(repository: Path, head: str = "HEAD") -> dict[str, str]:
     """Tracked working-tree delta plus untracked non-ignored files.
 
     Detection is a two-command split on purpose: `status` with
@@ -640,7 +640,7 @@ def worktree_path_status(repository: Path) -> dict[str, str]:
         "--name-status",
         "--no-renames",
         "-z",
-        "HEAD",
+        head,
         "--",
         allowed_returncodes=(0, 128),
     )
@@ -1490,6 +1490,8 @@ def derive_file_list(
     evidence_paths: set[str],
     blockers: list[dict[str, Any]],
     warnings: list[dict[str, Any]],
+    *,
+    head: str = "HEAD",
 ) -> list[dict[str, str]]:
     committed: dict[str, str] = (
         committed_path_status(repository, baseline, candidate)
@@ -1498,7 +1500,7 @@ def derive_file_list(
     )
     observed: dict[str, str] = dict(committed)
     allowed_dirt = set(output_targets) | set(evidence_paths)
-    for path in sorted(worktree_path_status(repository)):
+    for path in sorted(worktree_path_status(repository, head)):
         if path in allowed_dirt:
             continue
         blockers.append(
@@ -1581,8 +1583,11 @@ def evaluate_candidate_binding(
     candidate: str,
     output_targets: set[str],
     blockers: list[dict[str, Any]],
+    *,
+    head: str | None = None,
 ) -> dict[str, Any]:
-    head = try_resolve_commit(repository, "HEAD")
+    if head is None:
+        head = try_resolve_commit(repository, "HEAD")
     binding: dict[str, Any] = {
         "candidate": candidate,
         "head": head,
@@ -1904,7 +1909,10 @@ def verify_live(repository: Path, args: argparse.Namespace) -> dict[str, Any]:
             )
         )
 
-    candidate = resolve_commit(repository, args.candidate, "CANDIDATE_UNRESOLVABLE")
+    head = resolve_commit(repository, "HEAD", "CANDIDATE_NOT_FINAL")
+    candidate = head if args.candidate == "HEAD" else resolve_commit(
+        repository, args.candidate, "CANDIDATE_UNRESOLVABLE"
+    )
     document["candidate"] = candidate
     document["derived"]["candidate"] = True
 
@@ -1976,6 +1984,7 @@ def verify_live(repository: Path, args: argparse.Namespace) -> dict[str, Any]:
         evidence_paths,
         blockers,
         warnings,
+        head=head,
     )
     derived_paths = [entry["path"] for entry in entries]
     declared_list, declared_lists = declared_file_list(content)
@@ -2057,7 +2066,7 @@ def verify_live(repository: Path, args: argparse.Namespace) -> dict[str, Any]:
     )
     document["promotions"] = promotions
     document["candidate_binding"] = evaluate_candidate_binding(
-        repository, candidate, output_targets, blockers
+        repository, candidate, output_targets, blockers, head=head
     )
 
     gate = run_promotion_gate(
@@ -2092,6 +2101,13 @@ def verify_live(repository: Path, args: argparse.Namespace) -> dict[str, Any]:
                 )
             )
 
+    final_head = try_resolve_commit(repository, "HEAD")
+    if final_head != head:
+        blockers.append(blocker(
+            "CANDIDATE_NOT_FINAL",
+            f"committed head changed during live inspection from {head} to "
+            f"{final_head or 'unresolvable'}; rerun against a stable head",
+        ))
     document["result"] = "blocked" if blockers else "pass"
     return document
 
@@ -2267,6 +2283,23 @@ def verify_historical(repository: Path, args: argparse.Namespace) -> dict[str, A
             for path in committed_path_status(repository, baseline, candidate)
             if path not in root_set
         )
+        if generated:
+            # Live generation self-accounts for its own writes even when the
+            # committed range is empty. The sibling sprint file is optional;
+            # its recorded identity survives removal from a later checkout.
+            # No other path outside the committed range is an output target.
+            outputs = {story}
+            sprint_status = (PurePosixPath(story).parent / "sprint-status.yaml").as_posix()
+            sprint_mode, _ = tree_entry(repository, candidate, sprint_status)
+            if sprint_status in declared_list and sprint_mode not in (None, "100644", "100755", "120000"):
+                finding(
+                    "FILE_LIST_DRIFT",
+                    f"recorded sprint output {sprint_status} has incompatible candidate mode {sprint_mode}",
+                    sprint_status,
+                )
+            elif sprint_status in declared_list or sprint_mode in ("100644", "100755"):
+                outputs.add(sprint_status)
+            derived_paths = sorted((set(derived_paths) | outputs) - root_set)
         # Gitlinks the record declares are promotion state, not file-list drift:
         # comparing them as paths would report every correct promotion as an error.
         missing = sorted(set(derived_paths) - set(declared_list))
