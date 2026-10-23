@@ -39,7 +39,13 @@ def repository(tmp_path: Path, monkeypatch) -> Path:
     for relative in {*checker.SOURCE_PINS, *checker.ARTIFACTS, PACKAGE}:
         target = tmp_path / relative
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(ROOT / relative, target)
+        if relative.startswith("references/"):
+            # External sources are opaque hash inputs to this draft checker.
+            # Keep this fixture independent of initialized nested submodules;
+            # only its disposable pins below authorize these synthetic bytes.
+            target.write_text(f"hermetic fixture source: {relative}\n", encoding="utf-8")
+        else:
+            shutil.copyfile(ROOT / relative, target)
     # A disposable fixture binds its own initial source bytes. This keeps tests
     # independent of future sprint/policy changes without relaxing the real CLI.
     pins = {path: digest((tmp_path / path).read_bytes()) for path in checker.SOURCE_PINS}
