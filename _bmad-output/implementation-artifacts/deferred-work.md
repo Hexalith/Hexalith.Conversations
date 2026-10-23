@@ -761,3 +761,33 @@ These additive resolutions supersede only the five named open scopes. The separa
 - source_spec: `_bmad-output/implementation-artifacts/spec-epic-16-adoption-preparation.md`
   summary: Resolve accepted Platform/Builds module-tool schema incompatibility with the EventStore-required APP_API_TOKEN configuration key.
   evidence: EventStore `DaprAppChannelToken.ConfigurationKey` is `APP_API_TOKEN`; accepted Builds schema configurationKey regex permits only alphanumeric colon-separated segments. `dotnet tool run hexalith-module -- validate --manifest module/hexalith.module-manifest.v2.json` exits 1 with HXP002 at the corrected secret key and extension input key. Keep the SDK-correct candidate and exact FAIL observations; adoption requires an owner-approved schema/tool successor or supported transport binding, not a fabricated colon-key alias or unapproved dependency upgrade.
+
+## Resolved by five deferred validation and tracking fixes (2026-10-23)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-validation-and-tracking-fixes.md`
+  summary: Resolved the September 25 Story 7.2 duplicate root-path regression gap.
+  evidence: The root checker suite now independently exercises separate submodule names declaring one path and a repeated path setting under one name, with matching gitlinks as positive controls. Both existing duplicate guards must remain effective.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-validation-and-tracking-fixes.md`
+  summary: Resolved the September 25 Story 7.2 mismatch between working-tree declarations and staged gitlinks.
+  evidence: check-root-submodules.py reads the resolved regular indexed .gitmodules blob alongside indexed gitlinks. Regressions cover unstaged edits hiding invalid staged declarations, unstaged invalid edits over valid staged declarations, absent worktree files, absent index entries and index conflicts, without opening submodule worktrees.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-validation-and-tracking-fixes.md`
+  summary: Resolved October 8 Current Blind 9 by computing each retained PowerShell TRX invocation's status from its own added failures.
+  evidence: Test-TrxResult preserves the caller's failure list and compares its size at entry and return. Direct-function regressions exercise a green receipt with unrelated prior errors, a receipt adding errors, and a later green receipt sharing that same list.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-validation-and-tracking-fixes.md`
+  summary: Resolved October 8 Current Blind 10 by replacing substring contract-test selection with exact case-sensitive identity matching.
+  evidence: Qualified selectors match the complete TRX name; historical bare selectors match the final method segment exactly. Positive bare/qualified controls and prefix, suffix, case, wrong-class and wildcard negatives preserve native-name compatibility and reject lookalikes; the existing duplicate-contract regression remains in the disposable suite.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-validation-and-tracking-fixes.md`
+  summary: Resolved the October 1 stale V14 sprint-header entry, also reported October 11.
+  evidence: The header identifies August 18 state as historical and directs readers to actual lifecycle rows and the current-change/IR-0 disposition. Non-comment sprint contents are byte-identical to entry; no lifecycle value, accepted authority record or historical result is changed.
+
+These five resolutions supersede only the named validation and tracking scopes. The already implemented final release-plan recheck and non-mutating contract-snapshot output were verified during investigation and are not counted as new fixes. Accepted evidence and original ledger entries remain unchanged.
+
+## Deferred from: five deferred validation and tracking review (2026-10-23)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-validation-and-tracking-fixes.md`
+  summary: Improve the root-submodule checker's diagnostic for a staged .gitmodules file containing no path or URL settings.
+  evidence: R5, low, pre-existing. Git config --get-regexp exits 1 for a comment-only configuration, and the helper raises ValueError before its intended no-root-submodules diagnostic. The CLI catches it and fails closed. A separately scoped correction can interpret the no-match result explicitly and verify the diagnostic without accepting malformed config or other Git failures.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-validation-and-tracking-fixes.md`
+  summary: Reconcile the frozen minimal-module fixture's accepted lock graphs with the current root-pinned EventStore dependency graph through the approved fixture successor process.
+  evidence: Baseline CI run 39971222910 at b2fa7d93c1a8c0eca6c02fe1c7ecb9418ae5bee4 passed seven external compatibility assertions, then failed locked fixture restore with NU1004 for EventStore ServiceDefaults and Aspire graph drift. The five validation fixes change neither those locks nor dependency pins. Preserve accepted fixture/evidence bytes and the locked-mode gate; do not disable locked restore to conceal the failure.

@@ -25,12 +25,29 @@ def git(root: Path, *args: str) -> bytes:
 
 
 def check(root: Path) -> list[str]:
-    """Return current-tree problems without reading history or submodule worktrees."""
+    """Return index problems without reading history or submodule worktrees."""
 
     problems: list[str] = []
-    gitmodules = root / ".gitmodules"
-    if not gitmodules.is_file():
-        return ["root .gitmodules is missing"]
+    declarations = [
+        entry
+        for entry in git(root, "ls-files", "--stage", "-z", "--", ".gitmodules").split(b"\0")
+        if entry
+    ]
+    if not declarations:
+        return ["root .gitmodules is not indexed"]
+    if len(declarations) != 1:
+        return ["root .gitmodules must be a resolved regular indexed file"]
+    metadata, separator, path = declarations[0].partition(b"\t")
+    parts = metadata.decode("ascii", errors="replace").split()
+    if (
+        not separator
+        or path != b".gitmodules"
+        or len(parts) != 3
+        or parts[0] not in {"100644", "100755"}
+        or SHA.fullmatch(parts[1]) is None
+        or parts[2] != "0"
+    ):
+        return ["root .gitmodules must be a resolved regular indexed file"]
 
     settings: dict[str, dict[str, str]] = {}
     for entry in git(
@@ -38,8 +55,8 @@ def check(root: Path) -> list[str]:
         "config",
         "--null",
         "--no-includes",
-        "--file",
-        str(gitmodules),
+        "--blob",
+        parts[1],
         "--get-regexp",
         r"^submodule\..*\.(path|url)$",
     ).split(b"\0"):

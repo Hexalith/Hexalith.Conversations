@@ -521,6 +521,7 @@ function Test-TrxResult {
         [System.Collections.Generic.List[string]]$Failures
     )
 
+    $failureCountAtStart = $Failures.Count
     $actual = [ordered]@{ total = 0; executed = 0; passed = 0; failed = 0; skipped = 0 }
     $artifacts = [System.Collections.Generic.List[object]]::new()
     $results = [System.Collections.Generic.List[object]]::new()
@@ -578,7 +579,13 @@ function Test-TrxResult {
     if ($actual.total -eq 0 -or $actual.executed -ne $actual.total -or $actual.passed -ne $actual.total) {
         Add-Failure -Failures $Failures -Message "TRX is not fully green: total=$($actual.total), executed=$($actual.executed), passed=$($actual.passed)."
     }
-    $contractResults = @($results | Where-Object { [string]$_.testName -like "*$ContractTestName*" })
+    $contractResults = @($results | Where-Object {
+        $identity = [string]$_.testName
+        if (-not $ContractTestName.Contains('.')) {
+            $identity = $identity.Split('.')[-1]
+        }
+        [string]::Equals($identity, $ContractTestName, [StringComparison]::Ordinal)
+    })
     $contractStatus = 'missing'
     if ($contractResults.Count -ne 1) {
         Add-Failure -Failures $Failures -Message "TRX must contain exactly one contract comparison test '$ContractTestName'; found $($contractResults.Count)."
@@ -590,7 +597,7 @@ function Test-TrxResult {
         }
     }
     return [ordered]@{
-        status = if ($Failures.Count -eq 0) { 'pass' } else { 'fail' }
+        status = if ($Failures.Count -eq $failureCountAtStart) { 'pass' } else { 'fail' }
         path = $Path[0]
         counts = $actual
         artifacts = @($artifacts)

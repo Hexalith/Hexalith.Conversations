@@ -67,6 +67,19 @@ function Invoke-CheckerScenario {
 }
 
 $checkerPath = (Resolve-Path (Join-Path $PSScriptRoot 'Test-StoryFinalRecord.ps1')).Path
+# Load the actual TRX helper and its dependencies without executing the manifest entry point.
+$parseErrors = $null
+$tokens = $null
+$checkerAst = [System.Management.Automation.Language.Parser]::ParseFile($checkerPath, [ref]$tokens, [ref]$parseErrors)
+if ($parseErrors.Count -ne 0) { throw "Checker contains PowerShell parse errors: $parseErrors" }
+foreach ($functionName in @('Add-Failure', 'Get-Sha256ForFile', 'Get-Sha256ForText', 'Test-TrxResult')) {
+    $definition = $checkerAst.Find({
+        param($node)
+        $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq $functionName
+    }, $false)
+    if ($null -eq $definition) { throw "Missing checker function '$functionName'." }
+    . ([scriptblock]::Create($definition.Extent.Text))
+}
 $fixtureRoot = Join-Path ([System.IO.Path]::GetTempPath()) "hexalith-final-record-$([Guid]::NewGuid().ToString('N'))"
 $scenarioCount = 0
 
@@ -188,6 +201,87 @@ This successor does not reconstruct the former uncommitted working tree.
 </TestRun>
 '@
     Write-Utf8File (Join-Path $fixtureRoot 'result.trx') $trx
+
+    $contractMethod = 'CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting'
+    $trxPath = Join-Path $fixtureRoot 'result.trx'
+    $expectedCounts = [pscustomobject]@{ total = 1; passed = 1; failed = 0; skipped = 0 }
+    $sharedFailures = [System.Collections.Generic.List[string]]::new()
+    $sharedFailures.Add('unrelated earlier validation failure')
+    $green = Test-TrxResult -Path $trxPath -ExpectedCounts $expectedCounts -ContractTestName $contractMethod -Failures $sharedFailures
+    if ($green.status -cne 'pass' -or $sharedFailures.Count -ne 1 -or
+        $sharedFailures[0] -cne 'unrelated earlier validation failure') {
+        throw 'A green TRX must preserve unrelated failures without inheriting their status.'
+    }
+    $scenarioCount++
+    $badCounts = [pscustomobject]@{ total = 2; passed = 2; failed = 0; skipped = 0 }
+    $bad = Test-TrxResult -Path $trxPath -ExpectedCounts $badCounts -ContractTestName $contractMethod -Failures $sharedFailures
+    if ($bad.status -cne 'fail' -or $sharedFailures.Count -ne 3 -or
+        $sharedFailures[1] -cne 'TRX total count is 1; expected 2.' -or
+        $sharedFailures[2] -cne 'TRX passed count is 1; expected 2.') {
+        throw 'A TRX must fail when it adds its own errors to an already populated failure list.'
+    }
+    $scenarioCount++
+    $greenAgain = Test-TrxResult -Path $trxPath -ExpectedCounts $expectedCounts -ContractTestName $contractMethod -Failures $sharedFailures
+    if ($greenAgain.status -cne 'pass' -or $sharedFailures.Count -ne 3) {
+        throw 'A later green TRX must not inherit failures from an earlier TRX.'
+    }
+    $scenarioCount++
+
+    foreach ($case in @(
+        @{ name = "Fixture.$contractMethod"; selector = $contractMethod; pass = $true },
+        @{ name = $contractMethod; selector = $contractMethod; pass = $true },
+        @{ name = "Fixture.$contractMethod"; selector = "Fixture.$contractMethod"; pass = $true },
+        @{ name = "Fixture.Prefix$contractMethod"; selector = $contractMethod; pass = $false },
+        @{ name = "Fixture.${contractMethod}Suffix"; selector = $contractMethod; pass = $false },
+        @{ name = "Fixture.$($contractMethod.ToLowerInvariant())"; selector = $contractMethod; pass = $false },
+        @{ name = "Other.$contractMethod"; selector = "Fixture.$contractMethod"; pass = $false },
+        @{ name = "Fixture.${contractMethod}Suffix"; selector = "Fixture.$contractMethod"; pass = $false },
+        @{ name = "Fixture.$contractMethod"; selector = 'Current*Writing'; pass = $false }
+    )) {
+        Write-Utf8File $trxPath ($trx.Replace("Fixture.$contractMethod", $case.name))
+        $caseFailures = [System.Collections.Generic.List[string]]::new()
+        $receipt = Test-TrxResult -Path $trxPath -ExpectedCounts $expectedCounts -ContractTestName $case.selector -Failures $caseFailures
+        $expectedStatus = if ($case.pass) { 'pass' } else { 'fail' }
+        if ($receipt.status -cne $expectedStatus -or
+            ($case.pass -and ($caseFailures.Count -ne 0 -or $receipt.contractTestOutcome -cne 'Passed')) -or
+            (-not $case.pass -and ($caseFailures.Count -ne 1 -or $receipt.contractTestOutcome -cne 'missing'))) {
+            throw "Unexpected contract identity result for '$($case.name)' / '$($case.selector)'."
+        }
+        $scenarioCount++
+    }
+    foreach ($character in @([char]0x00ad, [char]0x200b)) {
+        foreach ($selector in @($contractMethod, "Fixture.$contractMethod")) {
+            $lookalike = $contractMethod.Insert($contractMethod.Length - 3, [string]$character)
+            Write-Utf8File $trxPath ($trx.Replace("Fixture.$contractMethod", "Fixture.$lookalike"))
+            $caseFailures = [System.Collections.Generic.List[string]]::new()
+            $receipt = Test-TrxResult -Path $trxPath -ExpectedCounts $expectedCounts -ContractTestName $selector -Failures $caseFailures
+            if ($receipt.status -cne 'fail' -or $receipt.contractTestOutcome -cne 'missing' -or $caseFailures.Count -ne 1) {
+                throw "Unicode lookalike U+$('{0:X4}' -f [int]$character) matched '$selector'."
+            }
+            $scenarioCount++
+        }
+    }
+    # Distinct native identities can share a method; bare selection must reject ambiguity.
+    $ambiguous = $trx.Replace(
+        '<UnitTestResult testName="Fixture.CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting" outcome="Passed" />',
+        ('<UnitTestResult testName="Fixture.{0}" outcome="Passed" /><UnitTestResult testName="Other.{0}" outcome="Passed" />' -f $contractMethod))
+    $ambiguous = $ambiguous.Replace('total="1"', 'total="2"').Replace('executed="1"', 'executed="2"').Replace('passed="1"', 'passed="2"')
+    Write-Utf8File $trxPath $ambiguous
+    $twoCounts = [pscustomobject]@{ total = 2; passed = 2; failed = 0; skipped = 0 }
+    foreach ($selector in @($contractMethod, "Fixture.$contractMethod")) {
+        $caseFailures = [System.Collections.Generic.List[string]]::new()
+        $receipt = Test-TrxResult -Path $trxPath -ExpectedCounts $twoCounts -ContractTestName $selector -Failures $caseFailures
+        if ($selector -ceq $contractMethod) {
+            if ($receipt.status -cne 'fail' -or $caseFailures.Count -ne 1 -or $caseFailures[0] -notlike '*found 2.*') {
+                throw 'A bare selector must fail on two distinct classes sharing its method.'
+            }
+        }
+        elseif ($receipt.status -cne 'pass' -or $caseFailures.Count -ne 0 -or $receipt.contractTestOutcome -cne 'Passed') {
+            throw 'A qualified selector must disambiguate classes sharing the same method.'
+        }
+        $scenarioCount++
+    }
+    Write-Utf8File $trxPath $trx
 
     $snapshot = [ordered]@{
         schemaVersion = 1

@@ -8,7 +8,9 @@ updates. It does not change the meaning or bytes of earlier V23–V29 records.
 
 1. Make a focused change on `main`. Run the relevant local checks before committing,
    including `python3 scripts/check-root-submodules.py --repository .` for root
-   submodule changes.
+   submodule changes. That checker reads both `.gitmodules` and gitlinks from the
+   index. Stage the intended declarations and exact root gitlink paths before
+   running it; unstaged declaration edits do not affect its result.
 2. Push to `main` after those checks pass. CI then builds and tests the product.
    The `ci / repository` job checks that
    each root `.gitmodules` declaration has exactly one mode-`160000` gitlink in
