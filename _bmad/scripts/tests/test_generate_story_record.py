@@ -655,6 +655,179 @@ def test_zero_failed_and_unapproved_skipped_results_block(
     assert code == 0, document["blockers"]
 
 
+@pytest.mark.parametrize("scalar, expected", [
+    ("'revision' # explanation", "revision"),
+    ('"revision"\t# explanation', "revision"),
+    ("'owner''s # revision' # explanation", "owner's # revision"),
+    (r'"escaped \"quote\" # value" # explanation', 'escaped "quote" # value'),
+    ("plain#value # explanation", "plain#value"),
+    ("'|' # literal", "|"),
+    ('">" # literal', ">"),
+    ("'# literal hash'", "# literal hash"),
+])
+def test_deferred_parsing_commented_scalars_preserve_values(scalar, expected) -> None:
+    assert load_generator().parse_yaml_scalar(scalar) == expected
+
+
+@pytest.mark.parametrize("scalar", ["'unclosed", '"unclosed', "'value' garbage", '"value"#comment'])
+def test_deferred_parsing_malformed_quoted_scalars_fail_closed(scalar) -> None:
+    module = load_generator()
+    with pytest.raises(module.GateError) as failure:
+        module.parse_yaml_scalar(scalar)
+    assert failure.value.code == "INVALID_SCOPE"
+
+
+@pytest.mark.parametrize("bom, comment", [(True, False), (False, True), (True, True)])
+def test_deferred_parsing_frontmatter_binds_the_real_baseline(umbrella, bom, comment) -> None:
+    story = umbrella["repository"] / umbrella["story"]
+    content = story.read_text(encoding="utf-8")
+    if comment:
+        content = content.replace(f"'{umbrella['baseline']}'", f"'{umbrella['baseline']}' # retained baseline")
+    story.write_text(("\ufeff" if bom else "") + content, encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["baseline"] == umbrella["baseline"]
+    assert document["derived"]["record_section"]
+
+
+@pytest.mark.parametrize("reason", [
+    "|", ">", "|-", ">+", "|2", ">2-", "| # empty block", "# comment only", "'   '",
+])
+def test_deferred_parsing_block_skip_reasons_cannot_approve_a_skip(umbrella, reason) -> None:
+    story = umbrella["repository"] / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "---\n\n# Fixture Story",
+        "allowed_skipped_tests:\n  - test: 'Fixture.S0'\n"
+        f"    reason: {reason}\n---\n\n# Fixture Story",
+    ), encoding="utf-8")
+    write_trx(umbrella["repository"] / umbrella["artifact"], passed=2, skipped=1)
+    code, document = measured(umbrella)
+    assert code == 2
+    assert codes(document) == {"INVALID_SCOPE"}
+
+
+@pytest.mark.parametrize("root_story", [False, True])
+def test_deferred_parsing_sprint_output_is_normalized_and_dirt_still_blocks(umbrella, root_story) -> None:
+    repository = umbrella["repository"]
+    if root_story:
+        run_git(repository, "mv", umbrella["story"], "story.md")
+        umbrella["story"] = "story.md"
+    sprint = Path(umbrella["story"]).parent / "sprint-status.yaml"
+    (repository / sprint).write_text("status: in-progress\n", encoding="utf-8")
+    run_git(repository, "add", sprint.as_posix())
+    run_git(repository, "commit", "-m", "add sprint output")
+    umbrella["candidate"] = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    (repository / sprint).write_text("status: review\n", encoding="utf-8")
+    write_trx(repository / umbrella["artifact"])
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    assert sprint.as_posix() in document["file_list"]["derived"]
+    assert all(not path.startswith("./") for path in document["file_list"]["derived"])
+    (repository / "seed.txt").write_text("unrelated dirt\n", encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "seed.txt" in {item["path"] for item in document["blockers"] if item["code"] == "WORKTREE_NOT_CLEAN"}
+
+
+@pytest.mark.parametrize("prose", [
+    "Use `<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->`.",
+    "> <!-- STORY-FINAL-RECORD:BEGIN -->\n> <!-- STORY-FINAL-RECORD:END -->",
+    "```markdown\n<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:END -->\n```",
+    "~~~markdown\n<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:END -->\n~~~",
+    "```markdown\n<!-- STORY-FINAL-RECORD:BEGIN -->\n### File List\n<!-- STORY-FINAL-RECORD:END -->\n```",
+    "Literal `example\n<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:END -->\nend`.",
+    "<pre>\n<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:END -->\n</pre>",
+    "Literal \\\\`example\n<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:END -->\nend`.",
+])
+def test_deferred_parsing_prose_markers_do_not_hijack_live_or_historical_records(umbrella, prose) -> None:
+    module = load_generator()
+    story = umbrella["repository"] / umbrella["story"]
+    content = story.read_text(encoding="utf-8").replace("# Fixture Story", f"# Fixture Story\n\n{prose}")
+    story.write_text(content, encoding="utf-8")
+    anchor, start, _ = module.record_anchor(content)
+    assert anchor == "story-file-list"
+    assert content[start:].startswith("### File List\n")
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    code, document = invoke(umbrella, "--historical")
+    assert code == 0, document["blockers"]
+    assert document["classification"] == "pre-generator"
+    prepare_generated_record(umbrella)
+    assert prose in story.read_text(encoding="utf-8")
+    code, document = invoke(umbrella, "--historical")
+    assert code == 0, document["blockers"]
+    assert document["classification"] == "generated"
+
+
+@pytest.mark.parametrize("markers", [
+    "<!-- STORY-FINAL-RECORD:BEGIN -->",
+    "<!-- STORY-FINAL-RECORD:END -->\n<!-- STORY-FINAL-RECORD:BEGIN -->",
+    "<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:END -->",
+])
+def test_deferred_parsing_malformed_structural_markers_still_block(umbrella, markers) -> None:
+    story = umbrella["repository"] / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8") + "\n" + markers + "\n", encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "RECORD_NOT_DERIVED" in codes(document)
+
+
+def test_deferred_parsing_duplicate_heading_with_trailing_spaces_still_blocks(umbrella) -> None:
+    story = umbrella["repository"] / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8") + "\n### File List  \n", encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "FILE_LIST_DRIFT" in codes(document)
+
+
+@pytest.mark.parametrize("fault", ["trailing", "leading", "tab"])
+def test_deferred_parsing_whitespace_cannot_demote_a_tampered_generated_record(umbrella, fault) -> None:
+    module = load_generator()
+    prepare_generated_record(umbrella)
+    story = umbrella["repository"] / umbrella["story"]
+    content = story.read_text(encoding="utf-8").replace(
+        "| Fixture | PARSED | 3 | 3 | 3 | 0 | 0 |", "| Fixture | PARSED | 4 | 3 | 3 | 0 | 0 |"
+    )
+    for marker in (module.RECORD_BEGIN_MARKER, module.RECORD_END_MARKER):
+        content = content.replace(marker, marker + "  " if fault == "trailing" else ("\t" if fault == "tab" else "    ") + marker)
+    content = content.replace("**Final record** —", "    **Final record** —")
+    story.write_text(content, encoding="utf-8")
+    code, document = invoke(umbrella, "--historical")
+    assert code == 1
+    assert document["classification"] == "malformed-generated"
+    assert "RECORD_NOT_DERIVED" in codes(document)
+
+
+@pytest.mark.parametrize("literal", ["  ```example", "  ~~~example", "  <!-- STORY-FINAL-RECORD:BEGIN -->"])
+def test_deferred_parsing_frontmatter_literals_cannot_change_markdown_context(umbrella, literal) -> None:
+    story = umbrella["repository"] / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "status: 'in-progress'", f"description: |\n{literal}\nstatus: 'in-progress'"
+    ), encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["record"]["anchor"] == "story-file-list"
+
+
+def test_deferred_parsing_unmatched_prose_tick_cannot_cross_a_heading(umbrella) -> None:
+    set_file_list(umbrella, [umbrella["story"], "changed.txt"])
+    story = umbrella["repository"] / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "### File List\n", "Use `literal\n### File List\n"
+    ), encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["record"]["anchor"] == "story-file-list"
+
+
+@pytest.mark.parametrize("backslashes", [1, 2, 3, 4])
+def test_deferred_parsing_backtick_escape_uses_backslash_parity(backslashes) -> None:
+    module = load_generator()
+    content = "Literal " + "\\" * backslashes + "`example\n" + module.RECORD_BEGIN_MARKER + "\n" + module.RECORD_END_MARKER + "\nend`.\n### File List\n"
+    anchor, _, _ = module.record_anchor(content)
+    assert anchor == ("generated-block" if backslashes % 2 else "story-file-list")
+
+
 def test_valid_error_counter_mapping_and_unknown_outcomes(
     umbrella: dict[str, object],
 ) -> None:

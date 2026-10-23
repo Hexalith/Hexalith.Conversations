@@ -837,3 +837,23 @@ These five additive resolutions supersede only the named scopes. Historical entr
   evidence: Passing and failing live/historical CLI checks in ordinary and linked worktrees snapshot disposable repository file bytes, modes and mtimes, empty directories and directory modes, ignored outputs and resolved Git/common administration directories, plus HEAD, refs, index entries, gitlinks and status. A same-content source timestamp change exposed optional Git index refresh; generator and embedded promotion inspection now disable optional locks and preserve the snapshot exactly.
 
 These additive resolutions supersede only the five named scopes. Accepted evidence, fixture sources and lock graphs, historical entries, CI policy and dependency pins remain unchanged.
+
+## Resolved by five deferred record parsing safeguards (2026-10-23)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-parsing-safeguards.md`
+  summary: Resolved the July 30 pass-8 quoted frontmatter scalar with trailing comment defect.
+  evidence: Quoted single-line scalars recognize comments after their closing quote, preserve embedded hash characters and escaped quotes, and reject malformed quoted input with INVALID_SCOPE. A disposable CLI regression resolves the actual commented baseline rather than retaining its quote characters.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-parsing-safeguards.md`
+  summary: Resolved the July 30 pass-8 UTF-8 BOM frontmatter sub-scope.
+  evidence: Frontmatter parsing accepts a single leading BOM without changing source bytes or replacement offsets. Disposable CLI regressions bind the real baseline with BOM alone and combined with a quoted trailing comment.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-parsing-safeguards.md`
+  summary: Resolved the July 30 pass-8 root-level sprint output allowance sub-scope.
+  evidence: The sibling sprint path is constructed as a normalized POSIX path, avoiding the spurious ./ prefix for a root-level story. Root and nested story regressions allow dirty sprint output while retaining the unrelated-source WORKTREE_NOT_CLEAN guard and normalized File List paths.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-parsing-safeguards.md`
+  summary: Resolved the July 30 pass-8 YAML block indicators accepted as nonempty skip reasons sub-scope.
+  evidence: The existing narrow scalar policy explicitly rejects unsupported unquoted block indicators with INVALID_SCOPE before a skipped test can receive approval. Chomping, indentation and commented indicators are covered, and quoted literal pipe/greater-than values remain supported.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-parsing-safeguards.md`
+  summary: Resolved the July 30 pass-8 prose marker hijacking sub-scope.
+  evidence: Record anchors and historical classification share structural-line recognition outside fenced examples. Inline, blockquoted and fenced marker mentions preserve pre-generator classification and remain unchanged during real block insertion; valid generated records remain verifiable, and unmatched, reversed or duplicate structural markers still block.
+
+These five additive resolutions supersede only the named parsing scopes. Other portions of the original compound findings remain separate. Accepted records, fixture sources and locks, historical ledger entries, CI policy and submodule pointers remain unchanged.

@@ -658,21 +658,40 @@ def worktree_path_status(repository: Path) -> dict[str, str]:
     return observed
 
 
+def frontmatter_region(content: str) -> tuple[str, int]:
+    """Return frontmatter and the offset where Markdown begins, preserving source offsets."""
+    match = re.match(r"\A\ufeff?---\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|\Z)", content, re.DOTALL)
+    return (match[1], match.end()) if match else ("", 0)
+
+
 def parse_frontmatter(content: str) -> str:
-    if not content.startswith("---\n"):
-        return ""
-    end = content.find("\n---", 4)
-    return content[4:end] if end >= 0 else ""
+    return frontmatter_region(content)[0]
 
 
 def parse_yaml_scalar(value: str) -> str:
     value = value.strip()
-    if value.startswith("'") and value.endswith("'") and len(value) >= 2:
-        return value[1:-1].replace("''", "'")
-    if value.startswith('"') and value.endswith('"') and len(value) >= 2:
-        parsed = json.loads(value)
-        return str(parsed)
-    return value.split(" #", 1)[0].strip()
+    if value.startswith(("'", '"')):
+        quoted = re.fullmatch(
+            r'''('(?:[^']|'')*'|"(?:[^"\\]|\\.)*")(?:[ \t]+(?:\#.*)?)?''', value
+        )
+        if quoted is None:
+            raise GateError("INVALID_SCOPE", f"malformed quoted scalar: {value!r}")
+        scalar = quoted.group(1)
+        if scalar.startswith("'"):
+            return scalar[1:-1].replace("''", "'")
+        try:
+            return str(json.loads(scalar))
+        except json.JSONDecodeError as error:
+            raise GateError(
+                "INVALID_SCOPE", f"malformed quoted scalar: {value!r}"
+            ) from error
+    if value.startswith(("|", ">")):
+        raise GateError(
+            "INVALID_SCOPE", "block scalars are unsupported; use a quoted single-line value"
+        )
+    if value.startswith("#"):
+        return ""
+    return re.split(r"[ \t]+#", value, maxsplit=1)[0].strip()
 
 
 def frontmatter_scalar(frontmatter: str, key: str) -> str | None:
@@ -703,7 +722,7 @@ def frontmatter_allowed_skips(frontmatter: str) -> dict[str, str]:
         nonlocal current_test, current_reason
         if current_test is None:
             return
-        if not current_reason:
+        if not current_reason or not current_reason.strip():
             raise GateError(
                 "INVALID_SCOPE",
                 f"allowed skipped test {current_test!r} has no non-empty reason",
@@ -782,27 +801,91 @@ def root_test_projects(
     return dict(sorted(projects.items()))
 
 
+def record_control_lines(content: str) -> list[tuple[int, str]]:
+    """Return record controls outside frontmatter and Markdown literal examples."""
+    controls: list[tuple[int, str]] = []
+    fence: str | None = None
+    html_literal: str | None = None
+    inline_end = -1
+    _, markdown_start = frontmatter_region(content)
+    offset = 0
+    for raw_line in content.splitlines(keepends=True):
+        line = raw_line.rstrip("\r\n")
+        if offset < markdown_start:
+            offset += len(raw_line)
+            continue
+        if html_literal is not None:
+            if re.search(rf"</{html_literal}\s*>", line, re.IGNORECASE):
+                html_literal = None
+        elif offset < inline_end:
+            pass
+        elif fence is not None:
+            if re.fullmatch(rf" {{0,3}}{re.escape(fence[0])}{{{len(fence)},}}[ \t]*", line):
+                fence = None
+        else:
+            opening = re.match(r" {0,3}(`{3,}|~{3,})(.*)$", line)
+            html_opening = re.match(r" {0,3}<(pre|code|script|style|textarea)(?=[\s>])", line, re.IGNORECASE)
+            if opening and (opening[1][0] != "`" or "`" not in opening[2]):
+                fence = opening[1]
+            elif html_opening:
+                tag = html_opening[1].lower()
+                if not re.search(rf"</{tag}\s*>", line, re.IGNORECASE):
+                    html_literal = tag
+            elif line.rstrip(" \t") in (STORY_ANCHOR, STORY_ANCHOR_END, SPEC_ANCHOR):
+                controls.append((offset, line.rstrip(" \t")))
+            elif line.strip(" \t") in (RECORD_BEGIN_MARKER, RECORD_END_MARKER) or line.lstrip(" \t").startswith("**Final record** —"):
+                controls.append((offset, line))
+            elif "`" in line:
+                # Inline spans cannot cross a Markdown block boundary. An
+                # unmatched prose tick must not consume a later File List.
+                paragraph_end = re.search(
+                    r"\n(?:[ \t]*\r?$| {0,3}(?:#{1,6}(?:[ \t]|$)|(?:[-+*]|1[.)])[ \t]+|>"
+                    r"|`{3,}|~{3,}|[-=]+[ \t]*$|(?:\*[ \t]*){3,}$|(?:_[ \t]*){3,}$"
+                    r"|<(?:pre|code|script|style|textarea)(?=[\s>])))",
+                    content[offset:], re.MULTILINE | re.IGNORECASE,
+                )
+                limit = offset + paragraph_end.start() if paragraph_end else len(content)
+                for token in re.finditer(r"`+", line):
+                    start, end = offset + token.start(), offset + token.end()
+                    if start < inline_end or start >= limit:
+                        continue
+                    prefix = line[:token.start()]
+                    escaped = (len(prefix) - len(prefix.rstrip("\\"))) % 2
+                    delimiter = token[0][escaped:]
+                    if not delimiter:
+                        continue
+                    closing = re.search(rf"(?<!`){re.escape(delimiter)}(?!`)", content[end:limit])
+                    if closing:
+                        inline_end = end + closing.end()
+        offset += len(raw_line)
+    return controls
+
+
 def record_anchor(content: str) -> tuple[str | None, int, int]:
     """Locate the region the rendered block replaces.
 
     Returns (anchor name, start, end). The marker pair wins so a second run
     replaces its own output; otherwise the story or spec heading is used.
     """
-    begin_count = content.count(RECORD_BEGIN_MARKER)
-    end_count = content.count(RECORD_END_MARKER)
-    if begin_count or end_count:
-        if begin_count != 1 or end_count != 1:
+    controls = record_control_lines(content)
+    begins = [(offset, line) for offset, line in controls if line.strip(" \t") == RECORD_BEGIN_MARKER]
+    ends = [(offset, line) for offset, line in controls if line.strip(" \t") == RECORD_END_MARKER]
+    if begins or ends:
+        if len(begins) != 1 or len(ends) != 1:
             return None, -1, -1
-        start = content.find(RECORD_BEGIN_MARKER)
-        end = content.find(RECORD_END_MARKER)
+        if begins[0][1] != RECORD_BEGIN_MARKER or ends[0][1] != RECORD_END_MARKER:
+            return None, -1, -1
+        start, end = begins[0][0], ends[0][0]
         if end <= start:
             return None, -1, -1
         return "generated-block", start, end + len(RECORD_END_MARKER)
-    start = content.find(f"{STORY_ANCHOR}\n")
+    start = next((offset for offset, line in controls if line == STORY_ANCHOR), -1)
     if start >= 0:
-        end = content.find(f"{STORY_ANCHOR_END}\n", start)
+        end = next(
+            (offset for offset, line in controls if line == STORY_ANCHOR_END and offset > start), -1
+        )
         return "story-file-list", start, end if end >= 0 else len(content)
-    start = content.find(f"{SPEC_ANCHOR}\n")
+    start = next((offset for offset, line in controls if line == SPEC_ANCHOR), -1)
     if start >= 0:
         return "spec-verification", start, len(content)
     return None, -1, -1
@@ -873,7 +956,7 @@ def declared_file_list(content: str) -> tuple[list[str], int]:
 
 
 def count_file_list_headings(content: str) -> int:
-    return len(re.findall(rf"^{re.escape(STORY_ANCHOR)}\s*$", content, re.MULTILINE))
+    return sum(line == STORY_ANCHOR for _, line in record_control_lines(content))
 
 
 def parse_trx(content: bytes) -> dict[str, Any]:
@@ -1868,7 +1951,7 @@ def verify_live(repository: Path, args: argparse.Namespace) -> dict[str, Any]:
     allowed_skips = frontmatter_allowed_skips(frontmatter)
 
     output_targets = {story}
-    sprint_status = f"{PurePosixPath(story).parent}/sprint-status.yaml"
+    sprint_status = (PurePosixPath(story).parent / "sprint-status.yaml").as_posix()
     if (repository / sprint_status).is_file():
         output_targets.add(sprint_status)
 
@@ -2026,10 +2109,10 @@ def verify_historical(repository: Path, args: argparse.Namespace) -> dict[str, A
         ) from error
 
     block = generated_block(content)
-    marker_present = (
-        RECORD_BEGIN_MARKER in content
-        or RECORD_END_MARKER in content
-        or "**Final record** —" in content
+    marker_present = any(
+        line.strip(" \t") in (RECORD_BEGIN_MARKER, RECORD_END_MARKER)
+        or line.lstrip(" \t").startswith("**Final record** —")
+        for _, line in record_control_lines(content)
     )
     record_header = (
         re.search(
