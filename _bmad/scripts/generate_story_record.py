@@ -239,6 +239,7 @@ def git_environment() -> dict[str, str]:
             environment.pop(name, None)
     environment["GIT_CONFIG_GLOBAL"] = os.devnull
     environment["GIT_CONFIG_NOSYSTEM"] = "1"
+    environment["GIT_OPTIONAL_LOCKS"] = "0"
     return environment
 
 
@@ -466,8 +467,11 @@ def root_submodule_paths(repository: Path, candidate: str) -> list[str]:
                 f"root .gitmodules declares {text!r} with no path value",
             )
         _, value = text.split("\n", 1)
-        paths.append(promotion_path(value))
-    return sorted(set(paths))
+        path = promotion_path(value)
+        if path in paths:
+            raise GateError("INVALID_SCOPE", f"root .gitmodules declares duplicate path {path}")
+        paths.append(path)
+    return sorted(paths)
 
 
 def raw_diff_records(
@@ -3613,7 +3617,7 @@ def v2_gitlinks(
             v2_finding(
                 "GITLINK_SCOPE_MISMATCH" if story_id == "7.2" else "GITLINK_INVENTORY_DRIFT",
                 ".gitmodules",
-                "the candidate .gitmodules declares a path outside references/ or with no value",
+                f"the candidate .gitmodules has invalid root declarations: {error.message}",
             )
         )
         return []
@@ -10797,15 +10801,19 @@ def is_format_option(token: str) -> bool:
 
 def pre_parse_output_format(raw_arguments: Sequence[str]) -> str:
     """Best-effort output format, used only if a GateError occurs before argparse succeeds."""
+    output_format = "json"
     for index, token in enumerate(raw_arguments):
+        if token == "--":
+            break
         option, separator, inline_value = token.partition("=")
         if not is_format_option(option):
             continue
         if separator:
-            return inline_value if inline_value in ("markdown", "bundle") else "json"
-        following = raw_arguments[index + 1] if index + 1 < len(raw_arguments) else None
-        return following if following in ("markdown", "bundle") else "json"
-    return "json"
+            value = inline_value
+        else:
+            value = raw_arguments[index + 1] if index + 1 < len(raw_arguments) else None
+        output_format = value if value in ("markdown", "bundle") else "json"
+    return output_format
 
 
 def main(arguments: Sequence[str] | None = None) -> int:

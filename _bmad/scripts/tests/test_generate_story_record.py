@@ -502,6 +502,64 @@ def test_a_gate_error_honours_the_requested_format_before_argparse_succeeds() ->
     assert module.pre_parse_output_format([]) == "json"
 
 
+@pytest.mark.parametrize("arguments,expected", [
+    (["--format", "json", "--format", "markdown"], "markdown"),
+    (["--format=markdown", "--f=bundle"], "bundle"),
+    (["--f", "bundle", "--forma=json"], "json"),
+])
+def test_early_gate_error_uses_argparse_last_format(arguments, expected, monkeypatch) -> None:
+    module = load_generator()
+    assert module.build_parser().parse_args(arguments).format == expected
+
+    class BrokenParser:
+        def parse_args(self, _arguments):
+            raise module.GateError("INVALID_SCOPE", "injected early error")
+
+    monkeypatch.setattr(module, "build_parser", BrokenParser)
+    captured = io.StringIO()
+    with redirect_stdout(captured):
+        assert module.main(arguments) == 2
+    content = captured.getvalue()
+    if expected == "markdown":
+        assert content.startswith(module.RECORD_BEGIN_MARKER)
+        assert "INVALID_SCOPE" in content
+    else:
+        document = json.loads(content)
+        if expected == "bundle":
+            document = document["document"]
+        assert codes(document) == {"INVALID_SCOPE"}
+
+
+def test_early_gate_error_ignores_format_tokens_after_option_terminator() -> None:
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT), "--format", "markdown", "--", "--format", "bundle"],
+        check=False, capture_output=True, text=True, env=GIT_ENV, timeout=60,
+    )
+    assert result.returncode == 2
+    assert result.stdout.startswith(load_generator().RECORD_BEGIN_MARKER)
+    assert "INVALID_SCOPE" in result.stdout
+
+
+@pytest.mark.parametrize("declaration", [
+    '[submodule "duplicate"]\npath = references/Example\n',
+    '[submodule "references/Example"]\npath = references/Example\n',
+])
+def test_committed_root_paths_reject_duplicate_declarations(umbrella, declaration) -> None:
+    module = load_generator()
+    repository = umbrella["repository"]
+    assert module.root_submodule_paths(repository, "HEAD") == ["references/Example"]
+    modules = repository / ".gitmodules"
+    modules.write_text(modules.read_text(encoding="utf-8") + declaration, encoding="utf-8")
+    run_git(repository, "add", ".gitmodules")
+    run_git(repository, "commit", "-m", "test: repeat a root declaration")
+    # The observer must use committed declarations even when the worktree hides the duplicate.
+    modules.write_text('[submodule "valid"]\npath = references/Example\n', encoding="utf-8")
+    with pytest.raises(module.GateError) as failure:
+        module.root_submodule_paths(repository, "HEAD")
+    assert failure.value.code == "INVALID_SCOPE"
+    assert "duplicate" in str(failure.value).lower()
+
+
 def test_one_bundle_is_inserted_and_verified_by_digest(
     umbrella: dict[str, object],
 ) -> None:
@@ -1213,6 +1271,90 @@ def prepare_generated_record(fixture: dict[str, object]) -> dict:
     assert code == 0, bundle["document"]["blockers"]
     insert_generated_block(fixture, bundle["markdown"])
     return bundle
+
+
+def readonly_repository_snapshot(repository: Path) -> dict:
+    """Capture working files, ignored outputs and Git administration without refreshing the index."""
+    observations = {
+        "head": run_git(repository, "rev-parse", "HEAD").stdout,
+        "refs": run_git(repository, "show-ref").stdout,
+        "index": run_git(repository, "ls-files", "--stage", "-z").stdout,
+        "status": run_git(repository, "--no-optional-locks", "status", "--porcelain=v1",
+                          "--untracked-files=all", "--ignore-submodules=none", "-z").stdout,
+    }
+    def tree_snapshot(root: Path) -> dict:
+        entries = {".": ("directory", root.stat().st_mode)}
+        for path in sorted(root.rglob("*")):
+            relative = path.relative_to(root).as_posix()
+            if path.is_symlink():
+                entries[relative] = ("symlink", os.readlink(path))
+            elif path.is_file():
+                metadata = path.stat()
+                entries[relative] = ("file", path.read_bytes(), metadata.st_mode, metadata.st_mtime_ns)
+            elif path.is_dir():
+                entries[relative] = ("directory", path.stat().st_mode)
+        return entries
+
+    git_directories = {
+        Path(run_git(repository, "rev-parse", "--absolute-git-dir").stdout.strip()),
+        Path(run_git(repository, "rev-parse", "--path-format=absolute", "--git-common-dir").stdout.strip()),
+    }
+    return {**observations, "files": tree_snapshot(repository),
+            "git_administration": {str(root): tree_snapshot(root) for root in git_directories}}
+
+
+@pytest.mark.parametrize("mutation", ["create", "remove", "mode"])
+def test_readonly_snapshot_detects_directory_mutations(umbrella, mutation) -> None:
+    repository = umbrella["repository"]
+    directory = repository / "results/empty-directory"
+    directory.mkdir()
+    directory.chmod(0o755)
+    before = readonly_repository_snapshot(repository)
+    if mutation == "create":
+        (repository / "results/new-empty-directory").mkdir()
+    elif mutation == "remove":
+        directory.rmdir()
+    else:
+        directory.chmod(0o700)
+    assert readonly_repository_snapshot(repository) != before
+
+
+@pytest.mark.parametrize("linked_worktree", [False, True])
+@pytest.mark.parametrize("historical_mode", [False, True])
+@pytest.mark.parametrize("failing", [False, True])
+def test_readonly_verification_preserves_complete_repository_state(
+    umbrella, historical_mode, failing, linked_worktree,
+) -> None:
+    if linked_worktree:
+        linked = umbrella["repository"].parent / "linked-umbrella"
+        run_git(umbrella["repository"], "worktree", "add", "--detach", str(linked), "HEAD")
+        umbrella = {**umbrella, "repository": linked}
+        write_trx(linked / umbrella["artifact"])
+    prepare_generated_record(umbrella)
+    repository = umbrella["repository"]
+    # Force a stat refresh opportunity without changing the tracked source bytes.
+    source = repository / "changed.txt"
+    timestamp = time.time_ns() + 2_000_000_000
+    os.utime(source, ns=(timestamp, timestamp))
+    if failing:
+        if historical_mode:
+            record = repository / umbrella["story"]
+            record.write_text(record.read_text(encoding="utf-8").replace("| PARSED |", "| BROKEN |", 1),
+                              encoding="utf-8")
+        else:
+            write_trx(repository / umbrella["artifact"], passed=2, failed=1)
+    # The successful live measurement must remain newer than unchanged source stats.
+    os.utime(repository / umbrella["artifact"], ns=(timestamp + 1, timestamp + 1))
+    (repository / "results/untracked-note.txt").write_bytes(b"retain ignored content\n")
+    (repository / "results/empty-directory").mkdir()
+    before = readonly_repository_snapshot(repository)
+    if linked_worktree:
+        assert len(before["git_administration"]) == 2
+        assert any("index" in entries for entries in before["git_administration"].values())
+        assert all(not Path(root).is_relative_to(repository) for root in before["git_administration"])
+    code, document = historical_fixture(umbrella) if historical_mode else measured(umbrella)
+    assert (code != 0) is failing, document["blockers"]
+    assert readonly_repository_snapshot(repository) == before
 
 
 CLOSED_RECORDS = (
@@ -2209,6 +2351,24 @@ def v2_write_result(repository: Path, junit: str, content: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(content)
     os.utime(path, ns=(V2_RESULT_MTIME_NS, V2_RESULT_MTIME_NS))
+
+
+@pytest.mark.parametrize("passing_exits,accepted", [([0, 7], True), ([7], False)])
+def test_v2_scenario_honors_nondefault_passing_exit_codes(tmp_path, passing_exits, accepted) -> None:
+    module = load_generator()
+    scenario = deepcopy(v2_contract()["scenarios"][0])
+    scenario["resultSemantics"]["passExitCodes"] = passing_exits
+    command = module.v2_pytest_command(shlex.split(scenario["command"]))
+    record, category, findings = module.v2_scenario_from_results(
+        tmp_path, scenario, command, 0,
+        snapshot=(v2_junit(command["selector"]), 1),
+    )
+    assert record["exitCode"] == 0
+    assert record["assertionLedger"] and all(row["state"] == "PASS" for row in record["assertionLedger"])
+    assert record["result"] == ("PASS" if accepted else "FAIL")
+    assert category == ("passed" if accepted else "failed")
+    assert [row["code"] for row in findings] == ([] if accepted else ["TEST_RESULTS_FAILED"])
+    assert record["blockers"] == ([] if accepted else ["TEST_RESULTS_FAILED"])
 
 
 def build_v2_repository(tmp_path: Path, *, gitlinks: bool = True) -> dict[str, object]:

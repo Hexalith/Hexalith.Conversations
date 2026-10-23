@@ -509,6 +509,65 @@ def test_proof_requires_platform_assemblies_from_their_release_outputs(repo: Pat
     assert "not its Release build output" in result.stderr
 
 
+@pytest.mark.parametrize("stale", [False, True])
+def test_proof_checks_later_consuming_assembly_copies(repo: Path, stale: bool) -> None:
+    name = "Hexalith.EventStore.Client.dll"
+    preferred = repo / FIXTURE / "tests/Hexalith.Conversations.MinimalModule.Tests" / proof.OUTPUT_DIRECTORY / name
+    later_project = next(project for project in verifier.EXPECTED_PROJECTS if project.startswith("src/"))
+    later = repo / FIXTURE / Path(later_project).parent / proof.OUTPUT_DIRECTORY / name
+    later.parent.mkdir(parents=True, exist_ok=True)
+    later.write_bytes(b"stale consuming copy" if stale else preferred.read_bytes())
+    before = ((repo / JSON_OUT).read_bytes(), (repo / MD_OUT).read_bytes())
+    result = generate(repo)
+    if stale:
+        assert result.returncode == 1 and verifier.BLOCK_BUILD in result.stderr
+        assert "copies differ" in result.stderr
+    else:
+        assert result.returncode == 0, result.stderr
+        bundle = json.loads((repo / JSON_OUT).read_bytes())
+        selected = next(row for row in bundle["resolvedPublicApis"]["assemblies"] if row["name"] == Path(name).stem)
+        assert selected["path"] == preferred.relative_to(repo).as_posix()
+    assert ((repo / JSON_OUT).read_bytes(), (repo / MD_OUT).read_bytes()) == before
+
+
+@pytest.mark.parametrize("variant", ["identical", "stale", "missing-own"])
+def test_proof_checks_fixture_owned_consuming_assembly_copies(repo: Path, variant: str) -> None:
+    project = next(project for project in verifier.EXPECTED_PROJECTS if project.endswith(".Contracts.csproj"))
+    name = Path(project).stem + ".dll"
+    own = repo / FIXTURE / Path(project).parent / proof.OUTPUT_DIRECTORY / name
+    copied = repo / FIXTURE / "tests/Hexalith.Conversations.MinimalModule.Tests" / proof.OUTPUT_DIRECTORY / name
+    copied.write_bytes(b"stale fixture copy" if variant == "stale" else own.read_bytes())
+    if variant == "missing-own":
+        own.unlink()
+    before = ((repo / JSON_OUT).read_bytes(), (repo / MD_OUT).read_bytes())
+    result = generate(repo)
+    if variant != "identical":
+        assert result.returncode == 1 and verifier.BLOCK_BUILD in result.stderr
+        assert ("own build output is missing" if variant == "missing-own" else "copies differ") in result.stderr
+    else:
+        assert result.returncode == 0, result.stderr
+    assert ((repo / JSON_OUT).read_bytes(), (repo / MD_OUT).read_bytes()) == before
+
+
+@pytest.mark.parametrize("stale", [False, True])
+def test_proof_checks_third_consuming_copy_after_two_equal_copies(repo: Path, stale: bool) -> None:
+    name = "Hexalith.EventStore.Client.dll"
+    preferred = repo / FIXTURE / "tests/Hexalith.Conversations.MinimalModule.Tests" / proof.OUTPUT_DIRECTORY / name
+    later = sorted(project for project in verifier.EXPECTED_PROJECTS if project.startswith("src/"))
+    assert len(later) >= 2
+    for index, project in enumerate(later[:2]):
+        copy = repo / FIXTURE / Path(project).parent / proof.OUTPUT_DIRECTORY / name
+        copy.write_bytes(b"stale third copy" if stale and index == 1 else preferred.read_bytes())
+    before = ((repo / JSON_OUT).read_bytes(), (repo / MD_OUT).read_bytes())
+    result = generate(repo)
+    if stale:
+        assert result.returncode == 1 and verifier.BLOCK_BUILD in result.stderr
+        assert "copies differ" in result.stderr
+    else:
+        assert result.returncode == 0, result.stderr
+    assert ((repo / JSON_OUT).read_bytes(), (repo / MD_OUT).read_bytes()) == before
+
+
 def test_committed_proof_verifies_at_its_recorded_candidate(repo: Path) -> None:
     candidate = verifier.git_head(repo)
     git(repo, "add", "--", JSON_OUT, MD_OUT)

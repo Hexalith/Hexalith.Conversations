@@ -112,6 +112,7 @@ def git_environment() -> dict[str, str]:
     environment = dict(os.environ)
     for name in GIT_ENVIRONMENT_OVERRIDES:
         environment.pop(name, None)
+    environment["GIT_OPTIONAL_LOCKS"] = "0"
     return environment
 
 

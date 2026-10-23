@@ -121,11 +121,19 @@ def resolve_platform_closure(repository: Path, fixture: str, projects: dict) -> 
 
 
 def find_assembly(repository: Path, fixture: str, project_dirs: list[str], name: str) -> tuple[str, str]:
+    selected: tuple[str, str] | None = None
     for directory in project_dirs:
         relative = f"{fixture}/{directory}/{OUTPUT_DIRECTORY}/{name}.dll"
         path = repository / relative
         if path.is_file():
-            return relative, sha256_bytes(path.read_bytes())
+            digest = sha256_bytes(path.read_bytes())
+            if selected is None:
+                selected = relative, digest
+            elif digest != selected[1]:
+                raise ProofError(verifier.BLOCK_BUILD,
+                                 f"build output copies differ: {selected[0]} and {relative}")
+    if selected is not None:
+        return selected
     raise ProofError(verifier.BLOCK_BUILD, f"build output is missing: {name}.dll (run AC-11.2-03)")
 
 
@@ -181,7 +189,11 @@ def build_signable(repository: Path, fixture: str, test_result: str, candidate_c
     assemblies = []
     for name in verifier.EXPECTED_PROJECTS:
         stem = PurePosixPath(name).stem
-        relative, digest = find_assembly(repository, fixture, [str(PurePosixPath(name).parent)], stem)
+        own_directory = str(PurePosixPath(name).parent)
+        if not (repository / fixture / own_directory / OUTPUT_DIRECTORY / f"{stem}.dll").is_file():
+            raise ProofError(verifier.BLOCK_BUILD, f"own build output is missing: {stem}.dll (run AC-11.2-03)")
+        consuming_dirs = [own_directory, *(directory for directory in ordered_dirs if directory != own_directory)]
+        relative, digest = find_assembly(repository, fixture, consuming_dirs, stem)
         assemblies.append({"project": f"{fixture}/{name}", "path": relative, "sha256": digest})
     apphost_sdk = projects[verifier.APPHOST_PROJECT]["sdk"]
 

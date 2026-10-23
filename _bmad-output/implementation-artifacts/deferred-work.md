@@ -817,3 +817,23 @@ These five additive resolutions supersede only the named scopes. Historical entr
 - source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-tooling-safeguards.md`
   summary: Decide whether skipped-test approvals must distinguish identical fully qualified test names in different assemblies.
   evidence: R5, medium, pre-existing contract limitation. The approved skip shape contains test and reason, and Story 7.2 checks each skipped row's test name against that global map; it has no assembly field. Current negative coverage proves exact name identity, including different project-prefixed names, rather than authorization scoped to an assembly. Two declared assemblies can carry the same fully qualified test name, so per-assembly isolation needs an explicit successor policy and behavior regression; this batch preserves existing approved-skip semantics.
+
+## Resolved by five deferred record verification safeguards (2026-10-23)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-verification-safeguards.md`
+  summary: Resolved the September 22 generator root-declaration deduplication defect.
+  evidence: root_submodule_paths rejects duplicate committed paths with INVALID_SCOPE rather than collapsing them. Disposable controls cover distinct submodule names and repeated settings under one name, including a worktree edit that hides the committed duplicate. Existing Story 7.2 blocker mapping remains intact.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-verification-safeguards.md`
+  summary: Resolved the October 19 fixture-proof first-matching-assembly sub-scope.
+  evidence: Assembly discovery compares every present consuming copy for platform and fixture-owned assemblies and fails with MINIMAL_FIXTURE_BUILD_FAILED when a later copy differs, retaining preferred deterministic selection for identical copies and the existing platform Release-output check. Hermetic two/three-copy controls preserve published output bytes when a hidden stale copy is rejected. SDK coupling and other portions of the original compound entry are not claimed as resolved.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-verification-safeguards.md`
+  summary: Resolved the July 30 pass-8 repeated-format precedence sub-scope.
+  evidence: Early-error format selection honors the last format option before the option terminator, matching argparse for full, abbreviated and inline flags. Regressions inject a pre-parse GateError through main and exercise a real parser error, checking actual JSON, Markdown or bundle error output. Other parsing issues in that compound entry remain separate.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-verification-safeguards.md`
+  summary: Resolved the September 23 missing nondefault passExitCodes regression.
+  evidence: A fresh passing JUnit ledger is accepted when zero appears in a nondefault passing-exit list and rejected with TEST_RESULTS_FAILED when zero is excluded. The cases verify derived exit, verdict, summary category and blockers without editing any accepted contract.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-verification-safeguards.md`
+  summary: Resolved the July 28 read-only verification state-preservation coverage gap and exposed index refresh.
+  evidence: Passing and failing live/historical CLI checks in ordinary and linked worktrees snapshot disposable repository file bytes, modes and mtimes, empty directories and directory modes, ignored outputs and resolved Git/common administration directories, plus HEAD, refs, index entries, gitlinks and status. A same-content source timestamp change exposed optional Git index refresh; generator and embedded promotion inspection now disable optional locks and preserve the snapshot exactly.
+
+These additive resolutions supersede only the five named scopes. Accepted evidence, fixture sources and lock graphs, historical entries, CI policy and dependency pins remain unchanged.
