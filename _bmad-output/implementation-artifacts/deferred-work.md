@@ -908,3 +908,35 @@ These five additive resolutions supersede only the named measurement scopes. His
 These five resolutions supersede only the named scopes. Existing behavior verified by new tests is distinguished from production fixes. Historical skip-policy binding, accepted evidence, fixture locks, dependencies, lifecycle tracking, CI policy and gitlinks remain unchanged.
 
 Review strengthened these same scopes with incompatible sprint-mode rejection, committed-sprint omission checks, an equal-baseline pre-generator control and independently authored legacy records containing real promotions, deletions and renames. All six review findings were patched and independently rechecked.
+
+## Resolved by five deferred successor validation safeguards (2026-10-24)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-successor-validation-safeguards.md`
+  summary: Resolved the October 3 generic successor method-selector rejection of parameterized xUnit TRX names.
+  evidence: Exact method identity can be followed by parenthesized theory arguments; actual case names remain in the assertion ledger. Disposable controls include names from a retained native receipt and reject foreign classes, casing changes and prefix/suffix lookalikes. Existing candidate assembly, counter and no-skip checks remain required; this does not authorize arbitrary custom display names.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-successor-validation-safeguards.md`
+  summary: Resolved the October 3 generic successor confusion between domain status and machine verdicts.
+  evidence: Explicit passing result or integer-zero exit evidence can coexist with a domain status. Recognized legacy verdict statuses remain supported; absent verdicts, malformed results, contradictory failures, noninteger exits and nonempty blockers fail. No domain status alone supplies a passing verdict, and accepted UX disposition bytes are unchanged.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-successor-validation-safeguards.md`
+  summary: Resolved the October 3 partial scenario-summary counter omission scope.
+  evidence: A summary containing any standard scenario-count key must provide all six nonnegative integer counters, positive equal required/passed counts and zero failure categories. Each missing counter and invalid value has a regression. Domain summaries without scenario counters retain their own meaning and still need explicit passing machine evidence; this does not impose one schema on unrelated domain outputs.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-successor-validation-safeguards.md`
+  summary: Resolved the October 3 generic solution/build output path assumptions.
+  evidence: Build and restore normalize Windows solution separators and validate child project bytes before command execution. Build paths use the existing bounded read-only MSBuild TargetPath evaluator, preserving contained paths, raw root-gitlink exclusion, source stamps, freshness and hashes. Disposable cases cover custom naming/framework/output, missing or unsafe metadata, foreign stamps and default controls. Native SDK evaluation confirms imported assembly naming, net9.0 and a custom output directory without restore; the controlled stamp fixture is not claimed as a compiled binary. Ambiguous target metadata fails closed rather than guessing.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-successor-validation-safeguards.md`
+  summary: Resolved the July 28 missing disclosure for retired historical manifest assertions.
+  evidence: The runbook now names the immutable file/repository identity, required evidence-pair and non-mutating public-contract comparison assertions that generic record generation does not replace. It identifies the PowerShell asset as historical and keeps separately applicable preservation/product/release checks distinct from generic record success. No new blanket gate or retroactive acceptance claim is introduced.
+
+These five additive resolutions supersede only the named scopes. Original ledger entries, accepted evidence, fixture locks, dependencies, lifecycle tracking, CI policy and gitlinks remain unchanged.
+
+## Deferred from: five deferred successor validation safeguards review (2026-10-24)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-successor-validation-safeguards.md`
+  summary: Derive or explicitly reject project configuration mappings in generic successor solution builds.
+  evidence: R5, medium, pre-existing. Native MSBuild honors a project BuildType mapping from solution Release to project Debug, while both the baseline guessed-output reader and current per-project evaluator inspect Release. A candidate-stamped Release output can therefore pass without describing the effective solution build. A separately scoped solution configuration policy and native regression should bind the actual configuration or fail closed before command execution.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-successor-validation-safeguards.md`
+  summary: Derive the effective participating project set for generic successor solution builds.
+  evidence: R6, medium, pre-existing. Native MSBuild skips projects with Build Solution="*|*" Project="false", but both baseline and current discovery include every Project entry. An existing candidate-stamped output can supply a passing build assertion for a project not built by that solution command. A separately scoped effective participation rule or explicit unsupported-layout rejection is required.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-successor-validation-safeguards.md`
+  summary: Bind generic successor restore receipts to evaluated ProjectAssetsFile for custom intermediate directories.
+  evidence: R7, medium, pre-existing. A native SDK restore with MSBuildProjectExtensionsPath=custom-obj/ writes App/custom-obj/project.assets.json, while generic restore discovery still inspects App/obj/project.assets.json. The current batch fixes solution separators and build TargetPath assumptions; custom restore output metadata remains a separate scope, with a native custom-directory positive control and default/unsafe-path regressions needed.

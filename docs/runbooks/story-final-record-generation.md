@@ -10,8 +10,9 @@ effective_date: 2026-07-28
 This operational runbook governs how a story or spec completion record is produced.
 It is a live workflow document. The historical Epic 5 asset at
 `tests/Test-StoryFinalRecord.ps1` remains the record of that epic's final-record
-check and is not superseded byte-for-byte by this runbook; the logic it proved is
-ported here, its Epic 5 bindings are not.
+check and is not superseded byte-for-byte by this runbook. The generator carries
+forward its measured-count, path, and commit purpose; the Known limitations
+below distinguish the historical assertions it does not replace.
 
 The rule this gate exists to enforce: **a completion record may not contain a
 count, path, or commit that nobody measured.** Every field is derived by
@@ -275,8 +276,17 @@ in either mode.
 
 ### Known limitations
 
-- Nothing runs this gate automatically. There is no CI workflow or hook in this
-  repository, so the gate is only as strong as the workflow prose that invokes it,
+- Generic record generation does not reproduce the Epic 5 manifest assertions
+  for unchanged exact pre-existing file hashes and gitlink/index/worktree
+  identities, required JSON/Markdown evidence pairs, or the full non-mutating
+  public-contract-shape comparison against an unchanged baseline artifact.
+  The retained PowerShell asset is historical and no workflow invokes it, as
+  described in `tests/README.md`. The v2 final-record pair and candidate checks
+  in section 9 have their own scope. Run any separately required preservation,
+  public-contract, or release checks under their applicable contracts; a passing
+  generic record alone does not prove those checks ran.
+- No CI job or hook runs this generation gate automatically. Its execution
+  depends on the agent workflow prose that invokes it,
   plus `StoryFinalRecordGenerationValidationTest` which proves that prose is still
   present. Tracked in `_bmad-output/implementation-artifacts/deferred-work.md`
   alongside the same condition for the planning and promotion gates.
@@ -1251,13 +1261,36 @@ each declared Python, build, and restore command only after its script or target
 matches committed bytes and its options identify the declared scenario. A
 nonzero exit fails even if an old output remains. It binds each declared output
 under `outputFiles` by path and SHA-256; the first output also appears under
-`resultFile`. Python JSON results need an explicit passing machine verdict
-with zero failure, blocked, skipped, and not-run counts when a summary is
-present. A generated `.schema.json` is exempt from the verdict field. Build
+`resultFile`. Selected xUnit method names match exactly, optionally followed by
+their parenthesized theory arguments; each actual case identity remains in the
+assertion ledger. A name prefix or a different class cannot satisfy the selector.
+
+Python JSON results need an explicit passing `result`, a recognized passing
+legacy verdict `status`, or an integer `exitCode` of zero. A domain `status`
+such as `preserved-not-activated` supplies no verdict and does not override an
+explicit one. A recognized failing verdict, nonzero or noninteger exit, or
+nonempty blockers always fails. A generated `.schema.json` is exempt from the
+verdict field. If a summary contains any scenario-count key, it must contain all
+six: `required`, `passed`, `failed`, `blocked`, `skipped`, and `notRun`. Counts
+must be nonnegative integers, required and passed must be equal and positive,
+and all four failure categories must be zero. Unrelated domain-summary keys
+retain their own meaning and do not establish a passing verdict.
+
+Solution build and restore discovery normalizes Windows path separators. Build
+assembly paths come from read-only MSBuild evaluation of `TargetPath`, including
+imported assembly names, frameworks and output directories. Unavailable or
+unsafe target metadata blocks rather than falling back to a guessed DLL path.
 DLLs must carry the candidate or a verified lifecycle-descendant revision;
 restore assets may retain their earlier modification time after a successful
 locked no-op restore. Before a retained successor rerun, rebuild and rerun
 every declared command at the current `HEAD`, then regenerate the record pair.
+
+Generic solution discovery still assumes the solution configuration maps directly
+to each listed project's configuration and includes every listed project in the
+build. It does not derive `BuildType` mappings or project exclusions. Restore
+discovery still assumes the default `obj/project.assets.json` location. These
+separate limitations are tracked in the deferred-work ledger; generic record
+success does not prove those customized solution/restore layouts.
 
 ### Story 8.2 zero-gap preservation validation
 

@@ -6972,6 +6972,49 @@ def v2_successor_command(tokens: list[str], contract_path: str) -> dict[str, Any
     return None
 
 
+def v2_successor_build_projects(
+    repository: Path, candidate: str, target: str, gitlink_paths: Sequence[str],
+) -> list[str]:
+    """Resolve committed solution entries without crossing repository or gitlink boundaries."""
+    projects = [target]
+    if target.endswith(".slnx"):
+        try:
+            solution = ElementTree.fromstring(v2_committed_blob(repository, candidate, target))
+            projects = []
+            for item in solution.findall(".//{*}Project"):
+                value = item.attrib["Path"].replace("\\", "/")
+                if not value.strip() or PurePosixPath(value).is_absolute() or re.match(r"^[A-Za-z]:", value):
+                    raise GateError("OUTPUT_PATH_INVALID", "the solution project path is not relative")
+                lexical = repository / PurePosixPath(target).parent / value
+                unresolved = lexical.relative_to(repository).as_posix()
+                normalized = Path(os.path.abspath(lexical)).relative_to(repository).as_posix()
+                if v2_below(unresolved, gitlink_paths) or v2_below(normalized, gitlink_paths):
+                    raise GateError("OUTPUT_PATH_INVALID", "the solution project path crosses a root gitlink")
+                relative = lexical.resolve(strict=True).relative_to(repository).as_posix()
+                if lexical.is_symlink():
+                    raise GateError("OUTPUT_PATH_INVALID", "the solution project is a symlink")
+                projects.append(safe_relative_path(relative))
+        except (ElementTree.ParseError, KeyError, TypeError):
+            raise GateError("SCENARIO_COMMAND_UNSUPPORTED", "the solution project inventory is malformed") from None
+        except (OSError, RuntimeError, ValueError):
+            raise GateError("OUTPUT_PATH_INVALID", "the solution project path escapes the repository") from None
+    if not projects:
+        raise GateError("ASSERTION_LEDGER_EMPTY", "the solution has no projects")
+    for project in projects:
+        if v2_below(project, gitlink_paths):
+            raise GateError("OUTPUT_PATH_INVALID", f"the project lies below a root gitlink: {project}")
+        project_file = repository / project
+        try:
+            contained = project_file.resolve().is_relative_to(repository)
+            current = project_file.read_bytes() if contained and project_file.is_file() and not project_file.is_symlink() else None
+        except (OSError, RuntimeError):
+            current = None
+        committed = v2_committed_blob(repository, candidate, project)
+        if committed is None or current != committed:
+            raise GateError("SCENARIO_COMMAND_UNSUPPORTED", f"the project differs from the candidate: {project}")
+    return projects
+
+
 def v2_successor_scenario_from_results(
     repository: Path, scenario: dict[str, Any], command: dict[str, Any],
     candidate: str, candidate_ns: int, gitlink_paths: Sequence[str],
@@ -6987,6 +7030,7 @@ def v2_successor_scenario_from_results(
     subjects: list[str] = []
     outputs: list[tuple[str, bytes, int]] = []
     bound_files: list[dict[str, str]] = []
+    build_projects: list[str] = []
 
     def fail(code: str, detail: str) -> None:
         findings.append(v2_finding(code, scenario_id, detail))
@@ -7042,6 +7086,11 @@ def v2_successor_scenario_from_results(
             current = None
         if committed is None or current != committed:
             fail("SCENARIO_COMMAND_UNSUPPORTED", f"the build target differs from the candidate: {project}")
+        if not findings:
+            try:
+                build_projects = v2_successor_build_projects(repository, candidate, project, gitlink_paths)
+            except GateError as error:
+                fail(error.code, error.message)
     if execute_commands and kind in ("python", "python_check", "build", "restore") and not findings:
         try:
             executed = subprocess.run(shlex.split(scenario["command"]), cwd=repository,
@@ -7075,7 +7124,8 @@ def v2_successor_scenario_from_results(
                     raise ValueError("TRX pass count differs from result rows")
                 selector = command["selector"]
                 if selector is not None and any(
-                    row["test"] != selector if command["selectorKind"] == "-method"
+                    re.fullmatch(re.escape(selector) + r"(?:\(.*\))?", row["test"], re.DOTALL) is None
+                    if command["selectorKind"] == "-method"
                     else not row["test"].startswith(selector + ".") for row in rows
                 ):
                     raise ValueError("TRX contains a foreign selected test")
@@ -7100,15 +7150,25 @@ def v2_successor_scenario_from_results(
                     if not isinstance(document, dict):
                         raise ValueError("JSON output is not an object")
                     json_documents.append(document)
-                    state = document.get("result", document.get("status"))
-                    if state is not None and str(state).upper() not in ("PASS", "PASSED", "SUCCESS"):
+                    passing_states = {"PASS", "PASSED", "SUCCESS"}
+                    state = document.get("result")
+                    if "result" in document and (not isinstance(state, str) or state.upper() not in passing_states):
                         raise ValueError("the machine result is non-passing")
+                    # Some generators use status for a domain lifecycle. Only
+                    # recognized verdict statuses can supply or contradict a verdict.
+                    status = document.get("status")
+                    status_verdict = status.upper() if isinstance(status, str) else None
+                    if status_verdict not in passing_states | {"FAIL", "FAILED", "FAILURE", "BLOCKED", "ERROR",
+                                                               "SKIP", "SKIPPED", "NOTRUN", "NOT-RUN", "NOT-APPLICABLE"}:
+                        status_verdict = None
+                    if status_verdict is not None and status_verdict not in passing_states:
+                        raise ValueError("the machine status is non-passing")
                     is_schema = (path == command["options"].get("--output-schema")
                                  or path.endswith(".schema.json"))
-                    if state is None and "exitCode" not in document and not is_schema:
+                    if "result" not in document and status_verdict is None and "exitCode" not in document and not is_schema:
                         raise ValueError("the Python output has no explicit passing verdict")
-                    if document.get("exitCode", 0) != 0:
-                        raise ValueError("the machine result carries a nonzero exit code")
+                    if "exitCode" in document and (type(document["exitCode"]) is not int or document["exitCode"] != 0):
+                        raise ValueError("the machine result carries an invalid or nonzero exit code")
                     if document.get("blockers"):
                         raise ValueError("the machine result carries blockers")
                     summary = document.get("summary")
@@ -7116,14 +7176,14 @@ def v2_successor_scenario_from_results(
                         if not isinstance(summary, dict):
                             raise ValueError("the machine result summary is malformed")
                         counts = ("required", "passed", "failed", "blocked", "skipped", "notRun")
-                        if any(name in summary and (not isinstance(summary[name], int)
-                                or isinstance(summary[name], bool) or summary[name] < 0)
-                               for name in counts):
-                            raise ValueError("the machine result summary has invalid counts")
-                        if (any(summary.get(name, 0) != 0 for name in ("failed", "blocked", "skipped", "notRun"))
-                                or ("required" in summary and summary.get("passed") != summary["required"])
-                                or ("passed" in summary and summary["passed"] == 0)):
-                            raise ValueError("the machine result summary is non-passing")
+                        if any(name in summary for name in counts):
+                            if not set(counts).issubset(summary):
+                                raise ValueError("the machine result summary omits scenario counts")
+                            if any(type(summary[name]) is not int or summary[name] < 0 for name in counts):
+                                raise ValueError("the machine result summary has invalid counts")
+                            if (any(summary[name] != 0 for name in ("failed", "blocked", "skipped", "notRun"))
+                                    or summary["passed"] != summary["required"] or summary["required"] == 0):
+                                raise ValueError("the machine result summary is non-passing")
                     if "candidate" in document:
                         candidate_value = document["candidate"]
                         if isinstance(candidate_value, dict):
@@ -7147,19 +7207,39 @@ def v2_successor_scenario_from_results(
             for index, token in enumerate(tokens[:-1]):
                 if token in ("--configuration", "-c"):
                     configuration = tokens[index + 1]
-            projects = [project]
-            if project.endswith(".slnx"):
+            resolved_outputs: set[Path] = set()
+            for item in build_projects:
                 try:
-                    solution = ElementTree.fromstring(v2_committed_blob(repository, candidate, project))
-                    projects = [str(PurePosixPath(project).parent / item.attrib["Path"])
-                                for item in solution.findall(".//{*}Project")]
-                except (ElementTree.ParseError, KeyError, TypeError):
-                    projects = []
-            if not projects:
-                fail("ASSERTION_LEDGER_EMPTY", "the solution has no build projects")
-            for item in projects:
-                name = PurePosixPath(item).stem
-                binary_path = str(PurePosixPath(item).parent / f"bin/{configuration}/net10.0" / f"{name}.dll")
+                    evaluator = v2_9_2_verifier()
+                except (V2Stop, OSError, ImportError):
+                    fail("TEST_RESULTS_FAILED", "the build output evaluator is unavailable")
+                    continue
+                try:
+                    evaluated = evaluator.msbuild(repository, item, configuration, resolved=False)
+                except (evaluator.VerificationError, OSError, ValueError, TypeError):
+                    fail("TEST_RESULTS_FAILED", f"the build output evaluation failed: {item}")
+                    continue
+                properties = evaluated.get("Properties") if isinstance(evaluated, dict) else None
+                target = properties.get("TargetPath") if isinstance(properties, dict) else None
+                if not isinstance(target, str) or not target.strip() or ";" in target:
+                    fail("TEST_RESULTS_MISSING", f"the build has no unambiguous TargetPath: {item}")
+                    continue
+                target_path = Path(target.replace("\\", "/"))
+                lexical = target_path if target_path.is_absolute() else repository / PurePosixPath(item).parent / target_path
+                try:
+                    unresolved = lexical.relative_to(repository).as_posix()
+                    normalized = Path(os.path.abspath(lexical))
+                    binary_path = safe_relative_path(normalized.relative_to(repository).as_posix())
+                    physical = lexical.resolve()
+                    resolved = physical.relative_to(repository).as_posix()
+                    if (v2_below(unresolved, gitlink_paths) or v2_below(binary_path, gitlink_paths)
+                            or v2_below(resolved, gitlink_paths) or physical in resolved_outputs
+                            or normalized.resolve() != physical):
+                        raise ValueError("the output boundary or identity is ambiguous")
+                except (GateError, OSError, RuntimeError, ValueError):
+                    fail("OUTPUT_PATH_INVALID", f"the evaluated build output is not contained or distinct: {item}")
+                    continue
+                resolved_outputs.add(physical)
                 result = read_output(binary_path)
                 if result is not None and not stamped_binary(result[0]):
                     fail("TEST_RESULTS_STALE", "the built assembly lacks the candidate SourceRevisionId")
@@ -7168,15 +7248,8 @@ def v2_successor_scenario_from_results(
             if not project.endswith(".slnx"):
                 fail("SCENARIO_COMMAND_UNSUPPORTED", "the restore target is not a solution")
             else:
-                try:
-                    solution = ElementTree.fromstring(v2_committed_blob(repository, candidate, project))
-                    projects = [item.attrib["Path"] for item in solution.findall(".//{*}Project")]
-                except (ElementTree.ParseError, KeyError, TypeError):
-                    projects = []
-                if not projects:
-                    fail("ASSERTION_LEDGER_EMPTY", "the solution has no restore projects")
-                for item in projects:
-                    assets = str(PurePosixPath(project).parent / PurePosixPath(item).parent / "obj/project.assets.json")
+                for item in build_projects:
+                    assets = str(PurePosixPath(item).parent / "obj/project.assets.json")
                     if read_output(assets, require_current_mtime=False) is not None:
                         subjects.append(f"restore::{item}")
     if outputs:

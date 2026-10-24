@@ -6944,6 +6944,14 @@ def test_v2_story_7_3_changes_leave_story_7_1_and_7_2_pairs_byte_identical() -> 
 # ---- Story 7.4: frozen historical and fault-injection contract --------------- #
 
 STORY_7_4_CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/7.4.json"
+
+# Story 7.4 explicitly verifies these frozen historical fixture identities.
+# They are not the retired v1 assertions against live workspace classifications.
+V2_HISTORY_RECORDS = (
+    "spec-6-1-rebaseline-architecture-and-planning-authority.md",
+    "6-2-migrate-conversations-to-platform-owned-hosting.md",
+    "6-7-mechanically-block-incomplete-submodule-promotions-from-completion.md",
+)
 STORY_7_4_SPEC_PATH = (
     "_bmad-output/implementation-artifacts/"
     "spec-7-4-verify-historical-mode-and-required-fault-injection-blockers.md"
@@ -7160,7 +7168,7 @@ def build_v2_7_4_repository(tmp_path: Path, *, results: bool = True) -> dict:
     (repository / ".git/objects/info/alternates").write_text(str(objects.resolve()) + "\n", encoding="utf-8")
     module = load_generator()
     paths = [STORY_7_4_CONTRACT_PATH, module.V2_HISTORY_FIXTURE_PATH, module.V2_GENERATOR_PATH,
-             *(f"_bmad-output/implementation-artifacts/{name}" for name in CLOSED_RECORDS),
+             *(f"_bmad-output/implementation-artifacts/{name}" for name in V2_HISTORY_RECORDS),
              *(f"docs/release-evidence/story-{story}-final-record-v2.{extension}"
                for story in ("7.1", "7.2", "7.3") for extension in ("json", "md"))]
     for relative in paths:
@@ -7216,7 +7224,7 @@ def test_v2_story_7_4_historical_missing_or_drifted_objects(tmp_path: Path, monk
     fixture = build_v2_7_4_repository(tmp_path, results=False)
     repository = fixture["repository"]
     module = load_generator()
-    record = repository / f"_bmad-output/implementation-artifacts/{CLOSED_RECORDS[0]}"
+    record = repository / f"_bmad-output/implementation-artifacts/{V2_HISTORY_RECORDS[0]}"
     if fault == "closed-mode":
         # Identical bytes; only the committed path mode differs from the closure.
         v2_git(repository, "update-index", "--chmod=+x", str(record.relative_to(repository)))
@@ -7553,7 +7561,7 @@ def test_v2_story_7_4_review_rejects_changed_contract_output_alias_without_overw
     fixture = build_v2_7_4_repository(tmp_path, results=False)
     repository = fixture["repository"]
     module = load_generator()
-    closed = f"_bmad-output/implementation-artifacts/{CLOSED_RECORDS[0]}"
+    closed = f"_bmad-output/implementation-artifacts/{V2_HISTORY_RECORDS[0]}"
     original = (repository / closed).read_bytes()
     path = repository / STORY_7_4_CONTRACT_PATH
     contract = json.loads(path.read_bytes())
@@ -7620,7 +7628,7 @@ def test_v2_story_7_4_review_distinguishes_environmental_read_errors_from_missin
     fixture = build_v2_7_4_repository(tmp_path, results=False)
     repository = fixture["repository"]
     module = load_generator()
-    closed = repository / f"_bmad-output/implementation-artifacts/{CLOSED_RECORDS[0]}"
+    closed = repository / f"_bmad-output/implementation-artifacts/{V2_HISTORY_RECORDS[0]}"
     preserved = {path: (repository / path).read_bytes()
                  for story in ("7.1", "7.2", "7.3")
                  for path in (f"docs/release-evidence/story-{story}-final-record-v2.json",
@@ -8219,6 +8227,20 @@ def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, m
         target.write_bytes(content)
     monkeypatch.setattr(module, "v2_committed_blob",
                         lambda _repo, _candidate, path: blobs.get(path))
+    class EvaluationError(Exception):
+        pass
+
+    class Evaluator:
+        VerificationError = EvaluationError
+
+        @staticmethod
+        def msbuild(repository, relative, configuration, *, resolved=False):
+            assert resolved is False
+            path = Path(relative)
+            output = repository / path.parent / "bin" / configuration / "net10.0" / f"{path.stem}.dll"
+            return {"Properties": {"TargetPath": str(output)}}
+
+    monkeypatch.setattr(module, "v2_9_2_verifier", lambda: Evaluator)
     command_exit = [0]
     monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs:
                         subprocess.CompletedProcess([], command_exit[0], b"", b""))
@@ -10171,6 +10193,7 @@ def test_v2_story_9_2_inserted_verification_rederives_facts(tmp_path: Path, monk
     _, content, markdown = module.v2_finalize(record)
     contract = (WORKSPACE / module.V2_9_2_CONTRACT_PATH).read_bytes()
     blobs = {module.V2_9_2_CONTRACT_PATH: contract,
+             module.V2_7_2_SPRINT_PATH: b"development_status:\n  9-2-disposable-tracker: in-progress\n",
              record["outputs"]["json"]["path"]: content, record["outputs"]["markdown"]["path"]: markdown}
     spec = b"---\nstatus: in-progress\n---\n\n" + module.RECORD_BEGIN_MARKER.encode() + b"\n" + markdown + module.RECORD_END_MARKER.encode() + b"\n"
     for path, data in {**blobs, module.V2_9_2_SPEC_PATH: spec}.items():
