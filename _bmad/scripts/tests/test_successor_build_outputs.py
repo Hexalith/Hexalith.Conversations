@@ -1,7 +1,11 @@
 """Successor build facts use evaluated, contained output paths."""
 
 import importlib.util
+import base64
+import json
 import os
+import shutil
+import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -18,8 +22,25 @@ def load_generator():
     return module
 
 
+def load_evaluator():
+    specification = importlib.util.spec_from_file_location(
+        "native_successor_solution_evaluator", SCRIPT.with_name("verify_conformance_tiering.py"))
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+    return module
+
+
 class EvaluationError(Exception):
     """Disposable equivalent of the shared evaluator's bounded failure."""
+
+
+def restore_assets(root, project, *, version=4):
+    """Minimal native package-free assets graph, including the restore owner."""
+    return json.dumps({"version": version, "targets": {"net10.0": {}}, "libraries": {},
+                       "projectFileDependencyGroups": {"net10.0": []},
+                       "project": {"restore": {"projectPath": str(root / project),
+                                                "projectUniqueName": str(root / project)},
+                                   "frameworks": {"net10.0": {"framework": "net10.0"}}}}).encode()
 
 
 @pytest.fixture
@@ -41,8 +62,8 @@ def build_fixture(tmp_path, monkeypatch):
     metadata = {"Properties": {"AssemblyName": "Renamed", "TargetPath": str(binary),
                                "ProjectAssetsFile": str(tmp_path / "fixture/App/obj/project.assets.json")}}
 
-    def evaluate(repository, relative, configuration, *, resolved=False):
-        calls.append((repository, relative, configuration, resolved))
+    def evaluate(repository, relative, configuration, *, resolved=False, solution=None, building_solution=False):
+        calls.append((repository, relative, configuration, resolved, solution, building_solution))
         return metadata
 
     evaluator = SimpleNamespace(msbuild=evaluate, VerificationError=EvaluationError)
@@ -67,7 +88,8 @@ def test_build_uses_evaluated_assembly_framework_and_output_directory(build_fixt
     assert category == "passed" and not findings
     assert record["outputFiles"] == [{"path": fixture.output,
                                       "sha256": fixture.module.v2_sha256((fixture.root / fixture.output).read_bytes())}]
-    assert fixture.calls == [(fixture.root, fixture.project, "Release", False)]
+    assert fixture.calls == [(fixture.root, fixture.project, "Release", False,
+                              fixture.solution if target == "solution" else None, target == "solution")]
 
 
 @pytest.mark.parametrize("kind", ["build", "restore"])
@@ -77,7 +99,7 @@ def test_solution_windows_separators_are_normalized(build_fixture, kind):
     (fixture.root / fixture.solution).write_bytes(fixture.blobs[fixture.solution])
     assets = fixture.root / "fixture/App/obj/project.assets.json"
     assets.parent.mkdir()
-    assets.write_bytes(b'{"version":3}')
+    assets.write_bytes(restore_assets(fixture.root, fixture.project))
     record, category, findings = fixture.run(kind=kind)
     assert category == "passed" and not findings
     assert record["assertionLedger"][0]["subject"] == f"{kind}::{fixture.project}"
@@ -154,7 +176,7 @@ def test_solution_cannot_alias_a_path_out_of_a_root_gitlink(build_fixture, kind)
     (fixture.root / fixture.solution).write_bytes(fixture.blobs[fixture.solution])
     assets = fixture.root / "fixture/App/obj/project.assets.json"
     assets.parent.mkdir()
-    assets.write_bytes(b'{"version":3}')
+    assets.write_bytes(restore_assets(fixture.root, fixture.project))
     record, category, _ = fixture.run(kind=kind, gitlinks=["references/Blocked"])
     assert category == "failed" and "OUTPUT_PATH_INVALID" in record["blockers"]
     assert fixture.calls == []
@@ -196,7 +218,7 @@ def test_solution_projects_need_distinct_evaluated_outputs(build_fixture, collid
     other_binary = fixture.root / "custom-output/Other.dll"
     other_binary.write_bytes(b"1.0.0+" + fixture.candidate.encode())
 
-    def evaluate(_repository, project, _configuration, *, resolved=False):
+    def evaluate(_repository, project, _configuration, *, resolved=False, solution=None, building_solution=False):
         assert resolved is False
         path = fixture.root / fixture.output if collides or project == fixture.project else other_binary
         return {"Properties": {"TargetPath": str(path)}}
@@ -273,14 +295,14 @@ def test_restore_uses_evaluated_assets_relative_to_project(build_fixture, relati
     fixture = build_fixture
     assets = Path(os.path.abspath(fixture.root / "fixture/App" / relative.replace("\\", "/")))
     assets.parent.mkdir(parents=True, exist_ok=True)
-    assets.write_bytes(b'{"version":3}')
+    assets.write_bytes(restore_assets(fixture.root, fixture.project))
     os.utime(assets, ns=(1, 1))
     fixture.metadata["Properties"]["ProjectAssetsFile"] = relative
     record, category, findings = fixture.run(kind="restore")
     assert category == "passed" and not findings
     assert record["outputFiles"] == [{"path": assets.relative_to(fixture.root).as_posix(),
                                       "sha256": fixture.module.v2_sha256(assets.read_bytes())}]
-    assert fixture.calls == [(fixture.root, fixture.project, "Release", False)]
+    assert fixture.calls == [(fixture.root, fixture.project, "Release", False, fixture.solution, False)]
 
 
 @pytest.mark.parametrize("metadata", [None, {}, {"Properties": []}, {"Properties": {}},
@@ -290,7 +312,7 @@ def test_restore_metadata_failure_never_falls_back_to_default_assets(build_fixtu
     fixture = build_fixture
     default = fixture.root / "fixture/App/obj/project.assets.json"
     default.parent.mkdir()
-    default.write_bytes(b'{"version":3}')
+    default.write_bytes(restore_assets(fixture.root, fixture.project))
     fixture.evaluator.msbuild = lambda *_args, **_kwargs: metadata
     record, category, _ = fixture.run(kind="restore")
     assert category == "failed" and "TEST_RESULTS_MISSING" in record["blockers"]
@@ -303,7 +325,7 @@ def test_restore_rejects_unsafe_or_unavailable_evaluated_assets(build_fixture, f
     fixture = build_fixture
     assets = fixture.root / "fixture/App/obj/project.assets.json"
     assets.parent.mkdir()
-    assets.write_bytes(b'{"version":3}')
+    assets.write_bytes(restore_assets(fixture.root, fixture.project))
     gitlinks = []
     if fault == "missing":
         fixture.metadata["Properties"]["ProjectAssetsFile"] = str(assets.with_name("missing.json"))
@@ -320,7 +342,7 @@ def test_restore_rejects_unsafe_or_unavailable_evaluated_assets(build_fixture, f
         blocked.mkdir(parents=True)
         gitlinks = ["references/Blocked"]
         if fault == "physical-gitlink":
-            (blocked / "project.assets.json").write_bytes(b'{"version":3}')
+            (blocked / "project.assets.json").write_bytes(restore_assets(fixture.root, fixture.project))
             alias = fixture.root / "alias"
             alias.symlink_to(blocked, target_is_directory=True)
             path = alias / "project.assets.json"
@@ -354,9 +376,9 @@ def test_restore_projects_need_distinct_evaluated_assets(build_fixture, collides
     fixture.blobs[fixture.solution] = b'<Solution><Project Path="App/App.csproj" /><Project Path="Other/Other.csproj" /></Solution>'
     (fixture.root / fixture.solution).write_bytes(fixture.blobs[fixture.solution])
     paths = [fixture.root / "fixture" / name / "obj/project.assets.json" for name in ("App", "Other")]
-    for path in paths:
+    for path, project in zip(paths, (fixture.project, other_project)):
         path.parent.mkdir()
-        path.write_bytes(b'{"version":3}')
+        path.write_bytes(restore_assets(fixture.root, project))
     fixture.evaluator.msbuild = lambda _repo, project, _configuration, **_kwargs: {
         "Properties": {"ProjectAssetsFile": str(paths[0 if collides or project == fixture.project else 1])}}
     record, category, _ = fixture.run(kind="restore")
@@ -385,3 +407,328 @@ def test_distinct_output_paths_cannot_alias_one_file_through_hardlinks(build_fix
         "Properties": {property_name: str(source if project == fixture.project else alias)}}
     record, category, _ = fixture.run(kind=kind)
     assert category == "failed" and "OUTPUT_PATH_INVALID" in record["blockers"]
+
+
+@pytest.mark.parametrize("version", [3, 4])
+def test_restore_accepts_native_package_free_assets_versions(build_fixture, version):
+    fixture = build_fixture
+    assets = fixture.root / "fixture/App/obj/project.assets.json"
+    assets.parent.mkdir()
+    assets.write_bytes(restore_assets(fixture.root, fixture.project, version=version))
+    record, category, findings = fixture.run(kind="restore")
+    assert category == "passed" and not findings
+    assert record["outputFiles"][0]["sha256"] == fixture.module.v2_sha256(assets.read_bytes())
+
+
+@pytest.mark.parametrize("fault", ["garbage", "truncated", "array", "duplicate-version",
+    "unsupported-version", "bool-version", "targets", "empty-targets", "target-values",
+    "libraries", "library-values", "dependency-groups", "dependency-group-values", "dependency-values",
+    "project", "owner", "frameworks", "empty-frameworks",
+    "framework-values", "missing-project-path", "relative-project-path", "foreign-project-path",
+    "missing-project-unique-name", "relative-project-unique-name", "foreign-project-unique-name"])
+def test_restore_rejects_malformed_or_foreign_owned_assets(build_fixture, fault):
+    fixture = build_fixture
+    assets = fixture.root / "fixture/App/obj/project.assets.json"
+    assets.parent.mkdir()
+    document = json.loads(restore_assets(fixture.root, fixture.project))
+    if fault in ("garbage", "truncated", "array", "duplicate-version"):
+        content = {"garbage": b"not NuGet assets", "truncated": b'{"version":',
+                   "array": b"[]", "duplicate-version": b'{"version":3,"version":4}'}[fault]
+    else:
+        if fault == "unsupported-version":
+            document["version"] = 99
+        elif fault == "bool-version":
+            document["version"] = True
+        elif fault in ("targets", "libraries"):
+            document[fault] = []
+        elif fault == "dependency-groups":
+            document["projectFileDependencyGroups"] = []
+        elif fault in ("dependency-group-values", "dependency-values"):
+            document["projectFileDependencyGroups"]["net10.0"] = (
+                {} if fault == "dependency-group-values" else [True])
+        elif fault == "library-values":
+            document["libraries"]["Example/1.0.0"] = []
+        elif fault == "empty-targets":
+            document["targets"] = {}
+        elif fault == "target-values":
+            document["targets"]["net10.0"] = []
+        elif fault == "project":
+            document["project"] = []
+        elif fault == "owner":
+            document["project"]["restore"] = []
+        elif fault in ("frameworks", "empty-frameworks", "framework-values"):
+            document["project"]["frameworks"] = {
+                "frameworks": [], "empty-frameworks": {}, "framework-values": {"net10.0": []}}[fault]
+        else:
+            prefix, _, name = fault.partition("-")
+            key = "projectPath" if name == "project-path" else "projectUniqueName"
+            if prefix == "missing":
+                del document["project"]["restore"][key]
+            else:
+                document["project"]["restore"][key] = (fixture.project if prefix == "relative"
+                    else str(fixture.root / "foreign/Other.csproj"))
+        content = json.dumps(document).encode()
+    assets.write_bytes(content)
+    record, category, _ = fixture.run(kind="restore")
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+
+
+@pytest.mark.parametrize("operation", ["project", "build", "restore"])
+def test_shared_evaluator_preserves_solution_command_context(build_fixture, monkeypatch, operation):
+    fixture = build_fixture
+    verifier = load_evaluator()
+    calls = []
+
+    def evaluate(command, **_kwargs):
+        calls.append(command)
+        if any(argument.startswith("-target:_HexalithReadSolutionContext_") for argument in command):
+            return SimpleNamespace(returncode=0, stdout="HEXALITH_SOLUTION_CONTEXT:" +
+                base64.b64encode(b"<SolutionConfiguration />").decode() + "\n")
+        return SimpleNamespace(returncode=0, stdout='{\n"Properties": {}}')
+
+    monkeypatch.setattr(verifier.subprocess, "run", evaluate)
+    verifier.msbuild(fixture.root, fixture.project, "Debug",
+                     solution=fixture.solution if operation != "project" else None,
+                     building_solution=operation == "build")
+    context = {argument[3:].partition("=")[0]: argument[3:].partition("=")[2]
+               for argument in calls[-1] if argument.startswith("-p:")}
+    expected = {"Configuration": "Debug"}
+    if operation != "project":
+        path = fixture.root / fixture.solution
+        expected.update(SolutionDir=str(path.parent) + os.sep, SolutionPath=str(path),
+                        SolutionName=path.stem, SolutionFileName=path.name, SolutionExt=".slnx",
+                        Platform="AnyCPU")
+    if operation == "build":
+        expected["BuildingSolutionFile"] = "true"
+        expected["CurrentSolutionConfigurationContents"] = "<SolutionConfiguration />"
+    assert context == expected
+
+
+@pytest.mark.parametrize("variant", ["ordinary", "platform", "alias", "configuration-xml"])
+def test_native_solution_context_selects_actual_build_and_restore_outputs(build_fixture, variant):
+    fixture = build_fixture
+    solution = fixture.solution
+    if variant == "alias":
+        (fixture.root / "alias").symlink_to("fixture", target_is_directory=True)
+        solution = "alias/Fixture.slnx"
+        fixture.blobs[solution] = fixture.blobs[fixture.solution]
+    assert shutil.which("dotnet"), "Native solution-context coverage requires the .NET SDK"
+    sdk = subprocess.run(["dotnet", "--version"], cwd=fixture.root, capture_output=True,
+                         text=True, timeout=30, check=False)
+    assert sdk.returncode == 0, sdk.stdout + sdk.stderr
+    framework = "net" + sdk.stdout.strip().split(".")[0] + ".0"
+    # Explicit imports let the context choose intermediate paths before SDK.props.
+    project = (('''<Project><PropertyGroup>
+<SolutionContext Condition="'$(SolutionName)' == 'Fixture' and '$(SolutionFileName)' == 'Fixture.slnx'
+ and '$(SolutionExt)' == '.slnx'
+ and '$(SolutionDir)' != '' and '$(SolutionPath)' == 'EXPECTED_SOLUTION_PATH'">true</SolutionContext>
+<BaseIntermediateOutputPath Condition="'$(SolutionContext)' == 'true'">$(SolutionDir)solution-obj/</BaseIntermediateOutputPath>
+</PropertyGroup><Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+<PropertyGroup><TargetFramework>net10.0</TargetFramework><NuGetAudit>false</NuGetAudit>
+<DefaultItemExcludes>$(DefaultItemExcludes);obj/**;bin/**</DefaultItemExcludes>
+<SourceRevisionId>''' + fixture.candidate + '''</SourceRevisionId>
+<BaseOutputPath Condition="'$(BaseOutputPath)' == ''">bin/</BaseOutputPath>
+<BaseOutputPath Condition="'$(SolutionContext)' == 'true' and '$(BuildingSolutionFile)' == 'true'">$(SolutionDir)solution-output/</BaseOutputPath>
+PLATFORM_PROPERTIES
+</PropertyGroup><Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+<Target Name="RecordRestoreContext" BeforeTargets="_GenerateRestoreGraphProjectEntry">
+<WriteLinesToFile File="$(MSBuildProjectDirectory)/restore-context.txt" Lines="restore=$(BuildingSolutionFile)" Overwrite="true" />
+</Target><Target Name="RecordBuildContext" BeforeTargets="PrepareForBuild">
+<WriteLinesToFile File="$(MSBuildProjectDirectory)/build-context.txt" Lines="build=$(BuildingSolutionFile)" Overwrite="true" />
+</Target></Project>''').replace("<TargetFramework>net10.0", "<TargetFramework>" + framework)
+               .replace("EXPECTED_SOLUTION_PATH", str(fixture.root / solution))
+               .replace("PLATFORM_PROPERTIES", {
+                   "platform": "<Platforms>AnyCPU;x64</Platforms><Platform>x64</Platform>"
+                               "<OutputPath>$(BaseOutputPath)$(Platform)/$(Configuration)/</OutputPath>",
+                   "configuration-xml": "<OutputPath Condition=\"'$(CurrentSolutionConfigurationContents)' != ''\">"
+                                        "$(BaseOutputPath)configuration-xml/$(Configuration)/</OutputPath>",
+               }.get(variant, "")).encode())
+    fixture.blobs[fixture.project] = project
+    (fixture.root / fixture.project).write_bytes(project)
+    (fixture.root / "NuGet.Config").write_text(
+        '<configuration><packageSources><clear /></packageSources></configuration>')
+    env = {**os.environ, "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1", "DOTNET_CLI_TELEMETRY_OPTOUT": "1"}
+
+    def native(*arguments):
+        result = subprocess.run(["dotnet", *arguments], cwd=fixture.root, env=env,
+                                capture_output=True, text=True, timeout=90, check=False)
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    # Retain real misleading standalone outputs before the actual solution run.
+    native("restore", fixture.project)
+    native("build", fixture.project, "-c", "Debug", "--no-restore")
+    native("restore", solution)
+    native("build", solution, "-c", "Debug", "--no-restore")
+    assert (fixture.root / "fixture/App/restore-context.txt").read_text().strip() == "restore="
+    assert (fixture.root / "fixture/App/build-context.txt").read_text().strip() == "build=true"
+    evaluator = fixture.module.v2_9_2_verifier
+    # The fixture replaces this loader; obtain the production evaluator directly.
+    verifier = load_evaluator()
+    fixture.module.v2_9_2_verifier = lambda: verifier
+
+    def snapshot():
+        return {path.relative_to(fixture.root).as_posix():
+                (str(path.readlink()) if path.is_symlink() else path.read_bytes(),
+                 path.stat(follow_symlinks=False).st_mtime_ns)
+                for path in fixture.root.rglob("*") if path.is_file() or path.is_symlink()}
+
+    before = snapshot()
+    try:
+        directory = "alias" if variant == "alias" else "fixture"
+        platform = {"platform": "AnyCPU/", "configuration-xml": "configuration-xml/"}.get(variant, "")
+        for kind, expected in (("build", f"{directory}/solution-output/{platform}Debug/{framework}/App.dll"),
+                               ("restore", f"{directory}/solution-obj/project.assets.json")):
+            scenario = {"id": "AC-11.2-03", "command": f"dotnet {kind} {solution}"}
+            record, category, findings = fixture.module.v2_successor_scenario_from_results(
+                fixture.root, scenario, {"kind": kind, "project": solution},
+                fixture.candidate, 0, [], execute_commands=False)
+            assert category == "passed" and not findings
+            assert record["outputFiles"] == [{"path": expected,
+                "sha256": fixture.module.v2_sha256((fixture.root / expected).read_bytes())}]
+        assert (fixture.root / "fixture/App/obj/project.assets.json").is_file()
+        standalone = "x64/" if variant == "platform" else ""
+        assert (fixture.root / f"fixture/App/bin/{standalone}Debug/{framework}/App.dll").is_file()
+        assert snapshot() == before
+    finally:
+        fixture.module.v2_9_2_verifier = evaluator
+
+
+@pytest.mark.parametrize("directory", ["comma,context", "percent%2Ccontext", "semi;context"])
+@pytest.mark.parametrize("building", [False, True])
+def test_native_solution_location_globals_preserve_literal_path_characters(tmp_path, directory, building):
+    """The argv API still needs MSBuild's own property-value escaping."""
+    root = tmp_path / directory
+    root.mkdir()
+    (root / "App.csproj").write_text('''<Project><PropertyGroup>
+<TargetPath>$(SolutionDir)expected.dll</TargetPath>
+<ProjectAssetsFile>$(SolutionPath)</ProjectAssetsFile>
+<AssemblyName>$(SolutionName)</AssemblyName>
+</PropertyGroup></Project>''')
+    (root / "Fixture.slnx").write_text('<Solution><Project Path="App.csproj" /></Solution>')
+    verifier = load_evaluator()
+    properties = verifier.msbuild(root, "App.csproj", "Debug", solution="Fixture.slnx",
+                                  building_solution=building)["Properties"]
+    assert properties["TargetPath"] == str(root / "expected.dll")
+    assert properties["ProjectAssetsFile"] == str(root / "Fixture.slnx")
+    assert properties["AssemblyName"] == "Fixture"
+
+
+def test_native_failed_restore_assets_cannot_supply_passing_retained_receipt(build_fixture):
+    fixture = build_fixture
+    sdk = subprocess.run(["dotnet", "--version"], cwd=fixture.root, capture_output=True,
+                         text=True, timeout=30, check=False)
+    assert sdk.returncode == 0, sdk.stdout + sdk.stderr
+    framework = "net" + sdk.stdout.strip().split(".")[0] + ".0"
+    project = f'''<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>
+<TargetFramework>{framework}</TargetFramework><NuGetAudit>false</NuGetAudit>
+</PropertyGroup><ItemGroup><PackageReference Include="Hexalith.Disposable.Unavailable.Probe" Version="1.0.0" />
+</ItemGroup></Project>'''.encode()
+    fixture.blobs[fixture.project] = project
+    (fixture.root / fixture.project).write_bytes(project)
+    (fixture.root / "NuGet.Config").write_text(
+        '<configuration><packageSources><clear /></packageSources></configuration>')
+    restored = subprocess.run(["dotnet", "restore", fixture.solution], cwd=fixture.root,
+                              capture_output=True, text=True, timeout=90, check=False)
+    assert restored.returncode != 0 and "NU1100" in restored.stdout + restored.stderr
+    assets = fixture.root / "fixture/App/obj/project.assets.json"
+    content = json.loads(assets.read_bytes())
+    assert any(row["level"] == "Error" and row["code"] == "NU1100" for row in content["logs"])
+    verifier = load_evaluator()
+    fixture.module.v2_9_2_verifier = lambda: verifier
+    record, category, _ = fixture.run(kind="restore")
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+
+
+@pytest.mark.parametrize("fault", ["nonzero", "missing", "ambiguous", "malformed", "wrong-root", "oversize"])
+def test_solution_configuration_query_fails_closed(build_fixture, monkeypatch, fault):
+    fixture = build_fixture
+    verifier = load_evaluator()
+    marker = "HEXALITH_SOLUTION_CONTEXT:"
+    valid = marker + base64.b64encode(b"<SolutionConfiguration />").decode() + "\n"
+    outputs = {"nonzero": valid, "missing": "", "ambiguous": valid + valid,
+               "malformed": marker + "a===\n", "oversize": "x" * (4 * 1024 * 1024 + 1),
+               "wrong-root": marker + base64.b64encode(b"<Wrong />").decode() + "\n"}
+    calls = []
+
+    def query(command, **_kwargs):
+        calls.append(command)
+        return SimpleNamespace(returncode=1 if fault == "nonzero" else 0, stdout=outputs[fault])
+
+    monkeypatch.setattr(verifier.subprocess, "run", query)
+    with pytest.raises(verifier.VerificationError) as raised:
+        verifier.msbuild(fixture.root, fixture.project, "Debug", solution=fixture.solution,
+                         building_solution=True)
+    assert raised.value.code == "RESOLVED_COMPILE_SURFACE_INVALID"
+    assert len(calls) == 1 and any(argument.startswith("-target:_HexalithReadSolutionContext_")
+                                 for argument in calls[0])
+
+
+@pytest.mark.parametrize("customization", ["Directory.Solution.props", "Directory.Solution.targets",
+                                         "before.Fixture.slnx.targets", "after.Fixture.slnx.targets"])
+@pytest.mark.parametrize("building", [False, True])
+def test_custom_solution_imports_are_explicitly_unsupported(build_fixture, monkeypatch, customization, building):
+    fixture = build_fixture
+    verifier = load_evaluator()
+    (fixture.root / customization).write_text('<Project InitialTargets="Unexpected" />')
+    launches = []
+    monkeypatch.setattr(verifier.subprocess, "run", lambda *_args, **_kwargs: launches.append(1))
+    with pytest.raises(verifier.VerificationError) as raised:
+        verifier.msbuild(fixture.root, fixture.project, "Debug", solution=fixture.solution,
+                         building_solution=building)
+    assert raised.value.code == "SCENARIO_COMMAND_UNSUPPORTED" and launches == []
+
+
+@pytest.mark.parametrize("logs,passes", [
+    ([], True), ([{"level": "Warning", "code": "NU1901"}], True),
+    ([{"level": "Error", "code": "NU1100"}], False),
+    ([{"level": "Warning"}, {"level": "Error"}], False),
+    (None, False), ({}, False), ([None], False), ([{}], False),
+    ([{"level": "error"}], False), ([{"level": 0}], False),
+])
+def test_retained_restore_assets_cannot_hide_failed_restore_diagnostics(build_fixture, logs, passes):
+    fixture = build_fixture
+    assets = fixture.root / "fixture/App/obj/project.assets.json"
+    assets.parent.mkdir(parents=True)
+    document = json.loads(restore_assets(fixture.root, fixture.project))
+    document["logs"] = logs
+    assets.write_text(json.dumps(document))
+    record, category, _ = fixture.run(kind="restore")
+    assert (category == "passed") is passes
+    assert (record["result"] == "PASS") is passes
+    if not passes:
+        assert "TEST_RESULTS_FAILED" in record["blockers"]
+
+
+@pytest.mark.parametrize("fault", ["target-entry-list", "target-entry-null", "target-entry-string",
+                                   "target-framework", "dependency-framework", "empty-framework"])
+def test_restore_assets_reject_malformed_target_entries_and_contradictory_frameworks(build_fixture, fault):
+    fixture = build_fixture
+    document = json.loads(restore_assets(fixture.root, fixture.project))
+    if fault.startswith("target-entry"):
+        document["targets"]["net10.0"]["Example/1.0.0"] = {
+            "target-entry-list": [], "target-entry-null": None, "target-entry-string": "package",
+        }[fault]
+    elif fault == "target-framework":
+        document["targets"] = {"net9.0": {}}
+    elif fault == "dependency-framework":
+        document["projectFileDependencyGroups"] = {"net9.0": []}
+    else:
+        document["targets"] = {"": {}}
+        document["projectFileDependencyGroups"] = {"": []}
+        document["project"]["frameworks"] = {"": {}}
+    assets = fixture.root / "fixture/App/obj/project.assets.json"
+    assets.parent.mkdir(parents=True)
+    assets.write_text(json.dumps(document))
+    record, category, _ = fixture.run(kind="restore")
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+
+
+def test_restore_assets_allow_runtime_specific_target_keys(build_fixture):
+    fixture = build_fixture
+    document = json.loads(restore_assets(fixture.root, fixture.project))
+    document["targets"]["net10.0/linux-x64"] = {"Example/1.0.0": {"type": "package"}}
+    assets = fixture.root / "fixture/App/obj/project.assets.json"
+    assets.parent.mkdir(parents=True)
+    assets.write_text(json.dumps(document))
+    record, category, findings = fixture.run(kind="restore")
+    assert category == "passed" and not findings and record["result"] == "PASS"

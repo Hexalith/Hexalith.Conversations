@@ -1836,13 +1836,18 @@ def parse_recorded_promotions(block: str) -> list[dict[str, Any]]:
     rows = markdown_table_rows(block, "### Gitlink Promotions")
     promotions: list[dict[str, Any]] = []
     for row in rows:
-        if len(row) != 5:
+        if len(row) not in (5, 6):
             raise ValueError(
-                f"Gitlink Promotions row has {len(row)} columns, expected 5"
+                f"Gitlink Promotions row has {len(row)} columns, expected 5 or 6"
             )
         path, declared, mode, recorded, baseline = [
-            markdown_value(cell) for cell in row
+            markdown_value(cell) for cell in row[:5]
         ]
+        if declared not in ("yes", "no"):
+            raise ValueError("Gitlink Promotions carries an invalid declared state")
+        changed = markdown_value(row[5]) if len(row) == 6 else None
+        if changed is not None and changed not in ("yes", "no"):
+            raise ValueError("Gitlink Promotions carries an invalid changed-in-range state")
         promotions.append(
             {
                 "path": safe_relative_path(path),
@@ -1852,6 +1857,8 @@ def parse_recorded_promotions(block: str) -> list[dict[str, Any]]:
                 "baseline_gitlink": None if baseline == "—" else baseline,
             }
         )
+        if changed is not None:
+            promotions[-1]["changed_in_range"] = changed == "yes"
     return promotions
 
 
@@ -2419,6 +2426,13 @@ def verify_historical(repository: Path, args: argparse.Namespace) -> dict[str, A
                         f"Gitlink Promotions disagrees with tree entries for {path}"
                     )
                 item["baseline_mode"] = baseline_mode
+                if (
+                    "changed_in_range" in item
+                    and item["changed_in_range"] != (path in changed_paths)
+                ):
+                    raise ValueError(
+                        f"Gitlink Promotions changed-in-range state disagrees with Git for {path}"
+                    )
                 item["changed_in_range"] = path in changed_paths
             document["promotions"] = promotions
         except (GateError, ValueError) as error:
@@ -2631,19 +2645,26 @@ def render_markdown(document: dict[str, Any]) -> str:
     lines.extend(["### Gitlink Promotions", ""])
     if document["promotions"]:
         lines.append(
-            "| Path | Declared | Recorded mode | Recorded commit | Baseline commit |"
+            "| Path | Declared scope | Recorded mode | Recorded commit | Baseline commit | Changed in range |"
         )
-        lines.append("| --- | --- | --- | --- | --- |")
+        lines.append("| --- | --- | --- | --- | --- | --- |")
         for item in document["promotions"]:
             lines.append(
-                "| {path} | {declared} | {mode} | {recorded} | {baseline} |".format(
+                "| {path} | {declared} | {mode} | {recorded} | {baseline} | {changed} |".format(
                     path=markdown_table_code(item["path"]),
                     declared="yes" if item["declared"] else "no",
                     mode=markdown_table_code(item["recorded_mode"] or "—"),
                     recorded=markdown_table_code(item["recorded_gitlink"] or "—"),
                     baseline=markdown_table_code(item["baseline_gitlink"] or "—"),
+                    changed="yes" if item["changed_in_range"] else "no",
                 )
             )
+        lines.extend([
+            "",
+            "Declared scope is selected by the caller; Changed in range is measured "
+            "between the baseline and candidate. Neither column identifies who "
+            "authored a change; authorship is not inferred.",
+        ])
     else:
         lines.append(
             "_None. No root gitlink changed between the baseline and the candidate._"
@@ -7224,8 +7245,14 @@ def v2_successor_scenario_from_results(
                     fail("TEST_RESULTS_FAILED", f"the {kind} output evaluator is unavailable")
                     continue
                 try:
-                    evaluated = evaluator.msbuild(repository, item, configuration, resolved=False)
-                except (evaluator.VerificationError, OSError, ValueError, TypeError):
+                    context = ({"solution": command["project"], "building_solution": kind == "build"}
+                               if command["project"].endswith(".slnx") else {})
+                    evaluated = evaluator.msbuild(repository, item, configuration, resolved=False, **context)
+                except evaluator.VerificationError as error:
+                    fail("SCENARIO_COMMAND_UNSUPPORTED" if getattr(error, "code", None) == "SCENARIO_COMMAND_UNSUPPORTED"
+                         else "TEST_RESULTS_FAILED", f"the {kind} output evaluation failed: {item}")
+                    continue
+                except (OSError, ValueError, TypeError):
                     fail("TEST_RESULTS_FAILED", f"the {kind} output evaluation failed: {item}")
                     continue
                 properties = evaluated.get("Properties") if isinstance(evaluated, dict) else None
@@ -7261,6 +7288,49 @@ def v2_successor_scenario_from_results(
                 result = read_output(output_path, require_current_mtime=kind == "build")
                 if kind == "build" and result is not None and not stamped_binary(result[0]):
                     fail("TEST_RESULTS_STALE", "the built assembly lacks the candidate SourceRevisionId")
+                if kind == "restore" and result is not None:
+                    try:
+                        assets = v2_parse_json(result[0])
+                        if (not isinstance(assets, dict) or type(assets.get("version")) is not int
+                                or assets["version"] not in (3, 4)
+                                or any(not isinstance(assets.get(key), dict) for key in
+                                       ("targets", "libraries", "projectFileDependencyGroups", "project"))
+                                or not assets["targets"]):
+                            raise ValueError("unsupported or malformed assets graph")
+                        logs = assets.get("logs", [])
+                        if (not isinstance(logs, list)
+                                or any(not isinstance(log, dict) or log.get("level") not in
+                                       ("Warning", "Information", "Minimal", "Verbose", "Debug")
+                                       for log in logs)):
+                            raise ValueError("assets retain errors or malformed restore diagnostics")
+                        owner = assets["project"].get("restore")
+                        frameworks = assets["project"].get("frameworks")
+                        if not isinstance(owner, dict) or not isinstance(frameworks, dict) or not frameworks:
+                            raise ValueError("assets omit restore owner or framework metadata")
+                        expected_owner = (repository / item).resolve()
+                        for key in ("projectPath", "projectUniqueName"):
+                            value = owner.get(key)
+                            if not isinstance(value, str) or not value.strip():
+                                raise ValueError("assets omit project identity")
+                            path = Path(value.replace("\\", "/"))
+                            if not path.is_absolute() or path.resolve() != expected_owner:
+                                raise ValueError("assets belong to another project")
+                        if (any(not isinstance(value, dict) for value in assets["targets"].values())
+                                or any(not isinstance(entry, dict)
+                                       for target in assets["targets"].values() for entry in target.values())
+                                or any(not isinstance(value, dict) for value in assets["libraries"].values())
+                                or any(not isinstance(value, dict) for value in frameworks.values())
+                                or any(not isinstance(value, list) or any(not isinstance(row, str) for row in value)
+                                       for value in assets["projectFileDependencyGroups"].values())):
+                            raise ValueError("assets framework graph is malformed")
+                        framework_names = set(frameworks)
+                        target_frameworks = {name.split("/", 1)[0] for name in assets["targets"]}
+                        if (not all(framework_names)
+                                or target_frameworks != framework_names
+                                or set(assets["projectFileDependencyGroups"]) != framework_names):
+                            raise ValueError("assets framework sections disagree")
+                    except (UnicodeError, ValueError, OSError, RuntimeError):
+                        fail("TEST_RESULTS_FAILED", f"the restore assets graph or owning project is invalid: {item}")
                 subjects.append(f"{kind}::{item}")
     if outputs:
         path, content, _ = outputs[0]

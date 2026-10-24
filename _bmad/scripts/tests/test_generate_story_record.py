@@ -8234,7 +8234,8 @@ def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, m
         VerificationError = EvaluationError
 
         @staticmethod
-        def msbuild(repository, relative, configuration, *, resolved=False):
+        def msbuild(repository, relative, configuration, *, resolved=False, solution=None,
+                    building_solution=False):
             assert resolved is False
             path = Path(relative)
             output = repository / path.parent / "bin" / configuration / "net10.0" / f"{path.stem}.dll"
@@ -8250,7 +8251,15 @@ def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, m
     binary.write_bytes(b"1.0.0+" + candidate.encode())
     assets = tmp_path / "tests/Fixture/App/obj/project.assets.json"
     assets.parent.mkdir(parents=True)
-    assets.write_text('{"version":3}')
+    assets.write_text(json.dumps({
+        "version": 3, "targets": {"net10.0": {}}, "libraries": {},
+        "projectFileDependencyGroups": {"net10.0": []},
+        "project": {
+            "restore": {"projectPath": str(tmp_path / solution_project),
+                        "projectUniqueName": str(tmp_path / solution_project)},
+            "frameworks": {"net10.0": {}},
+        },
+    }))
     solution_binary = tmp_path / "tests/Fixture/App/bin/Release/net10.0/App.dll"
     solution_binary.parent.mkdir(parents=True)
     solution_binary.write_bytes(b"1.0.0+" + candidate.encode())

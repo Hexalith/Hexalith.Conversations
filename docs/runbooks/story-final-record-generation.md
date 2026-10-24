@@ -64,6 +64,17 @@ stale, since the record is written into a file that is itself in the derived fil
 list. Every ordinary committed path remains in the comparison; timestamps are
 compared at nanosecond precision and a genuinely stale artifact still blocks.
 
+File List annotations come from the committed baseline-to-candidate status.
+Allowed edits or deletion of an output file do not change a committed `new`,
+`modified` or `deleted` annotation. An output absent from that range is
+self-accounted as `modified`; this describes the output write rather than an
+additional committed source change.
+
+The Gitlink Promotions table separates caller-declared evaluation scope from
+the measured Changed in range column. Neither column establishes who authored
+a promotion. Historical five-column records remain readable; their range state
+is derived from Git. New six-column records must agree with that derived state.
+
 Live inspection pins the root `HEAD` used by staged-delta and candidate-binding
 checks. The embedded promotion checker receives the resolved candidate commit.
 If the root head differs at the final read, generation blocks with
@@ -1293,10 +1304,29 @@ Both routes enforce lexical, normalized and physical repository containment,
 root-gitlink exclusion and distinct resolved paths and filesystem identities
 across projects, including rejection of hardlink aliases.
 Unavailable or unsafe metadata blocks rather than using a guessed output path.
-Evaluation remains project-scoped: it does not reproduce solution-supplied
-global properties such as `SolutionDir` or `BuildingSolutionFile`. Conditional
-output paths depending on those properties remain a separate deferred
-limitation; a generic record does not establish their effective solution output.
+For solution commands, project evaluation receives the solution's location
+globals (`SolutionDir`, `SolutionPath`, `SolutionName`, `SolutionFileName` and
+`SolutionExt`) and the implicit `Platform=AnyCPU`. Lexical solution locations
+are preserved through contained directory aliases. Literal property values are
+MSBuild-escaped before forwarding. A solution build also supplies
+`BuildingSolutionFile=true` and the native `CurrentSolutionConfigurationContents`;
+solution restore leaves those properties unset, matching the native SDK behavior.
+The build configuration XML comes from a bounded native solution-wrapper query
+whose temporary target emits metadata only; it invokes no project build or
+restore target. Custom `Directory.Solution.props`/`.targets`, before/after solution
+imports and custom solution-import environment paths are unsupported and block
+this metadata route rather than being silently replaced by its query target.
+Direct project commands retain standalone evaluation. This does not support the
+configuration or participation directives rejected above.
+Restore evidence must be JSON assets version 3 or 4 with object-valued graph
+sections, framework metadata and restore identities naming its owning project.
+Malformed or foreign-project assets fail even in retained no-execution mode.
+Error diagnostics also fail, since a failed native restore can still write an
+assets file. Absent, empty or warning-only diagnostics remain supported. Immediate
+target entries must be objects, and target, dependency-group and project framework
+names must agree; runtime-specific target suffixes remain supported.
+Package-free graphs may have empty library and target contents. This validates
+the assets shape and owner; it does not re-solve NuGet's dependency graph.
 DLLs must carry the candidate or a verified lifecycle-descendant revision;
 restore assets may retain their earlier modification time after a successful
 locked no-op restore. Record generation uses fresh measurements at the

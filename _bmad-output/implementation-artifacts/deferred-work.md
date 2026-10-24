@@ -971,3 +971,26 @@ Review also closes the same participation scope for custom ProjectType definitio
 - source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-execution-validation-safeguards.md`
   summary: Validate the structure and owning-project identity of retained restore assets before treating their bytes as restore evidence.
   evidence: R6, medium, pre-existing. Both the former default-path reader and the evaluated-path reader accept arbitrary nonempty bytes at the selected assets path when command execution is suppressed. The current change binds the evaluated path, containment, file identity and hash, not the semantic NuGet assets graph. A separately scoped assets-shape/project-binding contract and positive native/malformed/foreign-owner controls are needed; successful live command execution still remains independently required.
+
+
+## Resolved by five deferred record evidence safeguards (2026-10-24)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-evidence-safeguards.md`
+  summary: Resolved October 24 execution-review R4 for standard solution-global output context.
+  evidence: Generic solution build/restore metadata evaluation supplies the native solution location globals; BuildingSolutionFile is true for build and unset for restore. A persisted offline SDK regression compiles standalone and solution outputs, records the native context difference and binds the actual solution DLL/assets hashes despite misleading standalone outputs. Direct-project behavior and explicit unsupported solution-layout rejection remain unchanged; this does not claim arbitrary solution configuration support.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-evidence-safeguards.md`
+  summary: Resolved October 24 execution-review R6 for retained restore-assets shape and owning-project identity.
+  evidence: Strict JSON assets versions 3/4 require graph section/value shapes, framework metadata and both absolute restore owner identities matching the selected project. Native package-free graphs pass; malformed, duplicate-key, foreign-owner, relative-owner and unsupported-version controls fail even without command execution. Empty package-free library/target contents remain valid. This binds shape and owner without asserting full NuGet graph correctness.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-evidence-safeguards.md`
+  summary: Resolved the July 28 generated promotion-table attribution ambiguity within measured range reporting.
+  evidence: Six-column tables distinguish caller-declared evaluation scope from Git-derived Changed in range and explicitly state authorship is not inferred. Disposable roundtrips cover changed/unchanged and declared/undeclared combinations; falsified or malformed range states fail historical verification. Historical five-column tables retain Git-derived state and accepted record bytes are unchanged. The generator does not infer which concurrent session authored a change.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-evidence-safeguards.md`
+  summary: Closed the July 28 File List annotation reproducibility regression gap for allowed output dirt.
+  evidence: Current derivation already preserves committed status rather than overwriting it with worktree dirt. Disposable regressions now pin added/modified/deleted annotations despite output edits, removal or recreation, while separately self-accounting for an untracked output. This records executable protection of existing correct behavior, not a new production correction.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-record-evidence-safeguards.md`
+  summary: Closed the July 30 pass-7 actual generator CLI invocation verification gap.
+  evidence: Native CLI --help and direct argparse execution verify all ten contracted options and their parsed values. Ten isolated registration-removal mutations preserve the source option strings while the executable checks detect every missing capability. Historical C# substring assertions remain supplementary; source text alone no longer supplies the only regression guard for this invocation surface.
+
+These five additive resolutions supersede only the named scopes. Historical entries, accepted records, fixture locks, dependency pins, lifecycle tracking and root gitlinks remain unchanged. Evidence-boundary and governed final-record publication are not-applicable to this routine freeform batch.
+
+Review strengthens the same solution-context scope with native implicit Platform=AnyCPU, exact CurrentSolutionConfigurationContents, lexical directory-alias handling and escaped property arguments. Configuration XML is queried from the native wrapper through a temporary metadata-only target, with custom solution imports rejected rather than replaced. The restore-evidence scope additionally rejects native Error diagnostics, malformed immediate target entries and contradictory framework sections; absent/empty/warning diagnostics and runtime-specific target keys remain supported. All seven review findings are handled within these first two selected scopes.

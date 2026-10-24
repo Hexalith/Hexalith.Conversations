@@ -59,7 +59,8 @@ def _retained_generator_fixture(root: Path, monkeypatch):
     class EvaluationError(Exception):
         pass
 
-    def evaluate(_root, project, configuration, *, resolved=False):
+    def evaluate(_root, project, configuration, *, resolved=False, solution=None,
+                 building_solution=False):
         assert configuration == "Release" and resolved is False
         return {"Properties": {"TargetPath": str(root / assemblies[project])}}
 

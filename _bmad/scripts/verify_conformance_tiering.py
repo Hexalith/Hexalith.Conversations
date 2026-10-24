@@ -13,13 +13,16 @@ later domain implementation and resolved dependency versions to evolve.
 from __future__ import annotations
 
 import argparse
+import base64
 import importlib.util
 import json
+import os
 import re
 import shlex
 import struct
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree
@@ -129,11 +132,76 @@ def bound(root: Path, relative: str) -> dict[str, str]:
     return {"path": relative, "sha256": TIERING.sha256_bytes(read(root, relative))}
 
 
-def msbuild(root: Path, project: str, configuration: str, *, resolved: bool = False) -> dict[str, Any]:
+def msbuild(root: Path, project: str, configuration: str, *, resolved: bool = False,
+            solution: str | None = None, building_solution: bool = False) -> dict[str, Any]:
     require((root / project).is_file(), "TIER_PROJECT_MISSING", f"Tier project is missing: {project}")
     command = ["dotnet", "msbuild", project, f"-p:Configuration={configuration}", "-nr:false",
                "-getProperty:IsPackable,IsPublishable,AssemblyName,ProjectAssetsFile,TargetPath,TargetRefPath",
                "-getItem:Compile,ProjectReference,PackageReference,Reference,ReferencePath,FrameworkReference,ResolvedFrameworkReference"]
+    if solution is not None:
+        solution_path = Path(os.path.abspath(root / solution))
+        require(solution_path.is_file() and not solution_path.is_symlink()
+                and solution_path.resolve().is_relative_to(root.resolve())
+                and solution_path.suffix == ".slnx", "RESOLVED_COMPILE_SURFACE_INVALID",
+                f"Solution context is not a contained solution: {solution}")
+        # Replacing a solution's custom import with the query would change its
+        # meaning. Keep this generic route limited to the ordinary SDK wrapper.
+        customizations = {"Directory.Solution.props", "Directory.Solution.targets",
+                          f"before.{solution_path.name}.targets", f"after.{solution_path.name}.targets"}
+        ancestors = set((solution_path.parent, *solution_path.parents,
+                         solution_path.resolve().parent, *solution_path.resolve().parents))
+        require(not any((directory / name).exists() for directory in ancestors for name in customizations)
+                and not any(os.environ.get(name) for name in
+                            ("DirectorySolutionPropsPath", "DirectorySolutionTargetsPath",
+                             "ImportDirectorySolutionProps", "ImportDirectorySolutionTargets")),
+                "SCENARIO_COMMAND_UNSUPPORTED", "Custom solution imports are unsupported")
+        # Ordinary solution build/restore supplies the location globals. Only
+        # a build supplies BuildingSolutionFile; solution restore leaves it unset.
+        properties = {
+            "SolutionDir": str(solution_path.parent) + os.sep,
+            "SolutionPath": str(solution_path),
+            "SolutionName": solution_path.stem,
+            "SolutionFileName": solution_path.name,
+            "SolutionExt": solution_path.suffix,
+            "Platform": "AnyCPU",
+        }
+        if building_solution:
+            properties["BuildingSolutionFile"] = "true"
+            # Query only an injected metadata target in the native solution
+            # wrapper. It emits exact configuration XML and invokes no project
+            # targets. The helper file exists only in a secure temporary folder.
+            with tempfile.TemporaryDirectory(prefix="hexalith-solution-context-") as directory:
+                query = Path(directory) / "query.targets"
+                query_target = "_HexalithReadSolutionContext_" + Path(directory).name.replace("-", "_")
+                query.write_text(f'''<Project><Target Name="{query_target}">
+<Message Importance="high" Text="HEXALITH_SOLUTION_CONTEXT:$([MSBuild]::ConvertToBase64($(CurrentSolutionConfigurationContents)))" />
+</Target></Project>''', encoding="utf-8")
+                escaped_query = "".join(f"%{ord(character):02X}" if character in "%,$@();'*?\""
+                                        else character for character in str(query))
+                query_command = ["dotnet", "msbuild", str(solution_path), "-nologo", "-nr:false", "-verbosity:minimal",
+                                 f"-target:{query_target}", f"-p:Configuration={configuration}",
+                                 f"-p:DirectorySolutionTargetsPath={escaped_query}"]
+                try:
+                    context = subprocess.run(query_command, cwd=root, capture_output=True, text=True,
+                                             check=False, timeout=180)
+                    require(context.returncode == 0 and len(context.stdout) <= 4 * 1024 * 1024,
+                            "RESOLVED_COMPILE_SURFACE_INVALID", "Solution context query failed")
+                    encoded = re.findall(r"^\s*HEXALITH_SOLUTION_CONTEXT:([A-Za-z0-9+/=]+)\s*$",
+                                         context.stdout, re.MULTILINE)
+                    require(len(encoded) == 1, "RESOLVED_COMPILE_SURFACE_INVALID",
+                            "Solution context query returned no unique context")
+                    configuration_xml = base64.b64decode(encoded[0], validate=True).decode("utf-8")
+                    require(ElementTree.fromstring(configuration_xml).tag == "SolutionConfiguration",
+                            "RESOLVED_COMPILE_SURFACE_INVALID", "Solution configuration context is malformed")
+                    properties["CurrentSolutionConfigurationContents"] = configuration_xml
+                except (OSError, subprocess.TimeoutExpired, ValueError, ElementTree.ParseError) as error:
+                    raise VerificationError("RESOLVED_COMPILE_SURFACE_INVALID", "Solution context query unavailable") from error
+        for name, value in properties.items():
+            # MSBuild parses property separators even in an argv list. Escape
+            # literal path characters once, including '%' before its hex forms.
+            escaped = "".join(f"%{ord(character):02X}" if character in "%,$@();'*?\""
+                              else character for character in value)
+            command.append(f"-p:{name}={escaped}")
     if resolved:
         # Resolve existing outputs without rebuilding them: a rebuild would invalidate the tier TRX files.
         command += ["-target:ResolveReferences", "-p:BuildProjectReferences=false"]
