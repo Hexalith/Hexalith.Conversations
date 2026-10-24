@@ -8238,7 +8238,8 @@ def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, m
             assert resolved is False
             path = Path(relative)
             output = repository / path.parent / "bin" / configuration / "net10.0" / f"{path.stem}.dll"
-            return {"Properties": {"TargetPath": str(output)}}
+            return {"Properties": {"TargetPath": str(output),
+                                   "ProjectAssetsFile": str(repository / path.parent / "obj/project.assets.json")}}
 
     monkeypatch.setattr(module, "v2_9_2_verifier", lambda: Evaluator)
     command_exit = [0]

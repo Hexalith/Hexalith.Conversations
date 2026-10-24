@@ -38,7 +38,8 @@ def build_fixture(tmp_path, monkeypatch):
     binary.parent.mkdir(parents=True)
     binary.write_bytes(b"1.0.0+" + candidate.encode())
     calls = []
-    metadata = {"Properties": {"AssemblyName": "Renamed", "TargetPath": str(binary)}}
+    metadata = {"Properties": {"AssemblyName": "Renamed", "TargetPath": str(binary),
+                               "ProjectAssetsFile": str(tmp_path / "fixture/App/obj/project.assets.json")}}
 
     def evaluate(repository, relative, configuration, *, resolved=False):
         calls.append((repository, relative, configuration, resolved))
@@ -218,3 +219,169 @@ def test_solution_symlink_loop_is_a_path_blocker(build_fixture, kind):
     record, category, _ = fixture.run(kind=kind)
     assert category == "failed" and "OUTPUT_PATH_INVALID" in record["blockers"]
     assert fixture.calls == []
+
+
+@pytest.mark.parametrize("kind", ["build", "restore"])
+@pytest.mark.parametrize("directive", [
+    '<BuildType Solution="Release|*" Project="Debug" />',
+    '<Platform Solution="*|Any CPU" Project="x64" />',
+    '<Build Solution="*|*" Project="false" />',
+])
+@pytest.mark.parametrize("scope", ["solution", "folder", "project"])
+def test_solution_configuration_and_participation_directives_block_before_command(
+    build_fixture, monkeypatch, kind, directive, scope,
+):
+    fixture = build_fixture
+    project = '<Project Path="App/App.csproj">' + (directive if scope == "project" else "") + '</Project>'
+    if scope == "folder":
+        body = '<Folder Name="/Apps/">' + directive + project + '</Folder>'
+    else:
+        body = (directive if scope == "solution" else "") + project
+    fixture.blobs[fixture.solution] = ('<Solution>' + body + '</Solution>').encode()
+    (fixture.root / fixture.solution).write_bytes(fixture.blobs[fixture.solution])
+    launches = []
+    monkeypatch.setattr(fixture.module.subprocess, "run", lambda *_args, **_kwargs: launches.append(1))
+    record, category, _ = fixture.module.v2_successor_scenario_from_results(
+        fixture.root, {"id": "AC-11.2-03", "command": f"dotnet {kind} {fixture.solution} -c Release"},
+        {"kind": kind, "project": fixture.solution}, fixture.candidate, 0, [])
+    assert category == "failed" and "SCENARIO_COMMAND_UNSUPPORTED" in record["blockers"]
+    assert launches == [] and fixture.calls == []
+
+
+@pytest.mark.parametrize("kind", ["build", "restore"])
+@pytest.mark.parametrize("shape", ["custom-type", "implicit-type", "explicit-type"])
+def test_solution_project_type_overrides_cannot_hide_nonparticipation(build_fixture, monkeypatch, kind, shape):
+    fixture = build_fixture
+    definition = ('<Configurations><ProjectType Name="NoBuild" '
+                  'TypeId="{ACB9A212-8763-492D-AD65-37522E65B102}" Extension=".csproj" '
+                  'IsBuildable="false" /></Configurations>')
+    entry = '<Project Path="App/App.csproj"' + (' Type="NoBuild"' if shape != "implicit-type" else '') + ' />'
+    fixture.blobs[fixture.solution] = ('<Solution>' + (definition if shape != "explicit-type" else '') + entry + '</Solution>').encode()
+    (fixture.root / fixture.solution).write_bytes(fixture.blobs[fixture.solution])
+    launches = []
+    monkeypatch.setattr(fixture.module.subprocess, "run", lambda *_args, **_kwargs: launches.append(1))
+    record, category, _ = fixture.module.v2_successor_scenario_from_results(
+        fixture.root, {"id": "AC-11.2-03", "command": f"dotnet {kind} {fixture.solution} -c Release"},
+        {"kind": kind, "project": fixture.solution}, fixture.candidate, 0, [])
+    assert category == "failed" and "SCENARIO_COMMAND_UNSUPPORTED" in record["blockers"]
+    assert launches == [] and fixture.calls == []
+
+
+@pytest.mark.parametrize("relative", ["obj/project.assets.json", "custom-obj/project.assets.json",
+                                      "../shared/project.assets.json", "..\\shared\\project.assets.json"])
+def test_restore_uses_evaluated_assets_relative_to_project(build_fixture, relative):
+    fixture = build_fixture
+    assets = Path(os.path.abspath(fixture.root / "fixture/App" / relative.replace("\\", "/")))
+    assets.parent.mkdir(parents=True, exist_ok=True)
+    assets.write_bytes(b'{"version":3}')
+    os.utime(assets, ns=(1, 1))
+    fixture.metadata["Properties"]["ProjectAssetsFile"] = relative
+    record, category, findings = fixture.run(kind="restore")
+    assert category == "passed" and not findings
+    assert record["outputFiles"] == [{"path": assets.relative_to(fixture.root).as_posix(),
+                                      "sha256": fixture.module.v2_sha256(assets.read_bytes())}]
+    assert fixture.calls == [(fixture.root, fixture.project, "Release", False)]
+
+
+@pytest.mark.parametrize("metadata", [None, {}, {"Properties": []}, {"Properties": {}},
+    {"Properties": {"ProjectAssetsFile": ""}}, {"Properties": {"ProjectAssetsFile": []}},
+    {"Properties": {"ProjectAssetsFile": "one.json;two.json"}}])
+def test_restore_metadata_failure_never_falls_back_to_default_assets(build_fixture, metadata):
+    fixture = build_fixture
+    default = fixture.root / "fixture/App/obj/project.assets.json"
+    default.parent.mkdir()
+    default.write_bytes(b'{"version":3}')
+    fixture.evaluator.msbuild = lambda *_args, **_kwargs: metadata
+    record, category, _ = fixture.run(kind="restore")
+    assert category == "failed" and "TEST_RESULTS_MISSING" in record["blockers"]
+    assert record.get("outputFiles", []) == []
+
+
+@pytest.mark.parametrize("fault", ["missing", "outside", "gitlink", "symlink", "loop", "unavailable",
+                                  "physical-gitlink", "lexical-gitlink"])
+def test_restore_rejects_unsafe_or_unavailable_evaluated_assets(build_fixture, fault):
+    fixture = build_fixture
+    assets = fixture.root / "fixture/App/obj/project.assets.json"
+    assets.parent.mkdir()
+    assets.write_bytes(b'{"version":3}')
+    gitlinks = []
+    if fault == "missing":
+        fixture.metadata["Properties"]["ProjectAssetsFile"] = str(assets.with_name("missing.json"))
+    elif fault == "outside":
+        fixture.metadata["Properties"]["ProjectAssetsFile"] = "../../../outside.json"
+    elif fault == "gitlink":
+        gitlinks = ["fixture/App/obj"]
+    elif fault in ("symlink", "loop"):
+        alias = fixture.root / "alias.json"
+        alias.symlink_to(alias if fault == "loop" else assets)
+        fixture.metadata["Properties"]["ProjectAssetsFile"] = str(alias)
+    elif fault in ("physical-gitlink", "lexical-gitlink"):
+        blocked = fixture.root / "references/Blocked"
+        blocked.mkdir(parents=True)
+        gitlinks = ["references/Blocked"]
+        if fault == "physical-gitlink":
+            (blocked / "project.assets.json").write_bytes(b'{"version":3}')
+            alias = fixture.root / "alias"
+            alias.symlink_to(blocked, target_is_directory=True)
+            path = alias / "project.assets.json"
+        else:
+            alias = blocked / "alias"
+            alias.symlink_to(assets.parent, target_is_directory=True)
+            path = alias / "project.assets.json"
+        fixture.metadata["Properties"]["ProjectAssetsFile"] = str(path)
+    else:
+        def unavailable(*_args, **_kwargs):
+            raise EvaluationError("SDK unavailable")
+        fixture.evaluator.msbuild = unavailable
+    record, category, _ = fixture.run(kind="restore", gitlinks=gitlinks)
+    expected = {"missing": "TEST_RESULTS_MISSING", "symlink": "TEST_RESULTS_MISSING",
+                "unavailable": "TEST_RESULTS_FAILED"}.get(fault, "OUTPUT_PATH_INVALID")
+    if fault == "loop":
+        # Python versions differ on non-strict resolve of a symlink loop;
+        # neither an unresolved boundary nor an unreadable output can pass.
+        assert category == "failed" and {"OUTPUT_PATH_INVALID", "TEST_RESULTS_MISSING"}.intersection(record["blockers"])
+        return
+    assert category == "failed" and expected in record["blockers"]
+
+
+@pytest.mark.parametrize("collides", [True, False])
+def test_restore_projects_need_distinct_evaluated_assets(build_fixture, collides):
+    fixture = build_fixture
+    other_project = "fixture/Other/Other.csproj"
+    fixture.blobs[other_project] = b"<Project />"
+    (fixture.root / other_project).parent.mkdir()
+    (fixture.root / other_project).write_bytes(fixture.blobs[other_project])
+    fixture.blobs[fixture.solution] = b'<Solution><Project Path="App/App.csproj" /><Project Path="Other/Other.csproj" /></Solution>'
+    (fixture.root / fixture.solution).write_bytes(fixture.blobs[fixture.solution])
+    paths = [fixture.root / "fixture" / name / "obj/project.assets.json" for name in ("App", "Other")]
+    for path in paths:
+        path.parent.mkdir()
+        path.write_bytes(b'{"version":3}')
+    fixture.evaluator.msbuild = lambda _repo, project, _configuration, **_kwargs: {
+        "Properties": {"ProjectAssetsFile": str(paths[0 if collides or project == fixture.project else 1])}}
+    record, category, _ = fixture.run(kind="restore")
+    assert (category == "passed") != collides
+    if collides:
+        assert "OUTPUT_PATH_INVALID" in record["blockers"]
+    else:
+        assert {row["path"] for row in record["outputFiles"]} == {
+            path.relative_to(fixture.root).as_posix() for path in paths}
+
+
+@pytest.mark.parametrize("kind", ["build", "restore"])
+def test_distinct_output_paths_cannot_alias_one_file_through_hardlinks(build_fixture, kind):
+    fixture = build_fixture
+    other_project = "fixture/Other/Other.csproj"
+    fixture.blobs[other_project] = b"<Project />"
+    (fixture.root / other_project).parent.mkdir()
+    (fixture.root / other_project).write_bytes(fixture.blobs[other_project])
+    fixture.blobs[fixture.solution] = b'<Solution><Project Path="App/App.csproj" /><Project Path="Other/Other.csproj" /></Solution>'
+    (fixture.root / fixture.solution).write_bytes(fixture.blobs[fixture.solution])
+    source = fixture.root / fixture.output
+    alias = source.with_name("Other.dll" if kind == "build" else "other.assets.json")
+    os.link(source, alias)
+    property_name = "TargetPath" if kind == "build" else "ProjectAssetsFile"
+    fixture.evaluator.msbuild = lambda _repo, project, _configuration, **_kwargs: {
+        "Properties": {property_name: str(source if project == fixture.project else alias)}}
+    record, category, _ = fixture.run(kind=kind)
+    assert category == "failed" and "OUTPUT_PATH_INVALID" in record["blockers"]

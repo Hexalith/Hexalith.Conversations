@@ -1276,21 +1276,50 @@ must be nonnegative integers, required and passed must be equal and positive,
 and all four failure categories must be zero. Unrelated domain-summary keys
 retain their own meaning and do not establish a passing verdict.
 
-Solution build and restore discovery normalizes Windows path separators. Build
-assembly paths come from read-only MSBuild evaluation of `TargetPath`, including
-imported assembly names, frameworks and output directories. Unavailable or
-unsafe target metadata blocks rather than falling back to a guessed DLL path.
+Solution build and restore discovery normalizes Windows path separators. The
+generic reader supports solutions without `BuildType`, `Platform`, `Build` or
+`ProjectType` directives, or explicit project `Type` attributes. Any such
+directive, including one inherited from solution or folder
+scope, returns `SCENARIO_COMMAND_UNSUPPORTED` before command execution. This
+reader evaluates individual projects and cannot derive a solution's mapped
+configuration or effective participating project set. An explicitly unsupported
+solution cannot use existing outputs to claim a passing build or restore.
+
+Build assembly paths come from read-only MSBuild evaluation of `TargetPath`,
+including imported assembly names, frameworks and output directories. Restore
+assets come from evaluated `ProjectAssetsFile`, including custom intermediate
+directories. Relative metadata resolves from the owning project directory.
+Both routes enforce lexical, normalized and physical repository containment,
+root-gitlink exclusion and distinct resolved paths and filesystem identities
+across projects, including rejection of hardlink aliases.
+Unavailable or unsafe metadata blocks rather than using a guessed output path.
+Evaluation remains project-scoped: it does not reproduce solution-supplied
+global properties such as `SolutionDir` or `BuildingSolutionFile`. Conditional
+output paths depending on those properties remain a separate deferred
+limitation; a generic record does not establish their effective solution output.
 DLLs must carry the candidate or a verified lifecycle-descendant revision;
 restore assets may retain their earlier modification time after a successful
-locked no-op restore. Before a retained successor rerun, rebuild and rerun
-every declared command at the current `HEAD`, then regenerate the record pair.
+locked no-op restore. Record generation uses fresh measurements at the
+authorized source candidate.
 
-Generic solution discovery still assumes the solution configuration maps directly
-to each listed project's configuration and includes every listed project in the
-build. It does not derive `BuildType` mappings or project exclusions. Restore
-discovery still assumes the default `obj/project.assets.json` location. These
-separate limitations are tracked in the deferred-work ledger; generic record
-success does not prove those customized solution/restore layouts.
+Retained inserted-record verification for Stories 9.2, 10.1 and 10.2 reads the
+existing scenario outputs without executing their build or Python commands.
+It still performs read-only MSBuild metadata evaluation; this does not rebuild
+or restamp assemblies. The Story 9.2 regression exercises this real generator
+boundary and checks unchanged binary/result bytes and modification times.
+
+The scoped tiering verifier's strict CI declaration reader also rejects
+workflow-level environment mappings and any environment override in the
+conformance job, including setup steps. Quoted keys, YAML merges and other
+ambiguous mapping forms fail closed. Job containers and unchecked run steps are
+also unsupported because they can supply a startup hook outside those mappings.
+Step sequence entries must begin on the same line with the canonical `name`,
+`uses` or `run` mapping; shifted, bare and comment-only entries are rejected.
+The original optional locked tooling setup remains supported with its exact
+commands. This prevents declared `BASH_ENV` startup hooks
+from changing the commands whose text was validated. Other jobs retain their
+own environment mappings. This scoped verifier policy does not restore the
+historical conformance workflow or change current CI selection.
 
 ### Story 8.2 zero-gap preservation validation
 

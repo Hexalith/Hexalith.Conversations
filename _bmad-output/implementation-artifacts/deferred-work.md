@@ -940,3 +940,34 @@ These five additive resolutions supersede only the named scopes. Original ledger
 - source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-successor-validation-safeguards.md`
   summary: Bind generic successor restore receipts to evaluated ProjectAssetsFile for custom intermediate directories.
   evidence: R7, medium, pre-existing. A native SDK restore with MSBuildProjectExtensionsPath=custom-obj/ writes App/custom-obj/project.assets.json, while generic restore discovery still inspects App/obj/project.assets.json. The current batch fixes solution separators and build TargetPath assumptions; custom restore output metadata remains a separate scope, with a native custom-directory positive control and default/unsafe-path regressions needed.
+
+## Resolved by five deferred execution validation safeguards (2026-10-24)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-execution-validation-safeguards.md`
+  summary: Resolved October 24 review R5 by explicitly rejecting solution configuration directives before generic build or restore execution.
+  evidence: BuildType and Platform directives at solution, folder or project scope produce SCENARIO_COMMAND_UNSUPPORTED rather than binding a guessed project configuration. Native MSBuild independently confirms a Debug solution can build a Mapped project configuration; disposable reader controls prove rejection before command launch while ordinary solutions remain supported. This is an explicit unsupported-layout policy, not effective configuration derivation.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-execution-validation-safeguards.md`
+  summary: Resolved October 24 review R6 by rejecting solution Build participation directives before generic build or restore execution.
+  evidence: A listed project with a Build exclusion cannot supply a passing assertion from an existing output. Native MSBuild independently confirms the excluded project does not build, and disposable reader controls reject inherited and per-project directives before command launch. Ordinary project inventories remain supported; the generic reader does not claim to derive an effective excluded-project set.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-execution-validation-safeguards.md`
+  summary: Resolved October 24 review R7 by binding generic restore receipts to evaluated ProjectAssetsFile.
+  evidence: The existing bounded read-only evaluator supplies restore metadata; default, custom, parent-relative and Windows-style paths retain repository containment, root-gitlink exclusion and distinct output identities. Missing, ambiguous, unavailable or unsafe metadata cannot fall back to default assets. A native offline locked SDK restore writes custom-obj/project.assets.json and the real reader binds its hash, preserving the allowed older timestamp for no-op restore assets.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-execution-validation-safeguards.md`
+  summary: Closed October 8's retained Story 9.2 command-suppression regression gap through the real generator-to-reader boundary.
+  evidence: New disposable coverage runs real v2_generate and successor readers for both builds, Python and all five TRX scenarios, rejecting command launches and preserving exact binary/result bytes and nanosecond modification times. An isolated in-memory forwarding-removal mutant fails at its first build launch. Authority/fact/fault adapters and read-only metadata remain synthetic; no native acceptance or binary-provenance claim is made.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-execution-validation-safeguards.md`
+  summary: Resolved October 8's static conformance declaration acceptance of BASH_ENV shell-startup overrides.
+  evidence: The narrow declaration reader rejects workflow environment mappings and environment overrides throughout the conformance job, including setup steps and quoted, inline, dynamic and merged forms. Other-job mappings remain supported. All 56 hermetic cases pass; removing both guards in memory makes 52 negative cases fail. The tests join routine directory collection without restoring historical CI or changing live workflow bytes.
+
+These five additive resolutions supersede only the named scopes. Original ledger entries, accepted evidence, fixture locks, dependency pins, lifecycle rows and gitlinks remain unchanged.
+
+Review also closes the same participation scope for custom ProjectType definitions and explicit project Type attributes. The restore/build output identity check now rejects hardlink aliases as well as duplicate resolved paths. The environment scope also rejects job containers and unchecked run steps; the original exact locked-tooling setup remains supported.
+
+## Deferred from: five deferred execution validation safeguards review (2026-10-24)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-execution-validation-safeguards.md`
+  summary: Evaluate generic build and restore output metadata with the effective solution global-property context.
+  evidence: R4, medium, pre-existing at both entry 76304120ac0ab0a793b8c0dc2a04acfe931cffc5 and the new reader. A native SDK solution with no explicit configuration directives supplies SolutionDir and restores into solution-obj when project imports condition on that property; standalone MSBuild evaluation and the old guessed-assets reader can instead bind an existing obj/project.assets.json. Reproduction /tmp/blind-native-assets-context-um1zlbhv. This requires a separately scoped solution-context policy and persisted native regression; ordinary custom intermediate directories are fixed by the current batch, while conditional solution-global layouts remain disclosed limitations.
+- source_spec: `_bmad-output/implementation-artifacts/spec-five-deferred-execution-validation-safeguards.md`
+  summary: Validate the structure and owning-project identity of retained restore assets before treating their bytes as restore evidence.
+  evidence: R6, medium, pre-existing. Both the former default-path reader and the evaluated-path reader accept arbitrary nonempty bytes at the selected assets path when command execution is suppressed. The current change binds the evaluated path, containment, file identity and hash, not the semantic NuGet assets graph. A separately scoped assets-shape/project-binding contract and positive native/malformed/foreign-owner controls are needed; successful live command execution still remains independently required.

@@ -348,6 +348,11 @@ def declarations(root: Path, *, current_tree: bool = False) -> dict[str, Any]:
     amendment = document(root, AMENDMENT)
     require(amendment.get("projects") == PROJECTS, "TIER_NOT_DECLARED", "The execution/completion amendment must declare both exact tiers.")
     workflow = read(root, TIERING.CI_WORKFLOW_PATH).decode()
+    # This strict workflow reader does not interpret YAML environment mappings.
+    # Keep the verified shell environment closed: even a benign-looking or
+    # expression-valued map can supply BASH_ENV before the checked commands run.
+    require(not re.search(r"(?m)^(?:env\s*:|[?&!*{])", workflow),
+            "TIER_NOT_DECLARED", "CI must not override the workflow shell environment.")
     triggers = list(re.finditer(r"(?m)^on:\n(?P<body>(?:  .*\n|\n)+)", workflow))
     require(len(triggers) == 1 and triggers[0].group("body").strip() ==
             "push:\n    branches: [main]\n  pull_request:\n    branches: [main]"
@@ -362,6 +367,18 @@ def declarations(root: Path, *, current_tree: bool = False) -> dict[str, Any]:
     require(len(jobs) == 1 and len(re.findall(r"(?m)^  conformance\s*:", job_mapping.group("body"))) == 1,
             "TIER_NOT_DECLARED", "CI must declare exactly one conformance job.")
     job = jobs[0].group("body")
+    # Alternative YAML sequence spacing shifts mapping keys past this strict
+    # reader's structural columns. Reject it before inspecting env/run keys.
+    require(all(re.fullmatch(r"      - (?:name|uses|run): [^ \t#][^\n]*", match.group())
+                for match in re.finditer(r"(?m)^ +-(?:[ \t]+[^\n]*|$)", job)),
+            "TIER_NOT_DECLARED", "Conformance steps must begin with a canonical name, uses or run mapping.")
+    # Include setup steps as well as the required commands. Reject quoted keys,
+    # merges, explicit keys and flow mappings at structural job/step indentation
+    # because they could otherwise hide an environment declaration from this
+    # deliberately narrow reader. Other jobs retain their own environment maps.
+    require(not re.search(r"(?m)^ {4,8}(?:-\s+)?(?:env\s*:|[\"'?&!*{]|<<\s*:)", job)
+            and not re.search(r"(?m)^    container\s*:", job),
+            "TIER_NOT_DECLARED", "The conformance job must not override or ambiguously declare its shell environment.")
     require(not re.search(r"(?m)^    (?:[\"']|<<\s*:|(?:if|needs|defaults|continue-on-error)\s*:)", job)
             and re.findall(r"(?m)^    runs-on: (.+)$", job) == ["ubuntu-latest"]
             and len(re.findall(r"(?m)^    runs-on\s*:", job)) == 1
@@ -426,6 +443,19 @@ def declarations(root: Path, *, current_tree: bool = False) -> dict[str, Any]:
     require(any(fault_command == fault_prefix + [selection, "--junitxml=TestResults/conformance/faults.xml"]
                 for selection in selections),
             "TIER_NOT_DECLARED", "CI must verify combined execution and measured faults.")
+    # An unchecked setup script can set BASH_ENV through GITHUB_ENV. Retain
+    # only the exact optional tooling setup from the accepted execution lane;
+    # all other run blocks have already been checked above.
+    setup_name = "Install locked tier verification tooling"
+    has_setup = bool(re.search(r"(?m)^      - name: " + re.escape(setup_name) + r"$", job))
+    if has_setup:
+        setup_commands = [shlex.split(line, comments=True) for line in run_body(setup_name).splitlines() if line.strip()]
+        require(setup_commands == [
+            ["python", "-m", "pip", "install", "--disable-pip-version-check", "uv==0.12.23"],
+            ["uv", "sync", "--locked", "--python", "3.11"],
+        ], "TIER_NOT_DECLARED", "CI tooling setup must retain its exact locked commands.")
+    require(len(re.findall(r"(?m)^(?:        |      - )run\s*:", job)) == 5 + int(has_setup),
+            "TIER_NOT_DECLARED", "Unchecked conformance run steps may alter the subsequent shell environment.")
     return {"solution": bound(root, "Hexalith.Conversations.slnx"), "workflow": bound(root, TIERING.CI_WORKFLOW_PATH),
             "completionInventory": completion,
             "executionAmendment": bound(root, AMENDMENT)}

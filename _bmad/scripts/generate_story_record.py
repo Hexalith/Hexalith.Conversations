@@ -6980,6 +6980,13 @@ def v2_successor_build_projects(
     if target.endswith(".slnx"):
         try:
             solution = ElementTree.fromstring(v2_committed_blob(repository, candidate, target))
+            if any(item.tag.rsplit("}", 1)[-1] in ("BuildType", "Platform", "Build", "ProjectType")
+                   or (item.tag.rsplit("}", 1)[-1] == "Project" and "Type" in item.attrib)
+                   for item in solution.iter()):
+                # The generic reader evaluates individual projects. It cannot
+                # claim a solution's mapped configuration or effective build set.
+                raise GateError("SCENARIO_COMMAND_UNSUPPORTED",
+                                "solution configuration mappings and build directives are unsupported")
             projects = []
             for item in solution.findall(".//{*}Project"):
                 value = item.attrib["Path"].replace("\\", "/")
@@ -7200,58 +7207,61 @@ def v2_successor_scenario_from_results(
                 if len(markdown_rows) != 1 or v2_sha256(markdown_rows[0]) != rendered_digest:
                     fail("RECORD_CONTENT_DRIFT", "the Python output Markdown digest differs")
     elif kind in ("build", "restore"):
-        project = command["project"]
-        if kind == "build":
+        if kind == "restore" and not command["project"].endswith(".slnx"):
+            fail("SCENARIO_COMMAND_UNSUPPORTED", "the restore target is not a solution")
+        else:
             tokens = shlex.split(scenario["command"])
             configuration = "Debug"
             for index, token in enumerate(tokens[:-1]):
                 if token in ("--configuration", "-c"):
                     configuration = tokens[index + 1]
             resolved_outputs: set[Path] = set()
+            resolved_file_ids: set[tuple[int, int]] = set()
             for item in build_projects:
                 try:
                     evaluator = v2_9_2_verifier()
                 except (V2Stop, OSError, ImportError):
-                    fail("TEST_RESULTS_FAILED", "the build output evaluator is unavailable")
+                    fail("TEST_RESULTS_FAILED", f"the {kind} output evaluator is unavailable")
                     continue
                 try:
                     evaluated = evaluator.msbuild(repository, item, configuration, resolved=False)
                 except (evaluator.VerificationError, OSError, ValueError, TypeError):
-                    fail("TEST_RESULTS_FAILED", f"the build output evaluation failed: {item}")
+                    fail("TEST_RESULTS_FAILED", f"the {kind} output evaluation failed: {item}")
                     continue
                 properties = evaluated.get("Properties") if isinstance(evaluated, dict) else None
-                target = properties.get("TargetPath") if isinstance(properties, dict) else None
+                property_name = "TargetPath" if kind == "build" else "ProjectAssetsFile"
+                target = properties.get(property_name) if isinstance(properties, dict) else None
                 if not isinstance(target, str) or not target.strip() or ";" in target:
-                    fail("TEST_RESULTS_MISSING", f"the build has no unambiguous TargetPath: {item}")
+                    fail("TEST_RESULTS_MISSING", f"the {kind} has no unambiguous {property_name}: {item}")
                     continue
                 target_path = Path(target.replace("\\", "/"))
                 lexical = target_path if target_path.is_absolute() else repository / PurePosixPath(item).parent / target_path
                 try:
                     unresolved = lexical.relative_to(repository).as_posix()
                     normalized = Path(os.path.abspath(lexical))
-                    binary_path = safe_relative_path(normalized.relative_to(repository).as_posix())
+                    output_path = safe_relative_path(normalized.relative_to(repository).as_posix())
                     physical = lexical.resolve()
                     resolved = physical.relative_to(repository).as_posix()
-                    if (v2_below(unresolved, gitlink_paths) or v2_below(binary_path, gitlink_paths)
+                    if (v2_below(unresolved, gitlink_paths) or v2_below(output_path, gitlink_paths)
                             or v2_below(resolved, gitlink_paths) or physical in resolved_outputs
                             or normalized.resolve() != physical):
                         raise ValueError("the output boundary or identity is ambiguous")
+                    file_id = None
+                    if physical.is_file():
+                        metadata = physical.stat()
+                        file_id = (metadata.st_dev, metadata.st_ino)
+                        if file_id in resolved_file_ids:
+                            raise ValueError("different output paths alias the same file")
                 except (GateError, OSError, RuntimeError, ValueError):
-                    fail("OUTPUT_PATH_INVALID", f"the evaluated build output is not contained or distinct: {item}")
+                    fail("OUTPUT_PATH_INVALID", f"the evaluated {kind} output is not contained or distinct: {item}")
                     continue
                 resolved_outputs.add(physical)
-                result = read_output(binary_path)
-                if result is not None and not stamped_binary(result[0]):
+                if file_id is not None:
+                    resolved_file_ids.add(file_id)
+                result = read_output(output_path, require_current_mtime=kind == "build")
+                if kind == "build" and result is not None and not stamped_binary(result[0]):
                     fail("TEST_RESULTS_STALE", "the built assembly lacks the candidate SourceRevisionId")
-                subjects.append(f"build::{item}")
-        else:
-            if not project.endswith(".slnx"):
-                fail("SCENARIO_COMMAND_UNSUPPORTED", "the restore target is not a solution")
-            else:
-                for item in build_projects:
-                    assets = str(PurePosixPath(item).parent / "obj/project.assets.json")
-                    if read_output(assets, require_current_mtime=False) is not None:
-                        subjects.append(f"restore::{item}")
+                subjects.append(f"{kind}::{item}")
     if outputs:
         path, content, _ = outputs[0]
         record["resultFile"] = {"path": path, "sha256": v2_sha256(content)}
