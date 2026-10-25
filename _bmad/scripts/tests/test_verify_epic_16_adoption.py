@@ -40,15 +40,17 @@ def rehash(repository: Path) -> None:
 
 
 def populate_repository(destination: Path) -> Path:
-    """Use root-owned inputs and pinned portable snapshots, never live references."""
+    """Reproduce pinned historic bytes without Git history or live references."""
     snapshot = json.loads((ROOT / "_bmad/scripts/tests/fixtures/epic16-reference-inputs.json").read_text())
+    historic = json.loads((ROOT / "_bmad/scripts/tests/fixtures/epic16-historic-root-inputs.json").read_text())
     for relative in {*checker.SOURCE_PINS, *checker.ARTIFACTS, PACKAGE}:
         target = destination / relative
         target.parent.mkdir(parents=True, exist_ok=True)
-        if relative.startswith("references/"):
-            row = snapshot["files"][relative]
+        if relative.startswith("references/") or relative in historic["files"]:
+            row = (snapshot if relative.startswith("references/") else historic)["files"][relative]
             content = row["utf8"].encode("utf-8")
-            assert digest(content) == row["sha256"] == checker.SOURCE_PINS[relative]
+            expected = checker.SOURCE_PINS.get(relative, checker.ARTIFACT_PINS.get(relative))
+            assert digest(content) == row["sha256"] == expected
             target.write_bytes(content)
         else:
             shutil.copyfile(ROOT / relative, target)

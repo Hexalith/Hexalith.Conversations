@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "hexalith.conversations.enrollment-observation.v2",
+  "scope": "preparation-working-tree-snapshot",
+  "sourceRevision": "8925c9fef46026d53d15478e2a744b3604c38a98",
+  "trackedScanOnly": true,
+  "additiveFilesTrackedAtObservation": false,
+  "acceptedTool": "4.35.2",
+  "restoredVersion": "4.35.2+4248b8c70cb35ba79fdd7e4dd63049d4c73211a0",
+  "runtimeExecuted": false,
+  "sm2Verified": false,
+  "provenance": {
+    "path": "module/validation/epic-16-adoption-v2/provenance.json",
+    "sha256": "ed487a0e1e27afde2f08deaceef2cc43847fb2780935af1ec7ac07aedf3b62d1"
+  },
+  "commands": [
+    {
+      "id": "restore",
+      "command": "dotnet tool restore",
+      "exitCode": 0,
+      "output": "module/validation/epic-16-adoption-v2/restore.txt",
+      "outputSha256": "cf2c6e1396b29887925ee3526920d83f7478ae89f450e93d0c5b29b1fbeec0b3",
+      "stderr": "module/validation/epic-16-adoption-v2/restore.stderr.txt",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "startedAtUtc": "2026-10-25T06:41:40.368203+00:00"
+    },
+    {
+      "id": "version",
+      "command": "dotnet tool run hexalith-module --version",
+      "exitCode": 0,
+      "output": "module/validation/epic-16-adoption-v2/version.txt",
+      "outputSha256": "2263b9f44abd72ad7f9a4c5ad92505b0ebbccb4356f1e289438b203995fa6de9",
+      "stderr": "module/validation/epic-16-adoption-v2/version.stderr.txt",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "startedAtUtc": "2026-10-25T06:41:40.561975+00:00"
+    },
+    {
+      "id": "manifest",
+      "command": "dotnet tool run hexalith-module -- validate --manifest module/hexalith.module-manifest.v2.json",
+      "exitCode": 1,
+      "output": "module/validation/epic-16-adoption-v2/manifest.txt",
+      "outputSha256": "bc037e128cae9965e41ebb9c79ae42d51a432e95acf1102acaa7ef5fe498bdf0",
+      "stderr": "module/validation/epic-16-adoption-v2/manifest.stderr.txt",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "startedAtUtc": "2026-10-25T06:41:40.780911+00:00"
+    },
+    {
+      "id": "adoption-text",
+      "command": "dotnet tool run hexalith-module -- validate --manifest module/hexalith.module-manifest.v2.json --adoption",
+      "exitCode": 1,
+      "output": "module/validation/epic-16-adoption-v2/adoption-text.txt",
+      "outputSha256": "eeef394d27bac9795d97966acd397dbb19910544a14a4a07dcdd318c499e99be",
+      "stderr": "module/validation/epic-16-adoption-v2/adoption-text.stderr.txt",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "startedAtUtc": "2026-10-25T06:41:41.140419+00:00"
+    },
+    {
+      "id": "adoption-json",
+      "command": "dotnet tool run hexalith-module -- validate --manifest module/hexalith.module-manifest.v2.json --adoption --output json",
+      "exitCode": 1,
+      "output": "module/validation/epic-16-adoption-v2/adoption.json",
+      "outputSha256": "aaa2a5212826e659132386da3f8cd7c187c83c2ff2646a075005f669c0053f99",
+      "stderr": "module/validation/epic-16-adoption-v2/adoption-json.stderr.txt",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "startedAtUtc": "2026-10-25T06:41:44.681837+00:00"
+    }
+  ]
+}

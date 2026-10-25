@@ -6,9 +6,9 @@ The Epic 16 implementation hold remains ACTIVE. The existing single-replica
 warning, Story 16.1 draft status, sprint state and historical evidence remain
 unchanged by this preparation. Pre-existing edits to the draft are preserved.
 
-The accepted direct Platform tool is `hexalith.builds.module.cli` **4.35.1**, with
-roll-forward disabled. Its restored identity was
-`4.35.1+f8599224457dda99e7c0ae4870147dd51b464feb`. The root tool manifest copies
+The accepted direct Platform tool is `hexalith.builds.module.cli` **4.35.2**, with
+roll-forward disabled. Its restored identity is
+`4.35.2+4248b8c70cb35ba79fdd7e4dd63049d4c73211a0`. The root tool manifest copies
 only that accepted entry. No dependency or gitlink was updated.
 
 ## Declaration and runtime ownership
@@ -65,7 +65,52 @@ ring/restart behavior. Tenants delegate binding, SDK Data Protection registratio
 and declarative-subscription route qualification all remain **BLOCKED**, separate
 from static scanner findings. No runtime source is changed here.
 
-## Actual static validation
+## Current additive refresh (2026-10-25)
+
+The [v2 review package](../_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md)
+independently binds current sources and the exact preserved v1 predecessor.
+Its read-only structural check is:
+
+```bash
+uv run --frozen --no-sync python3 _bmad/scripts/verify_epic_16_adoption_v2.py --repository .
+```
+
+The five native commands below were rerun with accepted **4.35.2** into the fresh
+[v2 observation directory](validation/epic-16-adoption-v2/results.json). Restore
+and version exit **0**. Ordinary declaration validation and both adoption modes
+still exit **1** (`UsageOrManifest`). The published binary still reports both
+HXP002 `APP_API_TOKEN` fields. The current direct Builds schema accepts the real
+SDK token key and the unchanged manifest; that source-schema PASS does not
+establish compatibility of the published accepted binary. The token-format
+entry blocker remains **BLOCKED** pending an accepted compatible tool and new
+native observations. No alias is introduced.
+
+The [JSON report](validation/epic-16-adoption-v2/adoption.json) and
+[text report](validation/epic-16-adoption-v2/adoption-text.txt) retain **24 rows:
+six PASS and eighteen FAIL**. These include declaration failure, fourteen
+dependency-selector findings and the same three Dapr findings. In addition to
+the historical eleven selector paths below, the current report names
+`Directory.Packages.props`,
+`tests/Hexalith.Conversations.Contracts.Tests/ContractPackageInventoryTest.cs`
+and `tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props`.
+All failures remain entry blockers; no runtime code was changed to suppress them.
+
+Exact commands, exits, separate stdout/stderr hashes and timestamps are retained.
+[provenance.json](validation/epic-16-adoption-v2/provenance.json) records source
+HEAD, observation-time working-tree changes, all twelve unchanged direct root
+gitlinks/checkouts, and hashes of 1,047 tracked supported-source candidates.
+The scanner filters those candidates by its documented supported types, 1 MiB
+limit and frozen-host Dapr exclusion. It does not scan new untracked files or
+certify unsupported/generated constructs. The captured working tree precedes
+the completed v2 package; owner integration must rerun both adoption modes on
+the intended reviewed/tracked candidate. These observations establish no
+source/package/hosted parity, AD-5/AD-6 or SM-2 qualification.
+
+The historical v1 checkers remain unchanged. They truthfully fail current source
+drift; the adoption fault suite now reproduces their exact historical root/tool
+and reference bytes without Git history or initialized dependencies.
+
+## Historical 4.35.1 static validation
 
 Run from the Conversations Git root:
 
@@ -77,6 +122,9 @@ dotnet tool run hexalith-module -- validate --manifest module/hexalith.module-ma
 dotnet tool run hexalith-module -- validate --manifest module/hexalith.module-manifest.v2.json --adoption --output json
 python3 _bmad/scripts/verify_epic_16_adoption.py --repository .
 ```
+
+These are the recorded v1 commands and outcomes. The current root manifest runs
+4.35.2; historical checker reproduction uses pinned portable test fixtures.
 
 Restore and version checks exited **0**. Ordinary declaration validation and
 both adoption modes exited **1** (`UsageOrManifest`). The correct SDK
@@ -115,7 +163,8 @@ later checkout or certification of all new Python files.
 
 ## Remaining work and owner procedure
 
-Review the additive [Epic 16 adoption package](../_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md)
+Review the additive [Epic 16 v2 adoption package](../_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md),
+with the [v1 package](../_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md) retained as history,
 and its read-only checker. A structural PASS has `entryReadiness=BLOCKED` and
 four false authority flags. Retained scanner FAIL rows are entry blockers;
 they do not make the package structurally inconsistent merely by being recorded.

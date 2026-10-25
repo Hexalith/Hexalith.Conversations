@@ -76,3 +76,32 @@ tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthorin
 
 # Story 6.4 current cross-Tenant execution is byte-hashed by its additive proof successor.
 docs/release-evidence/projection-read-store-population-story-6.4-v3-cross-tenant.xunit.xml text eol=lf
+
+# Epic 16 v2 binds these root-owned bytes independently of checkout conversion.
+# Existing planning/fixture rules above already preserve their LF inputs.
+.gitattributes text eol=lf
+.gitmodules text eol=lf
+.config/dotnet-tools.json text eol=lf
+_bmad/schemas/epic-16-adoption-v1.schema.json text eol=lf
+_bmad/schemas/epic-16-adoption-v2.schema.json text eol=lf
+_bmad/schemas/epic-16-prerequisites-v1.schema.json text eol=lf
+_bmad/scripts/contained_reader.py text eol=lf
+_bmad/scripts/verify_epic_16_adoption.py text eol=lf
+_bmad/scripts/verify_epic_16_adoption_v2.py text eol=lf
+_bmad/scripts/verify_epic_16_prerequisites.py text eol=lf
+_bmad/scripts/tests/test_verify_epic_16_adoption.py text eol=lf
+_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py text eol=lf
+_bmad/scripts/tests/fixtures/epic16-*.json text eol=lf
+docs/runbooks/current-change-validation.md text eol=lf
+module/README.md text eol=lf
+module/hexalith.module-manifest.v2.json text eol=lf
+module/hosting-inventory.json text eol=lf
+module/sm-2-checklist.md text eol=lf
+# Native observations retain their exact bytes, including any raw CRLF.
+module/validation/*.json -text diff
+module/validation/*.txt -text diff
+module/validation/epic-16-adoption-v2/* -text diff
+src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj text eol=lf
+src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessServiceCollectionExtensions.cs text eol=lf
+# The pinned server entry point is intentionally stored as CRLF.
+src/Hexalith.Conversations.Server/Program.cs -text diff
