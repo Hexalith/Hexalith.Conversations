@@ -2,7 +2,7 @@
 title: 'Qualify module CLI configuration-key compatibility'
 type: 'bugfix'
 created: '2026-10-25'
-status: 'in-progress'
+status: 'done'
 route: 'oneshot'
 review_loop_iteration: 0
 context: []
@@ -55,6 +55,24 @@ stage, commit, push, change accepted pins or update gitlinks.
 - Added Builds `docs/module-cli-configuration-key-compatibility.md` with
   diagnosis, reproduction and future release/Platform/consumer handoff. No
   staging, commit, push, publication, deployment, pin or gitlink update occurred.
+- After review corrections, real installed-package controls passed again. Final
+  synthetic gate passed all five fault refusals, two positive/eighteen malformed
+  invocations and the existing 63 artifact-validator scenarios. Whitespace and
+  retained-evidence hash/link checks passed. No findings remain deferred.
+- Completion applies only to this local preparation task. Published 4.35.2 stays
+  unchanged and incompatible pending an authorized successor release. Story
+  16.1 stays draft/backlog; existing evidence and all 4,206 baseline root-owned
+  file contents remain unchanged. The scoped runtime publication and
+  story-final-record gates are explicitly not-applicable.
+- Concurrent final-check discovery: separate `/pushall` commits captured the
+  tested Builds scripts at `6f3bafa4170c90ab3be1d5531995b44cbe9a3b5a` and
+  advanced ten Conversations root gitlinks, including Builds, in
+  `cb7d8f2094c87493a717b3c2b883cdcae67c9224`. This session performed no Git
+  mutation and preserves that external work. Earlier unchanged-gitlink evidence
+  remains time-scoped; the final tree is not that earlier Git snapshot. Preserved
+  the concurrently committed `results.json` bytes and recorded final checks and
+  this disclosure in additive `completion-results.json`. No acceptance or
+  release authorization is inferred from those external commits.
 
 ## Review Triage Log
 
