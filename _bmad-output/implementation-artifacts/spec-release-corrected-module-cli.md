@@ -138,6 +138,68 @@ Historical local packages cannot substitute for published-artifact measurements.
   The harness is syntax checked only. No published-artifact measurement,
   release-eligible inventory or actual Platform artifact handoff is claimed.
 
+- Resumed after the user's instruction to continue. Fresh entry inventories at
+  `references/Hexalith.Builds/evidence/g4/module-configuration-key-release-20261025/resumed-20261025T101341Z/baseline.json.gz`
+  bind Conversations `8444207001d6ad3cd197c2ffba519317effa8b37`, Builds
+  `142b06e6d05c94b55ac35e587450c35fcac87590`, and Platform
+  `b9cf0e78c42ca8bfe1aa5488cc4340c238887acb`, all initially clean.
+- PR 136 exact-head required app checks passed after preserving an inventory
+  representation correction: Sonar first reported 509 `json:S6418` findings on
+  hash values under auth/token-shaped path keys; original bytes remain in gzip,
+  with equivalent labelled path/sha256 rows and no gate change. Normal squash
+  source `7144b8031b95a65982d78b3eb381e10c00b55cbe` passed rule suite
+  4709709500. Exact-source push CI 40184369318 was later cancelled after 34
+  completed steps; no complete push CI success or release credit is claimed.
+- At 10:44:01 UTC, separate `/pushall` work advanced remote main to
+  `6e40ea5f6243391bea80084b8ddd695df58fb1ff` (19 runtime/test/README files);
+  rule suite 4709861214 reports bypass and push CI 40185980339 started.
+  Complete Git-tree comparison found all 372 release-bound input blobs unchanged.
+  Old CI logs retain only the cancellation error, with no recorded test failure.
+  Remote writes are held pending explicit confirmation that other Builds writers
+  are paused through CI and protected release. No release/feed step has run.
+- Latest resumed progress and preservation observations:
+  `references/Hexalith.Builds/evidence/g4/module-configuration-key-release-20261025/resumed-20261025T101341Z/progress-at-supersession-20261025T104747Z.json` and
+  `references/Hexalith.Builds/evidence/g4/module-configuration-key-release-20261025/resumed-20261025T101341Z/preservation-at-supersession-20261025T104747Z.json`.
+  Local Builds checkout remains 7144b803; incoming remote work is not reset.
+
+- The latest 372-input equality proof covers only the module-key schema and
+  workflow/qualification/publisher/fixture/catalog/lock/SDK/attribute inputs.
+  External source 6e40ea5 also changes the compiled
+  `ModuleRunEvidenceArtifactValidator.cs` policy by dropping removed-disposition
+  and empty-remaining-resource requirements for completed selected-test evidence.
+  Its exact patch is retained at
+  `references/Hexalith.Builds/evidence/g4/module-configuration-key-release-20261025/resumed-20261025T101341Z/external-runtime-validator-delta-20261025T105102Z.json`.
+  This continuation does not edit or independently qualify that runtime policy;
+  no Platform or runtime qualification credit is claimed.
+
+- The user explicitly confirmed other Builds writes are paused and instructed
+  continuation. Rechecked current main at
+  `6e40ea5f6243391bea80084b8ddd695df58fb1ff` with push CI 40185980339
+  running. Safely fast-forwarded local Builds without source edits. The existing
+  governed source guard requires exact current allowed branch and successful
+  exact-SHA push CI, not a new source-only PR after every incoming baseline.
+  Existing committed fix/feature work provides the release effect, so no new
+  semantic trigger or CI-resetting commit is needed. Preserve and disclose
+  external rule suite 4709861214 as bypass without claiming historical branch
+  compliance; this continuation changes or bypasses no rule. Full current-source
+  qualification remains mandatory. Decision evidence is
+  `references/Hexalith.Builds/evidence/g4/module-configuration-key-release-20261025/resumed-20261025T101341Z/stable-source-decision-20261025T105248Z.json`.
+
+- Source advanced through normal PR137 at 11:13:56 UTC to
+  `68e65f2023eca117a2aa08a022ee33d8f4c34a44`; rule suite 4710053318 passed.
+  It changes only CompositionEngine.cs to release the provisioning lock and
+  remove pre-start state/diagnostics after an HXW006 refusal. Earlier current
+  CI40185980339 was cancelled by supersession; its full metadata and logs are
+  retained. Local Builds safely fast-forwarded and current push CI40187992999
+  is running. Existing writer-pause authorization continues; no extra source-only
+  PR, trigger commit or permission request is required by the governed route.
+- Old PR135/136 full CI logs were retained: each had one failure in
+  `WorkspaceCommandModeTests.DescriptorModuleProjectOutsideMappingStopsEngineAsync`
+  at line1151 (2097 total,2093 succeeded,1 failed,3 Platform-context skips).
+  Incoming PR137 addresses the same refusal-state defect, subject to successful
+  current-source CI and full qualification. No obsolete release PR CI remained
+  active, so routine cleanup required no cancellation or gate change.
+
 ## Spec Change Log
 
 - 2026-10-25: recorded implementation progress and the concurrent-source blocker;
@@ -158,8 +220,11 @@ Historical local packages cannot substitute for published-artifact measurements.
   pin/range, Story 16.1 spec/sprint bytes, 19 prior Conversations observation
   files and 53 Builds predecessor files match entry. External checkout/content
   and indexed-gitlink advances are recorded separately in timestamped snapshots.
-- Exact-current-SHA successful full push CI: pending. Current latest run is queued;
-  superseded cancelled runs provide no complete success credit.
+- Exact-current-SHA successful full push CI: pending. The resumed normal-source
+  run 40184369318 was cancelled after external supersession; current remote
+  source 68e65f2 has run 40187992999 in progress; 6e40ea5 was also superseded
+  and cancelled. Cancelled runs provide no
+  complete success credit.
 - Protected release dispatch/approval, full qualification, semantic-release version
   selection, publication/inventory and fresh feed installation: not run.
 - Published CLI ordinary/adoption human and JSON probes, invalid-key controls and
