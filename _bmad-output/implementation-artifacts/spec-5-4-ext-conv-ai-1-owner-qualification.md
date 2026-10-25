@@ -68,7 +68,17 @@ The Live runner now proposes a committed `RuntimeQualificationBinding` row for i
 
 The original four-project Local command passed 2,001 tests and its repeated 37-case six-seam matrix. The accepted owner command exited 1 at its target comparison without executing a cohort. The isolated Platform startup failed before runtime with `NU1605` downgrades from EventStore.Aspire/ServiceDefaults 3.126.1 to 3.126.0. Detached evidence is retained at `/home/administrator/hexalith-conversations-evidence/ext-conv-ai-1/delivery-20261022-71fab44/`.
 
+### Delivery continuation — 2026-10-25
+
+The previously reviewed component implementation is now committed in canonical source candidate `ed53473ea4c67aa10ffc46c9b951d9864fe263d4`. Before this documentation update, all 31 prior inventory paths matched its committed bytes; 29 matched the historical review snapshot, with only the CI workflow and unrelated deferred-work ledger changed. No further runtime source change is justified without the independently verified inputs required by the unchecked installation task. Pre-existing Builds working-tree changes were preserved.
+
+Fresh five-project Local verification passed 2,247 tests, including 31 receiver cases, with zero failures/skips; its repeated 37-case matrix is included in the total. The helper and synthetic actual-runner suites passed 45 cases. The receiver's fresh 52-library restore graph contains no Agents library. Exact commands, native receipts, source hashes and a refreshed blocked packet are retained at `/home/administrator/hexalith-conversations-evidence/ext-conv-ai-1/delivery-20261025-ed53473/`. The historical 2026-10-22 evidence remains unchanged.
+
+The Live manifest and installed authority, enrollment, host transport, receiver and hash inputs remain unverified; the committed dependency register still pins the prior Conversations target without its proposed `RuntimeQualificationBinding`, and protection remains Uncommitted. The packet records the full source candidate while retaining null installed fields. A complete replacement `Committed` acceptance must pin the target, command and hashes before Live execution; successful persisted C1–C4 evidence is required for `Available`, not for proposing or accepting `Committed`. No Live/refusal command or real cohort reservation occurred. The installation and qualification tasks remain unchecked and this spec remains in progress.
+
 ## Spec Change Log
+
+- 2026-10-25: Recorded the committed source checkpoint, fresh component verification and remaining installed-input blockers; clarified acceptance-before-qualification ordering without changing the frozen scope.
 
 ## Review Triage Log
 

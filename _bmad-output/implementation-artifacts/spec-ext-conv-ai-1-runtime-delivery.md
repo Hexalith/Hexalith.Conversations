@@ -63,7 +63,15 @@ context:
 - The thin Conversations domain-service host remains fail closed. An external composition host can opt in only after supplying current authority, source, publication, receiver and client providers. The accepted handoff supplies no enrolled service Party, worker machine binding, approval issuer or independent receiver lookup; these cannot be manufactured by repository configuration.
 - The Local matrix exercises serialized persisted-state simulations. The C1–C4 Live runner has fixed assertions and an accepted-target gate, but no installed manifest or cross-owner qualification cohort exists, so no Live lane has run or passed.
 
+### Current owner-delivery handoff — 2026-10-25
+
+The [owner-qualification spec](spec-5-4-ext-conv-ai-1-owner-qualification.md) records the current continuation. The Live runner now implements C1–C4 behind accepted exact-target, OQ prerequisite and frozen-input guards. OQ-5.4-1 permits the separate authenticated contract-conformance receiver for Level 4; the Agents Story 8.3 receiver remains separately gated. The component source is committed in canonical candidate `ed53473ea4c67aa10ffc46c9b951d9864fe263d4`, and fresh Local verification passed 2,247 tests plus 45 helper/synthetic-runner cases. The 37-case matrix is already included in the Local total.
+
+The [runtime qualification documentation](../../docs/implementation/ext-conv-ai-1-runtime-qualification.md#delivery-checkpoint--2026-10-25) identifies the current detached evidence and blocked packet. Actual installed source/approval/publication authority, Party/worker enrollment, host delivery transport, receiver/lookup installation and accepted hashes remain incomplete. Replacement `Committed` acceptance of the exact target, command and hashes precedes the single approved qualification run; persisted C1–C4 pass evidence is required before `Available`. No Live/refusal command or real cohort reservation occurred in this continuation. The original unchecked delivery tasks remain incomplete.
+
 ## Spec Change Log
+
+- 2026-10-25: Added the current owner-qualification handoff while retaining the earlier delivery notes and frozen scope.
 
 ## Review Triage Log
 
