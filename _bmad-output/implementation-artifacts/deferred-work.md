@@ -1034,3 +1034,59 @@ Review strengthens the same solution-context scope with native implicit Platform
 - source_spec: `_bmad-output/implementation-artifacts/spec-release-corrected-module-cli.md`
   summary: Builds: clear/rebind environment execution/catalog metadata when a later batch entry refuses descriptor creation.
   evidence: medium; review E1 in references/Hexalith.Builds/evidence/g4/module-configuration-key-release-20261025/resumed-20261025T101341Z/review/triage.json at e171c5a788eab183b32683431b084198c9b8d373. Batch loop resets ExecutionTiming but not EnvironmentBindings; a descriptor refusal returns before assigning new bindings. TestResultWriter checks owner/attempt/environment only. Retained same-source unit repro contains second selection with first execution/catalog bindings. Separate incoming runtime owner work; no Platform/runtime-entry credit.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 record authority can disagree with a runtime-qualified flag.
+  evidence: maybe-false, unverified medium. Settle by reading `epic16_tooling.generate` and showing whether `runtimeQualified` is copied from the scope while `AUTHORITY.executionAllowed` stays false.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 failure receipts can keep a successful measurement payload.
+  evidence: maybe-false, unverified medium. Settle by tracing `failed()` after `evaluate()` and showing a write failure leaves PASS counts in the FAIL document.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 scenarios 16.1-05 and 16.2-05 can pass on caller-supplied receipt strings.
+  evidence: maybe-false, unverified medium. Settle by comparing those scenarios with the dependency recheck used by AC-16.3-04.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 capture inventory can accept hashes it did not re-read.
+  evidence: maybe-false, unverified medium. Settle by running `capture.inventory` against a replaced binary whose stored sha256 still matches the in-memory row.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 TRX counter checks ignore omitted counter attributes.
+  evidence: maybe-false, unverified medium. Settle with a TRX fixture whose `Counters` element omits `total` or whose outcome is `Warning`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 native helper accepts an assembly with no SourceRevisionId attribute.
+  evidence: medium. `Program.cs` uses `revisions.Any`, so an empty revision list does not fail when the informational version suffix matches.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 conversation and tenant replay accept an empty attribute clear and a missing removal.
+  evidence: medium. `epic16_domain.py` updates attributes only when the map is truthy, and tenant removal uses `dict.pop` with a default.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 native helper reports build failure without stderr or an SDK pin.
+  evidence: maybe-false, unverified medium. Settle by running the helper build with a failing `dotnet` and showing whether stderr and `global.json` are ignored.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 successor dispatch drops SystemExit and maps ImportError to SCHEMA_UNAVAILABLE.
+  evidence: medium. `generate_story_record.py` returns `epic16_tooling.main` directly and catches only `ImportError` around the import.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 candidate checks reject merge commits.
+  evidence: maybe-false, unverified medium. Settle by reading the `rev-list --parents` two-field check against a merge candidate.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 two-replica and port-collision scenarios omit one passing encoding.
+  evidence: maybe-false, unverified medium. Settle by reading the two-replicas relation and the port-collision fault names.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 reconciliation can bind checkpoint zero to the last event.
+  evidence: maybe-false, unverified medium. Settle by executing `reconciliation()` with checkpoint 0.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 validation transcripts store local paths and name sources that are absent.
+  evidence: maybe-false, unverified medium. Settle by listing `module/validation/epic-16-prerequisite-implementation` and the two named evidence sources.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
+  summary: Epic 16 capture alias check can hash one inode and stat another.
+  evidence: medium. `no_alias` calls `os.lstat` after the caller has already read the file.
