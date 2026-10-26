@@ -1,0 +1,29 @@
+{
+  "name": "reverse-final-store-read",
+  "path": "_bmad/scripts/epic16_schedules.py",
+  "old": "require(store['observedTransactionId']==transactions[0] and same(store['snapshot'],persisted), 'both replicas read the same actual final durable snapshot')",
+  "new": "None",
+  "selector": "round12_reverse_save and (read-state or read-transaction)",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-reverse-final-store-read-toeaxs0b/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_reverse_save and (read-state or read-transaction)",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/reverse-final-store-read/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-reverse-final-store-read-toeaxs0b",
+  "exitCode": 1,
+  "elapsedSeconds": 17.641700086009223,
+  "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+  "mutatedSha256": "99af0376bb1d1acb532099e400e3142c16a6fd1ce04c474af28c7637b836b9f6",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 8,
+    "failures": 8,
+    "errors": 0,
+    "skipped": 0
+  }
+}

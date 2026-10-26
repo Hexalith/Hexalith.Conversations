@@ -1,0 +1,1 @@
+namespace System.Custom { public class HiddenFactAttribute : Xunit.FactAttribute {} } namespace System.Reflection { public class AssemblyFileVersionAttribute : System.Attribute { public string Contract { get; } public AssemblyFileVersionAttribute(string value) { Contract = value; } } }

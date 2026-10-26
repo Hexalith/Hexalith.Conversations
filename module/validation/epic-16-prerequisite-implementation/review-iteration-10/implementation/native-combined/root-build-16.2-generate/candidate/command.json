@@ -1,0 +1,15 @@
+{
+  "command": [
+    "dotnet",
+    "build",
+    "Contracts.csproj",
+    "-c",
+    "Debug",
+    "--nologo",
+    "-m:1",
+    "-p:NuGetAudit=false",
+    "-p:SourceRevisionId=06c56f548f321841c254eae087c355f224500393"
+  ],
+  "exitCode": 0,
+  "revision": "06c56f548f321841c254eae087c355f224500393"
+}

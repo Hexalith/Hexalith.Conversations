@@ -1,0 +1,60 @@
+.FF                                                                      [100%]
+=================================== FAILURES ===================================
+__________ test_endpoint_inventory_rejects_out_of_domain_ports[65536] __________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-251/test_endpoint_inventory_reject1/fixture')
+value = 65536
+
+    @pytest.mark.parametrize('value', [0, 65536, 100000])
+    def test_endpoint_inventory_rejects_out_of_domain_ports(repository, value):
+        data = deepcopy(OBSERVATIONS['AC-16.3-02'])
+        data.update(occupiedPort=value, effectivePorts=[value, 50002], portsBefore=[value], portsAfter=[value])
+        native(repository, 'AC-16.3-02', data)
+>       rejected(evaluate(repository, 'AC-16.3-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:955: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_________ test_endpoint_inventory_rejects_out_of_domain_ports[100000] __________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-251/test_endpoint_inventory_reject2/fixture')
+value = 100000
+
+    @pytest.mark.parametrize('value', [0, 65536, 100000])
+    def test_endpoint_inventory_rejects_out_of_domain_ports(repository, value):
+        data = deepcopy(OBSERVATIONS['AC-16.3-02'])
+        data.update(occupiedPort=value, effectivePorts=[value, 50002], portsBefore=[value], portsAfter=[value])
+        native(repository, 'AC-16.3-02', data)
+>       rejected(evaluate(repository, 'AC-16.3-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:955: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_endpoint_inventory_rejects_out_of_domain_ports[65536]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_endpoint_inventory_rejects_out_of_domain_ports[100000]
+2 failed, 1 passed, 383 deselected in 1.10s

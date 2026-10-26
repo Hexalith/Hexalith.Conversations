@@ -1,0 +1,14 @@
+  Determining projects to restore...
+  Restored /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_3/native/external/External.csproj (in 64 ms).
+  Restored /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_3/native/probe/Evidence.csproj (in 105 ms).
+/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_3/native/external/Attribute.cs(1,88): warning CS9113: Parameter 'value' is unread. [/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_3/native/external/External.csproj]
+  External -> /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_3/native/external/bin/Debug/net10.0/External.dll
+  Evidence -> /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_3/native/probe/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_3/native/external/Attribute.cs(1,88): warning CS9113: Parameter 'value' is unread. [/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_3/native/external/External.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.23

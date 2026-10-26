@@ -1,0 +1,23 @@
+[
+  {
+    "name": "boolean raw save order",
+    "positiveAssertions": 4,
+    "exception": "ValueError",
+    "detail": "typed raw save order"
+  },
+  {
+    "name": "2026-01-02T03:04:05+00:60",
+    "exception": "ValueError",
+    "detail": "valid .NET DateTimeOffset offset"
+  },
+  {
+    "name": "9999-12-31T23:59:59.9999999-00:01",
+    "exception": "ValueError",
+    "detail": "representable UTC ticks"
+  },
+  {
+    "name": "2026-01-02T03:04:05.\u0661Z",
+    "exception": "ValueError",
+    "detail": "DateTimeOffset JSON timestamp"
+  }
+]

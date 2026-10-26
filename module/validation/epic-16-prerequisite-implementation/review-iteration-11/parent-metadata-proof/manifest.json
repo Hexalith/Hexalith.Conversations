@@ -1,0 +1,193 @@
+{
+  "scope": "Independent compiled counterexamples against iteration-10 source; observed acceptance is incorrect and is not qualification.",
+  "artifacts": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/baseline.consumer.cs",
+      "sha256": "ff769122ec3a3fbc41cda848a7e4a0ee2743b4b91dbd07cb04810d6ea45f724f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/baseline.consumer.csproj",
+      "sha256": "3b9045d07fcfc49b77ba2f53b6b91ca8ad96e4abef583fbfe5464d766a41f032"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/baseline.consumer.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/baseline.consumer.stdout",
+      "sha256": "e35790e00897e77e7fe64b6f59ead8b23397a27bd3151edb2e51c0e3f31b474d"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/baseline.cs",
+      "sha256": "4f81ac1b0f0f409ef73a4188e5daa53ec8c30e901f8749a77ae3ff8115b917b0"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/baseline.dll.bytes",
+      "sha256": "d61130ac324347c69dd8ec843c02c5b79c7805905a04e92c3573dafe7b8e2224"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/baseline.metadata.json",
+      "sha256": "2fe641eef6f7fdcd9bb39806c1eae93572a2b91fa6d771745479cf7fccb333ce"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/candidate.consumer.cs",
+      "sha256": "ff769122ec3a3fbc41cda848a7e4a0ee2743b4b91dbd07cb04810d6ea45f724f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/candidate.consumer.csproj",
+      "sha256": "3b9045d07fcfc49b77ba2f53b6b91ca8ad96e4abef583fbfe5464d766a41f032"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/candidate.consumer.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/candidate.consumer.stdout",
+      "sha256": "0ae7c1c0e763f1c6f1c458ec0b9dda6cc51f9378c9410d5e3b8121206ea418b8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/candidate.cs",
+      "sha256": "d94c0c98d23986888711784342f764abab5b35d64e85f8a601118547fe735fc9"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/candidate.dll.bytes",
+      "sha256": "b50c34188bc7e5ecfd8ffbd1c2657be5a1147a8dfdc800d72263414f5cc201db"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B1-interface-attributes/candidate.metadata.json",
+      "sha256": "33e50c4a3f58b256b12d02bb8abb3fd54ae6ff41fa478cf83b4283938da8d3fe"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B2-attribute-constructor/baseline.cs",
+      "sha256": "0464a6c1fb46f059682d924adb45caf55bb65ef10db9807d06533ba5f9cef304"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B2-attribute-constructor/baseline.dll.bytes",
+      "sha256": "5506eee61c24d45e1cfd342b8d3507960b2793c79e5d80bc1091bf5650cfbeb8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B2-attribute-constructor/baseline.metadata.json",
+      "sha256": "aa4af7eb18ab68529a539b91c7e1c718155ace79a67cd2e9d4adfae6e8be87ed"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B2-attribute-constructor/candidate.cs",
+      "sha256": "040828ca444acbc26badf10e26adfab48d3d0a9ce7a35629b99d67b8e7e25855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B2-attribute-constructor/candidate.dll.bytes",
+      "sha256": "e971a5de103ae752c55257b2082d31f4c41c5b7b62d111be4a4d089c78816ef7"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B2-attribute-constructor/candidate.metadata.json",
+      "sha256": "17e87df35a51a0a3bb2824d07313fee7b1add0484ec483fce9d97e6fa6feb76c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B3-preserve-sig/baseline.cs",
+      "sha256": "164ce96ccc6eee686ef418047ca464ab30c72f1a2334ac1307cfe8b9353f5c76"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B3-preserve-sig/baseline.dll.bytes",
+      "sha256": "3aa774d9252d0d8b332e6e134ef19dfbef86c969fd51e2de9fdfc78652032d95"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B3-preserve-sig/baseline.metadata.json",
+      "sha256": "f60240cdae6a6639b030843884a07fe8b1d47688a8c97e81266f3af34c6067b5"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B3-preserve-sig/candidate.cs",
+      "sha256": "c7d5d1016ba54fe27cc51ffbca3ec759a20cd48fbd61810e719bc0a8aee43b6e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B3-preserve-sig/candidate.dll.bytes",
+      "sha256": "57123d3c9c1965f06aa3f0509dc9729c5595cd5f9800f193e6a472438432affa"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B3-preserve-sig/candidate.metadata.json",
+      "sha256": "16cc99d78c17d5e70d586018c10d3c2178c61571c23dcbec0e55c0073e834a56"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/baseline.consumer.cs",
+      "sha256": "ce6d67598e78c621a6f34e0d1b261c8ce587559ceb567d41ef009eb52f29a422"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/baseline.consumer.csproj",
+      "sha256": "3b9045d07fcfc49b77ba2f53b6b91ca8ad96e4abef583fbfe5464d766a41f032"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/baseline.consumer.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/baseline.consumer.stdout",
+      "sha256": "2ea3179607ca7dedda4664a124bd2059922598203415f69398000251493fb732"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/baseline.cs",
+      "sha256": "817dded168a3ea90d280125cb2c7075b82d7d9dbec4181f2b3b6a3605c2f36f6"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/baseline.dll.bytes",
+      "sha256": "664e452a05797a0e9624a617a5211af391bc5301a8415c93a027d6c265239b03"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/baseline.metadata.json",
+      "sha256": "56b699510d91e59b164146dd9429646f3ee3f830e7d07f65391166cc778d6e90"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/candidate.consumer.cs",
+      "sha256": "ce6d67598e78c621a6f34e0d1b261c8ce587559ceb567d41ef009eb52f29a422"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/candidate.consumer.csproj",
+      "sha256": "3b9045d07fcfc49b77ba2f53b6b91ca8ad96e4abef583fbfe5464d766a41f032"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/candidate.consumer.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/candidate.consumer.stdout",
+      "sha256": "759db6a9f9bcb2cd3c205d5e174d9a6f0b65cb0bf0b6b2cae846318421c960bb"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/candidate.cs",
+      "sha256": "7211e2706a338656d114ceaa78a1b563e7a3e20c8088629e2de429dac3285132"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/candidate.dll.bytes",
+      "sha256": "6cb35880908395bf8fc6183c0af443e1b3e3a9d408605940a48f3e86155d91d9"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B4-assembly-attributes/candidate.metadata.json",
+      "sha256": "aa5491a22b846bfc1d60583a264f1e626a29b9c32abd740277907bb1d84e2d4a"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B5-owning-flags/baseline.cs",
+      "sha256": "245281f8e62091bcac104d01721f8e74a8fd4870014c78d38c9f630a70471382"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B5-owning-flags/baseline.dll.bytes",
+      "sha256": "9d5bc9909d46378ef5b8e5d804bd154700f92fd3f4cc4947a2832218c0c0415b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B5-owning-flags/baseline.metadata.json",
+      "sha256": "915505615db7f1eac4ae29df952e0ce3a0ca64a697296ae3be1c46eb7f3e26a1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B5-owning-flags/candidate.cs",
+      "sha256": "536e193fb1c04b3050b96a7e57e140287d29dd7667c3bd77b4cfa6db12326020"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B5-owning-flags/candidate.dll.bytes",
+      "sha256": "5a168e6009b838f78c18b02732cee027ac7a556fd81b4e417566a65938d10e47"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/R11B5-owning-flags/candidate.metadata.json",
+      "sha256": "19e6566f04efca3103db2b2dc4af9e196dac4be06c47282136a3773ddf928912"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-metadata-proof/results.json",
+      "sha256": "271e80b96c758061116fcc1f85b75088078c7192d0f90dfbc0ab0444ddbc4500"
+    }
+  ]
+}

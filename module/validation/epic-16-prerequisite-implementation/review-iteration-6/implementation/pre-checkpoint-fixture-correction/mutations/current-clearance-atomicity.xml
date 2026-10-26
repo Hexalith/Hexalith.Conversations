@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.798" timestamp="2026-10-25T22:11:23.573659+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[current-split]" time="2.464"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-432/test_round6_current_recovery_a0/fixture')
+fault = 'current-split'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

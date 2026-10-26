@@ -1,0 +1,93 @@
+[
+  {
+    "name": "native-domain-map-openness",
+    "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+    "old": "closed fixture-key regression",
+    "new": "closed fixture-key regression",
+    "selection": "round11_durable_native_maps and extra",
+    "schemaMaps": true,
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r11-mutant-native-domain-map-openness-u7n4u8qi/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round11_durable_native_maps and extra",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutations-supplement/native-domain-map-openness.xml"
+    ],
+    "workspace": "/tmp/epic16-r11-mutant-native-domain-map-openness-u7n4u8qi",
+    "exitCode": 1,
+    "elapsedSeconds": 14.226,
+    "originalSha256": "716e36cb2dd8e7ee34599fc67eb07e368d7cee5277a13cc7090f87e26a04d87f",
+    "mutatedSha256": "df4e04915b6c4e39be21d8e1a528f1978834aeb1a767d77416f54fb88f82adf8",
+    "stdoutSha256": "a469c1b1cc9e0f5fb7a44fbf2168c26c6959cbe8fcbc2322f6b777a98c3777d9",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 4,
+      "failures": 4,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "recovery-execution-caller",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "        recovery_execution(attempt, data)",
+    "new": "        pass",
+    "selection": "round11_recovery_operations and unexecuted",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r11-mutant-recovery-execution-caller-ge01nh9p/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round11_recovery_operations and unexecuted",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutations-supplement/recovery-execution-caller.xml"
+    ],
+    "workspace": "/tmp/epic16-r11-mutant-recovery-execution-caller-ge01nh9p",
+    "exitCode": 1,
+    "elapsedSeconds": 19.059,
+    "originalSha256": "c9b0e6bbf39809a016d696d2dc5165b9f130d0292d78926bd3665e8e285fe87c",
+    "mutatedSha256": "e410a23e318b7080a4385b5df02015a063808eee8e974d1f3dc48526ae8124c1",
+    "stdoutSha256": "19b9bf1fc49b1de83d0b11b3479be7f8b31b6b37d1edd1f3bc48f0beab3c7a7a",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 7,
+      "failures": 6,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "recovery-branch-scope",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "    require(proof['branchId'] == ('current-clearance' if duplicate else row['id']) and same(proof['scope'], row['scope']), 'execution belongs to exact recovery branch and scope')",
+    "new": "    pass",
+    "selection": "round11_recovery_operations and scope",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r11-mutant-recovery-branch-scope-an_ouqbe/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round11_recovery_operations and scope",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutations-supplement/recovery-branch-scope.xml"
+    ],
+    "workspace": "/tmp/epic16-r11-mutant-recovery-branch-scope-an_ouqbe",
+    "exitCode": 1,
+    "elapsedSeconds": 19.205,
+    "originalSha256": "c9b0e6bbf39809a016d696d2dc5165b9f130d0292d78926bd3665e8e285fe87c",
+    "mutatedSha256": "a15e5ea126e5b178cc7f8c499e57437e71d6f777042dac938e257cc6ceb2ddc8",
+    "stdoutSha256": "d9037db8716e58a6e045af471d920a49cbf9f18ec887336b2eefa124b5845fbb",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 7,
+      "failures": 7,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+]

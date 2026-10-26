@@ -1,0 +1,29 @@
+[
+  {
+    "name": "retained-byte-hash",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review6-mutant-retained-byte-hash-g0atavrh/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round6_capture_rejects_changed and binary-byte",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/hash-control-proof/retained-byte-hash.xml"
+    ],
+    "workspace": "/tmp/epic16-review6-mutant-retained-byte-hash-g0atavrh",
+    "exitCode": 1,
+    "elapsedSeconds": 4.749,
+    "replacements": 1,
+    "originalSha256": "c5ffc2329228ba4ce748ac28307157531c82a74e803c6e237f987acc0629226f",
+    "mutatedSha256": "92c1d8f5600ecd467f8170bd1422a0b5d25a2d39c7e09cee6942462404cb2810",
+    "stdoutSha256": "74332d9e797eb43bb7ff5c700b74b7c2bf6b377d9ef37fb06a81685b34917593",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+]

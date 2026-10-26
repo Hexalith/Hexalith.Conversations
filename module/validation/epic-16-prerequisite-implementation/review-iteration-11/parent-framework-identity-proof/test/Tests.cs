@@ -1,0 +1,1 @@
+[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")] namespace Probe; public class TestClass { [Xunit.Fact, System.Custom.HiddenFact] public void Scenario01() {} }

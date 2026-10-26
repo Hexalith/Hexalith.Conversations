@@ -1,0 +1,321 @@
+[
+  {
+    "id": "R12B4",
+    "scenario": "AC-16.1-03",
+    "schemaAccepted": true,
+    "checks": [
+      "monotonic-horizon",
+      "immutable-pending-evidence",
+      "two-replica-convergence",
+      "fenced-cutover"
+    ],
+    "fields": [
+      [
+        "authoritativeReplay",
+        "id",
+        "newer",
+        "older",
+        "replicaAAfter",
+        "replicaABefore",
+        "replicaBAfter",
+        "replicaBBefore",
+        "saveOrder",
+        "staleAccepted"
+      ],
+      [
+        "authoritativeReplay",
+        "id",
+        "newer",
+        "older",
+        "replicaAAfter",
+        "replicaABefore",
+        "replicaBAfter",
+        "replicaBBefore",
+        "saveOrder",
+        "staleAccepted"
+      ],
+      [
+        "authoritativeReplay",
+        "id",
+        "newer",
+        "older",
+        "replicaAAfter",
+        "replicaABefore",
+        "replicaBAfter",
+        "replicaBBefore",
+        "saveOrder",
+        "staleAccepted"
+      ],
+      [
+        "authoritativeReplay",
+        "id",
+        "newer",
+        "older",
+        "replicaAAfter",
+        "replicaABefore",
+        "replicaBAfter",
+        "replicaBBefore",
+        "saveOrder",
+        "staleAccepted"
+      ]
+    ],
+    "note": "Closed capture accepts the complete scenario without the challenged execution/state/consumer relationship. Source-derived replay and unrelated other scenario observations remain intact."
+  },
+  {
+    "id": "R12B5",
+    "scenario": "AC-16.1-01",
+    "schemaAccepted": true,
+    "checks": [
+      "fail-closed-states",
+      "atomic-sequence-identity",
+      "tenant-segmentation",
+      "seam-ownership"
+    ],
+    "fields": [
+      [
+        "allowed",
+        "lastContiguousSequence",
+        "state"
+      ],
+      [
+        "allowed",
+        "lastContiguousSequence",
+        "state"
+      ],
+      [
+        "allowed",
+        "lastContiguousSequence",
+        "state"
+      ],
+      [
+        "allowed",
+        "lastContiguousSequence",
+        "state"
+      ],
+      [
+        "allowed",
+        "lastContiguousSequence",
+        "state"
+      ],
+      [
+        "allowed",
+        "lastContiguousSequence",
+        "state"
+      ]
+    ],
+    "note": "Closed capture accepts the complete scenario without the challenged execution/state/consumer relationship. Source-derived replay and unrelated other scenario observations remain intact."
+  },
+  {
+    "id": "R12B5",
+    "scenario": "AC-16.1-02",
+    "schemaAccepted": true,
+    "checks": [
+      "durable-restart",
+      "pending-fingerprints",
+      "fail-closed-restart",
+      "fenced-resumption"
+    ],
+    "fields": [
+      [
+        "allowed",
+        "lastContiguousSequence",
+        "state"
+      ],
+      [
+        "allowed",
+        "lastContiguousSequence",
+        "state"
+      ],
+      [
+        "allowed",
+        "lastContiguousSequence",
+        "state"
+      ],
+      [
+        "allowed",
+        "lastContiguousSequence",
+        "state"
+      ],
+      [
+        "allowed",
+        "lastContiguousSequence",
+        "state"
+      ],
+      [
+        "allowed",
+        "lastContiguousSequence",
+        "state"
+      ]
+    ],
+    "note": "Closed capture accepts the complete scenario without the challenged execution/state/consumer relationship. Source-derived replay and unrelated other scenario observations remain intact."
+  },
+  {
+    "id": "R12B6",
+    "scenario": "AC-16.1-04",
+    "schemaAccepted": true,
+    "checks": [
+      "tenant-fault-matrix",
+      "durable-acknowledgement",
+      "bounded-retry",
+      "query-purity"
+    ],
+    "fields": [
+      [
+        "acknowledged",
+        "acknowledgement",
+        "attempts",
+        "deliveryId",
+        "durable",
+        "durableCommit",
+        "durableEvidence",
+        "id"
+      ],
+      [
+        "acknowledged",
+        "acknowledgement",
+        "attempts",
+        "deliveryId",
+        "durable",
+        "durableCommit",
+        "durableEvidence",
+        "id"
+      ]
+    ],
+    "note": "Closed capture accepts the complete scenario without the challenged execution/state/consumer relationship. Source-derived replay and unrelated other scenario observations remain intact."
+  },
+  {
+    "id": "R12E1",
+    "stage": 0,
+    "schemaAccepted": true,
+    "checks": [
+      "writer-CAS-boundary",
+      "generation-fences",
+      "erase-quarantine",
+      "authoritative-rebuild-cutover"
+    ],
+    "transactionId": "tx-rebuild-entry",
+    "stageOrder": 10,
+    "enqueueOrder": 30
+  },
+  {
+    "id": "R12E1",
+    "stage": 1,
+    "schemaAccepted": true,
+    "checks": [
+      "writer-CAS-boundary",
+      "generation-fences",
+      "erase-quarantine",
+      "authoritative-rebuild-cutover"
+    ],
+    "transactionId": "tx-rebuild-work",
+    "stageOrder": 100,
+    "enqueueOrder": 30
+  },
+  {
+    "id": "R12E1",
+    "stage": 2,
+    "schemaAccepted": true,
+    "checks": [
+      "writer-CAS-boundary",
+      "generation-fences",
+      "erase-quarantine",
+      "authoritative-rebuild-cutover"
+    ],
+    "transactionId": "tx-rebuild-completion",
+    "stageOrder": 200,
+    "enqueueOrder": 30
+  },
+  {
+    "id": "R12B1",
+    "assembly": "/tmp/epic16-review12-native-pu9vua9v/bin/Debug/net10.0/Probe.dll",
+    "assemblySha256": "ee989186910a1c5e1a137ad281802cfac1e3912632da88848e265ed1c955cafe",
+    "admitted": {
+      "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "type": "Synthetic.TestClass",
+      "method": "Scenario01",
+      "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+    },
+    "productRejected": "invalid native evidence"
+  },
+  {
+    "id": "R12B2",
+    "assembly": "/tmp/epic16-review12-return-l8clbmcc/probe/bin/Debug/net10.0/Probe.dll",
+    "assemblySha256": "4f11fe2b2525b13c8646b3468754706a21de7c679e94b53d62c9b8f238b48b94",
+    "admitted": {
+      "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "type": "Synthetic.TestClass",
+      "method": "Scenario01",
+      "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+    },
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-review12-return-l8clbmcc/probe/bin/Debug/net10.0/Probe.dll",
+      "-automated",
+      "sync",
+      "-method",
+      "Synthetic.TestClass.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-review12-return-l8clbmcc/probe/bin/Debug/net10.0",
+    "runnerExit": 0
+  },
+  {
+    "id": "R12B3",
+    "assembly": "/tmp/epic16-review12-params-557y69en/probe/bin/Debug/net10.0/Probe.dll",
+    "assemblySha256": "195d614013671bcde9670e3690837b5108ed4d54d76e319ffdc54d410836d794",
+    "admitted": {
+      "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "type": "Synthetic.TestClass",
+      "method": "Scenario01",
+      "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+    },
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-review12-params-557y69en/probe/bin/Debug/net10.0/Probe.dll",
+      "-automated",
+      "sync",
+      "-method",
+      "Synthetic.TestClass.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-review12-params-557y69en/probe/bin/Debug/net10.0",
+    "runnerExit": 1
+  },
+  {
+    "id": "R12B9",
+    "stage": "sdk",
+    "calls": [
+      [
+        "dotnet",
+        "--version"
+      ]
+    ],
+    "message": "repository-approved SDK unavailable",
+    "stderrOmitted": true,
+    "exitOmitted": true
+  },
+  {
+    "id": "R12B9",
+    "stage": "build",
+    "calls": [
+      [
+        "dotnet",
+        "--version"
+      ],
+      [
+        "dotnet",
+        "build",
+        "Epic16.NativeHelper.csproj",
+        "-c",
+        "Debug",
+        "--nologo",
+        "-m:1",
+        "-p:NuGetAudit=false"
+      ]
+    ],
+    "message": "fixed helper build failed: ",
+    "stderrOmitted": true,
+    "exitOmitted": true
+  }
+]

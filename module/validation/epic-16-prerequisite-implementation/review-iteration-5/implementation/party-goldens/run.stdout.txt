@@ -1,0 +1,51 @@
+[
+  {
+    "input": "  ACTOR-A  ",
+    "inputJson": "\u0022party:  ACTOR-A  \u0022",
+    "constructed": "actor-a",
+    "deserialized": "actor-a",
+    "serialized": "\u0022party:actor-a\u0022"
+  },
+  {
+    "input": "\tMiXeD\r\n",
+    "inputJson": "\u0022party:\\tMiXeD\\r\\n\u0022",
+    "constructed": "mixed",
+    "deserialized": "mixed",
+    "serialized": "\u0022party:mixed\u0022"
+  },
+  {
+    "input": "\u00A0\u00C9\u03A3\u0130\u212A\uD801\uDC00\u2003",
+    "inputJson": "\u0022party:\\u00A0\\u00C9\\u03A3\\u0130\\u212A\\uD801\\uDC00\\u2003\u0022",
+    "constructed": "\u00E9\u03C3\u0130k\uD801\uDC28",
+    "deserialized": "\u00E9\u03C3\u0130k\uD801\uDC28",
+    "serialized": "\u0022party:\\u00E9\\u03C3\\u0130k\\uD801\\uDC28\u0022"
+  },
+  {
+    "input": "\u001CA\u001C",
+    "inputJson": "\u0022party:\\u001CA\\u001C\u0022",
+    "constructed": "\u001Ca\u001C",
+    "deserialized": "\u001Ca\u001C",
+    "serialized": "\u0022party:\\u001Ca\\u001C\u0022"
+  },
+  {
+    "input": "\u00DF\u1E9E",
+    "inputJson": "\u0022party:\\u00DF\\u1E9E\u0022",
+    "constructed": "\u00DF\u00DF",
+    "deserialized": "\u00DF\u00DF",
+    "serialized": "\u0022party:\\u00DF\\u00DF\u0022"
+  },
+  {
+    "input": "\uFF21\uFF22\uFF23",
+    "inputJson": "\u0022party:\\uFF21\\uFF22\\uFF23\u0022",
+    "constructed": "\uFF41\uFF42\uFF43",
+    "deserialized": "\uFF41\uFF42\uFF43",
+    "serialized": "\u0022party:\\uFF41\\uFF42\\uFF43\u0022"
+  },
+  {
+    "input": "\u200B A \u200B",
+    "inputJson": "\u0022party:\\u200B A \\u200B\u0022",
+    "constructed": "\u200B a \u200B",
+    "deserialized": "\u200B a \u200B",
+    "serialized": "\u0022party:\\u200B a \\u200B\u0022"
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "policySha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652",
+  "sdk": "10.0.402",
+  "runtime": {
+    "frameworkDescription": ".NET 10.0.13",
+    "runtimeVersion": "10.0.13",
+    "targetFramework": ".NETCoreApp,Version=v10.0",
+    "coreLibraryIdentity": "System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e"
+  },
+  "runtimeConfig": {
+    "runtimeOptions": {
+      "tfm": "net10.0",
+      "framework": {
+        "name": "Microsoft.NETCore.App",
+        "version": "10.0.0"
+      },
+      "configProperties": {
+        "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false
+      }
+    }
+  },
+  "helperSha256": "b582e9604b01ccf5458fa36e070f74c09a1d2f732e40a65c4850fc9649a09bbb"
+}

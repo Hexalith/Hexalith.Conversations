@@ -1,0 +1,194 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-adoption-candidate.v1",
+  "status": "candidate-for-owner-review",
+  "source": {
+    "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json",
+    "sha256": "a21c8c817e5126343110a5e6730883b5cf32738610b3f552ef6cdbbfe605a965"
+  },
+  "preservedContract": {
+    "schemaVersion": "hexalith.conversations.epic16-successor-draft.v1",
+    "status": "draft",
+    "storyId": "16.2",
+    "predecessorContract": "_bmad-output/planning-artifacts/v9/story-contracts/16.2.json",
+    "architectureDecisions": [
+      "AD-5",
+      "AD-6",
+      "AD-7",
+      "AD-8"
+    ],
+    "predecessors": [
+      "16.1"
+    ],
+    "outcome": {
+      "title": "Make replay time deterministic and missing-index state truthful",
+      "bounded": "Derive deterministic v2 replay state and ReplayAnchorAt from validated immutable event inputs, preserve independently generated public observation-time freshness under ProjectionFreshnessV1, eliminate replay clock fallbacks, use the single v2 event-fed Conversation lifecycle/watermark index, and distinguish initialized-empty from missing, erased, rebuilding, corrupt, or unavailable state without query-side repair writes."
+    },
+    "rollback": {
+      "boundary": "Revert only timestamp derivation, the lifecycle/watermark addition, read semantics, tests/evidence, and the Story 16.2 record. Preserve event history, public contract shape, Story 16.1 state, and prior proof history."
+    },
+    "scenarios": [
+      {
+        "id": "AC-16.2-01",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_2.py --repository . --scenario AC-16.2-01 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-01.json",
+        "given": "Given fixed authoritative histories including participant/file evidence, contract events, position-only events, and missing or invalid event-time/identity cases.",
+        "when": "When materialization validates stream identity, exact persisted payload bytes, selected event time, and duplicate bindings before duplicate suppression.",
+        "then": "Then contract-event identity/time is ConversationEventMetadata.EventId/OccurredAt and position-only identity/time is nonblank persisted ProjectionEventDto.MessageId/Timestamp. Envelope time is diagnostic for contract events and a difference alone is not corruption; aggregate sequence proves contiguity and never supplies alternate identity. The decoder retains position-only identity and selected time. Missing identity, default/invalid time, changed selected time, or conflicting duplicate binding fails closed before suppression. The full duplicate binding includes tenant, conversation, eventType, sequence, serializationFormat, SHA-256(exact persisted payload bytes), and selectedUtcTicks; exact reuse is a no-op and changed reuse is Unavailable/metadata_contradictory. Replay never substitutes UtcNow, Now, or TimeProvider.GetUtcNow(); legacy fallback requires explicit migration authority.",
+        "requirementIds": [
+          "E6-A5-EVENT-DERIVED-TIMESTAMPS",
+          "AD8-IDENTITY-PAYLOAD-TIME",
+          "AD8-DUPLICATE-FULL-BINDING"
+        ]
+      },
+      {
+        "id": "AC-16.2-02",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_2.py --repository . --scenario AC-16.2-02 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-02.json",
+        "given": "Given byte-identical authoritative inputs, an adopted AD-8 contract, and two clean rebuilds executed under different runtime clocks.",
+        "when": "When EventStore canonicalizes deterministic v2 replay-state values with fixed JsonSerializerDefaults.Web, compact UTF-8, recursively ordinal-sorted object properties, and explicitly ordinally ordered arrays/collections supplied by Conversations.",
+        "then": "Then canonical deterministic v2 replay-state JSON, ReplayAnchorAt, and ReplayStateHash are byte-identical for identical authoritative inputs, while public observation-time freshness is generated anew, conforms to ProjectionFreshnessV1, is excluded from replay identity, and is tested for semantic invariants rather than byte equality. ReplayAnchorAt is the maximum validated contributing event/lifecycle time. ReplayStateHash is SHA-256 of the exact EventStore canonical value bytes, excluding operational freshness, provider wrappers, ETags, batch IDs, TTL, and the separate coordinated-batch fingerprint. Deserialize-and-canonical-reserialize bytes match and unordered collections without a stable composite key fail before persistence. ProjectionGeneratedAt is the actual completion instant, LastAppliedEventTimestamp is the applicable replay anchor, and LagDuration spans them; generation before the anchor fails closed instead of clamping. This explicitly replaces historical AC-16.2-02 whole-projection-JSON and timestamp byte equality; complete provider documents and observation timestamps may differ. Source-generated API options are not injected into the fixed batch seam; new persistence metadata needs a versioned EventStore API and golden vectors before this story.",
+        "requirementIds": [
+          "E6-A5-EXACT-REPLAY",
+          "AD8-REPLAY-OBSERVATION-SEPARATION",
+          "AD8-CANONICAL-REPLAY-BYTES"
+        ]
+      },
+      {
+        "id": "AC-16.2-03",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_2.py --repository . --scenario AC-16.2-03 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-03.json",
+        "given": "Given never-used and initialized-empty tenants, v1/missing indexes with surviving details, erased state, pending dispatch, gaps, corrupt metadata, mixed generations, unavailable providers, and unauthorized/nonexistent tenants.",
+        "when": "When authorized production queries evaluate the v2 ConversationProjectionIndexReadModel at projection:conversations-index:<tenant-segment> and its lifecycle, watermarks, generation, dispatch references, and rebuild barrier/manifest.",
+        "then": "Then this control index is the sole Conversations lifecycle/watermark authority. Only TenantCreated+Absent creates Ready(empty); Absent/v1 enters Rebuilding, Ready enters Erasing then Erased, and only explicit owner-authorized rebuild can leave Erased through Rebuilding to Ready. Only proven v2 Ready with zero summaries and no pending dispatch maps Current/current with an empty page. v1/Erasing/Erased/Rebuilding maps Rebuilding/rebuilding; lifecycle/source-position gaps map Rebuilding/gap_detected; a missing authorized-tenant record or unavailable provider maps Unavailable/unavailable; corrupt, mixed-generation, or contradictory state maps Unavailable/metadata_contradictory. Unauthorized and nonexistent tenants map non-disclosing Forbidden/forbidden without any index read. A surviving detail cannot prove current-empty.",
+        "requirementIds": [
+          "E6-A5-MISSING-INDEX-SEMANTICS",
+          "E6-A5-DERIVED-STATE-DELETION",
+          "AD7-SOLE-CONTROL-INDEX-CAS",
+          "AD7-LIFECYCLE-GENERATION-ERASE",
+          "AD7-SAFE-QUERY-MAPPINGS"
+        ]
+      },
+      {
+        "id": "AC-16.2-04",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_2.py --repository . --scenario AC-16.2-04 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-04.json",
+        "given": "Given event-fed lifecycle initialization, live delivery, erase/rebuild intents, durable queued references, and a state-store write ledger around all query paths.",
+        "when": "When lifecycle adapters and coordinators submit intents to ConversationProjectionReadModelWriter and EventStore executes the writer-produced CAS plans while reads run concurrently.",
+        "then": "Then queries perform zero repair writes and never infer lifecycle on read. Only the writer authors transition plans; lifecycle fields and index entries share one CAS boundary. Each erase/rebuild increments generation across detail, dispatch, manifest, watermark, and queued references, and stale-generation mutations are rejected. Erase captures its barrier/deletion manifest, deletes only retiring-generation targets, and retains the control tombstone plus non-payload quarantine references. During Erasing/Erased, deliveries acknowledge only after an authoritative-location reference is durably quarantined and cannot recreate derived content. Rebuild discovers authoritative tenant-scoped streams at B, durably queues later deliveries, proves exact-next per-aggregate sequence through B, drains through captured C, and CAS-cuts over only with complete manifests/watermarks. Post-C deliveries stay queued, same-generation progress alone can merge, and newer watermarks never regress. Numeric EventStore global-position gaps are scan barriers, never tenant-stream contiguity proof.",
+        "requirementIds": [
+          "E6-A5-DERIVED-STATE-DELETION",
+          "AD7-SOLE-CONTROL-INDEX-CAS",
+          "AD7-LIFECYCLE-GENERATION-ERASE",
+          "AD7-AUTHORITATIVE-REBUILD-CATCHUP"
+        ]
+      },
+      {
+        "id": "AC-16.2-05",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_2.py --repository . --scenario AC-16.2-05 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-05.json",
+        "given": "Given implemented index/replay changes behind existing public contracts and focused query, freshness, redaction, tenant-isolation, rebuild, and provider conformance lanes.",
+        "when": "When required measured tests execute migration/rebuild/erase races, stale generations, duplicate identity/time conflicts, observation-time invariants, canonical round trips, and query side-effect checks.",
+        "then": "Then public query/freshness contract shape and the existing safe UX/API vocabulary remain unchanged; all required results are nonempty with zero failed, skipped, or not-run. Detail/dispatch/index generations must agree or queries return Rebuilding. Redaction and tenant isolation remain preserved, canonical replay output remains event-derived, and public observation-time freshness follows AD-8 semantics rather than the replaced whole-document byte-equality rule. EventStore retains generic persistence/recovery and canonicalization ownership; Conversations never repairs derived state on read.",
+        "requirementIds": [
+          "E6-A5-EVENT-DERIVED-TIMESTAMPS",
+          "E6-A5-EXACT-REPLAY",
+          "E6-A5-MISSING-INDEX-SEMANTICS",
+          "AD7-SAFE-QUERY-MAPPINGS",
+          "AD8-DUPLICATE-FULL-BINDING",
+          "AD8-REPLAY-OBSERVATION-SEPARATION",
+          "AD8-CANONICAL-REPLAY-BYTES"
+        ]
+      },
+      {
+        "id": "AC-16.2-06",
+        "legacyCommand": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/16.2.json --format bundle --output-json docs/release-evidence/story-16.2-final-record-v2.json --output-markdown docs/release-evidence/story-16.2-final-record-v2.md",
+        "given": "Given accepted Story 16.1 evidence, separately authorized entry, adopted successor contracts, and five passing current candidate-bound measured results.",
+        "when": "When the canonical generator supports the successor and derives the Story 16.2 JSON/Markdown final record.",
+        "then": "Then the summary is 6/6/0/0/0/0 with exact deterministic replay hashes, deletion/generation faults, candidate/gitlinks, inputs/outputs, and the unchanged rollback boundary. Preserve Story 16.1 durable state and prior proof history. The record separates deterministic replay identity from public observation-time freshness. This draft grants no approval or execution authority and remains incompatible with the current generator until explicit adoption.",
+        "requirementIds": [
+          "E6-A5-EXACT-REPLAY",
+          "E6-A5-DERIVED-STATE-DELETION",
+          "AD8-REPLAY-OBSERVATION-SEPARATION"
+        ]
+      }
+    ],
+    "finalRecord": {
+      "paths": [
+        "docs/release-evidence/story-16.2-final-record-v2.json",
+        "docs/release-evidence/story-16.2-final-record-v2.md"
+      ],
+      "summary": {
+        "required": 6,
+        "passed": 6,
+        "failed": 0,
+        "blocked": 0,
+        "skipped": 0,
+        "notRun": 0
+      }
+    },
+    "adoption": {
+      "generatorCompatible": false,
+      "scenarioVerifiersAvailable": false,
+      "requiresOwnerDecision": true
+    }
+  },
+  "futureCommands": [
+    {
+      "scenarioId": "AC-16.2-01",
+      "command": "python3 _bmad/scripts/verify_story_16_2.py --repository . --contract _bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json --scenario AC-16.2-01 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-01.json",
+      "outputs": [
+        "artifacts/v14/16.2/AC-16.2-01.json"
+      ],
+      "state": "unavailable",
+      "executed": false
+    },
+    {
+      "scenarioId": "AC-16.2-02",
+      "command": "python3 _bmad/scripts/verify_story_16_2.py --repository . --contract _bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json --scenario AC-16.2-02 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-02.json",
+      "outputs": [
+        "artifacts/v14/16.2/AC-16.2-02.json"
+      ],
+      "state": "unavailable",
+      "executed": false
+    },
+    {
+      "scenarioId": "AC-16.2-03",
+      "command": "python3 _bmad/scripts/verify_story_16_2.py --repository . --contract _bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json --scenario AC-16.2-03 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-03.json",
+      "outputs": [
+        "artifacts/v14/16.2/AC-16.2-03.json"
+      ],
+      "state": "unavailable",
+      "executed": false
+    },
+    {
+      "scenarioId": "AC-16.2-04",
+      "command": "python3 _bmad/scripts/verify_story_16_2.py --repository . --contract _bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json --scenario AC-16.2-04 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-04.json",
+      "outputs": [
+        "artifacts/v14/16.2/AC-16.2-04.json"
+      ],
+      "state": "unavailable",
+      "executed": false
+    },
+    {
+      "scenarioId": "AC-16.2-05",
+      "command": "python3 _bmad/scripts/verify_story_16_2.py --repository . --contract _bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json --scenario AC-16.2-05 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-05.json",
+      "outputs": [
+        "artifacts/v14/16.2/AC-16.2-05.json"
+      ],
+      "state": "unavailable",
+      "executed": false
+    },
+    {
+      "scenarioId": "AC-16.2-06",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json --format bundle --output-json docs/release-evidence/story-16.2-final-record-v2.json --output-markdown docs/release-evidence/story-16.2-final-record-v2.md",
+      "outputs": [
+        "docs/release-evidence/story-16.2-final-record-v2.json",
+        "docs/release-evidence/story-16.2-final-record-v2.md"
+      ],
+      "state": "unavailable",
+      "executed": false
+    }
+  ],
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  }
+}

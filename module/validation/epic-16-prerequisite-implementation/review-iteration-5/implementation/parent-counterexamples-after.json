@@ -1,0 +1,48 @@
+[
+  {
+    "finding": "R5B2",
+    "scenario": "AC-16.2-04",
+    "result": "ValueError: capture and deletion inventories agree"
+  },
+  {
+    "finding": "R5B3",
+    "scenario": "AC-16.2-04",
+    "result": "ValueError: full authoritative replay includes creation prefix without a checkpoint snapshot"
+  },
+  {
+    "finding": "R5B4-legitimate-empty",
+    "scenario": "AC-16.2-03",
+    "result": "accepted"
+  },
+  {
+    "finding": "R5B5",
+    "scenario": "AC-16.1-04",
+    "result": "ValueError: representable native Int64 sequence"
+  },
+  {
+    "finding": "R5B10",
+    "scenario": "AC-16.1-02",
+    "result": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+    "finding": "R5B6",
+    "value": "alice"
+  },
+  {
+    "finding": "R5B1/R5E2",
+    "result": "ValueError: redaction introduces a new authoritative event identity"
+  },
+  {
+    "finding": "R5E1-null-description",
+    "result": "accepted"
+  },
+  {
+    "finding": "R5B9",
+    "positive": "accepted",
+    "withRunError": "Stop: NATIVE_RUN_FAILED"
+  },
+  {
+    "finding": "R5B2-matching-inventories",
+    "result": "ValueError: stored-object key derives from actual tenant/resource metadata"
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "bindingSha256": "87937a258058fe0d8036cc6ce3e07647343bb420a148501fa0b618c8da5c5eed",
+  "sourceHashesVerified": 60,
+  "preservedContracts": [
+    "16.1",
+    "16.2",
+    "16.3"
+  ],
+  "protectedPathsUnchanged": [
+    ".config/dotnet-tools.json",
+    "_bmad-output/implementation-artifacts/sprint-status.yaml",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v2",
+    "src",
+    "tests",
+    "references"
+  ],
+  "entry": null,
+  "runtimeAuthority": {
+    "executionAllowed": false,
+    "implementationHold": "ACTIVE",
+    "ownerApprovalClaimed": false,
+    "pushAuthorized": false,
+    "releaseAuthorized": false
+  },
+  "combinedTests": 752,
+  "mutantsVerified": 26,
+  "heldCommands": 18,
+  "completionGuards": 2
+}

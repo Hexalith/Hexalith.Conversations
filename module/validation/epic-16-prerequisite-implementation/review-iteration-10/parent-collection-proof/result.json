@@ -1,0 +1,30 @@
+{
+  "guardRejection": "invalid native evidence",
+  "actualNativeDiscoveryError": "More than one collection attribute was found",
+  "runner": {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r10-collections-t6iov4j8/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Probe.TestClass.Scenario01"
+    ],
+    "exitCode": null,
+    "timedOutAfterDiagnostic": true,
+    "timeoutSeconds": 8
+  },
+  "scope": "Parent control of currently corrected guard; no claim of pre-change metadata acceptance",
+  "files": {
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-collection-proof/Evidence.csproj": "d5b97446ac156c3af905a9cef2824cb2dfec75a075fa5b6566ae889421565c1d",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-collection-proof/Evidence.dll.bytes": "1a959bc9db91553f56f7658a781517112607e53b5501de419923ca715873c0bf",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-collection-proof/Tests.cs": "a9f3a9c0c83855f10e95964af01669f3f01974b953d7b3fd0b2613ae07e72ce4",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-collection-proof/build.command.json": "d9e6a56daf85752c24e7e77ff611915c19f641269e9fcf3b1f88ee3a0ab17d3b",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-collection-proof/build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-collection-proof/build.stdout": "71f988b1e0c4ff6ea3732da618ff20ce02b4bd232a38a694d18abbb814743d18",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-collection-proof/global.json": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-collection-proof/runner.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-collection-proof/runner.stdout": "281006eef680988c5527fc55d981225efb67134e9115b36ec9277fdf4bfb49d4"
+  }
+}

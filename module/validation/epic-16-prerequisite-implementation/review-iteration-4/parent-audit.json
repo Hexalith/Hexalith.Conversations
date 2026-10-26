@@ -1,0 +1,21 @@
+{
+  "bindingSha256": "230dae9e34a2fc8324d00c452ab1d3e07f4923774e8c5c5f7a1c13b964795a16",
+  "sourceHashesVerified": 62,
+  "artifactHashesVerified": 303,
+  "testSourcesVerified": 3,
+  "combinedTestsPreAudit": 958,
+  "finalAffectedTests": 55,
+  "mutantsVerified": 47,
+  "heldCommands": 18,
+  "protectedPathsUnchanged": [
+    ".config/dotnet-tools.json",
+    "_bmad-output/implementation-artifacts/sprint-status.yaml",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v2",
+    "src",
+    "tests",
+    "references"
+  ],
+  "matrixAudit": "all fifteen positives, three final generators, missing/forged/aliased inputs and legacy paths ran without failures/skips; final affected run repeats all fifteen positives and CLI publication"
+}

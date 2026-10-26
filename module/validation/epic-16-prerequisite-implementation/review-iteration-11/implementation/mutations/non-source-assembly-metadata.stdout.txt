@@ -1,0 +1,118 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-assembly-metadata] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-617/test_round11_native_contract_c0/fixture')
+change = 'assembly-metadata', scenario = 'AC-16.1-05'
+
+    @pytest.mark.parametrize('change',ROUND11_METADATA)
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05','upstream'])
+    def test_round11_native_contract_changes_reject_at_api_callers(repository,change,scenario):
+        ac='AC-16.1-05' if scenario=='upstream' else scenario
+        path=native(repository,ac);tree=ET.fromstring(path.read_bytes());output=tree.find('Results/UnitTestResult/Output/StdOut');payload=json.loads(output.text)
+        if scenario=='upstream':
+            product=tooling.products.PRODUCTS[2];row=payload['observations']['upstreamSurfaces'][0]
+        else:product=tooling.products.PRODUCTS[1];row=payload['observations']['compiledContracts']
+        for phase,source in zip(('baseline','candidate'),ROUND11_METADATA[change]):
+            source=source+'\n'+round9_product_source(product)
+            artifact=row[phase];binary=round9_compile_product(product,artifact['revision'],source)
+            retained=f'artifacts/epic16-tooling-fixture/{ac[3:7]}/binaries/{digest(binary)}.dll'
+            (repository/retained).write_bytes(binary);artifact.update(path=retained,sha256=digest(binary))
+            round11_retain(change+'-'+scenario,{phase+'.cs':source.encode(),phase+'.dll.bytes':binary})
+        output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree))
+>       rejected(evaluate(repository,ac),'UPSTREAM_API_DRIFT' if scenario=='upstream' else 'ROOT_API_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4024: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'ROOT_API_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError
+_ test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-assembly-metadata] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-617/test_round11_native_contract_c1/fixture')
+change = 'assembly-metadata', scenario = 'AC-16.2-05'
+
+    @pytest.mark.parametrize('change',ROUND11_METADATA)
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05','upstream'])
+    def test_round11_native_contract_changes_reject_at_api_callers(repository,change,scenario):
+        ac='AC-16.1-05' if scenario=='upstream' else scenario
+        path=native(repository,ac);tree=ET.fromstring(path.read_bytes());output=tree.find('Results/UnitTestResult/Output/StdOut');payload=json.loads(output.text)
+        if scenario=='upstream':
+            product=tooling.products.PRODUCTS[2];row=payload['observations']['upstreamSurfaces'][0]
+        else:product=tooling.products.PRODUCTS[1];row=payload['observations']['compiledContracts']
+        for phase,source in zip(('baseline','candidate'),ROUND11_METADATA[change]):
+            source=source+'\n'+round9_product_source(product)
+            artifact=row[phase];binary=round9_compile_product(product,artifact['revision'],source)
+            retained=f'artifacts/epic16-tooling-fixture/{ac[3:7]}/binaries/{digest(binary)}.dll'
+            (repository/retained).write_bytes(binary);artifact.update(path=retained,sha256=digest(binary))
+            round11_retain(change+'-'+scenario,{phase+'.cs':source.encode(),phase+'.dll.bytes':binary})
+        output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree))
+>       rejected(evaluate(repository,ac),'UPSTREAM_API_DRIFT' if scenario=='upstream' else 'ROOT_API_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4024: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'ROOT_API_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError
+_ test_round11_native_contract_changes_reject_at_api_callers[upstream-assembly-metadata] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-617/test_round11_native_contract_c2/fixture')
+change = 'assembly-metadata', scenario = 'upstream'
+
+    @pytest.mark.parametrize('change',ROUND11_METADATA)
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05','upstream'])
+    def test_round11_native_contract_changes_reject_at_api_callers(repository,change,scenario):
+        ac='AC-16.1-05' if scenario=='upstream' else scenario
+        path=native(repository,ac);tree=ET.fromstring(path.read_bytes());output=tree.find('Results/UnitTestResult/Output/StdOut');payload=json.loads(output.text)
+        if scenario=='upstream':
+            product=tooling.products.PRODUCTS[2];row=payload['observations']['upstreamSurfaces'][0]
+        else:product=tooling.products.PRODUCTS[1];row=payload['observations']['compiledContracts']
+        for phase,source in zip(('baseline','candidate'),ROUND11_METADATA[change]):
+            source=source+'\n'+round9_product_source(product)
+            artifact=row[phase];binary=round9_compile_product(product,artifact['revision'],source)
+            retained=f'artifacts/epic16-tooling-fixture/{ac[3:7]}/binaries/{digest(binary)}.dll'
+            (repository/retained).write_bytes(binary);artifact.update(path=retained,sha256=digest(binary))
+            round11_retain(change+'-'+scenario,{phase+'.cs':source.encode(),phase+'.dll.bytes':binary})
+        output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree))
+>       rejected(evaluate(repository,ac),'UPSTREAM_API_DRIFT' if scenario=='upstream' else 'ROOT_API_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4024: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'UPSTREAM_API_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-assembly-metadata]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-assembly-metadata]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_native_contract_changes_reject_at_api_callers[upstream-assembly-metadata]
+3 failed, 2251 deselected in 24.26s

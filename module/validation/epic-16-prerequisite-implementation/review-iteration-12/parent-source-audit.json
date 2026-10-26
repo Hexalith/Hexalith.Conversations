@@ -1,0 +1,95 @@
+{
+  "scope": "Parent final structural/source acceptance; combined/legacy execution remains in progress.",
+  "frozenFilesVerified": 86,
+  "frozenSourceSha256": "ed4e8a100abdd4ca22f2cc5df225d69da6275ccde4b4e9e4e865c4a1a6c27573",
+  "archivedSourceCopiesVerified": true,
+  "archiveLocation": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/combined/source",
+  "archiveMapping": {
+    ".gitignore": ".gitignore.bytes"
+  },
+  "initialAuditDisposition": "Expected prior final-source layout before locating the actual combined/source snapshot; every final hash verified against that snapshot. Initial all-schema map audit included unchanged older controlled shapes; corrected scope checks every new/modified native map and explicitly counts preserved prior shapes.",
+  "boundSourcesVerified": 71,
+  "ownedFiles": 42,
+  "changedOwnedFiles": [
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+    "_bmad/schemas/epic-16-tooling-v1.schema.json",
+    "_bmad/scripts/epic16_lifecycle.py",
+    "_bmad/scripts/epic16_measurements.py",
+    "_bmad/scripts/epic16_native.py",
+    "_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+    "_bmad/scripts/epic16_native_helper/Program.cs",
+    "_bmad/scripts/epic16_native_helper/README.md",
+    "_bmad/scripts/epic16_schedules.py",
+    "_bmad/scripts/epic16_tooling.py",
+    "_bmad/scripts/epic16_trust.py",
+    "_bmad/scripts/tests/fixtures/epic16-domain-sources-LICENSE.txt",
+    "_bmad/scripts/tests/fixtures/epic16-domain-sources.json",
+    "_bmad/scripts/tests/fixtures/epic16-observations-v1.json",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "_bmad/scripts/epic16_native_helper/TestConstruction.cs"
+  ],
+  "codeDocumentationLicenseDiff": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-final-source.diff",
+    "lines": 1008,
+    "sha256": "401d3d79bfee791c083c43dbadf9a287bc8676404c0dcab40605ca01d40679ab"
+  },
+  "unchangedPriorFunctions": 299,
+  "changedPriorFunctions": [
+    "test_round5_recovered_tenant_description_preserves_native_nullable_domain",
+    "test_round8_acknowledgement_native_identity_semantics"
+  ],
+  "priorAssertionsUnchanged": true,
+  "priorFunctionChanges": "Only correlated newly-required snapshots/identity refreshed; deleting those additions recovers exact previous AST.",
+  "contractsOnlyAddFixedNativeTestControl": [
+    "16.1",
+    "16.2",
+    "16.3"
+  ],
+  "protectedFilesVerified": [
+    "global.json",
+    "_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md",
+    "docs/implementation/ext-conv-ai-1-runtime-qualification.md",
+    "tests/tooling/test_ext_conv_ai_1_installed_delivery_packet.py",
+    "_bmad-output/implementation-artifacts/deferred-work.md"
+  ],
+  "evidencePackagingUnchanged": true,
+  "priorArtifactHashesVerified": 2854,
+  "newOrChangedNativeMapSchemasVerified": [
+    "/$defs/AC-16.1-01/properties/authorization/items/properties/capture/properties/sourceState/anyOf/0/configuration",
+    "/$defs/AC-16.1-01/properties/authorization/items/properties/capture/properties/sourceState/anyOf/0/members",
+    "/$defs/AC-16.1-01/properties/authorization/items/properties/capture/properties/storeRead/properties/snapshot/anyOf/0/properties/projection/configuration",
+    "/$defs/AC-16.1-01/properties/authorization/items/properties/capture/properties/storeRead/properties/snapshot/anyOf/0/properties/projection/members",
+    "/$defs/AC-16.1-02/properties/authorization/items/properties/capture/properties/sourceState/anyOf/0/configuration",
+    "/$defs/AC-16.1-02/properties/authorization/items/properties/capture/properties/sourceState/anyOf/0/members",
+    "/$defs/AC-16.1-02/properties/authorization/items/properties/capture/properties/storeRead/properties/snapshot/anyOf/0/properties/projection/configuration",
+    "/$defs/AC-16.1-02/properties/authorization/items/properties/capture/properties/storeRead/properties/snapshot/anyOf/0/properties/projection/members",
+    "/$defs/AC-16.1-03/properties/reverseSaves/items/properties/execution/properties/saves/items/properties/proposed/properties/projection/configuration",
+    "/$defs/AC-16.1-03/properties/reverseSaves/items/properties/execution/properties/saves/items/properties/proposed/properties/projection/members",
+    "/$defs/AC-16.1-03/properties/reverseSaves/items/properties/execution/properties/saves/items/properties/storedBefore/properties/projection/configuration",
+    "/$defs/AC-16.1-03/properties/reverseSaves/items/properties/execution/properties/saves/items/properties/storedBefore/properties/projection/members",
+    "/$defs/AC-16.1-03/properties/reverseSaves/items/properties/execution/properties/saves/items/properties/storedAfter/properties/projection/configuration",
+    "/$defs/AC-16.1-03/properties/reverseSaves/items/properties/execution/properties/saves/items/properties/storedAfter/properties/projection/members",
+    "/$defs/AC-16.1-03/properties/reverseSaves/items/properties/execution/properties/consumers/items/properties/storeRead/properties/snapshot/properties/projection/configuration",
+    "/$defs/AC-16.1-03/properties/reverseSaves/items/properties/execution/properties/consumers/items/properties/storeRead/properties/snapshot/properties/projection/members",
+    "/$defs/AC-16.1-04/properties/acknowledgements/items/properties/failureEvidence/anyOf/0/properties/sourceState/configuration",
+    "/$defs/AC-16.1-04/properties/acknowledgements/items/properties/failureEvidence/anyOf/0/properties/sourceState/members",
+    "/$defs/AC-16.1-04/properties/acknowledgements/items/properties/failureEvidence/anyOf/0/properties/beforeRead/properties/snapshot/properties/projection/configuration",
+    "/$defs/AC-16.1-04/properties/acknowledgements/items/properties/failureEvidence/anyOf/0/properties/beforeRead/properties/snapshot/properties/projection/members",
+    "/$defs/AC-16.1-04/properties/acknowledgements/items/properties/failureEvidence/anyOf/0/properties/attempts/items/properties/proposed/properties/projection/configuration",
+    "/$defs/AC-16.1-04/properties/acknowledgements/items/properties/failureEvidence/anyOf/0/properties/attempts/items/properties/proposed/properties/projection/members",
+    "/$defs/AC-16.1-04/properties/acknowledgements/items/properties/failureEvidence/anyOf/0/properties/afterRead/properties/snapshot/properties/projection/configuration",
+    "/$defs/AC-16.1-04/properties/acknowledgements/items/properties/failureEvidence/anyOf/0/properties/afterRead/properties/snapshot/properties/projection/members"
+  ],
+  "unchangedPriorNativeShapeCount": 31,
+  "actualCommonsMethodsByteEquivalent": true,
+  "actualCommonsMITNoticeRetained": true,
+  "independentFinalControls": {
+    "count": 20,
+    "sha256": "5f3505d2dc77f8fefb063c85ac65e9e026258a8e0d71fe75ac96e1ff2fb64ced",
+    "sourceHashesMatchFrozen": true
+  }
+}

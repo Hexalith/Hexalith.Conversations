@@ -1,0 +1,846 @@
+........................................................................ [ 33%]
+........................................................................ [ 66%]
+FFFFFFFFFFFFFFFFFFFFFFFF................................................ [100%]
+=================================== FAILURES ===================================
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-0-AC-16.1-01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization144/fixture')
+scenario = 'AC-16.1-01', index = 0, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization144/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-0-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization145/fixture')
+scenario = 'AC-16.1-02', index = 0, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization145/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-1-AC-16.1-01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization146/fixture')
+scenario = 'AC-16.1-01', index = 1, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization146/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-1-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization147/fixture')
+scenario = 'AC-16.1-02', index = 1, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization147/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-2-AC-16.1-01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization148/fixture')
+scenario = 'AC-16.1-01', index = 2, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization148/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-2-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization149/fixture')
+scenario = 'AC-16.1-02', index = 2, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization149/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-3-AC-16.1-01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization150/fixture')
+scenario = 'AC-16.1-01', index = 3, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization150/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-3-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization151/fixture')
+scenario = 'AC-16.1-02', index = 3, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization151/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-4-AC-16.1-01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization152/fixture')
+scenario = 'AC-16.1-01', index = 4, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization152/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-4-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization153/fixture')
+scenario = 'AC-16.1-02', index = 4, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization153/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-5-AC-16.1-01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization154/fixture')
+scenario = 'AC-16.1-01', index = 5, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization154/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-5-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization155/fixture')
+scenario = 'AC-16.1-02', index = 5, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization155/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-0-AC-16.1-01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization156/fixture')
+scenario = 'AC-16.1-01', index = 0, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization156/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-0-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization157/fixture')
+scenario = 'AC-16.1-02', index = 0, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization157/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-1-AC-16.1-01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization158/fixture')
+scenario = 'AC-16.1-01', index = 1, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization158/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-1-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization159/fixture')
+scenario = 'AC-16.1-02', index = 1, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization159/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-2-AC-16.1-01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization160/fixture')
+scenario = 'AC-16.1-01', index = 2, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization160/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-2-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization161/fixture')
+scenario = 'AC-16.1-02', index = 2, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization161/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-3-AC-16.1-01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization162/fixture')
+scenario = 'AC-16.1-01', index = 3, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization162/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-3-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization163/fixture')
+scenario = 'AC-16.1-02', index = 3, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization163/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-4-AC-16.1-01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization164/fixture')
+scenario = 'AC-16.1-01', index = 4, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization164/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-4-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization165/fixture')
+scenario = 'AC-16.1-02', index = 4, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization165/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-5-AC-16.1-01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization166/fixture')
+scenario = 'AC-16.1-01', index = 5, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization166/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_ test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-5-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization167/fixture')
+scenario = 'AC-16.1-02', index = 5, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+>       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization167/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-0-AC-16.1-01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-0-AC-16.1-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-1-AC-16.1-01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-1-AC-16.1-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-2-AC-16.1-01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-2-AC-16.1-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-3-AC-16.1-01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-3-AC-16.1-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-4-AC-16.1-01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-4-AC-16.1-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-5-AC-16.1-01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-5-AC-16.1-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-0-AC-16.1-01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-0-AC-16.1-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-1-AC-16.1-01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-1-AC-16.1-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-2-AC-16.1-01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-2-AC-16.1-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-3-AC-16.1-01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-3-AC-16.1-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-4-AC-16.1-01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-4-AC-16.1-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-5-AC-16.1-01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-5-AC-16.1-02]
+24 failed, 192 passed, 2501 deselected in 117.47s (0:01:57)

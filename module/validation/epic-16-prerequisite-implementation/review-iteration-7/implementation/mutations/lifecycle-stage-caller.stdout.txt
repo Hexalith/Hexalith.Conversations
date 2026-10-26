@@ -1,0 +1,1132 @@
+FFFFFFFFFFFFFFFFFFFFFFFF                                                 [100%]
+=================================== FAILURES ===================================
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[no-execution-entry-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ0/fixture')
+kind = 0, phase = 'entry', fault = 'no-execution'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[no-execution-entry-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ1/fixture')
+kind = 1, phase = 'entry', fault = 'no-execution'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[no-execution-work-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ2/fixture')
+kind = 0, phase = 'work', fault = 'no-execution'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[no-execution-work-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ3/fixture')
+kind = 1, phase = 'work', fault = 'no-execution'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[no-execution-completion-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ4/fixture')
+kind = 0, phase = 'completion', fault = 'no-execution'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[no-execution-completion-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ5/fixture')
+kind = 1, phase = 'completion', fault = 'no-execution'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[wrong-fence-entry-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ6/fixture')
+kind = 0, phase = 'entry', fault = 'wrong-fence'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[wrong-fence-entry-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ7/fixture')
+kind = 1, phase = 'entry', fault = 'wrong-fence'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[wrong-fence-work-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ8/fixture')
+kind = 0, phase = 'work', fault = 'wrong-fence'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[wrong-fence-work-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ9/fixture')
+kind = 1, phase = 'work', fault = 'wrong-fence'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[wrong-fence-completion-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ10/fixture')
+kind = 0, phase = 'completion', fault = 'wrong-fence'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[wrong-fence-completion-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ11/fixture')
+kind = 1, phase = 'completion', fault = 'wrong-fence'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[partial-entry-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ12/fixture')
+kind = 0, phase = 'entry', fault = 'partial'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[partial-entry-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ13/fixture')
+kind = 1, phase = 'entry', fault = 'partial'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[partial-work-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ14/fixture')
+kind = 0, phase = 'work', fault = 'partial'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[partial-work-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ15/fixture')
+kind = 1, phase = 'work', fault = 'partial'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[partial-completion-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ16/fixture')
+kind = 0, phase = 'completion', fault = 'partial'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[partial-completion-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ17/fixture')
+kind = 1, phase = 'completion', fault = 'partial'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[stale-succeeds-entry-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ18/fixture')
+kind = 0, phase = 'entry', fault = 'stale-succeeds'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[stale-succeeds-entry-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ19/fixture')
+kind = 1, phase = 'entry', fault = 'stale-succeeds'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[stale-succeeds-work-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ20/fixture')
+kind = 0, phase = 'work', fault = 'stale-succeeds'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[stale-succeeds-work-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ21/fixture')
+kind = 1, phase = 'work', fault = 'stale-succeeds'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[stale-succeeds-completion-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ22/fixture')
+kind = 0, phase = 'completion', fault = 'stale-succeeds'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[stale-succeeds-completion-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-456/test_round7_lifecycle_cas_requ23/fixture')
+kind = 1, phase = 'completion', fault = 'stale-succeeds'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('phase',['entry','work','completion'])
+    @pytest.mark.parametrize('fault',['missing','no-execution','wrong-fence','zero-versions','partial','mixed-transaction','plan','after-content','after-index','foreign-tenant','component-identity','stale-unexecuted','stale-succeeds','stale-writes','stale-after','stale-fence'])
+    def test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state(repository,kind,phase,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stage=next(stage for stage in proof['stages'] if stage['id']==phase)
+        if fault=='missing':del row['atomicity']
+        elif fault=='no-execution':stage['cas']['executed']=False
+        elif fault=='wrong-fence':stage['cas']['expected']['generation']+=1
+        elif fault=='zero-versions':row['lifecycleCasVersion']=row['indexCasVersion']=stage['after']['index']['version']=0
+        elif fault=='partial':stage['cas']['componentTransactions'].pop()
+        elif fault=='mixed-transaction':stage['cas']['componentTransactions'][0]['transactionId']='other'
+        elif fault=='plan':stage['plan']['componentsAfter'][0]['generation']+=1
+        elif fault=='after-content':stage['after']['components'][-2]['value']=[999]
+        elif fault=='after-index':stage['after']['index']['watermark']-=1
+        elif fault=='foreign-tenant':stage['before']['tenant']='tenant-b'
+        elif fault=='component-identity':stage['after']['components'][0]['resource']='other'
+        elif fault=='stale-unexecuted':proof['staleAttempt']['executed']=False
+        elif fault=='stale-succeeds':proof['staleAttempt']['succeeded']=True
+        elif fault=='stale-writes':proof['staleAttempt']['writtenComponents']=['detail']
+        elif fault=='stale-after':proof['staleAttempt']['storedAfter']['index']['watermark']+=1
+        else:proof['staleAttempt']['expected']['version']+=1
+>       round7_submit(repository,'AC-16.2-04',data,schema=fault=='missing')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[no-execution-entry-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[no-execution-entry-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[no-execution-work-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[no-execution-work-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[no-execution-completion-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[no-execution-completion-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[wrong-fence-entry-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[wrong-fence-entry-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[wrong-fence-work-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[wrong-fence-work-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[wrong-fence-completion-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[wrong-fence-completion-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[partial-entry-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[partial-entry-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[partial-work-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[partial-work-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[partial-completion-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[partial-completion-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[stale-succeeds-entry-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[stale-succeeds-entry-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[stale-succeeds-work-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[stale-succeeds-work-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[stale-succeeds-completion-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_cas_requires_actual_atomic_commit_and_preserved_newer_state[stale-succeeds-completion-1]
+24 failed, 1265 deselected in 12.98s

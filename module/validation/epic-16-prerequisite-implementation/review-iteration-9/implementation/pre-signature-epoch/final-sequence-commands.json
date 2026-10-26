@@ -1,0 +1,62 @@
+[
+  {
+    "name": "verify",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-verify.py"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 1103.091,
+    "stdoutSha256": "7b76383bb00639a257dcb90faaa91496f9b95d11b1cf64ec9ed2512aac97bd4c",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "held",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-held.py"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 4.713,
+    "stdoutSha256": "b6157841f3755720026c0abadfd70cef2eb54f41dcd4eeaf37eeb2c3dbf74917",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "provenance",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-provenance.py"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 2.018,
+    "stdoutSha256": "d3a2d923c47a1a54a5261f98516278f5d7bebb4f7f6edd6161ab3e0ff04f165a",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "state",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-state.py"
+    ],
+    "exitCode": 1,
+    "elapsedSeconds": 0.032,
+    "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderrSha256": "71895c3bea6fdbfd90b205d5bbcbf625467518d49c8db2aff1d694491934fa8b"
+  }
+]

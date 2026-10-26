@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-state.py", line 17, in <module>
+    assert b'SINGLE-REPLICA-ONLY' in (root/path).read_bytes()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

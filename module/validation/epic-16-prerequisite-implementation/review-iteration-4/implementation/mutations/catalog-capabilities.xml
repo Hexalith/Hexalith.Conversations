@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="0.888" timestamp="2026-10-25T20:46:49.486988+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_catalog_capabilities_match_the_actual_controlled_handler[fullReplayProjectionTypes]" time="0.285"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-375/test_round4_catalog_capabiliti0/fixture')
+field = 'fullReplayProjectionTypes'
+
+    @pytest.mark.parametrize('field',['fullReplayProjectionTypes','sharedEpochProjectionTypes'])
+    def test_round4_catalog_capabilities_match_the_actual_controlled_handler(repository,field):
+        data=deepcopy(OBSERVATIONS['AC-16.3-03']);value=json.loads(data['catalogBytes'])
+        value['domains'][0][field]=[] if field=='fullReplayProjectionTypes' else ['conversation-read-model']
+        data['catalogBytes']=json.dumps(value);data['catalogSha256']=digest(data['catalogBytes'].encode())
+&gt;       native(repository,'AC-16.3-03',data);rejected(evaluate(repository,'AC-16.3-03'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1808: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_catalog_capabilities_match_the_actual_controlled_handler[sharedEpochProjectionTypes]" time="0.294"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-375/test_round4_catalog_capabiliti1/fixture')
+field = 'sharedEpochProjectionTypes'
+
+    @pytest.mark.parametrize('field',['fullReplayProjectionTypes','sharedEpochProjectionTypes'])
+    def test_round4_catalog_capabilities_match_the_actual_controlled_handler(repository,field):
+        data=deepcopy(OBSERVATIONS['AC-16.3-03']);value=json.loads(data['catalogBytes'])
+        value['domains'][0][field]=[] if field=='fullReplayProjectionTypes' else ['conversation-read-model']
+        data['catalogBytes']=json.dumps(value);data['catalogSha256']=digest(data['catalogBytes'].encode())
+&gt;       native(repository,'AC-16.3-03',data);rejected(evaluate(repository,'AC-16.3-03'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1808: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

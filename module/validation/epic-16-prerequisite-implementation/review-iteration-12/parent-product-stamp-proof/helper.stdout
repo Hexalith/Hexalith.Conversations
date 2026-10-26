@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r12-product-stamp-kp2h5b2d/helper/Epic16.NativeHelper.csproj (in 37 ms).
+  Epic16.NativeHelper -> /tmp/epic16-r12-product-stamp-kp2h5b2d/helper/bin/Debug/net10.0/Epic16.NativeHelper.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.42

@@ -1,0 +1,407 @@
+[
+  {
+    "name": "stored-object-binding",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-stored-object-binding-_55rcc63/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_erase_targets",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/stored-object-binding.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-stored-object-binding-_55rcc63",
+    "exitCode": 1,
+    "elapsedSeconds": 4.748,
+    "replacements": 1,
+    "originalSha256": "742523bfa50e1155b85f207c07c1d4d9ad0bcbc17164f5f1bbd35379c02fa427",
+    "mutatedSha256": "c0654263f89765b9c87c142718d75371519eb7b191fba78095c28ff44160f63e",
+    "stdoutSha256": "e6b67ddf6d29a2e9da4efcaba03c94a12e424ac0d74ede284a2e662f1d2fdcb0",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 13,
+      "failures": 10,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "lifecycle-generation",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-lifecycle-generation-l1fl7bsw/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_erase_targets and record-generation",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/lifecycle-generation.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-lifecycle-generation-l1fl7bsw",
+    "exitCode": 1,
+    "elapsedSeconds": 2.828,
+    "replacements": 1,
+    "originalSha256": "aae187ae922449fb514334bfc49f1bc9086a871eff7619cd4ef9965576a115c5",
+    "mutatedSha256": "4f19a22c9761e771bc818d9a4897551996388e2421907eeed98a70f97bf4cd04",
+    "stdoutSha256": "54bcc113cbb724ad42be8a0127c95772d27d6355c5fb089b9ac36d538d1daa22",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "creation-prefix",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-creation-prefix-skimexko/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_rebuild_cannot",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/creation-prefix.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-creation-prefix-skimexko",
+    "exitCode": 1,
+    "elapsedSeconds": 2.517,
+    "replacements": 1,
+    "originalSha256": "742523bfa50e1155b85f207c07c1d4d9ad0bcbc17164f5f1bbd35379c02fa427",
+    "mutatedSha256": "0a9b497566276b317b7f1c146e617f29e1e25150bf4538983acbd653f96755d2",
+    "stdoutSha256": "9cf17365dd06d1c6d8518e50651d209fa76e1639e9107ebe0e2ddce7c320e90d",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "native-pending-record",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-native-pending-record-61noiswu/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_pending_restart",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/native-pending-record.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-native-pending-record-61noiswu",
+    "exitCode": 1,
+    "elapsedSeconds": 2.517,
+    "replacements": 1,
+    "originalSha256": "742523bfa50e1155b85f207c07c1d4d9ad0bcbc17164f5f1bbd35379c02fa427",
+    "mutatedSha256": "1b40077c5f9bf718160f7ee98899faf1e17c8adc73df2b713adff21934168b24",
+    "stdoutSha256": "4f43ee883da08c1e2727cb2f37d0fc2cb1fa61592d5f7a07eb91ac9b1e3ee07d",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 7,
+      "failures": 4,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "raw-lease-version",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-raw-lease-version-vqd72xwa/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_raw_lease_version and (lease or version)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/raw-lease-version.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-raw-lease-version-vqd72xwa",
+    "exitCode": 1,
+    "elapsedSeconds": 6.276,
+    "replacements": 1,
+    "originalSha256": "3a8e5f94ea3fcb89d4381f8938d74275e1a436774f32c8063f201fc87d4b6d9d",
+    "mutatedSha256": "25a8a1531157d7276bdf28578dfa76ae902e53115034c055b5fa263d28bd0b4d",
+    "stdoutSha256": "60fa4f4e0e1b0713619c58dc6e4de13e5d7587f912f3560063063243cd30a67c",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 20,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "raw-utc-domain",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-raw-utc-domain-fh035ul8/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_raw_lease_version",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/raw-utc-domain.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-raw-utc-domain-fh035ul8",
+    "exitCode": 1,
+    "elapsedSeconds": 6.196,
+    "replacements": 1,
+    "originalSha256": "3a8e5f94ea3fcb89d4381f8938d74275e1a436774f32c8063f201fc87d4b6d9d",
+    "mutatedSha256": "e33892ea2384e8a9d29de14adaf2d0bc5c21aaaf8a05b264da7400ff8fd8406f",
+    "stdoutSha256": "7f9ccda8265b0bf820402fba074aa6b934c0facc908eaf89616dc373eddbd78f",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 20,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "party-normalization",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-party-normalization-6bzg8_pm/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_materialized_party or round5_participant_duplicate or round5_redaction_attribution",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/party-normalization.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-party-normalization-6bzg8_pm",
+    "exitCode": 1,
+    "elapsedSeconds": 3.288,
+    "replacements": 1,
+    "originalSha256": "8396bdba1f9c88c730188355538257c62d40033b10d3df8a35da322c007c17a0",
+    "mutatedSha256": "7b83302b399df47cbf0f827100a0c3d7160fb1c5649fa182d642ded4dc2c4f3c",
+    "stdoutSha256": "9d8a0fe9365e7fd402983bab732cd25af0f8447ca2311cb9f74645b8e7896efe",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 5,
+      "failures": 5,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "native-unicode-normalization",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-native-unicode-normalization-qhkjhirg/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_party_identity",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/native-unicode-normalization.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-native-unicode-normalization-qhkjhirg",
+    "exitCode": 1,
+    "elapsedSeconds": 0.4,
+    "replacements": 1,
+    "originalSha256": "e0013e6a73c5da32e5a4066ca3664e5de6fc69162280607e647a49c3b5c02974",
+    "mutatedSha256": "ada8973f8b4432a17353cfc3053818f16831e42538931bb5ac247080137ec777",
+    "stdoutSha256": "1d76870286f55b87dafd8604a6edf29f54d0651159d3f79c6642221a4a2b369c",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "actor-normalization",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-actor-normalization-glath998/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_materialized_party or round5_redaction_attribution",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/actor-normalization.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-actor-normalization-glath998",
+    "exitCode": 1,
+    "elapsedSeconds": 3.885,
+    "replacements": 1,
+    "originalSha256": "8396bdba1f9c88c730188355538257c62d40033b10d3df8a35da322c007c17a0",
+    "mutatedSha256": "678d843b57102da43b08cea33f91b2d707ffd9d405a19db1c516320ca86de705",
+    "stdoutSha256": "b5e4a5195e6cc5420ff16dd159de6ece2cf3e70cd15075ac619ee7fdd5199e6e",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 4,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "redaction-new-identity",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-redaction-new-identity-vom45wzk/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_redaction_reused",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/redaction-new-identity.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-redaction-new-identity-vom45wzk",
+    "exitCode": 1,
+    "elapsedSeconds": 3.152,
+    "replacements": 1,
+    "originalSha256": "aae187ae922449fb514334bfc49f1bc9086a871eff7619cd4ef9965576a115c5",
+    "mutatedSha256": "1af55977b396892e67dad0abeb5440d5a09b5963666adaec205da125286beb9b",
+    "stdoutSha256": "585e29560adea42c8158c9e373c484539a338891a5fa6519d10e37aa40206723",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "async-void-native",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-async-void-native-2bgxl6v1/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_genuine_async_void",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/async-void-native.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-async-void-native-2bgxl6v1",
+    "exitCode": 1,
+    "elapsedSeconds": 3.818,
+    "replacements": 1,
+    "originalSha256": "228a5c6ef8d45501c937da2f95b6936e652e22e871af8106bbb8b9549dfbed74",
+    "mutatedSha256": "2494fa8e078b76a6e18b112ada530bed52cb9516326227bdcb222d796076d222",
+    "stdoutSha256": "77af3fb034b73666161fbaf6dac8c744a6aacde41f618fc5cc187d6a1e8ccc10",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "native-run-failure",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-native-run-failure-rqykfebp/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_native_run_level",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/native-run-failure.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-native-run-failure-rqykfebp",
+    "exitCode": 1,
+    "elapsedSeconds": 2.753,
+    "replacements": 1,
+    "originalSha256": "3cbf2997fe8190a4c6688da5f531a6b723d38aabfd3b25d3797926f75408c52c",
+    "mutatedSha256": "db6559e5841f9e68587d6f32aab98b98a63f47f8d8aa90f129ea7026facf53af",
+    "stdoutSha256": "c3592b8d35060f84b8f05635c30391e97151ae476ea722f0705ade821dd1aa37",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 7,
+      "failures": 7,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "checkout-shared-helper",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-checkout-shared-helper-799_uf53/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_bound_inventory",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/checkout-shared-helper.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-checkout-shared-helper-799_uf53",
+    "exitCode": 1,
+    "elapsedSeconds": 0.476,
+    "replacements": 1,
+    "originalSha256": "cf3a4807c89ad25b268722d186dd678e926453b9a5877d4fee7d8032c1f81081",
+    "mutatedSha256": "4f6da4c1d9f7afbed9d6ff8761c617d85ceffa17c63b24786ef997a102126406",
+    "stdoutSha256": "990e8d3048818d5b317cefe022c47900b2dac7dc2bf5b1c3257c19251fb864e1",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "checkout-native-bytes",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-checkout-native-bytes-h3_llebm/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_bound_inventory",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/checkout-native-bytes.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-checkout-native-bytes-h3_llebm",
+    "exitCode": 1,
+    "elapsedSeconds": 0.472,
+    "replacements": 1,
+    "originalSha256": "cf3a4807c89ad25b268722d186dd678e926453b9a5877d4fee7d8032c1f81081",
+    "mutatedSha256": "95d2e3d36e553089626a6bf2c914894431ab664b1ad528624049891af287e97c",
+    "stdoutSha256": "006c038912a9611e4f488f4af949ddd6121a4bd00ff742c95661b306ac92c522",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "publication-required",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review5-mutant-publication-required-g1epvmrn/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_runtime_insertion_caller",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/publication-required.xml"
+    ],
+    "workspace": "/tmp/epic16-review5-mutant-publication-required-g1epvmrn",
+    "exitCode": 1,
+    "elapsedSeconds": 11.353,
+    "replacements": 1,
+    "originalSha256": "3cbf2997fe8190a4c6688da5f531a6b723d38aabfd3b25d3797926f75408c52c",
+    "mutatedSha256": "693906ea1eb5482ff31e6eba60b6a52aac0ec9a966fad08120519093f2484c0a",
+    "stdoutSha256": "83ef65802d3381608c4c2b9fe13276f8ec474ff950f94852ceab1ba63c5e21ac",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+]

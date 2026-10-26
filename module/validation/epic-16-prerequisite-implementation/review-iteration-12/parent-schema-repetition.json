@@ -1,0 +1,21 @@
+{
+  "id": "R12B10",
+  "identicalOccurrences": 12,
+  "serializedBytes": 5439,
+  "schemaSha256": "716e36cb2dd8e7ee34599fc67eb07e368d7cee5277a13cc7090f87e26a04d87f",
+  "paths": [
+    "/$defs/AC-16.1-02/$defs/captureSnapshot",
+    "/$defs/AC-16.2-04/properties/lifecycle/items/anyOf/0/properties/atomicity/properties/stages/items/properties/before",
+    "/$defs/AC-16.2-04/properties/lifecycle/items/anyOf/0/properties/atomicity/properties/stages/items/properties/after",
+    "/$defs/AC-16.2-04/properties/lifecycle/items/anyOf/0/properties/atomicity/properties/staleAttempt/properties/storedBefore",
+    "/$defs/AC-16.2-04/properties/lifecycle/items/anyOf/0/properties/atomicity/properties/staleAttempt/properties/storedAfter",
+    "/$defs/AC-16.2-04/properties/lifecycle/items/anyOf/1/properties/atomicity/properties/stages/items/properties/before",
+    "/$defs/AC-16.2-04/properties/lifecycle/items/anyOf/1/properties/atomicity/properties/stages/items/properties/after",
+    "/$defs/AC-16.2-04/properties/lifecycle/items/anyOf/1/properties/atomicity/properties/staleAttempt/properties/storedBefore",
+    "/$defs/AC-16.2-04/properties/lifecycle/items/anyOf/1/properties/atomicity/properties/staleAttempt/properties/storedAfter",
+    "/$defs/AC-16.2-04/$defs/captureSnapshot",
+    "/$defs/AC-16.2-05/$defs/captureSnapshot",
+    "/$defs/AC-16.3-05/$defs/captureSnapshot"
+  ],
+  "conclusion": "Identical repeated shapes; no specific divergent admission demonstrated. No schema representation change."
+}

@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyVersion>1.0.0.0</AssemblyVersion><SignAssembly>true</SignAssembly><PublicSign>true</PublicSign><AssemblyOriginatorKeyFile>public.snk</AssemblyOriginatorKeyFile></PropertyGroup></Project>

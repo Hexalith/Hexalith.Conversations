@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="3.108" timestamp="2026-10-25T23:08:25.725331+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_erase_reference_forward_reverse_identities_cannot_conflict[same-location]" time="2.311"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-455/test_round7_erase_reference_fo0/fixture')
+fault = 'same-location'
+
+    @pytest.mark.parametrize('fault',['same-location','same-position','same-message'])
+    def test_round7_erase_reference_forward_reverse_identities_cannot_conflict(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);a,b=data['lifecycle'][0]['deliveries'];ref=b['reference'];original=deepcopy(ref)
+        if fault=='same-location':ref.update(sequence=a['reference']['sequence'],position=a['reference']['position'])
+        elif fault=='same-position':ref['position']=a['reference']['position']
+        else:ref['messageId']=b['deliveryId']=a['deliveryId']
+        b['durableReference']=deepcopy(ref)
+        for operation in b['operations'].values():
+            if isinstance(operation,dict):
+                operation.update(deliveryId=b['deliveryId'],recordId=b['deliveryId'])
+                operation['persisted' if operation['operation']=='commit' else 'observedRecord']=deepcopy(ref)
+        def refresh(value):
+            if isinstance(value,dict):
+                if value==original:value.clear();value.update(deepcopy(ref))
+                for child in value.values():refresh(child)
+            elif isinstance(value,list):
+                for child in value:refresh(child)
+        refresh(data)
+&gt;       round7_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2621: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_erase_reference_forward_reverse_identities_cannot_conflict[same-position]" time="0.323"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-455/test_round7_erase_reference_fo1/fixture')
+fault = 'same-position'
+
+    @pytest.mark.parametrize('fault',['same-location','same-position','same-message'])
+    def test_round7_erase_reference_forward_reverse_identities_cannot_conflict(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);a,b=data['lifecycle'][0]['deliveries'];ref=b['reference'];original=deepcopy(ref)
+        if fault=='same-location':ref.update(sequence=a['reference']['sequence'],position=a['reference']['position'])
+        elif fault=='same-position':ref['position']=a['reference']['position']
+        else:ref['messageId']=b['deliveryId']=a['deliveryId']
+        b['durableReference']=deepcopy(ref)
+        for operation in b['operations'].values():
+            if isinstance(operation,dict):
+                operation.update(deliveryId=b['deliveryId'],recordId=b['deliveryId'])
+                operation['persisted' if operation['operation']=='commit' else 'observedRecord']=deepcopy(ref)
+        def refresh(value):
+            if isinstance(value,dict):
+                if value==original:value.clear();value.update(deepcopy(ref))
+                for child in value.values():refresh(child)
+            elif isinstance(value,list):
+                for child in value:refresh(child)
+        refresh(data)
+&gt;       round7_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2621: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

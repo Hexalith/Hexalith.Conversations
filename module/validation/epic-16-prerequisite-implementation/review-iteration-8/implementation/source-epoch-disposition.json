@@ -1,0 +1,65 @@
+{
+  "finalSource": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/final-source.json",
+    "sha256": "7e24f07dbf2f298586243c64211348fbe7a501ffdf9a12d69188e6b57431c032"
+  },
+  "unchangedDuringFinalVerification": true,
+  "exploratory": [
+    {
+      "label": "first new-consumer exploratory epoch",
+      "counts": {
+        "tests": 284,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "284 passed including 15 existing route positives; pre-final source, no complete frozen source inventory captured for this first exploratory epoch. Superseded by final combined verification.",
+      "junit": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/exploratory.xml",
+        "sha256": "d6411bf3b7061fa5a17c339d7c4d82085d6ae83ad5778bd7f6f2c35e49f1659e"
+      }
+    },
+    {
+      "label": "affected pre-final epoch",
+      "counts": {
+        "tests": 552,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/affected-source.json",
+        "sha256": "ea1d67ef7299c62fdafa5487ca54cae9baa4f594b131dc87295b0cd78bcdc159"
+      },
+      "note": "550 passed, two fixture/schema failures. Equal B=C positive needed updated queue/query captures; at-B observation arriving after queued work needed a general queue inventory schema. Neither negative condition was weakened.",
+      "junit": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/affected.xml",
+        "sha256": "110635869d96b1efb36f629c9070c810017822a743304f97afeaf2c1c0e22fd3"
+      }
+    },
+    {
+      "label": "corrected focused epoch",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "10 positives/identity controls pass after fixture/schema corrections; final source also adds complete retained-history identity admission and local query-source attribution.",
+      "junit": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/affected-corrected.xml",
+        "sha256": "31fdb27b0b9d159344d04680d5d69527e40ebb6f9dfb03d8cf6317f6fdbc4f0e"
+      }
+    }
+  ],
+  "mutations": {
+    "runs": 40,
+    "demonstratedGuards": 39,
+    "targetedFailures": 81,
+    "setupErrors": 0,
+    "insensitive": [
+      "named-internal-metadata"
+    ],
+    "disposition": "The redundant named-internal-metadata summary comparison survived removal because independent named-field mapping and case checks still rejected its malformed input. Removing the actual internal mapping guard failed all five corresponding controls. The insensitive probe is retained and is not claimed as demonstrated. All mutations used the same frozen final source. Earlier iteration mutations remain historical."
+  }
+}

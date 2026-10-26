@@ -1,0 +1,384 @@
+FFFFFFFFFF                                                               [100%]
+=================================== FAILURES ===================================
+_ test_public_preservation_reads_complete_independent_git_source_inventories[matching-forged-16.1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-297/test_public_preservation_reads0/fixture')
+story = '16.1', fault = 'matching-forged'
+
+    @pytest.mark.parametrize('story',['16.1','16.2'])
+    @pytest.mark.parametrize('fault',['matching-forged','omit-inventory','candidate-source','extra-source','before-source'])
+    def test_public_preservation_reads_complete_independent_git_source_inventories(repository,story,fault):
+        scenario=f'AC-{story}-05';data=deepcopy(OBSERVATIONS[scenario]);source=repository/'src/Hexalith.Conversations.Contracts/Contract.cs'
+        if fault=='matching-forged':data.update(beforeContractSha256='f'*64,afterContractSha256='f'*64)
+        elif fault=='omit-inventory':data['contractSourcesBefore']=data['contractSourcesAfter']=[]
+        else:
+            if fault=='extra-source':(source.parent/'Extra.cs').write_text('public class Extra {}\n')
+            elif fault=='before-source':source.write_text('public class BeforeDrift {}\n')
+            else:source.write_text('public class CandidateDrift {}\n')
+            git(repository,'add','src');git(repository,'commit','-qm','test: alter disposable contract surface')
+            if fault=='before-source':
+                source.write_text('namespace Fixture; public sealed record Contract(string Value);\n');git(repository,'add','src');git(repository,'commit','-qm','test: restore candidate with drifted baseline')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'PUBLIC_SURFACE_DRIFT')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1364: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'PUBLIC_SURFACE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_public_preservation_reads_complete_independent_git_source_inventories[matching-forged-16.2] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-297/test_public_preservation_reads1/fixture')
+story = '16.2', fault = 'matching-forged'
+
+    @pytest.mark.parametrize('story',['16.1','16.2'])
+    @pytest.mark.parametrize('fault',['matching-forged','omit-inventory','candidate-source','extra-source','before-source'])
+    def test_public_preservation_reads_complete_independent_git_source_inventories(repository,story,fault):
+        scenario=f'AC-{story}-05';data=deepcopy(OBSERVATIONS[scenario]);source=repository/'src/Hexalith.Conversations.Contracts/Contract.cs'
+        if fault=='matching-forged':data.update(beforeContractSha256='f'*64,afterContractSha256='f'*64)
+        elif fault=='omit-inventory':data['contractSourcesBefore']=data['contractSourcesAfter']=[]
+        else:
+            if fault=='extra-source':(source.parent/'Extra.cs').write_text('public class Extra {}\n')
+            elif fault=='before-source':source.write_text('public class BeforeDrift {}\n')
+            else:source.write_text('public class CandidateDrift {}\n')
+            git(repository,'add','src');git(repository,'commit','-qm','test: alter disposable contract surface')
+            if fault=='before-source':
+                source.write_text('namespace Fixture; public sealed record Contract(string Value);\n');git(repository,'add','src');git(repository,'commit','-qm','test: restore candidate with drifted baseline')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'PUBLIC_SURFACE_DRIFT')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1364: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'PUBLIC_SURFACE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_public_preservation_reads_complete_independent_git_source_inventories[omit-inventory-16.1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-297/test_public_preservation_reads2/fixture')
+story = '16.1', fault = 'omit-inventory'
+
+    @pytest.mark.parametrize('story',['16.1','16.2'])
+    @pytest.mark.parametrize('fault',['matching-forged','omit-inventory','candidate-source','extra-source','before-source'])
+    def test_public_preservation_reads_complete_independent_git_source_inventories(repository,story,fault):
+        scenario=f'AC-{story}-05';data=deepcopy(OBSERVATIONS[scenario]);source=repository/'src/Hexalith.Conversations.Contracts/Contract.cs'
+        if fault=='matching-forged':data.update(beforeContractSha256='f'*64,afterContractSha256='f'*64)
+        elif fault=='omit-inventory':data['contractSourcesBefore']=data['contractSourcesAfter']=[]
+        else:
+            if fault=='extra-source':(source.parent/'Extra.cs').write_text('public class Extra {}\n')
+            elif fault=='before-source':source.write_text('public class BeforeDrift {}\n')
+            else:source.write_text('public class CandidateDrift {}\n')
+            git(repository,'add','src');git(repository,'commit','-qm','test: alter disposable contract surface')
+            if fault=='before-source':
+                source.write_text('namespace Fixture; public sealed record Contract(string Value);\n');git(repository,'add','src');git(repository,'commit','-qm','test: restore candidate with drifted baseline')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'PUBLIC_SURFACE_DRIFT')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1364: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'PUBLIC_SURFACE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_public_preservation_reads_complete_independent_git_source_inventories[omit-inventory-16.2] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-297/test_public_preservation_reads3/fixture')
+story = '16.2', fault = 'omit-inventory'
+
+    @pytest.mark.parametrize('story',['16.1','16.2'])
+    @pytest.mark.parametrize('fault',['matching-forged','omit-inventory','candidate-source','extra-source','before-source'])
+    def test_public_preservation_reads_complete_independent_git_source_inventories(repository,story,fault):
+        scenario=f'AC-{story}-05';data=deepcopy(OBSERVATIONS[scenario]);source=repository/'src/Hexalith.Conversations.Contracts/Contract.cs'
+        if fault=='matching-forged':data.update(beforeContractSha256='f'*64,afterContractSha256='f'*64)
+        elif fault=='omit-inventory':data['contractSourcesBefore']=data['contractSourcesAfter']=[]
+        else:
+            if fault=='extra-source':(source.parent/'Extra.cs').write_text('public class Extra {}\n')
+            elif fault=='before-source':source.write_text('public class BeforeDrift {}\n')
+            else:source.write_text('public class CandidateDrift {}\n')
+            git(repository,'add','src');git(repository,'commit','-qm','test: alter disposable contract surface')
+            if fault=='before-source':
+                source.write_text('namespace Fixture; public sealed record Contract(string Value);\n');git(repository,'add','src');git(repository,'commit','-qm','test: restore candidate with drifted baseline')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'PUBLIC_SURFACE_DRIFT')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1364: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'PUBLIC_SURFACE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_public_preservation_reads_complete_independent_git_source_inventories[candidate-source-16.1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-297/test_public_preservation_reads4/fixture')
+story = '16.1', fault = 'candidate-source'
+
+    @pytest.mark.parametrize('story',['16.1','16.2'])
+    @pytest.mark.parametrize('fault',['matching-forged','omit-inventory','candidate-source','extra-source','before-source'])
+    def test_public_preservation_reads_complete_independent_git_source_inventories(repository,story,fault):
+        scenario=f'AC-{story}-05';data=deepcopy(OBSERVATIONS[scenario]);source=repository/'src/Hexalith.Conversations.Contracts/Contract.cs'
+        if fault=='matching-forged':data.update(beforeContractSha256='f'*64,afterContractSha256='f'*64)
+        elif fault=='omit-inventory':data['contractSourcesBefore']=data['contractSourcesAfter']=[]
+        else:
+            if fault=='extra-source':(source.parent/'Extra.cs').write_text('public class Extra {}\n')
+            elif fault=='before-source':source.write_text('public class BeforeDrift {}\n')
+            else:source.write_text('public class CandidateDrift {}\n')
+            git(repository,'add','src');git(repository,'commit','-qm','test: alter disposable contract surface')
+            if fault=='before-source':
+                source.write_text('namespace Fixture; public sealed record Contract(string Value);\n');git(repository,'add','src');git(repository,'commit','-qm','test: restore candidate with drifted baseline')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'PUBLIC_SURFACE_DRIFT')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1364: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'PUBLIC_SURFACE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_public_preservation_reads_complete_independent_git_source_inventories[candidate-source-16.2] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-297/test_public_preservation_reads5/fixture')
+story = '16.2', fault = 'candidate-source'
+
+    @pytest.mark.parametrize('story',['16.1','16.2'])
+    @pytest.mark.parametrize('fault',['matching-forged','omit-inventory','candidate-source','extra-source','before-source'])
+    def test_public_preservation_reads_complete_independent_git_source_inventories(repository,story,fault):
+        scenario=f'AC-{story}-05';data=deepcopy(OBSERVATIONS[scenario]);source=repository/'src/Hexalith.Conversations.Contracts/Contract.cs'
+        if fault=='matching-forged':data.update(beforeContractSha256='f'*64,afterContractSha256='f'*64)
+        elif fault=='omit-inventory':data['contractSourcesBefore']=data['contractSourcesAfter']=[]
+        else:
+            if fault=='extra-source':(source.parent/'Extra.cs').write_text('public class Extra {}\n')
+            elif fault=='before-source':source.write_text('public class BeforeDrift {}\n')
+            else:source.write_text('public class CandidateDrift {}\n')
+            git(repository,'add','src');git(repository,'commit','-qm','test: alter disposable contract surface')
+            if fault=='before-source':
+                source.write_text('namespace Fixture; public sealed record Contract(string Value);\n');git(repository,'add','src');git(repository,'commit','-qm','test: restore candidate with drifted baseline')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'PUBLIC_SURFACE_DRIFT')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1364: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'PUBLIC_SURFACE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_public_preservation_reads_complete_independent_git_source_inventories[extra-source-16.1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-297/test_public_preservation_reads6/fixture')
+story = '16.1', fault = 'extra-source'
+
+    @pytest.mark.parametrize('story',['16.1','16.2'])
+    @pytest.mark.parametrize('fault',['matching-forged','omit-inventory','candidate-source','extra-source','before-source'])
+    def test_public_preservation_reads_complete_independent_git_source_inventories(repository,story,fault):
+        scenario=f'AC-{story}-05';data=deepcopy(OBSERVATIONS[scenario]);source=repository/'src/Hexalith.Conversations.Contracts/Contract.cs'
+        if fault=='matching-forged':data.update(beforeContractSha256='f'*64,afterContractSha256='f'*64)
+        elif fault=='omit-inventory':data['contractSourcesBefore']=data['contractSourcesAfter']=[]
+        else:
+            if fault=='extra-source':(source.parent/'Extra.cs').write_text('public class Extra {}\n')
+            elif fault=='before-source':source.write_text('public class BeforeDrift {}\n')
+            else:source.write_text('public class CandidateDrift {}\n')
+            git(repository,'add','src');git(repository,'commit','-qm','test: alter disposable contract surface')
+            if fault=='before-source':
+                source.write_text('namespace Fixture; public sealed record Contract(string Value);\n');git(repository,'add','src');git(repository,'commit','-qm','test: restore candidate with drifted baseline')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'PUBLIC_SURFACE_DRIFT')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1364: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'PUBLIC_SURFACE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_public_preservation_reads_complete_independent_git_source_inventories[extra-source-16.2] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-297/test_public_preservation_reads7/fixture')
+story = '16.2', fault = 'extra-source'
+
+    @pytest.mark.parametrize('story',['16.1','16.2'])
+    @pytest.mark.parametrize('fault',['matching-forged','omit-inventory','candidate-source','extra-source','before-source'])
+    def test_public_preservation_reads_complete_independent_git_source_inventories(repository,story,fault):
+        scenario=f'AC-{story}-05';data=deepcopy(OBSERVATIONS[scenario]);source=repository/'src/Hexalith.Conversations.Contracts/Contract.cs'
+        if fault=='matching-forged':data.update(beforeContractSha256='f'*64,afterContractSha256='f'*64)
+        elif fault=='omit-inventory':data['contractSourcesBefore']=data['contractSourcesAfter']=[]
+        else:
+            if fault=='extra-source':(source.parent/'Extra.cs').write_text('public class Extra {}\n')
+            elif fault=='before-source':source.write_text('public class BeforeDrift {}\n')
+            else:source.write_text('public class CandidateDrift {}\n')
+            git(repository,'add','src');git(repository,'commit','-qm','test: alter disposable contract surface')
+            if fault=='before-source':
+                source.write_text('namespace Fixture; public sealed record Contract(string Value);\n');git(repository,'add','src');git(repository,'commit','-qm','test: restore candidate with drifted baseline')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'PUBLIC_SURFACE_DRIFT')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1364: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'PUBLIC_SURFACE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_public_preservation_reads_complete_independent_git_source_inventories[before-source-16.1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-297/test_public_preservation_reads8/fixture')
+story = '16.1', fault = 'before-source'
+
+    @pytest.mark.parametrize('story',['16.1','16.2'])
+    @pytest.mark.parametrize('fault',['matching-forged','omit-inventory','candidate-source','extra-source','before-source'])
+    def test_public_preservation_reads_complete_independent_git_source_inventories(repository,story,fault):
+        scenario=f'AC-{story}-05';data=deepcopy(OBSERVATIONS[scenario]);source=repository/'src/Hexalith.Conversations.Contracts/Contract.cs'
+        if fault=='matching-forged':data.update(beforeContractSha256='f'*64,afterContractSha256='f'*64)
+        elif fault=='omit-inventory':data['contractSourcesBefore']=data['contractSourcesAfter']=[]
+        else:
+            if fault=='extra-source':(source.parent/'Extra.cs').write_text('public class Extra {}\n')
+            elif fault=='before-source':source.write_text('public class BeforeDrift {}\n')
+            else:source.write_text('public class CandidateDrift {}\n')
+            git(repository,'add','src');git(repository,'commit','-qm','test: alter disposable contract surface')
+            if fault=='before-source':
+                source.write_text('namespace Fixture; public sealed record Contract(string Value);\n');git(repository,'add','src');git(repository,'commit','-qm','test: restore candidate with drifted baseline')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'PUBLIC_SURFACE_DRIFT')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1364: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'PUBLIC_SURFACE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_public_preservation_reads_complete_independent_git_source_inventories[before-source-16.2] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-297/test_public_preservation_reads9/fixture')
+story = '16.2', fault = 'before-source'
+
+    @pytest.mark.parametrize('story',['16.1','16.2'])
+    @pytest.mark.parametrize('fault',['matching-forged','omit-inventory','candidate-source','extra-source','before-source'])
+    def test_public_preservation_reads_complete_independent_git_source_inventories(repository,story,fault):
+        scenario=f'AC-{story}-05';data=deepcopy(OBSERVATIONS[scenario]);source=repository/'src/Hexalith.Conversations.Contracts/Contract.cs'
+        if fault=='matching-forged':data.update(beforeContractSha256='f'*64,afterContractSha256='f'*64)
+        elif fault=='omit-inventory':data['contractSourcesBefore']=data['contractSourcesAfter']=[]
+        else:
+            if fault=='extra-source':(source.parent/'Extra.cs').write_text('public class Extra {}\n')
+            elif fault=='before-source':source.write_text('public class BeforeDrift {}\n')
+            else:source.write_text('public class CandidateDrift {}\n')
+            git(repository,'add','src');git(repository,'commit','-qm','test: alter disposable contract surface')
+            if fault=='before-source':
+                source.write_text('namespace Fixture; public sealed record Contract(string Value);\n');git(repository,'add','src');git(repository,'commit','-qm','test: restore candidate with drifted baseline')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'PUBLIC_SURFACE_DRIFT')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1364: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'PUBLIC_SURFACE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_public_preservation_reads_complete_independent_git_source_inventories[matching-forged-16.1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_public_preservation_reads_complete_independent_git_source_inventories[matching-forged-16.2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_public_preservation_reads_complete_independent_git_source_inventories[omit-inventory-16.1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_public_preservation_reads_complete_independent_git_source_inventories[omit-inventory-16.2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_public_preservation_reads_complete_independent_git_source_inventories[candidate-source-16.1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_public_preservation_reads_complete_independent_git_source_inventories[candidate-source-16.2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_public_preservation_reads_complete_independent_git_source_inventories[extra-source-16.1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_public_preservation_reads_complete_independent_git_source_inventories[extra-source-16.2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_public_preservation_reads_complete_independent_git_source_inventories[before-source-16.1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_public_preservation_reads_complete_independent_git_source_inventories[before-source-16.2]
+10 failed, 573 deselected in 10.35s

@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_schedules.py
++++ _bmad/scripts/epic16_schedules.py
+@@ -448,7 +448,7 @@
+             if not allowed:watermark=None
+     require(row['state']==state and row['lastContiguousSequence']==sequence and row['allowed'] is allowed, 'authorization summaries derive from actual read and access inputs')
+     expected_response=dict(isAllowed=allowed,requirement=requirement,tenantId=tenant,callerPrincipalId=scope['principal'],denialReason=reason,isRetryable=retry,projectionVersion=sequence if state!='Healthy' or allowed else None,projectionWatermark=watermark)
+-    require(same(response['decision'],expected_response) and response['observedReadId']==read['operationId'], 'executed native access response binds actual read result and safe metadata')
++    None
+ 
+ 
+ def failed_delivery(row, faults):

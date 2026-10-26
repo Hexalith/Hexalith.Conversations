@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Hexalith.Commons.Serialization</name>
+    </assembly>
+    <members>
+        <member name="T:Hexalith.Commons.Serialization.IntValueJsonConverter`1">
+            <summary>
+            Ruleless base converter for value types encoded as one JSON integer.
+            </summary>
+            <typeparam name="T">The value type.</typeparam>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.IntValueJsonConverter`1.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.IntValueJsonConverter`1.Write(System.Text.Json.Utf8JsonWriter,`0,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.IntValueJsonConverter`1.Create(System.Int32)">
+            <summary>
+            Creates the target value from its integer payload.
+            </summary>
+            <param name="value">The JSON integer payload.</param>
+            <returns>The converted value.</returns>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.IntValueJsonConverter`1.GetValue(`0)">
+            <summary>
+            Gets the integer payload to write for the value.
+            </summary>
+            <param name="value">The value to serialize.</param>
+            <returns>The integer payload.</returns>
+        </member>
+        <member name="T:Hexalith.Commons.Serialization.JsonSerializationOptions">
+            <summary>
+            Creates <see cref="T:System.Text.Json.JsonSerializerOptions"/> instances with explicit resolver ordering.
+            </summary>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.JsonSerializationOptions.CreateWeb(System.Collections.Generic.IEnumerable{System.Text.Json.Serialization.Metadata.IJsonTypeInfoResolver},System.Boolean)">
+            <summary>
+            Creates web-default JSON options whose resolver chain is ordered exactly as supplied.
+            </summary>
+            <param name="resolvers">Resolvers to query in precedence order.</param>
+            <param name="includeReflectionFallback">True to append <see cref="T:System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver"/> after all supplied resolvers.</param>
+            <returns>The configured JSON serializer options.</returns>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.JsonSerializationOptions.CreateWeb(System.Boolean,System.Text.Json.Serialization.Metadata.IJsonTypeInfoResolver[])">
+            <summary>
+            Creates web-default JSON options whose resolver chain is ordered exactly as supplied.
+            </summary>
+            <param name="includeReflectionFallback">True to append <see cref="T:System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver"/> after all supplied resolvers.</param>
+            <param name="resolvers">Resolvers to query in precedence order.</param>
+            <returns>The configured JSON serializer options.</returns>
+        </member>
+        <member name="T:Hexalith.Commons.Serialization.PolymorphicTypeRegistration">
+            <summary>
+            Defines one explicit discriminator-to-type registration for a polymorphic registry.
+            </summary>
+            <param name="Discriminator">The stable bounded discriminator or type name.</param>
+            <param name="Type">The runtime type represented by the discriminator.</param>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.PolymorphicTypeRegistration.#ctor(System.String,System.Type)">
+            <summary>
+            Defines one explicit discriminator-to-type registration for a polymorphic registry.
+            </summary>
+            <param name="Discriminator">The stable bounded discriminator or type name.</param>
+            <param name="Type">The runtime type represented by the discriminator.</param>
+        </member>
+        <member name="P:Hexalith.Commons.Serialization.PolymorphicTypeRegistration.Discriminator">
+            <summary>The stable bounded discriminator or type name.</summary>
+        </member>
+        <member name="P:Hexalith.Commons.Serialization.PolymorphicTypeRegistration.Type">
+            <summary>The runtime type represented by the discriminator.</summary>
+        </member>
+        <member name="T:Hexalith.Commons.Serialization.PolymorphicTypeRegistry">
+            <summary>
+            Maps bounded, content-safe discriminators to explicit runtime types.
+            </summary>
+        </member>
+        <member name="F:Hexalith.Commons.Serialization.PolymorphicTypeRegistry.MaxDiscriminatorLength">
+            <summary>The maximum discriminator length accepted by the registry.</summary>
+        </member>
+        <member name="P:Hexalith.Commons.Serialization.PolymorphicTypeRegistry.Entries">
+            <summary>
+            Gets the registered discriminator-to-type entries.
+            </summary>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.PolymorphicTypeRegistry.Create(System.Collections.Generic.IEnumerable{Hexalith.Commons.Serialization.PolymorphicTypeRegistration})">
+            <summary>
+            Creates a registry from explicit discriminator-to-type entries.
+            </summary>
+            <param name="registrations">The registrations to include.</param>
+            <returns>The created registry.</returns>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.PolymorphicTypeRegistry.FromTypeNames(System.Collections.Generic.IEnumerable{System.Type})">
+            <summary>
+            Creates a registry from explicit runtime types keyed by their simple type names.
+            </summary>
+            <param name="types">The types to include.</param>
+            <returns>The created registry.</returns>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.PolymorphicTypeRegistry.TryResolve(System.String,System.Type@)">
+            <summary>
+            Tries to resolve a discriminator by exact ordinal match.
+            </summary>
+            <param name="discriminator">The discriminator to resolve.</param>
+            <param name="type">The resolved type.</param>
+            <returns>True when the discriminator is registered.</returns>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.PolymorphicTypeRegistry.TryResolveExactThenSuffix(System.String,System.Type@)">
+            <summary>
+            Tries to resolve by exact match first, then by ordinal suffix match.
+            </summary>
+            <param name="discriminator">The discriminator or qualified type name to resolve.</param>
+            <param name="type">The resolved type.</param>
+            <returns>True when the discriminator resolves to a registered type.</returns>
+        </member>
+        <member name="T:Hexalith.Commons.Serialization.StringValueJsonConverter`1">
+            <summary>
+            Ruleless base converter for value types encoded as one JSON string.
+            </summary>
+            <typeparam name="T">The value type.</typeparam>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.StringValueJsonConverter`1.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.StringValueJsonConverter`1.Write(System.Text.Json.Utf8JsonWriter,`0,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.StringValueJsonConverter`1.Create(System.String)">
+            <summary>
+            Creates the target value from its string payload.
+            </summary>
+            <param name="value">The JSON string payload.</param>
+            <returns>The converted value.</returns>
+        </member>
+        <member name="M:Hexalith.Commons.Serialization.StringValueJsonConverter`1.GetValue(`0)">
+            <summary>
+            Gets the string payload to write for the value.
+            </summary>
+            <param name="value">The value to serialize.</param>
+            <returns>The string payload.</returns>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,274 @@
+FFFFFF.                                                                  [100%]
+=================================== FAILURES ===================================
+_ test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-644/test_round11_recovery_operatio0/fixture')
+index = 0, fault = 'unexecuted'
+
+    @pytest.mark.parametrize('index',range(7))
+    @pytest.mark.parametrize('fault',['positive','missing','unexecuted','incomplete','identity','scope','order','expected','proposed','before','after','outcome','succeeded','transaction','clearance'])
+    def test_round11_recovery_operations_execute_complete_and_bind_exact_branch(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-04']);p=data['concurrentRecovery'];row=p['duplicateRetry'] if index==6 else p['staleAttempts'][index];ex=row['execution'];request,attempt,completion=ex['operations']
+        if fault=='missing':del row['execution']
+        elif fault=='unexecuted':attempt['executed']=False
+        elif fault=='incomplete':completion['completed']=False
+        elif fault=='identity':completion['operationId']='unrelated'
+        elif fault=='scope':ex['scope']['tenant']='foreign'
+        elif fault=='order':completion['order']=attempt['order']
+        elif fault=='expected':request['expectedSha256']='f'*64
+        elif fault=='proposed':request['proposedSha256']='f'*64
+        elif fault=='before':attempt['storedBeforeSha256']='f'*64
+        elif fault=='after':completion['storedAfterSha256']='f'*64
+        elif fault=='outcome':completion['outcome']='Completed'
+        elif fault=='succeeded':attempt['succeeded']=True
+        elif fault=='transaction':attempt['transactionId']='invented'
+        elif fault=='clearance':ex['afterClearanceTransactionId']='unrelated'
+>       round8_submit(repository,'AC-16.3-04',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4094: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-644/test_round11_recovery_operatio0/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+_ test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-644/test_round11_recovery_operatio1/fixture')
+index = 1, fault = 'unexecuted'
+
+    @pytest.mark.parametrize('index',range(7))
+    @pytest.mark.parametrize('fault',['positive','missing','unexecuted','incomplete','identity','scope','order','expected','proposed','before','after','outcome','succeeded','transaction','clearance'])
+    def test_round11_recovery_operations_execute_complete_and_bind_exact_branch(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-04']);p=data['concurrentRecovery'];row=p['duplicateRetry'] if index==6 else p['staleAttempts'][index];ex=row['execution'];request,attempt,completion=ex['operations']
+        if fault=='missing':del row['execution']
+        elif fault=='unexecuted':attempt['executed']=False
+        elif fault=='incomplete':completion['completed']=False
+        elif fault=='identity':completion['operationId']='unrelated'
+        elif fault=='scope':ex['scope']['tenant']='foreign'
+        elif fault=='order':completion['order']=attempt['order']
+        elif fault=='expected':request['expectedSha256']='f'*64
+        elif fault=='proposed':request['proposedSha256']='f'*64
+        elif fault=='before':attempt['storedBeforeSha256']='f'*64
+        elif fault=='after':completion['storedAfterSha256']='f'*64
+        elif fault=='outcome':completion['outcome']='Completed'
+        elif fault=='succeeded':attempt['succeeded']=True
+        elif fault=='transaction':attempt['transactionId']='invented'
+        elif fault=='clearance':ex['afterClearanceTransactionId']='unrelated'
+>       round8_submit(repository,'AC-16.3-04',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4094: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-644/test_round11_recovery_operatio1/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+_ test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-2] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-644/test_round11_recovery_operatio2/fixture')
+index = 2, fault = 'unexecuted'
+
+    @pytest.mark.parametrize('index',range(7))
+    @pytest.mark.parametrize('fault',['positive','missing','unexecuted','incomplete','identity','scope','order','expected','proposed','before','after','outcome','succeeded','transaction','clearance'])
+    def test_round11_recovery_operations_execute_complete_and_bind_exact_branch(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-04']);p=data['concurrentRecovery'];row=p['duplicateRetry'] if index==6 else p['staleAttempts'][index];ex=row['execution'];request,attempt,completion=ex['operations']
+        if fault=='missing':del row['execution']
+        elif fault=='unexecuted':attempt['executed']=False
+        elif fault=='incomplete':completion['completed']=False
+        elif fault=='identity':completion['operationId']='unrelated'
+        elif fault=='scope':ex['scope']['tenant']='foreign'
+        elif fault=='order':completion['order']=attempt['order']
+        elif fault=='expected':request['expectedSha256']='f'*64
+        elif fault=='proposed':request['proposedSha256']='f'*64
+        elif fault=='before':attempt['storedBeforeSha256']='f'*64
+        elif fault=='after':completion['storedAfterSha256']='f'*64
+        elif fault=='outcome':completion['outcome']='Completed'
+        elif fault=='succeeded':attempt['succeeded']=True
+        elif fault=='transaction':attempt['transactionId']='invented'
+        elif fault=='clearance':ex['afterClearanceTransactionId']='unrelated'
+>       round8_submit(repository,'AC-16.3-04',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4094: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-644/test_round11_recovery_operatio2/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+_ test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-3] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-644/test_round11_recovery_operatio3/fixture')
+index = 3, fault = 'unexecuted'
+
+    @pytest.mark.parametrize('index',range(7))
+    @pytest.mark.parametrize('fault',['positive','missing','unexecuted','incomplete','identity','scope','order','expected','proposed','before','after','outcome','succeeded','transaction','clearance'])
+    def test_round11_recovery_operations_execute_complete_and_bind_exact_branch(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-04']);p=data['concurrentRecovery'];row=p['duplicateRetry'] if index==6 else p['staleAttempts'][index];ex=row['execution'];request,attempt,completion=ex['operations']
+        if fault=='missing':del row['execution']
+        elif fault=='unexecuted':attempt['executed']=False
+        elif fault=='incomplete':completion['completed']=False
+        elif fault=='identity':completion['operationId']='unrelated'
+        elif fault=='scope':ex['scope']['tenant']='foreign'
+        elif fault=='order':completion['order']=attempt['order']
+        elif fault=='expected':request['expectedSha256']='f'*64
+        elif fault=='proposed':request['proposedSha256']='f'*64
+        elif fault=='before':attempt['storedBeforeSha256']='f'*64
+        elif fault=='after':completion['storedAfterSha256']='f'*64
+        elif fault=='outcome':completion['outcome']='Completed'
+        elif fault=='succeeded':attempt['succeeded']=True
+        elif fault=='transaction':attempt['transactionId']='invented'
+        elif fault=='clearance':ex['afterClearanceTransactionId']='unrelated'
+>       round8_submit(repository,'AC-16.3-04',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4094: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-644/test_round11_recovery_operatio3/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+_ test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-4] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-644/test_round11_recovery_operatio4/fixture')
+index = 4, fault = 'unexecuted'
+
+    @pytest.mark.parametrize('index',range(7))
+    @pytest.mark.parametrize('fault',['positive','missing','unexecuted','incomplete','identity','scope','order','expected','proposed','before','after','outcome','succeeded','transaction','clearance'])
+    def test_round11_recovery_operations_execute_complete_and_bind_exact_branch(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-04']);p=data['concurrentRecovery'];row=p['duplicateRetry'] if index==6 else p['staleAttempts'][index];ex=row['execution'];request,attempt,completion=ex['operations']
+        if fault=='missing':del row['execution']
+        elif fault=='unexecuted':attempt['executed']=False
+        elif fault=='incomplete':completion['completed']=False
+        elif fault=='identity':completion['operationId']='unrelated'
+        elif fault=='scope':ex['scope']['tenant']='foreign'
+        elif fault=='order':completion['order']=attempt['order']
+        elif fault=='expected':request['expectedSha256']='f'*64
+        elif fault=='proposed':request['proposedSha256']='f'*64
+        elif fault=='before':attempt['storedBeforeSha256']='f'*64
+        elif fault=='after':completion['storedAfterSha256']='f'*64
+        elif fault=='outcome':completion['outcome']='Completed'
+        elif fault=='succeeded':attempt['succeeded']=True
+        elif fault=='transaction':attempt['transactionId']='invented'
+        elif fault=='clearance':ex['afterClearanceTransactionId']='unrelated'
+>       round8_submit(repository,'AC-16.3-04',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4094: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-644/test_round11_recovery_operatio4/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+_ test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-5] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-644/test_round11_recovery_operatio5/fixture')
+index = 5, fault = 'unexecuted'
+
+    @pytest.mark.parametrize('index',range(7))
+    @pytest.mark.parametrize('fault',['positive','missing','unexecuted','incomplete','identity','scope','order','expected','proposed','before','after','outcome','succeeded','transaction','clearance'])
+    def test_round11_recovery_operations_execute_complete_and_bind_exact_branch(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-04']);p=data['concurrentRecovery'];row=p['duplicateRetry'] if index==6 else p['staleAttempts'][index];ex=row['execution'];request,attempt,completion=ex['operations']
+        if fault=='missing':del row['execution']
+        elif fault=='unexecuted':attempt['executed']=False
+        elif fault=='incomplete':completion['completed']=False
+        elif fault=='identity':completion['operationId']='unrelated'
+        elif fault=='scope':ex['scope']['tenant']='foreign'
+        elif fault=='order':completion['order']=attempt['order']
+        elif fault=='expected':request['expectedSha256']='f'*64
+        elif fault=='proposed':request['proposedSha256']='f'*64
+        elif fault=='before':attempt['storedBeforeSha256']='f'*64
+        elif fault=='after':completion['storedAfterSha256']='f'*64
+        elif fault=='outcome':completion['outcome']='Completed'
+        elif fault=='succeeded':attempt['succeeded']=True
+        elif fault=='transaction':attempt['transactionId']='invented'
+        elif fault=='clearance':ex['afterClearanceTransactionId']='unrelated'
+>       round8_submit(repository,'AC-16.3-04',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4094: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-644/test_round11_recovery_operatio5/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-3]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-4]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-5]
+6 failed, 1 passed, 2247 deselected in 18.92s

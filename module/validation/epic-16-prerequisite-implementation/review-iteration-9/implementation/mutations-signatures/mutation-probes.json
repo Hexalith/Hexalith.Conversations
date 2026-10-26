@@ -1,0 +1,126 @@
+[
+  {
+    "name": "signature-defined-class-value-kind",
+    "path": "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+    "old": "WithKind(DefinitionName(reader, handle), rawTypeKind)",
+    "new": "DefinitionName(reader, handle)",
+    "selection": "round9_defined_signature_kind",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r9-mutant-signature-defined-class-value-kind-pbduvv2y/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round9_defined_signature_kind",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/mutations-signatures/signature-defined-class-value-kind.xml"
+    ],
+    "workspace": "/tmp/epic16-r9-mutant-signature-defined-class-value-kind-pbduvv2y",
+    "exitCode": 1,
+    "elapsedSeconds": 5.857,
+    "originalSha256": "baea3b9f2b1b86f38e0cc189688c45d7b338365834bd445057b972a249c1625f",
+    "mutatedSha256": "e506d2131f3a4d738f4b6603950fe1d5fb8eb2c559cae9dc79c6547399070e73",
+    "stdoutSha256": "2987e0152cd20970a0792e04d0ddde8506c9423c9c948d05b732c7f7d2a7b563",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    },
+    "demonstrated": true
+  },
+  {
+    "name": "signature-referenced-class-value-kind",
+    "path": "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+    "old": "WithKind(ReferenceName(reader, handle), rawTypeKind)",
+    "new": "ReferenceName(reader, handle)",
+    "selection": "round9_referenced_class_value_signature_change",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r9-mutant-signature-referenced-class-value-kind-gg4oopno/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round9_referenced_class_value_signature_change",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/mutations-signatures/signature-referenced-class-value-kind.xml"
+    ],
+    "workspace": "/tmp/epic16-r9-mutant-signature-referenced-class-value-kind-gg4oopno",
+    "exitCode": 1,
+    "elapsedSeconds": 32.758,
+    "originalSha256": "baea3b9f2b1b86f38e0cc189688c45d7b338365834bd445057b972a249c1625f",
+    "mutatedSha256": "85f2bc2ddec65d9f2f15f66b0a118290f967ff2ab200d0a93f6f66c73657bae3",
+    "stdoutSha256": "1b054d70971f2e91d0ba2061cae99567cdf96783958dfaee616a932071f89cef",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 6,
+      "failures": 6,
+      "errors": 0,
+      "skipped": 0
+    },
+    "demonstrated": true
+  },
+  {
+    "name": "upstream-abstract-obligation",
+    "path": "_bmad/scripts/epic16_products.py",
+    "old": "        need(not any(member.startswith('method:') and 'Abstract' in member.split(':',3)[2].split(', ') for member in set(a['members'])-set(b['members'])), 'UPSTREAM_API_DRIFT', 'new abstract implementor obligation: '+name)",
+    "new": "        pass # removed guard in disposable mutant",
+    "selection": "round9_native_api_comparison and (abstract-interface or abstract-class)",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r9-mutant-upstream-abstract-obligation-anyx0sio/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round9_native_api_comparison and (abstract-interface or abstract-class)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/mutations-signatures/upstream-abstract-obligation.xml"
+    ],
+    "workspace": "/tmp/epic16-r9-mutant-upstream-abstract-obligation-anyx0sio",
+    "exitCode": 1,
+    "elapsedSeconds": 9.926,
+    "originalSha256": "a6ad255bfde433f9bf6f573d03581f51b81dfa6a530b48c193dae1911c6043a8",
+    "mutatedSha256": "935e8752c53bc8c3a7d6a6a40268ef9ca56486c57d193c630260a1d11cfda6c7",
+    "stdoutSha256": "1a0f19d0a8b0a08dc9404112da29587497603d0f9ba012749d5cdc213c26f5fe",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    },
+    "demonstrated": true
+  },
+  {
+    "name": "upstream-member-contract",
+    "path": "_bmad/scripts/epic16_products.py",
+    "old": "        need(b['header']==a['header'] and b['interfaces']==a['interfaces'] and set(b['members'])<=set(a['members']), 'UPSTREAM_API_DRIFT', name)",
+    "new": "        pass # removed guard in disposable mutant",
+    "selection": "round9_native_api_comparison and (return or parameter or nullable or property or generic or visibility)",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r9-mutant-upstream-member-contract-v256rnea/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round9_native_api_comparison and (return or parameter or nullable or property or generic or visibility)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/mutations-signatures/upstream-member-contract.xml"
+    ],
+    "workspace": "/tmp/epic16-r9-mutant-upstream-member-contract-v256rnea",
+    "exitCode": 1,
+    "elapsedSeconds": 16.988,
+    "originalSha256": "a6ad255bfde433f9bf6f573d03581f51b81dfa6a530b48c193dae1911c6043a8",
+    "mutatedSha256": "1e61ebd2a44c61bcc8e7aa4fe22d4c0d4593e66457920d5983f0d8c6b2329c62",
+    "stdoutSha256": "e1180221399452f1dfc21caf6a22c6b42d2c3997d247c514700c28225b59511b",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 7,
+      "failures": 7,
+      "errors": 0,
+      "skipped": 0
+    },
+    "demonstrated": true
+  }
+]

@@ -1,0 +1,12 @@
+--- first-frozen/test_epic16_tooling.py
++++ final/test_epic16_tooling.py
+@@ -2570,6 +2570,9 @@
+         from evidence_boundary_current import canonical
+         events=data['precedingEvents']+data['recoveryEvents']
+         for pos,event in zip(data['concurrentRecovery']['authoritativePositions'],events):pos['eventSha256']=digest(canonical(event))
++        # The content-safe wire digest binds the same altered complete persisted state.
++        durable=next(row for row in data['wireObservation']['operations'] if row['phase']=='durable-result')
++        durable['persistedAfterSha256']=digest(canonical(data['concurrentRecovery']['current']['after']))
+     round7_submit(repository,scenario,data,passes=True)
+ 
+ 

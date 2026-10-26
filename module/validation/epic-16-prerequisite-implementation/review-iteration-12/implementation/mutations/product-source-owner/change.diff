@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/ProductMetadata.cs
++++ _bmad/scripts/epic16_native_helper/ProductMetadata.cs
+@@ -32,7 +32,7 @@
+             if (!informational && !metadata) continue;
+             string expectedName = informational ? "System.Reflection.AssemblyInformationalVersionAttribute" : "System.Reflection.AssemblyMetadataAttribute";
+             byte[] signature = informational ? [0x20, 1, 1, 0x0e] : [0x20, 2, 1, 0x0e, 0x0e];
+-            if (!IsFrameworkAttribute(reader, attribute, expectedName, signature))
++            if (false)
+                 throw new InvalidDataException("Product source stamp has no approved framework constructor.");
+             BlobReader value = reader.GetBlobReader(attribute.Value);
+             if (value.ReadUInt16() != 1) throw new BadImageFormatException();

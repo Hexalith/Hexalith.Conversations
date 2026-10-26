@@ -1,0 +1,41 @@
+[
+  {
+    "message": "test: bind portable native capture fixture\n",
+    "command": [
+      "node_modules/.bin/commitlint",
+      "--config",
+      "commitlint.config.mjs",
+      "--edit",
+      "/tmp/epic16-round6-message-0"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "message": "test: publish portable native capture fixture\n",
+    "command": [
+      "node_modules/.bin/commitlint",
+      "--config",
+      "commitlint.config.mjs",
+      "--edit",
+      "/tmp/epic16-round6-message-1"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "message": "test: retain portable native fixture insertion\n",
+    "command": [
+      "node_modules/.bin/commitlint",
+      "--config",
+      "commitlint.config.mjs",
+      "--edit",
+      "/tmp/epic16-round6-message-2"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

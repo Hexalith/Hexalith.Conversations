@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>External</AssemblyName><PublicSign>true</PublicSign><SignAssembly>true</SignAssembly><AssemblyOriginatorKeyFile>/tmp/epic16-r10-parent-qqxy7o6h/keys/0.snk</AssemblyOriginatorKeyFile></PropertyGroup></Project>

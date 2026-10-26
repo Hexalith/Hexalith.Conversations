@@ -1,0 +1,27 @@
+{
+  "scope": "Parent independent JSON and trust source audit; no runtime authority",
+  "changedFixtureScenarios": [
+    "AC-16.1-04",
+    "AC-16.3-04"
+  ],
+  "changedSchemaDefinitions": [
+    "AC-16.1-04",
+    "AC-16.3-04"
+  ],
+  "allOtherScenarioBytesSemanticallyUnchanged": true,
+  "existingOuterObservationFieldsPreserved": true,
+  "sourceInventoryPathsUnchanged": true,
+  "sourceCount": 71,
+  "authorityUnchanged": {
+    "executionAllowed": false,
+    "implementationHold": "ACTIVE",
+    "ownerApprovalClaimed": false,
+    "pushAuthorized": false,
+    "releaseAuthorized": false
+  },
+  "entry": null,
+  "onlyChangedIndependentPin": "SCHEMA_PIN",
+  "schemaSha256": "716e36cb2dd8e7ee34599fc67eb07e368d7cee5277a13cc7090f87e26a04d87f",
+  "predecessorPinsUnchanged": 27,
+  "contractPinsUnchanged": 3
+}

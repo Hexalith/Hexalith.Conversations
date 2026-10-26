@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="1.113" timestamp="2026-10-26T00:11:27.730502+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_cancellation_measures_request_through_cleanup_completion[leaked-port]" time="0.317"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-526/test_round8_cancellation_measu0/fixture')
+fault = 'leaked-port'
+
+    @pytest.mark.parametrize('fault',['valid','zero','bound','over-bound','missing-request','no-observation','unrelated-completion','backwards-order','backwards-time','unfinished','cleanup-missing','leaked-port','removed-preexisting','wrong-owner','wrong-resource','unrelated-release','summary-only','wrong-clock'])
+    def test_round8_cancellation_measures_request_through_cleanup_completion(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-05']);p=data['cancellation'];ops=p['operations']
+        if fault=='zero':
+            for row in ops:row['monotonicMs']=10
+            data['cancelElapsedMs']=0
+        elif fault in ('bound','over-bound'):ops[-1]['monotonicMs']=ops[1]['monotonicMs']+(100 if fault=='bound' else 101);data['cancelElapsedMs']=ops[-1]['monotonicMs']-ops[1]['monotonicMs']
+        elif fault=='missing-request':ops.pop(1)
+        elif fault=='no-observation':ops[2]['executed']=False
+        elif fault=='unrelated-completion':ops[-1]['operationId']='other'
+        elif fault=='backwards-order':ops[3]['order']=ops[1]['order']
+        elif fault=='backwards-time':ops[3]['monotonicMs']=0
+        elif fault=='unfinished':ops[-1]['completed']=False
+        elif fault=='cleanup-missing':ops[3]['executed']=False
+        elif fault=='leaked-port':ops[-1]['resources'].append(deepcopy(p['owned'][0]))
+        elif fault=='removed-preexisting':ops[-1]['resources']=[]
+        elif fault=='wrong-owner':p['owned'][0]['owner']='unrelated'
+        elif fault=='wrong-resource':p['owned'][0]['port']=59999
+        elif fault=='unrelated-release':ops[3]['released']=[p['preexisting'][0]['id']]
+        elif fault=='summary-only':data['cancelElapsedMs']=0
+        elif fault=='wrong-clock':ops[-1]['clockId']='other'
+&gt;       round8_submit(repository,'AC-16.3-05',data,passes=fault in ('valid','zero','bound'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:3014: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-526/test_round8_cancellation_measu0/fixture')
+scenario = 'AC-16.3-05'
+data = {'faults': [{'id': 'route-removal', 'observedCodes': ['ROUTE_UNAVAILABLE'], 'beforeBytes': '{"target":{"kind":"live-co...available":true}}', ...}, ...], 'environmentOutcome': 'BLOCKED', 'productOutcome': 'FAIL', 'portsBefore': [50001], ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_cancellation_measures_request_through_cleanup_completion[removed-preexisting]" time="0.311"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-526/test_round8_cancellation_measu1/fixture')
+fault = 'removed-preexisting'
+
+    @pytest.mark.parametrize('fault',['valid','zero','bound','over-bound','missing-request','no-observation','unrelated-completion','backwards-order','backwards-time','unfinished','cleanup-missing','leaked-port','removed-preexisting','wrong-owner','wrong-resource','unrelated-release','summary-only','wrong-clock'])
+    def test_round8_cancellation_measures_request_through_cleanup_completion(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-05']);p=data['cancellation'];ops=p['operations']
+        if fault=='zero':
+            for row in ops:row['monotonicMs']=10
+            data['cancelElapsedMs']=0
+        elif fault in ('bound','over-bound'):ops[-1]['monotonicMs']=ops[1]['monotonicMs']+(100 if fault=='bound' else 101);data['cancelElapsedMs']=ops[-1]['monotonicMs']-ops[1]['monotonicMs']
+        elif fault=='missing-request':ops.pop(1)
+        elif fault=='no-observation':ops[2]['executed']=False
+        elif fault=='unrelated-completion':ops[-1]['operationId']='other'
+        elif fault=='backwards-order':ops[3]['order']=ops[1]['order']
+        elif fault=='backwards-time':ops[3]['monotonicMs']=0
+        elif fault=='unfinished':ops[-1]['completed']=False
+        elif fault=='cleanup-missing':ops[3]['executed']=False
+        elif fault=='leaked-port':ops[-1]['resources'].append(deepcopy(p['owned'][0]))
+        elif fault=='removed-preexisting':ops[-1]['resources']=[]
+        elif fault=='wrong-owner':p['owned'][0]['owner']='unrelated'
+        elif fault=='wrong-resource':p['owned'][0]['port']=59999
+        elif fault=='unrelated-release':ops[3]['released']=[p['preexisting'][0]['id']]
+        elif fault=='summary-only':data['cancelElapsedMs']=0
+        elif fault=='wrong-clock':ops[-1]['clockId']='other'
+&gt;       round8_submit(repository,'AC-16.3-05',data,passes=fault in ('valid','zero','bound'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:3014: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-526/test_round8_cancellation_measu1/fixture')
+scenario = 'AC-16.3-05'
+data = {'faults': [{'id': 'route-removal', 'observedCodes': ['ROUTE_UNAVAILABLE'], 'beforeBytes': '{"target":{"kind":"live-co...available":true}}', ...}, ...], 'environmentOutcome': 'BLOCKED', 'productOutcome': 'FAIL', 'portsBefore': [50001], ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,140 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_________ test_round12_reverse_save_rejects_coherent_shared_process[0] _________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-662/test_round12_reverse_save_reje0/fixture')
+index = 0
+
+    @pytest.mark.parametrize('index',range(4))
+    def test_round12_reverse_save_rejects_coherent_shared_process(repository,index):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03']);proof=data['reverseSaves'][index]['execution'];process=proof['saves'][0]['processId'];older=proof['saves'][1]
+        older['processId']=older['scope']['processId']=process
+        consumer=next(c for c in proof['consumers'] if c['replicaId']==older['replicaId'])
+        consumer['processId']=consumer['scope']['processId']=process
+        consumer['storeRead']['scope']['processId']=consumer['response']['scope']['processId']=process
+>       round8_submit(repository,'AC-16.1-03',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4569: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-662/test_round12_reverse_save_reje0/fixture')
+scenario = 'AC-16.1-03'
+data = {'checkpoint': 10, 'merges': [{'expectedSequence': 11, 'beforeHorizon': 11, 'deliveredSequence': 12, 'afterHorizon': 1...se, 'allowed': False}, 'replicaB': {'state': 'Healthy', 'sequence': 14, 'tenantEnabled': False, 'allowed': False}, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_________ test_round12_reverse_save_rejects_coherent_shared_process[1] _________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-662/test_round12_reverse_save_reje1/fixture')
+index = 1
+
+    @pytest.mark.parametrize('index',range(4))
+    def test_round12_reverse_save_rejects_coherent_shared_process(repository,index):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03']);proof=data['reverseSaves'][index]['execution'];process=proof['saves'][0]['processId'];older=proof['saves'][1]
+        older['processId']=older['scope']['processId']=process
+        consumer=next(c for c in proof['consumers'] if c['replicaId']==older['replicaId'])
+        consumer['processId']=consumer['scope']['processId']=process
+        consumer['storeRead']['scope']['processId']=consumer['response']['scope']['processId']=process
+>       round8_submit(repository,'AC-16.1-03',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4569: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-662/test_round12_reverse_save_reje1/fixture')
+scenario = 'AC-16.1-03'
+data = {'checkpoint': 10, 'merges': [{'expectedSequence': 11, 'beforeHorizon': 11, 'deliveredSequence': 12, 'afterHorizon': 1...se, 'allowed': False}, 'replicaB': {'state': 'Healthy', 'sequence': 14, 'tenantEnabled': False, 'allowed': False}, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_________ test_round12_reverse_save_rejects_coherent_shared_process[2] _________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-662/test_round12_reverse_save_reje2/fixture')
+index = 2
+
+    @pytest.mark.parametrize('index',range(4))
+    def test_round12_reverse_save_rejects_coherent_shared_process(repository,index):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03']);proof=data['reverseSaves'][index]['execution'];process=proof['saves'][0]['processId'];older=proof['saves'][1]
+        older['processId']=older['scope']['processId']=process
+        consumer=next(c for c in proof['consumers'] if c['replicaId']==older['replicaId'])
+        consumer['processId']=consumer['scope']['processId']=process
+        consumer['storeRead']['scope']['processId']=consumer['response']['scope']['processId']=process
+>       round8_submit(repository,'AC-16.1-03',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4569: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-662/test_round12_reverse_save_reje2/fixture')
+scenario = 'AC-16.1-03'
+data = {'checkpoint': 10, 'merges': [{'expectedSequence': 11, 'beforeHorizon': 11, 'deliveredSequence': 12, 'afterHorizon': 1...se, 'allowed': False}, 'replicaB': {'state': 'Healthy', 'sequence': 14, 'tenantEnabled': False, 'allowed': False}, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+_________ test_round12_reverse_save_rejects_coherent_shared_process[3] _________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-662/test_round12_reverse_save_reje3/fixture')
+index = 3
+
+    @pytest.mark.parametrize('index',range(4))
+    def test_round12_reverse_save_rejects_coherent_shared_process(repository,index):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03']);proof=data['reverseSaves'][index]['execution'];process=proof['saves'][0]['processId'];older=proof['saves'][1]
+        older['processId']=older['scope']['processId']=process
+        consumer=next(c for c in proof['consumers'] if c['replicaId']==older['replicaId'])
+        consumer['processId']=consumer['scope']['processId']=process
+        consumer['storeRead']['scope']['processId']=consumer['response']['scope']['processId']=process
+>       round8_submit(repository,'AC-16.1-03',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4569: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-662/test_round12_reverse_save_reje3/fixture')
+scenario = 'AC-16.1-03'
+data = {'checkpoint': 10, 'merges': [{'expectedSequence': 11, 'beforeHorizon': 11, 'deliveredSequence': 12, 'afterHorizon': 1...se, 'allowed': False}, 'replicaB': {'state': 'Healthy', 'sequence': 14, 'tenantEnabled': False, 'allowed': False}, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_reverse_save_rejects_coherent_shared_process[0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_reverse_save_rejects_coherent_shared_process[1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_reverse_save_rejects_coherent_shared_process[2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_reverse_save_rejects_coherent_shared_process[3]
+4 failed, 2713 deselected in 15.08s

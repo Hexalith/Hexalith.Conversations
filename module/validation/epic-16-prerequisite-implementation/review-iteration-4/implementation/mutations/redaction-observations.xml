@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="8" time="8.162" timestamp="2026-10-25T20:46:10.288726+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_redaction_preserves_source_history_masking_attribution_and_control[stale-text]" time="2.490"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-371/test_round4_redaction_preserve0/fixture')
+fault = 'stale-text'
+
+    @pytest.mark.parametrize('fault',['stale-text','missing-target','foreign-target','different-query','attribution','source-rewrite','control-mask','trust'])
+    def test_round4_redaction_preserves_source_history_masking_attribution_and_control(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['redactionProof']
+        if fault=='stale-text':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][0]['text']='Controlled message'
+        elif fault=='missing-target':p['targetMessage']='missing'
+        elif fault=='foreign-target':p['redactionEvent']['tenant']='foreign'
+        elif fault=='different-query':p['queryAfter']['state']['messages'][0]['text']='query-only'
+        elif fault=='attribution':
+            for key in ('persistedAfter','queryAfter'):p[key]['redactions'][0]['actorPartyId']='party:changed'
+        elif fault=='source-rewrite':p['sourceAfter'][2]['payload']=p['sourceAfter'][2]['payload'].replace('Controlled message','[redacted]')
+        elif fault=='control-mask':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][1]['text']='[redacted]'
+        else:
+            for key in ('persistedAfter','queryAfter'):p[key]['messageTrust'][0]['trustState']='Current'
+&gt;       native(repository,'AC-16.2-05',data);rejected(evaluate(repository,'AC-16.2-05'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1641: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_redaction_preserves_source_history_masking_attribution_and_control[missing-target]" time="0.711"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-371/test_round4_redaction_preserve1/fixture')
+fault = 'missing-target'
+
+    @pytest.mark.parametrize('fault',['stale-text','missing-target','foreign-target','different-query','attribution','source-rewrite','control-mask','trust'])
+    def test_round4_redaction_preserves_source_history_masking_attribution_and_control(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['redactionProof']
+        if fault=='stale-text':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][0]['text']='Controlled message'
+        elif fault=='missing-target':p['targetMessage']='missing'
+        elif fault=='foreign-target':p['redactionEvent']['tenant']='foreign'
+        elif fault=='different-query':p['queryAfter']['state']['messages'][0]['text']='query-only'
+        elif fault=='attribution':
+            for key in ('persistedAfter','queryAfter'):p[key]['redactions'][0]['actorPartyId']='party:changed'
+        elif fault=='source-rewrite':p['sourceAfter'][2]['payload']=p['sourceAfter'][2]['payload'].replace('Controlled message','[redacted]')
+        elif fault=='control-mask':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][1]['text']='[redacted]'
+        else:
+            for key in ('persistedAfter','queryAfter'):p[key]['messageTrust'][0]['trustState']='Current'
+&gt;       native(repository,'AC-16.2-05',data);rejected(evaluate(repository,'AC-16.2-05'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1641: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_redaction_preserves_source_history_masking_attribution_and_control[foreign-target]" time="0.723"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-371/test_round4_redaction_preserve2/fixture')
+fault = 'foreign-target'
+
+    @pytest.mark.parametrize('fault',['stale-text','missing-target','foreign-target','different-query','attribution','source-rewrite','control-mask','trust'])
+    def test_round4_redaction_preserves_source_history_masking_attribution_and_control(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['redactionProof']
+        if fault=='stale-text':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][0]['text']='Controlled message'
+        elif fault=='missing-target':p['targetMessage']='missing'
+        elif fault=='foreign-target':p['redactionEvent']['tenant']='foreign'
+        elif fault=='different-query':p['queryAfter']['state']['messages'][0]['text']='query-only'
+        elif fault=='attribution':
+            for key in ('persistedAfter','queryAfter'):p[key]['redactions'][0]['actorPartyId']='party:changed'
+        elif fault=='source-rewrite':p['sourceAfter'][2]['payload']=p['sourceAfter'][2]['payload'].replace('Controlled message','[redacted]')
+        elif fault=='control-mask':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][1]['text']='[redacted]'
+        else:
+            for key in ('persistedAfter','queryAfter'):p[key]['messageTrust'][0]['trustState']='Current'
+&gt;       native(repository,'AC-16.2-05',data);rejected(evaluate(repository,'AC-16.2-05'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1641: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_redaction_preserves_source_history_masking_attribution_and_control[different-query]" time="0.727"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-371/test_round4_redaction_preserve3/fixture')
+fault = 'different-query'
+
+    @pytest.mark.parametrize('fault',['stale-text','missing-target','foreign-target','different-query','attribution','source-rewrite','control-mask','trust'])
+    def test_round4_redaction_preserves_source_history_masking_attribution_and_control(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['redactionProof']
+        if fault=='stale-text':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][0]['text']='Controlled message'
+        elif fault=='missing-target':p['targetMessage']='missing'
+        elif fault=='foreign-target':p['redactionEvent']['tenant']='foreign'
+        elif fault=='different-query':p['queryAfter']['state']['messages'][0]['text']='query-only'
+        elif fault=='attribution':
+            for key in ('persistedAfter','queryAfter'):p[key]['redactions'][0]['actorPartyId']='party:changed'
+        elif fault=='source-rewrite':p['sourceAfter'][2]['payload']=p['sourceAfter'][2]['payload'].replace('Controlled message','[redacted]')
+        elif fault=='control-mask':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][1]['text']='[redacted]'
+        else:
+            for key in ('persistedAfter','queryAfter'):p[key]['messageTrust'][0]['trustState']='Current'
+&gt;       native(repository,'AC-16.2-05',data);rejected(evaluate(repository,'AC-16.2-05'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1641: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_redaction_preserves_source_history_masking_attribution_and_control[attribution]" time="0.722"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-371/test_round4_redaction_preserve4/fixture')
+fault = 'attribution'
+
+    @pytest.mark.parametrize('fault',['stale-text','missing-target','foreign-target','different-query','attribution','source-rewrite','control-mask','trust'])
+    def test_round4_redaction_preserves_source_history_masking_attribution_and_control(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['redactionProof']
+        if fault=='stale-text':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][0]['text']='Controlled message'
+        elif fault=='missing-target':p['targetMessage']='missing'
+        elif fault=='foreign-target':p['redactionEvent']['tenant']='foreign'
+        elif fault=='different-query':p['queryAfter']['state']['messages'][0]['text']='query-only'
+        elif fault=='attribution':
+            for key in ('persistedAfter','queryAfter'):p[key]['redactions'][0]['actorPartyId']='party:changed'
+        elif fault=='source-rewrite':p['sourceAfter'][2]['payload']=p['sourceAfter'][2]['payload'].replace('Controlled message','[redacted]')
+        elif fault=='control-mask':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][1]['text']='[redacted]'
+        else:
+            for key in ('persistedAfter','queryAfter'):p[key]['messageTrust'][0]['trustState']='Current'
+&gt;       native(repository,'AC-16.2-05',data);rejected(evaluate(repository,'AC-16.2-05'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1641: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_redaction_preserves_source_history_masking_attribution_and_control[source-rewrite]" time="0.751"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-371/test_round4_redaction_preserve5/fixture')
+fault = 'source-rewrite'
+
+    @pytest.mark.parametrize('fault',['stale-text','missing-target','foreign-target','different-query','attribution','source-rewrite','control-mask','trust'])
+    def test_round4_redaction_preserves_source_history_masking_attribution_and_control(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['redactionProof']
+        if fault=='stale-text':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][0]['text']='Controlled message'
+        elif fault=='missing-target':p['targetMessage']='missing'
+        elif fault=='foreign-target':p['redactionEvent']['tenant']='foreign'
+        elif fault=='different-query':p['queryAfter']['state']['messages'][0]['text']='query-only'
+        elif fault=='attribution':
+            for key in ('persistedAfter','queryAfter'):p[key]['redactions'][0]['actorPartyId']='party:changed'
+        elif fault=='source-rewrite':p['sourceAfter'][2]['payload']=p['sourceAfter'][2]['payload'].replace('Controlled message','[redacted]')
+        elif fault=='control-mask':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][1]['text']='[redacted]'
+        else:
+            for key in ('persistedAfter','queryAfter'):p[key]['messageTrust'][0]['trustState']='Current'
+&gt;       native(repository,'AC-16.2-05',data);rejected(evaluate(repository,'AC-16.2-05'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1641: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_redaction_preserves_source_history_masking_attribution_and_control[control-mask]" time="0.708"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-371/test_round4_redaction_preserve6/fixture')
+fault = 'control-mask'
+
+    @pytest.mark.parametrize('fault',['stale-text','missing-target','foreign-target','different-query','attribution','source-rewrite','control-mask','trust'])
+    def test_round4_redaction_preserves_source_history_masking_attribution_and_control(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['redactionProof']
+        if fault=='stale-text':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][0]['text']='Controlled message'
+        elif fault=='missing-target':p['targetMessage']='missing'
+        elif fault=='foreign-target':p['redactionEvent']['tenant']='foreign'
+        elif fault=='different-query':p['queryAfter']['state']['messages'][0]['text']='query-only'
+        elif fault=='attribution':
+            for key in ('persistedAfter','queryAfter'):p[key]['redactions'][0]['actorPartyId']='party:changed'
+        elif fault=='source-rewrite':p['sourceAfter'][2]['payload']=p['sourceAfter'][2]['payload'].replace('Controlled message','[redacted]')
+        elif fault=='control-mask':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][1]['text']='[redacted]'
+        else:
+            for key in ('persistedAfter','queryAfter'):p[key]['messageTrust'][0]['trustState']='Current'
+&gt;       native(repository,'AC-16.2-05',data);rejected(evaluate(repository,'AC-16.2-05'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1641: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_redaction_preserves_source_history_masking_attribution_and_control[trust]" time="0.747"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-371/test_round4_redaction_preserve7/fixture')
+fault = 'trust'
+
+    @pytest.mark.parametrize('fault',['stale-text','missing-target','foreign-target','different-query','attribution','source-rewrite','control-mask','trust'])
+    def test_round4_redaction_preserves_source_history_masking_attribution_and_control(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['redactionProof']
+        if fault=='stale-text':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][0]['text']='Controlled message'
+        elif fault=='missing-target':p['targetMessage']='missing'
+        elif fault=='foreign-target':p['redactionEvent']['tenant']='foreign'
+        elif fault=='different-query':p['queryAfter']['state']['messages'][0]['text']='query-only'
+        elif fault=='attribution':
+            for key in ('persistedAfter','queryAfter'):p[key]['redactions'][0]['actorPartyId']='party:changed'
+        elif fault=='source-rewrite':p['sourceAfter'][2]['payload']=p['sourceAfter'][2]['payload'].replace('Controlled message','[redacted]')
+        elif fault=='control-mask':
+            for key in ('persistedAfter','queryAfter'):p[key]['state']['messages'][1]['text']='[redacted]'
+        else:
+            for key in ('persistedAfter','queryAfter'):p[key]['messageTrust'][0]['trustState']='Current'
+&gt;       native(repository,'AC-16.2-05',data);rejected(evaluate(repository,'AC-16.2-05'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1641: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

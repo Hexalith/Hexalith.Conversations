@@ -1,0 +1,54 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-sdk] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x78d26b958e50>
+stage = 'sdk', stream = 'oversized'
+
+    @pytest.mark.parametrize('stage',['sdk','build'])
+    @pytest.mark.parametrize('stream',['stderr','stdout','both','oversized'])
+    def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
+        native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
+        def run(argv,**kwargs):
+            if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+            stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
+            stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
+            return subprocess.CompletedProcess(argv,code,stdout,stderr)
+        monkeypatch.setattr(native.subprocess,'run',run)
+        with pytest.raises(native.HelperUnavailable) as error:native._helper()
+        message=str(error.value);assert 'exit='+str(code) in message and 'stdout=' in message and 'stderr=' in message
+        if stream in ('stdout','both','oversized'):assert 'OUT-END' in message
+        if stream in ('stderr','both','oversized'):assert 'ERR-END' in message
+>       assert len(message)<4500
+E       assert 18080 < 4500
+E        +  where 18080 = len("repository-approved SDK unavailable: exit=41; stdout='XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYERR-END'")
+
+_bmad/scripts/tests/test_epic16_tooling.py:4369: AssertionError
+_ test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-build] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x78d26bc44410>
+stage = 'build', stream = 'oversized'
+
+    @pytest.mark.parametrize('stage',['sdk','build'])
+    @pytest.mark.parametrize('stream',['stderr','stdout','both','oversized'])
+    def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
+        native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
+        def run(argv,**kwargs):
+            if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+            stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
+            stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
+            return subprocess.CompletedProcess(argv,code,stdout,stderr)
+        monkeypatch.setattr(native.subprocess,'run',run)
+        with pytest.raises(native.HelperUnavailable) as error:native._helper()
+        message=str(error.value);assert 'exit='+str(code) in message and 'stdout=' in message and 'stderr=' in message
+        if stream in ('stdout','both','oversized'):assert 'OUT-END' in message
+        if stream in ('stderr','both','oversized'):assert 'ERR-END' in message
+>       assert len(message)<4500
+E       assert 18070 < 4500
+E        +  where 18070 = len("fixed helper build failed: exit=42; stdout='XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYERR-END'")
+
+_bmad/scripts/tests/test_epic16_tooling.py:4369: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-sdk]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-build]
+2 failed, 2715 deselected in 0.80s

@@ -1,0 +1,54 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_round10_construction_metadata_agrees_with_actual_pinned_runner[missing-fixture-dependency] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-592/test_round10_construction_meta0')
+shape = 'missing-fixture-dependency'
+
+    @pytest.mark.parametrize('shape', ['plain','output','context','class','inherited-class','collection-name','collection-type','collection-generic','assembly','assembly-generic','fixture-hierarchy','default','optional','params','missing','missing-fixture-dependency','foreign-collection'])
+    def test_round10_construction_metadata_agrees_with_actual_pinned_runner(tmp_path,shape):
+        """Execute only test-authored fixtures here; the evidence inspector never executes them."""
+        support='';attributes='';declaration='';constructor='';assembly='';body=''
+        if shape=='output':constructor='Xunit.ITestOutputHelper value';body='value.WriteLine("synthetic output");'
+        elif shape=='context':constructor='Xunit.ITestContextAccessor value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape in ('class','inherited-class'):
+            support='public class Fixture {}';declaration=' : Xunit.IClassFixture<Fixture>';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            if shape=='inherited-class':support+='public class Base : Xunit.IClassFixture<Fixture> {}';declaration=' : Base'
+        elif shape.startswith('collection') or shape=='foreign-collection':
+            support='public class Fixture {} [Xunit.CollectionDefinition("named")] public class Group : Xunit.ICollectionFixture<Fixture> {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            attributes={'collection-name':'[Xunit.Collection("named")]','collection-type':'[Xunit.Collection(typeof(Group))]','collection-generic':'[Xunit.Collection<Group>]','foreign-collection':'[Xunit.Collection("other")]'}[shape]
+        elif shape in ('assembly','assembly-generic'):
+            support='public class Fixture {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(Fixture))]' if shape=='assembly' else '[assembly:Xunit.AssemblyFixture<Fixture>]'
+        elif shape=='fixture-hierarchy':
+            support='public class AssemblyData {} public class CollectionData(AssemblyData value) {} public class ClassData(CollectionData value) {} [Xunit.CollectionDefinition("nested")] public class Group : Xunit.ICollectionFixture<CollectionData>, Xunit.IClassFixture<ClassData> {}'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(AssemblyData))]';attributes='[Xunit.Collection("nested")]';constructor='ClassData value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape=='default':constructor='string value = "default"'
+        elif shape=='optional':constructor='[System.Runtime.InteropServices.Optional] string value'
+        elif shape=='params':constructor='params string[] values'
+        elif shape=='missing':constructor='string unavailable'
+        elif shape=='missing-fixture-dependency':support='public class Fixture(string missing) {}';declaration=' : Xunit.IClassFixture<Fixture>';constructor='Fixture value'
+        directory=tmp_path/'runner';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><GenerateAssemblyInfo>false</GenerateAssemblyInfo></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" /></ItemGroup></Project>')
+        code='using Synthetic;\n'+assembly+'\n[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]\nnamespace Synthetic;\n'+support+'\n'+attributes+' public class TestClass'+declaration+' { '+('public TestClass('+constructor+') { '+body+' }' if constructor else '')+' [Xunit.Fact] public void Scenario01() {} }'
+        (directory/'Tests.cs').write_text(code)
+        command=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        binary=(directory/'bin/Debug/net10.0/Evidence.dll').read_bytes();trx=directory/'result.trx'
+        runner=['dotnet',str(directory/'bin/Debug/net10.0/Evidence.dll'),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(trx)]
+        run=subprocess.run(runner,capture_output=True,timeout=120)
+        expected=shape not in ('missing','missing-fixture-dependency','foreign-collection')
+        assert run.returncode==(0 if expected else 1),(shape,run.stdout,run.stderr)
+        counts=records.parse_trx(trx.read_bytes())['recomputed'];assert counts['passed']==int(expected) and counts['failed']==int(not expected)
+        if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+            retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('constructor-'+shape);retain.mkdir(parents=True,exist_ok=True)
+            for name,data in [('Tests.cs',code.encode()),('Evidence.dll',binary),('result.trx',trx.read_bytes()),('build.stdout',build.stdout),('build.stderr',build.stderr),('run.stdout',run.stdout),('run.stderr',run.stderr)]: (retain/name).write_bytes(data)
+            (retain/'commands.json').write_text(json.dumps(dict(build=command,run=runner,buildExit=build.returncode,runExit=run.returncode),indent=2)+'\n')
+        if expected:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        else:
+>           with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')
+E           Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:3807: Failed
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_construction_metadata_agrees_with_actual_pinned_runner[missing-fixture-dependency]
+1 failed, 1977 deselected in 4.20s

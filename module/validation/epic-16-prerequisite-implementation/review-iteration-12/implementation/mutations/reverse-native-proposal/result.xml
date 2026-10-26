@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="14.985" timestamp="2026-10-26T06:27:27.406053+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-0]" time="12.473"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-657/test_round12_reverse_save_exec0/fixture')
+index = 0, fault = 'proposal'
+path = ('execution', 'saves', 1, 'proposed', 'projection', 'name')
+value = 'stale invention'
+
+    @pytest.mark.parametrize('index',range(4))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_REVERSE],ids=lambda x:x if isinstance(x,str) else None)
+    def test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers(repository,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03'])
+        if path:round12_set(data['reverseSaves'][index],path,value)
+&gt;       round8_submit(repository,'AC-16.1-03',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4257: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-657/test_round12_reverse_save_exec0/fixture')
+scenario = 'AC-16.1-03'
+data = {'checkpoint': 10, 'merges': [{'expectedSequence': 11, 'beforeHorizon': 11, 'deliveredSequence': 12, 'afterHorizon': 1...se, 'allowed': False}, 'replicaB': {'state': 'Healthy', 'sequence': 14, 'tenantEnabled': False, 'allowed': False}, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-1]" time="0.461"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-657/test_round12_reverse_save_exec1/fixture')
+index = 1, fault = 'proposal'
+path = ('execution', 'saves', 1, 'proposed', 'projection', 'name')
+value = 'stale invention'
+
+    @pytest.mark.parametrize('index',range(4))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_REVERSE],ids=lambda x:x if isinstance(x,str) else None)
+    def test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers(repository,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03'])
+        if path:round12_set(data['reverseSaves'][index],path,value)
+&gt;       round8_submit(repository,'AC-16.1-03',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4257: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-657/test_round12_reverse_save_exec1/fixture')
+scenario = 'AC-16.1-03'
+data = {'checkpoint': 10, 'merges': [{'expectedSequence': 11, 'beforeHorizon': 11, 'deliveredSequence': 12, 'afterHorizon': 1...se, 'allowed': False}, 'replicaB': {'state': 'Healthy', 'sequence': 14, 'tenantEnabled': False, 'allowed': False}, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-2]" time="0.428"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-657/test_round12_reverse_save_exec2/fixture')
+index = 2, fault = 'proposal'
+path = ('execution', 'saves', 1, 'proposed', 'projection', 'name')
+value = 'stale invention'
+
+    @pytest.mark.parametrize('index',range(4))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_REVERSE],ids=lambda x:x if isinstance(x,str) else None)
+    def test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers(repository,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03'])
+        if path:round12_set(data['reverseSaves'][index],path,value)
+&gt;       round8_submit(repository,'AC-16.1-03',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4257: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-657/test_round12_reverse_save_exec2/fixture')
+scenario = 'AC-16.1-03'
+data = {'checkpoint': 10, 'merges': [{'expectedSequence': 11, 'beforeHorizon': 11, 'deliveredSequence': 12, 'afterHorizon': 1...se, 'allowed': False}, 'replicaB': {'state': 'Healthy', 'sequence': 14, 'tenantEnabled': False, 'allowed': False}, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-3]" time="0.419"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-657/test_round12_reverse_save_exec3/fixture')
+index = 3, fault = 'proposal'
+path = ('execution', 'saves', 1, 'proposed', 'projection', 'name')
+value = 'stale invention'
+
+    @pytest.mark.parametrize('index',range(4))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_REVERSE],ids=lambda x:x if isinstance(x,str) else None)
+    def test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers(repository,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03'])
+        if path:round12_set(data['reverseSaves'][index],path,value)
+&gt;       round8_submit(repository,'AC-16.1-03',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4257: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-657/test_round12_reverse_save_exec3/fixture')
+scenario = 'AC-16.1-03'
+data = {'checkpoint': 10, 'merges': [{'expectedSequence': 11, 'beforeHorizon': 11, 'deliveredSequence': 12, 'afterHorizon': 1...se, 'allowed': False}, 'replicaB': {'state': 'Healthy', 'sequence': 14, 'tenantEnabled': False, 'allowed': False}, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase></testsuite></testsuites>

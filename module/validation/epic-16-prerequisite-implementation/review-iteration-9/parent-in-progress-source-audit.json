@@ -1,0 +1,47 @@
+{
+  "epoch": "implementation in progress; no final verification claim",
+  "files": {
+    "_bmad/scripts/epic16_execution.py": "eeed64ac14bc59a896a96c906b8d334c3c57dcece07314caed9510f57c08d003",
+    "_bmad/scripts/epic16_products.py": "c78bafe72cbd2a61addb9fa29098e396626490ec7db4a9c412859d042a93b03e",
+    "_bmad/scripts/epic16_capture.py": "267e69044a169b73ba412bfa9e09cf0c0bbc4de9113bae8b5a19c4177f539a07",
+    "_bmad/scripts/epic16_lifecycle.py": "4630872ff2f0a34a5cc8bf0a53a59f6a1c899137e6eb3f8612175826c90900c4",
+    "_bmad/scripts/epic16_native_helper/ProductMetadata.cs": "5e63b9446290c335f0bb5388f2eb4d19a07c75dd5cb369048fb185f9875bc6e9",
+    "_bmad/scripts/epic16_native_helper/SignatureNames.cs": "ab7be5c38af3bd49b8c3266a0ba5ba56f2e06a7d06e154dc0e03f0c86493ea42",
+    "_bmad/scripts/verify_story_16_1.py": "89fec6a15125ec20ef7a1b43a0dae451b33f58e3e3c4b0d9bbf2c8d577943329",
+    ".gitattributes": "b97d90730db9b15370b525c6aa3ac17dce368ed46ac07cca97ca261e0c961cd3"
+  },
+  "readOnlyContext": {
+    "productOwners": "Seven required assembly/type owners match actual root Conversations.Server project references and source files.",
+    "wireContract": "POST /project/v2/reconcile, ProjectionDispatchRequest/Response, ReconcileAsync and EventStoreWorkload:domain-service:project match current source declarations."
+  },
+  "feedback": [
+    {
+      "id": "R9P1",
+      "finding": "Adding abstract members to a retained interface/abstract class can add implementor obligations.",
+      "status": "correction visible in source; final source/test evidence pending"
+    },
+    {
+      "id": "R9P2",
+      "finding": "New CRLF C# helper files currently inherit text eol=lf without Program.cs-style exact-byte exemption.",
+      "status": "correction visible in source; final source/test evidence pending"
+    },
+    {
+      "id": "R9P3",
+      "finding": "wireObservation durable-result persistedAfter duplicates projection content including message text despite safe-wire requirement.",
+      "requestedCorrection": "Keep independently validated full state in concurrentRecovery; correlate wire outcome with recomputed state digest and safe transaction/clearance metadata, closed against content.",
+      "status": "correction visible in source; final source/test evidence pending"
+    },
+    {
+      "id": "R9P4",
+      "finding": "HTTP 200 alone cannot classify ProjectionDispatchResponse.Outcomes; native route permits failed/indeterminate outcomes.",
+      "requestedCorrection": "Capture safe actual response outcomes, correlate expected projection and aggregate scope, keep instrumentation transaction/clearance separate.",
+      "status": "correction visible in source with Completed/AlreadyCompleted positives and unsuccessful/unsafe negatives; final evidence pending"
+    }
+  ],
+  "schemaRead": {
+    "epoch": "in-progress after wire shape update",
+    "changedObjectNodesClosed": 36,
+    "changedNonClosedObjectNodes": 0,
+    "numericCaptureVersionTypedInteger": true
+  }
+}

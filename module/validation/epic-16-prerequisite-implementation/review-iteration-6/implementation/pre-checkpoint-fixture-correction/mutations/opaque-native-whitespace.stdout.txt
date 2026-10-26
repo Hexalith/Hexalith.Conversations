@@ -1,0 +1,134 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1c] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-433/test_round6_opaque_id_matches_0/fixture')
+value = '\x1c'
+
+    @pytest.mark.parametrize('value',['\x1c','\x1d','\x1e','\x1f',' \x1c '])
+    def test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity(repository,value):
+        domain=tooling.measurements.domain
+>       assert tooling.native_helper._run(dict(operation='opaqueId',value=value))['value']==domain.text(value)==value
+                                                                                            ^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:38: in text
+    require(nonblank(value), 'nonempty domain identity')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'nonempty domain identity'
+
+    def require(condition, detail):
+>       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: nonempty domain identity
+
+_bmad/scripts/epic16_domain.py:20: ValueError
+_ test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1d] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-433/test_round6_opaque_id_matches_1/fixture')
+value = '\x1d'
+
+    @pytest.mark.parametrize('value',['\x1c','\x1d','\x1e','\x1f',' \x1c '])
+    def test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity(repository,value):
+        domain=tooling.measurements.domain
+>       assert tooling.native_helper._run(dict(operation='opaqueId',value=value))['value']==domain.text(value)==value
+                                                                                            ^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:38: in text
+    require(nonblank(value), 'nonempty domain identity')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'nonempty domain identity'
+
+    def require(condition, detail):
+>       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: nonempty domain identity
+
+_bmad/scripts/epic16_domain.py:20: ValueError
+_ test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1e] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-433/test_round6_opaque_id_matches_2/fixture')
+value = '\x1e'
+
+    @pytest.mark.parametrize('value',['\x1c','\x1d','\x1e','\x1f',' \x1c '])
+    def test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity(repository,value):
+        domain=tooling.measurements.domain
+>       assert tooling.native_helper._run(dict(operation='opaqueId',value=value))['value']==domain.text(value)==value
+                                                                                            ^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:38: in text
+    require(nonblank(value), 'nonempty domain identity')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'nonempty domain identity'
+
+    def require(condition, detail):
+>       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: nonempty domain identity
+
+_bmad/scripts/epic16_domain.py:20: ValueError
+_ test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1f] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-433/test_round6_opaque_id_matches_3/fixture')
+value = '\x1f'
+
+    @pytest.mark.parametrize('value',['\x1c','\x1d','\x1e','\x1f',' \x1c '])
+    def test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity(repository,value):
+        domain=tooling.measurements.domain
+>       assert tooling.native_helper._run(dict(operation='opaqueId',value=value))['value']==domain.text(value)==value
+                                                                                            ^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:38: in text
+    require(nonblank(value), 'nonempty domain identity')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'nonempty domain identity'
+
+    def require(condition, detail):
+>       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: nonempty domain identity
+
+_bmad/scripts/epic16_domain.py:20: ValueError
+_ test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[ \x1c ] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-433/test_round6_opaque_id_matches_4/fixture')
+value = ' \x1c '
+
+    @pytest.mark.parametrize('value',['\x1c','\x1d','\x1e','\x1f',' \x1c '])
+    def test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity(repository,value):
+        domain=tooling.measurements.domain
+>       assert tooling.native_helper._run(dict(operation='opaqueId',value=value))['value']==domain.text(value)==value
+                                                                                            ^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:38: in text
+    require(nonblank(value), 'nonempty domain identity')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'nonempty domain identity'
+
+    def require(condition, detail):
+>       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: nonempty domain identity
+
+_bmad/scripts/epic16_domain.py:20: ValueError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1c]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1d]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1e]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1f]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[ \x1c ]
+5 failed, 1046 deselected in 3.70s

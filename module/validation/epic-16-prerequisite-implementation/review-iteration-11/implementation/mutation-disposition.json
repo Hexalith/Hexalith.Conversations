@@ -1,0 +1,19 @@
+{
+  "runs": 36,
+  "demonstratedGuards": 35,
+  "targetedFailures": 162,
+  "errors": 0,
+  "skips": 0,
+  "selectorMiss": {
+    "record": "mutations/mutation-probes.json",
+    "name": "recovery-execution-caller",
+    "exitCode": 5,
+    "selectedTests": 0,
+    "reason": "pytest -k not 6 matches the epic16 module name and excluded every case",
+    "correctedRecord": "mutations-supplement/mutation-probes.json",
+    "correctedSelectedTests": 7,
+    "correctedAssertionFailures": 6,
+    "claim": "initial zero-test run is not guard-sensitivity evidence"
+  },
+  "sourceEpochSha256": "514f87ae667d6c9bf1a47c4a867fe34196de84078a504d53d953e39823e65c61"
+}

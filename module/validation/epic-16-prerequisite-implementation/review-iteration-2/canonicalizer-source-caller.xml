@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="7.148" timestamp="2026-10-25T19:13:37.860023+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_runtime_evaluator_calls_actual_canonicalizer_source_guard" time="6.912"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-238/test_runtime_evaluator_calls_a0/runtime')
+
+    def test_runtime_evaluator_calls_actual_canonicalizer_source_guard(qualified_runtime):
+        dependency = qualified_runtime/'references/Hexalith.EventStore'
+        (qualified_runtime/tooling.CANONICALIZER_SOURCE).write_bytes(b'wrong but clean source')
+        git(dependency, 'add', '.'); git(dependency, 'commit', '-qm', 'test: alter disposable canonicalizer')
+        git(qualified_runtime, 'add', 'references/Hexalith.EventStore'); git(qualified_runtime, 'commit', '-qm', 'test: bind changed disposable dependency')
+        # Refresh genuine source-stamped binary and native candidate so the source guard is reached.
+        candidate = git(qualified_runtime, 'rev-parse', 'HEAD')
+        code = (qualified_runtime/'tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_2EvidenceTests.cs').read_text()
+        binary = compile_evidence(qualified_runtime.parent/'changed-build', candidate, code)
+        (qualified_runtime/'artifacts/native/evidence.dll').write_bytes(binary)
+        path = qualified_runtime/tooling.native_path('runtime','AC-16.2-02'); tree = ET.fromstring(path.read_bytes())
+        output = tree.find('Results/UnitTestResult/Output/StdOut'); payload = json.loads(output.text); payload['candidate'] = candidate; output.text = json.dumps(payload); path.write_bytes(ET.tostring(tree))
+&gt;       rejected(runtime_evaluate(qualified_runtime), 'CANONICALIZER_SOURCE_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:1058: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'CANONICALIZER_SOURCE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase></testsuite></testsuites>

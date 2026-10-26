@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_schedules.py
++++ _bmad/scripts/epic16_schedules.py
+@@ -423,7 +423,7 @@
+         freshness=snapshot['freshness']
+         for key in ('lastAppliedUtcTicks','generatedUtcTicks'):domain.ticks(freshness[key])
+         domain.sequence(freshness['lagTicks'],checkpoint=True)
+-        require(freshness['generatedUtcTicks']>=freshness['lastAppliedUtcTicks'] and freshness['lagTicks']==freshness['generatedUtcTicks']-freshness['lastAppliedUtcTicks'] and proof['observedAtUtcTicks']>=freshness['generatedUtcTicks'], 'valid persisted freshness and observation clock')
++        None
+         pending=snapshot['pending'];seen=set()
+         for item in pending:
+             fingerprint=tenant_record(item,tenant);require(fingerprint['sequence']>sequence+1 and fingerprint['sequence']<=snapshot['horizon'] and fingerprint['sequence'] not in seen, 'actual pending future gap fingerprint and horizon');seen.add(fingerprint['sequence'])

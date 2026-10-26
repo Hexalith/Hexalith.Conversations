@@ -1,0 +1,29 @@
+{
+  "name": "product-source-blob",
+  "path": "_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+  "old": "if (value.ReadUInt16() != 0 || value.RemainingBytes != 0) throw new BadImageFormatException();",
+  "new": "_ = value.ReadUInt16();",
+  "selector": "round12_source_stamp and product and (named-blob or trailing-blob)",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-product-source-blob-mq8852ub/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_source_stamp and product and (named-blob or trailing-blob)",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/product-source-blob/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-product-source-blob-mq8852ub",
+  "exitCode": 1,
+  "elapsedSeconds": 9.872341679991223,
+  "originalSha256": "ef75fbd3b889b78c2e2678db4d99cdb7448f231f29b3d22cb300dff0bb5e3902",
+  "mutatedSha256": "a95f781307212d933aef58632a76892665021efef868ab81139663dafb30432f",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 2,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

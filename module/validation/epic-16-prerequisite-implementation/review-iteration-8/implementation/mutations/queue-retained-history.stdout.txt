@@ -1,0 +1,148 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_round8_queue_accepts_arrival_patterns_but_preserves_authoritative_identity[reuse-sequence] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-508/test_round8_queue_accepts_arri0/fixture')
+mode = 'reuse-sequence'
+
+    @pytest.mark.parametrize('mode',['reordered','before-c','new-stream','duplicate','reuse-sequence','reuse-event','reuse-message','wrong-stream-map'])
+    def test_round8_queue_accepts_arrival_patterns_but_preserves_authoritative_identity(repository,mode):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1];deliveries=row['catchUp']['deliveries']
+        if mode=='reordered':deliveries[:]=[deliveries[2],deliveries[1],deliveries[3],deliveries[0]]
+        elif mode=='before-c':
+            row['B']=5;row['discoveryAt']=5;stream=row['streams'][0];stream.update(boundaryAt=5,boundarySequence=1,replayedThroughB=1)
+        elif mode=='duplicate':deliveries.append(deepcopy(deliveries[1]));deliveries[-1]['deliveryId']='extra-duplicate'
+        elif mode=='new-stream':
+            event=deepcopy(row['streams'][0]['authoritativeEvents'][0]['event']);event.update(conversation='conversation-new',messageId='delivery-new');payload=json.loads(event['payload']);metadata=payload['metadata'];metadata.update(eventId='event-new',conversationId='conv:conversation-new',deduplicationKey='tenant:tenant-a|conv:conversation-new|event-new|1');event['payload']=json.dumps(payload,separators=(',',':'))
+            extra=deepcopy(deliveries[1]);extra['deliveryId']='arrival-new';extra['authoritative']=dict(stream='new-stream',sequence=1,eventId='event-new',position=50,event=event,eventSha256=digest(tooling.canonical(event)));deliveries.append(extra)
+        else:
+            # Reuse a creation-history identity that was not among original deliveries.
+            extra=deepcopy(deliveries[1]);extra['deliveryId']='history-reuse';observed=extra['authoritative'];event=observed['event'];payload=json.loads(event['payload'])
+            event.update(sequence=9,messageId='delivery-later-unique');observed.update(sequence=9,eventId='event-later-unique')
+            payload['metadata'].update(eventId='event-later-unique',deduplicationKey='tenant:tenant-a|conv:conversation-a|event-later-unique|1');event['payload']=json.dumps(payload,separators=(',',':'))
+            if mode=='reuse-sequence':event['sequence']=1;observed['sequence']=1
+            elif mode=='reuse-message':event['messageId']=row['streams'][0]['authoritativeEvents'][0]['event']['messageId']
+            elif mode=='reuse-event':payload['metadata']['eventId']='event-1';payload['metadata']['deduplicationKey']='tenant:tenant-a|conv:conversation-a|event-1|1';event['payload']=json.dumps(payload,separators=(',',':'));observed['eventId']='event-1'
+            observed['position']=50;observed['eventSha256']=digest(tooling.canonical(event));deliveries.append(extra)
+        round8_requeue(row)
+        if mode=='wrong-stream-map':deliveries[-1]['streamIdentity']['id']='unrelated'
+>       round8_submit(repository,'AC-16.2-04',data,passes=mode in ('reordered','before-c','new-stream','duplicate'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:3057: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-508/test_round8_queue_accepts_arri0/fixture')
+scenario = 'AC-16.2-04'
+data = {'lifecycle': [{'id': 'erase', 'beforeGeneration': 2, 'afterGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3]...erGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3], ...}], 'queryWrites': [], 'unauthorizedRebuildWrites': 0}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+_ test_round8_queue_accepts_arrival_patterns_but_preserves_authoritative_identity[reuse-event] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-508/test_round8_queue_accepts_arri1/fixture')
+mode = 'reuse-event'
+
+    @pytest.mark.parametrize('mode',['reordered','before-c','new-stream','duplicate','reuse-sequence','reuse-event','reuse-message','wrong-stream-map'])
+    def test_round8_queue_accepts_arrival_patterns_but_preserves_authoritative_identity(repository,mode):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1];deliveries=row['catchUp']['deliveries']
+        if mode=='reordered':deliveries[:]=[deliveries[2],deliveries[1],deliveries[3],deliveries[0]]
+        elif mode=='before-c':
+            row['B']=5;row['discoveryAt']=5;stream=row['streams'][0];stream.update(boundaryAt=5,boundarySequence=1,replayedThroughB=1)
+        elif mode=='duplicate':deliveries.append(deepcopy(deliveries[1]));deliveries[-1]['deliveryId']='extra-duplicate'
+        elif mode=='new-stream':
+            event=deepcopy(row['streams'][0]['authoritativeEvents'][0]['event']);event.update(conversation='conversation-new',messageId='delivery-new');payload=json.loads(event['payload']);metadata=payload['metadata'];metadata.update(eventId='event-new',conversationId='conv:conversation-new',deduplicationKey='tenant:tenant-a|conv:conversation-new|event-new|1');event['payload']=json.dumps(payload,separators=(',',':'))
+            extra=deepcopy(deliveries[1]);extra['deliveryId']='arrival-new';extra['authoritative']=dict(stream='new-stream',sequence=1,eventId='event-new',position=50,event=event,eventSha256=digest(tooling.canonical(event)));deliveries.append(extra)
+        else:
+            # Reuse a creation-history identity that was not among original deliveries.
+            extra=deepcopy(deliveries[1]);extra['deliveryId']='history-reuse';observed=extra['authoritative'];event=observed['event'];payload=json.loads(event['payload'])
+            event.update(sequence=9,messageId='delivery-later-unique');observed.update(sequence=9,eventId='event-later-unique')
+            payload['metadata'].update(eventId='event-later-unique',deduplicationKey='tenant:tenant-a|conv:conversation-a|event-later-unique|1');event['payload']=json.dumps(payload,separators=(',',':'))
+            if mode=='reuse-sequence':event['sequence']=1;observed['sequence']=1
+            elif mode=='reuse-message':event['messageId']=row['streams'][0]['authoritativeEvents'][0]['event']['messageId']
+            elif mode=='reuse-event':payload['metadata']['eventId']='event-1';payload['metadata']['deduplicationKey']='tenant:tenant-a|conv:conversation-a|event-1|1';event['payload']=json.dumps(payload,separators=(',',':'));observed['eventId']='event-1'
+            observed['position']=50;observed['eventSha256']=digest(tooling.canonical(event));deliveries.append(extra)
+        round8_requeue(row)
+        if mode=='wrong-stream-map':deliveries[-1]['streamIdentity']['id']='unrelated'
+>       round8_submit(repository,'AC-16.2-04',data,passes=mode in ('reordered','before-c','new-stream','duplicate'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:3057: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-508/test_round8_queue_accepts_arri1/fixture')
+scenario = 'AC-16.2-04'
+data = {'lifecycle': [{'id': 'erase', 'beforeGeneration': 2, 'afterGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3]...erGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3], ...}], 'queryWrites': [], 'unauthorizedRebuildWrites': 0}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+_ test_round8_queue_accepts_arrival_patterns_but_preserves_authoritative_identity[reuse-message] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-508/test_round8_queue_accepts_arri2/fixture')
+mode = 'reuse-message'
+
+    @pytest.mark.parametrize('mode',['reordered','before-c','new-stream','duplicate','reuse-sequence','reuse-event','reuse-message','wrong-stream-map'])
+    def test_round8_queue_accepts_arrival_patterns_but_preserves_authoritative_identity(repository,mode):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1];deliveries=row['catchUp']['deliveries']
+        if mode=='reordered':deliveries[:]=[deliveries[2],deliveries[1],deliveries[3],deliveries[0]]
+        elif mode=='before-c':
+            row['B']=5;row['discoveryAt']=5;stream=row['streams'][0];stream.update(boundaryAt=5,boundarySequence=1,replayedThroughB=1)
+        elif mode=='duplicate':deliveries.append(deepcopy(deliveries[1]));deliveries[-1]['deliveryId']='extra-duplicate'
+        elif mode=='new-stream':
+            event=deepcopy(row['streams'][0]['authoritativeEvents'][0]['event']);event.update(conversation='conversation-new',messageId='delivery-new');payload=json.loads(event['payload']);metadata=payload['metadata'];metadata.update(eventId='event-new',conversationId='conv:conversation-new',deduplicationKey='tenant:tenant-a|conv:conversation-new|event-new|1');event['payload']=json.dumps(payload,separators=(',',':'))
+            extra=deepcopy(deliveries[1]);extra['deliveryId']='arrival-new';extra['authoritative']=dict(stream='new-stream',sequence=1,eventId='event-new',position=50,event=event,eventSha256=digest(tooling.canonical(event)));deliveries.append(extra)
+        else:
+            # Reuse a creation-history identity that was not among original deliveries.
+            extra=deepcopy(deliveries[1]);extra['deliveryId']='history-reuse';observed=extra['authoritative'];event=observed['event'];payload=json.loads(event['payload'])
+            event.update(sequence=9,messageId='delivery-later-unique');observed.update(sequence=9,eventId='event-later-unique')
+            payload['metadata'].update(eventId='event-later-unique',deduplicationKey='tenant:tenant-a|conv:conversation-a|event-later-unique|1');event['payload']=json.dumps(payload,separators=(',',':'))
+            if mode=='reuse-sequence':event['sequence']=1;observed['sequence']=1
+            elif mode=='reuse-message':event['messageId']=row['streams'][0]['authoritativeEvents'][0]['event']['messageId']
+            elif mode=='reuse-event':payload['metadata']['eventId']='event-1';payload['metadata']['deduplicationKey']='tenant:tenant-a|conv:conversation-a|event-1|1';event['payload']=json.dumps(payload,separators=(',',':'));observed['eventId']='event-1'
+            observed['position']=50;observed['eventSha256']=digest(tooling.canonical(event));deliveries.append(extra)
+        round8_requeue(row)
+        if mode=='wrong-stream-map':deliveries[-1]['streamIdentity']['id']='unrelated'
+>       round8_submit(repository,'AC-16.2-04',data,passes=mode in ('reordered','before-c','new-stream','duplicate'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:3057: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-508/test_round8_queue_accepts_arri2/fixture')
+scenario = 'AC-16.2-04'
+data = {'lifecycle': [{'id': 'erase', 'beforeGeneration': 2, 'afterGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3]...erGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3], ...}], 'queryWrites': [], 'unauthorizedRebuildWrites': 0}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_queue_accepts_arrival_patterns_but_preserves_authoritative_identity[reuse-sequence]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_queue_accepts_arrival_patterns_but_preserves_authoritative_identity[reuse-event]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_queue_accepts_arrival_patterns_but_preserves_authoritative_identity[reuse-message]
+3 failed, 1585 deselected in 3.68s

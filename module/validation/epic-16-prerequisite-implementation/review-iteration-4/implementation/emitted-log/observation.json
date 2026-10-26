@@ -1,0 +1,51 @@
+{
+  "synthetic": true,
+  "scope": "isolated-controlled-evidence-experiment",
+  "argv": [
+    "dotnet",
+    "run",
+    "--project",
+    "/tmp/epic16-emitted-log-r4",
+    "--configuration",
+    "Debug"
+  ],
+  "exitCode": 0,
+  "files": [
+    {
+      "path": "Experiment.csproj",
+      "sha256": "c28b1345c3d0a5a35e0f8dcb4445d6d06b8287a1454d50d0682e70c0aaff35c4"
+    },
+    {
+      "path": "DefaultConversationOnboardingDiagnosticSignals.cs",
+      "sha256": "8d2fcc4d61caab283937959e0e12bf63952971e49af97b0c6f495e983ae92f8e"
+    },
+    {
+      "path": "CaptureLogger.cs",
+      "sha256": "b9e28ea6646cd6b30c9eaa13cd3f213f45c9af2834f3773ba8bef81e7942601f"
+    },
+    {
+      "path": "IConversationOnboardingDiagnosticSignals.cs",
+      "sha256": "405776614b81406cc3281b5400282d7afe03fa87823e6683e38a253c73ddf4d1"
+    },
+    {
+      "path": "Program.cs",
+      "sha256": "46caaa32bfdef72e83c03b9929d304013999b526b94e8e1f9777bdd2827cbfc1"
+    },
+    {
+      "path": "output.json",
+      "sha256": "b8f39d84ce439a6eed62ed59f7a275b559a5b072ee1c98249a721fb844652690"
+    },
+    {
+      "path": "ParticipantDirectoryValidationStatus.cs",
+      "sha256": "470b1df63b531040c972507fbee9d85f7af62e1a8546dd856636e27d78172edb"
+    },
+    {
+      "path": "ConversationGovernanceAuditStatus.cs",
+      "sha256": "4cef5857742ce20f83004f6c476e0f91202c7e765aeea85d6daaf6655109a679"
+    },
+    {
+      "path": "stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

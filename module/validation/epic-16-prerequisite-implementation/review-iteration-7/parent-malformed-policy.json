@@ -1,0 +1,12 @@
+[
+  {
+    "policy": "not json",
+    "outcome": "HelperUnavailable",
+    "message": "repository-approved SDK unavailable"
+  },
+  {
+    "policy": "[]",
+    "outcome": "HelperUnavailable",
+    "message": "repository-approved SDK unavailable"
+  }
+]

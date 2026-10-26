@@ -1,0 +1,747 @@
+{
+  "faults": [
+    {
+      "id": "reverse-save",
+      "observedCodes": [
+        "CAS_RETRY"
+      ],
+      "beforeBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"versions\":[4,5],\"saveOrder\":[4,5]}}",
+      "afterBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"versions\":[4,5],\"saveOrder\":[4,5]}}",
+      "beforeSha256": "7b0a8436cf0245785891d905b6e5a843ef83873ff8b562c51906f102ac66296b",
+      "afterSha256": "7b0a8436cf0245785891d905b6e5a843ef83873ff8b562c51906f102ac66296b",
+      "assertions": 3,
+      "target": {
+        "kind": "tenant-projection",
+        "id": "tenant-a"
+      },
+      "injectedBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"versions\":[4,5],\"saveOrder\":[5,4]}}",
+      "observed": {
+        "version": 5,
+        "staleAccepted": false
+      },
+      "assertionEntries": [
+        {
+          "id": "injection",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "outcome",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "restoration",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "equal-sequence-conflict",
+      "observedCodes": [
+        "Corrupt"
+      ],
+      "beforeBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"sequence\":12,\"payload\":\"original\"}}",
+      "afterBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"sequence\":12,\"payload\":\"original\"}}",
+      "beforeSha256": "c4f88cec77c2928198ddc321d12187ff32089589415578adb435dc93a9470600",
+      "afterSha256": "c4f88cec77c2928198ddc321d12187ff32089589415578adb435dc93a9470600",
+      "assertions": 3,
+      "target": {
+        "kind": "tenant-projection",
+        "id": "tenant-a"
+      },
+      "injectedBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"sequence\":12,\"payload\":\"conflict\"}}",
+      "observed": {
+        "state": "Corrupt",
+        "applied": false
+      },
+      "assertionEntries": [
+        {
+          "id": "injection",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "outcome",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "restoration",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "three-future-deliveries",
+      "observedCodes": [
+        "Gapped"
+      ],
+      "beforeBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"checkpoint\":10,\"horizon\":11,\"deliveries\":[]}}",
+      "afterBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"checkpoint\":10,\"horizon\":11,\"deliveries\":[]}}",
+      "beforeSha256": "4d6e3760e750325890a35233a0fcdfc4f471f8316cf46df3af042e7b6d0c03d3",
+      "afterSha256": "4d6e3760e750325890a35233a0fcdfc4f471f8316cf46df3af042e7b6d0c03d3",
+      "assertions": 3,
+      "target": {
+        "kind": "tenant-projection",
+        "id": "tenant-a"
+      },
+      "injectedBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"checkpoint\":10,\"horizon\":14,\"deliveries\":[12,13,14]}}",
+      "observed": {
+        "state": "Gapped",
+        "horizon": 14,
+        "pending": [
+          12,
+          13,
+          14
+        ]
+      },
+      "assertionEntries": [
+        {
+          "id": "injection",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "outcome",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "restoration",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "horizon-extension",
+      "observedCodes": [
+        "Gapped"
+      ],
+      "beforeBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"checkpoint\":10,\"horizon\":12,\"deliveries\":[12]}}",
+      "afterBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"checkpoint\":10,\"horizon\":12,\"deliveries\":[12]}}",
+      "beforeSha256": "e2701bd9103963ed43a52f8c5fd85c542e25f94225c9ce1fb327d8e0c100d789",
+      "afterSha256": "e2701bd9103963ed43a52f8c5fd85c542e25f94225c9ce1fb327d8e0c100d789",
+      "assertions": 3,
+      "target": {
+        "kind": "tenant-projection",
+        "id": "tenant-a"
+      },
+      "injectedBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"checkpoint\":10,\"horizon\":14,\"deliveries\":[12,14]}}",
+      "observed": {
+        "state": "Gapped",
+        "horizon": 14,
+        "pending": [
+          12,
+          14
+        ]
+      },
+      "assertionEntries": [
+        {
+          "id": "injection",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "outcome",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "restoration",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "retry-exhaustion",
+      "observedCodes": [
+        "Unavailable"
+      ],
+      "beforeBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"provider\":\"Available\",\"attempts\":[]}}",
+      "afterBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"provider\":\"Available\",\"attempts\":[]}}",
+      "beforeSha256": "77b0565a0de6cd0babb5252a9fbfbd3d3d7bd985dc9a65f8a86f340bd75c7cec",
+      "afterSha256": "77b0565a0de6cd0babb5252a9fbfbd3d3d7bd985dc9a65f8a86f340bd75c7cec",
+      "assertions": 3,
+      "target": {
+        "kind": "tenant-projection",
+        "id": "tenant-a"
+      },
+      "injectedBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"provider\":\"Unavailable\",\"attempts\":[\"failed\",\"failed\",\"failed\"]}}",
+      "observed": {
+        "state": "Unavailable",
+        "acknowledged": false
+      },
+      "assertionEntries": [
+        {
+          "id": "injection",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "outcome",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "restoration",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lease-expiry",
+      "observedCodes": [
+        "FENCE_REJECTED"
+      ],
+      "beforeBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"lease\":2,\"version\":3,\"expiresAt\":10}}",
+      "afterBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"lease\":2,\"version\":3,\"expiresAt\":10}}",
+      "beforeSha256": "75842ee929ac360e888585696a5da775e4e98ea8184b567394b31b51a64e100a",
+      "afterSha256": "75842ee929ac360e888585696a5da775e4e98ea8184b567394b31b51a64e100a",
+      "assertions": 3,
+      "target": {
+        "kind": "tenant-projection",
+        "id": "tenant-a"
+      },
+      "injectedBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"lease\":2,\"version\":3,\"now\":11}}",
+      "observed": {
+        "writes": 0,
+        "fenceAccepted": false
+      },
+      "assertionEntries": [
+        {
+          "id": "injection",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "outcome",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "restoration",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "restart",
+      "observedCodes": [
+        "Gapped"
+      ],
+      "beforeBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"process\":\"old-process\",\"snapshot\":{\"sequence\":10,\"pending\":[12],\"state\":\"Gapped\"}}}",
+      "afterBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"process\":\"old-process\",\"snapshot\":{\"sequence\":10,\"pending\":[12],\"state\":\"Gapped\"}}}",
+      "beforeSha256": "0452085fb2c54605a74666e891b9697b9f43b2448f2398a6fa57db4ec25d305b",
+      "afterSha256": "0452085fb2c54605a74666e891b9697b9f43b2448f2398a6fa57db4ec25d305b",
+      "assertions": 3,
+      "target": {
+        "kind": "tenant-projection",
+        "id": "tenant-a"
+      },
+      "injectedBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"process\":\"new-process\",\"snapshot\":{\"sequence\":10,\"pending\":[12],\"state\":\"Gapped\"}}}",
+      "observed": {
+        "state": "Gapped",
+        "allowed": false,
+        "redeliveries": 0
+      },
+      "assertionEntries": [
+        {
+          "id": "injection",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "outcome",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "restoration",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "missing-history",
+      "observedCodes": [
+        "Corrupt"
+      ],
+      "beforeBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"requiredSequence\":9,\"history\":[8,9,10]}}",
+      "afterBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"requiredSequence\":9,\"history\":[8,9,10]}}",
+      "beforeSha256": "1f41722727796d69c338db9140c0751787028d0fec2542cae96588e4c952310c",
+      "afterSha256": "1f41722727796d69c338db9140c0751787028d0fec2542cae96588e4c952310c",
+      "assertions": 3,
+      "target": {
+        "kind": "tenant-projection",
+        "id": "tenant-a"
+      },
+      "injectedBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"requiredSequence\":9,\"history\":[8,10]}}",
+      "observed": {
+        "state": "Corrupt",
+        "applied": false
+      },
+      "assertionEntries": [
+        {
+          "id": "injection",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "outcome",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "restoration",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "conflicting-history",
+      "observedCodes": [
+        "Corrupt"
+      ],
+      "beforeBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"sequence\":9,\"payload\":\"original\"}}",
+      "afterBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"sequence\":9,\"payload\":\"original\"}}",
+      "beforeSha256": "98aeb3d1d5b01fd39fa5274b4278f1fe2fa277dff7e60b25a4749b268005aff6",
+      "afterSha256": "98aeb3d1d5b01fd39fa5274b4278f1fe2fa277dff7e60b25a4749b268005aff6",
+      "assertions": 3,
+      "target": {
+        "kind": "tenant-projection",
+        "id": "tenant-a"
+      },
+      "injectedBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"sequence\":9,\"payload\":\"conflict\"}}",
+      "observed": {
+        "state": "Corrupt",
+        "applied": false
+      },
+      "assertionEntries": [
+        {
+          "id": "injection",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "outcome",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "restoration",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "provider-unavailable",
+      "observedCodes": [
+        "Unavailable"
+      ],
+      "beforeBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"provider\":\"tenant-store\",\"available\":true}}",
+      "afterBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"provider\":\"tenant-store\",\"available\":true}}",
+      "beforeSha256": "bffbafe8de7f8458fba734856ef3ee4661307127fb44e7e1f3c2d0b7a6a8755d",
+      "afterSha256": "bffbafe8de7f8458fba734856ef3ee4661307127fb44e7e1f3c2d0b7a6a8755d",
+      "assertions": 3,
+      "target": {
+        "kind": "tenant-projection",
+        "id": "tenant-a"
+      },
+      "injectedBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"provider\":\"tenant-store\",\"available\":false}}",
+      "observed": {
+        "state": "Unavailable",
+        "writes": 0
+      },
+      "assertionEntries": [
+        {
+          "id": "injection",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "outcome",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "restoration",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "recovery-success",
+      "observedCodes": [
+        "Healthy"
+      ],
+      "beforeBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"checkpoint\":10,\"horizon\":14,\"state\":\"Gapped\",\"domain\":{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":null,\"status\":\"Active\",\"members\":{\"actor-a\":\"TenantContributor\"},\"configuration\":{\"conversations.enabled\":\"true\"}}}}",
+      "afterBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"checkpoint\":10,\"horizon\":14,\"state\":\"Gapped\",\"domain\":{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":null,\"status\":\"Active\",\"members\":{\"actor-a\":\"TenantContributor\"},\"configuration\":{\"conversations.enabled\":\"true\"}}}}",
+      "beforeSha256": "75f5ed4e7527c23a56b2911f0edbc877d3064f1b3159a1498c1b9a82847f046c",
+      "afterSha256": "75f5ed4e7527c23a56b2911f0edbc877d3064f1b3159a1498c1b9a82847f046c",
+      "assertions": 3,
+      "target": {
+        "kind": "tenant-projection",
+        "id": "tenant-a"
+      },
+      "injectedBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"records\":[{\"sequence\":11,\"messageId\":\"message-11\",\"eventType\":\"TenantUpdated\",\"persistedPayload\":\"{\\\"tenantId\\\":\\\"tenant-a\\\",\\\"name\\\":\\\"Tenant A\\\",\\\"description\\\":\\\"Updated\\\",\\\"updatedAt\\\":\\\"2026-10-25T12:00:00+00:00\\\"}\",\"payloadSha256\":\"c444545c7044116c3622dfa5926a1083cdf647b7ddee59cd2ef8d1b40f019818\"},{\"sequence\":12,\"messageId\":\"message-12\",\"eventType\":\"TenantDisabled\",\"persistedPayload\":\"{\\\"tenantId\\\":\\\"tenant-a\\\",\\\"disabledAt\\\":\\\"2026-10-25T12:00:01+00:00\\\"}\",\"payloadSha256\":\"2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94\"},{\"sequence\":13,\"messageId\":\"message-13\",\"eventType\":\"TenantDisabled\",\"persistedPayload\":\"{\\\"tenantId\\\":\\\"tenant-a\\\",\\\"disabledAt\\\":\\\"2026-10-25T12:00:01+00:00\\\"}\",\"payloadSha256\":\"2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94\"},{\"sequence\":14,\"messageId\":\"message-14\",\"eventType\":\"TenantDisabled\",\"persistedPayload\":\"{\\\"tenantId\\\":\\\"tenant-a\\\",\\\"disabledAt\\\":\\\"2026-10-25T12:00:01+00:00\\\"}\",\"payloadSha256\":\"2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94\"}]}}",
+      "observed": {
+        "state": "Healthy",
+        "checkpoint": 14,
+        "pending": [],
+        "domain": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": "Updated",
+          "status": "Disabled",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        }
+      },
+      "assertionEntries": [
+        {
+          "id": "injection",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "outcome",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "restoration",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "two-replicas",
+      "observedCodes": [
+        "Healthy"
+      ],
+      "beforeBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"replicaA\":{\"sequence\":11,\"allowed\":true,\"domain\":{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":\"Updated\",\"status\":\"Active\",\"members\":{\"actor-a\":\"TenantContributor\"},\"configuration\":{\"conversations.enabled\":\"true\"}}},\"replicaB\":{\"sequence\":14,\"allowed\":false,\"domain\":{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":\"Updated\",\"status\":\"Disabled\",\"members\":{\"actor-a\":\"TenantContributor\"},\"configuration\":{\"conversations.enabled\":\"true\"}}}}}",
+      "afterBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"replicaA\":{\"sequence\":11,\"allowed\":true,\"domain\":{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":\"Updated\",\"status\":\"Active\",\"members\":{\"actor-a\":\"TenantContributor\"},\"configuration\":{\"conversations.enabled\":\"true\"}}},\"replicaB\":{\"sequence\":14,\"allowed\":false,\"domain\":{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":\"Updated\",\"status\":\"Disabled\",\"members\":{\"actor-a\":\"TenantContributor\"},\"configuration\":{\"conversations.enabled\":\"true\"}}}}}",
+      "beforeSha256": "66a4b991337a1ea8377a9845673b9c361dd37a3a12fe9682b26914abaec04d99",
+      "afterSha256": "66a4b991337a1ea8377a9845673b9c361dd37a3a12fe9682b26914abaec04d99",
+      "assertions": 3,
+      "target": {
+        "kind": "tenant-projection",
+        "id": "tenant-a"
+      },
+      "injectedBytes": "{\"target\":{\"kind\":\"tenant-projection\",\"id\":\"tenant-a\"},\"state\":{\"saveOrder\":[\"newer\",\"older\"]}}",
+      "observed": {
+        "replicaA": {
+          "sequence": 14,
+          "allowed": false,
+          "domain": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": "Updated",
+            "status": "Disabled",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          }
+        },
+        "replicaB": {
+          "sequence": 14,
+          "allowed": false,
+          "domain": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": "Updated",
+            "status": "Disabled",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          }
+        }
+      },
+      "assertionEntries": [
+        {
+          "id": "injection",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "outcome",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        },
+        {
+          "id": "restoration",
+          "actual": true,
+          "expected": true,
+          "target": {
+            "kind": "tenant-projection",
+            "id": "tenant-a"
+          }
+        }
+      ]
+    }
+  ],
+  "acknowledgements": [
+    {
+      "id": "accepted",
+      "acknowledged": true,
+      "durable": true,
+      "attempts": 1,
+      "deliveryId": "delivery-accepted",
+      "durableCommit": {
+        "deliveryId": "delivery-accepted",
+        "recordId": "outcome-accepted",
+        "outcome": "accepted",
+        "utcTicks": 1000,
+        "order": 1
+      },
+      "acknowledgement": {
+        "deliveryId": "delivery-accepted",
+        "recordId": "outcome-accepted",
+        "utcTicks": 1001,
+        "order": 2
+      }
+    },
+    {
+      "id": "duplicate",
+      "acknowledged": true,
+      "durable": true,
+      "attempts": 1,
+      "deliveryId": "delivery-duplicate",
+      "durableCommit": {
+        "deliveryId": "delivery-duplicate",
+        "recordId": "outcome-duplicate",
+        "outcome": "duplicate",
+        "utcTicks": 1010,
+        "order": 1
+      },
+      "acknowledgement": {
+        "deliveryId": "delivery-duplicate",
+        "recordId": "outcome-duplicate",
+        "utcTicks": 1011,
+        "order": 2
+      }
+    },
+    {
+      "id": "pending",
+      "acknowledged": true,
+      "durable": true,
+      "attempts": 1,
+      "deliveryId": "delivery-pending",
+      "durableCommit": {
+        "deliveryId": "delivery-pending",
+        "recordId": "outcome-pending",
+        "outcome": "pending",
+        "utcTicks": 1020,
+        "order": 1
+      },
+      "acknowledgement": {
+        "deliveryId": "delivery-pending",
+        "recordId": "outcome-pending",
+        "utcTicks": 1021,
+        "order": 2
+      }
+    },
+    {
+      "id": "corrupt",
+      "acknowledged": true,
+      "durable": true,
+      "attempts": 1,
+      "deliveryId": "delivery-corrupt",
+      "durableCommit": {
+        "deliveryId": "delivery-corrupt",
+        "recordId": "outcome-corrupt",
+        "outcome": "corrupt",
+        "utcTicks": 1030,
+        "order": 1
+      },
+      "acknowledgement": {
+        "deliveryId": "delivery-corrupt",
+        "recordId": "outcome-corrupt",
+        "utcTicks": 1031,
+        "order": 2
+      }
+    },
+    {
+      "id": "provider-failure",
+      "acknowledged": false,
+      "durable": false,
+      "attempts": 1,
+      "deliveryId": "delivery-provider-failure",
+      "durableCommit": null,
+      "acknowledgement": null
+    },
+    {
+      "id": "retry-exhaustion",
+      "acknowledged": false,
+      "durable": false,
+      "attempts": 3,
+      "deliveryId": "delivery-retry-exhaustion",
+      "durableCommit": null,
+      "acknowledgement": null
+    }
+  ],
+  "queryRecoveryOperations": [],
+  "consumerClears": []
+}

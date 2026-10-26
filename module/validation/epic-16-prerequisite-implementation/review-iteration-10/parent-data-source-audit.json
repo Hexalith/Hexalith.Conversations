@@ -1,0 +1,28 @@
+{
+  "addedNativeContractSources": [
+    "src/Hexalith.Conversations.Contracts/Queries/ConversationListResult.cs",
+    "src/Hexalith.Conversations.Contracts/Queries/ConversationPageMetadata.cs",
+    "src/Hexalith.Conversations.Contracts/Queries/ListConversationsQuery.cs",
+    "src/Hexalith.Conversations.Contracts/Queries/ConversationPageRequest.cs",
+    "src/Hexalith.Conversations.Contracts/Queries/ConversationListFilterV1.cs"
+  ],
+  "allPriorSourceRowsUnchanged": 56,
+  "closedRequiredNewSchemaObjects": [
+    "/$defs/AC-16.1-05/properties/compiledContracts",
+    "/$defs/AC-16.1-05/properties/compiledContracts/properties/baseline",
+    "/$defs/AC-16.1-05/properties/compiledContracts/properties/candidate",
+    "/$defs/AC-16.2-03/properties/authorizationQueries/items",
+    "/$defs/AC-16.2-03/properties/authorizationQueries/items/properties/request",
+    "/$defs/AC-16.2-03/properties/authorizationQueries/items/properties/request/properties/query",
+    "/$defs/AC-16.2-03/properties/authorizationQueries/items/properties/request/properties/query/properties/filter",
+    "/$defs/AC-16.2-03/properties/authorizationQueries/items/properties/request/properties/query/properties/page",
+    "/$defs/AC-16.2-03/properties/authorizationQueries/items/properties/response",
+    "/$defs/AC-16.2-03/properties/authorizationQueries/items/properties/response/properties/result",
+    "/$defs/AC-16.2-03/properties/authorizationQueries/items/properties/response/properties/result/properties/page",
+    "/$defs/AC-16.2-05/properties/compiledContracts",
+    "/$defs/AC-16.2-05/properties/compiledContracts/properties/baseline",
+    "/$defs/AC-16.2-05/properties/compiledContracts/properties/candidate"
+  ],
+  "changedDataDiff": "/tmp/epic16-r10-parent-data.diff",
+  "changedDataDiffSha256": "abd3fdcda747d464f1013f501d938a7e6bda85083337cefac7f1bde84e75ce69"
+}

@@ -1,0 +1,34 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_round5_redaction_reused_identity_fails_even_with_refreshed_expected_state _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-390/test_round5_redaction_reused_i0/fixture')
+
+    def test_round5_redaction_reused_identity_fails_even_with_refreshed_expected_state(repository):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['redactionProof'];event=p['redactionEvent'];payload=json.loads(event['payload'])
+        old=payload['metadata']['eventId'];reused=p['persistedBefore']['processedEventIds'][0]
+        payload['metadata']['eventId']=reused;payload['metadata']['deduplicationKey']=payload['metadata']['deduplicationKey'].replace(old,reused)
+        event['payload']=json.dumps(payload);p['sourceAfter'][-1]=deepcopy(event)
+        for name in ('persistedAfter','queryAfter'):
+            ids=p[name]['state']['processedEventIds'];ids.remove(old);ids.append(reused);ids.sort()
+>       native(repository,'AC-16.2-05',data);rejected(evaluate(repository,'AC-16.2-05'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1918: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_redaction_reused_identity_fails_even_with_refreshed_expected_state
+1 failed, 861 deselected in 3.03s

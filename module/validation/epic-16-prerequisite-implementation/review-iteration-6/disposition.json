@@ -1,0 +1,76 @@
+{
+  "status": "incomplete-workflow-limit",
+  "reviewLoopIteration": 6,
+  "lastImplementedIteration": 5,
+  "reviewInput": {
+    "path": "/tmp/epic16-review6-zbl1gf6i/complete.diff",
+    "bytes": 9799008,
+    "sha256": "f986a4d404d5e1ce57e21f139bb4ac84b5bb8546be27c1ae66b8b953f64c427d"
+  },
+  "sourceBindingSha256": "ade1ee4e14b197d5e2507063e063d65ba90e5e9fa13ff3c08a83ff990a32c348",
+  "sourceAndTestHashesVerified": 65,
+  "implementationSourcesChangedAfterFinalVerification": false,
+  "blockingProtocolFindings": [
+    "R6B1",
+    "R6B2",
+    "R6B4",
+    "R6B5",
+    "R6B8",
+    "R6B9"
+  ],
+  "pendingPatchFindings": [
+    "R6B3",
+    "R6B7",
+    "R6B10",
+    "R6E1",
+    "R6V1"
+  ],
+  "rejectedFindings": [
+    "R6B6"
+  ],
+  "focusedTests": 1024,
+  "legacyTests": 72,
+  "runtimeHold": "ACTIVE",
+  "runtimeStory": "draft/backlog",
+  "codeReverted": false,
+  "furtherImplementationPerformed": false,
+  "workflowRule": "If it exceeds 5, HALT and escalate to the human.",
+  "workflowSource": "_bmad/render/bmad-build/conversations-f0fc90326eb5/afbdeefb80a1404d78bf/step-04-review.md",
+  "parentProbeCommand": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "/tmp/epic16-review6-parent-probes.py"
+  ],
+  "parentProbeExitCode": 0,
+  "whitespaceCommand": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "whitespaceExitCode": 0,
+  "artifacts": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/parent-counterexamples.py",
+      "sha256": "1f84e19773ca42008c768589d93b3a28b4c06f73aafcd7d4bad684c444ce238d"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/parent-counterexamples.json",
+      "sha256": "1c1c443be8a69437fa8027da690ca3a5903412b8cd41d7f7655703f8ec2f7b58"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/review-triage.md",
+      "sha256": "77bd89afb02a9beebac27607e6292c7777acd896d759770b04b7c9d258c11c7c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/whitespace.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/whitespace.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

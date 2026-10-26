@@ -1,0 +1,1 @@
+{"result": "BLOCKED", "exitCode": 2, "blockers": ["TOOLING_DEPENDENCY_UNAVAILABLE"], "assertionLedger": [{"id": "TOOLING_DEPENDENCY_UNAVAILABLE", "subject": "epic16_typo", "state": "BLOCKED"}], "authority": {"implementationHold": "ACTIVE", "executionAllowed": false, "ownerApprovalClaimed": false, "releaseAuthorized": false, "pushAuthorized": false}}

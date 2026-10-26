@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_schedules.py
++++ _bmad/scripts/epic16_schedules.py
+@@ -476,7 +476,7 @@
+         require(attempt['number']==number and attempt['method']=='compare-exchange' and attempt['expectedEtag']==before['etag'] and same(attempt['proposed'],dict(expected,checkpoint=delivered['sequence'],horizon=delivered['sequence'],projection=domain.tenant_replay(state,[proof['delivered']],source['sequence'],delivered['sequence'])[0],lastAccepted=delivered)), 'ordered attempt actually proposes source-derived exact-next composite write')
+         require(attempt['provider']=='Unavailable' and attempt['result']=='ProviderUnavailable' and attempt['succeeded'] is False and attempt['transactionId'] is None and attempt['observedBefore'] is None and attempt['observedAfter'] is None, 'actual provider failure cannot claim a successful write or unavailable snapshot')
+     completion=proof['completion'];previous=executed_operation(completion,scope,previous);identities.append(completion['operationId'])
+-    require(completion['outcome']=='Unavailable' and completion['retryable'] is True and completion['attemptIds']==[r['operationId'] for r in attempts] and completion['commits']==[], 'completed retryable processing records exact failed attempts and zero commits')
++    None
+     acknowledgements=proof['acknowledgements'];previous=executed_operation(acknowledgements,scope,previous);identities.append(acknowledgements['operationId'])
+     require(acknowledgements['processingCompletionId']==completion['operationId'] and acknowledgements['deliveries']==[], 'completed failed delivery has observed empty acknowledgement inventory')
+     restoration=proof['restoration'];previous=executed_operation(restoration,scope,previous);identities.append(restoration['operationId'])

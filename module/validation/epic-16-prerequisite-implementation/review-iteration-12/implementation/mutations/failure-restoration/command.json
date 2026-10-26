@@ -1,0 +1,29 @@
+{
+  "name": "failure-restoration",
+  "path": "_bmad/scripts/epic16_schedules.py",
+  "old": "require(restoration['provider']=='Available' and restoration['faultAfterSha256']==fault['afterSha256'], 'provider restored according to same fault experiment')",
+  "new": "None",
+  "selector": "round12_failed_deliveries and restoration and not unexecuted",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-failure-restoration-e2xouvdq/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_failed_deliveries and restoration and not unexecuted",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/failure-restoration/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-failure-restoration-e2xouvdq",
+  "exitCode": 1,
+  "elapsedSeconds": 14.105178027995862,
+  "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+  "mutatedSha256": "03156af3ed3a046cfe259645f56351bce4a8799c5bed0a82fc82f70fe4410639",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  }
+}

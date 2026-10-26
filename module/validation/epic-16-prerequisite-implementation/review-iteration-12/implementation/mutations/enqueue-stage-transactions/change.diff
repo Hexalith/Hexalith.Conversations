@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_lifecycle.py
++++ _bmad/scripts/epic16_lifecycle.py
+@@ -167,7 +167,7 @@
+     streams={stream['id']:stream for stream in row['streams']}
+     authoritative={observed['position']:observed for stream in row['streams'] for observed in stream['authoritativeEvents']}
+     require(proof['deliveries'], 'executed rebuild delivery inventory')
+-    pending=[];by_position={};by_sequence={};by_identity={};deliveries=set();transactions={stage['cas']['transactionId'] for stage in row['atomicity']['stages']};last_order=0
++    pending=[];by_position={};by_sequence={};by_identity={};deliveries=set();transactions=set();last_order=0
+     entry,work,completion=row['atomicity']['stages']
+     persisted=entry['after']
+     def remember(reference):

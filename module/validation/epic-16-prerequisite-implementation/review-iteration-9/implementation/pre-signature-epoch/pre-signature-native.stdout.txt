@@ -1,0 +1,1 @@
+{"candidate": "2d8401117ab88f1a1f27c03fe7eabc88412cffcd", "publicationCommit": "9853d0418ad8fb9407c1b426cb12d32d30399a98", "lifecycleCommit": "3e2e70b25096e4a71521083fa9fef43be9e64de1", "retainedFiles": 30}

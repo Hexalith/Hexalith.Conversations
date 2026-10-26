@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_native or round12_helper or round8_acknowledgement_native or round5_recovered_tenant_description or round10_sdk or round11_fact_discovery or round10_constructor",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-b/result.xml"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "EPIC16_COMMITLINT_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-b/commitlint.json",
+    "EPIC16_R12_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-b/native-r12",
+    "EPIC16_R11_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-b/native",
+    "EPIC16_R10_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-b/native-r10"
+  },
+  "exitCode": 0,
+  "durationSeconds": 90.7563738822937,
+  "sourceUnchanged": true,
+  "files": {
+    "commitlint.json": "6a3e65049c853117d3c4a2fee7348ed508ccd58d0914378d740be171eea3f903",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout": "407ac0d5014f1bf6f99ac243824cdc5f98857c893c144829f3ed2e98fc1ec4bc",
+    "source-hashes.json": "d36a48cb8a13046a0d912fcaa4022c78a6c33aeacb8f03f0c607c25a795b9fa4",
+    "result.xml": "b194b6978589f7f358126dcc8ee95fde3632735eaed76995510218ee6ab35685"
+  }
+}

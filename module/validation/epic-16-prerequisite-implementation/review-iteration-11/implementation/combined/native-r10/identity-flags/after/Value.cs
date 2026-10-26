@@ -1,0 +1,1 @@
+[assembly:System.Reflection.AssemblyFlags(System.Reflection.AssemblyNameFlags.Retargetable)]namespace External { public class Value {} }

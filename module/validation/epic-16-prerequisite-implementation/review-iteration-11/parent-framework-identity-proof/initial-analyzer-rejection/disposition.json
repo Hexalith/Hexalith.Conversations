@@ -1,0 +1,5 @@
+{
+  "result": "build rejected by xUnit1002 before inspector probe; no runtime finding inferred",
+  "workspace": "/tmp/epic16-r11-framework-ii8j4j7c",
+  "next": "Disable analyzers for the intentionally invalid synthetic discovery fixture, then test actual pinned runner"
+}

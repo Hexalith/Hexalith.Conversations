@@ -1,0 +1,53 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "Goldens/1.0.0": {
+        "dependencies": {
+          "Hexalith.Commons.Serialization": "2.30.3.0",
+          "Hexalith.Conversations.Contracts": "1.0.0.0"
+        },
+        "runtime": {
+          "Goldens.dll": {}
+        }
+      },
+      "Hexalith.Commons.Serialization/2.30.3.0": {
+        "runtime": {
+          "Hexalith.Commons.Serialization.dll": {
+            "assemblyVersion": "2.30.3.0",
+            "fileVersion": "2.30.3.0"
+          }
+        }
+      },
+      "Hexalith.Conversations.Contracts/1.0.0.0": {
+        "runtime": {
+          "Hexalith.Conversations.Contracts.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Goldens/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Hexalith.Commons.Serialization/2.30.3.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Hexalith.Conversations.Contracts/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

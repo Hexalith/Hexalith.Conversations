@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="13.977" timestamp="2026-10-26T05:09:48.443576+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round11_multi_resource_erase_retains_dispatch_multiplicity_and_queries[positive]" time="13.390"><failure message="ValueError: actual dispatch references match control index">repository = PosixPath('/tmp/pytest-of-administrator/pytest-643/test_round11_multi_resource_er0/fixture')
+fault = 'positive'
+
+    @pytest.mark.parametrize('fault',['positive','missing','extra','foreign','query-missing','query-foreign'])
+    def test_round11_multi_resource_erase_retains_dispatch_multiplicity_and_queries(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][0];relations=tooling.measurements.relationships
+        added=json.loads(json.dumps(row['capturedObjects'][0]).replace('conversation-a','conversation-b'))
+        added['key']=relations.conversation_key(row['tenant'],'conversation-b');added['storedMetadataSha256']=digest(added['storedMetadataBytes'].encode())
+        row['capturedObjects'].append(added);row['deletionTargets'].append(dict(row['deletionTargets'][0],key=added['key']));row['deletedTargets']=deepcopy(row['deletionTargets'])
+&gt;       round8_refresh(row)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2890: in round8_refresh
+    row['queries']=[round8_query(s['after'],s['id'],s['cas']['transactionId'],s['cas']['order']+2) for s in stages]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/tests/test_epic16_tooling.py:2890: in &lt;listcomp&gt;
+    row['queries']=[round8_query(s['after'],s['id'],s['cas']['transactionId'],s['cas']['order']+2) for s in stages]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/tests/test_epic16_tooling.py:2869: in round8_query
+    return dict(captureVersion=1,stage=stage,requestId='query-'+stage,executed=True,completed=True,order=order,tenant=snapshot['tenant'],observedTransactionId=transaction,snapshot=deepcopy(snapshot),inputs=inputs,returned=lifecycle.query_result(snapshot,inputs),reads=reads,writes=[],recoveryCalls=[])
+                                                                                                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_lifecycle.py:237: in query_result
+    query_component_identity(snapshot)
+_bmad/scripts/epic16_lifecycle.py:272: in query_component_identity
+    require(same(dispatch,index['dispatchReferences']), 'actual dispatch references match control index')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'actual dispatch references match control index'
+
+    def require(condition, detail):
+&gt;       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: actual dispatch references match control index
+
+_bmad/scripts/epic16_domain.py:20: ValueError</failure></testcase></testsuite></testsuites>

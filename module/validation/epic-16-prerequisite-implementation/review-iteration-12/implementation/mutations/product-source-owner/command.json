@@ -1,0 +1,29 @@
+{
+  "name": "product-source-owner",
+  "path": "_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+  "old": "if (!IsFrameworkAttribute(reader, attribute, expectedName, signature))",
+  "new": "if (false)",
+  "selector": "round12_native_framework and (external-stamp or external-metadata)",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-product-source-owner-b9f9trv9/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_native_framework and (external-stamp or external-metadata)",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/product-source-owner/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-product-source-owner-b9f9trv9",
+  "exitCode": 1,
+  "elapsedSeconds": 9.235043770982884,
+  "originalSha256": "ef75fbd3b889b78c2e2678db4d99cdb7448f231f29b3d22cb300dff0bb5e3902",
+  "mutatedSha256": "534890e3c1a2b857020860f1be51a64b02df07d466c58eb5727179071a075600",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  }
+}

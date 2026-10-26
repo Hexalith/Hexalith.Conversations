@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="24.448" timestamp="2026-10-26T01:15:09.493948+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata[removed-member]" time="15.402"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-569/test_round9_upstream_additivit0/fixture')
+change = 'removed-member'
+
+    @pytest.mark.parametrize('change',['addition','removed-member','signature','type','wrong-revision','wrong-owner','forged-digest','missing-assembly'])
+    def test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata(repository,change):
+        repo=repository;scenario='AC-16.1-05';warning=repo/tooling.measurements.execution.WARNING_PATH
+        owner='references/Hexalith.Tenants';product=next(p for p in tooling.products.PRODUCTS if p['assemblyName']=='Hexalith.Tenants.Client')
+        previous=git(repo/owner,'rev-parse','HEAD');original=round9_product_source(product);old_binary=round9_compile_product(product,previous,original)
+        # Create an actual earlier root baseline carrying the warning, then a child
+        # dependency change and current source with warning removed. No trust is added.
+        warning.write_bytes(b'// SINGLE-REPLICA-ONLY: synthetic disposable warning surface.\n')
+        git(repo,'add',str(warning.relative_to(repo)));git(repo,'commit','-qm','test: retain upstream API comparison baseline')
+        source=original.replace('public string Existing(string value) =&gt; value;', 'public string Existing(string value) =&gt; value; public int Added() =&gt; 1;')
+        if change=='removed-member':source=original.replace('Existing(', 'RemovedReplacement(')
+        elif change=='signature':source=original.replace('string Existing(string value)','int Existing(int value)')
+        elif change=='type':source=original.replace('public class','public struct')
+        source_path=repo/owner/'fixture-products'/str(product['assemblyName']+'.cs');source_path.write_text(source)
+        git(repo/owner,'add','.');git(repo/owner,'commit','-qm','test: change synthetic upstream public API')
+        candidate=git(repo/owner,'rev-parse','HEAD');git(repo,'update-index','--cacheinfo','160000,'+candidate+','+owner)
+        warning.write_bytes(b'// Synthetic disposable candidate with qualified durable projection.\n');git(repo,'add',str(warning.relative_to(repo)));git(repo,'commit','-qm','test: bind synthetic upstream API candidate')
+        for ac in tooling.measurements.SCENARIOS:native(repo,ac)
+        data=deepcopy(OBSERVATIONS[scenario]);round9_api_observations(repo,data)
+        row=next(r for r in data['upstreamSurfaces'] if r['assemblyName']==product['assemblyName'])
+        for baseline_product in tooling.products.PRODUCTS:
+            if baseline_product['owner']!=owner:continue
+            old_bytes=round9_compile_product(baseline_product,previous,round9_product_source(baseline_product))
+            path=f'artifacts/epic16-tooling-fixture/16.1/binaries/{digest(old_bytes)}.dll';(repo/path).write_bytes(old_bytes)
+            next(r for r in data['upstreamSurfaces'] if r['assemblyName']==baseline_product['assemblyName'])['baseline']=dict(path=path,sha256=digest(old_bytes),revision=previous)
+        if change=='wrong-revision':row['candidate']['revision']='f'*40
+        elif change=='wrong-owner':row['owner']='references/Hexalith.EventStore'
+        elif change=='forged-digest':row['baseline']['sha256']=row['candidate']['sha256']='f'*64
+        elif change=='missing-assembly':data['upstreamSurfaces'].pop()
+        native(repo,scenario,data);result=evaluate(repo,scenario)
+&gt;       assert result['result']==('PASS' if change=='addition' else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:3425: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata[signature]" time="4.150"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-569/test_round9_upstream_additivit1/fixture')
+change = 'signature'
+
+    @pytest.mark.parametrize('change',['addition','removed-member','signature','type','wrong-revision','wrong-owner','forged-digest','missing-assembly'])
+    def test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata(repository,change):
+        repo=repository;scenario='AC-16.1-05';warning=repo/tooling.measurements.execution.WARNING_PATH
+        owner='references/Hexalith.Tenants';product=next(p for p in tooling.products.PRODUCTS if p['assemblyName']=='Hexalith.Tenants.Client')
+        previous=git(repo/owner,'rev-parse','HEAD');original=round9_product_source(product);old_binary=round9_compile_product(product,previous,original)
+        # Create an actual earlier root baseline carrying the warning, then a child
+        # dependency change and current source with warning removed. No trust is added.
+        warning.write_bytes(b'// SINGLE-REPLICA-ONLY: synthetic disposable warning surface.\n')
+        git(repo,'add',str(warning.relative_to(repo)));git(repo,'commit','-qm','test: retain upstream API comparison baseline')
+        source=original.replace('public string Existing(string value) =&gt; value;', 'public string Existing(string value) =&gt; value; public int Added() =&gt; 1;')
+        if change=='removed-member':source=original.replace('Existing(', 'RemovedReplacement(')
+        elif change=='signature':source=original.replace('string Existing(string value)','int Existing(int value)')
+        elif change=='type':source=original.replace('public class','public struct')
+        source_path=repo/owner/'fixture-products'/str(product['assemblyName']+'.cs');source_path.write_text(source)
+        git(repo/owner,'add','.');git(repo/owner,'commit','-qm','test: change synthetic upstream public API')
+        candidate=git(repo/owner,'rev-parse','HEAD');git(repo,'update-index','--cacheinfo','160000,'+candidate+','+owner)
+        warning.write_bytes(b'// Synthetic disposable candidate with qualified durable projection.\n');git(repo,'add',str(warning.relative_to(repo)));git(repo,'commit','-qm','test: bind synthetic upstream API candidate')
+        for ac in tooling.measurements.SCENARIOS:native(repo,ac)
+        data=deepcopy(OBSERVATIONS[scenario]);round9_api_observations(repo,data)
+        row=next(r for r in data['upstreamSurfaces'] if r['assemblyName']==product['assemblyName'])
+        for baseline_product in tooling.products.PRODUCTS:
+            if baseline_product['owner']!=owner:continue
+            old_bytes=round9_compile_product(baseline_product,previous,round9_product_source(baseline_product))
+            path=f'artifacts/epic16-tooling-fixture/16.1/binaries/{digest(old_bytes)}.dll';(repo/path).write_bytes(old_bytes)
+            next(r for r in data['upstreamSurfaces'] if r['assemblyName']==baseline_product['assemblyName'])['baseline']=dict(path=path,sha256=digest(old_bytes),revision=previous)
+        if change=='wrong-revision':row['candidate']['revision']='f'*40
+        elif change=='wrong-owner':row['owner']='references/Hexalith.EventStore'
+        elif change=='forged-digest':row['baseline']['sha256']=row['candidate']['sha256']='f'*64
+        elif change=='missing-assembly':data['upstreamSurfaces'].pop()
+        native(repo,scenario,data);result=evaluate(repo,scenario)
+&gt;       assert result['result']==('PASS' if change=='addition' else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:3425: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata[type]" time="4.178"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-569/test_round9_upstream_additivit2/fixture')
+change = 'type'
+
+    @pytest.mark.parametrize('change',['addition','removed-member','signature','type','wrong-revision','wrong-owner','forged-digest','missing-assembly'])
+    def test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata(repository,change):
+        repo=repository;scenario='AC-16.1-05';warning=repo/tooling.measurements.execution.WARNING_PATH
+        owner='references/Hexalith.Tenants';product=next(p for p in tooling.products.PRODUCTS if p['assemblyName']=='Hexalith.Tenants.Client')
+        previous=git(repo/owner,'rev-parse','HEAD');original=round9_product_source(product);old_binary=round9_compile_product(product,previous,original)
+        # Create an actual earlier root baseline carrying the warning, then a child
+        # dependency change and current source with warning removed. No trust is added.
+        warning.write_bytes(b'// SINGLE-REPLICA-ONLY: synthetic disposable warning surface.\n')
+        git(repo,'add',str(warning.relative_to(repo)));git(repo,'commit','-qm','test: retain upstream API comparison baseline')
+        source=original.replace('public string Existing(string value) =&gt; value;', 'public string Existing(string value) =&gt; value; public int Added() =&gt; 1;')
+        if change=='removed-member':source=original.replace('Existing(', 'RemovedReplacement(')
+        elif change=='signature':source=original.replace('string Existing(string value)','int Existing(int value)')
+        elif change=='type':source=original.replace('public class','public struct')
+        source_path=repo/owner/'fixture-products'/str(product['assemblyName']+'.cs');source_path.write_text(source)
+        git(repo/owner,'add','.');git(repo/owner,'commit','-qm','test: change synthetic upstream public API')
+        candidate=git(repo/owner,'rev-parse','HEAD');git(repo,'update-index','--cacheinfo','160000,'+candidate+','+owner)
+        warning.write_bytes(b'// Synthetic disposable candidate with qualified durable projection.\n');git(repo,'add',str(warning.relative_to(repo)));git(repo,'commit','-qm','test: bind synthetic upstream API candidate')
+        for ac in tooling.measurements.SCENARIOS:native(repo,ac)
+        data=deepcopy(OBSERVATIONS[scenario]);round9_api_observations(repo,data)
+        row=next(r for r in data['upstreamSurfaces'] if r['assemblyName']==product['assemblyName'])
+        for baseline_product in tooling.products.PRODUCTS:
+            if baseline_product['owner']!=owner:continue
+            old_bytes=round9_compile_product(baseline_product,previous,round9_product_source(baseline_product))
+            path=f'artifacts/epic16-tooling-fixture/16.1/binaries/{digest(old_bytes)}.dll';(repo/path).write_bytes(old_bytes)
+            next(r for r in data['upstreamSurfaces'] if r['assemblyName']==baseline_product['assemblyName'])['baseline']=dict(path=path,sha256=digest(old_bytes),revision=previous)
+        if change=='wrong-revision':row['candidate']['revision']='f'*40
+        elif change=='wrong-owner':row['owner']='references/Hexalith.EventStore'
+        elif change=='forged-digest':row['baseline']['sha256']=row['candidate']['sha256']='f'*64
+        elif change=='missing-assembly':data['upstreamSurfaces'].pop()
+        native(repo,scenario,data);result=evaluate(repo,scenario)
+&gt;       assert result['result']==('PASS' if change=='addition' else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:3425: AssertionError</failure></testcase></testsuite></testsuites>

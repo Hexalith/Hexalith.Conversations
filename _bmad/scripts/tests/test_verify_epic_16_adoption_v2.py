@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import errno
+import gzip
 import json
 import os
 import re
@@ -50,6 +51,14 @@ def populate_repository(destination: Path) -> Path:
             row = snapshot["files"][relative]
             content = row["utf8"].encode("utf-8")
             assert digest(content) == row["sha256"] == checker.SOURCE_PINS[relative]
+            target.write_bytes(content)
+        elif relative == ".gitattributes":
+            content = (ROOT / "_bmad/scripts/tests/fixtures/epic16-adoption-v2-gitattributes.txt").read_bytes()
+            assert digest(content) == checker.ARTIFACT_PINS[relative]
+            target.write_bytes(content)
+        elif relative == "_bmad/scripts/generate_story_record.py":
+            content = gzip.decompress((ROOT / "_bmad/scripts/tests/fixtures/epic16-adoption-v2-generator.py.gz").read_bytes())
+            assert digest(content) == checker.SOURCE_PINS[relative]
             target.write_bytes(content)
         else:
             shutil.copyfile(ROOT / relative, target)

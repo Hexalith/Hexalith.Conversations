@@ -1,0 +1,6 @@
+{
+  "installed": "21.2.3",
+  "pinned": "21.2.3",
+  "exactMatch": true,
+  "validationRecord": "implementation/commitlint-validation.json"
+}

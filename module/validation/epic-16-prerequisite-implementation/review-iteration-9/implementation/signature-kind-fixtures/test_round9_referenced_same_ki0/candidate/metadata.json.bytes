@@ -1,0 +1,38 @@
+{
+  "assemblyName": "Probe.Api",
+  "assemblyVersion": "0.0.0.0",
+  "culture": "",
+  "publicKey": "",
+  "mvid": "a61119f2-6985-4811-a373-b9f0342a594e",
+  "sourceRevision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "informationalVersion": "1.0.0+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "declaredTypes": [
+    ".<Module>",
+    "Probe.Surface",
+    "Probe.Surface+Nested"
+  ],
+  "api": {
+    "kind": "conservative-ecma335-public-declarations-v1",
+    "types": {
+      "Probe.Surface": {
+        "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+        "interfaces": [],
+        "members": [
+          "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+          "method:Added:Public, HideBySig:32:0:0:Int32():::",
+          "method:Echo:Public, HideBySig:32:0:1:class [External]External.Value(class [External]External.Value)::1:value:None:absent::",
+          "method:get_Item:Public, HideBySig, SpecialName:32:0:0:class [External]External.Value():::[System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute:01000000",
+          "method:set_Item:Public, HideBySig, SpecialName:32:0:1:Void(class [External]External.Value)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute:01000000",
+          "property:Item:None:40:0:0:class [External]External.Value():get_Item:Public, HideBySig, SpecialName:set_Item:Public, HideBySig, SpecialName:absent:"
+        ]
+      },
+      "Probe.Surface+Nested": {
+        "header": "NestedPublic, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+        "interfaces": [],
+        "members": [
+          "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::"
+        ]
+      }
+    }
+  }
+}

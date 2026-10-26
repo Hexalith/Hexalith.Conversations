@@ -1,0 +1,59 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_round8_restart_requires_executed_acquisition_resumption_and_admissible_fenced_writes[resume-clears] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-499/test_round8_restart_requires_e0/fixture')
+fault = 'resume-clears'
+
+    @pytest.mark.parametrize('fault',['missing','summary','acquire-unexecuted','acquire-split','acquire-fence','acquire-pending','acquire-projection','acquire-version','resume-unexecuted','resume-process','resume-order','resume-transaction','resume-delivery','resume-sequence','resume-clears','resume-allows','stale-accepted','stale-mutates','stale-not-attempted','stale-wrong-scope','stale-wrong-order','current-failed','current-mutates','current-split','current-wrong-expectation'])
+    def test_round8_restart_requires_executed_acquisition_resumption_and_admissible_fenced_writes(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-02']);p=data['restartSchedule'];a=p['acquisition'];r=p['resumption'];old=p['rejectedAttempts'][0];current=p['currentRenewal']
+        if fault=='missing':del data['restartSchedule']
+        elif fault=='summary':data['newFence']=999
+        elif fault=='acquire-unexecuted':a['executed']=False
+        elif fault=='acquire-split':a['leaseTransactionId']='other'
+        elif fault=='acquire-fence':a['expected']['lease']=999
+        elif fault=='acquire-pending':a['after']['pending']=[]
+        elif fault=='acquire-projection':a['after']['projection']['status']='Disabled'
+        elif fault=='acquire-version':a['after']['version']=a['before']['version']
+        elif fault=='resume-unexecuted':r['executed']=False
+        elif fault=='resume-process':r['process']='unrelated'
+        elif fault=='resume-order':r['order']=a['order']
+        elif fault=='resume-transaction':r['observedTransactionId']='other'
+        elif fault=='resume-delivery':r['sourceDeliveries']=['new-input']
+        elif fault=='resume-sequence':r['fromSequence']+=1
+        elif fault=='resume-clears':r['storedAfter']['pending']=[]
+        elif fault=='resume-allows':r['allowed']=True
+        elif fault=='stale-accepted':old['succeeded']=True
+        elif fault=='stale-mutates':old['storedAfter']['projection']['name']='lost newer state'
+        elif fault=='stale-not-attempted':old['executed']=False
+        elif fault=='stale-wrong-scope':old['tenant']='foreign'
+        elif fault=='stale-wrong-order':old['order']=a['order']
+        elif fault=='current-failed':current['succeeded']=False
+        elif fault=='current-mutates':current['after']['pending']=[]
+        elif fault=='current-split':current['recordTransactionId']='other'
+        else:current['expected']['horizon']-=1
+>       round8_submit(repository,'AC-16.1-02',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2911: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-499/test_round8_restart_requires_e0/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...guousSequence': 10}, {'state': 'Unavailable', 'allowed': False, 'lastContiguousSequence': 10}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_restart_requires_executed_acquisition_resumption_and_admissible_fenced_writes[resume-clears]
+1 failed, 1587 deselected in 0.76s

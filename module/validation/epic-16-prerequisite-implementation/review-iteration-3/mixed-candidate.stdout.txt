@@ -1,0 +1,36 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___ test_generator_rejects_any_mixed_candidate_return_even_with_passing_rows ___
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-265/test_generator_rejects_any_mix0/fixture')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x732c5ae6c890>
+
+    def test_generator_rejects_any_mixed_candidate_return_even_with_passing_rows(repository,monkeypatch):
+        original=tooling.evaluate
+        def altered(*args,**kwargs):
+            result=original(*args,**kwargs)
+            if args[2]=='AC-16.1-03':result['candidate']['commit']='f'*40
+            return result
+        monkeypatch.setattr(tooling,'evaluate',altered)
+        result,j,m=tooling.generate(repository,'16.1',scope=SCOPE)
+>       rejected(result,'CANDIDATE_DRIFT');assert j is m is None
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1275: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-06', 'validationScope': 'tooling-fixture', ...}
+code = 'CANDIDATE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-06', 'validationScope': 'tooling-fixture', ...}
+E       assert 'BLOCKED' == 'FAIL'
+E         
+E         - FAIL
+E         + BLOCKED
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_generator_rejects_any_mixed_candidate_return_even_with_passing_rows
+1 failed, 570 deselected in 1.98s

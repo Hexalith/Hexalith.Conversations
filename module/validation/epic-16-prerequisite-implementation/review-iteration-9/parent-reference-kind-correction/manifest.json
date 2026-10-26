@@ -1,0 +1,120 @@
+{
+  "finding": "R9P5",
+  "status": "PASS",
+  "scope": "Independent compiled signature regression; synthetic fixture only",
+  "apiEqual": false,
+  "incompatibleChangeAccepted": false,
+  "expectedFailure": "UPSTREAM_API_DRIFT",
+  "sameKindSelfControls": [
+    "class PASS",
+    "struct PASS"
+  ],
+  "command": "uv run --frozen --no-sync python3 /tmp/epic16-parent-reference-kind-probe.py",
+  "sourceFiles": {
+    "_bmad/scripts/epic16_products.py": "a6ad255bfde433f9bf6f573d03581f51b81dfa6a530b48c193dae1911c6043a8",
+    "_bmad/scripts/epic16_native_helper/ProductMetadata.cs": "31bdcaa799feb24f6daabbbf5c1096a70289c4aeb5fa1cddd3b3ca047b47ccbb",
+    "_bmad/scripts/epic16_native_helper/SignatureNames.cs": "baea3b9f2b1b86f38e0cc189688c45d7b338365834bd445057b972a249c1625f"
+  },
+  "artifacts": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/result.json",
+      "sha256": "959f7cc8f1eb38d3a8ec4b3d806b811b7935939cbd10aa7422e204d9cd547f85"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/class/global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/class/build.stdout",
+      "sha256": "df984efe235e24689d9039a18bac2c2084a075d66ebeea32a173edcdec64569a"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/class/build.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/class/external/External.csproj",
+      "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/class/external/Value.cs",
+      "sha256": "ee2f5faa1a3b672e1c0fbe5904bbbaae961cadded523a6846adc26d077bdf967"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/class/api/Api.csproj",
+      "sha256": "66593e22f512f795e9d067043ebc0c2d757ec9691c3595b8c33fc9a49fc3d332"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/class/api/Surface.cs",
+      "sha256": "34643c0a516620043e880080df08729f81482d127caa99debea6c9cb43d31e4c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/class/api/Stamp.cs",
+      "sha256": "8337f15614c2a02a100c7f223747ab3795f3d83def5c91e93ac6495dea594db3"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/class/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+      "sha256": "29dd5452e6be7b0e22f93200866ef16d6cf96bd2cd2a4793484ab19c41150709"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/class/api/bin/Debug/net10.0/External.dll.bytes",
+      "sha256": "c24e886b5d4bd925e89c07fad2bf37671a6c32797a8af0dfad5072f5dbb9da4e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/struct/global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/struct/build.stdout",
+      "sha256": "855bcdf73531591344b09a5fdafb0f7749c727ad2ba164c68fa6ed902acc85a4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/struct/build.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/struct/external/External.csproj",
+      "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/struct/external/Value.cs",
+      "sha256": "871d8c6c674c5a08e108d6ebabc7b6b2344e807f2ce20225155cc7c597325879"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/struct/api/Api.csproj",
+      "sha256": "66593e22f512f795e9d067043ebc0c2d757ec9691c3595b8c33fc9a49fc3d332"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/struct/api/Surface.cs",
+      "sha256": "34643c0a516620043e880080df08729f81482d127caa99debea6c9cb43d31e4c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/struct/api/Stamp.cs",
+      "sha256": "07fe905ef73f2ad1f46b31d7afa13d0a590f955264ee764009e98022c7224998"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/struct/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+      "sha256": "763089d933dfe91a06ea49b933a2cc6625dce5d675035e5b087b5f691a3e6696"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/struct/api/bin/Debug/net10.0/External.dll.bytes",
+      "sha256": "973a0b56b7cbe5f440a39a8123b4fcee5e7d602c620f11830b46ad05479672e5"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/probe.py",
+      "sha256": "88d925d4df9ed3708e1704d2507c38d906b6b8a268df9f5c2bad6809125d9c2d"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/inspector-source/_bmad/scripts/epic16_products.py",
+      "sha256": "a6ad255bfde433f9bf6f573d03581f51b81dfa6a530b48c193dae1911c6043a8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/inspector-source/_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+      "sha256": "31bdcaa799feb24f6daabbbf5c1096a70289c4aeb5fa1cddd3b3ca047b47ccbb"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/inspector-source/_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+      "sha256": "baea3b9f2b1b86f38e0cc189688c45d7b338365834bd445057b972a249c1625f"
+    }
+  ]
+}

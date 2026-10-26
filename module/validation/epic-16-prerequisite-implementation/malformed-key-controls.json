@@ -1,0 +1,578 @@
+[
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": "",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-0-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": "",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-0-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": " ",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-1-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": " ",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-1-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": ":leading",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-2-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": ":leading",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-2-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": "trailing:",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-3-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": "trailing:",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-3-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": "double::colon",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-4-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": "double::colon",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-4-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": "line\nbreak",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-5-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": "line\nbreak",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-5-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": " leading",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-6-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": " leading",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-6-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": "trailing ",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-7-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": "trailing ",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-7-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": "bad$key",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-8-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "runtime",
+      "extensions",
+      0,
+      "configurationInputs",
+      12,
+      "key"
+    ],
+    "value": "bad$key",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-0-case-8-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": "",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-0-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": "",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-0-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": " ",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-1-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": " ",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-1-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": ":leading",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-2-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": ":leading",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-2-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": "trailing:",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-3-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": "trailing:",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-3-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": "double::colon",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-4-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": "double::colon",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-4-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": "line\nbreak",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-5-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": "line\nbreak",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-5-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": " leading",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-6-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": " leading",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-6-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": "trailing ",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-7-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": "trailing ",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-7-json",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": "bad$key",
+    "format": "human",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-8-human",
+    "hasHXP002": true
+  },
+  {
+    "field": [
+      "modules",
+      0,
+      "integration",
+      "secrets",
+      1,
+      "configurationKey"
+    ],
+    "value": "bad$key",
+    "format": "json",
+    "exitCode": 1,
+    "commandName": "controls/field-1-case-8-json",
+    "hasHXP002": true
+  }
+]

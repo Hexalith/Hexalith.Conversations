@@ -1,0 +1,40 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_round9_defined_signature_kind_keeps_declaration_lookup_plain[class-class] _
+
+kind = 'class', marker = 'class'
+
+    @pytest.mark.parametrize('kind,marker',[('class','class'),('struct','valuetype')])
+    def test_round9_defined_signature_kind_keeps_declaration_lookup_plain(kind,marker):
+        product=dict(assemblyName='Synthetic.Api',surfaces=['Synthetic.Surface'])
+        source='namespace Synthetic; public class Container { public '+kind+' Value {} } public class Surface { public Container.Value Echo(Container.Value value) => value; }'
+        metadata=tooling.native_helper.inspect_product(round9_compile_product(product,'a'*40,source),'a'*40)
+        assert 'Synthetic.Surface' in metadata['declaredTypes'] and 'Synthetic.Container+Value' in metadata['declaredTypes']
+        member=next(m for m in metadata['api']['types']['Synthetic.Surface']['members'] if m.startswith('method:Echo:'))
+>       assert member.count(marker+' Synthetic.Container+Value')==2
+E       AssertionError: assert 0 == 2
+E        +  where 0 = <built-in method count of str object at 0x7cf9a5ef50d0>(('class' + ' Synthetic.Container+Value'))
+E        +    where <built-in method count of str object at 0x7cf9a5ef50d0> = 'method:Echo:Public, HideBySig:32:0:1:Synthetic.Container+Value(Synthetic.Container+Value)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000'.count
+
+_bmad/scripts/tests/test_epic16_tooling.py:3575: AssertionError
+_ test_round9_defined_signature_kind_keeps_declaration_lookup_plain[struct-valuetype] _
+
+kind = 'struct', marker = 'valuetype'
+
+    @pytest.mark.parametrize('kind,marker',[('class','class'),('struct','valuetype')])
+    def test_round9_defined_signature_kind_keeps_declaration_lookup_plain(kind,marker):
+        product=dict(assemblyName='Synthetic.Api',surfaces=['Synthetic.Surface'])
+        source='namespace Synthetic; public class Container { public '+kind+' Value {} } public class Surface { public Container.Value Echo(Container.Value value) => value; }'
+        metadata=tooling.native_helper.inspect_product(round9_compile_product(product,'a'*40,source),'a'*40)
+        assert 'Synthetic.Surface' in metadata['declaredTypes'] and 'Synthetic.Container+Value' in metadata['declaredTypes']
+        member=next(m for m in metadata['api']['types']['Synthetic.Surface']['members'] if m.startswith('method:Echo:'))
+>       assert member.count(marker+' Synthetic.Container+Value')==2
+E       AssertionError: assert 0 == 2
+E        +  where 0 = <built-in method count of str object at 0x7cf9a71249f0>(('valuetype' + ' Synthetic.Container+Value'))
+E        +    where <built-in method count of str object at 0x7cf9a71249f0> = 'method:Echo:Public, HideBySig:32:0:1:Synthetic.Container+Value(Synthetic.Container+Value)::1:value:None:absent::'.count
+
+_bmad/scripts/tests/test_epic16_tooling.py:3575: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_defined_signature_kind_keeps_declaration_lookup_plain[class-class]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_defined_signature_kind_keeps_declaration_lookup_plain[struct-valuetype]
+2 failed, 1874 deselected in 5.71s

@@ -1,0 +1,386 @@
+{
+  "broad": {
+    "command": "uv run --frozen --no-sync python3 -m pytest -q -ra -p no:cacheprovider _bmad/scripts/tests tests/tooling/test_evidence_boundary_current.py --ignore=_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py --junitxml=/tmp/epic16-current-python.xml",
+    "exitCode": 1,
+    "passed": 3118,
+    "failed": 38,
+    "errors": 9,
+    "deselected": 17,
+    "warnings": 295,
+    "elapsedSeconds": 2355.08,
+    "sourceEpoch": "Mixed: lazy legacy dispatch and AD-8 corrections applied while active; final-source affected tests separately passed.",
+    "failures": [
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_preview_binds_every_source_and_retains_precise_non_success",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_closed_record_fault_is_rejected[extra-field]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_closed_record_fault_is_rejected[empty-ledger]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_closed_record_fault_is_rejected[empty-blockers]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_closed_record_fault_is_rejected[false-pass]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_closed_record_fault_is_rejected[scope-escape]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_closed_record_fault_is_rejected[missing-source]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_closed_record_fault_is_rejected[duplicate-source]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_closed_record_fault_is_rejected[false-approval]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_closed_record_fault_is_rejected[false-candidate]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_closed_record_fault_is_rejected[declared-hash]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_closed_record_fault_is_rejected[catalog-hash]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_changed_exact_source_bytes_are_detected[uv.lock]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_changed_exact_source_bytes_are_detected[package-lock.json]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_changed_exact_source_bytes_are_detected[.github/workflows/ci.yml]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_catalog_channel_downgrade_and_bom_loss_are_rejected",
+        "kind": "failure",
+        "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'REFRESH_CATALOG_PIN_DRIFT'\n  Actual message: 'REFRESH_UV_DRIFT: current CI pins'",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_accepted_predecessor_bytes_cannot_change[_bmad-output/planning-artifacts/v15-planning-tooling-environment-authority-v1.json]",
+        "kind": "failure",
+        "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'REFRESH_PREDECESSOR_DRIFT'\n  Actual message: 'REFRESH_UV_DRIFT: current CI pins'",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_accepted_predecessor_bytes_cannot_change[_bmad-output/planning-artifacts/v16-planning-tooling-lifecycle-authority-v1.json]",
+        "kind": "failure",
+        "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'REFRESH_PREDECESSOR_DRIFT'\n  Actual message: 'REFRESH_UV_DRIFT: current CI pins'",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_accepted_predecessor_bytes_cannot_change[_bmad-output/planning-artifacts/v18-package-environment-authority-v1.json]",
+        "kind": "failure",
+        "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'REFRESH_PREDECESSOR_DRIFT'\n  Actual message: 'REFRESH_UV_DRIFT: current CI pins'",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_preview_write_and_check_never_report_pass",
+        "kind": "failure",
+        "message": "AssertionError: assert 'FAIL' == 'BLOCKED'\n  \n  - BLOCKED\n  + FAIL",
+        "containsRefreshUvDrift": false
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_preview_write_rejects_dangling_record_symlink",
+        "kind": "failure",
+        "message": "AssertionError: assert 'FAIL' == 'BLOCKED'\n  \n  - BLOCKED\n  + FAIL",
+        "containsRefreshUvDrift": false
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_committed_c1_c2_use_exact_scopes_and_canonical_bytes",
+        "kind": "error",
+        "message": "failed on setup with \"check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins\"",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_committed_record_uses_candidate_schema_when_checkout_schema_changes",
+        "kind": "error",
+        "message": "failed on setup with \"check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins\"",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_missing_record_publication_is_blocked",
+        "kind": "error",
+        "message": "failed on setup with \"check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins\"",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_combined_or_extra_path_publication_fails",
+        "kind": "error",
+        "message": "failed on setup with \"check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins\"",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_committed_source_mode_drift_fails",
+        "kind": "error",
+        "message": "failed on setup with \"check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins\"",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_published_record_mode_drift_fails[publication]",
+        "kind": "error",
+        "message": "failed on setup with \"check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins\"",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_published_record_mode_drift_fails[HEAD]",
+        "kind": "error",
+        "message": "failed on setup with \"check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins\"",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_wrong_c1_gitlink_scope_fails",
+        "kind": "error",
+        "message": "failed on setup with \"check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins\"",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_servicing_downgrade_cannot_leave_family_by_changing_version_prefix[System.Text.Json]",
+        "kind": "failure",
+        "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'REFRESH_MICROSOFT_FAMILY_DRIFT'\n  Actual message: 'REFRESH_UV_DRIFT: current CI pins'",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_servicing_downgrade_cannot_leave_family_by_changing_version_prefix[Microsoft.AspNetCore.Authorization]",
+        "kind": "failure",
+        "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'REFRESH_MICROSOFT_FAMILY_DRIFT'\n  Actual message: 'REFRESH_UV_DRIFT: current CI pins'",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_check_rejects_noncanonical_worktree_record_bytes",
+        "kind": "error",
+        "message": "failed on setup with \"check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins\"",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_preview_record_requires_the_projection_field_order",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_real_clean_builds_c1_c2_gitlink_and_remote_reads",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_real_dirty_builds_cannot_pass[tracked]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_real_dirty_builds_cannot_pass[untracked]",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_real_remote_containment_is_required",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_real_gitlink_must_equal_builds_head",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_real_candidate_only_and_writer_stay_blocked_until_c2",
+        "kind": "failure",
+        "message": "AssertionError: assert ('FAIL' == 'BLOCKED'\n  \n  - BLOCKED\n  + FAIL)",
+        "containsRefreshUvDrift": false
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_real_extra_c2_paths_are_rejected",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_real_intervening_commit_before_c2_is_rejected",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "_bmad.scripts.tests.test_check_package_refresh_environment::test_real_accepted_record_writer_preserves_exact_bytes",
+        "kind": "failure",
+        "message": "check_package_refresh_environment.RefreshError: REFRESH_UV_DRIFT: current CI pins",
+        "containsRefreshUvDrift": true
+      },
+      {
+        "test": "tests.tooling.test_evidence_boundary_current::test_complete_fault_matrix_workflow[WORKFLOW_REMOVED-EVIDENCE_GATE_NOT_USED]",
+        "kind": "failure",
+        "message": "AssertionError",
+        "containsRefreshUvDrift": false
+      },
+      {
+        "test": "tests.tooling.test_evidence_boundary_current::test_complete_fault_matrix_workflow[MARKER_MALFORMED-EVIDENCE_GATE_NOT_USED]",
+        "kind": "failure",
+        "message": "AssertionError",
+        "containsRefreshUvDrift": false
+      },
+      {
+        "test": "tests.tooling.test_evidence_boundary_current::test_complete_fault_matrix_workflow[SPAN_DISPLACED-EVIDENCE_GATE_DISPLACED]",
+        "kind": "failure",
+        "message": "AssertionError",
+        "containsRefreshUvDrift": false
+      },
+      {
+        "test": "tests.tooling.test_evidence_boundary_current::test_fault_receipt_composed_guidance_uses_unique_ids",
+        "kind": "failure",
+        "message": "AssertionError",
+        "containsRefreshUvDrift": false
+      },
+      {
+        "test": "tests.tooling.test_evidence_boundary_current::test_runbook_acceptance_sequence_matches_effective_contract",
+        "kind": "failure",
+        "message": "AssertionError: ['EVIDENCE_GUIDANCE_DRIFT']",
+        "containsRefreshUvDrift": false
+      }
+    ]
+  },
+  "finalSource": {
+    "passed": 328,
+    "failed": 0,
+    "exitCode": 0,
+    "elapsedSeconds": 86.27
+  },
+  "evidenceBaselineReproduction": {
+    "exitCode": 1,
+    "failed": 5,
+    "deselected": 232,
+    "elapsedSeconds": 21.48
+  },
+  "logs": [
+    {
+      "path": "/tmp/epic16-current-python.xml",
+      "sha256": "70405490b009aa2f9a2d7c1e9d7cce266ab98f501fe303deff1fb6fdff50bb50",
+      "bytes": 889231
+    },
+    {
+      "path": "/tmp/epic16-current-python.stdout.txt",
+      "sha256": "15361fb749d12bc63a60c536bf5f4a824d564d9e3f811deb4031729d55a55aa0",
+      "bytes": 135742
+    },
+    {
+      "path": "/tmp/epic16-current-python.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/tmp/epic16-final-source.xml",
+      "sha256": "cc65807ba0afa488da514b4b8342fceb3a80b45aacf7c684ea38354a42d8cf76",
+      "bytes": 57247
+    },
+    {
+      "path": "/tmp/epic16-final-source.stdout.txt",
+      "sha256": "66e13cd0200c12d01b30bec330f1a1d882750d20381b37b59619df2306f59c19",
+      "bytes": 431
+    },
+    {
+      "path": "/tmp/epic16-final-source.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/tmp/epic16-legacy-dispatch-final.xml",
+      "sha256": "eafb08d2d5859a95332f8e2a1ae4e93b807b5c5c072eb027b2c3f17f3ac70000",
+      "bytes": 12858
+    },
+    {
+      "path": "/tmp/epic16-legacy-dispatch-final.stdout.txt",
+      "sha256": "e08356f53be93a87721d0d8c08b32bd981ad721364fc78b624f2d4f8b6464586",
+      "bytes": 127
+    },
+    {
+      "path": "/tmp/epic16-legacy-dispatch-final.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/tmp/epic16-ad8-final.xml",
+      "sha256": "9c7d40e0b722487f815bfe949a42c1f851c65b72b44344a172fa82dad6930919",
+      "bytes": 3603
+    },
+    {
+      "path": "/tmp/epic16-ad8-final.stdout.txt",
+      "sha256": "a12f874cbd9388d43c258d7bce189b0cea9046de6770519abf6f095492b548ab",
+      "bytes": 116
+    },
+    {
+      "path": "/tmp/epic16-ad8-final.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/tmp/epic16-evidence-baseline.xml",
+      "sha256": "466ca634dda5b30a9c96c51f5fe36f99cd77ac0ff60d0daa1cf97aa682d04efd",
+      "bytes": 9175
+    },
+    {
+      "path": "/tmp/epic16-evidence-baseline.stdout.txt",
+      "sha256": "e65d57ed4b759b7aefa94a49bcd9615cf84db1a0527742e5726e4678a542b434",
+      "bytes": 9477
+    },
+    {
+      "path": "/tmp/epic16-evidence-baseline.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ]
+}

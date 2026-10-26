@@ -1,0 +1,13 @@
+{
+  "source": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/native-capture-fixture/provenance.json",
+  "sourceSha256": "1eed654379060cb5a7a73c2b7c604f9814f0bc503891a5606170034804c28aa9",
+  "retainedArtifactHashesVerified": 31,
+  "allRetainedArtifactsMatchActualDisposableLifecycleGitObjects": true,
+  "publicationPaths": 26,
+  "retainedAssemblyCount": 9,
+  "compiledRootArtifactsRetained": 2,
+  "allFiveOwnedProductInventoriesEqual": true,
+  "loadedProductCountPerCapture": 7,
+  "successfulFinalFreshCheckoutTestVerified": true,
+  "scope": "synthetic observation payloads and seven source-stamped stand-ins; genuine xUnit 4.0.2 fixture runner; test-only trust; no product runtime qualification"
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="5.705" timestamp="2026-10-26T01:59:41.942028+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_defined_signature_kind_keeps_declaration_lookup_plain[class-class]" time="3.470"><failure message="AssertionError: assert 0 == 2&#10; +  where 0 = &lt;built-in method count of str object at 0x7cf9a5ef50d0&gt;(('class' + ' Synthetic.Container+Value'))&#10; +    where &lt;built-in method count of str object at 0x7cf9a5ef50d0&gt; = 'method:Echo:Public, HideBySig:32:0:1:Synthetic.Container+Value(Synthetic.Container+Value)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000'.count">kind = 'class', marker = 'class'
+
+    @pytest.mark.parametrize('kind,marker',[('class','class'),('struct','valuetype')])
+    def test_round9_defined_signature_kind_keeps_declaration_lookup_plain(kind,marker):
+        product=dict(assemblyName='Synthetic.Api',surfaces=['Synthetic.Surface'])
+        source='namespace Synthetic; public class Container { public '+kind+' Value {} } public class Surface { public Container.Value Echo(Container.Value value) =&gt; value; }'
+        metadata=tooling.native_helper.inspect_product(round9_compile_product(product,'a'*40,source),'a'*40)
+        assert 'Synthetic.Surface' in metadata['declaredTypes'] and 'Synthetic.Container+Value' in metadata['declaredTypes']
+        member=next(m for m in metadata['api']['types']['Synthetic.Surface']['members'] if m.startswith('method:Echo:'))
+&gt;       assert member.count(marker+' Synthetic.Container+Value')==2
+E       AssertionError: assert 0 == 2
+E        +  where 0 = &lt;built-in method count of str object at 0x7cf9a5ef50d0&gt;(('class' + ' Synthetic.Container+Value'))
+E        +    where &lt;built-in method count of str object at 0x7cf9a5ef50d0&gt; = 'method:Echo:Public, HideBySig:32:0:1:Synthetic.Container+Value(Synthetic.Container+Value)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000'.count
+
+_bmad/scripts/tests/test_epic16_tooling.py:3575: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_defined_signature_kind_keeps_declaration_lookup_plain[struct-valuetype]" time="1.682"><failure message="AssertionError: assert 0 == 2&#10; +  where 0 = &lt;built-in method count of str object at 0x7cf9a71249f0&gt;(('valuetype' + ' Synthetic.Container+Value'))&#10; +    where &lt;built-in method count of str object at 0x7cf9a71249f0&gt; = 'method:Echo:Public, HideBySig:32:0:1:Synthetic.Container+Value(Synthetic.Container+Value)::1:value:None:absent::'.count">kind = 'struct', marker = 'valuetype'
+
+    @pytest.mark.parametrize('kind,marker',[('class','class'),('struct','valuetype')])
+    def test_round9_defined_signature_kind_keeps_declaration_lookup_plain(kind,marker):
+        product=dict(assemblyName='Synthetic.Api',surfaces=['Synthetic.Surface'])
+        source='namespace Synthetic; public class Container { public '+kind+' Value {} } public class Surface { public Container.Value Echo(Container.Value value) =&gt; value; }'
+        metadata=tooling.native_helper.inspect_product(round9_compile_product(product,'a'*40,source),'a'*40)
+        assert 'Synthetic.Surface' in metadata['declaredTypes'] and 'Synthetic.Container+Value' in metadata['declaredTypes']
+        member=next(m for m in metadata['api']['types']['Synthetic.Surface']['members'] if m.startswith('method:Echo:'))
+&gt;       assert member.count(marker+' Synthetic.Container+Value')==2
+E       AssertionError: assert 0 == 2
+E        +  where 0 = &lt;built-in method count of str object at 0x7cf9a71249f0&gt;(('valuetype' + ' Synthetic.Container+Value'))
+E        +    where &lt;built-in method count of str object at 0x7cf9a71249f0&gt; = 'method:Echo:Public, HideBySig:32:0:1:Synthetic.Container+Value(Synthetic.Container+Value)::1:value:None:absent::'.count
+
+_bmad/scripts/tests/test_epic16_tooling.py:3575: AssertionError</failure></testcase></testsuite></testsuites>

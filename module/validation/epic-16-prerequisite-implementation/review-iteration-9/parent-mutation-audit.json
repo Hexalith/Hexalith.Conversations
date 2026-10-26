@@ -1,0 +1,571 @@
+{
+  "runs": 43,
+  "demonstratedGuards": 41,
+  "assertionFailures": 192,
+  "setupErrors": 0,
+  "skipped": 0,
+  "sourceHashesMatchCurrentFinal": true,
+  "stdoutStderrAndJUnitVerified": true,
+  "allFailingMutantTestsPassInFinalControl": true,
+  "rows": [
+    {
+      "epoch": "mutations",
+      "name": "capture-publication-alias",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "capture-publication-reread",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "optional-native-revision",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "products-caller",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "products-captured-owner-revision",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 14,
+        "failures": 14,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "products-exact-bytes",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "products-inventory",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "products-managed-identity",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "products-observed-owner-revision",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 14,
+        "failures": 14,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "query-component-caller",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "query-component-dispatch",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "query-component-tenant",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "query-lifecycle-domain",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "query-provider-domain",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "replay-caller",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "replay-executed",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "replay-invalid-key",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "replay-invalid-order",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 3,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "replay-no-clamping",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "replay-no-commit",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "replay-scope",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 9,
+        "failures": 9,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "retry-emitted-advice",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 12,
+        "failures": 12,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "upstream-abstract-obligation",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "upstream-caller",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "upstream-member-contract",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "upstream-raw-revision",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "warning-candidate-caller",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 5,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "wire-authorization",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "wire-caller",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "wire-execution-and-correlation",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 15,
+        "failures": 15,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "wire-hosted-dispatch",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 3,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "wire-method-route",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 5,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "wire-order",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "wire-outcomes",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 5,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "wire-request-scope",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "wire-transaction-state",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "wrapper-import-1",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 5,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "wrapper-import-2",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 5,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "wrapper-import-3",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 5,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations-signatures",
+      "name": "signature-defined-class-value-kind",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations-signatures",
+      "name": "signature-referenced-class-value-kind",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 6,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations-signatures",
+      "name": "upstream-abstract-obligation",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    },
+    {
+      "epoch": "mutations-signatures",
+      "name": "upstream-member-contract",
+      "sourceHashMatchesFinal": true,
+      "counts": {
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0
+      },
+      "allFailedMutantCasesPassInFinalControl": true,
+      "retainedMutantBytesVerified": true
+    }
+  ]
+}

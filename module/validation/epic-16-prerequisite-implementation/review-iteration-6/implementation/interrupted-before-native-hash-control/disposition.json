@@ -1,0 +1,5 @@
+{
+  "reason": "Interrupted after identifying an overlapping native-byte negative control. The malformed PE also fails metadata inspection; strengthen the hash guard control with trailing bytes on a valid managed assembly before final verification.",
+  "observed": "55 passed; KeyboardInterrupt; exit 2",
+  "finalSourceClaim": false
+}

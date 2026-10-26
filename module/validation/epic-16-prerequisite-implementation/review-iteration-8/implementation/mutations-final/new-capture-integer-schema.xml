@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="5" time="4.761" timestamp="2026-10-26T00:11:30.762995+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_new_capture_schema_rejects_primitive_aliases[1.0-AC-16.1-02-path0]" time="0.328"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-529/test_round8_new_capture_schema0/fixture')
+scenario = 'AC-16.1-02', path = ['restartSchedule', 'captureVersion']
+value = 1.0
+
+    @pytest.mark.parametrize('scenario,path',[
+     ('AC-16.1-02',['restartSchedule','captureVersion']),
+     ('AC-16.2-04',['lifecycle',1,'catchUp','deliveries',1,'enqueue','order']),
+     ('AC-16.2-04',['lifecycle',0,'queries',0,'executed']),
+     ('AC-16.2-05',['generationQueries','baseline','index','metadataGenerations','manifest']),
+     ('AC-16.3-05',['cancellation','operations',1,'monotonicMs']),
+    ])
+    @pytest.mark.parametrize('value',[True,1.0,'1',None])
+    def test_round8_new_capture_schema_rejects_primitive_aliases(repository,scenario,path,value):
+        if path[-1]=='executed' and value is True:value=1
+        data=deepcopy(OBSERVATIONS[scenario]);target=data
+        for key in path[:-1]:target=target[key]
+        target[path[-1]]=value
+&gt;       result=round8_submit(repository,scenario,data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3073: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-529/test_round8_new_capture_schema0/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...guousSequence': 10}, {'state': 'Unavailable', 'allowed': False, 'lastContiguousSequence': 10}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_new_capture_schema_rejects_primitive_aliases[1.0-AC-16.2-04-path1]" time="2.251"><failure message="AssertionError: assert 'MEASUREMENT_SCHEMA_INVALID' in ['MEASUREMENT_INVALID']">repository = PosixPath('/tmp/pytest-of-administrator/pytest-529/test_round8_new_capture_schema1/fixture')
+scenario = 'AC-16.2-04'
+path = ['lifecycle', 1, 'catchUp', 'deliveries', 1, 'enqueue', ...], value = 1.0
+
+    @pytest.mark.parametrize('scenario,path',[
+     ('AC-16.1-02',['restartSchedule','captureVersion']),
+     ('AC-16.2-04',['lifecycle',1,'catchUp','deliveries',1,'enqueue','order']),
+     ('AC-16.2-04',['lifecycle',0,'queries',0,'executed']),
+     ('AC-16.2-05',['generationQueries','baseline','index','metadataGenerations','manifest']),
+     ('AC-16.3-05',['cancellation','operations',1,'monotonicMs']),
+    ])
+    @pytest.mark.parametrize('value',[True,1.0,'1',None])
+    def test_round8_new_capture_schema_rejects_primitive_aliases(repository,scenario,path,value):
+        if path[-1]=='executed' and value is True:value=1
+        data=deepcopy(OBSERVATIONS[scenario]);target=data
+        for key in path[:-1]:target=target[key]
+        target[path[-1]]=value
+        result=round8_submit(repository,scenario,data)
+&gt;       assert 'MEASUREMENT_SCHEMA_INVALID' in result['blockers']
+E       AssertionError: assert 'MEASUREMENT_SCHEMA_INVALID' in ['MEASUREMENT_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:3074: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_new_capture_schema_rejects_primitive_aliases[1.0-AC-16.2-04-path2]" time="0.340" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_new_capture_schema_rejects_primitive_aliases[1.0-AC-16.2-05-path3]" time="0.896"><failure message="AssertionError: assert 'MEASUREMENT_SCHEMA_INVALID' in ['MEASUREMENT_INVALID']">repository = PosixPath('/tmp/pytest-of-administrator/pytest-529/test_round8_new_capture_schema3/fixture')
+scenario = 'AC-16.2-05'
+path = ['generationQueries', 'baseline', 'index', 'metadataGenerations', 'manifest']
+value = 1.0
+
+    @pytest.mark.parametrize('scenario,path',[
+     ('AC-16.1-02',['restartSchedule','captureVersion']),
+     ('AC-16.2-04',['lifecycle',1,'catchUp','deliveries',1,'enqueue','order']),
+     ('AC-16.2-04',['lifecycle',0,'queries',0,'executed']),
+     ('AC-16.2-05',['generationQueries','baseline','index','metadataGenerations','manifest']),
+     ('AC-16.3-05',['cancellation','operations',1,'monotonicMs']),
+    ])
+    @pytest.mark.parametrize('value',[True,1.0,'1',None])
+    def test_round8_new_capture_schema_rejects_primitive_aliases(repository,scenario,path,value):
+        if path[-1]=='executed' and value is True:value=1
+        data=deepcopy(OBSERVATIONS[scenario]);target=data
+        for key in path[:-1]:target=target[key]
+        target[path[-1]]=value
+        result=round8_submit(repository,scenario,data)
+&gt;       assert 'MEASUREMENT_SCHEMA_INVALID' in result['blockers']
+E       AssertionError: assert 'MEASUREMENT_SCHEMA_INVALID' in ['MEASUREMENT_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:3074: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_new_capture_schema_rejects_primitive_aliases[1.0-AC-16.3-05-path4]" time="0.342"><failure message="AssertionError: assert 'MEASUREMENT_SCHEMA_INVALID' in ['MEASUREMENT_INVALID']">repository = PosixPath('/tmp/pytest-of-administrator/pytest-529/test_round8_new_capture_schema4/fixture')
+scenario = 'AC-16.3-05', path = ['cancellation', 'operations', 1, 'monotonicMs']
+value = 1.0
+
+    @pytest.mark.parametrize('scenario,path',[
+     ('AC-16.1-02',['restartSchedule','captureVersion']),
+     ('AC-16.2-04',['lifecycle',1,'catchUp','deliveries',1,'enqueue','order']),
+     ('AC-16.2-04',['lifecycle',0,'queries',0,'executed']),
+     ('AC-16.2-05',['generationQueries','baseline','index','metadataGenerations','manifest']),
+     ('AC-16.3-05',['cancellation','operations',1,'monotonicMs']),
+    ])
+    @pytest.mark.parametrize('value',[True,1.0,'1',None])
+    def test_round8_new_capture_schema_rejects_primitive_aliases(repository,scenario,path,value):
+        if path[-1]=='executed' and value is True:value=1
+        data=deepcopy(OBSERVATIONS[scenario]);target=data
+        for key in path[:-1]:target=target[key]
+        target[path[-1]]=value
+        result=round8_submit(repository,scenario,data)
+&gt;       assert 'MEASUREMENT_SCHEMA_INVALID' in result['blockers']
+E       AssertionError: assert 'MEASUREMENT_SCHEMA_INVALID' in ['MEASUREMENT_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:3074: AssertionError</failure></testcase></testsuite></testsuites>

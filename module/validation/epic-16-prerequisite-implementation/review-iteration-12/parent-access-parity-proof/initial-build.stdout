@@ -1,0 +1,13 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r12-access-parity-iwf3kmzu/Probe.csproj (in 41 ms).
+/tmp/epic16-r12-access-parity-iwf3kmzu/TenantStatus.cs(3,34): error CS0234: The type or namespace name 'Serialization' does not exist in the namespace 'Hexalith.Tenants.Contracts' (are you missing an assembly reference?) [/tmp/epic16-r12-access-parity-iwf3kmzu/Probe.csproj]
+/tmp/epic16-r12-access-parity-iwf3kmzu/TenantStatus.cs(12,23): error CS0246: The type or namespace name 'TenantStatusJsonConverter' could not be found (are you missing a using directive or an assembly reference?) [/tmp/epic16-r12-access-parity-iwf3kmzu/Probe.csproj]
+
+Build FAILED.
+
+/tmp/epic16-r12-access-parity-iwf3kmzu/TenantStatus.cs(3,34): error CS0234: The type or namespace name 'Serialization' does not exist in the namespace 'Hexalith.Tenants.Contracts' (are you missing an assembly reference?) [/tmp/epic16-r12-access-parity-iwf3kmzu/Probe.csproj]
+/tmp/epic16-r12-access-parity-iwf3kmzu/TenantStatus.cs(12,23): error CS0246: The type or namespace name 'TenantStatusJsonConverter' could not be found (are you missing a using directive or an assembly reference?) [/tmp/epic16-r12-access-parity-iwf3kmzu/Probe.csproj]
+    0 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:01.28

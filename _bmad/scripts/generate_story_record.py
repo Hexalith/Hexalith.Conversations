@@ -11091,6 +11091,41 @@ def pre_parse_output_format(raw_arguments: Sequence[str]) -> str:
 def main(arguments: Sequence[str] | None = None) -> int:
     raw_arguments = list(arguments) if arguments is not None else sys.argv[1:]
     if is_v2_invocation(raw_arguments):
+        # Legacy standalone consumers must not import optional successor tooling.
+        contracts = [
+            token.split("=", 1)[1] if token.startswith("--contract=") else
+            (raw_arguments[index + 1] if index + 1 < len(raw_arguments) else None)
+            for index, token in enumerate(raw_arguments)
+            if token == "--contract" or token.startswith("--contract=")
+        ]
+        successors = {
+            f"_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/{story}.json"
+            for story in ("16.1", "16.2", "16.3")
+        }
+        if len(contracts) == 1 and contracts[0] in successors:
+            try:
+                sys.dont_write_bytecode = True
+                import epic16_tooling
+            except ModuleNotFoundError as error:
+                declared = {
+                    'epic16_tooling', 'epic16_trust', 'epic16_measurements', 'epic16_native',
+                    'epic16_domain', 'epic16_lifecycle', 'epic16_schedules', 'epic16_capture',
+                    'epic16_faults', 'epic16_relationships', 'epic16_execution', 'epic16_products',
+                    'jsonschema', 'attrs', 'attr', 'referencing', 'rpds', 'jsonschema_specifications',
+                    'contained_reader', 'authoring_outputs', 'evidence_boundary_current',
+                    'config_utils', 'verify_story_completion_workflows',
+                }
+                if error.name not in declared:
+                    raise
+                import importlib.util
+                if importlib.util.find_spec(error.name) is not None:
+                    raise
+                document = v2_failure_document([v2_finding(
+                    "SCHEMA_UNAVAILABLE", str(contracts[0]),
+                    "the Epic 16 successor consumer is unavailable")], None)
+                v2_write_stdout(v2_render_json(document))
+                return document["exitCode"]
+            return epic16_tooling.main(raw_arguments, generator=True)
         return v2_main(raw_arguments)
     output_format = pre_parse_output_format(raw_arguments)
     repository: Path | None = None

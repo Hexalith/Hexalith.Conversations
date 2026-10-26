@@ -1,0 +1,60 @@
+{
+  "synthetic": true,
+  "scope": "isolated-exact-response-declarations-and-native-fingerprint",
+  "argv": [
+    "dotnet",
+    "run",
+    "--project",
+    "/tmp/epic16-protocol-goldens-r4-final",
+    "--configuration",
+    "Debug"
+  ],
+  "exitCode": 0,
+  "extraction": "Response and DomainMetadata declarations copied verbatim from retained AdminOperationalIndexMetadata.cs; optional descriptors remain absent; populated full-replay arrays follow the actual Conversations handler.",
+  "files": [
+    {
+      "path": "goldens.csproj",
+      "sha256": "81fd557d02f30494cf2daf896b933771e58cac5377f46b25934164b7a98c3191"
+    },
+    {
+      "path": "ProjectionDispatchProtocol.cs",
+      "sha256": "4dddd53bf00d056961e629b1ab49cdaa926cdf1d5438e176f3934771fff1388b"
+    },
+    {
+      "path": "ConversationProjectionReadModelKeys.cs",
+      "sha256": "1a6da40f6514750c8a9e4097885028fd4831b93494f1129c44f1fe7e119a2115"
+    },
+    {
+      "path": "ProjectionReplayRecoveryBinding.cs",
+      "sha256": "d6a34849f5fb4b93c292972007c1eb0f036d6fd1ce577c90b0b16972bab006d1"
+    },
+    {
+      "path": "ProjectionRouteCatalogFingerprint.cs",
+      "sha256": "efa4e6cf1610854e0588c6b613436ce6fb239599bd6f90fdaf3db27dec2ae49a"
+    },
+    {
+      "path": "ProjectionSourceGuardCapability.cs",
+      "sha256": "20cbbb48509b4baff544edef33649c66131ac269f2be89e1a1895b79782a0907"
+    },
+    {
+      "path": "AdminOperationalIndexMetadata.cs",
+      "sha256": "8dd400986264d49a1b99864c951eac8171685cd51c174897189d02bb341e1bbc"
+    },
+    {
+      "path": "Program.cs",
+      "sha256": "194695229018f38d1fb5338b8203a1fa47aee3cccd847afd13690759335ffc06"
+    },
+    {
+      "path": "output.json",
+      "sha256": "290deafba118ad521c64de5760d60f20567cc3e9e7bfb0e4ee96667aecfa6c4b"
+    },
+    {
+      "path": "ProjectionDispatchRoute.cs",
+      "sha256": "800a700881824a46ac1179b91649a934a3d9f73be42e4698130393f59340d1ca"
+    },
+    {
+      "path": "stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

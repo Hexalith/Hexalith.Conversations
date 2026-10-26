@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r12-access-tenant-82qg_s_n/Probe.csproj (in 43 ms).
+  Probe -> /tmp/epic16-r12-access-tenant-82qg_s_n/bin/Debug/net10.0/Probe.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.53

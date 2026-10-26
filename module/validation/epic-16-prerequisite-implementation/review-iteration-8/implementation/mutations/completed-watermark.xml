@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="3.123" timestamp="2026-10-26T00:09:34.381351+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_completed_watermark_derives_from_barrier_and_prior_progress[10-999-False]" time="2.259"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-490/test_round8_completed_watermar0/fixture')
+before = 10, after = 999, passes = False
+
+    @pytest.mark.parametrize('before,after,passes',[(10,999,False),(25,25,True),(25,24,False),(25,999,False),(10,20,True)])
+    def test_round8_completed_watermark_derives_from_barrier_and_prior_progress(repository,before,after,passes):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1]
+        row.update(watermarkBefore=before,watermarkAfter=after);round8_refresh(row)
+&gt;       round8_submit(repository,'AC-16.2-04',data,passes=passes)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2844: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-490/test_round8_completed_watermar0/fixture')
+scenario = 'AC-16.2-04'
+data = {'lifecycle': [{'id': 'erase', 'beforeGeneration': 2, 'afterGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3]...erGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3], ...}], 'queryWrites': [], 'unauthorizedRebuildWrites': 0}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_completed_watermark_derives_from_barrier_and_prior_progress[25-999-False]" time="0.361"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-490/test_round8_completed_watermar1/fixture')
+before = 25, after = 999, passes = False
+
+    @pytest.mark.parametrize('before,after,passes',[(10,999,False),(25,25,True),(25,24,False),(25,999,False),(10,20,True)])
+    def test_round8_completed_watermark_derives_from_barrier_and_prior_progress(repository,before,after,passes):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1]
+        row.update(watermarkBefore=before,watermarkAfter=after);round8_refresh(row)
+&gt;       round8_submit(repository,'AC-16.2-04',data,passes=passes)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2844: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-490/test_round8_completed_watermar1/fixture')
+scenario = 'AC-16.2-04'
+data = {'lifecycle': [{'id': 'erase', 'beforeGeneration': 2, 'afterGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3]...erGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3], ...}], 'queryWrites': [], 'unauthorizedRebuildWrites': 0}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase></testsuite></testsuites>

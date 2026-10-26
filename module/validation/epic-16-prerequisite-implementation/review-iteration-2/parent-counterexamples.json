@@ -1,0 +1,31 @@
+{
+  "scope": "prerequisite-tooling-only",
+  "runtimeAuthority": false,
+  "measurementSourceSha256": "37c74db848fa76a831df504d2d6572da196e7a0052d816955d03b9ed4b5be9c1",
+  "observations": [
+    {
+      "probe": "pending beyond recovered horizon",
+      "result": "rejected: ValueError"
+    },
+    {
+      "probe": "watermark before cutover",
+      "result": "rejected: ValueError"
+    },
+    {
+      "probe": "stale but equal projection",
+      "result": "rejected: ValueError"
+    },
+    {
+      "probe": "unrepresentable UTC ticks",
+      "result": "rejected: ValueError"
+    },
+    {
+      "probe": "invalid port",
+      "result": "rejected: ValueError"
+    },
+    {
+      "probe": "canonical but wrong replay version",
+      "result": "rejected: ValueError"
+    }
+  ]
+}

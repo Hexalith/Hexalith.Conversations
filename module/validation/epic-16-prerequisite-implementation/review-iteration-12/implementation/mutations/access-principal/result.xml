@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="16" skipped="0" tests="22" time="24.307" timestamp="2026-10-26T06:28:28.456764+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_access_principal_admission_precedes_read[ actor-a]" time="12.092" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_access_principal_admission_precedes_read[actor-a ]" time="0.439" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_access_principal_admission_precedes_read[\x1c]" time="0.416"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_access_pri2/fixture')
+principal = '\x1c'
+
+    @pytest.mark.parametrize('principal',[' actor-a','actor-a ','\x1c','a\x1fb','a\x7fb','a\x85b','a\x9fb','actor-extra'])
+    def test_round12_native_access_principal_admission_precedes_read(repository,principal):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=data['authorization'][0];proof=row['capture'];proof['scope']['principal']=principal
+        for key in ('request','storeRead','response'):proof[key]['scope']['principal']=principal
+        proof['response']['decision']['callerPrincipalId']=principal
+        proof['sourceState']['members'][principal]='TenantContributor'
+        proof['storeRead']['snapshot']['projection']=tooling.measurements.domain.tenant_replay(proof['sourceState'],[proof['sourceRecord']],9,10)[0]
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=principal=='actor-extra')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4489: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_access_pri2/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_access_principal_admission_precedes_read[a\x1fb]" time="0.416"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_access_pri3/fixture')
+principal = 'a\x1fb'
+
+    @pytest.mark.parametrize('principal',[' actor-a','actor-a ','\x1c','a\x1fb','a\x7fb','a\x85b','a\x9fb','actor-extra'])
+    def test_round12_native_access_principal_admission_precedes_read(repository,principal):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=data['authorization'][0];proof=row['capture'];proof['scope']['principal']=principal
+        for key in ('request','storeRead','response'):proof[key]['scope']['principal']=principal
+        proof['response']['decision']['callerPrincipalId']=principal
+        proof['sourceState']['members'][principal]='TenantContributor'
+        proof['storeRead']['snapshot']['projection']=tooling.measurements.domain.tenant_replay(proof['sourceState'],[proof['sourceRecord']],9,10)[0]
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=principal=='actor-extra')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4489: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_access_pri3/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_access_principal_admission_precedes_read[a\x7fb]" time="0.405"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_access_pri4/fixture')
+principal = 'a\x7fb'
+
+    @pytest.mark.parametrize('principal',[' actor-a','actor-a ','\x1c','a\x1fb','a\x7fb','a\x85b','a\x9fb','actor-extra'])
+    def test_round12_native_access_principal_admission_precedes_read(repository,principal):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=data['authorization'][0];proof=row['capture'];proof['scope']['principal']=principal
+        for key in ('request','storeRead','response'):proof[key]['scope']['principal']=principal
+        proof['response']['decision']['callerPrincipalId']=principal
+        proof['sourceState']['members'][principal]='TenantContributor'
+        proof['storeRead']['snapshot']['projection']=tooling.measurements.domain.tenant_replay(proof['sourceState'],[proof['sourceRecord']],9,10)[0]
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=principal=='actor-extra')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4489: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_access_pri4/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_access_principal_admission_precedes_read[a\x85b]" time="0.402"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_access_pri5/fixture')
+principal = 'a\x85b'
+
+    @pytest.mark.parametrize('principal',[' actor-a','actor-a ','\x1c','a\x1fb','a\x7fb','a\x85b','a\x9fb','actor-extra'])
+    def test_round12_native_access_principal_admission_precedes_read(repository,principal):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=data['authorization'][0];proof=row['capture'];proof['scope']['principal']=principal
+        for key in ('request','storeRead','response'):proof[key]['scope']['principal']=principal
+        proof['response']['decision']['callerPrincipalId']=principal
+        proof['sourceState']['members'][principal]='TenantContributor'
+        proof['storeRead']['snapshot']['projection']=tooling.measurements.domain.tenant_replay(proof['sourceState'],[proof['sourceRecord']],9,10)[0]
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=principal=='actor-extra')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4489: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_access_pri5/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_access_principal_admission_precedes_read[a\x9fb]" time="0.412"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_access_pri6/fixture')
+principal = 'a\x9fb'
+
+    @pytest.mark.parametrize('principal',[' actor-a','actor-a ','\x1c','a\x1fb','a\x7fb','a\x85b','a\x9fb','actor-extra'])
+    def test_round12_native_access_principal_admission_precedes_read(repository,principal):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=data['authorization'][0];proof=row['capture'];proof['scope']['principal']=principal
+        for key in ('request','storeRead','response'):proof[key]['scope']['principal']=principal
+        proof['response']['decision']['callerPrincipalId']=principal
+        proof['sourceState']['members'][principal]='TenantContributor'
+        proof['storeRead']['snapshot']['projection']=tooling.measurements.domain.tenant_replay(proof['sourceState'],[proof['sourceRecord']],9,10)[0]
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=principal=='actor-extra')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4489: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_access_pri6/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_access_principal_admission_precedes_read[actor-extra]" time="0.438" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant/a-False]" time="0.421"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp0/fixture')
+tenant = 'tenant/a', valid = False
+
+    @pytest.mark.parametrize('tenant,valid',ROUND12_TENANTS)
+    def test_round12_native_tenant_input_rules_admit_only_real_executed_requests(repository,tenant,valid):
+        data=round12_rename_tenant(deepcopy(OBSERVATIONS['AC-16.1-01']),tenant)
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=valid)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4523: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp0/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant:a-False]" time="0.418"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp1/fixture')
+tenant = 'tenant:a', valid = False
+
+    @pytest.mark.parametrize('tenant,valid',ROUND12_TENANTS)
+    def test_round12_native_tenant_input_rules_admit_only_real_executed_requests(repository,tenant,valid):
+        data=round12_rename_tenant(deepcopy(OBSERVATIONS['AC-16.1-01']),tenant)
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=valid)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4523: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp1/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[ tenant-a-False]" time="0.422"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp2/fixture')
+tenant = ' tenant-a', valid = False
+
+    @pytest.mark.parametrize('tenant,valid',ROUND12_TENANTS)
+    def test_round12_native_tenant_input_rules_admit_only_real_executed_requests(repository,tenant,valid):
+        data=round12_rename_tenant(deepcopy(OBSERVATIONS['AC-16.1-01']),tenant)
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=valid)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4523: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp2/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant a-False]" time="0.403"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp3/fixture')
+tenant = 'tenant a', valid = False
+
+    @pytest.mark.parametrize('tenant,valid',ROUND12_TENANTS)
+    def test_round12_native_tenant_input_rules_admit_only_real_executed_requests(repository,tenant,valid):
+        data=round12_rename_tenant(deepcopy(OBSERVATIONS['AC-16.1-01']),tenant)
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=valid)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4523: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp3/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\x1c-False]" time="0.411"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp4/fixture')
+tenant = 'tenant\x1c', valid = False
+
+    @pytest.mark.parametrize('tenant,valid',ROUND12_TENANTS)
+    def test_round12_native_tenant_input_rules_admit_only_real_executed_requests(repository,tenant,valid):
+        data=round12_rename_tenant(deepcopy(OBSERVATIONS['AC-16.1-01']),tenant)
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=valid)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4523: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp4/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\x7f-False]" time="0.442"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp5/fixture')
+tenant = 'tenant\x7f', valid = False
+
+    @pytest.mark.parametrize('tenant,valid',ROUND12_TENANTS)
+    def test_round12_native_tenant_input_rules_admit_only_real_executed_requests(repository,tenant,valid):
+        data=round12_rename_tenant(deepcopy(OBSERVATIONS['AC-16.1-01']),tenant)
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=valid)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4523: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp5/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[cafe\u0301-False]" time="0.421"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp6/fixture')
+tenant = 'café', valid = False
+
+    @pytest.mark.parametrize('tenant,valid',ROUND12_TENANTS)
+    def test_round12_native_tenant_input_rules_admit_only_real_executed_requests(repository,tenant,valid):
+        data=round12_rename_tenant(deepcopy(OBSERVATIONS['AC-16.1-01']),tenant)
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=valid)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4523: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp6/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\u200b-False]" time="0.431"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp7/fixture')
+tenant = 'tenant\u200b', valid = False
+
+    @pytest.mark.parametrize('tenant,valid',ROUND12_TENANTS)
+    def test_round12_native_tenant_input_rules_admit_only_real_executed_requests(repository,tenant,valid):
+        data=round12_rename_tenant(deepcopy(OBSERVATIONS['AC-16.1-01']),tenant)
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=valid)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4523: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp7/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\ue000-False]" time="0.436"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp8/fixture')
+tenant = 'tenant\ue000', valid = False
+
+    @pytest.mark.parametrize('tenant,valid',ROUND12_TENANTS)
+    def test_round12_native_tenant_input_rules_admit_only_real_executed_requests(repository,tenant,valid):
+        data=round12_rename_tenant(deepcopy(OBSERVATIONS['AC-16.1-01']),tenant)
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=valid)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4523: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp8/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\u0378-False]" time="0.427"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp9/fixture')
+tenant = 'tenant\u0378', valid = False
+
+    @pytest.mark.parametrize('tenant,valid',ROUND12_TENANTS)
+    def test_round12_native_tenant_input_rules_admit_only_real_executed_requests(repository,tenant,valid):
+        data=round12_rename_tenant(deepcopy(OBSERVATIONS['AC-16.1-01']),tenant)
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=valid)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4523: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp9/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\U0001f600-False]" time="0.418"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp10/fixture')
+tenant = 'tenant😀', valid = False
+
+    @pytest.mark.parametrize('tenant,valid',ROUND12_TENANTS)
+    def test_round12_native_tenant_input_rules_admit_only_real_executed_requests(repository,tenant,valid):
+        data=round12_rename_tenant(deepcopy(OBSERVATIONS['AC-16.1-01']),tenant)
+&gt;       round8_submit(repository,'AC-16.1-01',data,passes=valid)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4523: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-669/test_round12_native_tenant_inp10/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[caf\xe9-True]" time="0.448" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[\u79df\u6237-True]" time="0.393" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant-\xc5-True]" time="0.438" /></testsuite></testsuites>

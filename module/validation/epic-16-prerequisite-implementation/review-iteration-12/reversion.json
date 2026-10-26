@@ -1,0 +1,14 @@
+{
+  "backup": "/tmp/epic16-review12-preservation-mdzqxec0",
+  "manifestSha256": "0182f23d1089abe546e9de9e644402ed743819ec80765e00603d45616ec1ed2f",
+  "ownedFiles": 42,
+  "trackedFiles": 4,
+  "newFiles": 38,
+  "frozenVerified": 86,
+  "protectedVerified": 5,
+  "trackedRestored": 4,
+  "newFilesRemoved": 38,
+  "allEvidencePreserved": true,
+  "retainedEvidenceFiles": 7951,
+  "indexEmpty": true
+}

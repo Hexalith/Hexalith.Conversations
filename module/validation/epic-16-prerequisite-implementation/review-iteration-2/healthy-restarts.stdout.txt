@@ -1,0 +1,580 @@
+FFFFFFFFFFFFFFFF                                                         [100%]
+=================================== FAILURES ===================================
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[persisted-sequence-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de0/fixture')
+case = 0, fault = 'persisted-sequence'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[persisted-sequence-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de1/fixture')
+case = 1, fault = 'persisted-sequence'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[persisted-freshness-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de2/fixture')
+case = 0, fault = 'persisted-freshness'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[persisted-freshness-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de3/fixture')
+case = 1, fault = 'persisted-freshness'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[consumer-sequence-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de4/fixture')
+case = 0, fault = 'consumer-sequence'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[consumer-sequence-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de5/fixture')
+case = 1, fault = 'consumer-sequence'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[consumer-freshness-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de6/fixture')
+case = 0, fault = 'consumer-freshness'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[consumer-freshness-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de7/fixture')
+case = 1, fault = 'consumer-freshness'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[decision-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de8/fixture')
+case = 0, fault = 'decision'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[decision-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de9/fixture')
+case = 1, fault = 'decision'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[process-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de10/fixture')
+case = 0, fault = 'process'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[process-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de11/fixture')
+case = 1, fault = 'process'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[redelivery-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de12/fixture')
+case = 0, fault = 'redelivery'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[redelivery-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de13/fixture')
+case = 1, fault = 'redelivery'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[same-process-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de14/fixture')
+case = 0, fault = 'same-process'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[same-process-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-249/test_healthy_authorized_and_de15/fixture')
+case = 1, fault = 'same-process'
+
+    @pytest.mark.parametrize('case', [0, 1])
+    @pytest.mark.parametrize('fault', ['persisted-sequence', 'persisted-freshness', 'consumer-sequence', 'consumer-freshness', 'decision', 'process', 'redelivery', 'same-process'])
+    def test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata(repository, case, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-02']); row = data['healthyRestarts'][case]
+        if fault == 'persisted-sequence': row['afterRestart']['sequence'] += 1
+        elif fault == 'persisted-freshness': row['afterRestart']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'consumer-sequence': row['consumerAfter']['sequence'] += 1
+        elif fault == 'consumer-freshness': row['consumerAfter']['freshness']['generatedUtcTicks'] += 1
+        elif fault == 'decision': row['consumerAfter']['allowed'] = not row['consumerAfter']['allowed']
+        elif fault == 'process': row['consumerAfter']['process'] = row['processBefore']
+        elif fault == 'redelivery': row['redeliveries'] = 1
+        else: row['processAfter'] = row['processBefore']
+        native(repository, 'AC-16.1-02', data)
+>       rejected(evaluate(repository, 'AC-16.1-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[persisted-sequence-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[persisted-sequence-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[persisted-freshness-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[persisted-freshness-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[consumer-sequence-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[consumer-sequence-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[consumer-freshness-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[consumer-freshness-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[decision-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[decision-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[process-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[process-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[redelivery-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[redelivery-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[same-process-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_healthy_authorized_and_denied_restart_observations_preserve_consumer_metadata[same-process-1]
+16 failed, 370 deselected in 4.93s

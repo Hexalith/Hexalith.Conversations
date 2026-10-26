@@ -1,0 +1,47 @@
+from pathlib import Path
+import sys,json,shutil,tempfile,subprocess,hashlib,time
+root=Path('/home/administrator/projects/hexalith/conversations');sys.path.insert(0,str(root/'_bmad/scripts'));import epic16_tooling as tooling
+out=root/'module/validation/epic-16-prerequisite-implementation/review-iteration-3/final-utc';out.mkdir(parents=True,exist_ok=True)
+files=set((*tooling.TOOL_SOURCES,*tooling.CONTRACT_PINS,*tooling.PREDECESSOR_PINS));files.update(['_bmad/scripts/tests/test_epic16_tooling.py','_bmad/scripts/tests/fixtures/epic16-observations-v1.json'])
+mutants=[
+('native-real-name','_bmad/scripts/epic16_tooling.py',"parsed['results'][0]['test'] == expected_class + '.Scenario' + scenario[-2:]","parsed['results'][0]['test'] == scenario",'real_pinned_xunit'),
+('encoded-dtd','_bmad/scripts/epic16_tooling.py','        guard.Parse(raw, True)','        pass # mutant','encoded_dtd'),
+('frozen-generator','_bmad/scripts/epic16_tooling.py',"            candidate = records.resolve_commit(repository, candidate, 'CANDIDATE_UNAVAILABLE')\n            rows =",'            rows =','generator_freezes'),
+('mixed-candidate','_bmad/scripts/epic16_tooling.py',"            need(all(row['candidate']['commit'] == candidate for row in rows), 'CANDIDATE_DRIFT', candidate)",'            pass # mutant','generator_rejects_any'),
+('domain-values','_bmad/scripts/epic16_measurements.py',"require(value['items'] == expected_items, 'serialized domain values match authoritative replay')",'pass # mutant','same_id_changed_native_domain'),
+('full-binding','_bmad/scripts/epic16_measurements.py',"require(r['binding'] == authoritative and r['selectedId'] == selected_id and r['persistedPayload'] == r['authoritativeEnvelope']['payload'], 'full binding matches independent authoritative envelope')",'pass # mutant','every_duplicate_binding_component'),
+('pending-authoritative','_bmad/scripts/epic16_measurements.py',"require(item == data['authoritativeReplay'][item['sequence']-data['checkpoint']-1], 'pending fingerprints match authoritative replay')",'pass # mutant','convergence_derives_state'),
+('recovered-domain','_bmad/scripts/epic16_measurements.py',"require(data['recoveredState'] == recovered, 'recovered tenant domain values')",'pass # mutant','convergence_derives_state'),
+('reverse-event-effects','_bmad/scripts/epic16_measurements.py',"require(schedule['older'] == domain.tenant_decision(history[data['checkpoint']+1], data['checkpoint']+1) and schedule['newer'] == domain.tenant_decision(end, horizon), 'reverse-save decisions derive from actual event semantics')",'pass # mutant','each_reverse_schedule_requires'),
+('corrected-projection','_bmad/scripts/epic16_measurements.py',"require(data['persistedProjection'] == dict(sequence=data['afterCheckpoint'], state=recovered), 'corrected domain values from authoritative recovery')",'pass # mutant','reconciliation_requires_pending'),
+('public-source-caller','_bmad/scripts/epic16_tooling.py',"surface = verify_public_surface(repository, reader, facts, scope, observations, contract) if scenario in ('AC-16.1-05','AC-16.2-05') else None",'surface = None','public_preservation_reads'),
+('pinned-readiness','_bmad/scripts/epic16_faults.py',"require(data['attemptLimit']==CONTROL_POLICY['attemptLimit'] and data['timeoutMs']==CONTROL_POLICY['timeoutMs'],'pinned readiness test controls')",'pass # mutant','observations_cannot_nominate'),
+('port-occupancy-caller','_bmad/scripts/epic16_measurements.py',"            faults.port_collision(data)",'            pass # mutant','port_collision_proves'),
+('structured-diagnostics','_bmad/scripts/epic16_faults.py',"def diagnostics(rows, inventory, expected):\n    by=", "def diagnostics(rows, inventory, expected):\n    return # mutant\n    by=",'actual_structured_diagnostics'),
+('typed-fault-caller','_bmad/scripts/epic16_measurements.py','    faults.fault_matrix(rows, expected)','    pass # mutant','each_fault_requires'),
+('fault-ledger','_bmad/scripts/epic16_faults.py',"require(row['assertionEntries']==entries and row['assertions']==len(entries),'derived validated fault assertion count')",'pass # mutant','each_fault_requires and forged-ledger'),
+('native-caller','_bmad/scripts/epic16_tooling.py',"binary = native_binary(reader, raw, facts['commit'], scenario)",'binary = None','qualified_runtime_evaluate_binds or runtime_evaluator_admits_only_bound_native_binary'),
+('receipt-writer','_bmad/scripts/epic16_tooling.py',"                safe_write(Path(args.repository), [(args.output, json_bytes(result))], [native_path(args.scope, args.scenario)])",'                pass # mutant','real_verifier_and_generator_entrypoints_publish'),
+('dependency-loop','_bmad/scripts/epic16_tooling.py','            for dependency in dependencies:','            for dependency in ():','every_dependency_edge_rechecks'),
+('expanded-canonicalizer-caller','_bmad/scripts/epic16_measurements.py',"require(canonicalize(r['canonicalJson']) == r['canonicalJson'] and canonicalize(r['roundTripJson']) == r['roundTripJson'], 'actual EventStore canonical bytes')",'pass # mutant','expanded_domain_state'),
+('raw-save-order','_bmad/scripts/epic16_faults.py',"if key=='saveOrder': require(isinstance(item,list) and (all(type(x) is int for x in item) or all(type(x) is str for x in item)), 'typed raw save order')",'if False: pass # mutant','raw_reverse_save_order'),
+('starting-domain-types','_bmad/scripts/epic16_domain.py','    tenant_state(start)','    pass # mutant','raw_fault_starting_tenant'),
+('fault-endpoint-port','_bmad/scripts/epic16_measurements.py',"require(collision_port == faults.endpoint_inventory(data['endpointInventory'])['dapr-placement']['port'], 'fault collision uses effective endpoint port')",'pass # mutant','fault_measurements_correlate and port'),
+('fault-diagnostic-attempts','_bmad/scripts/epic16_measurements.py',"readiness_attempts = next(row for row in data['faults'] if row['id'] == 'endpoint-race')['observed']['attempts']",'readiness_attempts = 3','fault_measurements_correlate and attempts'),
+
+('timestamp-offset-bounds','_bmad/scripts/epic16_domain.py',"require(hours <= 14 and minutes <= 59 and (hours != 14 or minutes == 0), 'valid .NET DateTimeOffset offset')",'pass # mutant','native_datetimeoffset_rejects'),
+('timestamp-ascii','_bmad/scripts/epic16_domain.py',', flags=re.ASCII','', 'native_datetimeoffset_rejects'),
+]
+results=[]
+for name,path,old,new,selection in mutants:
+ workspace=Path(tempfile.mkdtemp(prefix='epic16-review3-mutant-'+name+'-'))
+ for file in files:
+  target=workspace/file;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(root/file,target)
+ target=workspace/path;content=target.read_bytes();assert content.count(old.encode())==1,(name,content.count(old.encode()));target.write_bytes(content.replace(old.encode(),new.encode(),1))
+ argv=[sys.executable,'-m','pytest','-q',str(workspace/'_bmad/scripts/tests/test_epic16_tooling.py'),'-k',selection,'--junitxml='+str(out/(name+'.xml'))]
+ started=time.monotonic();result=subprocess.run(argv,cwd=workspace,capture_output=True,timeout=240)
+ for suffix,raw in [('stdout',result.stdout),('stderr',result.stderr)]: (out/(name+'.'+suffix+'.txt')).write_bytes(raw)
+ row=dict(name=name,argv=argv,workspace=str(workspace),exitCode=result.returncode,elapsedSeconds=round(time.monotonic()-started,3),originalSha256=hashlib.sha256(content).hexdigest(),mutatedSha256=hashlib.sha256(target.read_bytes()).hexdigest(),stdoutSha256=hashlib.sha256(result.stdout).hexdigest(),stderrSha256=hashlib.sha256(result.stderr).hexdigest())
+ results.append(row);(out/'mutation-probes.json').write_text(json.dumps(results,indent=2)+'\n')
+ print(name,result.returncode,result.stdout.decode().strip().splitlines()[-1],flush=True)
+ assert result.returncode==1,(name,result.stdout.decode(),result.stderr.decode())

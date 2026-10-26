@@ -1,0 +1,14 @@
+  Determining projects to restore...
+  Restored /tmp/pytest-of-administrator/pytest-580/test_round10_construction_meta10/runner/Evidence.csproj (in 97 ms).
+/tmp/pytest-of-administrator/pytest-580/test_round10_construction_meta10/runner/Tests.cs(5,119): warning CS9113: Parameter 'value' is unread. [/tmp/pytest-of-administrator/pytest-580/test_round10_construction_meta10/runner/Evidence.csproj]
+/tmp/pytest-of-administrator/pytest-580/test_round10_construction_meta10/runner/Tests.cs(5,71): warning CS9113: Parameter 'value' is unread. [/tmp/pytest-of-administrator/pytest-580/test_round10_construction_meta10/runner/Evidence.csproj]
+  Evidence -> /tmp/pytest-of-administrator/pytest-580/test_round10_construction_meta10/runner/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/pytest-of-administrator/pytest-580/test_round10_construction_meta10/runner/Tests.cs(5,119): warning CS9113: Parameter 'value' is unread. [/tmp/pytest-of-administrator/pytest-580/test_round10_construction_meta10/runner/Evidence.csproj]
+/tmp/pytest-of-administrator/pytest-580/test_round10_construction_meta10/runner/Tests.cs(5,71): warning CS9113: Parameter 'value' is unread. [/tmp/pytest-of-administrator/pytest-580/test_round10_construction_meta10/runner/Evidence.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.44

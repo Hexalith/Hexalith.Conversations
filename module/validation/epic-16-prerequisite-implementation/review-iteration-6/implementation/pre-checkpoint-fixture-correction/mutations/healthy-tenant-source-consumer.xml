@@ -1,0 +1,1101 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="26" skipped="0" tests="27" time="15.052" timestamp="2026-10-25T22:09:45.099371+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[snapshot-tenant-0]" time="0.341"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi0/fixture')
+case = 0, fault = 'snapshot-tenant'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[snapshot-tenant-1]" time="0.337"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi1/fixture')
+case = 1, fault = 'snapshot-tenant'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[snapshot-key-0]" time="0.391"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi2/fixture')
+case = 0, fault = 'snapshot-key'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[snapshot-key-1]" time="0.421"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi3/fixture')
+case = 1, fault = 'snapshot-key'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[domain-tenant-0]" time="0.393"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi4/fixture')
+case = 0, fault = 'domain-tenant'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[domain-tenant-1]" time="0.368"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi5/fixture')
+case = 1, fault = 'domain-tenant'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[source-tenant-0]" time="0.339"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi6/fixture')
+case = 0, fault = 'source-tenant'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[source-tenant-1]" time="0.384"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi7/fixture')
+case = 1, fault = 'source-tenant'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[source-event-0]" time="0.372"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi8/fixture')
+case = 0, fault = 'source-event'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[source-event-1]" time="0.366"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi9/fixture')
+case = 1, fault = 'source-event'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[lookup-tenant-0]" time="0.355"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi10/fixture')
+case = 0, fault = 'lookup-tenant'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[lookup-tenant-1]" time="0.369"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi11/fixture')
+case = 1, fault = 'lookup-tenant'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[lookup-key-0]" time="0.367"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi12/fixture')
+case = 0, fault = 'lookup-key'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[lookup-key-1]" time="0.326"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi13/fixture')
+case = 1, fault = 'lookup-key'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[lookup-process-0]" time="0.334"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi14/fixture')
+case = 0, fault = 'lookup-process'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[lookup-process-1]" time="0.324"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi15/fixture')
+case = 1, fault = 'lookup-process'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[consumer-tenant-0]" time="0.348"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi16/fixture')
+case = 0, fault = 'consumer-tenant'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[consumer-tenant-1]" time="0.499"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi17/fixture')
+case = 1, fault = 'consumer-tenant'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[consumer-user-0]" time="0.378"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi18/fixture')
+case = 0, fault = 'consumer-user'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[consumer-user-1]" time="0.407"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi19/fixture')
+case = 1, fault = 'consumer-user'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[consumer-request-0]" time="0.509"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi20/fixture')
+case = 0, fault = 'consumer-request'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[consumer-request-1]" time="0.701"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi21/fixture')
+case = 1, fault = 'consumer-request'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[allowed-from-role-0]" time="0.833"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi22/fixture')
+case = 0, fault = 'allowed-from-role'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[allowed-from-role-1]" time="0.637" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[raw-bytes-0]" time="0.844"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi24/fixture')
+case = 0, fault = 'raw-bytes'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_healthy_restart_binds_store_snapshot_source_and_consumer[raw-bytes-1]" time="0.634"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_healthy_restart_bi25/fixture')
+case = 1, fault = 'raw-bytes'
+
+    @pytest.mark.parametrize('case',[0,1])
+    @pytest.mark.parametrize('fault',['snapshot-tenant','snapshot-key','domain-tenant','source-tenant','source-event','lookup-tenant','lookup-key','lookup-process','consumer-tenant','consumer-user','consumer-request','allowed-from-role','raw-bytes'])
+    def test_round6_healthy_restart_binds_store_snapshot_source_and_consumer(repository,case,fault):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['healthyRestarts'][case]
+        if fault.startswith('snapshot-'):
+            key='tenant' if fault=='snapshot-tenant' else 'logicalStoreKey'
+            for phase in ('beforeRestart','afterRestart'):row[phase][key]='foreign-tenant'
+        elif fault=='domain-tenant':
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['tenantId']='foreign-tenant'
+        elif fault=='source-tenant':row['startingState']['tenantId']='foreign-tenant'
+        elif fault=='source-event':
+            record=row['sourceEvents'][0];payload=json.loads(record['persistedPayload']);payload['tenantId']='foreign-tenant';record['persistedPayload']=json.dumps(payload);record['payloadSha256']=digest(record['persistedPayload'].encode())
+        elif fault.startswith('lookup-'):
+            key={'lookup-tenant':'tenantId','lookup-key':'logicalKey','lookup-process':'process'}[fault];row['lookupAfter'][key]='foreign'
+        elif fault.startswith('consumer-'):
+            key={'consumer-tenant':'tenantId','consumer-user':'userId','consumer-request':'requestId'}[fault];row['consumerAfter'][key]='foreign'
+        elif fault=='allowed-from-role':
+            row['startingState']['members']['actor-a']='TenantReader'
+            for phase in ('beforeRestart','afterRestart'):row[phase]['domain']['members']['actor-a']='TenantReader'
+            # The denied case must demonstrate forged authorization too.
+            for phase in ('beforeRestart','afterRestart','consumerBefore','consumerAfter'):row[phase]['allowed']=True
+        refresh_healthy_capture(row)
+        if fault=='raw-bytes':row['snapshotAfterBytes']+=' '
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_relabelling_gapped_tenant_cannot_leave_healthy_restart_from_another_tenant" time="0.772"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-423/test_round6_relabelling_gapped0/fixture')
+
+    def test_round6_relabelling_gapped_tenant_cannot_leave_healthy_restart_from_another_tenant(repository):
+        scenario='AC-16.1-02';data=deepcopy(OBSERVATIONS[scenario]);data['tenant']='other-tenant'
+        for phase in ('beforeRestart','afterRestart'):
+            data[phase]['tenant']=data['tenant']
+            for row in data[phase]['pending']:
+                payload=json.loads(row['persistedPayload']);payload['tenantId']=data['tenant'];row['persistedPayload']=json.dumps(payload);row['payloadSha256']=digest(row['persistedPayload'].encode())
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2162: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

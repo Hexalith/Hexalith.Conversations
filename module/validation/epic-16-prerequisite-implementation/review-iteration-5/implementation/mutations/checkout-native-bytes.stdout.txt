@@ -1,0 +1,34 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_round5_bound_inventory_and_native_outputs_survive_autocrlf_roundtrip ___
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-394/test_round5_bound_inventory_an0/fixture')
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-394/test_round5_bound_inventory_an0')
+
+    def test_round5_bound_inventory_and_native_outputs_survive_autocrlf_roundtrip(repository,tmp_path):
+        paths=json.loads((repository/tooling.BINDING).read_text())['sources']
+        extra={}
+        for story in tooling.measurements.STORIES:
+            contract=json.loads((repository/tooling.contract_path(story)).read_text())
+            source=contract['nativeProtocol']['runtimeTestSource']
+            extra[source]=b'// Bound native source uses CRLF.\r\nnamespace Fixture;\r\n'
+            for n in range(1,6):
+                scenario=f'AC-{story}-0{n}'
+                extra[tooling.native_path('runtime',scenario)]=('<?xml version="1.0" encoding="utf-16"?>\r\n<TestRun />\r\n'.encode('utf-16') if n%2 else b'<TestRun>\r\n</TestRun>\r\n')
+                extra[tooling.receipt_path('runtime',scenario)]=b'{"raw":"retained"}\r\n'
+            for target in tooling.final_paths('runtime',story):extra[target]=b'fixed publication\r\n'
+        extra['artifacts/native/evidence.dll']=b'MZ\x00\r\n\xff\x00'
+        for path,raw in extra.items():
+            target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+        expected={row['path']:(repository/row['path']).read_bytes() for row in paths};expected.update(extra)
+        attrs=git(repository,'check-attr','text','eol','--',*expected)
+        lines=attrs.splitlines();policies={path:dict(line.rsplit(': ',2)[1:] for line in lines if line.startswith(path+': ')) for path in expected}
+>       assert all(p['text']=='unset' or p['text']=='set' and p['eol']=='lf' for p in policies.values()),policies
+E       AssertionError: {'.config/dotnet-tools.json': {'text': 'set', 'eol': 'lf'}, '.gitattributes': {'text': 'set', 'eol': 'lf'}, '_bmad-out...: 'lf'}, '_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json': {'text': 'set', 'eol': 'lf'}, ...}
+E       assert False
+E        +  where False = all(<generator object test_round5_bound_inventory_and_native_outputs_survive_autocrlf_roundtrip.<locals>.<genexpr> at 0x7a56513c5080>)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1956: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_bound_inventory_and_native_outputs_survive_autocrlf_roundtrip
+1 failed, 861 deselected in 0.35s

@@ -1,0 +1,726 @@
+FFFFFFFFFFFFFFFFFFFF                                                     [100%]
+=================================== FAILURES ===================================
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-reverse-save] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti0/fixture')
+scenario = 'AC-16.1-04', name = 'reverse-save', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-equal-sequence-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti1/fixture')
+scenario = 'AC-16.1-04', name = 'equal-sequence-conflict'
+fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-three-future-deliveries] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti2/fixture')
+scenario = 'AC-16.1-04', name = 'three-future-deliveries'
+fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-horizon-extension] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti3/fixture')
+scenario = 'AC-16.1-04', name = 'horizon-extension', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-retry-exhaustion] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti4/fixture')
+scenario = 'AC-16.1-04', name = 'retry-exhaustion', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-lease-expiry] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti5/fixture')
+scenario = 'AC-16.1-04', name = 'lease-expiry', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-restart] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti6/fixture')
+scenario = 'AC-16.1-04', name = 'restart', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-missing-history] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti7/fixture')
+scenario = 'AC-16.1-04', name = 'missing-history', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-conflicting-history] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti8/fixture')
+scenario = 'AC-16.1-04', name = 'conflicting-history', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-provider-unavailable] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti9/fixture')
+scenario = 'AC-16.1-04', name = 'provider-unavailable', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-recovery-success] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti10/fixture')
+scenario = 'AC-16.1-04', name = 'recovery-success', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-two-replicas] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti11/fixture')
+scenario = 'AC-16.1-04', name = 'two-replicas', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-route-removal] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti12/fixture')
+scenario = 'AC-16.3-05', name = 'route-removal', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-fingerprint-drift] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti13/fixture')
+scenario = 'AC-16.3-05', name = 'fingerprint-drift', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-duplicate-retry] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti14/fixture')
+scenario = 'AC-16.3-05', name = 'duplicate-retry', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-endpoint-race] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti15/fixture')
+scenario = 'AC-16.3-05', name = 'endpoint-race', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-port-collision] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti16/fixture')
+scenario = 'AC-16.3-05', name = 'port-collision', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-unavailable-dapr] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti17/fixture')
+scenario = 'AC-16.3-05', name = 'unavailable-dapr', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-empty-selection] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti18/fixture')
+scenario = 'AC-16.3-05', name = 'empty-selection', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-unauthorized] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-277/test_each_fault_requires_disti19/fixture')
+scenario = 'AC-16.3-05', name = 'unauthorized', fault = 'forged-ledger'
+
+    @pytest.mark.parametrize('scenario,name',FAULT_IDENTITIES)
+    @pytest.mark.parametrize('fault',['no-injection','wrong-target','forged-ledger','common-restoration','wrong-outcome'])
+    def test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration(repository,scenario,name,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='no-injection':row['injectedBytes']=row['beforeBytes']
+        elif fault=='wrong-target':row['target']['id']='unrelated'
+        elif fault=='forged-ledger':row['assertions']=1;row['assertionEntries']=row['assertionEntries'][:1]
+        elif fault=='wrong-outcome':
+            target=row['observed'];key=next(iter(target))
+            if isinstance(target[key],dict):target=target[key];key=next(iter(target))
+            target[key]=not target[key] if isinstance(target[key],bool) else target[key]+1 if isinstance(target[key],int) else 'unmeasured'
+        else:row['beforeBytes']=row['afterBytes']='common bytes';row['beforeSha256']=row['afterSha256']=digest(b'common bytes')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1409: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-reverse-save]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-equal-sequence-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-three-future-deliveries]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-horizon-extension]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-retry-exhaustion]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-lease-expiry]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-restart]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-missing-history]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-conflicting-history]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-provider-unavailable]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-recovery-success]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.1-04-two-replicas]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-route-removal]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-fingerprint-drift]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-duplicate-retry]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-endpoint-race]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-port-collision]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-unavailable-dapr]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-empty-selection]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_fault_requires_distinguishing_injection_target_measured_ledger_and_restoration[forged-ledger-AC-16.3-05-unauthorized]
+20 failed, 551 deselected in 7.21s

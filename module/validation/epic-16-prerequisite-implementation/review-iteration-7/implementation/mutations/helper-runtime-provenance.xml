@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.603" timestamp="2026-10-25T23:07:51.521601+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_native_helper_propagates_exact_repository_policy_and_reports_actual_runtime" time="2.211"><failure message="AssertionError: assert '10.0.999' == '10.0.402'&#10;  &#10;  - 10.0.402&#10;  + 10.0.999">def test_round7_native_helper_propagates_exact_repository_policy_and_reports_actual_runtime():
+        helper = tooling.native_helper
+        workspace, assembly = helper._helper()
+        assert (Path(workspace.name)/'global.json').is_file()
+        assert (Path(workspace.name)/'global.json').read_bytes() == (ROOT/'global.json').read_bytes()
+        facts = helper.provenance()
+        selected = subprocess.run(['dotnet','--version'],cwd=ROOT,check=True,capture_output=True).stdout.decode().strip()
+&gt;       assert facts['sdk'] == selected
+E       AssertionError: assert '10.0.999' == '10.0.402'
+E         
+E         - 10.0.402
+E         + 10.0.999
+
+_bmad/scripts/tests/test_epic16_tooling.py:2448: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="15" skipped="0" tests="32" time="49.671" timestamp="2026-10-26T03:05:49.142016+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-01]" time="11.057"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout0/fixture')
+scenario = 'AC-16.1-01'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-02]" time="0.279"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout1/fixture')
+scenario = 'AC-16.1-02'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-03]" time="0.284"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout2/fixture')
+scenario = 'AC-16.1-03'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-04]" time="0.275"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout3/fixture')
+scenario = 'AC-16.1-04'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-05]" time="0.268"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout4/fixture')
+scenario = 'AC-16.1-05'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-01]" time="0.271"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout5/fixture')
+scenario = 'AC-16.2-01'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-02]" time="0.281"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout6/fixture')
+scenario = 'AC-16.2-02'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-03]" time="0.294"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-03', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout7/fixture')
+scenario = 'AC-16.2-03'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-04]" time="0.300"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout8/fixture')
+scenario = 'AC-16.2-04'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-05]" time="0.267"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout9/fixture')
+scenario = 'AC-16.2-05'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-01]" time="0.277"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout10/fixture')
+scenario = 'AC-16.3-01'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-02]" time="0.279"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout11/fixture')
+scenario = 'AC-16.3-02'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-03]" time="0.269"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout12/fixture')
+scenario = 'AC-16.3-03'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-04]" time="0.275"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout13/fixture')
+scenario = 'AC-16.3-04'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-05]" time="0.274"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-578/test_all_fifteen_measured_rout14/fixture')
+scenario = 'AC-16.3-05'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+&gt;       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:128: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_genuine_async_and_fixture_constructor_metadata_is_accepted_without_execution[Task]" time="3.242" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_genuine_async_and_fixture_constructor_metadata_is_accepted_without_execution[ValueTask]" time="1.578" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_genuine_async_and_fixture_constructor_metadata_is_accepted_without_execution[output-constructor]" time="1.534" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_genuine_async_and_fixture_constructor_metadata_is_accepted_without_execution[class-fixture-constructor]" time="1.524" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_genuine_async_void_fact_is_rejected_without_execution" time="1.559" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_native_api_comparison_preserves_supported_contracts[return]" time="2.979" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_native_api_comparison_preserves_supported_contracts[parameter]" time="1.529" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_native_api_comparison_preserves_supported_contracts[parameter-name]" time="1.507" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_native_api_comparison_preserves_supported_contracts[nullable]" time="1.472" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_native_api_comparison_preserves_supported_contracts[property]" time="1.501" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_native_api_comparison_preserves_supported_contracts[generic]" time="1.501" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_native_api_comparison_preserves_supported_contracts[visibility]" time="1.485" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_native_api_comparison_preserves_supported_contracts[abstract-interface]" time="2.973" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_native_api_comparison_preserves_supported_contracts[abstract-class]" time="2.969" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_native_api_default_interface_member_addition_is_supported" time="2.936" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_defined_signature_kind_keeps_declaration_lookup_plain[class-class]" time="1.473" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_defined_signature_kind_keeps_declaration_lookup_plain[struct-valuetype]" time="1.499" /></testsuite></testsuites>

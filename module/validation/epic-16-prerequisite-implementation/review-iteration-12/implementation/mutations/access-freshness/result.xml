@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="15.902" timestamp="2026-10-26T06:28:12.347266+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_authorization_state_derives_from_actual_inputs[freshness]" time="14.108"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-665/test_round12_authorization_sta0/fixture')
+case = 'freshness'
+
+    @pytest.mark.parametrize('case',['source','projection','freshness','float-freshness','future-clock','health','stale-current','gap-missing','gap-tenant','conflict-missing','conflict-identical','unknown-snapshot','unknown-metadata','unavailable-snapshot','unavailable-error'])
+    def test_round12_authorization_state_derives_from_actual_inputs(repository,case):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);index=2 if case=='stale-current' else 3 if case.startswith('gap') else 4 if case.startswith('conflict') else 1 if case.startswith('unknown') else 5 if case.startswith('unavailable') else 0
+        row=data['authorization'][index];p=row['capture'];snapshot=p['storeRead']['snapshot']
+        if case=='source':p['sourceRecord']['payloadSha256']='f'*64
+        elif case=='projection':snapshot['projection']['name']='wrong'
+        elif case=='freshness':snapshot['freshness']['lagTicks']=0
+        elif case=='float-freshness':snapshot['freshness']['generatedUtcTicks']=1100.0
+        elif case=='future-clock':p['observedAtUtcTicks']=1099
+        elif case=='health':snapshot['health']='Unknown'
+        elif case=='stale-current':p['observedAtUtcTicks']=1100
+        elif case=='gap-missing':snapshot['pending']=[]
+        elif case=='gap-tenant':snapshot['pending'][0]['persistedPayload']=snapshot['pending'][0]['persistedPayload'].replace('tenant-a','foreign');snapshot['pending'][0]['payloadSha256']=digest(snapshot['pending'][0]['persistedPayload'].encode())
+        elif case=='conflict-missing':p['conflict']=None
+        elif case=='conflict-identical':p['conflict']=deepcopy(p['sourceRecord'])
+        elif case.endswith('snapshot'):p['storeRead']['snapshot']=deepcopy(data['authorization'][0]['capture']['storeRead']['snapshot'])
+        elif case=='unknown-metadata':row['lastContiguousSequence']=10;p['response']['decision']['projectionVersion']=10
+        elif case=='unavailable-error':p['storeRead']['error']=None
+&gt;       round8_submit(repository,'AC-16.1-01',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4297: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-665/test_round12_authorization_sta0/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_authorization_state_derives_from_actual_inputs[float-freshness]" time="0.457" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_authorization_state_derives_from_actual_inputs[future-clock]" time="0.439"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-665/test_round12_authorization_sta2/fixture')
+case = 'future-clock'
+
+    @pytest.mark.parametrize('case',['source','projection','freshness','float-freshness','future-clock','health','stale-current','gap-missing','gap-tenant','conflict-missing','conflict-identical','unknown-snapshot','unknown-metadata','unavailable-snapshot','unavailable-error'])
+    def test_round12_authorization_state_derives_from_actual_inputs(repository,case):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);index=2 if case=='stale-current' else 3 if case.startswith('gap') else 4 if case.startswith('conflict') else 1 if case.startswith('unknown') else 5 if case.startswith('unavailable') else 0
+        row=data['authorization'][index];p=row['capture'];snapshot=p['storeRead']['snapshot']
+        if case=='source':p['sourceRecord']['payloadSha256']='f'*64
+        elif case=='projection':snapshot['projection']['name']='wrong'
+        elif case=='freshness':snapshot['freshness']['lagTicks']=0
+        elif case=='float-freshness':snapshot['freshness']['generatedUtcTicks']=1100.0
+        elif case=='future-clock':p['observedAtUtcTicks']=1099
+        elif case=='health':snapshot['health']='Unknown'
+        elif case=='stale-current':p['observedAtUtcTicks']=1100
+        elif case=='gap-missing':snapshot['pending']=[]
+        elif case=='gap-tenant':snapshot['pending'][0]['persistedPayload']=snapshot['pending'][0]['persistedPayload'].replace('tenant-a','foreign');snapshot['pending'][0]['payloadSha256']=digest(snapshot['pending'][0]['persistedPayload'].encode())
+        elif case=='conflict-missing':p['conflict']=None
+        elif case=='conflict-identical':p['conflict']=deepcopy(p['sourceRecord'])
+        elif case.endswith('snapshot'):p['storeRead']['snapshot']=deepcopy(data['authorization'][0]['capture']['storeRead']['snapshot'])
+        elif case=='unknown-metadata':row['lastContiguousSequence']=10;p['response']['decision']['projectionVersion']=10
+        elif case=='unavailable-error':p['storeRead']['error']=None
+&gt;       round8_submit(repository,'AC-16.1-01',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4297: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-665/test_round12_authorization_sta2/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase></testsuite></testsuites>

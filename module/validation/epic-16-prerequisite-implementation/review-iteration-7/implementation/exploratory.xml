@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="40" time="18.223" timestamp="2026-10-25T22:55:54.702274+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_native_helper_propagates_exact_repository_policy_and_reports_actual_runtime" time="2.140" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_runtime_consumer_blocks_unavailable_or_mismatched_helper_sdk[unavailable]" time="1.976" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_runtime_consumer_blocks_unavailable_or_mismatched_helper_sdk[wrong-feature-band]" time="0.270" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_runtime_consumer_blocks_unavailable_or_mismatched_helper_sdk[older-patch]" time="0.260" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_latest_patch_policy_permits_only_approved_feature_band[10.0.402]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_latest_patch_policy_permits_only_approved_feature_band[10.0.403]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_latest_patch_policy_permits_only_approved_feature_band[10.0.499]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_invalid_toolchain_policy_is_invalid_input[not json]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_invalid_toolchain_policy_is_invalid_input[{&quot;sdk&quot;:{&quot;version&quot;:&quot;10.0.402&quot;,&quot;rollForward&quot;:&quot;latestMajor&quot;}}]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_invalid_toolchain_policy_is_invalid_input[{&quot;sdk&quot;:{&quot;version&quot;:10,&quot;rollForward&quot;:&quot;latestPatch&quot;}}]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_global_policy_is_an_executing_source_binding" time="0.113" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll]" time="1.677" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes]" time="0.092" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[artifacts/epic16-runtime/16.2/binaries/sample.dll]" time="0.093" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[artifacts/epic16-tooling-fixture/16.2/binaries/sample.dll]" time="0.097" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[artifacts/native/sample.dll]" time="0.094" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_native_nullable_creation_state_passes_schema_and_consumer[AC-16.2-02]" time="2.422" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_native_nullable_creation_state_passes_schema_and_consumer[AC-16.3-03]" time="0.337" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_native_nullable_creation_state_passes_schema_and_consumer[AC-16.3-04]" time="0.567" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[1-label]" time="0.314" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[1-businessReference]" time="0.309" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[1-projectId]" time="0.309" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[1-folderId]" time="0.329" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[False-label]" time="0.328" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[False-businessReference]" time="0.314" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[False-projectId]" time="0.349" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[False-folderId]" time="0.333" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[value2-label]" time="0.358" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[value2-businessReference]" time="0.367" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[value2-projectId]" time="0.373" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[value2-folderId]" time="0.331" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[value3-label]" time="0.353" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[value3-businessReference]" time="0.329" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[value3-projectId]" time="0.330" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_nullable_snapshot_rejects_malformed_nonnull_values[value3-folderId]" time="0.342" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer[False-kinds0-Closed]" time="0.422"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-443/test_round7_terminal_native_wi0/fixture')
+kinds = ['ConversationClosed'], expected = 'Closed', stale = False
+
+    @pytest.mark.parametrize('kinds,expected',[
+     (['ConversationClosed'],'Closed'),(['ConversationArchived'],'Archived'),
+     (['ConversationArchived','ConversationClosed'],'Archived')])
+    @pytest.mark.parametrize('stale',[False,True])
+    def test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer(repository,kinds,expected,stale):
+        data=round7_terminal(kinds)
+        # Independent expected lifecycle, not the production oracle's returned value.
+        round7_set_canonical_lifecycle(data,'Open' if stale else expected)
+&gt;       round7_submit(repository,'AC-16.2-02',data,passes=not stale)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2562: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-443/test_round7_terminal_native_wi0/fixture')
+scenario = 'AC-16.2-02'
+data = {'rebuilds': [{'clockTicks': 639029198500001000, 'canonicalJson': '{"anchorUtcTicks":639029198510000000,"items":[{"key...0000000, 639029198510000000], 'unorderedCollectionPersisted': False, 'generationBeforeAnchorState': 'Unavailable', ...}
+passes = True, schema = False
+
+    def round7_submit(repository, scenario, data, *, passes=False, schema=False):
+        native(repository, scenario, data)
+        result = evaluate(repository, scenario)
+        if passes:
+&gt;           assert result['result'] == 'PASS', result
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E           assert 'FAIL' == 'PASS'
+E             
+E             - PASS
+E             + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2432: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer[False-kinds1-Archived]" time="0.404"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-443/test_round7_terminal_native_wi1/fixture')
+kinds = ['ConversationArchived'], expected = 'Archived', stale = False
+
+    @pytest.mark.parametrize('kinds,expected',[
+     (['ConversationClosed'],'Closed'),(['ConversationArchived'],'Archived'),
+     (['ConversationArchived','ConversationClosed'],'Archived')])
+    @pytest.mark.parametrize('stale',[False,True])
+    def test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer(repository,kinds,expected,stale):
+        data=round7_terminal(kinds)
+        # Independent expected lifecycle, not the production oracle's returned value.
+        round7_set_canonical_lifecycle(data,'Open' if stale else expected)
+&gt;       round7_submit(repository,'AC-16.2-02',data,passes=not stale)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2562: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-443/test_round7_terminal_native_wi1/fixture')
+scenario = 'AC-16.2-02'
+data = {'rebuilds': [{'clockTicks': 639029198500001000, 'canonicalJson': '{"anchorUtcTicks":639029198530000000,"items":[{"key...0000000, 639029198530000000], 'unorderedCollectionPersisted': False, 'generationBeforeAnchorState': 'Unavailable', ...}
+passes = True, schema = False
+
+    def round7_submit(repository, scenario, data, *, passes=False, schema=False):
+        native(repository, scenario, data)
+        result = evaluate(repository, scenario)
+        if passes:
+&gt;           assert result['result'] == 'PASS', result
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E           assert 'FAIL' == 'PASS'
+E             
+E             - PASS
+E             + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2432: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer[False-kinds2-Archived]" time="0.431"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-443/test_round7_terminal_native_wi2/fixture')
+kinds = ['ConversationArchived', 'ConversationClosed'], expected = 'Archived'
+stale = False
+
+    @pytest.mark.parametrize('kinds,expected',[
+     (['ConversationClosed'],'Closed'),(['ConversationArchived'],'Archived'),
+     (['ConversationArchived','ConversationClosed'],'Archived')])
+    @pytest.mark.parametrize('stale',[False,True])
+    def test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer(repository,kinds,expected,stale):
+        data=round7_terminal(kinds)
+        # Independent expected lifecycle, not the production oracle's returned value.
+        round7_set_canonical_lifecycle(data,'Open' if stale else expected)
+&gt;       round7_submit(repository,'AC-16.2-02',data,passes=not stale)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2562: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-443/test_round7_terminal_native_wi2/fixture')
+scenario = 'AC-16.2-02'
+data = {'rebuilds': [{'clockTicks': 639029198500001000, 'canonicalJson': '{"anchorUtcTicks":639029198530000000,"items":[{"key...00, 639029198530000000, ...], 'unorderedCollectionPersisted': False, 'generationBeforeAnchorState': 'Unavailable', ...}
+passes = True, schema = False
+
+    def round7_submit(repository, scenario, data, *, passes=False, schema=False):
+        native(repository, scenario, data)
+        result = evaluate(repository, scenario)
+        if passes:
+&gt;           assert result['result'] == 'PASS', result
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E           assert 'FAIL' == 'PASS'
+E             
+E             - PASS
+E             + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2432: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer[True-kinds0-Closed]" time="0.373"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']">repository = PosixPath('/tmp/pytest-of-administrator/pytest-443/test_round7_terminal_native_wi3/fixture')
+kinds = ['ConversationClosed'], expected = 'Closed', stale = True
+
+    @pytest.mark.parametrize('kinds,expected',[
+     (['ConversationClosed'],'Closed'),(['ConversationArchived'],'Archived'),
+     (['ConversationArchived','ConversationClosed'],'Archived')])
+    @pytest.mark.parametrize('stale',[False,True])
+    def test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer(repository,kinds,expected,stale):
+        data=round7_terminal(kinds)
+        # Independent expected lifecycle, not the production oracle's returned value.
+        round7_set_canonical_lifecycle(data,'Open' if stale else expected)
+&gt;       round7_submit(repository,'AC-16.2-02',data,passes=not stale)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2562: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2434: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+&gt;       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:100: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer[True-kinds1-Archived]" time="0.393"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']">repository = PosixPath('/tmp/pytest-of-administrator/pytest-443/test_round7_terminal_native_wi4/fixture')
+kinds = ['ConversationArchived'], expected = 'Archived', stale = True
+
+    @pytest.mark.parametrize('kinds,expected',[
+     (['ConversationClosed'],'Closed'),(['ConversationArchived'],'Archived'),
+     (['ConversationArchived','ConversationClosed'],'Archived')])
+    @pytest.mark.parametrize('stale',[False,True])
+    def test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer(repository,kinds,expected,stale):
+        data=round7_terminal(kinds)
+        # Independent expected lifecycle, not the production oracle's returned value.
+        round7_set_canonical_lifecycle(data,'Open' if stale else expected)
+&gt;       round7_submit(repository,'AC-16.2-02',data,passes=not stale)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2562: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2434: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+&gt;       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:100: AssertionError</failure></testcase></testsuite></testsuites>

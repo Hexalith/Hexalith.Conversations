@@ -1,0 +1,108 @@
+{
+  "artifacts": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/accepted-capture.json",
+      "sha256": "b0ed6b988ceeabd053a232d3a7e0a3e80af4a2a8a030cd337661f6cf2f5e5dab"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/build.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/build.stdout",
+      "sha256": "ef44d65a4f90686e1f125e1121308863cb43b2372d639462de931f87ce62e214"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/initial-probe-disposition.json",
+      "sha256": "a72e971572d8def59a2789f97153588f84265cb12b4b24e4a42fecd549c5f034"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/initial-probe.py",
+      "sha256": "16084e430a0fec8f6408b03c9f996b97d6ead29ab682fd064002b6e6310fbeda"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/probe.py",
+      "sha256": "a08d8455439b5f6beb3cb58b07da522f99d0685b8fd80aed70660fcd38c62c89"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/result.json",
+      "sha256": "eeccc075eccd0d9258360809502863e3e2267c05b584c2b7c59646a2617560ac"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/ITenantAccessProjectionHealthProvider.cs",
+      "sha256": "395265907f3c6e4e5b114000d196b29decef5970b64905972cc3ff5174c7cedf"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/ITenantAccessStateStore.cs",
+      "sha256": "b1277a7a11c41765e784ee2a07248c4f56cb84ec93ba6e341d02f67196d6acd9"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/Probe.csproj",
+      "sha256": "77d24600c7fbe765e5274497273bcacc2ef06ac806abdac524d417b115107122"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/Program.cs",
+      "sha256": "c154ef666f1ced5a44df8dd40a2e65ef4f3494b72d8be649517ac94a748c2677"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/TenantAccessDenialKind.cs",
+      "sha256": "5e11afbb24d63758e1265dfb86214c72ea870dab5e19838bc571bddd7e456882"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/TenantAccessEvaluation.cs",
+      "sha256": "3e1dafd3ba7717cfd2dd66e96faa908a1b666dc5a7afde43ae77ae55465ec730"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/TenantAccessEvaluator.cs",
+      "sha256": "0ce89e385db66952b366900f8cbd787c42eee03e81597236029fa94e2c6cc16b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/TenantAccessProjectionHealth.cs",
+      "sha256": "c185f193a380c13508f2e72b0ea3ddc78c6d1f2cb5bb8cfdb3699a90cb6b82d9"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/TenantAccessState.cs",
+      "sha256": "5dd919be4c65a633cd49253a8258be292bd9f082caaaa70baf052d41a76f65b4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/TenantRole.cs",
+      "sha256": "78dbc4d45629e0dca93c01de9ac9ca0960371fa3a50a6fa4facb12829876291f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/TenantStatus.cs",
+      "sha256": "576ca1f1a957a067708b7c2d32fd9287a60be89db54e056b1003eae713aa9b47"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/TenantStatusJsonConverter.cs",
+      "sha256": "97688d479cfe4d0bba267fd2a97ba01b02df25a6b6d5682a64bb2547ee3e4b26"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/bin/Debug/net10.0/Probe.dll.bytes",
+      "sha256": "b5e26819f376b11228960415bd6755c5bead92bf156f97aa5542b05872355c3d"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/bin/Debug/net10.0/Probe.runtimeconfig.json",
+      "sha256": "dd72603f49fc74ad956017904a955b25d7043d65291c0c7d033a2064e141622a"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/retained/global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/run.stdout",
+      "sha256": "c769ea6f5191da216904337411af673a7eb72758305915a76b5965c9d58d75a1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/second-probe-disposition.json",
+      "sha256": "c241fec1057af8af2872c491c0ad65502d2c3a4b3172b1e8e8a49b4e74a7f576"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-tenant-proof/second-probe.py",
+      "sha256": "44c2c384e7be50357e0db05d7a21a6a2f323f7b070da08ff30e8b920f8a26677"
+    }
+  ]
+}

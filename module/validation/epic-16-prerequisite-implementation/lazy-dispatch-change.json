@@ -1,0 +1,11 @@
+{
+  "observedAt": "2026-10-25T17:02:37.990652+00:00",
+  "path": "_bmad/scripts/generate_story_record.py",
+  "beforeSha256": "9ccd165e2d1c23a561dfed56f81667d91f0b421c7887170646122b4554c028d1",
+  "afterSha256": "2438279bac16585b11a497eef4f89949186e459b1d85fcad9a12f57a625d98b5",
+  "reason": "Independent reproduction proved eager successor import broke standalone legacy V9/V14 CLI consumers.",
+  "parentReproduction": "/tmp/epic16-legacy-dispatch-gdwqq7tz",
+  "broadRunSession": 40519,
+  "broadRunStillActive": true,
+  "qualification": "Affected focused regressions required; broad run spans both generator revisions."
+}

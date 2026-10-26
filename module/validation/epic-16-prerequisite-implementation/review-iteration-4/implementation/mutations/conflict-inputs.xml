@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="24" skipped="0" tests="33" time="10.491" timestamp="2026-10-25T20:45:45.048051+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-tenant]" time="0.289"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re0/fixture')
+field = 'tenant', fault = 'unchanged'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-conversation]" time="0.270"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re1/fixture')
+field = 'conversation', fault = 'unchanged'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-eventType]" time="0.274"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re2/fixture')
+field = 'eventType', fault = 'unchanged'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-sequence]" time="0.291"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re3/fixture')
+field = 'sequence', fault = 'unchanged'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-serializationFormat]" time="0.291"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re4/fixture')
+field = 'serializationFormat', fault = 'unchanged'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-payloadSha256]" time="0.273"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re5/fixture')
+field = 'payloadSha256', fault = 'unchanged'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-selectedUtcTicks]" time="0.282"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re6/fixture')
+field = 'selectedUtcTicks', fault = 'unchanged'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-missing-id]" time="0.269"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re7/fixture')
+field = 'missing-id', fault = 'unchanged'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-invalid-time]" time="0.279"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re8/fixture')
+field = 'invalid-time', fault = 'unchanged'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-tenant]" time="0.278"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re9/fixture')
+field = 'tenant', fault = 'wrong-field'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-conversation]" time="0.273"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re10/fixture')
+field = 'conversation', fault = 'wrong-field'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-eventType]" time="0.283"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re11/fixture')
+field = 'eventType', fault = 'wrong-field'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-sequence]" time="0.276"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re12/fixture')
+field = 'sequence', fault = 'wrong-field'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-serializationFormat]" time="0.278"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re13/fixture')
+field = 'serializationFormat', fault = 'wrong-field'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-payloadSha256]" time="0.275"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re14/fixture')
+field = 'payloadSha256', fault = 'wrong-field'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-selectedUtcTicks]" time="0.286"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re15/fixture')
+field = 'selectedUtcTicks', fault = 'wrong-field'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-missing-id]" time="0.292"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re16/fixture')
+field = 'missing-id', fault = 'wrong-field'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-invalid-time]" time="0.299"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_conflict_labels_re17/fixture')
+field = 'invalid-time', fault = 'wrong-field'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_SCHEMA_INVALID' if fault=='omitted' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[omitted-tenant]" time="0.275" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[omitted-conversation]" time="0.285" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[omitted-eventType]" time="0.282" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[omitted-sequence]" time="0.306" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[omitted-serializationFormat]" time="0.277" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[omitted-payloadSha256]" time="0.275" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[omitted-selectedUtcTicks]" time="0.291" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[omitted-missing-id]" time="0.274" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[omitted-invalid-time]" time="0.275" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_contract_malformed_counterparts_retain_actual_selected_bad_inputs[valid-missing-id]" time="0.271"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_contract_malformed0/fixture')
+field = 'missing-id', fault = 'valid'
+
+    @pytest.mark.parametrize('field',['missing-id','invalid-time'])
+    @pytest.mark.parametrize('fault',['valid','wrong-field','missing-variant'])
+    def test_round4_contract_malformed_counterparts_retain_actual_selected_bad_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field);variant=row['malformedVariants'][0]
+        if fault=='valid':variant['reused']=deepcopy(variant['original'])
+        elif fault=='missing-variant':row['malformedVariants']=[]
+        else:variant['reused']['sequence']+=1
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1729: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_contract_malformed_counterparts_retain_actual_selected_bad_inputs[valid-invalid-time]" time="0.278"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_contract_malformed1/fixture')
+field = 'invalid-time', fault = 'valid'
+
+    @pytest.mark.parametrize('field',['missing-id','invalid-time'])
+    @pytest.mark.parametrize('fault',['valid','wrong-field','missing-variant'])
+    def test_round4_contract_malformed_counterparts_retain_actual_selected_bad_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field);variant=row['malformedVariants'][0]
+        if fault=='valid':variant['reused']=deepcopy(variant['original'])
+        elif fault=='missing-variant':row['malformedVariants']=[]
+        else:variant['reused']['sequence']+=1
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1729: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_contract_malformed_counterparts_retain_actual_selected_bad_inputs[wrong-field-missing-id]" time="0.274"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_contract_malformed2/fixture')
+field = 'missing-id', fault = 'wrong-field'
+
+    @pytest.mark.parametrize('field',['missing-id','invalid-time'])
+    @pytest.mark.parametrize('fault',['valid','wrong-field','missing-variant'])
+    def test_round4_contract_malformed_counterparts_retain_actual_selected_bad_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field);variant=row['malformedVariants'][0]
+        if fault=='valid':variant['reused']=deepcopy(variant['original'])
+        elif fault=='missing-variant':row['malformedVariants']=[]
+        else:variant['reused']['sequence']+=1
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1729: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_contract_malformed_counterparts_retain_actual_selected_bad_inputs[wrong-field-invalid-time]" time="0.277"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_contract_malformed3/fixture')
+field = 'invalid-time', fault = 'wrong-field'
+
+    @pytest.mark.parametrize('field',['missing-id','invalid-time'])
+    @pytest.mark.parametrize('fault',['valid','wrong-field','missing-variant'])
+    def test_round4_contract_malformed_counterparts_retain_actual_selected_bad_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field);variant=row['malformedVariants'][0]
+        if fault=='valid':variant['reused']=deepcopy(variant['original'])
+        elif fault=='missing-variant':row['malformedVariants']=[]
+        else:variant['reused']['sequence']+=1
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1729: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_contract_malformed_counterparts_retain_actual_selected_bad_inputs[missing-variant-missing-id]" time="0.277"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_contract_malformed4/fixture')
+field = 'missing-id', fault = 'missing-variant'
+
+    @pytest.mark.parametrize('field',['missing-id','invalid-time'])
+    @pytest.mark.parametrize('fault',['valid','wrong-field','missing-variant'])
+    def test_round4_contract_malformed_counterparts_retain_actual_selected_bad_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field);variant=row['malformedVariants'][0]
+        if fault=='valid':variant['reused']=deepcopy(variant['original'])
+        elif fault=='missing-variant':row['malformedVariants']=[]
+        else:variant['reused']['sequence']+=1
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1729: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_contract_malformed_counterparts_retain_actual_selected_bad_inputs[missing-variant-invalid-time]" time="0.292"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-368/test_round4_contract_malformed5/fixture')
+field = 'invalid-time', fault = 'missing-variant'
+
+    @pytest.mark.parametrize('field',['missing-id','invalid-time'])
+    @pytest.mark.parametrize('fault',['valid','wrong-field','missing-variant'])
+    def test_round4_contract_malformed_counterparts_retain_actual_selected_bad_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field);variant=row['malformedVariants'][0]
+        if fault=='valid':variant['reused']=deepcopy(variant['original'])
+        elif fault=='missing-variant':row['malformedVariants']=[]
+        else:variant['reused']['sequence']+=1
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1729: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

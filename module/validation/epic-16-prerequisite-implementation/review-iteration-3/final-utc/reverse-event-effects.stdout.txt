@@ -1,0 +1,88 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_each_reverse_schedule_requires_its_actual_authoritative_event_effect[1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-313/test_each_reverse_schedule_req0/fixture')
+schedule = 1
+
+    @pytest.mark.parametrize('schedule',[1,2,3])
+    def test_each_reverse_schedule_requires_its_actual_authoritative_event_effect(repository,schedule):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03'])
+        data['reverseSaves'][schedule]['authoritativeReplay']=deepcopy(data['authoritativeReplay'])
+>       native(repository,'AC-16.1-03',data);rejected(evaluate(repository,'AC-16.1-03'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1454: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_reverse_schedule_requires_its_actual_authoritative_event_effect[2] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-313/test_each_reverse_schedule_req1/fixture')
+schedule = 2
+
+    @pytest.mark.parametrize('schedule',[1,2,3])
+    def test_each_reverse_schedule_requires_its_actual_authoritative_event_effect(repository,schedule):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03'])
+        data['reverseSaves'][schedule]['authoritativeReplay']=deepcopy(data['authoritativeReplay'])
+>       native(repository,'AC-16.1-03',data);rejected(evaluate(repository,'AC-16.1-03'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1454: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_each_reverse_schedule_requires_its_actual_authoritative_event_effect[3] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-313/test_each_reverse_schedule_req2/fixture')
+schedule = 3
+
+    @pytest.mark.parametrize('schedule',[1,2,3])
+    def test_each_reverse_schedule_requires_its_actual_authoritative_event_effect(repository,schedule):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03'])
+        data['reverseSaves'][schedule]['authoritativeReplay']=deepcopy(data['authoritativeReplay'])
+>       native(repository,'AC-16.1-03',data);rejected(evaluate(repository,'AC-16.1-03'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1454: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_reverse_schedule_requires_its_actual_authoritative_event_effect[1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_reverse_schedule_requires_its_actual_authoritative_event_effect[2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_each_reverse_schedule_requires_its_actual_authoritative_event_effect[3]
+3 failed, 587 deselected in 1.32s

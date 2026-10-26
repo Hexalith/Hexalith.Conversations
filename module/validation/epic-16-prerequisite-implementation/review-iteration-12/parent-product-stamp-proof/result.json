@@ -1,0 +1,50 @@
+{
+  "id": "R12P1",
+  "work": "/tmp/epic16-r12-product-stamp-kp2h5b2d",
+  "admitted": true,
+  "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "commands": [
+    {
+      "name": "helper",
+      "argv": [
+        "dotnet",
+        "build",
+        "/tmp/epic16-r12-product-stamp-kp2h5b2d/helper/Epic16.NativeHelper.csproj",
+        "-c",
+        "Debug",
+        "--nologo",
+        "-m:1",
+        "-p:NuGetAudit=false"
+      ],
+      "cwd": "/tmp/epic16-r12-product-stamp-kp2h5b2d",
+      "exit": 0
+    },
+    {
+      "name": "product",
+      "argv": [
+        "dotnet",
+        "build",
+        "/tmp/epic16-r12-product-stamp-kp2h5b2d/product/Product.csproj",
+        "-c",
+        "Debug",
+        "--nologo",
+        "-m:1",
+        "-p:NuGetAudit=false"
+      ],
+      "cwd": "/tmp/epic16-r12-product-stamp-kp2h5b2d",
+      "exit": 0
+    },
+    {
+      "name": "inspect",
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-r12-product-stamp-kp2h5b2d/helper/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-r12-product-stamp-kp2h5b2d",
+      "exit": 0
+    }
+  ],
+  "sourceEpoch": "Exact iteration-11 verified helper restored from the immutable iteration-12 preservation copy.",
+  "scope": "Synthetic external stamp; no runtime qualification"
+}

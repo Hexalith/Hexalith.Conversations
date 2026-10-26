@@ -1,0 +1,15 @@
+{
+  "repository": {
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "globalJsonPresent": true,
+    "sdk": "10.0.402",
+    "exitCode": 0
+  },
+  "helper": {
+    "cwd": "/tmp/epic16-native-oracle-h1vvcklb",
+    "globalJsonPresent": false,
+    "sdk": "10.0.402",
+    "exitCode": 0
+  },
+  "helperHasToolchainEvidenceOperation": false
+}

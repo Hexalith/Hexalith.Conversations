@@ -1,0 +1,87 @@
+{
+  "policySha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652",
+  "sdk": "10.0.402",
+  "runtime": {
+    "frameworkDescription": ".NET 10.0.13",
+    "runtimeVersion": "10.0.13",
+    "targetFramework": ".NETCoreApp,Version=v10.0",
+    "coreLibraryIdentity": "System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e"
+  },
+  "runtimeConfig": {
+    "runtimeOptions": {
+      "tfm": "net10.0",
+      "framework": {
+        "name": "Microsoft.NETCore.App",
+        "version": "10.0.0"
+      },
+      "configProperties": {
+        "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false
+      }
+    }
+  },
+  "helperSha256": "13b414db121769d6f480d4ba6904c161c26496565e3baed01f37008b1b316f8d",
+  "sourceSnapshotSha256": "eac619e5a3c2611074f1c69290f12293e0ae21127ec4776b51a3b2fcfd9e8bd7",
+  "retained": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/Epic16.NativeHelper.csproj",
+      "sha256": "f3057cab73b03ec077940f41c8b23a30032c563c1989dc680ac7b60764d4fcb5"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/EventStore-LICENSE",
+      "sha256": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/ProductMetadata.cs",
+      "sha256": "aaf38dd6f1eb0734cd8c9be83bda4a766ed578294ab14616bdbdd9ed6b29e005"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/Program.cs",
+      "sha256": "a7993e5c4eea5da52cfb36ae85ef990c7a1c6cb06e7c45f58c6d2374028363b8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/README.md",
+      "sha256": "44ea11ecd03231efc96ef27a1fd7e5977d64630d1d6dfae78fd86555a9f4587b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/ReadModelBatchCanonicalJson.cs",
+      "sha256": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/SignatureNames.cs",
+      "sha256": "c7598398a621cab9d559e4b384c548867ccc5529265f15665935275cb9f6c856"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/TestConstruction.cs",
+      "sha256": "dd69b9053eacb9457146cbad909157dd2f6c5fd9f0430eabb04e67658699faeb"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper",
+      "sha256": "0b62e3b2fd6f2d82e6b271b9cf95c85a562cd4492dab0e71e94baef90e6330cd"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.deps.json",
+      "sha256": "a594d984eaa401ad05a40ac326c1070d7db6e0287cd2391a97e1cbbfcc44a185"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.dll",
+      "sha256": "13b414db121769d6f480d4ba6904c161c26496565e3baed01f37008b1b316f8d"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.pdb",
+      "sha256": "0538d42429fc0888870aaf17d5035e9c6a9432b2d55bfae922d05bc562968fd7"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.runtimeconfig.json",
+      "sha256": "f9bc8e9f0c46247078ed47309f19a7576b4b94e4300e9de0003917d6bd2d667a"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/execution-toolchain.json",
+      "sha256": "6f1898a9713d1dba9b2fedc0cfac9ad19d75b27bf01f9bda31775ac00e7b491a"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/helper-toolchain/global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+    }
+  ],
+  "scope": "fixed trusted helper only; evidence assemblies are not executed by the consumer"
+}

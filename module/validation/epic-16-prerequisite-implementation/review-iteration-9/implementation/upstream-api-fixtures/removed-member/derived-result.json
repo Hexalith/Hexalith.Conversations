@@ -1,0 +1,56 @@
+{
+  "assertionLedger": [
+    {
+      "id": "preservation",
+      "state": "PASS",
+      "subject": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json"
+    },
+    {
+      "id": "UPSTREAM_API_DRIFT",
+      "state": "FAIL",
+      "subject": "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler"
+    }
+  ],
+  "authority": {
+    "executionAllowed": false,
+    "implementationHold": "ACTIVE",
+    "ownerApprovalClaimed": false,
+    "pushAuthorized": false,
+    "releaseAuthorized": false
+  },
+  "bindings": {},
+  "blockers": [
+    "UPSTREAM_API_DRIFT"
+  ],
+  "candidate": {
+    "changedPaths": [
+      "references/Hexalith.Tenants",
+      "src/Hexalith.Conversations.Server/Program.cs"
+    ],
+    "commit": "eda154edd361abd21eaf783bbf291a6123842ce5",
+    "gitlinks": [
+      {
+        "commit": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+        "path": "references/Hexalith.EventStore"
+      },
+      {
+        "commit": "86e22d0e4249c39f8c528164c1789e96a59a71a8",
+        "path": "references/Hexalith.Tenants"
+      }
+    ],
+    "parent": "f3b7d69f0d3fe163113284c0f83048b037b74b9d"
+  },
+  "counts": {
+    "failed": 0,
+    "passed": 0,
+    "skipped": 0,
+    "total": 0
+  },
+  "exitCode": 1,
+  "result": "FAIL",
+  "runtimeQualified": false,
+  "scenarioId": "AC-16.1-05",
+  "schemaVersion": "hexalith.conversations.epic16-measured-result.v1",
+  "storyId": "16.1",
+  "validationScope": "tooling-fixture"
+}

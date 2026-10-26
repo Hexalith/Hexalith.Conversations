@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="14" time="5.596" timestamp="2026-10-26T00:09:44.429936+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[ -4-delivery]" time="0.348"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-492/test_round8_acknowledgement_na0/fixture')
+index = 4, identity = 'delivery', value = ' '
+
+    @pytest.mark.parametrize('index,identity',[(i,'delivery') for i in range(6)]+[(i,'record') for i in range(4)])
+    @pytest.mark.parametrize('value',[' ', '\t', '\u00a0','\x1c','\x1d','\x1e','\x1f'])
+    def test_round8_acknowledgement_native_identity_semantics(repository,index,identity,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index]
+        if identity=='delivery':
+            row['deliveryId']=value
+            for key in ('durableCommit','acknowledgement'):
+                if row[key] is not None:row[key]['deliveryId']=value
+        elif row['durableCommit'] is not None:
+            row['durableCommit']['recordId']=row['acknowledgement']['recordId']=value
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=value in ('\x1c','\x1d','\x1e','\x1f'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:2880: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-492/test_round8_acknowledgement_na0/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[ -5-delivery]" time="0.324"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-492/test_round8_acknowledgement_na1/fixture')
+index = 5, identity = 'delivery', value = ' '
+
+    @pytest.mark.parametrize('index,identity',[(i,'delivery') for i in range(6)]+[(i,'record') for i in range(4)])
+    @pytest.mark.parametrize('value',[' ', '\t', '\u00a0','\x1c','\x1d','\x1e','\x1f'])
+    def test_round8_acknowledgement_native_identity_semantics(repository,index,identity,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index]
+        if identity=='delivery':
+            row['deliveryId']=value
+            for key in ('durableCommit','acknowledgement'):
+                if row[key] is not None:row[key]['deliveryId']=value
+        elif row['durableCommit'] is not None:
+            row['durableCommit']['recordId']=row['acknowledgement']['recordId']=value
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=value in ('\x1c','\x1d','\x1e','\x1f'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:2880: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-492/test_round8_acknowledgement_na1/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[\t-4-delivery]" time="0.333"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-492/test_round8_acknowledgement_na2/fixture')
+index = 4, identity = 'delivery', value = '\t'
+
+    @pytest.mark.parametrize('index,identity',[(i,'delivery') for i in range(6)]+[(i,'record') for i in range(4)])
+    @pytest.mark.parametrize('value',[' ', '\t', '\u00a0','\x1c','\x1d','\x1e','\x1f'])
+    def test_round8_acknowledgement_native_identity_semantics(repository,index,identity,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index]
+        if identity=='delivery':
+            row['deliveryId']=value
+            for key in ('durableCommit','acknowledgement'):
+                if row[key] is not None:row[key]['deliveryId']=value
+        elif row['durableCommit'] is not None:
+            row['durableCommit']['recordId']=row['acknowledgement']['recordId']=value
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=value in ('\x1c','\x1d','\x1e','\x1f'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:2880: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-492/test_round8_acknowledgement_na2/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[\t-5-delivery]" time="0.347"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-492/test_round8_acknowledgement_na3/fixture')
+index = 5, identity = 'delivery', value = '\t'
+
+    @pytest.mark.parametrize('index,identity',[(i,'delivery') for i in range(6)]+[(i,'record') for i in range(4)])
+    @pytest.mark.parametrize('value',[' ', '\t', '\u00a0','\x1c','\x1d','\x1e','\x1f'])
+    def test_round8_acknowledgement_native_identity_semantics(repository,index,identity,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index]
+        if identity=='delivery':
+            row['deliveryId']=value
+            for key in ('durableCommit','acknowledgement'):
+                if row[key] is not None:row[key]['deliveryId']=value
+        elif row['durableCommit'] is not None:
+            row['durableCommit']['recordId']=row['acknowledgement']['recordId']=value
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=value in ('\x1c','\x1d','\x1e','\x1f'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:2880: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-492/test_round8_acknowledgement_na3/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[\xa0-4-delivery]" time="0.329"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-492/test_round8_acknowledgement_na4/fixture')
+index = 4, identity = 'delivery', value = '\xa0'
+
+    @pytest.mark.parametrize('index,identity',[(i,'delivery') for i in range(6)]+[(i,'record') for i in range(4)])
+    @pytest.mark.parametrize('value',[' ', '\t', '\u00a0','\x1c','\x1d','\x1e','\x1f'])
+    def test_round8_acknowledgement_native_identity_semantics(repository,index,identity,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index]
+        if identity=='delivery':
+            row['deliveryId']=value
+            for key in ('durableCommit','acknowledgement'):
+                if row[key] is not None:row[key]['deliveryId']=value
+        elif row['durableCommit'] is not None:
+            row['durableCommit']['recordId']=row['acknowledgement']['recordId']=value
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=value in ('\x1c','\x1d','\x1e','\x1f'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:2880: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-492/test_round8_acknowledgement_na4/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[\xa0-5-delivery]" time="0.309"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-492/test_round8_acknowledgement_na5/fixture')
+index = 5, identity = 'delivery', value = '\xa0'
+
+    @pytest.mark.parametrize('index,identity',[(i,'delivery') for i in range(6)]+[(i,'record') for i in range(4)])
+    @pytest.mark.parametrize('value',[' ', '\t', '\u00a0','\x1c','\x1d','\x1e','\x1f'])
+    def test_round8_acknowledgement_native_identity_semantics(repository,index,identity,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index]
+        if identity=='delivery':
+            row['deliveryId']=value
+            for key in ('durableCommit','acknowledgement'):
+                if row[key] is not None:row[key]['deliveryId']=value
+        elif row['durableCommit'] is not None:
+            row['durableCommit']['recordId']=row['acknowledgement']['recordId']=value
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=value in ('\x1c','\x1d','\x1e','\x1f'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:2880: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-492/test_round8_acknowledgement_na5/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[\x1c-4-delivery]" time="0.329" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[\x1c-5-delivery]" time="0.322" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[\x1d-4-delivery]" time="0.327" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[\x1d-5-delivery]" time="0.324" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[\x1e-4-delivery]" time="0.331" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[\x1e-5-delivery]" time="0.323" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[\x1f-4-delivery]" time="0.356" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_acknowledgement_native_identity_semantics[\x1f-5-delivery]" time="0.336" /></testsuite></testsuites>

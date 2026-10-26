@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/ProductMetadata.cs
++++ _bmad/scripts/epic16_native_helper/ProductMetadata.cs
+@@ -38,7 +38,7 @@
+             if (value.ReadUInt16() != 1) throw new BadImageFormatException();
+             string? key = value.ReadSerializedString();
+             string? content = informational ? key : value.ReadSerializedString();
+-            if (value.ReadUInt16() != 0 || value.RemainingBytes != 0) throw new BadImageFormatException();
++            _ = value.ReadUInt16();
+             if (informational) versions.Add(content ?? "");
+             else if (key == "SourceRevisionId") revisions.Add(content ?? "");
+         }

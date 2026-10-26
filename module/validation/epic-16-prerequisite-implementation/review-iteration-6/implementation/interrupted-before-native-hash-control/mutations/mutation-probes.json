@@ -1,0 +1,137 @@
+[
+  {
+    "name": "retained-publication",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review6-mutant-retained-publication-xtsznhp1/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round5_runtime_insertion_caller",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/mutations/retained-publication.xml"
+    ],
+    "workspace": "/tmp/epic16-review6-mutant-retained-publication-xtsznhp1",
+    "exitCode": 1,
+    "elapsedSeconds": 16.667,
+    "replacements": 1,
+    "originalSha256": "e395a87a394e72e2d6f8116f6f2a66f103015c96203d0c1ab4081b5d267ece05",
+    "mutatedSha256": "d2d933e19df6d80eabb577a57eb644e76eff10531bf8cb60790a27a943c92fa4",
+    "stdoutSha256": "9bd97603597aad575455ce22cbdd8101def9b2f1f672122a2e6f1a8a25cd22f6",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "native-capture-binding",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review6-mutant-native-capture-binding-hyvmiskz/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round6_capture_rejects_changed and (native-path or native-hash or original-codebase)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/mutations/native-capture-binding.xml"
+    ],
+    "workspace": "/tmp/epic16-review6-mutant-native-capture-binding-hyvmiskz",
+    "exitCode": 1,
+    "elapsedSeconds": 6.127,
+    "replacements": 1,
+    "originalSha256": "c5ffc2329228ba4ce748ac28307157531c82a74e803c6e237f987acc0629226f",
+    "mutatedSha256": "1a570972f3b17a795ff431eb196a133826212368e851498c3fef1a7a47ef2b7d",
+    "stdoutSha256": "bcf58e9cb57e37168072377bfa9bbcf14bd7d88a5ac28321f04e293e0b1d46f3",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 3,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "original-capture-path",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review6-mutant-original-capture-path-3gp972kb/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round6_capture_rejects_changed and (traversal-root or relative-mapping or foreign-original)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/mutations/original-capture-path.xml"
+    ],
+    "workspace": "/tmp/epic16-review6-mutant-original-capture-path-3gp972kb",
+    "exitCode": 1,
+    "elapsedSeconds": 5.474,
+    "replacements": 1,
+    "originalSha256": "c5ffc2329228ba4ce748ac28307157531c82a74e803c6e237f987acc0629226f",
+    "mutatedSha256": "d76ec9c5af55bdc6c798e8bca4cf74a8f4468e7d672639d409c215bd5f27c953",
+    "stdoutSha256": "608b54bb8bcfcee1a9186da640a4c6ff1e5258a3dd1f84afddc36d9bf00d3544",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 3,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "retained-location",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review6-mutant-retained-location-u7mtd9jw/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round6_capture_rejects_changed and retained-outside",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/mutations/retained-location.xml"
+    ],
+    "workspace": "/tmp/epic16-review6-mutant-retained-location-u7mtd9jw",
+    "exitCode": 1,
+    "elapsedSeconds": 4.731,
+    "replacements": 1,
+    "originalSha256": "c5ffc2329228ba4ce748ac28307157531c82a74e803c6e237f987acc0629226f",
+    "mutatedSha256": "2fc8fec130476d022177578e1be287ae90b5acf0fc0fd750debc544bbdec5e30",
+    "stdoutSha256": "e51a4e53dd3e33b062a4be9193c6a5269ca40f551b5eb5f638b2e84379a9c626",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "retained-byte-hash",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review6-mutant-retained-byte-hash-oj51rwr3/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round6_capture_rejects_changed and binary-byte",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/mutations/retained-byte-hash.xml"
+    ],
+    "workspace": "/tmp/epic16-review6-mutant-retained-byte-hash-oj51rwr3",
+    "exitCode": 0,
+    "elapsedSeconds": 4.595,
+    "replacements": 1,
+    "originalSha256": "c5ffc2329228ba4ce748ac28307157531c82a74e803c6e237f987acc0629226f",
+    "mutatedSha256": "92c1d8f5600ecd467f8170bd1422a0b5d25a2d39c7e09cee6942462404cb2810",
+    "stdoutSha256": "f2741539e4faa77a875406e4446f6b17670f258e6b35d91b1dbbf83fab755bae",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+]

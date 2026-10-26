@@ -1,0 +1,72 @@
+.FFFF.                                                                   [100%]
+=================================== FAILURES ===================================
+_ test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[2026-01-02T03:04:05+00:60] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-362/test_native_datetimeoffset_rej1/fixture')
+value = '2026-01-02T03:04:05+00:60'
+
+    @pytest.mark.parametrize('value',['2026-01-02T03:04:05.١Z','2026-01-02T03:04:05+00:60','2026-01-02T03:04:05-01:99','2026-01-02T03:04:05+14:01','2026-01-02T03:04:05-15:00','9999-12-31T23:59:59.9999999-00:01'])
+    def test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably(repository,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=data['events'][0];env=row['authoritativeEnvelope'];body=json.loads(env['payload'])
+        body['metadata']['occurredAt']=body['createdAt']=value
+        row['persistedPayload']=env['payload']=json.dumps(body);row['binding']['payloadSha256']=digest(env['payload'].encode())
+        native(repository,'AC-16.2-01',data)
+        rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+>       with pytest.raises(ValueError):tooling.measurements.domain.timestamp(value)
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1513: Failed
+_ test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[2026-01-02T03:04:05-01:99] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-362/test_native_datetimeoffset_rej2/fixture')
+value = '2026-01-02T03:04:05-01:99'
+
+    @pytest.mark.parametrize('value',['2026-01-02T03:04:05.١Z','2026-01-02T03:04:05+00:60','2026-01-02T03:04:05-01:99','2026-01-02T03:04:05+14:01','2026-01-02T03:04:05-15:00','9999-12-31T23:59:59.9999999-00:01'])
+    def test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably(repository,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=data['events'][0];env=row['authoritativeEnvelope'];body=json.loads(env['payload'])
+        body['metadata']['occurredAt']=body['createdAt']=value
+        row['persistedPayload']=env['payload']=json.dumps(body);row['binding']['payloadSha256']=digest(env['payload'].encode())
+        native(repository,'AC-16.2-01',data)
+        rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+>       with pytest.raises(ValueError):tooling.measurements.domain.timestamp(value)
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1513: Failed
+_ test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[2026-01-02T03:04:05+14:01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-362/test_native_datetimeoffset_rej3/fixture')
+value = '2026-01-02T03:04:05+14:01'
+
+    @pytest.mark.parametrize('value',['2026-01-02T03:04:05.١Z','2026-01-02T03:04:05+00:60','2026-01-02T03:04:05-01:99','2026-01-02T03:04:05+14:01','2026-01-02T03:04:05-15:00','9999-12-31T23:59:59.9999999-00:01'])
+    def test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably(repository,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=data['events'][0];env=row['authoritativeEnvelope'];body=json.loads(env['payload'])
+        body['metadata']['occurredAt']=body['createdAt']=value
+        row['persistedPayload']=env['payload']=json.dumps(body);row['binding']['payloadSha256']=digest(env['payload'].encode())
+        native(repository,'AC-16.2-01',data)
+        rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+>       with pytest.raises(ValueError):tooling.measurements.domain.timestamp(value)
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1513: Failed
+_ test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[2026-01-02T03:04:05-15:00] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-362/test_native_datetimeoffset_rej4/fixture')
+value = '2026-01-02T03:04:05-15:00'
+
+    @pytest.mark.parametrize('value',['2026-01-02T03:04:05.١Z','2026-01-02T03:04:05+00:60','2026-01-02T03:04:05-01:99','2026-01-02T03:04:05+14:01','2026-01-02T03:04:05-15:00','9999-12-31T23:59:59.9999999-00:01'])
+    def test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably(repository,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=data['events'][0];env=row['authoritativeEnvelope'];body=json.loads(env['payload'])
+        body['metadata']['occurredAt']=body['createdAt']=value
+        row['persistedPayload']=env['payload']=json.dumps(body);row['binding']['payloadSha256']=digest(env['payload'].encode())
+        native(repository,'AC-16.2-01',data)
+        rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+>       with pytest.raises(ValueError):tooling.measurements.domain.timestamp(value)
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1513: Failed
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[2026-01-02T03:04:05+00:60]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[2026-01-02T03:04:05-01:99]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[2026-01-02T03:04:05+14:01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[2026-01-02T03:04:05-15:00]
+4 failed, 2 passed, 790 deselected in 2.02s

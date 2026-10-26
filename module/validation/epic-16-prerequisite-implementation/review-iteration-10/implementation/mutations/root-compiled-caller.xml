@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="33.979" timestamp="2026-10-26T03:28:09.119666+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_external_build_inputs_cannot_change_root_public_shape_behind_equal_sources[remove-AC-16.1-05]" time="20.169"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-586/test_round10_external_build_in0/fixture')
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-586/test_round10_external_build_in0')
+scenario = 'AC-16.1-05', effect = 'remove'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('effect',['remove','generate'])
+    def test_round10_external_build_inputs_cannot_change_root_public_shape_behind_equal_sources(repository,tmp_path,scenario,effect):
+        repo=repository;story=scenario[3:7];directory=repo/'src/Hexalith.Conversations.Contracts'
+        (directory/'Contract.cs').write_text('namespace Hexalith.Conversations.Contracts.Projections; public class ConversationDetailProjectionV1 {}\n')
+        (directory/'PreviouslyPublic.cs').write_text('namespace Hexalith.Conversations.Contracts; public class PreviouslyPublic {}\n')
+        project='&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;AssemblyName&gt;Hexalith.Conversations.Contracts&lt;/AssemblyName&gt;&lt;/PropertyGroup&gt;&lt;/Project&gt;'
+        (directory/'Contracts.csproj').write_text(project)
+        targets=repo/'Directory.Build.targets';targets.write_text('&lt;Project /&gt;\n')
+        warning=repo/tooling.measurements.execution.WARNING_PATH;warning.write_bytes(b'// SINGLE-REPLICA-ONLY: synthetic disposable warning surface.\n')
+        git(repo,'add','.');git(repo,'commit','-qm','test: bind disposable compiled root baseline');baseline=git(repo,'rev-parse','HEAD')
+        if effect=='remove':targets.write_text('&lt;Project&gt;&lt;ItemGroup&gt;&lt;Compile Remove="PreviouslyPublic.cs" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;\n')
+        else:targets.write_text('&lt;Project&gt;&lt;Target Name="GenerateFixtureContract" BeforeTargets="CoreCompile"&gt;&lt;WriteLinesToFile File="$(IntermediateOutputPath)Generated.cs" Lines="namespace Synthetic { public class Generated {} }" Overwrite="true" /&gt;&lt;ItemGroup&gt;&lt;Compile Include="$(IntermediateOutputPath)Generated.cs" /&gt;&lt;/ItemGroup&gt;&lt;/Target&gt;&lt;/Project&gt;\n')
+        warning.write_bytes(b'// Synthetic disposable candidate with qualified durable projection.\n')
+        git(repo,'add','.');git(repo,'commit','-qm','test: alter only external root compilation input');candidate=git(repo,'rev-parse','HEAD')
+        for ac in tooling.measurements.SCENARIOS:native(repo,ac)
+        data=deepcopy(OBSERVATIONS[scenario]);manifests=[];compiled={}
+        for phase,revision in (('baseline',baseline),('candidate',candidate)):
+            paths=git(repo,'ls-tree','-r','--name-only',revision,'--','src/Hexalith.Conversations.Contracts').splitlines()
+            manifests.append([dict(path=p,sha256=digest(records.v2_committed_blob(repo,revision,p))) for p in paths])
+            build=tmp_path/('external-build-'+phase);source=build/'src/Hexalith.Conversations.Contracts';source.mkdir(parents=True)
+            (build/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+            (build/'Directory.Build.targets').write_bytes(records.v2_committed_blob(repo,revision,'Directory.Build.targets'))
+            for path in paths:(build/path).write_bytes(records.v2_committed_blob(repo,revision,path))
+            command=['dotnet','build','Contracts.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false','-p:SourceRevisionId='+revision]
+            run=subprocess.run(command,cwd=source,capture_output=True,timeout=120);assert run.returncode==0,run.stdout
+            binary=(source/'bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll').read_bytes();retained=f'artifacts/epic16-tooling-fixture/{story}/binaries/{digest(binary)}.dll';(repo/retained).write_bytes(binary)
+            compiled[phase]=dict(path=retained,sha256=digest(binary),revision=revision)
+            if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+                out=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('root-build-'+story+'-'+effect)/phase;out.mkdir(parents=True,exist_ok=True)
+                (out/'Contracts.dll').write_bytes(binary);(out/'Directory.Build.targets').write_bytes((build/'Directory.Build.targets').read_bytes())
+                for path in paths:shutil.copyfile(build/path,out/Path(path).name)
+                (out/'build.stdout').write_bytes(run.stdout);(out/'build.stderr').write_bytes(run.stderr);(out/'command.json').write_text(json.dumps(dict(command=command,exitCode=run.returncode,revision=revision),indent=2)+'\n')
+        assert manifests[0]==manifests[1]
+        data.update(compiledContracts=compiled,contractSourcesBefore=manifests[0],contractSourcesAfter=manifests[1],beforeContractSha256=digest(tooling.canonical(manifests[0])),afterContractSha256=digest(tooling.canonical(manifests[1])))
+&gt;       native(repo,scenario,data);result=evaluate(repo,scenario);rejected(result,'ROOT_API_DRIFT')
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3904: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'ROOT_API_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_external_build_inputs_cannot_change_root_public_shape_behind_equal_sources[remove-AC-16.2-05]" time="3.846"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-586/test_round10_external_build_in1/fixture')
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-586/test_round10_external_build_in1')
+scenario = 'AC-16.2-05', effect = 'remove'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('effect',['remove','generate'])
+    def test_round10_external_build_inputs_cannot_change_root_public_shape_behind_equal_sources(repository,tmp_path,scenario,effect):
+        repo=repository;story=scenario[3:7];directory=repo/'src/Hexalith.Conversations.Contracts'
+        (directory/'Contract.cs').write_text('namespace Hexalith.Conversations.Contracts.Projections; public class ConversationDetailProjectionV1 {}\n')
+        (directory/'PreviouslyPublic.cs').write_text('namespace Hexalith.Conversations.Contracts; public class PreviouslyPublic {}\n')
+        project='&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;AssemblyName&gt;Hexalith.Conversations.Contracts&lt;/AssemblyName&gt;&lt;/PropertyGroup&gt;&lt;/Project&gt;'
+        (directory/'Contracts.csproj').write_text(project)
+        targets=repo/'Directory.Build.targets';targets.write_text('&lt;Project /&gt;\n')
+        warning=repo/tooling.measurements.execution.WARNING_PATH;warning.write_bytes(b'// SINGLE-REPLICA-ONLY: synthetic disposable warning surface.\n')
+        git(repo,'add','.');git(repo,'commit','-qm','test: bind disposable compiled root baseline');baseline=git(repo,'rev-parse','HEAD')
+        if effect=='remove':targets.write_text('&lt;Project&gt;&lt;ItemGroup&gt;&lt;Compile Remove="PreviouslyPublic.cs" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;\n')
+        else:targets.write_text('&lt;Project&gt;&lt;Target Name="GenerateFixtureContract" BeforeTargets="CoreCompile"&gt;&lt;WriteLinesToFile File="$(IntermediateOutputPath)Generated.cs" Lines="namespace Synthetic { public class Generated {} }" Overwrite="true" /&gt;&lt;ItemGroup&gt;&lt;Compile Include="$(IntermediateOutputPath)Generated.cs" /&gt;&lt;/ItemGroup&gt;&lt;/Target&gt;&lt;/Project&gt;\n')
+        warning.write_bytes(b'// Synthetic disposable candidate with qualified durable projection.\n')
+        git(repo,'add','.');git(repo,'commit','-qm','test: alter only external root compilation input');candidate=git(repo,'rev-parse','HEAD')
+        for ac in tooling.measurements.SCENARIOS:native(repo,ac)
+        data=deepcopy(OBSERVATIONS[scenario]);manifests=[];compiled={}
+        for phase,revision in (('baseline',baseline),('candidate',candidate)):
+            paths=git(repo,'ls-tree','-r','--name-only',revision,'--','src/Hexalith.Conversations.Contracts').splitlines()
+            manifests.append([dict(path=p,sha256=digest(records.v2_committed_blob(repo,revision,p))) for p in paths])
+            build=tmp_path/('external-build-'+phase);source=build/'src/Hexalith.Conversations.Contracts';source.mkdir(parents=True)
+            (build/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+            (build/'Directory.Build.targets').write_bytes(records.v2_committed_blob(repo,revision,'Directory.Build.targets'))
+            for path in paths:(build/path).write_bytes(records.v2_committed_blob(repo,revision,path))
+            command=['dotnet','build','Contracts.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false','-p:SourceRevisionId='+revision]
+            run=subprocess.run(command,cwd=source,capture_output=True,timeout=120);assert run.returncode==0,run.stdout
+            binary=(source/'bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll').read_bytes();retained=f'artifacts/epic16-tooling-fixture/{story}/binaries/{digest(binary)}.dll';(repo/retained).write_bytes(binary)
+            compiled[phase]=dict(path=retained,sha256=digest(binary),revision=revision)
+            if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+                out=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('root-build-'+story+'-'+effect)/phase;out.mkdir(parents=True,exist_ok=True)
+                (out/'Contracts.dll').write_bytes(binary);(out/'Directory.Build.targets').write_bytes((build/'Directory.Build.targets').read_bytes())
+                for path in paths:shutil.copyfile(build/path,out/Path(path).name)
+                (out/'build.stdout').write_bytes(run.stdout);(out/'build.stderr').write_bytes(run.stderr);(out/'command.json').write_text(json.dumps(dict(command=command,exitCode=run.returncode,revision=revision),indent=2)+'\n')
+        assert manifests[0]==manifests[1]
+        data.update(compiledContracts=compiled,contractSourcesBefore=manifests[0],contractSourcesAfter=manifests[1],beforeContractSha256=digest(tooling.canonical(manifests[0])),afterContractSha256=digest(tooling.canonical(manifests[1])))
+&gt;       native(repo,scenario,data);result=evaluate(repo,scenario);rejected(result,'ROOT_API_DRIFT')
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3904: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'ROOT_API_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_external_build_inputs_cannot_change_root_public_shape_behind_equal_sources[generate-AC-16.1-05]" time="5.272"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-586/test_round10_external_build_in2/fixture')
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-586/test_round10_external_build_in2')
+scenario = 'AC-16.1-05', effect = 'generate'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('effect',['remove','generate'])
+    def test_round10_external_build_inputs_cannot_change_root_public_shape_behind_equal_sources(repository,tmp_path,scenario,effect):
+        repo=repository;story=scenario[3:7];directory=repo/'src/Hexalith.Conversations.Contracts'
+        (directory/'Contract.cs').write_text('namespace Hexalith.Conversations.Contracts.Projections; public class ConversationDetailProjectionV1 {}\n')
+        (directory/'PreviouslyPublic.cs').write_text('namespace Hexalith.Conversations.Contracts; public class PreviouslyPublic {}\n')
+        project='&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;AssemblyName&gt;Hexalith.Conversations.Contracts&lt;/AssemblyName&gt;&lt;/PropertyGroup&gt;&lt;/Project&gt;'
+        (directory/'Contracts.csproj').write_text(project)
+        targets=repo/'Directory.Build.targets';targets.write_text('&lt;Project /&gt;\n')
+        warning=repo/tooling.measurements.execution.WARNING_PATH;warning.write_bytes(b'// SINGLE-REPLICA-ONLY: synthetic disposable warning surface.\n')
+        git(repo,'add','.');git(repo,'commit','-qm','test: bind disposable compiled root baseline');baseline=git(repo,'rev-parse','HEAD')
+        if effect=='remove':targets.write_text('&lt;Project&gt;&lt;ItemGroup&gt;&lt;Compile Remove="PreviouslyPublic.cs" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;\n')
+        else:targets.write_text('&lt;Project&gt;&lt;Target Name="GenerateFixtureContract" BeforeTargets="CoreCompile"&gt;&lt;WriteLinesToFile File="$(IntermediateOutputPath)Generated.cs" Lines="namespace Synthetic { public class Generated {} }" Overwrite="true" /&gt;&lt;ItemGroup&gt;&lt;Compile Include="$(IntermediateOutputPath)Generated.cs" /&gt;&lt;/ItemGroup&gt;&lt;/Target&gt;&lt;/Project&gt;\n')
+        warning.write_bytes(b'// Synthetic disposable candidate with qualified durable projection.\n')
+        git(repo,'add','.');git(repo,'commit','-qm','test: alter only external root compilation input');candidate=git(repo,'rev-parse','HEAD')
+        for ac in tooling.measurements.SCENARIOS:native(repo,ac)
+        data=deepcopy(OBSERVATIONS[scenario]);manifests=[];compiled={}
+        for phase,revision in (('baseline',baseline),('candidate',candidate)):
+            paths=git(repo,'ls-tree','-r','--name-only',revision,'--','src/Hexalith.Conversations.Contracts').splitlines()
+            manifests.append([dict(path=p,sha256=digest(records.v2_committed_blob(repo,revision,p))) for p in paths])
+            build=tmp_path/('external-build-'+phase);source=build/'src/Hexalith.Conversations.Contracts';source.mkdir(parents=True)
+            (build/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+            (build/'Directory.Build.targets').write_bytes(records.v2_committed_blob(repo,revision,'Directory.Build.targets'))
+            for path in paths:(build/path).write_bytes(records.v2_committed_blob(repo,revision,path))
+            command=['dotnet','build','Contracts.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false','-p:SourceRevisionId='+revision]
+            run=subprocess.run(command,cwd=source,capture_output=True,timeout=120);assert run.returncode==0,run.stdout
+            binary=(source/'bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll').read_bytes();retained=f'artifacts/epic16-tooling-fixture/{story}/binaries/{digest(binary)}.dll';(repo/retained).write_bytes(binary)
+            compiled[phase]=dict(path=retained,sha256=digest(binary),revision=revision)
+            if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+                out=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('root-build-'+story+'-'+effect)/phase;out.mkdir(parents=True,exist_ok=True)
+                (out/'Contracts.dll').write_bytes(binary);(out/'Directory.Build.targets').write_bytes((build/'Directory.Build.targets').read_bytes())
+                for path in paths:shutil.copyfile(build/path,out/Path(path).name)
+                (out/'build.stdout').write_bytes(run.stdout);(out/'build.stderr').write_bytes(run.stderr);(out/'command.json').write_text(json.dumps(dict(command=command,exitCode=run.returncode,revision=revision),indent=2)+'\n')
+        assert manifests[0]==manifests[1]
+        data.update(compiledContracts=compiled,contractSourcesBefore=manifests[0],contractSourcesAfter=manifests[1],beforeContractSha256=digest(tooling.canonical(manifests[0])),afterContractSha256=digest(tooling.canonical(manifests[1])))
+&gt;       native(repo,scenario,data);result=evaluate(repo,scenario);rejected(result,'ROOT_API_DRIFT')
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3904: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'ROOT_API_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_external_build_inputs_cannot_change_root_public_shape_behind_equal_sources[generate-AC-16.2-05]" time="3.867"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-586/test_round10_external_build_in3/fixture')
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-586/test_round10_external_build_in3')
+scenario = 'AC-16.2-05', effect = 'generate'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('effect',['remove','generate'])
+    def test_round10_external_build_inputs_cannot_change_root_public_shape_behind_equal_sources(repository,tmp_path,scenario,effect):
+        repo=repository;story=scenario[3:7];directory=repo/'src/Hexalith.Conversations.Contracts'
+        (directory/'Contract.cs').write_text('namespace Hexalith.Conversations.Contracts.Projections; public class ConversationDetailProjectionV1 {}\n')
+        (directory/'PreviouslyPublic.cs').write_text('namespace Hexalith.Conversations.Contracts; public class PreviouslyPublic {}\n')
+        project='&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;AssemblyName&gt;Hexalith.Conversations.Contracts&lt;/AssemblyName&gt;&lt;/PropertyGroup&gt;&lt;/Project&gt;'
+        (directory/'Contracts.csproj').write_text(project)
+        targets=repo/'Directory.Build.targets';targets.write_text('&lt;Project /&gt;\n')
+        warning=repo/tooling.measurements.execution.WARNING_PATH;warning.write_bytes(b'// SINGLE-REPLICA-ONLY: synthetic disposable warning surface.\n')
+        git(repo,'add','.');git(repo,'commit','-qm','test: bind disposable compiled root baseline');baseline=git(repo,'rev-parse','HEAD')
+        if effect=='remove':targets.write_text('&lt;Project&gt;&lt;ItemGroup&gt;&lt;Compile Remove="PreviouslyPublic.cs" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;\n')
+        else:targets.write_text('&lt;Project&gt;&lt;Target Name="GenerateFixtureContract" BeforeTargets="CoreCompile"&gt;&lt;WriteLinesToFile File="$(IntermediateOutputPath)Generated.cs" Lines="namespace Synthetic { public class Generated {} }" Overwrite="true" /&gt;&lt;ItemGroup&gt;&lt;Compile Include="$(IntermediateOutputPath)Generated.cs" /&gt;&lt;/ItemGroup&gt;&lt;/Target&gt;&lt;/Project&gt;\n')
+        warning.write_bytes(b'// Synthetic disposable candidate with qualified durable projection.\n')
+        git(repo,'add','.');git(repo,'commit','-qm','test: alter only external root compilation input');candidate=git(repo,'rev-parse','HEAD')
+        for ac in tooling.measurements.SCENARIOS:native(repo,ac)
+        data=deepcopy(OBSERVATIONS[scenario]);manifests=[];compiled={}
+        for phase,revision in (('baseline',baseline),('candidate',candidate)):
+            paths=git(repo,'ls-tree','-r','--name-only',revision,'--','src/Hexalith.Conversations.Contracts').splitlines()
+            manifests.append([dict(path=p,sha256=digest(records.v2_committed_blob(repo,revision,p))) for p in paths])
+            build=tmp_path/('external-build-'+phase);source=build/'src/Hexalith.Conversations.Contracts';source.mkdir(parents=True)
+            (build/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+            (build/'Directory.Build.targets').write_bytes(records.v2_committed_blob(repo,revision,'Directory.Build.targets'))
+            for path in paths:(build/path).write_bytes(records.v2_committed_blob(repo,revision,path))
+            command=['dotnet','build','Contracts.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false','-p:SourceRevisionId='+revision]
+            run=subprocess.run(command,cwd=source,capture_output=True,timeout=120);assert run.returncode==0,run.stdout
+            binary=(source/'bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll').read_bytes();retained=f'artifacts/epic16-tooling-fixture/{story}/binaries/{digest(binary)}.dll';(repo/retained).write_bytes(binary)
+            compiled[phase]=dict(path=retained,sha256=digest(binary),revision=revision)
+            if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+                out=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('root-build-'+story+'-'+effect)/phase;out.mkdir(parents=True,exist_ok=True)
+                (out/'Contracts.dll').write_bytes(binary);(out/'Directory.Build.targets').write_bytes((build/'Directory.Build.targets').read_bytes())
+                for path in paths:shutil.copyfile(build/path,out/Path(path).name)
+                (out/'build.stdout').write_bytes(run.stdout);(out/'build.stderr').write_bytes(run.stderr);(out/'command.json').write_text(json.dumps(dict(command=command,exitCode=run.returncode,revision=revision),indent=2)+'\n')
+        assert manifests[0]==manifests[1]
+        data.update(compiledContracts=compiled,contractSourcesBefore=manifests[0],contractSourcesAfter=manifests[1],beforeContractSha256=digest(tooling.canonical(manifests[0])),afterContractSha256=digest(tooling.canonical(manifests[1])))
+&gt;       native(repo,scenario,data);result=evaluate(repo,scenario);rejected(result,'ROOT_API_DRIFT')
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3904: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'ROOT_API_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError</failure></testcase></testsuite></testsuites>

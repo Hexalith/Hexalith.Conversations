@@ -1,0 +1,1 @@
+namespace System; [System.AttributeUsage(System.AttributeTargets.Parameter)] public class OtherArrayAttribute : System.Attribute {}

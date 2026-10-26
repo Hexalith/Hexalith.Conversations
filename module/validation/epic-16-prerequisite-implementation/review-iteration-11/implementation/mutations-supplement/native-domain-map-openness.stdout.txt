@@ -1,0 +1,160 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-646/test_round11_durable_native_ma0/fixture')
+index = 0, mode = 'extra'
+
+    @pytest.mark.parametrize('index',range(4))
+    @pytest.mark.parametrize('mode',['extra','alternate','empty','reserved','unknown-role','role-invalid','configuration-invalid'])
+    def test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values(repository,index,mode):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];p=row['durableEvidence']
+        members={'actor-extra':'TenantReader'};configuration={'customer.setting':'kept'}
+        if mode=='extra':members['actor-a']='TenantContributor';configuration['conversations.enabled']='true'
+        elif mode=='empty':members={};configuration={}
+        elif mode=='reserved':members={'version':'TenantReader','allowed':'TenantOwner'};configuration={'version':'customer-setting','history':'','allowed':' '}
+        elif mode=='unknown-role':members={'actor-extra':'Unknown'}
+        elif mode=='role-invalid':members={'actor-extra':'Reader'}
+        elif mode=='configuration-invalid':configuration={'customer.setting':True}
+        for state in (p['sourceState'],p['before']['projection'],p['after']['projection'],row['durableCommit']['persisted']['projection'],row['acknowledgement']['observedRecord']['projection']):state.update(members=deepcopy(members),configuration=deepcopy(configuration))
+>       round8_submit(repository,'AC-16.1-04',data,passes=mode not in ('role-invalid','configuration-invalid'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:4179: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-646/test_round11_durable_native_ma0/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+_ test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-646/test_round11_durable_native_ma1/fixture')
+index = 1, mode = 'extra'
+
+    @pytest.mark.parametrize('index',range(4))
+    @pytest.mark.parametrize('mode',['extra','alternate','empty','reserved','unknown-role','role-invalid','configuration-invalid'])
+    def test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values(repository,index,mode):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];p=row['durableEvidence']
+        members={'actor-extra':'TenantReader'};configuration={'customer.setting':'kept'}
+        if mode=='extra':members['actor-a']='TenantContributor';configuration['conversations.enabled']='true'
+        elif mode=='empty':members={};configuration={}
+        elif mode=='reserved':members={'version':'TenantReader','allowed':'TenantOwner'};configuration={'version':'customer-setting','history':'','allowed':' '}
+        elif mode=='unknown-role':members={'actor-extra':'Unknown'}
+        elif mode=='role-invalid':members={'actor-extra':'Reader'}
+        elif mode=='configuration-invalid':configuration={'customer.setting':True}
+        for state in (p['sourceState'],p['before']['projection'],p['after']['projection'],row['durableCommit']['persisted']['projection'],row['acknowledgement']['observedRecord']['projection']):state.update(members=deepcopy(members),configuration=deepcopy(configuration))
+>       round8_submit(repository,'AC-16.1-04',data,passes=mode not in ('role-invalid','configuration-invalid'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:4179: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-646/test_round11_durable_native_ma1/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+_ test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-2] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-646/test_round11_durable_native_ma2/fixture')
+index = 2, mode = 'extra'
+
+    @pytest.mark.parametrize('index',range(4))
+    @pytest.mark.parametrize('mode',['extra','alternate','empty','reserved','unknown-role','role-invalid','configuration-invalid'])
+    def test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values(repository,index,mode):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];p=row['durableEvidence']
+        members={'actor-extra':'TenantReader'};configuration={'customer.setting':'kept'}
+        if mode=='extra':members['actor-a']='TenantContributor';configuration['conversations.enabled']='true'
+        elif mode=='empty':members={};configuration={}
+        elif mode=='reserved':members={'version':'TenantReader','allowed':'TenantOwner'};configuration={'version':'customer-setting','history':'','allowed':' '}
+        elif mode=='unknown-role':members={'actor-extra':'Unknown'}
+        elif mode=='role-invalid':members={'actor-extra':'Reader'}
+        elif mode=='configuration-invalid':configuration={'customer.setting':True}
+        for state in (p['sourceState'],p['before']['projection'],p['after']['projection'],row['durableCommit']['persisted']['projection'],row['acknowledgement']['observedRecord']['projection']):state.update(members=deepcopy(members),configuration=deepcopy(configuration))
+>       round8_submit(repository,'AC-16.1-04',data,passes=mode not in ('role-invalid','configuration-invalid'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:4179: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-646/test_round11_durable_native_ma2/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+_ test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-3] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-646/test_round11_durable_native_ma3/fixture')
+index = 3, mode = 'extra'
+
+    @pytest.mark.parametrize('index',range(4))
+    @pytest.mark.parametrize('mode',['extra','alternate','empty','reserved','unknown-role','role-invalid','configuration-invalid'])
+    def test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values(repository,index,mode):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];p=row['durableEvidence']
+        members={'actor-extra':'TenantReader'};configuration={'customer.setting':'kept'}
+        if mode=='extra':members['actor-a']='TenantContributor';configuration['conversations.enabled']='true'
+        elif mode=='empty':members={};configuration={}
+        elif mode=='reserved':members={'version':'TenantReader','allowed':'TenantOwner'};configuration={'version':'customer-setting','history':'','allowed':' '}
+        elif mode=='unknown-role':members={'actor-extra':'Unknown'}
+        elif mode=='role-invalid':members={'actor-extra':'Reader'}
+        elif mode=='configuration-invalid':configuration={'customer.setting':True}
+        for state in (p['sourceState'],p['before']['projection'],p['after']['projection'],row['durableCommit']['persisted']['projection'],row['acknowledgement']['observedRecord']['projection']):state.update(members=deepcopy(members),configuration=deepcopy(configuration))
+>       round8_submit(repository,'AC-16.1-04',data,passes=mode not in ('role-invalid','configuration-invalid'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:4179: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-646/test_round11_durable_native_ma3/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-3]
+4 failed, 2250 deselected in 14.09s

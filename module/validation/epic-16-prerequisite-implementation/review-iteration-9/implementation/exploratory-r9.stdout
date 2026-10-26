@@ -1,0 +1,170 @@
+.................................................F...................... [ 31%]
+........................................................................ [ 62%]
+.................................................................FFFF... [ 93%]
+..............                                                           [100%]
+=================================== FAILURES ===================================
+_ test_round9_rejected_replay_requires_executed_invalid_input_and_unchanged_state[changed-state-2] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-534/test_round9_rejected_replay_re32/fixture')
+case = 2, fault = 'changed-state'
+
+    @pytest.mark.parametrize('case',range(3))
+    @pytest.mark.parametrize('fault',['absent','execution','completion','tenant','resource','writer','valid-input','false-rejection','committed','writes','changed-state','wrong-hash','clamped'])
+    def test_round9_rejected_replay_requires_executed_invalid_input_and_unchanged_state(repository,case,fault):
+        scenario='AC-16.2-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['rejectedOperations'][case]
+        if fault=='absent':data['rejectedOperations'].pop(case)
+        elif fault=='execution':row['executed']=False
+        elif fault=='completion':row['completed']=False
+        elif fault=='tenant':row['tenant']='foreign'
+        elif fault=='resource':row['conversation']='foreign'
+        elif fault=='writer':row['writer']='unrelated'
+        elif fault=='valid-input':
+            if case==2:row['generatedTicks']=row['observedGeneratedTicks']=data['rebuilds'][0]['anchorTicks']
+            else:row['attemptedJson']=data['rebuilds'][0]['canonicalJson']
+        elif fault=='false-rejection':row['rejected']=False
+        elif fault=='committed':row['committed']=True
+        elif fault=='writes':row['writes']=['unsafe-state']
+        elif fault=='changed-state':row['afterBytes']=row['attemptedJson'];row['afterSha256']=digest(row['afterBytes'].encode())
+        elif fault=='wrong-hash':row['beforeSha256']='f'*64
+        else:row['observedGeneratedTicks']+=1
+>       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3236: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-534/test_round9_rejected_replay_re32/fixture')
+scenario = 'AC-16.2-02'
+data = {'rebuilds': [{'clockTicks': 639029198500001000, 'canonicalJson': '{"anchorUtcTicks":639029198500000000,"items":[{"key...0000000, 639029198500000000], 'unorderedCollectionPersisted': False, 'generationBeforeAnchorState': 'Unavailable', ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+>       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError
+_ test_round9_final_inventory_rereads_admitted_bytes_and_aliases[symlink-binary] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-534/test_round9_final_inventory_re6/runtime')
+kind = 'binary', fault = 'symlink'
+
+    @pytest.mark.parametrize('kind',['binary','capture','product'])
+    @pytest.mark.parametrize('fault',['altered','hardlink','symlink'])
+    def test_round9_final_inventory_rereads_admitted_bytes_and_aliases(qualified_runtime,kind,fault):
+        repo=qualified_runtime;row=runtime_evaluate(repo);assert row['result']=='PASS',row
+        binary=row['bindings']['testBinary'];entry=binary if kind=='binary' else binary['capture'] if kind=='capture' else binary['products'][0]
+        path=repo/entry['path'];original=path.read_bytes()
+        if fault=='altered':path.write_bytes(original+b'changed')
+        else:
+            path.unlink();alias=repo/'artifacts/alias-input';alias.parent.mkdir(exist_ok=True);alias.write_bytes(original)
+            if fault=='hardlink':os.link(alias,path)
+            else:path.symlink_to(alias)
+        with tooling.ContainedReader(repo) as reader,pytest.raises((tooling.Stop,tooling.ReadError)) as error:
+            tooling.capture.inventory(reader,'16.2',[row]*5,tooling.need)
+>       assert getattr(error.value,'code',None) in ('NATIVE_CAPTURE_DRIFT','NATIVE_CAPTURE_ALIAS','PATH_SYMLINK','INPUT_SYMLINK','PATH_INVALID','INPUT_UNSAFE'),str(error.value)
+E       AssertionError: symlink input forbidden: 7b75da2d64349e02a83af3e125f9adbccb62cb3e05aa6ee893e0cc2449e90857.dll
+E       assert 'PATH_ESCAPE' in ('NATIVE_CAPTURE_DRIFT', 'NATIVE_CAPTURE_ALIAS', 'PATH_SYMLINK', 'INPUT_SYMLINK', 'PATH_INVALID', 'INPUT_UNSAFE')
+E        +  where 'PATH_ESCAPE' = getattr(ReadError('symlink input forbidden: 7b75da2d64349e02a83af3e125f9adbccb62cb3e05aa6ee893e0cc2449e90857.dll'), 'code', None)
+E        +    where ReadError('symlink input forbidden: 7b75da2d64349e02a83af3e125f9adbccb62cb3e05aa6ee893e0cc2449e90857.dll') = <ExceptionInfo ReadError('symlink input forbidden: 7b75da2d64349e02a83af3e125f9adbccb62cb3e05aa6ee893e0cc2449e90857.dll') tblen=4>.value
+
+_bmad/scripts/tests/test_epic16_tooling.py:3381: AssertionError
+_ test_round9_final_inventory_rereads_admitted_bytes_and_aliases[symlink-capture] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-534/test_round9_final_inventory_re7/runtime')
+kind = 'capture', fault = 'symlink'
+
+    @pytest.mark.parametrize('kind',['binary','capture','product'])
+    @pytest.mark.parametrize('fault',['altered','hardlink','symlink'])
+    def test_round9_final_inventory_rereads_admitted_bytes_and_aliases(qualified_runtime,kind,fault):
+        repo=qualified_runtime;row=runtime_evaluate(repo);assert row['result']=='PASS',row
+        binary=row['bindings']['testBinary'];entry=binary if kind=='binary' else binary['capture'] if kind=='capture' else binary['products'][0]
+        path=repo/entry['path'];original=path.read_bytes()
+        if fault=='altered':path.write_bytes(original+b'changed')
+        else:
+            path.unlink();alias=repo/'artifacts/alias-input';alias.parent.mkdir(exist_ok=True);alias.write_bytes(original)
+            if fault=='hardlink':os.link(alias,path)
+            else:path.symlink_to(alias)
+        with tooling.ContainedReader(repo) as reader,pytest.raises((tooling.Stop,tooling.ReadError)) as error:
+            tooling.capture.inventory(reader,'16.2',[row]*5,tooling.need)
+>       assert getattr(error.value,'code',None) in ('NATIVE_CAPTURE_DRIFT','NATIVE_CAPTURE_ALIAS','PATH_SYMLINK','INPUT_SYMLINK','PATH_INVALID','INPUT_UNSAFE'),str(error.value)
+E       AssertionError: symlink input forbidden: AC-16.2-02.capture.json
+E       assert 'PATH_ESCAPE' in ('NATIVE_CAPTURE_DRIFT', 'NATIVE_CAPTURE_ALIAS', 'PATH_SYMLINK', 'INPUT_SYMLINK', 'PATH_INVALID', 'INPUT_UNSAFE')
+E        +  where 'PATH_ESCAPE' = getattr(ReadError('symlink input forbidden: AC-16.2-02.capture.json'), 'code', None)
+E        +    where ReadError('symlink input forbidden: AC-16.2-02.capture.json') = <ExceptionInfo ReadError('symlink input forbidden: AC-16.2-02.capture.json') tblen=4>.value
+
+_bmad/scripts/tests/test_epic16_tooling.py:3381: AssertionError
+_ test_round9_final_inventory_rereads_admitted_bytes_and_aliases[symlink-product] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-534/test_round9_final_inventory_re8/runtime')
+kind = 'product', fault = 'symlink'
+
+    @pytest.mark.parametrize('kind',['binary','capture','product'])
+    @pytest.mark.parametrize('fault',['altered','hardlink','symlink'])
+    def test_round9_final_inventory_rereads_admitted_bytes_and_aliases(qualified_runtime,kind,fault):
+        repo=qualified_runtime;row=runtime_evaluate(repo);assert row['result']=='PASS',row
+        binary=row['bindings']['testBinary'];entry=binary if kind=='binary' else binary['capture'] if kind=='capture' else binary['products'][0]
+        path=repo/entry['path'];original=path.read_bytes()
+        if fault=='altered':path.write_bytes(original+b'changed')
+        else:
+            path.unlink();alias=repo/'artifacts/alias-input';alias.parent.mkdir(exist_ok=True);alias.write_bytes(original)
+            if fault=='hardlink':os.link(alias,path)
+            else:path.symlink_to(alias)
+        with tooling.ContainedReader(repo) as reader,pytest.raises((tooling.Stop,tooling.ReadError)) as error:
+            tooling.capture.inventory(reader,'16.2',[row]*5,tooling.need)
+>       assert getattr(error.value,'code',None) in ('NATIVE_CAPTURE_DRIFT','NATIVE_CAPTURE_ALIAS','PATH_SYMLINK','INPUT_SYMLINK','PATH_INVALID','INPUT_UNSAFE'),str(error.value)
+E       AssertionError: symlink input forbidden: eaed099cb4a5317989e3df52457d97f1bed29a41d37eecf53e68a163f4e7ec31.dll
+E       assert 'PATH_ESCAPE' in ('NATIVE_CAPTURE_DRIFT', 'NATIVE_CAPTURE_ALIAS', 'PATH_SYMLINK', 'INPUT_SYMLINK', 'PATH_INVALID', 'INPUT_UNSAFE')
+E        +  where 'PATH_ESCAPE' = getattr(ReadError('symlink input forbidden: eaed099cb4a5317989e3df52457d97f1bed29a41d37eecf53e68a163f4e7ec31.dll'), 'code', None)
+E        +    where ReadError('symlink input forbidden: eaed099cb4a5317989e3df52457d97f1bed29a41d37eecf53e68a163f4e7ec31.dll') = <ExceptionInfo ReadError('symlink input forbidden: eaed099cb4a5317989e3df52457d97f1bed29a41d37eecf53e68a163f4e7ec31.dll') tblen=4>.value
+
+_bmad/scripts/tests/test_epic16_tooling.py:3381: AssertionError
+_ test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata[addition] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-534/test_round9_upstream_additivit0/fixture')
+change = 'addition'
+
+    @pytest.mark.parametrize('change',['addition','removed-member','signature','type','wrong-revision','wrong-owner','forged-digest','missing-assembly'])
+    def test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata(repository,change):
+        repo=repository;scenario='AC-16.1-05';warning=repo/tooling.measurements.execution.WARNING_PATH
+        owner='references/Hexalith.Tenants';product=next(p for p in tooling.products.PRODUCTS if p['assemblyName']=='Hexalith.Tenants.Client')
+        previous=git(repo/owner,'rev-parse','HEAD');original=round9_product_source(product);old_binary=round9_compile_product(product,previous,original)
+        # Create an actual earlier root baseline carrying the warning, then a child
+        # dependency change and current source with warning removed. No trust is added.
+        warning.write_bytes(b'// SINGLE-REPLICA-ONLY: synthetic disposable warning surface.\n')
+        git(repo,'add',str(warning.relative_to(repo)));git(repo,'commit','-qm','test: retain upstream API comparison baseline')
+        source=original.replace('public string Existing(string value) => value;', 'public string Existing(string value) => value; public int Added() => 1;')
+        if change=='removed-member':source=original.replace('Existing(', 'RemovedReplacement(')
+        elif change=='signature':source=original.replace('string Existing(string value)','int Existing(int value)')
+        elif change=='type':source=original.replace('public class','public struct')
+        source_path=repo/owner/'fixture-products'/str(product['assemblyName']+'.cs');source_path.write_text(source)
+        git(repo/owner,'add','.');git(repo/owner,'commit','-qm','test: change synthetic upstream public API')
+        candidate=git(repo/owner,'rev-parse','HEAD');git(repo,'update-index','--cacheinfo','160000,'+candidate+','+owner)
+        warning.write_bytes(b'// Synthetic disposable candidate with qualified durable projection.\n');git(repo,'add',str(warning.relative_to(repo)));git(repo,'commit','-qm','test: bind synthetic upstream API candidate')
+        for ac in tooling.measurements.SCENARIOS:native(repo,ac)
+        data=deepcopy(OBSERVATIONS[scenario]);round9_api_observations(repo,data)
+        row=next(r for r in data['upstreamSurfaces'] if r['assemblyName']==product['assemblyName'])
+        path=f'artifacts/epic16-tooling-fixture/16.1/binaries/{digest(old_binary)}.dll';(repo/path).write_bytes(old_binary);row['baseline']=dict(path=path,sha256=digest(old_binary),revision=previous)
+        if change=='wrong-revision':row['candidate']['revision']='f'*40
+        elif change=='wrong-owner':row['owner']='references/Hexalith.EventStore'
+        elif change=='forged-digest':row['baseline']['sha256']=row['candidate']['sha256']='f'*64
+        elif change=='missing-assembly':data['upstreamSurfaces'].pop()
+        native(repo,scenario,data);result=evaluate(repo,scenario)
+>       assert result['result']==('PASS' if change=='addition' else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:3410: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_rejected_replay_requires_executed_invalid_input_and_unchanged_state[changed-state-2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_final_inventory_rereads_admitted_bytes_and_aliases[symlink-binary]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_final_inventory_rereads_admitted_bytes_and_aliases[symlink-capture]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_final_inventory_rereads_admitted_bytes_and_aliases[symlink-product]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata[addition]
+5 failed, 225 passed, 1571 deselected in 182.14s (0:03:02)

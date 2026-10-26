@@ -1,0 +1,515 @@
+{
+  "runs": 42,
+  "demonstratedGuards": 39,
+  "targetedAssertionFailures": 199,
+  "setupErrors": 0,
+  "skips": 0,
+  "allGuardsHaveFinalExactTargetBytes": true,
+  "noticeCorrection": "Program.cs copied-method attribution and exact Commons 2025 MIT notice only; source binding refreshed. Three native Program guards repeated against final bytes.",
+  "records": [
+    {
+      "directory": "mutations",
+      "name": "tenant-operation-order",
+      "tests": {
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "94d7c75399633f81ca8fb62d306b1034f35ee40f2d30e74330a73a111f80dc5c"
+    },
+    {
+      "directory": "mutations",
+      "name": "tenant-operation-scope",
+      "tests": {
+        "tests": 16,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "e570bcf8bc1b59697a35b9b6035bafe403b4542f2059db568b209aeabdcb4f18"
+    },
+    {
+      "directory": "mutations",
+      "name": "reverse-original-cas",
+      "tests": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "0e3ee21d09a75b8c01da5522746a4c532066498b2baa3c9a19b4a13e6f661ebe"
+    },
+    {
+      "directory": "mutations",
+      "name": "tenant-executed-completed",
+      "tests": {
+        "tests": 34,
+        "failures": 30,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "ee0770c2bf4c6fb32a0212c18ce5b9388b0795fa015c463e9f8a020719b035f8"
+    },
+    {
+      "directory": "mutations",
+      "name": "reverse-native-proposal",
+      "tests": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "702d5dc234936030fc4582f64fe32462e7fccc1993a5ae128b33f45efb206fd1"
+    },
+    {
+      "directory": "mutations",
+      "name": "reverse-durable-chain",
+      "tests": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "220a2ac3c672f86111d7a339ab5feeb8c1fd9aaa9daacf58f6467a28fc597e29"
+    },
+    {
+      "directory": "mutations",
+      "name": "reverse-cas-result",
+      "tests": {
+        "tests": 8,
+        "failures": 8,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "028e7b60090b7cd983bfbef6ed9d5df549e55efe3953f2b108d593e5a5baad4d"
+    },
+    {
+      "directory": "mutations",
+      "name": "reverse-preserved-after",
+      "tests": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "7dc651434d07f29c8059ee9e0bfbdf80dac8ae13853b226bfe4c362acba46767"
+    },
+    {
+      "directory": "mutations",
+      "name": "reverse-read-identities",
+      "tests": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "72722dffa28c86bc6040163587bb09502a4ec07a1ab2ae223e7111ebff77d6f7"
+    },
+    {
+      "directory": "mutations",
+      "name": "reverse-final-store-read",
+      "tests": {
+        "tests": 8,
+        "failures": 8,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "99af0376bb1d1acb532099e400e3142c16a6fd1ce04c474af28c7637b836b9f6"
+    },
+    {
+      "directory": "mutations",
+      "name": "reverse-process-replicas",
+      "tests": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "22873e31faa427e0ca8d83d81de33db6181997a8a3d46a0acf9e5bdb66e4a728"
+    },
+    {
+      "directory": "mutations",
+      "name": "access-source-state",
+      "tests": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "70d8650027b6543d0245f7cf34312d6f0e6901e2a578099306229f57eb98785d"
+    },
+    {
+      "directory": "mutations",
+      "name": "access-stored-cause",
+      "tests": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "2c6798369e73db5fb54e9b55cd423a3635a5b9bc61f6cfaeba127281f37ccc12"
+    },
+    {
+      "directory": "mutations",
+      "name": "access-freshness",
+      "tests": {
+        "tests": 3,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "6b29923d38c54bc0c6923dd59ac87b5f18c7cde1b03cf685452b366b914a07cf"
+    },
+    {
+      "directory": "mutations",
+      "name": "access-missing-metadata",
+      "tests": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "5f5c969accf7b841e6573e3b653bc26a11e2901efde3044c0c2509ad246212d9"
+    },
+    {
+      "directory": "mutations",
+      "name": "access-principal",
+      "tests": {
+        "tests": 22,
+        "failures": 16,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "8077459c54549b2a1d0a7d1fa8182b93b7437e17e96b823fc77af00866434955"
+    },
+    {
+      "directory": "mutations",
+      "name": "access-policy",
+      "tests": {
+        "tests": 12,
+        "failures": 12,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "662206ac3f5197ce2a490ad5627affb1bea70f85211f9fd87c0be770e6e306bf"
+    },
+    {
+      "directory": "mutations",
+      "name": "failure-attempt-count",
+      "tests": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "17555f0fe5f0f3d41617c12a3af9061e73f2735a903b2f937966d1d277a86964"
+    },
+    {
+      "directory": "mutations",
+      "name": "failure-proposal",
+      "tests": {
+        "tests": 6,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "acec30ec0986fc878826c9f3d093c31dea2d52fc80f2181ff144301a14e01ddc"
+    },
+    {
+      "directory": "mutations",
+      "name": "failure-provider-outcome",
+      "tests": {
+        "tests": 6,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "6e976ccc3c0ef561b36572cb0ed743ddf2202476082ecac880af0c41d287edd0"
+    },
+    {
+      "directory": "mutations",
+      "name": "failure-terminal",
+      "tests": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "132d52b345bd09184d656c3cf7399e151dc52db8d98b3aeaff16b6b02fc5990e"
+    },
+    {
+      "directory": "mutations",
+      "name": "failure-ack-observation",
+      "tests": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "1bbc77b2422e673107e8a20874dee8b1388e41287a0060706126b49ff4674632"
+    },
+    {
+      "directory": "mutations",
+      "name": "failure-restoration",
+      "tests": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "03156af3ed3a046cfe259645f56351bce4a8799c5bed0a82fc82f70fe4410639"
+    },
+    {
+      "directory": "mutations",
+      "name": "failure-preserved-state",
+      "tests": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "3d76fa35caa55d88055edbbff62eb02ec37c5e394b0282fc2ef3074707e44af7"
+    },
+    {
+      "directory": "mutations",
+      "name": "failure-injected-correlation",
+      "tests": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "4043a9975fcbfdb452be6eb39c4b97f21cc055e6bdb66ce85cdfda35065f2b04"
+    },
+    {
+      "directory": "mutations",
+      "name": "diagnostic-exit",
+      "tests": {
+        "tests": 8,
+        "failures": 8,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "f4a254c51e1c3e139c2aab173dd3dc0e754370466af54e0627bc6624561368f0",
+      "mutatedSha256": "245b4158633b7b92fae0c0ad04abacdf88e3d6e26c0ba1e79caa4e6ed3ce9800"
+    },
+    {
+      "directory": "mutations",
+      "name": "diagnostic-stdout",
+      "tests": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "f4a254c51e1c3e139c2aab173dd3dc0e754370466af54e0627bc6624561368f0",
+      "mutatedSha256": "c44f9137b54f2fda8e543eb97c1c2b9ecfaeca8d919bca0bd6588a5551027950"
+    },
+    {
+      "directory": "mutations",
+      "name": "enqueue-stage-transactions",
+      "tests": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "0c429d1608323c71c9605bab3a02556d5d5d389a79515f0d08b0083d75ada465",
+      "mutatedSha256": "8a63c2087b5c949cffa92110801fac260fb61bf3beabf9bfe9f285329f7c4430"
+    },
+    {
+      "directory": "mutations",
+      "name": "diagnostic-stderr",
+      "tests": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "f4a254c51e1c3e139c2aab173dd3dc0e754370466af54e0627bc6624561368f0",
+      "mutatedSha256": "8d75713792a41c10431b8419806c45e5eff1c832371ff62c7c38ce5c4b0377cf"
+    },
+    {
+      "directory": "mutations",
+      "name": "diagnostic-bound",
+      "tests": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "f4a254c51e1c3e139c2aab173dd3dc0e754370466af54e0627bc6624561368f0",
+      "mutatedSha256": "f15e50fece8574a21b3250019af78ead1e5ff2ebe631bd189bd9c0a2626bebaa"
+    },
+    {
+      "directory": "mutations",
+      "name": "product-source-owner",
+      "tests": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "ef75fbd3b889b78c2e2678db4d99cdb7448f231f29b3d22cb300dff0bb5e3902",
+      "mutatedSha256": "534890e3c1a2b857020860f1be51a64b02df07d466c58eb5727179071a075600"
+    },
+    {
+      "directory": "mutations",
+      "name": "test-source-owner",
+      "tests": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "f963145b3fca21d90a2562e393733ab93787cd96ef5172075d1239222b755c18",
+      "mutatedSha256": "46dcefb7413935e61754fdca2845810b7ebd276f1a164b7b5c637567ba28cd56"
+    },
+    {
+      "directory": "mutations",
+      "name": "access-response",
+      "tests": {
+        "tests": 216,
+        "failures": 24,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "mutatedSha256": "14379af0fd379ccd3ac07b7fadb6ed6bf54cd5e4f33e247265c5eb92b81ca11d"
+    },
+    {
+      "directory": "mutations",
+      "name": "source-constructor-signature",
+      "tests": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "ef75fbd3b889b78c2e2678db4d99cdb7448f231f29b3d22cb300dff0bb5e3902",
+      "mutatedSha256": "5d5784dee05ab6baae15e4927c19526a4584d253699b65f5ecd8dc8c477beb98"
+    },
+    {
+      "directory": "mutations",
+      "name": "test-source-blob",
+      "tests": {
+        "tests": 4,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "f963145b3fca21d90a2562e393733ab93787cd96ef5172075d1239222b755c18",
+      "mutatedSha256": "a0d2558cbd9bb969d28f985f3115ffbf9fed959aa594560c7ca0c3ea65e8e893"
+    },
+    {
+      "directory": "mutations",
+      "name": "product-source-blob",
+      "tests": {
+        "tests": 2,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "ef75fbd3b889b78c2e2678db4d99cdb7448f231f29b3d22cb300dff0bb5e3902",
+      "mutatedSha256": "a95f781307212d933aef58632a76892665021efef868ab81139663dafb30432f"
+    },
+    {
+      "directory": "mutations",
+      "name": "async-return-owner",
+      "tests": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "f963145b3fca21d90a2562e393733ab93787cd96ef5172075d1239222b755c18",
+      "mutatedSha256": "a7254c49657391b787cbf7eded753131139418348cb5af63764f69b711daccc9"
+    },
+    {
+      "directory": "mutations",
+      "name": "params-complete-blob",
+      "tests": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "06c002bbe8eadf3b9203d22c122dcc74d0e835e383a91f45e67cab7209ef377d",
+      "mutatedSha256": "40a31a690ee6ae4b099290a47bceb88a045b86fb27de9ea5f40b73792cfa091f"
+    },
+    {
+      "directory": "mutations",
+      "name": "params-framework-owner",
+      "tests": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "06c002bbe8eadf3b9203d22c122dcc74d0e835e383a91f45e67cab7209ef377d",
+      "mutatedSha256": "1d0358371158b10f6f44720f22ddee0d41fe4b0be34b0d53d81c7aa2d53c0fe3"
+    },
+    {
+      "directory": "mutations-notice",
+      "name": "async-return-owner",
+      "tests": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "950cdd62a13d75db36cc39c2d7e1f505ab5db4c99caf908bf08f415f10475b3e",
+      "mutatedSha256": "32b440e4b178ea4dd6cafb616317eb9a6a68082c3d27f2a41f15d808816d1c9c"
+    },
+    {
+      "directory": "mutations-notice",
+      "name": "test-source-blob",
+      "tests": {
+        "tests": 4,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "950cdd62a13d75db36cc39c2d7e1f505ab5db4c99caf908bf08f415f10475b3e",
+      "mutatedSha256": "11297ee356b2b3d4c99c4300286d56f54d0943cf05e3eb5eeed969d08860e321"
+    },
+    {
+      "directory": "mutations-notice",
+      "name": "test-source-owner",
+      "tests": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "originalSha256": "950cdd62a13d75db36cc39c2d7e1f505ab5db4c99caf908bf08f415f10475b3e",
+      "mutatedSha256": "1fbf7d22b7dbc4598c3c39660856460d415d72aa3e0e1c3ad5932e3b7ae24672"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+test: restore candidate with drifted baseline

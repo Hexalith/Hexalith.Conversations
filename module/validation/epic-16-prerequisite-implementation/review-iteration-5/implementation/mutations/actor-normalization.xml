@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="3.669" timestamp="2026-10-25T21:20:11.287688+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_materialized_party_ids_normalize_without_rewriting_raw_payload_hash[participantPartyId]" time="2.255" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_materialized_party_ids_normalize_without_rewriting_raw_payload_hash[authorPartyId]" time="0.359" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_materialized_party_ids_normalize_without_rewriting_raw_payload_hash[actorPartyId]" time="0.075"><failure message="AssertionError: assert 'party:  ACTOR-A  ' == 'party:actor-a'&#10;  &#10;  - party:actor-a&#10;  + party:  ACTOR-A">repository = PosixPath('/tmp/pytest-of-administrator/pytest-389/test_round5_materialized_party2/fixture')
+party_field = 'actorPartyId'
+
+    @pytest.mark.parametrize('party_field',['participantPartyId','authorPartyId','actorPartyId'])
+    def test_round5_materialized_party_ids_normalize_without_rewriting_raw_payload_hash(repository,party_field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-02']);events=data['authoritativeEvents'];domain=tooling.measurements.domain
+        event=next(e for e in events if party_field=='actorPartyId' or party_field in json.loads(e['payload']))
+        payload=json.loads(event['payload']);container=payload['metadata'] if party_field=='actorPartyId' else payload
+        value=container[party_field];container[party_field]='party:  '+value.removeprefix('party:').upper()+'  '
+        raw=json.dumps(payload);event['payload']=raw
+        binding,_,parsed=domain.conversation_envelope(event)
+        assert binding['payloadSha256']==digest(raw.encode()) and event['payload']==raw
+        normalized=parsed['metadata'][party_field] if party_field=='actorPartyId' else parsed[party_field]
+&gt;       assert normalized==(value if party_field=='actorPartyId' else value.removeprefix('party:'))
+E       AssertionError: assert 'party:  ACTOR-A  ' == 'party:actor-a'
+E         
+E         - party:actor-a
+E         + party:  ACTOR-A
+
+_bmad/scripts/tests/test_epic16_tooling.py:1989: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_redaction_attribution_uses_normalized_actor_party_id" time="0.675"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-389/test_round5_redaction_attribut0/fixture')
+
+    def test_round5_redaction_attribution_uses_normalized_actor_party_id(repository):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);proof=data['redactionProof'];event=proof['redactionEvent'];payload=json.loads(event['payload'])
+        payload['metadata']['actorPartyId']='party:  ACTOR-A  ';event['payload']=json.dumps(payload);proof['sourceAfter'][-1]=deepcopy(event)
+        # Persisted expected attribution stays native-normalized, while raw source bytes change.
+&gt;       native(repository,'AC-16.2-05',data);result=evaluate(repository,'AC-16.2-05');assert result['result']=='PASS',result
+                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2003: AssertionError</failure></testcase></testsuite></testsuites>

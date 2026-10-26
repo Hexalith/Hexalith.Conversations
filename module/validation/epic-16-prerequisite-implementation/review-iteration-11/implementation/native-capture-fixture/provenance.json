@@ -1,0 +1,207 @@
+{
+  "scope": "synthetic observation payloads and seven source-stamped stand-ins; genuine xUnit 4.0.2 fixture runner; test-only trust; no product runtime qualification",
+  "sourceFixture": "/tmp/epic16-r11-final-22f35zao/combined/test_round6_genuine_native_cap0/fresh-checkout",
+  "test": "test_round6_genuine_native_capture_publication_survives_fresh_checkout",
+  "verificationRun": "iteration-11 final combined run; success asserted by verification.json",
+  "testSource": {
+    "path": "_bmad/scripts/tests/test_epic16_tooling.py",
+    "sha256": "240f5f88eb7a93c5b5e570ae4488ab0d8420ac05098a12aa5d44e99019e14904"
+  },
+  "candidate": "e7321cbe86933ddbfedbdcbbf8fb66cad491541f",
+  "publicationCommit": "da91c4e02c6a8b07172432b6a57802a7e8ec5bb7",
+  "lifecycleCommit": "b2543dc8101683fa3f2397dfad6fea73806550ec",
+  "publicationPaths": [
+    "artifacts/epic16-runtime/16.2/AC-16.2-01.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-01.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-01.trx",
+    "artifacts/epic16-runtime/16.2/AC-16.2-02.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-02.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-02.trx",
+    "artifacts/epic16-runtime/16.2/AC-16.2-03.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-03.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-03.trx",
+    "artifacts/epic16-runtime/16.2/AC-16.2-04.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-04.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-04.trx",
+    "artifacts/epic16-runtime/16.2/AC-16.2-05.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-05.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-05.trx",
+    "artifacts/epic16-runtime/16.2/binaries/224ebeaaa35abeb879604af4e9fff5c279c097fe7cc64844632de4e832f1eb27.dll",
+    "artifacts/epic16-runtime/16.2/binaries/43b95adfb7433760a0f3f1ef1f87d8fb5ace733f9f17bfba515dd40dacf73f9e.dll",
+    "artifacts/epic16-runtime/16.2/binaries/4ff55f3958055f68c889cd5f89d7de954daf25a39f2a6e5b1a75a718ca456289.dll",
+    "artifacts/epic16-runtime/16.2/binaries/5fd99356301d73080c5ea975df5714b073f24974ebc0112d0162d5fb9dac9162.dll",
+    "artifacts/epic16-runtime/16.2/binaries/77a2a7e9ca5915bfe6228cde7b3c5a02d1f50d9ca96c08ad2ba52b32ec064d01.dll",
+    "artifacts/epic16-runtime/16.2/binaries/ad7027048abe6e75ea1439f091b406a2dff6e38f3a6556902f693583b26edc14.dll",
+    "artifacts/epic16-runtime/16.2/binaries/bb3b8198aad09ea96ccf6bd1115522da49380b1b191ae5582aa69b637b7d7ad2.dll",
+    "artifacts/epic16-runtime/16.2/binaries/cb2ad6889e12f9bdcf3146ccdb284ce046533805617907a31394a504d8b2d6ba.dll",
+    "artifacts/epic16-runtime/16.2/binaries/e28101a25046c73277104bbfb7fe52203322948540e5eafe491778e122fec665.dll",
+    "docs/release-evidence/story-16.2-final-record-v2.json",
+    "docs/release-evidence/story-16.2-final-record-v2.md"
+  ],
+  "publicationPathCount": 26,
+  "retainedAssemblyCount": 9,
+  "captureCount": 5,
+  "rawTrxCount": 5,
+  "retained": [
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-01.capture.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-01.capture.json.bytes",
+      "sha256": "ceb2a03be69658d2f86391e834ea58aacceefc994beba73e82c61af04435e739"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-01.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-01.json.bytes",
+      "sha256": "4b37c0c5a6cd1481b443c7ec2b751bd44715f6065cac8c89cc6ae0ba1d147ad0"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-01.trx",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-01.trx.bytes",
+      "sha256": "2a65e8e8a61835a5bccd55571543eda5829510688ce1a33fed7bdef8d58015fd"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-02.capture.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-02.capture.json.bytes",
+      "sha256": "be8c586b304634d3098362885332c5704700852fcf685cbd0db4c87f3b08dee2"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-02.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-02.json.bytes",
+      "sha256": "1e1b1f01ff3bb7ffa9b11d102ecbe144c640f8f415826273f65666e93f95bdb9"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-02.trx",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-02.trx.bytes",
+      "sha256": "4e65fe6f476476e93688cfc301f6eb33d95120d63df312484d46e7d8fa2dd2ff"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-03.capture.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-03.capture.json.bytes",
+      "sha256": "4ea3968a24cd4e39e3d77ea5b9ad95b2b44fbd21496c2731171b9604dbdd0905"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-03.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-03.json.bytes",
+      "sha256": "cebad52cf7b5ca62f59095b5175717d52736ed7356cb9b8c9ad8a121a92d12be"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-03.trx",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-03.trx.bytes",
+      "sha256": "a4e3d334438da2405d2221ab7011a149a65f49976afe372daab70654f7b5fd03"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-04.capture.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-04.capture.json.bytes",
+      "sha256": "3dd1aefe79241846a10723de91618d69cfae4281fbf9b3530e5439e635a91cb2"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-04.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-04.json.bytes",
+      "sha256": "de8064f2407de2c1f9bfe760c92d523e41bed5a7a153fc440518e30f3160b985"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-04.trx",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-04.trx.bytes",
+      "sha256": "a648f7f1aac601d453c0257d59491e4eb4aab6012786f82ca851a2b62e40bd5e"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-05.capture.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-05.capture.json.bytes",
+      "sha256": "b390d54550501e2fb0bf6ca89dd8f28c4c515075f2b7893eed95dc2be8b95a6c"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-05.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-05.json.bytes",
+      "sha256": "f201e54c4b63653af619aa907058e991281170cdafbe794e3b7969dd9caef6a9"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-05.trx",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-05.trx.bytes",
+      "sha256": "1cc6d4065d32424374e79a9f6954dc7970ddd1313ba62b4b5a170f25c4a34f15"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/224ebeaaa35abeb879604af4e9fff5c279c097fe7cc64844632de4e832f1eb27.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__224ebeaaa35abeb879604af4e9fff5c279c097fe7cc64844632de4e832f1eb27.dll.bytes",
+      "sha256": "224ebeaaa35abeb879604af4e9fff5c279c097fe7cc64844632de4e832f1eb27"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/43b95adfb7433760a0f3f1ef1f87d8fb5ace733f9f17bfba515dd40dacf73f9e.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__43b95adfb7433760a0f3f1ef1f87d8fb5ace733f9f17bfba515dd40dacf73f9e.dll.bytes",
+      "sha256": "43b95adfb7433760a0f3f1ef1f87d8fb5ace733f9f17bfba515dd40dacf73f9e"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/4ff55f3958055f68c889cd5f89d7de954daf25a39f2a6e5b1a75a718ca456289.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__4ff55f3958055f68c889cd5f89d7de954daf25a39f2a6e5b1a75a718ca456289.dll.bytes",
+      "sha256": "4ff55f3958055f68c889cd5f89d7de954daf25a39f2a6e5b1a75a718ca456289"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/5fd99356301d73080c5ea975df5714b073f24974ebc0112d0162d5fb9dac9162.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__5fd99356301d73080c5ea975df5714b073f24974ebc0112d0162d5fb9dac9162.dll.bytes",
+      "sha256": "5fd99356301d73080c5ea975df5714b073f24974ebc0112d0162d5fb9dac9162"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/77a2a7e9ca5915bfe6228cde7b3c5a02d1f50d9ca96c08ad2ba52b32ec064d01.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__77a2a7e9ca5915bfe6228cde7b3c5a02d1f50d9ca96c08ad2ba52b32ec064d01.dll.bytes",
+      "sha256": "77a2a7e9ca5915bfe6228cde7b3c5a02d1f50d9ca96c08ad2ba52b32ec064d01"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/ad7027048abe6e75ea1439f091b406a2dff6e38f3a6556902f693583b26edc14.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__ad7027048abe6e75ea1439f091b406a2dff6e38f3a6556902f693583b26edc14.dll.bytes",
+      "sha256": "ad7027048abe6e75ea1439f091b406a2dff6e38f3a6556902f693583b26edc14"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/bb3b8198aad09ea96ccf6bd1115522da49380b1b191ae5582aa69b637b7d7ad2.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__bb3b8198aad09ea96ccf6bd1115522da49380b1b191ae5582aa69b637b7d7ad2.dll.bytes",
+      "sha256": "bb3b8198aad09ea96ccf6bd1115522da49380b1b191ae5582aa69b637b7d7ad2"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/cb2ad6889e12f9bdcf3146ccdb284ce046533805617907a31394a504d8b2d6ba.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__cb2ad6889e12f9bdcf3146ccdb284ce046533805617907a31394a504d8b2d6ba.dll.bytes",
+      "sha256": "cb2ad6889e12f9bdcf3146ccdb284ce046533805617907a31394a504d8b2d6ba"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/e28101a25046c73277104bbfb7fe52203322948540e5eafe491778e122fec665.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__e28101a25046c73277104bbfb7fe52203322948540e5eafe491778e122fec665.dll.bytes",
+      "sha256": "e28101a25046c73277104bbfb7fe52203322948540e5eafe491778e122fec665"
+    },
+    {
+      "fixturePath": "docs/release-evidence/story-16.2-final-record-v2.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/docs__release-evidence__story-16.2-final-record-v2.json.bytes",
+      "sha256": "a1e37ceac3b468c81b6cfc48dab6f1635bd93830a306ad2fde59d3f9c7bebc54"
+    },
+    {
+      "fixturePath": "docs/release-evidence/story-16.2-final-record-v2.md",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/docs__release-evidence__story-16.2-final-record-v2.md.bytes",
+      "sha256": "9f9eef5c87afeec4c4c6ec512f42ea2abb5a523233a057d2086fb1442d26ce45"
+    },
+    {
+      "fixturePath": "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_2EvidenceTests.cs",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/tests__Hexalith.Conversations.IntegrationTests__Epic16__Story16_2EvidenceTests.cs.bytes",
+      "sha256": "2a34350193e8194ca39fd10dd9ba992031c26539154032b5a9d82292f9843bf4"
+    },
+    {
+      "fixturePath": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/_bmad-output__planning-artifacts__epic-16-tooling-v1__story-contracts__16.2.json.bytes",
+      "sha256": "f521e82499734e629c1ce00098a609898253fee0839c75242fc8b0dacf15a533"
+    },
+    {
+      "fixturePath": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/_bmad-output__planning-artifacts__epic-16-tooling-v1__binding.json.bytes",
+      "sha256": "0b44111a8a884b121fc8d89eda804e859aad97935448ab6a4f8de7d0dc8d1f10"
+    },
+    {
+      "fixturePath": "fixture-entry.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/fixture-entry.json.bytes",
+      "sha256": "de59613666b150ef4a0d10f8b96da3a948c6cd077456fbeb2241b243259cdef4"
+    },
+    {
+      "fixturePath": "_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/native-capture-fixture/_bmad-output__implementation-artifacts__spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md.bytes",
+      "sha256": "330f69e2543c73538e233d3fb29bc2c7149d6069911a65e230ae51946f8b8d9a"
+    }
+  ],
+  "extraction": "git show lifecycleCommit:path; exact committed fixture bytes",
+  "originalRawNativeBytesUnchanged": true,
+  "originalMeasurementDirectoryUnavailableToVerifier": true,
+  "externalBuildAndPayloadDirectoriesDeleted": true,
+  "fixtureBuildOutputsAbsentFromFreshCheckout": true
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="7" time="2.677" timestamp="2026-10-25T20:02:08.602626+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_convergence_derives_state_from_contiguous_authoritative_tenant_events[omit]" time="0.327" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_convergence_derives_state_from_contiguous_authoritative_tenant_events[conflict]" time="0.317" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_convergence_derives_state_from_contiguous_authoritative_tenant_events[relabel-pending]" time="0.310" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_convergence_derives_state_from_contiguous_authoritative_tenant_events[relabel-all]" time="0.317" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_convergence_derives_state_from_contiguous_authoritative_tenant_events[recovered-domain]" time="0.318"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-312/test_convergence_derives_state4/fixture')
+fault = 'recovered-domain'
+
+    @pytest.mark.parametrize('fault',['omit','conflict','relabel-pending','relabel-all','recovered-domain','starting-state','foreign'])
+    def test_convergence_derives_state_from_contiguous_authoritative_tenant_events(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03'])
+        if fault=='omit':data['authoritativeReplay'].pop(1)
+        elif fault=='conflict':data['authoritativeReplay'][1]['sequence']=11
+        elif fault=='recovered-domain':data['recoveredState']['status']='Active'
+        elif fault=='starting-state':data['startingState']['configuration']['conversations.enabled']='false'
+        elif fault=='foreign':
+            row=data['authoritativeReplay'][1];body=json.loads(row['persistedPayload']);body['tenantId']='foreign';row['persistedPayload']=json.dumps(body);row['payloadSha256']=digest(row['persistedPayload'].encode())
+        else:
+            for merge in data['merges']:
+                for row in merge['pending']:
+                    row['eventType']='TenantEnabled';row['persistedPayload']=json.dumps(dict(tenantId='tenant-a',enabledAt='2026-10-25T12:00:01Z'));row['payloadSha256']=digest(row['persistedPayload'].encode())
+            if fault=='relabel-all':data['authoritativeReplay'][1:]=deepcopy(data['merges'][-1]['pending'])
+&gt;       native(repository,'AC-16.1-03',data);rejected(evaluate(repository,'AC-16.1-03'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1332: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_convergence_derives_state_from_contiguous_authoritative_tenant_events[starting-state]" time="0.303" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_convergence_derives_state_from_contiguous_authoritative_tenant_events[foreign]" time="0.521" /></testsuite></testsuites>

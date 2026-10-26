@@ -1,0 +1,29 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_pending_sequence_is_correlated_to_the_first_failure ___________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-247/test_pending_sequence_is_corre0/fixture')
+
+    def test_pending_sequence_is_correlated_to_the_first_failure(repository):
+        data = deepcopy(OBSERVATIONS['AC-16.3-04']); data['pendingSequence'] = 2
+        native(repository, 'AC-16.3-04', data)
+>       rejected(evaluate(repository, 'AC-16.3-04'), 'RECONCILIATION_IDENTITY_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:887: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'RECONCILIATION_IDENTITY_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_pending_sequence_is_correlated_to_the_first_failure
+1 failed, 385 deselected in 0.67s

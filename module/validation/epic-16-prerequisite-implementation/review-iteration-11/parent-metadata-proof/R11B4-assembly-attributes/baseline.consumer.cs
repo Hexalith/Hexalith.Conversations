@@ -1,0 +1,1 @@
+[assembly:System.CLSCompliant(true)] public class Surface { public Probe.Api Echo(Probe.Api value) => value; }

@@ -1,0 +1,14 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r12-product-stamp-kp2h5b2d/external/External.csproj (in 61 ms).
+  Restored /tmp/epic16-r12-product-stamp-kp2h5b2d/product/Product.csproj (in 62 ms).
+/tmp/epic16-r12-product-stamp-kp2h5b2d/external/Stamp.cs(1,88): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r12-product-stamp-kp2h5b2d/external/External.csproj]
+  External -> /tmp/epic16-r12-product-stamp-kp2h5b2d/external/bin/Debug/net10.0/External.dll
+  Product -> /tmp/epic16-r12-product-stamp-kp2h5b2d/product/bin/Debug/net10.0/Product.dll
+
+Build succeeded.
+
+/tmp/epic16-r12-product-stamp-kp2h5b2d/external/Stamp.cs(1,88): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r12-product-stamp-kp2h5b2d/external/External.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.09

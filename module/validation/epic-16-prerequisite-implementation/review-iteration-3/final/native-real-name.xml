@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="4.350" timestamp="2026-10-25T19:58:52.063641+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_real_pinned_xunit_execution_emits_untouched_consumable_trx" time="4.127"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-287/test_real_pinned_xunit_executi0/fixture')
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-287/test_real_pinned_xunit_executi0')
+
+    def test_real_pinned_xunit_execution_emits_untouched_consumable_trx(repository,tmp_path):
+        scenario='AC-16.1-01';path=native(repository,scenario)
+        payload=json.loads(ET.fromstring(path.read_bytes()).find('Results/UnitTestResult/Output/StdOut').text)
+        directory=tmp_path/'real-native';directory.mkdir()
+        project='&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;OutputType&gt;Exe&lt;/OutputType&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;PackageReference Include="xunit.v3" Version="4.0.2" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;'
+        (directory/'Evidence.csproj').write_text(project)
+        (directory/'Stamp.cs').write_text('[assembly: System.Reflection.AssemblyInformationalVersion("1.0.0+'+payload['candidate']+'")]')
+        code='namespace Hexalith.Conversations.IntegrationTests.Epic16; public sealed class Story16_1EvidenceTests(Xunit.ITestOutputHelper output) { [Xunit.Fact] public void Scenario01() { output.WriteLine("""'+json.dumps(payload)+'"""); } }'
+        (directory/'Tests.cs').write_text(code)
+        build=subprocess.run(['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'],cwd=directory,capture_output=True,timeout=120)
+        assert build.returncode==0,build.stdout.decode()
+        native_directory=repository/'artifacts/native-real';shutil.copytree(directory/'bin/Debug/net10.0',native_directory)
+        result=subprocess.run(['dotnet',str(native_directory/'Evidence.dll'),'-automated','sync','-failSkips','-method','Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests.Scenario01','-trx',str(path)],capture_output=True,timeout=120)
+        assert result.returncode==0,(result.stdout,result.stderr)
+        untouched=path.read_bytes()
+        with tooling.ContainedReader(repository) as reader:
+            binary=tooling.native_binary(reader,untouched,payload['candidate'],scenario)
+        assert binary['sourceRevision']==payload['candidate'] and binary['method']=='Scenario01'
+        observed=evaluate(repository,scenario)
+&gt;       assert observed['result']=='PASS',observed
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:1248: AssertionError</failure></testcase></testsuite></testsuites>

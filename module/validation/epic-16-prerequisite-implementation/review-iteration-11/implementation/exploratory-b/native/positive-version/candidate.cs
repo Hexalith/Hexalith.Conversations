@@ -1,0 +1,1 @@
+[assembly:System.Reflection.AssemblyVersion("2.0.0.0")] namespace Probe { public class Api {} }

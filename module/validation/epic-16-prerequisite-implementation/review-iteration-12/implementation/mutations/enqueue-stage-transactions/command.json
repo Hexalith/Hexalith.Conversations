@@ -1,0 +1,29 @@
+{
+  "name": "enqueue-stage-transactions",
+  "path": "_bmad/scripts/epic16_lifecycle.py",
+  "old": "transactions={stage['cas']['transactionId'] for stage in row['atomicity']['stages']}",
+  "new": "transactions=set()",
+  "selector": "round12_enqueue_transaction",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-enqueue-stage-transactions-jzzu6muj/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_enqueue_transaction",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/enqueue-stage-transactions/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-enqueue-stage-transactions-jzzu6muj",
+  "exitCode": 1,
+  "elapsedSeconds": 16.949772138003027,
+  "originalSha256": "0c429d1608323c71c9605bab3a02556d5d5d389a79515f0d08b0083d75ada465",
+  "mutatedSha256": "8a63c2087b5c949cffa92110801fac260fb61bf3beabf9bfe9f285329f7c4430",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 3,
+    "failures": 3,
+    "errors": 0,
+    "skipped": 0
+  }
+}

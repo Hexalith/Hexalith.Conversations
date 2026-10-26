@@ -1,0 +1,44 @@
+[
+  {
+    "entry": "tools/net10.0/any/Hexalith.Builds.Tooling.dll",
+    "sha256": "0266257a74c1dbc49407c61b07d90f7c95b806d937ea4f338b98bf8d128256fd",
+    "size": 1459200
+  },
+  {
+    "entry": "tools/net10.0/any/g4-host/Hexalith.Builds.Tooling.dll",
+    "sha256": "0266257a74c1dbc49407c61b07d90f7c95b806d937ea4f338b98bf8d128256fd",
+    "size": 1459200
+  },
+  {
+    "entry": "tools/net10.0/any/schemas/hexalith.module-manifest.v2.json",
+    "sha256": "06d6804f3b111e803edd0d9142b03f36df344e26e2d71e50e2291fe15039daa4",
+    "size": 29840
+  },
+  {
+    "path": "/tmp/epic16-cli-417kkyns/tool/.store/hexalith.builds.module.cli/4.38.0/hexalith.builds.module.cli/4.38.0/hexalith.builds.module.cli.4.38.0.nupkg",
+    "sha256": "f352d3e0f03f21dbfe42c89adb7a8765cb073a2351281acaa3cf304235426ab1",
+    "sha512": "1d1a5c782b577c6a4a7ba0e716c61c050b9881b17efeacc5c6157b3e8baed8d57122afcb1520df9c7db15d5e0b73f98c7fe8708c35a9fa5bd9e043890b55c379",
+    "size": 37220356
+  },
+  {
+    "entry": "tools/net10.0/any/Hexalith.Builds.Tooling.dll",
+    "sha256": "0266257a74c1dbc49407c61b07d90f7c95b806d937ea4f338b98bf8d128256fd",
+    "size": 1459200
+  },
+  {
+    "entry": "tools/net10.0/any/g4-host/Hexalith.Builds.Tooling.dll",
+    "sha256": "0266257a74c1dbc49407c61b07d90f7c95b806d937ea4f338b98bf8d128256fd",
+    "size": 1459200
+  },
+  {
+    "entry": "tools/net10.0/any/schemas/hexalith.module-manifest.v2.json",
+    "sha256": "06d6804f3b111e803edd0d9142b03f36df344e26e2d71e50e2291fe15039daa4",
+    "size": 29840
+  },
+  {
+    "path": "/tmp/epic16-cli-417kkyns/tool/.store/hexalith.builds.module.cli/4.38.0/hexalith.builds.module.cli/4.38.0/Hexalith.Builds.Module.Cli.nupkg",
+    "sha256": "f352d3e0f03f21dbfe42c89adb7a8765cb073a2351281acaa3cf304235426ab1",
+    "sha512": "1d1a5c782b577c6a4a7ba0e716c61c050b9881b17efeacc5c6157b3e8baed8d57122afcb1520df9c7db15d5e0b73f98c7fe8708c35a9fa5bd9e043890b55c379",
+    "size": 37220356
+  }
+]

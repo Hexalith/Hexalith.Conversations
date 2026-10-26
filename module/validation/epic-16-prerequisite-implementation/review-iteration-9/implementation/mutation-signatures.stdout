@@ -1,0 +1,5 @@
+upstream-abstract-obligation 1 {'tests': 2, 'failures': 2, 'errors': 0, 'skipped': 0}
+signature-defined-class-value-kind 1 {'tests': 2, 'failures': 2, 'errors': 0, 'skipped': 0}
+upstream-member-contract 1 {'tests': 7, 'failures': 7, 'errors': 0, 'skipped': 0}
+signature-referenced-class-value-kind 1 {'tests': 6, 'failures': 6, 'errors': 0, 'skipped': 0}
+Demonstrated 4 guard removals with 17 failures and zero setup errors

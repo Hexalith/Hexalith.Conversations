@@ -1,0 +1,22 @@
+{
+  "changedPath": ".gitignore",
+  "beforeSha256": "ff895a66ebe7fe38721a93b5d9d95209a6c496d903a93515567b9d91a807df3e",
+  "afterSha256": "06ab10cb4c940d3de41ad95b05516b721c5e1b98c476235c26c3f0e04dd8dc37",
+  "previouslyIgnoredExactFilesPreserved": 210,
+  "remainingIgnoredEvidenceFiles": 0,
+  "frozenFilesUnchanged": 85,
+  "unrelatedRuntimeAndBuildIgnoreControls": [
+    "artifacts/epic16-runtime/16.1/AC-16.1-01.trx",
+    "src/Example/bin/Debug/output.dll",
+    "tests/Example/TestResults/result.trx",
+    "module/validation/unrelated/trace.trx"
+  ],
+  "fixtureIndependence": "All three affected test files construct their own disposable .gitignore; none reads ROOT/.gitignore. Root .gitignore is not in the 85 frozen files or 71 bound sources.",
+  "archivedIgnoreRelocation": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-proof-packaging-relocation.json",
+    "sha256": "b507fab91e0e334943054dce1da741353ab276614e8938d8060d22b753770855"
+  },
+  "all114CounterexampleArtifactHashesPreserved": true,
+  "validation": "git ls-files --others --ignored --exclude-standard; exact before/after artifact and frozen-source hashes; git check-ignore controls; git diff --check",
+  "scope": "Packaging-only exception for exact prerequisite evidence directory plus byte-preserving archived ignore-source relocation; no implementation code, fixture, authority or runtime source changed. No index mutation."
+}

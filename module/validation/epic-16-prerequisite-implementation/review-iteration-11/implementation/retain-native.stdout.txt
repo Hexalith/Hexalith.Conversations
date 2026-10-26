@@ -1,0 +1,1 @@
+{"candidate": "e7321cbe86933ddbfedbdcbbf8fb66cad491541f", "publicationCommit": "da91c4e02c6a8b07172432b6a57802a7e8ec5bb7", "lifecycleCommit": "b2543dc8101683fa3f2397dfad6fea73806550ec", "publicationPathCount": 26, "retainedFiles": 31, "retainedAssemblyCount": 9}

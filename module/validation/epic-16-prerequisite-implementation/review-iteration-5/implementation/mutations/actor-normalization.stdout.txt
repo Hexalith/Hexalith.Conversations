@@ -1,0 +1,45 @@
+..FF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_round5_materialized_party_ids_normalize_without_rewriting_raw_payload_hash[actorPartyId] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-389/test_round5_materialized_party2/fixture')
+party_field = 'actorPartyId'
+
+    @pytest.mark.parametrize('party_field',['participantPartyId','authorPartyId','actorPartyId'])
+    def test_round5_materialized_party_ids_normalize_without_rewriting_raw_payload_hash(repository,party_field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-02']);events=data['authoritativeEvents'];domain=tooling.measurements.domain
+        event=next(e for e in events if party_field=='actorPartyId' or party_field in json.loads(e['payload']))
+        payload=json.loads(event['payload']);container=payload['metadata'] if party_field=='actorPartyId' else payload
+        value=container[party_field];container[party_field]='party:  '+value.removeprefix('party:').upper()+'  '
+        raw=json.dumps(payload);event['payload']=raw
+        binding,_,parsed=domain.conversation_envelope(event)
+        assert binding['payloadSha256']==digest(raw.encode()) and event['payload']==raw
+        normalized=parsed['metadata'][party_field] if party_field=='actorPartyId' else parsed[party_field]
+>       assert normalized==(value if party_field=='actorPartyId' else value.removeprefix('party:'))
+E       AssertionError: assert 'party:  ACTOR-A  ' == 'party:actor-a'
+E         
+E         - party:actor-a
+E         + party:  ACTOR-A
+
+_bmad/scripts/tests/test_epic16_tooling.py:1989: AssertionError
+_______ test_round5_redaction_attribution_uses_normalized_actor_party_id _______
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-389/test_round5_redaction_attribut0/fixture')
+
+    def test_round5_redaction_attribution_uses_normalized_actor_party_id(repository):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);proof=data['redactionProof'];event=proof['redactionEvent'];payload=json.loads(event['payload'])
+        payload['metadata']['actorPartyId']='party:  ACTOR-A  ';event['payload']=json.dumps(payload);proof['sourceAfter'][-1]=deepcopy(event)
+        # Persisted expected attribution stays native-normalized, while raw source bytes change.
+>       native(repository,'AC-16.2-05',data);result=evaluate(repository,'AC-16.2-05');assert result['result']=='PASS',result
+                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2003: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_materialized_party_ids_normalize_without_rewriting_raw_payload_hash[actorPartyId]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_redaction_attribution_uses_normalized_actor_party_id
+2 failed, 2 passed, 858 deselected in 3.77s

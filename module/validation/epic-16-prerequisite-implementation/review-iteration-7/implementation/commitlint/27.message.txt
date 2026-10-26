@@ -1,0 +1,1 @@
+test: retain portable native fixture insertion

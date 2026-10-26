@@ -1,0 +1,725 @@
+--- before/_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md
++++ after/_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md
+@@ -678,3 +678,46 @@
+ and clearance transaction, and returns AlreadyCompleted without mutation.
+ Multi-resource erase derives index dispatch references by concatenating each
+ source-derived resource component's references, retaining multiplicity.
++
++Iteration 12's versioned tenant captures retain the executed experiments behind
++three earlier summaries. Each of the four reverse-save branches derives its
++older/newer full projection and checkpoint from native replay, records the newer
++successful CAS followed by the stale rejected CAS against that same durable
++record, then observes both distinct replica processes reading the committed
++snapshot. Request, operation, tenant, logical store record, ETag/version, result
++and transaction are correlated. Only order within a branch is meaningful.
++
++The six authorization rows retain an executed CheckAccessAsync request, composite
++provider/store observation and completed native decision. This is a future-v2
++instrumentation DTO around the existing ITenantProjectionStore tenant-id seam;
++it does not assert a durable runtime implementation exists. Missing and failed
++reads contain no fabricated snapshot or checkpoint. Available snapshots retain
++native domain state, source event/fingerprint, checkpoint, pending/conflict cause
++and freshness. Healthy, Stale, Gapped and Corrupt derive from these facts.
++The independently pinned `tenant-access-observation-v1` control classifies age
++greater than 100 ticks as Stale; equality and zero lag are valid. This deliberately
++small synthetic test threshold is neither a production SLO nor owner policy.
++Native Read/Write/Admin/Governance permission and denial vocabulary derive from
++current attributed Conversations/Commons code. Configuration remains an open
++native string map; it is not added to that service's permission policy. The
++older reverse-save configuration experiment retains its separate existing
++`conversations.enabled=true` conformance control. Consumer reads never repair
++or schedule recovery.
++
++Provider-failure and retry-exhaustion rows now retain complete native source and
++controlled before-state, executed delivery-start observation, one or three ordered
++failed provider attempts, terminal retryable completion, and an executed empty
++acknowledgement inventory for that same delivery. Restoration and a subsequent
++read prove no changed projection/checkpoint/outcome. The capture references the
++exact existing fault's injection/restoration bytes. The current controlled retry
++case uses provider unavailability on all three attempts. Its absent provider reads
++remain null; the after-state becomes observable only after restoration. Start
++observation completion means the start was recorded; terminal delivery processing
++has its separate correlated completion. Successful/duplicate durable outcomes
++retain the earlier commit-before-ack and zero-reapplication semantics.
++
++Catch-up enqueue transactions are distinct from every lifecycle stage transaction;
++the existing drain/work transaction remains shared. Native source stamps, supported
++Task/ValueTask returns and ParamArray constructor supply require actual approved
++framework ownership. SDK selection/build failures retain the actual exit and
++separate 2,000-character stdout/stderr tails while returning structured BLOCKED.
+--- before/_bmad/scripts/epic16_lifecycle.py
++++ after/_bmad/scripts/epic16_lifecycle.py
+@@ -167,7 +167,7 @@
+     streams={stream['id']:stream for stream in row['streams']}
+     authoritative={observed['position']:observed for stream in row['streams'] for observed in stream['authoritativeEvents']}
+     require(proof['deliveries'], 'executed rebuild delivery inventory')
+-    pending=[];by_position={};by_sequence={};by_identity={};deliveries=set();transactions=set();last_order=0
++    pending=[];by_position={};by_sequence={};by_identity={};deliveries=set();transactions={stage['cas']['transactionId'] for stage in row['atomicity']['stages']};last_order=0
+     entry,work,completion=row['atomicity']['stages']
+     persisted=entry['after']
+     def remember(reference):
+--- before/_bmad/scripts/epic16_measurements.py
++++ after/_bmad/scripts/epic16_measurements.py
+@@ -70,11 +70,10 @@
+     return type(value) is int and minimum <= value <= domain.MAX_SEQUENCE
+ 
+ 
+-def tenant_authorization(rows):
++def tenant_authorization(rows, tenant):
+     by = exact_rows(rows, TENANT_STATES, 'state')
+     for state, row in by.items():
+-        require(row['allowed'] is (state == 'Healthy'), 'only Healthy authorizes')
+-        require(integer(row['lastContiguousSequence']), 'contiguous sequence')
++        schedules.tenant_access_capture(row, tenant)
+ 
+ 
+ def healthy_restarts(rows, tenant):
+@@ -95,7 +94,7 @@
+             require(decision['sequence'] == before['sequence'] and decision['freshness'] == freshness, 'consumer sees persisted sequence and freshness')
+ 
+ 
+-def acknowledgements(rows):
++def acknowledgements(rows, fault_rows):
+     by = exact_rows(rows, ('accepted', 'duplicate', 'pending', 'corrupt', 'provider-failure', 'retry-exhaustion'))
+     require(len({row['deliveryId'] for row in rows}) == len(rows), 'distinct acknowledgement deliveries')
+     records = []
+@@ -107,7 +106,9 @@
+         commit, ack = row['durableCommit'], row['acknowledgement']
+         if not durable:
+             require(commit is None and ack is None and row['durableEvidence'] is None, 'provider failure and exhausted retries cannot acknowledge')
++            schedules.failed_delivery(row, fault_rows)
+             continue
++        require(row['failureEvidence'] is None, 'durable outcomes carry no failed processing capture')
+         require(commit is not None and ack is not None, 'measured durable commit and acknowledgement')
+         for operation in (commit, ack):
+             domain.text(operation['deliveryId']); domain.text(operation['recordId'])
+@@ -298,7 +299,7 @@
+     story, number = scenario[3:].rsplit('-', 1)
+     if story == '16.1':
+         if number == '01':
+-            checked('fail-closed-states', lambda: tenant_authorization(data['authorization']))
++            checked('fail-closed-states', lambda: tenant_authorization(data['authorization'], data['isolation']['tenants'][0]))
+             rows = exact_rows(data['transitions'], ('next', 'duplicate', 'conflict', 'older-match', 'older-missing', 'older-conflict', 'older-unavailable'))
+             for key, outcome in zip(rows, ('Healthy', 'Healthy', 'Corrupt', 'Healthy', 'Corrupt', 'Corrupt', 'Unavailable')):
+                 r = rows[key]
+@@ -318,7 +319,7 @@
+                 for record in snapshot['pending']:
+                     relationships.tenant_record(record, data['tenant'])
+             require(snap['state'] == 'Gapped' and snap['authorized'] is False, 'pending restart denies access')
+-            tenant_authorization(data['authorization'])
++            tenant_authorization(data['authorization'], data['tenant'])
+             healthy_restarts(data['healthyRestarts'], data['tenant'])
+             require(data['redeliveries'] == 0 and data['processBefore'] != data['processAfter'], 'restart without redelivery')
+             require(snap['expectedSequence'] == snap['lastContiguousSequence'] + 1 and snap['recoveryThrough'] >= max(r['sequence'] for r in snap['pending']), 'durable gap horizon')
+@@ -358,6 +359,7 @@
+             require(data['replicaA'] == {key: derived[key] for key in data['replicaA']}, 'access derived from authoritative tenant events')
+             reverse_schedules(data['reverseSaves'], data['checkpoint'], horizon)
+             for schedule in data['reverseSaves']:
++                schedules.reverse_save_execution(data, schedule)
+                 end, history = domain.tenant_replay(data['startingState'], schedule['authoritativeReplay'], data['checkpoint'], horizon)
+                 require(schedule['older'] == domain.tenant_decision(history[data['checkpoint']+1], data['checkpoint']+1) and schedule['newer'] == domain.tenant_decision(end, horizon), 'reverse-save decisions derive from actual event semantics')
+             require(data['replicaA'] == {key: data['reverseSaves'][0]['replicaAAfter'][key] for key in data['replicaA']}, 'disable schedule binds recovered replica')
+@@ -367,7 +369,7 @@
+         elif number == '04':
+             expected = dict(zip(TENANT_FAULTS, ('CAS_RETRY', 'Corrupt', 'Gapped', 'Gapped', 'Unavailable', 'FENCE_REJECTED', 'Gapped', 'Corrupt', 'Corrupt', 'Unavailable', 'Healthy', 'Healthy')))
+             fault_matrix(data['faults'], expected)
+-            acknowledgements(data['acknowledgements'])
++            acknowledgements(data['acknowledgements'], data['faults'])
+             require(data['queryRecoveryOperations'] == [] and data['consumerClears'] == [], 'queries and consumer cannot recover')
+             checks += ['tenant-fault-matrix', 'durable-acknowledgement', 'bounded-retry', 'query-purity']
+         else:
+--- before/_bmad/scripts/epic16_native.py
++++ after/_bmad/scripts/epic16_native.py
+@@ -23,6 +23,14 @@
+ 
+ class HelperUnavailable(Exception):
+     """The fixed .NET helper cannot build or run in this environment."""
++
++
++def _process_failure(stage, result):
++    """Retain separate bounded diagnostic tails and the actual prerequisite exit."""
++    def bounded(value):
++        if isinstance(value, bytes): value = value.decode('utf-8', errors='replace')
++        return (value or '')[-2000:]
++    return f"{stage}: exit={result.returncode}; stdout={bounded(result.stdout)!r}; stderr={bounded(result.stderr)!r}"
+ 
+ 
+ def validate_sdk(policy_bytes, selected=None):
+@@ -83,7 +91,7 @@
+             (directory / name).write_bytes(data)
+         sdk = subprocess.run(['dotnet', '--version'], cwd=directory, capture_output=True, timeout=30)
+         if sdk.returncode:
+-            raise HelperUnavailable('repository-approved SDK unavailable')
++            raise HelperUnavailable(_process_failure('repository-approved SDK unavailable', sdk))
+         selected = sdk.stdout.decode('utf-8').strip()
+         validate_sdk(sources[POLICY_PATH], selected)
+         (directory / 'execution-toolchain.json').write_text(json.dumps(dict(sdk=selected,
+@@ -91,7 +99,7 @@
+         build = subprocess.run(['dotnet', 'build', 'Epic16.NativeHelper.csproj', '-c', 'Debug',
+             '--nologo', '-m:1', '-p:NuGetAudit=false'], cwd=directory, capture_output=True, timeout=120)
+         if build.returncode:
+-            raise HelperUnavailable('fixed helper build failed: ' + build.stdout.decode(errors='replace')[-2000:])
++            raise HelperUnavailable(_process_failure('fixed helper build failed', build))
+     except (OSError, subprocess.TimeoutExpired, HelperUnavailable) as error:
+         if workspace is not None:
+             try:
+@@ -118,7 +126,7 @@
+     except (OSError, subprocess.TimeoutExpired) as error:
+         raise HelperUnavailable('helper SDK provenance unavailable') from error
+     if selected.returncode:
+-        raise HelperUnavailable('helper SDK provenance unavailable')
++        raise HelperUnavailable(_process_failure('helper SDK provenance unavailable', selected))
+     sdk = selected.stdout.decode('utf-8').strip()
+     validate_sdk(policy, sdk)
+     if built != dict(sdk=sdk, policySha256=hashlib.sha256(policy).hexdigest()):
+--- before/_bmad/scripts/epic16_native_helper/ProductMetadata.cs
++++ after/_bmad/scripts/epic16_native_helper/ProductMetadata.cs
+@@ -30,11 +30,17 @@
+             bool informational = type.EndsWith("]System.Reflection.AssemblyInformationalVersionAttribute", StringComparison.Ordinal);
+             bool metadata = type.EndsWith("]System.Reflection.AssemblyMetadataAttribute", StringComparison.Ordinal);
+             if (!informational && !metadata) continue;
++            string expectedName = informational ? "System.Reflection.AssemblyInformationalVersionAttribute" : "System.Reflection.AssemblyMetadataAttribute";
++            byte[] signature = informational ? [0x20, 1, 1, 0x0e] : [0x20, 2, 1, 0x0e, 0x0e];
++            if (!IsFrameworkAttribute(reader, attribute, expectedName, signature))
++                throw new InvalidDataException("Product source stamp has no approved framework constructor.");
+             BlobReader value = reader.GetBlobReader(attribute.Value);
+             if (value.ReadUInt16() != 1) throw new BadImageFormatException();
+-            string key = value.ReadSerializedString() ?? "";
+-            if (informational) versions.Add(key);
+-            else if (key == "SourceRevisionId") revisions.Add(value.ReadSerializedString() ?? "");
++            string? key = value.ReadSerializedString();
++            string? content = informational ? key : value.ReadSerializedString();
++            if (value.ReadUInt16() != 0 || value.RemainingBytes != 0) throw new BadImageFormatException();
++            if (informational) versions.Add(content ?? "");
++            else if (key == "SourceRevisionId") revisions.Add(content ?? "");
+         }
+         if (versions.Count != 1 || !versions[0].Contains('+') || versions[0].Split('+')[^1].Split('.')[^1] != revision || revisions.Any(value => value != revision)) throw new InvalidDataException("Product source revision differs.");
+         if (reader.ExportedTypes.Count != 0) throw new InvalidDataException("Forwarded/exported type compatibility is outside this inspector.");
+@@ -160,6 +166,18 @@
+                 || name == "System.Private.CoreLib" && token == "7CEC85D7BEA7798E");
+     }
+ 
++    /// <summary>Admits only an exact approved framework attribute constructor signature.</summary>
++    internal static bool IsFrameworkAttribute(MetadataReader reader, CustomAttribute attribute, string name, byte[] signature)
++    {
++        if (attribute.Constructor.Kind != HandleKind.MemberReference) return false;
++        MemberReference constructor = reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor);
++        if (constructor.Parent.Kind != HandleKind.TypeReference || reader.GetString(constructor.Name) != ".ctor"
++            || !IsFrameworkType(reader, (TypeReferenceHandle)constructor.Parent)) return false;
++        TypeReference type = reader.GetTypeReference((TypeReferenceHandle)constructor.Parent);
++        return reader.GetString(type.Namespace) + "." + reader.GetString(type.Name) == name
++            && reader.GetBlobBytes(constructor.Signature).AsSpan().SequenceEqual(signature);
++    }
++
+     /// <summary>Excludes only separately verified source identity and expected build file-version metadata.</summary>
+     private static string ContractAttributes(MetadataReader reader, CustomAttributeHandleCollection handles)
+     {
+--- before/_bmad/scripts/epic16_native_helper/Program.cs
++++ after/_bmad/scripts/epic16_native_helper/Program.cs
+@@ -195,10 +195,7 @@
+         {
+             return false;
+         }
+-        TypeReference reference = reader.GetTypeReference((TypeReferenceHandle)handle);
+-        return reference.ResolutionScope.Kind == HandleKind.AssemblyReference
+-            && reader.GetString(reader.GetAssemblyReference((AssemblyReferenceHandle)reference.ResolutionScope).Name)
+-                is "System.Runtime" or "System.Threading.Tasks" or "System.Private.CoreLib" or "mscorlib";
++        return ProductMetadata.IsFrameworkType(reader, (TypeReferenceHandle)handle);
+     }
+ 
+     private static void Inspect(JsonElement root)
+@@ -228,20 +225,17 @@
+             {
+                 continue;
+             }
++            bool informational = name == "System.Reflection.AssemblyInformationalVersionAttribute";
++            byte[] signature = informational ? [0x20, 1, 1, 0x0e] : [0x20, 2, 1, 0x0e, 0x0e];
++            if (!ProductMetadata.IsFrameworkAttribute(reader, attribute, name, signature))
++                throw new InvalidDataException("Source stamp has no approved framework constructor.");
+             BlobReader blob = reader.GetBlobReader(attribute.Value);
+-            if (blob.ReadUInt16() != 1)
+-            {
+-                throw new BadImageFormatException();
+-            }
+-            string? value = blob.ReadSerializedString();
+-            if (name == "System.Reflection.AssemblyInformationalVersionAttribute")
+-            {
+-                versions.Add(value ?? string.Empty);
+-            }
+-            else if (value == "SourceRevisionId")
+-            {
+-                revisions.Add(blob.ReadSerializedString() ?? string.Empty);
+-            }
++            if (blob.ReadUInt16() != 1) throw new BadImageFormatException();
++            string? key = blob.ReadSerializedString();
++            string? value = informational ? key : blob.ReadSerializedString();
++            if (blob.ReadUInt16() != 0 || blob.RemainingBytes != 0) throw new BadImageFormatException();
++            if (informational) versions.Add(value ?? string.Empty);
++            else if (key == "SourceRevisionId") revisions.Add(value ?? string.Empty);
+         }
+         if (versions.Count != 1 || !versions[0].Contains('+') || versions[0].Split('+')[^1].Split('.')[^1] != revision
+             || revisions.Any(value => value != revision))
+--- before/_bmad/scripts/epic16_native_helper/README.md
++++ after/_bmad/scripts/epic16_native_helper/README.md
+@@ -129,3 +129,14 @@
+ flags and signing token. System namespaces and attribute-name suffixes alone grant
+ no framework identity; unresolved external declarations fail closed or remain
+ retained contracts.
++
++Iteration 12 applies the same approved framework identity to both test and product
++source stamps, exact supported constructor signatures and complete attribute blobs.
++Local or external aliased informational/source metadata cannot attest a revision.
++Task and ValueTask require the approved framework reference, and parameter-array
++constructor supply requires the genuine ParamArrayAttribute constructor and blob.
++Both genuine SDK informational-version forms and ordinary fixture/default/optional
++constructor supply remain supported. An unsigned custom Task passing the runner
++is still outside this inspector's supported framework-return subset. Prerequisite
++SDK/build errors retain bounded separate diagnostic tails and the real exit code;
++no evidence assembly or attribute is loaded or executed by inspection.
+--- before/_bmad/scripts/epic16_schedules.py
++++ after/_bmad/scripts/epic16_schedules.py
+@@ -325,3 +325,161 @@
+     require(current['succeeded'] is True and current['transactionId']==text(current['leaseTransactionId'])==text(current['recordTransactionId']), 'current fences admit durable composite renewal')
+     domain.ticks(proposal['leaseUntilUtcTicks'])
+     require(same(current['after'],proposal) and current['after']['etag']!=after['etag'] and current['cleared']==[], 'admissible current renewal preserves complete Gapped pending state')
++
++
++# Independently fixed conformance controls, not production freshness or access policy.
++TENANT_ACCESS_CONTROL = dict(id='tenant-access-observation-v1', maxAgeTicks=100)
++
++
++def executed_operation(operation, scope, minimum_order):
++    """Correlate a completed controlled operation with its actual request and scope."""
++    text(operation['operationId'])
++    require(operation['executed'] is True and operation['completed'] is True, 'tenant operation actually executed and completed')
++    require(same(operation['scope'], scope), 'tenant operation exact request tenant store record process scope')
++    domain.sequence(operation['order']); domain.sequence(operation['completedOrder'])
++    require(minimum_order < operation['order'] < operation['completedOrder'], 'ordered tenant operation and completion')
++    return operation['completedOrder']
++
++
++def reverse_save_execution(data, row):
++    """Four independent native replay branches each execute against one durable record."""
++    proof = row['execution']; require(proof['captureVersion'] == 1, 'versioned reverse-save execution')
++    tenant = data['startingState']['tenantId']; checkpoint = data['checkpoint']; horizon = data['recovery']['horizon']
++    final, history = domain.tenant_replay(data['startingState'], row['authoritativeReplay'], checkpoint, horizon)
++    scope = proof['scope']
++    require(scope['tenant'] == scope['recordId'] == tenant, 'reverse saves use exact tenant logical record')
++    text(scope['storeId']); text(proof['scheduleId'])
++    saves = proof['saves']; require([r['id'] for r in saves] == ['newer','older'], 'executed newer then older save inventory')
++    baseline = saves[0]['storedBefore']; domain.sequence(baseline['version']); text(baseline['etag'])
++    expected_base = dict(tenant=tenant, checkpoint=checkpoint, projection=data['startingState'], version=baseline['version'], etag=baseline['etag'], health='Healthy', pending=[], horizon=checkpoint)
++    require(same(baseline, expected_base), 'reverse-save durable baseline derives from starting state')
++    persisted = baseline; last = 0; identities = set(); replicas = {}; transactions = []
++    for save in saves:
++        replica = text(save['replicaId']); process = text(save['processId']); request = text(save['requestId'])
++        require(replica not in replicas and process not in [p for p,_ in replicas.values()], 'distinct reverse-save replicas and processes')
++        replicas[replica] = (process, save['id'])
++        local_scope = dict(scope, replicaId=replica, processId=process, requestId=request)
++        last = executed_operation(save, local_scope, last)
++        require(save['operationId'] not in identities and request not in identities, 'distinct reverse-save operations and requests'); identities.update((save['operationId'],request))
++        domain.sequence(save['casOrder']); require(save['order'] < save['casOrder'] < last and save['casExecuted'] is True, 'executed compare-exchange inside save operation')
++        require(same(save['storedBefore'], persisted), 'reverse save observes preceding durable commit')
++        require(save['expected'] == dict(etag=baseline['etag'], version=baseline['version']), 'both reverse saves retain their original CAS expectation')
++        proposed = save['proposed']; newer = save['id'] == 'newer'; sequence = horizon if newer else checkpoint+1
++        text(proposed['etag']); require(proposed['etag'] != baseline['etag'], 'proposed durable write advances opaque etag')
++        expected_proposal = dict(expected_base, checkpoint=sequence, horizon=sequence, projection=final if newer else history[sequence], version=baseline['version']+1, etag=proposed['etag'])
++        require(same(proposed, expected_proposal), 'reverse-save complete proposed projection and checkpoint derive from authoritative replay')
++        admissible = save['expected'] == dict(etag=persisted['etag'],version=persisted['version'])
++        require(admissible is newer and save['succeeded'] is admissible, 'newer CAS succeeds and stale older CAS fails against that durable state')
++        if admissible:
++            transactions.append(text(save['transactionId'])); persisted = proposed
++        else: require(save['transactionId'] is None, 'rejected stale save has no durable transaction')
++        require(same(save['storedAfter'], persisted), 'save after-state preserves exact committed full snapshot')
++        require(same(row[save['id']], domain.tenant_decision(proposed['projection'],sequence)), 'save proposal binds prior decision summary')
++    reads = proof['consumers']; require(len(reads)==2 and {r['replicaId'] for r in reads}==set(replicas), 'both saving replicas execute final consumer reads')
++    for read in reads:
++        process, label = replicas[read['replicaId']]
++        require(read['processId']==process, 'consumer executes on same distinct replica process')
++        request=text(read['requestId']); local_scope=dict(scope,replicaId=read['replicaId'],processId=process,requestId=request)
++        end=executed_operation(read,local_scope,last)
++        require(read['operationId'] not in identities and request not in identities, 'distinct final read identities');identities.update((read['operationId'],request))
++        store=read['storeRead']; response=read['response']
++        executed_operation(store,local_scope,read['order']);executed_operation(response,local_scope,store['completedOrder'])
++        require(store['operationId'] not in identities and response['operationId'] not in identities and store['operationId'] != response['operationId'], 'distinct executed store read and response identities');identities.update((store['operationId'],response['operationId']))
++        require(response['completedOrder']<end and store['method']=='ITenantProjectionStore.GetAsync' and store['logicalKey']==tenant, 'completed consumer encloses actual tenant store read and response')
++        require(store['observedTransactionId']==transactions[0] and same(store['snapshot'],persisted), 'both replicas read the same actual final durable snapshot')
++        require(read['principal']=='actor-a' and same(response['decision'],domain.tenant_decision(persisted['projection'],persisted['checkpoint'])), 'consumer decision derives from exact observed native state')
++        require(same(response['decision'],row['replicaAAfter' if label=='older' else 'replicaBAfter']), 'replica summary derives from executed consumer response')
++        require(read['writes']==[] and read['recoveryOperations']==[], 'reverse-save consumers cannot repair or recover')
++
++
++def tenant_access_capture(row, tenant):
++    """Future composite read capture; current native access vocabulary, no provider implementation."""
++    proof=row['capture']; require(proof['captureVersion']==1 and same(proof['control'],TENANT_ACCESS_CONTROL), 'pinned tenant freshness observation control')
++    scope=proof['scope'];require(scope['tenant']==scope['recordId']==tenant, 'authorization same tenant logical store record')
++    for field in ('storeId','processId','requestId','principal'):text(scope[field])
++    request,read,response=proof['request'],proof['storeRead'],proof['response']
++    previous=0;ids=[]
++    for operation in (request,read,response):
++        previous=executed_operation(operation,scope,previous);ids.append(operation['operationId'])
++    require(len(set(ids))==3, 'distinct authorization request read response operations')
++    require(request['method']=='ConversationTenantAccessService.CheckAccessAsync' and read['method']=='ITenantProjectionStore.GetAsync' and read['logicalKey']==tenant, 'actual tenant access and store seam')
++    requirement=request['requirement'];require(requirement in ('Read','Write','Admin','Governance'), 'native access requirement')
++    require(proof['writes']==[] and proof['recoveryOperations']==[], 'authorization read cannot repair or recover')
++    domain.ticks(proof['observedAtUtcTicks'])
++    snapshot=read['snapshot']; provider=read['outcome'];require(provider in ('Available','Missing','Unavailable'), 'actual tenant read outcome')
++    sequence=None;watermark=None;reason='TenantAccessUnavailable';retry=True;allowed=False
++    if provider!='Available':
++        require(snapshot is None and proof['sourceState'] is None and proof['sourceRecord'] is None and proof['conflict'] is None, 'absent or unavailable read cannot manufacture persisted state or metadata')
++        require(read['error']==('ProviderUnavailable' if provider=='Unavailable' else None), 'actual provider failure distinguishes unavailable from missing')
++        state='Unavailable' if provider=='Unavailable' else 'Unknown'
++        # Missing composite health is unknown and fails closed with native unavailable vocabulary.
++    else:
++        require(read['error'] is None and snapshot is not None, 'available read returns actual snapshot')
++        source=tenant_record(proof['sourceRecord'],tenant)
++        expected,_=domain.tenant_replay(proof['sourceState'],[proof['sourceRecord']],source['sequence']-1,source['sequence'])
++        require(proof['sourceState']['tenantId']==tenant and snapshot['tenant']==tenant and snapshot['checkpoint']==source['sequence'] and same(snapshot['lastAccepted'],source) and same(snapshot['projection'],expected), 'authorization native projection checkpoint and fingerprint derive from retained source')
++        text(snapshot['etag']);domain.sequence(snapshot['horizon']);sequence=snapshot['checkpoint'];watermark=str(sequence)
++        freshness=snapshot['freshness']
++        for key in ('lastAppliedUtcTicks','generatedUtcTicks'):domain.ticks(freshness[key])
++        domain.sequence(freshness['lagTicks'],checkpoint=True)
++        require(freshness['generatedUtcTicks']>=freshness['lastAppliedUtcTicks'] and freshness['lagTicks']==freshness['generatedUtcTicks']-freshness['lastAppliedUtcTicks'] and proof['observedAtUtcTicks']>=freshness['generatedUtcTicks'], 'valid persisted freshness and observation clock')
++        pending=snapshot['pending'];seen=set()
++        for item in pending:
++            fingerprint=tenant_record(item,tenant);require(fingerprint['sequence']>sequence+1 and fingerprint['sequence']<=snapshot['horizon'] and fingerprint['sequence'] not in seen, 'actual pending future gap fingerprint and horizon');seen.add(fingerprint['sequence'])
++        conflict=proof['conflict']
++        if conflict is not None:
++            reused=tenant_record(conflict,tenant);require(reused['sequence']==sequence and not same(reused,source) and pending==[] and snapshot['horizon']==sequence, 'actual conflicting accepted fingerprint establishes corrupt state')
++            state='Corrupt';reason='TenantProjectionPoisoned';retry=False
++        elif pending:
++            require(snapshot['horizon']==max(sequence,*seen), 'gap horizon derives from actual pending evidence')
++            state='Gapped';reason='TenantAccessGapDetected'
++        else:
++            require(snapshot['horizon']==sequence, 'no unexplained gap horizon')
++            state='Stale' if proof['observedAtUtcTicks']-freshness['generatedUtcTicks']>TENANT_ACCESS_CONTROL['maxAgeTicks'] else 'Healthy'
++            reason='TenantAccessStale'
++        require(snapshot['health']==state, 'stored authorization health derives from actual cause')
++        if state=='Healthy':
++            projection=snapshot['projection'];principal=scope['principal'];role=projection['members'].get(principal)
++            permissions={'TenantReader':('Read',),'TenantContributor':('Read','Write'),'TenantOwner':('Read','Write','Admin','Governance')}
++            unsafe_members=any(key != key.strip(''.join(domain.NATIVE_WHITESPACE)) for key in projection['members'])
++            reason='TenantProjectionPoisoned' if unsafe_members else 'TenantDisabled' if projection['status']=='Disabled' else 'MissingMember' if role is None else 'UnmappedRole' if role=='Unknown' else 'InsufficientRole' if requirement not in permissions.get(role,()) else 'None'
++            allowed=reason=='None';retry=False
++            if not allowed:watermark=None
++    require(row['state']==state and row['lastContiguousSequence']==sequence and row['allowed'] is allowed, 'authorization summaries derive from actual read and access inputs')
++    expected_response=dict(isAllowed=allowed,requirement=requirement,tenantId=tenant,callerPrincipalId=scope['principal'],denialReason=reason,isRetryable=retry,projectionVersion=sequence if state!='Healthy' or allowed else None,projectionWatermark=watermark)
++    require(same(response['decision'],expected_response) and response['observedReadId']==read['operationId'], 'executed native access response binds actual read result and safe metadata')
++
++
++def failed_delivery(row, faults):
++    """Completed failed delivery, bounded native attempts and observed empty ack inventory."""
++    proof=row['failureEvidence'];require(proof['captureVersion']==1, 'versioned bounded failed-delivery capture')
++    scope=proof['scope'];tenant=text(scope['tenant']);require(scope['recordId']==tenant and scope['deliveryId']==row['deliveryId'], 'failure delivery tenant store record identity')
++    for field in ('storeId','processId','operationId'):text(scope[field])
++    expected_fault='provider-unavailable' if row['id']=='provider-failure' else 'retry-exhaustion'
++    require(proof['faultId']==expected_fault, 'failure references its exact existing injected fault')
++    fault=next(f for f in faults if f['id']==expected_fault)
++    require(fault['target']==dict(kind='tenant-projection',id=tenant) and proof['faultDigests']=={key:digest(fault[key].encode()) for key in ('beforeBytes','injectedBytes','afterBytes')}, 'failed delivery binds exact injected and restored fault evidence')
++    source=tenant_record(proof['sourceRecord'],tenant);delivered=tenant_record(proof['delivered'],tenant)
++    state,_=domain.tenant_replay(proof['sourceState'],[proof['sourceRecord']],source['sequence']-1,source['sequence'])
++    before=proof['beforeRead']['snapshot'];text(before['etag'])
++    expected=dict(tenant=tenant,checkpoint=source['sequence'],projection=state,lastAccepted=source,health='Healthy',pending=[],horizon=source['sequence'],etag=before['etag'])
++    require(proof['sourceState']['tenantId']==tenant and same(before,expected) and delivered['sequence']==source['sequence']+1, 'failed processing retains native exact-next event and complete preceding durable state')
++    previous=executed_operation(proof['beforeRead'],scope,0)
++    require(proof['beforeRead']['outcome']=='Available' and proof['beforeRead']['logicalKey']==tenant, 'observed complete durable state before provider fault')
++    start=proof['processing'];previous=executed_operation(start,scope,previous)
++    require(start['delivery']==proof['delivered'] and start['phase']=='start', 'executed processing receives same immutable native delivery')
++    attempts=proof['attempts'];require(len(attempts)==row['attempts']==(1 if row['id']=='provider-failure' else 3), 'bounded count derives from actual failed attempt inventory')
++    identities=[proof['beforeRead']['operationId'],start['operationId']]
++    for number,attempt in enumerate(attempts,1):
++        previous=executed_operation(attempt,scope,previous);identities.append(attempt['operationId'])
++        require(attempt['number']==number and attempt['method']=='compare-exchange' and attempt['expectedEtag']==before['etag'] and same(attempt['proposed'],dict(expected,checkpoint=delivered['sequence'],horizon=delivered['sequence'],projection=domain.tenant_replay(state,[proof['delivered']],source['sequence'],delivered['sequence'])[0],lastAccepted=delivered)), 'ordered attempt actually proposes source-derived exact-next composite write')
++        require(attempt['provider']=='Unavailable' and attempt['result']=='ProviderUnavailable' and attempt['succeeded'] is False and attempt['transactionId'] is None and attempt['observedBefore'] is None and attempt['observedAfter'] is None, 'actual provider failure cannot claim a successful write or unavailable snapshot')
++    completion=proof['completion'];previous=executed_operation(completion,scope,previous);identities.append(completion['operationId'])
++    require(completion['outcome']=='Unavailable' and completion['retryable'] is True and completion['attemptIds']==[r['operationId'] for r in attempts] and completion['commits']==[], 'completed retryable processing records exact failed attempts and zero commits')
++    acknowledgements=proof['acknowledgements'];previous=executed_operation(acknowledgements,scope,previous);identities.append(acknowledgements['operationId'])
++    require(acknowledgements['processingCompletionId']==completion['operationId'] and acknowledgements['deliveries']==[], 'completed failed delivery has observed empty acknowledgement inventory')
++    restoration=proof['restoration'];previous=executed_operation(restoration,scope,previous);identities.append(restoration['operationId'])
++    require(restoration['provider']=='Available' and restoration['faultAfterSha256']==fault['afterSha256'], 'provider restored according to same fault experiment')
++    after=proof['afterRead'];executed_operation(after,scope,previous);identities.append(after['operationId'])
++    require(after['logicalKey']==tenant and after['outcome']=='Available' and same(after['snapshot'],before), 'actual read after restoration proves complete durable state unchanged')
++    require(len(set(identities))==len(identities), 'distinct executed failure operation inventory')
+--- before/_bmad/scripts/epic16_tooling.py
++++ after/_bmad/scripts/epic16_tooling.py
+@@ -159,6 +159,7 @@
+         raise Stop('SCHEMA_INVALID', path) from None
+     need(contract['nativeProtocol']['catalogControl'] == dict(measurements.relationships.CATALOG_CONTROL, scope='controlled-native-experiment-not-operational-approval'), 'CONTRACT_DRIFT', path)
+     need(contract['nativeProtocol']['conformanceControls'] == measurements.faults.CONTROL_POLICY, 'CONTRACT_DRIFT', path)
++    need(contract['nativeProtocol']['tenantAccessControl'] == measurements.schedules.TENANT_ACCESS_CONTROL, 'CONTRACT_DRIFT', 'independent tenant freshness test control')
+     need(contract['nativeProtocol']['capturePolicy'] == capture.policy(story), 'CONTRACT_DRIFT', 'portable native capture policy')
+     need(contract['nativeProtocol']['productPolicy'] == products.policy(), 'CONTRACT_DRIFT', 'independent required product ownership and surfaces')
+     enrollment = load(reader, 'module/hexalith.module-manifest.v2.json')
+--- before/_bmad/scripts/epic16_trust.py
++++ after/_bmad/scripts/epic16_trust.py
+@@ -1,4 +1,4 @@
+ """Independent immutable contract/schema/predecessor pins for Epic 16 tooling."""
+-CONTRACT_PINS = {'_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json': '19c826f872cd5acce3d33a125ae3288ae8be8a5a5b663c18f63d296bb3437ba9', '_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json': '084fe556ce8b0c8c967113221ff57461c96cacff5fdd6ecd49023de2f8b2f746', '_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json': 'eccff824789d26aebc49abde8b5f2fd323e2f47883d300e3cc533a472c307e98'}
++CONTRACT_PINS = {'_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json': 'fa99d67d7785fb4fb2e6560be326c858733253b3ce6ab05ec830233cbc2f6859', '_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json': 'f0e47c06a816e3f6c1db2e43b07f6a931597729e2652b7fd528dca894d0d2d79', '_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json': 'c32de38f59d8b3ee39272ce8c957b5540c90cfb038e7d895ec6b8178a6c00075'}
+ PREDECESSOR_PINS = {'_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md': 'bc7d953ab6ea741b488ae8c96f5d4a7dde6d1fe2ef0ff33a3ff79b2cb82a6157', '_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json': '989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747', '_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json': '791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8', '_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json': '074189ef4eea79bddeef5935b27df01c637dc5bf832a17eb24933c52968364c0', '_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json': 'da8c5462c77239f9f770a9b803b436824efb8e58f7f182fb66ec1343902beae7', '_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json': '542f1de5e4af3c58c9df7d654e04dd2ea99b9f63cd50bcf864ef5c2ba1257963', '_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json': '226a0a060951139346282a8048338ff9af35014fe7154d79a8863da56507c9dc', '_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md': 'e12ee39652b9d7e18052716c955962d716f7e48b6fea2cd1f43f6a22d783ecb0', '_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json': '989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747', '_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json': '791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8', '_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json': '4c533a78c3f0f115f28d1113e5b2e71a4d71c93b5c08b4e3ebf8cfa23e47b9bd', '_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json': '3088bcf463a6bd7643925195c0ecf3e34f26e72caf6706c08e2c62b3ddaae2f6', '_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.2.json': 'd9fd9f9fe66b178f2435396ab467886d9dd04024754ff5970345fa1802f53560', '_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json': 'b353f763387047063f3c2c8d9a0373de8e61f054ea7a3df714c29f43db21b712', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md': 'b0b110461e81457a12b35bc8515ad691d26a926b206189495241f7f52a50097c', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json': '989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json': '791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json': '16eaf5b30e379ca50172a20fa5b069ac6a3cd4c675c5ca322d9178a1929f5746', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json': '3e44d0498d231633a12ee122d72535c178870a1601ab8c552c815566fe257e08', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json': 'a21c8c817e5126343110a5e6730883b5cf32738610b3f552ef6cdbbfe605a965', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json': '5eeccfb8427e4ebccc1955f965d00e3c5655834a3c3005443c970be2dd99509a', '_bmad/schemas/epic-16-adoption-v1.schema.json': '884d8efb4bf58571c99dca0b63ba0f97b10e50db0cb4bd238ed5a96f017f4f98', '_bmad/schemas/epic-16-adoption-v2.schema.json': '12278d301a8945ba929d28ecb7a8091663e40f23d821aa4cf3d2d3ec765d3a4f', '_bmad/schemas/epic-16-prerequisites-v1.schema.json': 'b7095d7191a96dcefb5a0c333958e5c7eccbd7fa1fae9cb8d62ea2ec8bcad497', '_bmad/scripts/verify_epic_16_adoption.py': 'b22b6d25ae86186d0575a19dfa09b810220c70d3fb9c0eadefc781a53ce68505', '_bmad/scripts/verify_epic_16_adoption_v2.py': 'f9ac03603a2b1635b7bb7e7f44262c2acb8f0272fbf55030ea1012932d93b568', '_bmad/scripts/verify_epic_16_prerequisites.py': 'b10e910aefdd7f9f19cb80bbb19936efd2340f641be45787c140cf45738bbfa6'}
+-SCHEMA_PIN = '716e36cb2dd8e7ee34599fc67eb07e368d7cee5277a13cc7090f87e26a04d87f'
++SCHEMA_PIN = 'ebfb75d5e8df14b79226d23cb1fd776c555971d0325b5111fa71bdbf16e43148'
+--- before/_bmad/scripts/tests/test_epic16_tooling.py
++++ after/_bmad/scripts/tests/test_epic16_tooling.py
+@@ -1960,6 +1960,7 @@
+     proof=data['recoverySchedule'];old=proof['oldWorker']['snapshot']['horizon']
+     proof['staleCompletion']['proposed']['projection'],_=domain.tenant_replay(data['startingState'],data['authoritativeReplay'][:old-data['checkpoint']],data['checkpoint'],old)
+     for snapshot in (proof['replay']['after'],proof['currentCompletion']['before'],proof['currentCompletion']['after']):snapshot['projection']=deepcopy(data['recoveredState'])
++    round12_refresh_reverse_states(data)
+     native(repository,'AC-16.1-03',data);result=evaluate(repository,'AC-16.1-03');assert result['result']=='PASS',result
+ 
+ 
+@@ -2930,6 +2931,9 @@
+             if row[key] is not None:row[key]['deliveryId']=value
+     elif row['durableCommit'] is not None:
+         row['durableCommit']['recordId']=row['acknowledgement']['recordId']=value
++    if row['failureEvidence'] is not None:
++        proof=row['failureEvidence'];proof['scope']['deliveryId']=row['deliveryId']
++        for operation in [proof['beforeRead'],proof['processing'],*proof['attempts'],proof['completion'],proof['acknowledgements'],proof['restoration'],proof['afterRead']]:operation['scope']['deliveryId']=row['deliveryId']
+     round8_submit(repository,'AC-16.1-04',data,passes=value in ('\x1c','\x1d','\x1e','\x1f'))
+ 
+ 
+@@ -4210,3 +4214,224 @@
+     if not is_test:
+         with pytest.raises(tooling.Stop) as error:tooling.products.additive(*metadata,tooling.need,control)
+         assert error.value.code=='UPSTREAM_API_DRIFT' and metadata[0]['api']!=metadata[1]['api']
++
++
++def round12_set(value, path, replacement):
++    for key in path[:-1]:value=value[key]
++    if replacement=='__remove__':value.pop(path[-1])
++    else:value[path[-1]]=deepcopy(replacement)
++
++
++ROUND12_REVERSE = [
++ ('missing',('execution',),'__remove__'),
++ ('unexecuted',('execution','saves',0,'executed'),False),
++ ('incomplete',('execution','saves',1,'completed'),False),
++ ('cas-unexecuted',('execution','saves',1,'casExecuted'),False),
++ ('cas-order',('execution','saves',1,'casOrder'),99),
++ ('scope',('execution','saves',1,'scope','tenant'),'foreign'),
++ ('replica',('execution','saves',1,'replicaId'),'replica-b'),
++ ('process',('execution','saves',1,'processId'),'process-replica-b'),
++ ('request',('execution','saves',1,'requestId'),'unrelated'),
++ ('expectation',('execution','saves',1,'expected','version'),21),
++ ('proposal',('execution','saves',1,'proposed','projection','name'),'stale invention'),
++ ('newer-result',('execution','saves',0,'succeeded'),False),
++ ('stale-result',('execution','saves',1,'succeeded'),True),
++ ('transaction',('execution','saves',1,'transactionId'),'unexpected'),
++ ('before',('execution','saves',1,'storedBefore','checkpoint'),10),
++ ('after',('execution','saves',1,'storedAfter','checkpoint'),11),
++ ('read-unexecuted',('execution','consumers',0,'storeRead','executed'),False),
++ ('response-incomplete',('execution','consumers',1,'response','completed'),False),
++ ('read-scope',('execution','consumers',0,'storeRead','scope','tenant'),'foreign'),
++ ('read-key',('execution','consumers',0,'storeRead','logicalKey'),'foreign'),
++ ('read-state',('execution','consumers',0,'storeRead','snapshot','projection','name'),'wrong'),
++ ('read-transaction',('execution','consumers',1,'storeRead','observedTransactionId'),'unrelated'),
++ ('response',('execution','consumers',0,'response','decision','allowed'),True),
++ ('read-early',('execution','consumers',0,'order'),1),
++ ('repair',('execution','consumers',0,'writes'),['repair']),
++]
++@pytest.mark.parametrize('index',range(4))
++@pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_REVERSE],ids=lambda x:x if isinstance(x,str) else None)
++def test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers(repository,index,fault,path,value):
++    data=deepcopy(OBSERVATIONS['AC-16.1-03'])
++    if path:round12_set(data['reverseSaves'][index],path,value)
++    round8_submit(repository,'AC-16.1-03',data,passes=fault=='positive')
++
++
++ROUND12_ACCESS = [
++ ('missing',('capture',),'__remove__'),('request-unexecuted',('capture','request','executed'),False),
++ ('read-unexecuted',('capture','storeRead','executed'),False),('response-incomplete',('capture','response','completed'),False),
++ ('scope',('capture','storeRead','scope','tenant'),'foreign'),('principal',('capture','request','scope','principal'),'unrelated'),
++ ('process',('capture','response','scope','processId'),'unrelated'),('request',('capture','response','scope','requestId'),'unrelated'),
++ ('record',('capture','scope','recordId'),'foreign'),('read-key',('capture','storeRead','logicalKey'),'foreign'),
++ ('order',('capture','response','order'),3),('read-correlation',('capture','response','observedReadId'),'unrelated'),
++ ('response',('capture','response','decision','tenantId'),'foreign'),('threshold',('capture','control','maxAgeTicks'),999999),
++ ('allowed',('allowed',),True),('sequence',('lastContiguousSequence',),99),('repair',('capture','writes'),['repair'])]
++@pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
++@pytest.mark.parametrize('index',range(6))
++@pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
++def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
++    data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
++    if fault=='allowed':value=not row['allowed']
++    if path:round12_set(row,path,value)
++    round8_submit(repository,scenario,data,passes=fault=='positive')
++
++
++@pytest.mark.parametrize('case',['source','projection','freshness','float-freshness','future-clock','health','stale-current','gap-missing','gap-tenant','conflict-missing','conflict-identical','unknown-snapshot','unknown-metadata','unavailable-snapshot','unavailable-error'])
++def test_round12_authorization_state_derives_from_actual_inputs(repository,case):
++    data=deepcopy(OBSERVATIONS['AC-16.1-01']);index=2 if case=='stale-current' else 3 if case.startswith('gap') else 4 if case.startswith('conflict') else 1 if case.startswith('unknown') else 5 if case.startswith('unavailable') else 0
++    row=data['authorization'][index];p=row['capture'];snapshot=p['storeRead']['snapshot']
++    if case=='source':p['sourceRecord']['payloadSha256']='f'*64
++    elif case=='projection':snapshot['projection']['name']='wrong'
++    elif case=='freshness':snapshot['freshness']['lagTicks']=0
++    elif case=='float-freshness':snapshot['freshness']['generatedUtcTicks']=1100.0
++    elif case=='future-clock':p['observedAtUtcTicks']=1099
++    elif case=='health':snapshot['health']='Unknown'
++    elif case=='stale-current':p['observedAtUtcTicks']=1100
++    elif case=='gap-missing':snapshot['pending']=[]
++    elif case=='gap-tenant':snapshot['pending'][0]['persistedPayload']=snapshot['pending'][0]['persistedPayload'].replace('tenant-a','foreign');snapshot['pending'][0]['payloadSha256']=digest(snapshot['pending'][0]['persistedPayload'].encode())
++    elif case=='conflict-missing':p['conflict']=None
++    elif case=='conflict-identical':p['conflict']=deepcopy(p['sourceRecord'])
++    elif case.endswith('snapshot'):p['storeRead']['snapshot']=deepcopy(data['authorization'][0]['capture']['storeRead']['snapshot'])
++    elif case=='unknown-metadata':row['lastContiguousSequence']=10;p['response']['decision']['projectionVersion']=10
++    elif case=='unavailable-error':p['storeRead']['error']=None
++    round8_submit(repository,'AC-16.1-01',data)
++
++
++@pytest.mark.parametrize('mode',['zero-lag','at-threshold','nullable','maps','reader-read','reader-write','missing-member','disabled','configuration-empty'])
++def test_round12_authorization_native_values_and_control_boundaries(repository,mode):
++    data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=data['authorization'][0];p=row['capture'];snapshot=p['storeRead']['snapshot'];decision=p['response']['decision']
++    if mode=='zero-lag':snapshot['freshness']['lastAppliedUtcTicks']=1100;snapshot['freshness']['lagTicks']=0
++    elif mode=='at-threshold':p['observedAtUtcTicks']=1200
++    else:
++        if mode=='nullable':p['sourceState']['description']=None
++        if mode=='maps':p['sourceState']['members']['customer-member']='TenantReader';p['sourceState']['configuration']['version']='customer-setting'
++        if mode=='configuration-empty':p['sourceState']['configuration']={}
++        if mode.startswith('reader'):p['sourceState']['members']['actor-a']='TenantReader'
++        if mode=='reader-read':p['request']['requirement']=decision['requirement']='Read'
++        if mode=='missing-member':p['sourceState']['members']={}
++        if mode=='disabled':p['sourceState']['status']='Disabled'
++        snapshot['projection']=tooling.measurements.domain.tenant_replay(p['sourceState'],[p['sourceRecord']],9,10)[0]
++        if mode in ('reader-write','missing-member','disabled'):
++            row['allowed']=decision['isAllowed']=False;decision['denialReason']={'reader-write':'InsufficientRole','missing-member':'MissingMember','disabled':'TenantDisabled'}[mode];decision['projectionVersion']=decision['projectionWatermark']=None
++    round8_submit(repository,'AC-16.1-01',data,passes=True)
++
++
++ROUND12_FAILURE=[
++ ('missing',(),None),('processing-unexecuted',('processing','executed'),False),('attempt-unexecuted',('attempts',0,'executed'),False),
++ ('attempt-incomplete',('attempts',0,'completed'),False),('completion-incomplete',('completion','completed'),False),
++ ('delivery',('scope','deliveryId'),'foreign'),('attempt-scope',('attempts',0,'scope','tenant'),'foreign'),
++ ('attempt-count',('attempts',),'one'),('attempt-order',('attempts',0,'order'),1),('number',('attempts',0,'number'),2),
++ ('expected',('attempts',0,'expectedEtag'),'foreign'),('proposed',('attempts',0,'proposed','checkpoint'),99),
++ ('success',('attempts',0,'succeeded'),True),('transaction',('attempts',0,'transactionId'),'invented'),
++ ('result',('attempts',0,'result'),'Completed'),('outcome',('completion','outcome'),'Healthy'),
++ ('attempt-reference',('completion','attemptIds'),['foreign']),('commits',('completion','commits'),['invented']),
++ ('ack-unexecuted',('acknowledgements','executed'),False),('ack-reference',('acknowledgements','processingCompletionId'),'foreign'),
++ ('ack-present',('acknowledgements','deliveries'),['ack']),('restoration-unexecuted',('restoration','executed'),False),
++ ('restoration',('restoration','provider'),'Unavailable'),('after',('afterRead','snapshot','checkpoint'),11),
++ ('after-unexecuted',('afterRead','executed'),False),('fault',('faultDigests','injectedBytes'),'f'*64),
++ ('source',('sourceRecord','payloadSha256'),'f'*64),('delivery-content',('delivered','payloadSha256'),'f'*64)]
++@pytest.mark.parametrize('index',[4,5])
++@pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_FAILURE])
++def test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack(repository,index,fault,path,value):
++    data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];p=row['failureEvidence']
++    if fault=='missing':row['failureEvidence']=None
++    elif fault=='attempt-count':p['attempts']=p['attempts'][:-1]
++    elif path:round12_set(p,path,value)
++    round8_submit(repository,'AC-16.1-04',data,passes=fault=='positive')
++
++
++@pytest.mark.parametrize('index',range(3))
++def test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit(repository,index):
++    data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1];delivery=next(d for d in row['catchUp']['deliveries'] if d['enqueue']['transactionId'] is not None);transaction=row['atomicity']['stages'][index]['cas']['transactionId'];enqueue=delivery['enqueue']
++    enqueue['transactionId']=enqueue['indexTransactionId']=transaction
++    for part in enqueue['componentTransactions']:part['transactionId']=transaction
++    delivery['operations']['commit']['transactionId']=delivery['operations']['acknowledgement']['transactionId']=transaction
++    round8_submit(repository,'AC-16.2-04',data)
++
++
++@pytest.mark.parametrize('stage',['sdk','build'])
++@pytest.mark.parametrize('stream',['stderr','stdout','both','oversized'])
++def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
++    native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
++    def run(argv,**kwargs):
++        if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
++        stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
++        stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
++        return subprocess.CompletedProcess(argv,code,stdout,stderr)
++    monkeypatch.setattr(native.subprocess,'run',run)
++    with pytest.raises(native.HelperUnavailable) as error:native._helper()
++    message=str(error.value);assert 'exit='+str(code) in message and 'stdout=' in message and 'stderr=' in message
++    if stream in ('stdout','both','oversized'):assert 'OUT-END' in message
++    if stream in ('stderr','both','oversized'):assert 'ERR-END' in message
++    assert len(message)<4500
++    native._helper.cache_clear()
++
++
++def round12_refresh_reverse_states(data):
++    """Rebind newly required native snapshots after an existing valid event variation."""
++    for row in data['reverseSaves']:
++        checkpoint=data['checkpoint'];horizon=data['recovery']['horizon'];final,history=tooling.measurements.domain.tenant_replay(data['startingState'],row['authoritativeReplay'],checkpoint,horizon)
++        proof=row['execution'];newer,older=proof['saves']
++        for save,projection in ((newer,final),(older,history[checkpoint+1])):save['proposed']['projection']=deepcopy(projection)
++        newer['storedAfter']=deepcopy(newer['proposed']);older['storedBefore']=deepcopy(newer['storedAfter']);older['storedAfter']=deepcopy(newer['storedAfter'])
++        for consumer in proof['consumers']:consumer['storeRead']['snapshot']=deepcopy(newer['storedAfter'])
++
++
++def round12_retain_native(name,directory,commands):
++    if not os.environ.get('EPIC16_R12_NATIVE_EVIDENCE'):return
++    out=Path(os.environ['EPIC16_R12_NATIVE_EVIDENCE'])/name;out.mkdir(parents=True,exist_ok=True)
++    for path in directory.rglob('*'):
++        if not path.is_file() or 'obj' in path.parts:continue
++        if 'bin' in path.parts and path.name not in ('Evidence.dll','External.dll','System.Threading.Tasks.dll','Evidence.deps.json','Evidence.runtimeconfig.json'):continue
++        dest=out/path.relative_to(directory)
++        if dest.suffix=='.dll':dest=dest.with_suffix('.dll.bytes')
++        dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(path.read_bytes())
++    (out/'commands.json').write_text(json.dumps(commands,indent=2)+'\n')
++
++
++@pytest.mark.parametrize('shape',['genuine','metadata-version','local-stamp','external-stamp','external-metadata','custom-task','custom-params','genuine-params'])
++def test_round12_native_framework_identity_matches_supported_source_return_and_params(tmp_path,shape):
++    directory=tmp_path/'native';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes());external=directory/'external';external.mkdir();probe=directory/'probe';probe.mkdir();commands=[]
++    source='';external_source='';assembly='External';prefix='';stamp='[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]'
++    body='public void Scenario01() {}';constructor=''
++    if shape=='local-stamp':source='namespace System.Reflection { public class AssemblyInformationalVersionAttribute(string value):System.Attribute {} }'
++    elif shape=='external-stamp':external_source='namespace System.Reflection; public class AssemblyInformationalVersionAttribute(string value):System.Attribute {}';prefix='extern alias custom;';stamp='[assembly:custom::System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]'
++    elif shape=='external-metadata':external_source='namespace System.Reflection; public class AssemblyMetadataAttribute(string key,string value):System.Attribute {}';prefix='extern alias custom;';stamp+='[assembly:custom::System.Reflection.AssemblyMetadata("SourceRevisionId","'+'a'*40+'")]'
++    elif shape=='metadata-version':stamp='[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+existing.'+'a'*40+'")][assembly:System.Reflection.AssemblyMetadata("SourceRevisionId","'+'a'*40+'")]'
++    elif shape=='custom-task':external_source='namespace System.Threading.Tasks; public class Task {}';assembly='System.Threading.Tasks';prefix='extern alias custom;';body='public custom::System.Threading.Tasks.Task Scenario01() => null;'
++    elif shape=='custom-params':external_source='namespace System; [System.AttributeUsage(System.AttributeTargets.Parameter)] public class OtherArrayAttribute:System.Attribute {}';prefix='extern alias custom;';constructor='public TestClass([custom::System.OtherArray] string[] values) {}'
++    elif shape=='genuine-params':constructor='public TestClass(params string[] values) {}'
++    project='<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><GenerateAssemblyInfo>false</GenerateAssemblyInfo><AssemblyName>'+assembly+'</AssemblyName></PropertyGroup></Project>'
++    (external/'External.csproj').write_text(project);(external/'Attribute.cs').write_text(external_source or 'namespace Synthetic; public class Unused {}')
++    reference='<ProjectReference Include="../external/External.csproj" Aliases="custom" />' if external_source else ''
++    (probe/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><GenerateAssemblyInfo>false</GenerateAssemblyInfo><RunAnalyzers>false</RunAnalyzers></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" />'+reference+'</ItemGroup></Project>')
++    (probe/'Tests.cs').write_text(prefix+stamp+source+' namespace Synthetic { public class TestClass { '+constructor+' [Xunit.Fact] '+body+' } }')
++    argv=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(argv,cwd=probe,capture_output=True,timeout=120);commands.append(dict(argv=argv,cwd=str(probe),exitCode=build.returncode));(directory/'build.stdout').write_bytes(build.stdout);(directory/'build.stderr').write_bytes(build.stderr);assert build.returncode==0,(build.stdout,build.stderr)
++    binary=probe/'bin/Debug/net10.0/Evidence.dll'
++    if shape=='custom-params':
++        for path in [binary,probe/'bin/Debug/net10.0/External.dll',external/'bin/Debug/net10.0/External.dll']:
++            content=path.read_bytes();assert content.count(b'OtherArrayAttribute')==1;path.write_bytes(content.replace(b'OtherArrayAttribute',b'ParamArrayAttribute'))
++    positive=shape in ('genuine','metadata-version','genuine-params')
++    if shape in ('custom-task','custom-params','genuine','genuine-params','metadata-version'):
++        argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(directory/'result.trx')];run=subprocess.run(argv,cwd=probe,capture_output=True,timeout=30);commands.append(dict(argv=argv,cwd=str(probe),exitCode=run.returncode));(directory/'run.stdout').write_bytes(run.stdout);(directory/'run.stderr').write_bytes(run.stderr)
++        assert run.returncode==(1 if shape=='custom-params' else 0),(run.stdout,run.stderr)
++        if shape=='custom-params':assert b'constructor parameters did not have matching fixture data' in run.stdout+run.stderr
++    round12_retain_native(shape,directory,commands)
++    if positive:assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['sourceRevision']=='a'*40
++    else:
++        with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')
++    if shape in ('local-stamp','external-stamp','external-metadata'):
++        with pytest.raises(ValueError):tooling.native_helper.inspect_product(binary.read_bytes(),'a'*40)
++    elif positive:assert tooling.native_helper.inspect_product(binary.read_bytes(),'a'*40)['sourceRevision']=='a'*40
++
++
++@pytest.mark.parametrize('stage',['sdk','build'])
++def test_round12_helper_prerequisite_diagnostics_remain_structured_blocked(qualified_runtime,monkeypatch,stage):
++    native=tooling.native_helper;native._helper.cache_clear();real=native.subprocess.run
++    def run(argv,**kwargs):
++        if argv==['dotnet','--version']:return subprocess.CompletedProcess(argv,41,b'',b'SDK stderr detail') if stage=='sdk' else subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
++        if argv[:2]==['dotnet','build']:return subprocess.CompletedProcess(argv,42,b'',b'build stderr detail')
++        return real(argv,**kwargs)
++    monkeypatch.setattr(native.subprocess,'run',run)
++    result=tooling.evaluate(qualified_runtime,'16.2','AC-16.2-02',scope='runtime')
++    rejected(result,'NATIVE_HELPER_UNAVAILABLE','BLOCKED');assert result['assertionLedger'];native._helper.cache_clear()
+--- before/_bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ after/_bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -113,11 +113,15 @@
+             if (test && parameters.TryGetValue(i + 1, out Parameter parameter))
+             {
+                 supplied |= !parameter.GetDefaultValue().IsNil || (parameter.Attributes & ParameterAttributes.Optional) != 0
+-                    || kind.EndsWith("[]", StringComparison.Ordinal) && parameter.GetCustomAttributes().Any(h => AttributeName(reader, reader.GetCustomAttribute(h)).EndsWith("]System.ParamArrayAttribute", StringComparison.Ordinal));
++                    || kind.EndsWith("[]", StringComparison.Ordinal) && parameter.GetCustomAttributes().Any(h => IsParamArray(reader, reader.GetCustomAttribute(h)));
+             }
+             if (!supplied) throw new InvalidDataException("Required constructor parameter has no supported provider.");
+         }
+     }
++
++    private static bool IsParamArray(MetadataReader reader, CustomAttribute attribute)
++        => ProductMetadata.IsFrameworkAttribute(reader, attribute, "System.ParamArrayAttribute", [0x20, 0, 1])
++            && reader.GetBlobBytes(attribute.Value).AsSpan().SequenceEqual(new byte[] { 1, 0, 0, 0 });
+ 
+     private static IEnumerable<TypeDefinitionHandle> Hierarchy(MetadataReader reader, TypeDefinitionHandle start)
+     {

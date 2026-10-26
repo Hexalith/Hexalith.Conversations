@@ -1,0 +1,163 @@
+........................................................................ [  4%]
+........................................................................ [  9%]
+........................................................................ [ 13%]
+........................................................................ [ 18%]
+.............................................................FF.F....... [ 22%]
+........................................................................ [ 27%]
+........................................................................ [ 31%]
+........................................................................ [ 36%]
+........................................................................ [ 40%]
+........................................................................ [ 45%]
+........................................................................ [ 49%]
+........................................................................ [ 54%]
+........................................................................ [ 58%]
+.................................
+=================================== FAILURES ===================================
+______ test_runtime_evaluator_admits_only_bound_native_binary[malformed] _______
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-536/test_runtime_evaluator_admits_1/runtime')
+managed_evidence = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+fault = 'malformed'
+
+    @pytest.mark.parametrize('fault', ['absent', 'malformed', 'wrong-revision'])
+    def test_runtime_evaluator_admits_only_bound_native_binary(qualified_runtime, managed_evidence, fault):
+        path = retained_binary(qualified_runtime)
+        if fault == 'absent': path.unlink()
+>       else: retain_capture(qualified_runtime, 'AC-16.2-02', b'MZ invalid' if fault == 'malformed' else managed_evidence)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1083: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:1005: in retain_capture
+    original=tooling.capture.original_relative(root,row['codeBase'],style)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = '/tmp/pytest-of-administrator/pytest-536/test_runtime_evaluator_admits_1/runtime'
+code_base = '/tmp/pytest-of-administrator/pytest-536/qualified-runtime-template0/fixture/artifacts/measurement-products/Hexalith.Conversations.Server.dll'
+style = 'posix'
+
+    def original_relative(root, code_base, style):
+        """Strict lexical relationship for POSIX or Windows drive-absolute captures.
+    
+        No host path conversion, normalization, resolution, UNC guessing or I/O.
+        Relative codeBase always has the repository-relative POSIX protocol spelling.
+        """
+        if not isinstance(root, str) or not isinstance(code_base, str) or '\x00' in root+code_base:
+            raise ValueError('capture path type')
+        if style == 'posix':
+            if not root.startswith('/') or root.startswith('//') or '\\' in root:
+                raise ValueError('capture POSIX root')
+            tail = root[1:]
+            if tail: relative_path(tail)
+            absolute = code_base.startswith('/')
+            prefix = root.rstrip('/') + '/'
+            if absolute:
+>               if not code_base.startswith(prefix): raise ValueError('original codeBase outside capture root')
+                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               ValueError: original codeBase outside capture root
+
+_bmad/scripts/epic16_capture.py:43: ValueError
+____ test_runtime_evaluator_admits_only_bound_native_binary[wrong-revision] ____
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-536/test_runtime_evaluator_admits_2/runtime')
+managed_evidence = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+fault = 'wrong-revision'
+
+    @pytest.mark.parametrize('fault', ['absent', 'malformed', 'wrong-revision'])
+    def test_runtime_evaluator_admits_only_bound_native_binary(qualified_runtime, managed_evidence, fault):
+        path = retained_binary(qualified_runtime)
+        if fault == 'absent': path.unlink()
+>       else: retain_capture(qualified_runtime, 'AC-16.2-02', b'MZ invalid' if fault == 'malformed' else managed_evidence)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1083: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:1005: in retain_capture
+    original=tooling.capture.original_relative(root,row['codeBase'],style)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = '/tmp/pytest-of-administrator/pytest-536/test_runtime_evaluator_admits_2/runtime'
+code_base = '/tmp/pytest-of-administrator/pytest-536/qualified-runtime-template0/fixture/artifacts/measurement-products/Hexalith.Conversations.Server.dll'
+style = 'posix'
+
+    def original_relative(root, code_base, style):
+        """Strict lexical relationship for POSIX or Windows drive-absolute captures.
+    
+        No host path conversion, normalization, resolution, UNC guessing or I/O.
+        Relative codeBase always has the repository-relative POSIX protocol spelling.
+        """
+        if not isinstance(root, str) or not isinstance(code_base, str) or '\x00' in root+code_base:
+            raise ValueError('capture path type')
+        if style == 'posix':
+            if not root.startswith('/') or root.startswith('//') or '\\' in root:
+                raise ValueError('capture POSIX root')
+            tail = root[1:]
+            if tail: relative_path(tail)
+            absolute = code_base.startswith('/')
+            prefix = root.rstrip('/') + '/'
+            if absolute:
+>               if not code_base.startswith(prefix): raise ValueError('original codeBase outside capture root')
+                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               ValueError: original codeBase outside capture root
+
+_bmad/scripts/epic16_capture.py:43: ValueError
+________ test_runtime_evaluator_calls_actual_canonicalizer_source_guard ________
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-536/test_runtime_evaluator_calls_a0/runtime')
+
+    def test_runtime_evaluator_calls_actual_canonicalizer_source_guard(qualified_runtime):
+        dependency = qualified_runtime/'references/Hexalith.EventStore'
+        (qualified_runtime/tooling.CANONICALIZER_SOURCE).write_bytes(b'wrong but clean source')
+        git(dependency, 'add', '.'); git(dependency, 'commit', '-qm', 'test: alter disposable canonicalizer')
+        git(qualified_runtime, 'add', 'references/Hexalith.EventStore'); git(qualified_runtime, 'commit', '-qm', 'test: bind changed disposable dependency')
+        # Refresh genuine source-stamped binary and native candidate so the source guard is reached.
+        candidate = git(qualified_runtime, 'rev-parse', 'HEAD')
+        code = (qualified_runtime/'tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_2EvidenceTests.cs').read_text()
+        binary = compile_evidence(qualified_runtime.parent/'changed-build', candidate, code)
+        (qualified_runtime/'artifacts/native/evidence.dll').write_bytes(binary)
+        path = qualified_runtime/tooling.native_path('runtime','AC-16.2-02'); tree = ET.fromstring(path.read_bytes())
+        output = tree.find('Results/UnitTestResult/Output/StdOut'); payload = json.loads(output.text); payload['candidate'] = candidate; output.text = json.dumps(payload); path.write_bytes(ET.tostring(tree))
+>       retain_capture(qualified_runtime, 'AC-16.2-02', binary)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:1005: in retain_capture
+    original=tooling.capture.original_relative(root,row['codeBase'],style)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = '/tmp/pytest-of-administrator/pytest-536/test_runtime_evaluator_calls_a0/runtime'
+code_base = '/tmp/pytest-of-administrator/pytest-536/qualified-runtime-template0/fixture/artifacts/measurement-products/Hexalith.Conversations.Server.dll'
+style = 'posix'
+
+    def original_relative(root, code_base, style):
+        """Strict lexical relationship for POSIX or Windows drive-absolute captures.
+    
+        No host path conversion, normalization, resolution, UNC guessing or I/O.
+        Relative codeBase always has the repository-relative POSIX protocol spelling.
+        """
+        if not isinstance(root, str) or not isinstance(code_base, str) or '\x00' in root+code_base:
+            raise ValueError('capture path type')
+        if style == 'posix':
+            if not root.startswith('/') or root.startswith('//') or '\\' in root:
+                raise ValueError('capture POSIX root')
+            tail = root[1:]
+            if tail: relative_path(tail)
+            absolute = code_base.startswith('/')
+            prefix = root.rstrip('/') + '/'
+            if absolute:
+>               if not code_base.startswith(prefix): raise ValueError('original codeBase outside capture root')
+                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               ValueError: original codeBase outside capture root
+
+_bmad/scripts/epic16_capture.py:43: ValueError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_runtime_evaluator_admits_only_bound_native_binary[malformed]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_runtime_evaluator_admits_only_bound_native_binary[wrong-revision]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_runtime_evaluator_calls_actual_canonicalizer_source_guard
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/home/administrator/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/subprocess.py:1885: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+3 failed, 966 passed, 278 deselected in 576.91s (0:09:36)

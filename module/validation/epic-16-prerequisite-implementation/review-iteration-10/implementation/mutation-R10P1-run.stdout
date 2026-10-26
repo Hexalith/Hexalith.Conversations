@@ -1,0 +1,4 @@
+constructor-admission-caller 1 {'tests': 1, 'failures': 1, 'errors': 0, 'skipped': 0}
+required-constructor-provider 1 {'tests': 2, 'failures': 2, 'errors': 0, 'skipped': 0}
+fixture-parent-providers 1 {'tests': 1, 'failures': 1, 'errors': 0, 'skipped': 0}
+inherited-collection-types 0 {'tests': 9, 'failures': 0, 'errors': 0, 'skipped': 0}

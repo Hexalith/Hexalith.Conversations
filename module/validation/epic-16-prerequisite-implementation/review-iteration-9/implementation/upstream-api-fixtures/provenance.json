@@ -1,0 +1,2488 @@
+{
+  "scope": "Exact synthetic disposable API fixtures from final combined run. Read-only revalidation derives PASS for addition and FAIL for seven controls. No runtime entry or owner authority.",
+  "argv": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-retain-api.py"
+  ],
+  "sourceEpochSha256": "ee12104feb9ac08493e51a1f8f6ea566d384a1495df2ad5118bfc78efcde6b0b",
+  "cases": [
+    {
+      "change": "addition",
+      "test": "test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata[addition]",
+      "fixtureRepository": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_upstream_additivit0/fixture",
+      "baseline": "98526d1405884433b378e3b89fe2a8331c499690",
+      "candidate": "14e875305a5a3bd537727989bb22f6eb865a0ca4",
+      "native": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/AC-16.1-05.trx.bytes",
+        "sha256": "b54678eb9aadd72296ea53b2be65dec5295a5760fadaf9ff015102bd262e7d8c"
+      },
+      "result": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/derived-result.json",
+        "sha256": "b4431bf4817b1a924031eefc2a72bfbce94996db0df04822922b3bc98a2b2a84"
+      },
+      "expectedResult": "PASS",
+      "blockers": [],
+      "ownerSourceEvidence": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "98526d1405884433b378e3b89fe2a8331c499690",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/baseline-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/baseline-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "dd54ff774a6250f47001baa09a40c1732057ae5c932a1f749cc9d700ff775a7a"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "14e875305a5a3bd537727989bb22f6eb865a0ca4",
+          "sourceRevision": "8ac0fdd6afef72f8a0a027ae9fb7c7d91c378492",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/candidate-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "c0d3045b0e0014a7d6a3c32de9beb2e2c86d892fc6c4ba14847b4677abe5efdd"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/candidate-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "5046aac67302c78cfbaf138da467127d8052f1fe6923561c4e3b7361884812de"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "98526d1405884433b378e3b89fe2a8331c499690",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/baseline-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/baseline-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "14e875305a5a3bd537727989bb22f6eb865a0ca4",
+          "sourceRevision": "8ac0fdd6afef72f8a0a027ae9fb7c7d91c378492",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/candidate-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "c0d3045b0e0014a7d6a3c32de9beb2e2c86d892fc6c4ba14847b4677abe5efdd"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/candidate-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "98526d1405884433b378e3b89fe2a8331c499690",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/baseline-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/baseline-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "14e875305a5a3bd537727989bb22f6eb865a0ca4",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/candidate-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/candidate-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "98526d1405884433b378e3b89fe2a8331c499690",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/baseline-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/baseline-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "14e875305a5a3bd537727989bb22f6eb865a0ca4",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/candidate-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/candidate-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "98526d1405884433b378e3b89fe2a8331c499690",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/baseline-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/baseline-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "14e875305a5a3bd537727989bb22f6eb865a0ca4",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/candidate-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/addition/candidate-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        }
+      ],
+      "binaries": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll.bytes",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/8a65b8fc71b09f69f5c2aef5ea3f938873aa9876f09cce3285f9f7799a3d1844.dll",
+            "sha256": "8a65b8fc71b09f69f5c2aef5ea3f938873aa9876f09cce3285f9f7799a3d1844",
+            "revision": "8ac0fdd6afef72f8a0a027ae9fb7c7d91c378492"
+          },
+          "actualSha256": "8a65b8fc71b09f69f5c2aef5ea3f938873aa9876f09cce3285f9f7799a3d1844",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/8a65b8fc71b09f69f5c2aef5ea3f938873aa9876f09cce3285f9f7799a3d1844.dll.bytes",
+            "sha256": "8a65b8fc71b09f69f5c2aef5ea3f938873aa9876f09cce3285f9f7799a3d1844"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll.bytes",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/a43d5fe2b98c51235bb03ffc1fcfdc133729b76ac72d9950f15fe6d4bb6e2081.dll",
+            "sha256": "a43d5fe2b98c51235bb03ffc1fcfdc133729b76ac72d9950f15fe6d4bb6e2081",
+            "revision": "8ac0fdd6afef72f8a0a027ae9fb7c7d91c378492"
+          },
+          "actualSha256": "a43d5fe2b98c51235bb03ffc1fcfdc133729b76ac72d9950f15fe6d4bb6e2081",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/a43d5fe2b98c51235bb03ffc1fcfdc133729b76ac72d9950f15fe6d4bb6e2081.dll.bytes",
+            "sha256": "a43d5fe2b98c51235bb03ffc1fcfdc133729b76ac72d9950f15fe6d4bb6e2081"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        }
+      ]
+    },
+    {
+      "change": "removed-member",
+      "test": "test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata[removed-member]",
+      "fixtureRepository": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_upstream_additivit1/fixture",
+      "baseline": "f3b7d69f0d3fe163113284c0f83048b037b74b9d",
+      "candidate": "eda154edd361abd21eaf783bbf291a6123842ce5",
+      "native": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/AC-16.1-05.trx.bytes",
+        "sha256": "d2fdb0cf82451bafe2f025df23fdbb23f0b1e5007800c6bc05c0e5f50f71dc78"
+      },
+      "result": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/derived-result.json",
+        "sha256": "052841a555f849ddfdf3f02f993167da231099daa4ee2e178caa9bc2da2a953f"
+      },
+      "expectedResult": "FAIL",
+      "blockers": [
+        "UPSTREAM_API_DRIFT"
+      ],
+      "ownerSourceEvidence": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "f3b7d69f0d3fe163113284c0f83048b037b74b9d",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/baseline-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/baseline-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "dd54ff774a6250f47001baa09a40c1732057ae5c932a1f749cc9d700ff775a7a"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "eda154edd361abd21eaf783bbf291a6123842ce5",
+          "sourceRevision": "86e22d0e4249c39f8c528164c1789e96a59a71a8",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/candidate-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "210ae65971af97f8a501f55aefcad78cf49c7483a7ca2b6dc0ed6ff235d7fea7"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/candidate-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "1c01ee274047b83c9cdc5e59e549da8cbf6aad66aab509a1f81c253f6f3aa876"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "f3b7d69f0d3fe163113284c0f83048b037b74b9d",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/baseline-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/baseline-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "eda154edd361abd21eaf783bbf291a6123842ce5",
+          "sourceRevision": "86e22d0e4249c39f8c528164c1789e96a59a71a8",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/candidate-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "210ae65971af97f8a501f55aefcad78cf49c7483a7ca2b6dc0ed6ff235d7fea7"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/candidate-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "f3b7d69f0d3fe163113284c0f83048b037b74b9d",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/baseline-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/baseline-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "eda154edd361abd21eaf783bbf291a6123842ce5",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/candidate-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/candidate-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "f3b7d69f0d3fe163113284c0f83048b037b74b9d",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/baseline-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/baseline-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "eda154edd361abd21eaf783bbf291a6123842ce5",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/candidate-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/candidate-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "f3b7d69f0d3fe163113284c0f83048b037b74b9d",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/baseline-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/baseline-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "eda154edd361abd21eaf783bbf291a6123842ce5",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/candidate-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/removed-member/candidate-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        }
+      ],
+      "binaries": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll.bytes",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/34d8d003c03fc98289fa06201dcbc7f86c968ed724a7bac40762b487d6945a4e.dll",
+            "sha256": "34d8d003c03fc98289fa06201dcbc7f86c968ed724a7bac40762b487d6945a4e",
+            "revision": "86e22d0e4249c39f8c528164c1789e96a59a71a8"
+          },
+          "actualSha256": "34d8d003c03fc98289fa06201dcbc7f86c968ed724a7bac40762b487d6945a4e",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/34d8d003c03fc98289fa06201dcbc7f86c968ed724a7bac40762b487d6945a4e.dll.bytes",
+            "sha256": "34d8d003c03fc98289fa06201dcbc7f86c968ed724a7bac40762b487d6945a4e"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll.bytes",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/8d75c08221be196ad71024200838a60037cbd2ddc33db514d717682c686e07ac.dll",
+            "sha256": "8d75c08221be196ad71024200838a60037cbd2ddc33db514d717682c686e07ac",
+            "revision": "86e22d0e4249c39f8c528164c1789e96a59a71a8"
+          },
+          "actualSha256": "8d75c08221be196ad71024200838a60037cbd2ddc33db514d717682c686e07ac",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/8d75c08221be196ad71024200838a60037cbd2ddc33db514d717682c686e07ac.dll.bytes",
+            "sha256": "8d75c08221be196ad71024200838a60037cbd2ddc33db514d717682c686e07ac"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        }
+      ]
+    },
+    {
+      "change": "signature",
+      "test": "test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata[signature]",
+      "fixtureRepository": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_upstream_additivit2/fixture",
+      "baseline": "3967a8dfb0634aea0055e06906458991ac61ecdf",
+      "candidate": "7a1db4df3db37beb07fd2364935a21ac595a86a5",
+      "native": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/AC-16.1-05.trx.bytes",
+        "sha256": "b04d725ef881a664599997e4cbd530a1b29ed9f7fbcf8c0cc502b4901af3e3ed"
+      },
+      "result": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/derived-result.json",
+        "sha256": "df8a4b05ea72bace3a95673c7185238de3b9af1a50b8c64b8b56e2e6e87f4869"
+      },
+      "expectedResult": "FAIL",
+      "blockers": [
+        "UPSTREAM_API_DRIFT"
+      ],
+      "ownerSourceEvidence": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "3967a8dfb0634aea0055e06906458991ac61ecdf",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/baseline-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/baseline-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "dd54ff774a6250f47001baa09a40c1732057ae5c932a1f749cc9d700ff775a7a"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "7a1db4df3db37beb07fd2364935a21ac595a86a5",
+          "sourceRevision": "d777ea2545b63927701cefebd7c385c65590cae2",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/candidate-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "15fd8f08802a2f87a7e63aec60c669965ea03a9598c7749496ef0e2461c36e19"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/candidate-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "e8e55c66f698532f92dcd156fec6f14e4c725c0feca8a1ca27358c848d08b72e"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "3967a8dfb0634aea0055e06906458991ac61ecdf",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/baseline-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/baseline-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "7a1db4df3db37beb07fd2364935a21ac595a86a5",
+          "sourceRevision": "d777ea2545b63927701cefebd7c385c65590cae2",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/candidate-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "15fd8f08802a2f87a7e63aec60c669965ea03a9598c7749496ef0e2461c36e19"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/candidate-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "3967a8dfb0634aea0055e06906458991ac61ecdf",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/baseline-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/baseline-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "7a1db4df3db37beb07fd2364935a21ac595a86a5",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/candidate-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/candidate-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "3967a8dfb0634aea0055e06906458991ac61ecdf",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/baseline-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/baseline-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "7a1db4df3db37beb07fd2364935a21ac595a86a5",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/candidate-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/candidate-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "3967a8dfb0634aea0055e06906458991ac61ecdf",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/baseline-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/baseline-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "7a1db4df3db37beb07fd2364935a21ac595a86a5",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/candidate-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/signature/candidate-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        }
+      ],
+      "binaries": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll.bytes",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/1bbcd8414806fe4f23f1d117dc648868bf946b1880188e89007bbdaeb2cff25f.dll",
+            "sha256": "1bbcd8414806fe4f23f1d117dc648868bf946b1880188e89007bbdaeb2cff25f",
+            "revision": "d777ea2545b63927701cefebd7c385c65590cae2"
+          },
+          "actualSha256": "1bbcd8414806fe4f23f1d117dc648868bf946b1880188e89007bbdaeb2cff25f",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/1bbcd8414806fe4f23f1d117dc648868bf946b1880188e89007bbdaeb2cff25f.dll.bytes",
+            "sha256": "1bbcd8414806fe4f23f1d117dc648868bf946b1880188e89007bbdaeb2cff25f"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll.bytes",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ff87f66ad407b04ffb64cf408137a96ab65b95aea894fc4fae0615dff0657e7f.dll",
+            "sha256": "ff87f66ad407b04ffb64cf408137a96ab65b95aea894fc4fae0615dff0657e7f",
+            "revision": "d777ea2545b63927701cefebd7c385c65590cae2"
+          },
+          "actualSha256": "ff87f66ad407b04ffb64cf408137a96ab65b95aea894fc4fae0615dff0657e7f",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ff87f66ad407b04ffb64cf408137a96ab65b95aea894fc4fae0615dff0657e7f.dll.bytes",
+            "sha256": "ff87f66ad407b04ffb64cf408137a96ab65b95aea894fc4fae0615dff0657e7f"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        }
+      ]
+    },
+    {
+      "change": "type",
+      "test": "test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata[type]",
+      "fixtureRepository": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_upstream_additivit3/fixture",
+      "baseline": "598cca2bb81e670441fdec25981a5b3071ef101e",
+      "candidate": "ffc7b94bc6c9590ebf812f55dd1935d33c13b984",
+      "native": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/AC-16.1-05.trx.bytes",
+        "sha256": "95f56f828fdb522b0a634836359fe2df39c81819588e5f544a4dfe3dca349fb8"
+      },
+      "result": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/derived-result.json",
+        "sha256": "17f015fb797a244a9bca017b473642ad6b81fea34436845e8ceb77e2d44fb6d2"
+      },
+      "expectedResult": "FAIL",
+      "blockers": [
+        "UPSTREAM_API_DRIFT"
+      ],
+      "ownerSourceEvidence": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "598cca2bb81e670441fdec25981a5b3071ef101e",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/baseline-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/baseline-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "dd54ff774a6250f47001baa09a40c1732057ae5c932a1f749cc9d700ff775a7a"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "ffc7b94bc6c9590ebf812f55dd1935d33c13b984",
+          "sourceRevision": "e603dc7cd6528218e01b1e7d5c7e68ab8576b9ef",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/candidate-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "a1ac80f99c19d7ff0ee0da77048d389d8712c4bf925691379684b172a2309012"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/candidate-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "19017cd814cc72e96865163bc6d384bdccd138e74586d7a4762e605b416d0a86"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "598cca2bb81e670441fdec25981a5b3071ef101e",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/baseline-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/baseline-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "ffc7b94bc6c9590ebf812f55dd1935d33c13b984",
+          "sourceRevision": "e603dc7cd6528218e01b1e7d5c7e68ab8576b9ef",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/candidate-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "a1ac80f99c19d7ff0ee0da77048d389d8712c4bf925691379684b172a2309012"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/candidate-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "598cca2bb81e670441fdec25981a5b3071ef101e",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/baseline-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/baseline-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "ffc7b94bc6c9590ebf812f55dd1935d33c13b984",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/candidate-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/candidate-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "598cca2bb81e670441fdec25981a5b3071ef101e",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/baseline-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/baseline-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "ffc7b94bc6c9590ebf812f55dd1935d33c13b984",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/candidate-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/candidate-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "598cca2bb81e670441fdec25981a5b3071ef101e",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/baseline-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/baseline-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "ffc7b94bc6c9590ebf812f55dd1935d33c13b984",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/candidate-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/type/candidate-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        }
+      ],
+      "binaries": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll.bytes",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/28d9f34a4f00e7750d6f12b45be8e24ad40c24a1426c3ed6312a7fbd78155614.dll",
+            "sha256": "28d9f34a4f00e7750d6f12b45be8e24ad40c24a1426c3ed6312a7fbd78155614",
+            "revision": "e603dc7cd6528218e01b1e7d5c7e68ab8576b9ef"
+          },
+          "actualSha256": "28d9f34a4f00e7750d6f12b45be8e24ad40c24a1426c3ed6312a7fbd78155614",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/28d9f34a4f00e7750d6f12b45be8e24ad40c24a1426c3ed6312a7fbd78155614.dll.bytes",
+            "sha256": "28d9f34a4f00e7750d6f12b45be8e24ad40c24a1426c3ed6312a7fbd78155614"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll.bytes",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/7960fe50d70c82fb7983d8395256883a7b97cd7eba9ed55eb7de7b25b5c71a7c.dll",
+            "sha256": "7960fe50d70c82fb7983d8395256883a7b97cd7eba9ed55eb7de7b25b5c71a7c",
+            "revision": "e603dc7cd6528218e01b1e7d5c7e68ab8576b9ef"
+          },
+          "actualSha256": "7960fe50d70c82fb7983d8395256883a7b97cd7eba9ed55eb7de7b25b5c71a7c",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/7960fe50d70c82fb7983d8395256883a7b97cd7eba9ed55eb7de7b25b5c71a7c.dll.bytes",
+            "sha256": "7960fe50d70c82fb7983d8395256883a7b97cd7eba9ed55eb7de7b25b5c71a7c"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        }
+      ]
+    },
+    {
+      "change": "wrong-revision",
+      "test": "test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata[wrong-revision]",
+      "fixtureRepository": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_upstream_additivit4/fixture",
+      "baseline": "7597b3e11752b65b005d117a0d0d474c9bfa3bce",
+      "candidate": "e6d24695c1884796747179be4dca0db6f4b72e5b",
+      "native": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/AC-16.1-05.trx.bytes",
+        "sha256": "f7422927211739f330d4619243c512c91474573e0186b3ef48b4540cf58c6ae1"
+      },
+      "result": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/derived-result.json",
+        "sha256": "9d28ef608aa8904728d547ce4f03cc50e5bb17ae1fc76c80eb4b07d4ca3caee2"
+      },
+      "expectedResult": "FAIL",
+      "blockers": [
+        "UPSTREAM_API_SOURCE_DRIFT"
+      ],
+      "ownerSourceEvidence": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "7597b3e11752b65b005d117a0d0d474c9bfa3bce",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/baseline-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/baseline-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "dd54ff774a6250f47001baa09a40c1732057ae5c932a1f749cc9d700ff775a7a"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "e6d24695c1884796747179be4dca0db6f4b72e5b",
+          "sourceRevision": "03cff1976d214bb7c40934b04958bff854272f63",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/candidate-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "b2040a485403f2dd55c8527c9d78cd74230a938131e382c92353bfea5df8cbb1"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/candidate-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "5046aac67302c78cfbaf138da467127d8052f1fe6923561c4e3b7361884812de"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "7597b3e11752b65b005d117a0d0d474c9bfa3bce",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/baseline-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/baseline-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "e6d24695c1884796747179be4dca0db6f4b72e5b",
+          "sourceRevision": "03cff1976d214bb7c40934b04958bff854272f63",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/candidate-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "b2040a485403f2dd55c8527c9d78cd74230a938131e382c92353bfea5df8cbb1"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/candidate-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "7597b3e11752b65b005d117a0d0d474c9bfa3bce",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/baseline-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/baseline-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "e6d24695c1884796747179be4dca0db6f4b72e5b",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/candidate-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/candidate-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "7597b3e11752b65b005d117a0d0d474c9bfa3bce",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/baseline-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/baseline-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "e6d24695c1884796747179be4dca0db6f4b72e5b",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/candidate-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/candidate-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "7597b3e11752b65b005d117a0d0d474c9bfa3bce",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/baseline-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/baseline-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "e6d24695c1884796747179be4dca0db6f4b72e5b",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/candidate-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-revision/candidate-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        }
+      ],
+      "binaries": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll.bytes",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/835b26559260210b1441072ac3d47973670d223632cb41efd811461370374698.dll",
+            "sha256": "835b26559260210b1441072ac3d47973670d223632cb41efd811461370374698",
+            "revision": "ffffffffffffffffffffffffffffffffffffffff"
+          },
+          "actualSha256": "835b26559260210b1441072ac3d47973670d223632cb41efd811461370374698",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/835b26559260210b1441072ac3d47973670d223632cb41efd811461370374698.dll.bytes",
+            "sha256": "835b26559260210b1441072ac3d47973670d223632cb41efd811461370374698"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll.bytes",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3c2d7ed42739f5a1013c83e1df0fde3ac13279b984e913714d8dfba8c7080e37.dll",
+            "sha256": "3c2d7ed42739f5a1013c83e1df0fde3ac13279b984e913714d8dfba8c7080e37",
+            "revision": "03cff1976d214bb7c40934b04958bff854272f63"
+          },
+          "actualSha256": "3c2d7ed42739f5a1013c83e1df0fde3ac13279b984e913714d8dfba8c7080e37",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3c2d7ed42739f5a1013c83e1df0fde3ac13279b984e913714d8dfba8c7080e37.dll.bytes",
+            "sha256": "3c2d7ed42739f5a1013c83e1df0fde3ac13279b984e913714d8dfba8c7080e37"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        }
+      ]
+    },
+    {
+      "change": "wrong-owner",
+      "test": "test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata[wrong-owner]",
+      "fixtureRepository": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_upstream_additivit5/fixture",
+      "baseline": "edeb85204d5e8282bc263576495388e739625dc8",
+      "candidate": "1a843e143e8d1731fdaadbb49bfbf6bf6da2552d",
+      "native": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/AC-16.1-05.trx.bytes",
+        "sha256": "d0ae48c8e08b9af48821d7344dcb7e45876dedf468febbc3e5364cc40df7833b"
+      },
+      "result": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/derived-result.json",
+        "sha256": "d890f3d70dbba5aafc58be787d03302953c035f6776cb11ec555ae18790f4a05"
+      },
+      "expectedResult": "FAIL",
+      "blockers": [
+        "UPSTREAM_API_OWNER"
+      ],
+      "ownerSourceEvidence": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "edeb85204d5e8282bc263576495388e739625dc8",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/baseline-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/baseline-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "dd54ff774a6250f47001baa09a40c1732057ae5c932a1f749cc9d700ff775a7a"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "1a843e143e8d1731fdaadbb49bfbf6bf6da2552d",
+          "sourceRevision": "2e4aec2a1e374a0e5b22547388e85340ebcf7e71",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/candidate-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "3dd235d0b3ae82292268e6f636aacd74e5d708b129ab555e457276a64af07326"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/candidate-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "5046aac67302c78cfbaf138da467127d8052f1fe6923561c4e3b7361884812de"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "edeb85204d5e8282bc263576495388e739625dc8",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/baseline-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/baseline-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "1a843e143e8d1731fdaadbb49bfbf6bf6da2552d",
+          "sourceRevision": "2e4aec2a1e374a0e5b22547388e85340ebcf7e71",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/candidate-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "3dd235d0b3ae82292268e6f636aacd74e5d708b129ab555e457276a64af07326"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/candidate-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "edeb85204d5e8282bc263576495388e739625dc8",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/baseline-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/baseline-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "1a843e143e8d1731fdaadbb49bfbf6bf6da2552d",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/candidate-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/candidate-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "edeb85204d5e8282bc263576495388e739625dc8",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/baseline-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/baseline-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "1a843e143e8d1731fdaadbb49bfbf6bf6da2552d",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/candidate-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/candidate-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "edeb85204d5e8282bc263576495388e739625dc8",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/baseline-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/baseline-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "1a843e143e8d1731fdaadbb49bfbf6bf6da2552d",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/candidate-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/wrong-owner/candidate-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        }
+      ],
+      "binaries": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll.bytes",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3db445a00f670239ae5c1801486b74046e3b9ed02445bd0071b3445d765f4b71.dll",
+            "sha256": "3db445a00f670239ae5c1801486b74046e3b9ed02445bd0071b3445d765f4b71",
+            "revision": "2e4aec2a1e374a0e5b22547388e85340ebcf7e71"
+          },
+          "actualSha256": "3db445a00f670239ae5c1801486b74046e3b9ed02445bd0071b3445d765f4b71",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3db445a00f670239ae5c1801486b74046e3b9ed02445bd0071b3445d765f4b71.dll.bytes",
+            "sha256": "3db445a00f670239ae5c1801486b74046e3b9ed02445bd0071b3445d765f4b71"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll.bytes",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/52619090e0445f4ff0182e1e43eff0d473c98db945b91562d871a141270bed90.dll",
+            "sha256": "52619090e0445f4ff0182e1e43eff0d473c98db945b91562d871a141270bed90",
+            "revision": "2e4aec2a1e374a0e5b22547388e85340ebcf7e71"
+          },
+          "actualSha256": "52619090e0445f4ff0182e1e43eff0d473c98db945b91562d871a141270bed90",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/52619090e0445f4ff0182e1e43eff0d473c98db945b91562d871a141270bed90.dll.bytes",
+            "sha256": "52619090e0445f4ff0182e1e43eff0d473c98db945b91562d871a141270bed90"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        }
+      ]
+    },
+    {
+      "change": "forged-digest",
+      "test": "test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata[forged-digest]",
+      "fixtureRepository": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_upstream_additivit6/fixture",
+      "baseline": "0e7e3af7650411340268c763d65ce3e95d4fec92",
+      "candidate": "56eda13dd5fab3bfae4b25a960c160713ebcf72d",
+      "native": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/AC-16.1-05.trx.bytes",
+        "sha256": "dd5212c4c5c36b164434661e73afbd04a48c6c97befe7e85b6f8e87372e5c447"
+      },
+      "result": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/derived-result.json",
+        "sha256": "854c116afde49fd16cfc2b5df6a9836931ef03f4b53fa73f71660f6126d5e364"
+      },
+      "expectedResult": "FAIL",
+      "blockers": [
+        "UPSTREAM_API_PATH"
+      ],
+      "ownerSourceEvidence": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "0e7e3af7650411340268c763d65ce3e95d4fec92",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/baseline-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/baseline-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "dd54ff774a6250f47001baa09a40c1732057ae5c932a1f749cc9d700ff775a7a"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "56eda13dd5fab3bfae4b25a960c160713ebcf72d",
+          "sourceRevision": "35a3f505e85693ea968e75399101785afac6b451",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/candidate-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "ace94f28a45b8ff84556287b8678f3301a9f4851ba4f61af935fe929a90e9ca6"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/candidate-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "5046aac67302c78cfbaf138da467127d8052f1fe6923561c4e3b7361884812de"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "0e7e3af7650411340268c763d65ce3e95d4fec92",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/baseline-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/baseline-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "56eda13dd5fab3bfae4b25a960c160713ebcf72d",
+          "sourceRevision": "35a3f505e85693ea968e75399101785afac6b451",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/candidate-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "ace94f28a45b8ff84556287b8678f3301a9f4851ba4f61af935fe929a90e9ca6"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/candidate-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "0e7e3af7650411340268c763d65ce3e95d4fec92",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/baseline-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/baseline-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "56eda13dd5fab3bfae4b25a960c160713ebcf72d",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/candidate-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/candidate-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "0e7e3af7650411340268c763d65ce3e95d4fec92",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/baseline-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/baseline-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "56eda13dd5fab3bfae4b25a960c160713ebcf72d",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/candidate-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/candidate-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "0e7e3af7650411340268c763d65ce3e95d4fec92",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/baseline-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/baseline-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "56eda13dd5fab3bfae4b25a960c160713ebcf72d",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/candidate-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/forged-digest/candidate-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        }
+      ],
+      "binaries": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll",
+            "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll.bytes",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3a97cb5b33c6adad9224030600d0d9b803cdf0101107930982f6e4b715bef2e9.dll",
+            "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "revision": "35a3f505e85693ea968e75399101785afac6b451"
+          },
+          "actualSha256": "3a97cb5b33c6adad9224030600d0d9b803cdf0101107930982f6e4b715bef2e9",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3a97cb5b33c6adad9224030600d0d9b803cdf0101107930982f6e4b715bef2e9.dll.bytes",
+            "sha256": "3a97cb5b33c6adad9224030600d0d9b803cdf0101107930982f6e4b715bef2e9"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll.bytes",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/9a2924463ddfb870d4e76500c176605ab6ca3d529f80bc3c60c4685bc0dfcbed.dll",
+            "sha256": "9a2924463ddfb870d4e76500c176605ab6ca3d529f80bc3c60c4685bc0dfcbed",
+            "revision": "35a3f505e85693ea968e75399101785afac6b451"
+          },
+          "actualSha256": "9a2924463ddfb870d4e76500c176605ab6ca3d529f80bc3c60c4685bc0dfcbed",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/9a2924463ddfb870d4e76500c176605ab6ca3d529f80bc3c60c4685bc0dfcbed.dll.bytes",
+            "sha256": "9a2924463ddfb870d4e76500c176605ab6ca3d529f80bc3c60c4685bc0dfcbed"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74.dll.bytes",
+            "sha256": "67c5c7bbd091c06a41091dc26b1f8e9896faa93f6d3c704d33e7dde5f3fe8a74"
+          }
+        }
+      ]
+    },
+    {
+      "change": "missing-assembly",
+      "test": "test_round9_upstream_additivity_uses_raw_gitlinks_and_actual_public_metadata[missing-assembly]",
+      "fixtureRepository": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_upstream_additivit7/fixture",
+      "baseline": "729ff9766df937f8d474feb1b97a21b3f8f3c7bd",
+      "candidate": "5097830ea71d58c36add489d6745929796dd48ac",
+      "native": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/AC-16.1-05.trx.bytes",
+        "sha256": "7eb364f114001ef21e5f6cbea2654e1d5c683a81066dce83df5e0debe576a680"
+      },
+      "result": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/derived-result.json",
+        "sha256": "b077e2f4beccfba3a8ab81d113f51bf47a4e2c3a874340e87095cfae50aea367"
+      },
+      "expectedResult": "FAIL",
+      "blockers": [
+        "MEASUREMENT_SCHEMA_INVALID"
+      ],
+      "ownerSourceEvidence": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "729ff9766df937f8d474feb1b97a21b3f8f3c7bd",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/baseline-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/baseline-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "dd54ff774a6250f47001baa09a40c1732057ae5c932a1f749cc9d700ff775a7a"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "5097830ea71d58c36add489d6745929796dd48ac",
+          "sourceRevision": "d8e5ec4ccf4c52420f5f1372d2772d2b71d5b3a5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/candidate-Hexalith.Tenants.Client.gitlink.txt",
+            "sha256": "1004062e38a3525974d50886bde138a5c5f78413fa8ab7e2ec535087547f132a"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/candidate-Hexalith.Tenants.Client.cs.bytes",
+            "sha256": "5046aac67302c78cfbaf138da467127d8052f1fe6923561c4e3b7361884812de"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "baseline",
+          "rootRevision": "729ff9766df937f8d474feb1b97a21b3f8f3c7bd",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/baseline-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "674788e77623f24cd320ae9d795c33e921a9e126674b471cb34465779bc55f21"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/baseline-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "phase": "candidate",
+          "rootRevision": "5097830ea71d58c36add489d6745929796dd48ac",
+          "sourceRevision": "d8e5ec4ccf4c52420f5f1372d2772d2b71d5b3a5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/candidate-Hexalith.Tenants.Contracts.gitlink.txt",
+            "sha256": "1004062e38a3525974d50886bde138a5c5f78413fa8ab7e2ec535087547f132a"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/candidate-Hexalith.Tenants.Contracts.cs.bytes",
+            "sha256": "dc2ee2c378824344b0b8ea33fa7a249a7058efc8189da08bb9daf41103775ed2"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "729ff9766df937f8d474feb1b97a21b3f8f3c7bd",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/baseline-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/baseline-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "5097830ea71d58c36add489d6745929796dd48ac",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/candidate-Hexalith.EventStore.Client.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/candidate-Hexalith.EventStore.Client.cs.bytes",
+            "sha256": "5dc03cbb33ea16a65286efea9d9b9b9854a7b4551a58b00a315174f358ae3485"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "729ff9766df937f8d474feb1b97a21b3f8f3c7bd",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/baseline-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/baseline-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "5097830ea71d58c36add489d6745929796dd48ac",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/candidate-Hexalith.EventStore.Contracts.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/candidate-Hexalith.EventStore.Contracts.cs.bytes",
+            "sha256": "dc806905d87933238f4b07e5935312e02b650fe4ee65da4e0fe828cb65b258b6"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "baseline",
+          "rootRevision": "729ff9766df937f8d474feb1b97a21b3f8f3c7bd",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/baseline-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/baseline-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "phase": "candidate",
+          "rootRevision": "5097830ea71d58c36add489d6745929796dd48ac",
+          "sourceRevision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+          "rawGitlink": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/candidate-Hexalith.EventStore.DomainService.gitlink.txt",
+            "sha256": "d5bc5a19a623f8454050e6612ba67e73cf02efa77a1a91b7ff071e84d24ad9f8"
+          },
+          "source": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/missing-assembly/candidate-Hexalith.EventStore.DomainService.cs.bytes",
+            "sha256": "d8507029cc458f0190a5917d5887a0fa26fb893b7bff3b6b7eae24580edf6706"
+          }
+        }
+      ],
+      "binaries": [
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f.dll.bytes",
+            "sha256": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/dfa1487d7e6fb4b5d76f99048954025ffccaaf44fad6b9495f876322c28c16e1.dll",
+            "sha256": "dfa1487d7e6fb4b5d76f99048954025ffccaaf44fad6b9495f876322c28c16e1",
+            "revision": "d8e5ec4ccf4c52420f5f1372d2772d2b71d5b3a5"
+          },
+          "actualSha256": "dfa1487d7e6fb4b5d76f99048954025ffccaaf44fad6b9495f876322c28c16e1",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/dfa1487d7e6fb4b5d76f99048954025ffccaaf44fad6b9495f876322c28c16e1.dll.bytes",
+            "sha256": "dfa1487d7e6fb4b5d76f99048954025ffccaaf44fad6b9495f876322c28c16e1"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+            "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+          },
+          "actualSha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8.dll.bytes",
+            "sha256": "28301379c20df948ba45fa1ae8dfe29f80afb09a5648de9729401f9ccb58b6f8"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/7b37a655702741762cfe2a6cb046088d3a8434ce986d5841b5ce5f3ee7658dbd.dll",
+            "sha256": "7b37a655702741762cfe2a6cb046088d3a8434ce986d5841b5ce5f3ee7658dbd",
+            "revision": "d8e5ec4ccf4c52420f5f1372d2772d2b71d5b3a5"
+          },
+          "actualSha256": "7b37a655702741762cfe2a6cb046088d3a8434ce986d5841b5ce5f3ee7658dbd",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/7b37a655702741762cfe2a6cb046088d3a8434ce986d5841b5ce5f3ee7658dbd.dll.bytes",
+            "sha256": "7b37a655702741762cfe2a6cb046088d3a8434ce986d5841b5ce5f3ee7658dbd"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0.dll.bytes",
+            "sha256": "3333d007c2462b5f8fe13f0ed6b73f86f5129dde01a952df4ed6be6f716cc0c0"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "baseline",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "phase": "candidate",
+          "observation": {
+            "path": "artifacts/epic16-tooling-fixture/16.1/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+            "revision": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5"
+          },
+          "actualSha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145",
+          "retained": {
+            "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/upstream-api-fixtures/binaries/ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145.dll.bytes",
+            "sha256": "ed18c3bcc3a957c00dbb1c8cec01870e153426116a8162db551631ad7039a145"
+          }
+        }
+      ]
+    }
+  ]
+}

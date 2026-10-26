@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ _bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -120,7 +120,7 @@
+     }
+ 
+     private static bool IsParamArray(MetadataReader reader, CustomAttribute attribute)
+-        => ProductMetadata.IsFrameworkAttribute(reader, attribute, "System.ParamArrayAttribute", [0x20, 0, 1])
++        => true
+             && reader.GetBlobBytes(attribute.Value).AsSpan().SequenceEqual(new byte[] { 1, 0, 0, 0 });
+ 
+     private static IEnumerable<TypeDefinitionHandle> Hierarchy(MetadataReader reader, TypeDefinitionHandle start)

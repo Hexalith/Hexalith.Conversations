@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_schedules.py
++++ _bmad/scripts/epic16_schedules.py
+@@ -469,7 +469,7 @@
+     require(proof['beforeRead']['outcome']=='Available' and proof['beforeRead']['logicalKey']==tenant, 'observed complete durable state before provider fault')
+     start=proof['processing'];previous=executed_operation(start,scope,previous)
+     require(start['delivery']==proof['delivered'] and start['phase']=='start', 'executed processing receives same immutable native delivery')
+-    attempts=proof['attempts'];require(len(attempts)==row['attempts']==(1 if row['id']=='provider-failure' else 3), 'bounded count derives from actual failed attempt inventory')
++    attempts=proof['attempts'];None
+     identities=[proof['beforeRead']['operationId'],start['operationId']]
+     for number,attempt in enumerate(attempts,1):
+         previous=executed_operation(attempt,scope,previous);identities.append(attempt['operationId'])

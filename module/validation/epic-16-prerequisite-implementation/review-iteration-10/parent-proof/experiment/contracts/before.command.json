@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "dotnet",
+    "build",
+    "src/Hexalith.Conversations.Contracts/Contracts.csproj",
+    "-c",
+    "Debug",
+    "--nologo",
+    "-m:1",
+    "-p:NuGetAudit=false",
+    "-p:SourceRevisionId=0f9c753b378784b299343254ff0b8f1ef3347838"
+  ],
+  "exitCode": 0
+}

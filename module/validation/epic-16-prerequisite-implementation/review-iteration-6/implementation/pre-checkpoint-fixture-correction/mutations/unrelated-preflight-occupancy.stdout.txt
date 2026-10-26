@@ -1,0 +1,115 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_round6_unrelated_port_requires_separate_executed_negative_operation[owned-occupied] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-426/test_round6_unrelated_port_req0/fixture')
+fault = 'owned-occupied'
+
+    @pytest.mark.parametrize('fault',['missing','not-executed','not-completed','same-operation','owned-occupied','unrelated-free','inventory','result','diagnostic','lane-started'])
+    def test_round6_unrelated_port_requires_separate_executed_negative_operation(repository,fault):
+        scenario='AC-16.3-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['negativePreflight']
+        if fault=='missing':data.pop('negativePreflight')
+        elif fault=='not-executed':row['executed']=False
+        elif fault=='not-completed':row['completed']=False
+        elif fault=='same-operation':row['operationId']=data['collisionOperationId']
+        elif fault=='owned-occupied':row['occupancy'][1]['owner']='collision-fixture'
+        elif fault=='unrelated-free':row['occupancy'][-1]['owner']=None
+        elif fault=='inventory':row['endpointInventory'][1]['port']+=10
+        elif fault=='result':row['result']['checkedEndpointIds'].pop()
+        elif fault=='diagnostic':row['diagnostics'].append('DAPR_CONTROL_PLANE_PORT_COLLISION')
+        else:row['liveLaneStarted']=True
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_SCHEMA_INVALID' if fault=='missing' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_unrelated_port_requires_separate_executed_negative_operation[unrelated-free] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-426/test_round6_unrelated_port_req1/fixture')
+fault = 'unrelated-free'
+
+    @pytest.mark.parametrize('fault',['missing','not-executed','not-completed','same-operation','owned-occupied','unrelated-free','inventory','result','diagnostic','lane-started'])
+    def test_round6_unrelated_port_requires_separate_executed_negative_operation(repository,fault):
+        scenario='AC-16.3-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['negativePreflight']
+        if fault=='missing':data.pop('negativePreflight')
+        elif fault=='not-executed':row['executed']=False
+        elif fault=='not-completed':row['completed']=False
+        elif fault=='same-operation':row['operationId']=data['collisionOperationId']
+        elif fault=='owned-occupied':row['occupancy'][1]['owner']='collision-fixture'
+        elif fault=='unrelated-free':row['occupancy'][-1]['owner']=None
+        elif fault=='inventory':row['endpointInventory'][1]['port']+=10
+        elif fault=='result':row['result']['checkedEndpointIds'].pop()
+        elif fault=='diagnostic':row['diagnostics'].append('DAPR_CONTROL_PLANE_PORT_COLLISION')
+        else:row['liveLaneStarted']=True
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_SCHEMA_INVALID' if fault=='missing' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_unrelated_port_requires_separate_executed_negative_operation[inventory] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-426/test_round6_unrelated_port_req2/fixture')
+fault = 'inventory'
+
+    @pytest.mark.parametrize('fault',['missing','not-executed','not-completed','same-operation','owned-occupied','unrelated-free','inventory','result','diagnostic','lane-started'])
+    def test_round6_unrelated_port_requires_separate_executed_negative_operation(repository,fault):
+        scenario='AC-16.3-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['negativePreflight']
+        if fault=='missing':data.pop('negativePreflight')
+        elif fault=='not-executed':row['executed']=False
+        elif fault=='not-completed':row['completed']=False
+        elif fault=='same-operation':row['operationId']=data['collisionOperationId']
+        elif fault=='owned-occupied':row['occupancy'][1]['owner']='collision-fixture'
+        elif fault=='unrelated-free':row['occupancy'][-1]['owner']=None
+        elif fault=='inventory':row['endpointInventory'][1]['port']+=10
+        elif fault=='result':row['result']['checkedEndpointIds'].pop()
+        elif fault=='diagnostic':row['diagnostics'].append('DAPR_CONTROL_PLANE_PORT_COLLISION')
+        else:row['liveLaneStarted']=True
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_SCHEMA_INVALID' if fault=='missing' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_unrelated_port_requires_separate_executed_negative_operation[owned-occupied]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_unrelated_port_requires_separate_executed_negative_operation[unrelated-free]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_unrelated_port_requires_separate_executed_negative_operation[inventory]
+3 failed, 1048 deselected in 4.42s

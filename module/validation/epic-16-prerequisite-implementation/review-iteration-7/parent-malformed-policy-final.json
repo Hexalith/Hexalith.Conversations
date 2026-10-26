@@ -1,0 +1,23 @@
+{
+  "helperSha256": "ab2aec05b61871a961a99f2e72d98558ca07114c24f59eac931fbba36966063e",
+  "results": [
+    {
+      "policy": "not json",
+      "outcome": "JSONDecodeError",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "correct": true
+    },
+    {
+      "policy": "[]",
+      "outcome": "ValueError",
+      "message": "repository SDK policy must be an object",
+      "correct": true
+    },
+    {
+      "policy": "{\"sdk\":[]}",
+      "outcome": "ValueError",
+      "message": "unsupported repository SDK policy",
+      "correct": true
+    }
+  ]
+}

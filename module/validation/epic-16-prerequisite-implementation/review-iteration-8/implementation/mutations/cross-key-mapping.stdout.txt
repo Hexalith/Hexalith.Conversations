@@ -1,0 +1,179 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_round8_generation_query_contexts_preserve_distinct_public_mappings[valid-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-520/test_round8_generation_query_c0/fixture')
+index = 0, fault = 'valid'
+
+    @pytest.mark.parametrize('index',range(5))
+    @pytest.mark.parametrize('fault',['valid','wrong-state','wrong-generation','missing-read','no-call'])
+    def test_round8_generation_query_contexts_preserve_distinct_public_mappings(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['generationQueries'];q=p['queries'][index]
+        if fault=='wrong-state':q['returned']['status']='Unavailable' if index in (1,2,3) else 'Rebuilding'
+        elif fault=='wrong-generation':q['snapshot']['index']['metadataGenerations']['watermark']+=1
+        elif fault=='missing-read':q['reads']=[]
+        elif fault=='no-call':q['executed']=False
+>       round8_submit(repository,'AC-16.2-05',data,passes=fault=='valid')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2981: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-520/test_round8_generation_query_c0/fixture')
+scenario = 'AC-16.2-05'
+data = {'beforeContractSha256': '1c4959c1c1885d1c42a427c0a3ba0eac15d351ea9643f8cbdb9b941913c035e3', 'afterContractSha256': '1c4959c1c1885d1c42a427c0a3ba0eac15d351ea9643f8cbdb9b941913c035e3', 'eventPersonalData': [], 'logPersonalData': [], ...}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+_ test_round8_generation_query_contexts_preserve_distinct_public_mappings[valid-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-520/test_round8_generation_query_c1/fixture')
+index = 1, fault = 'valid'
+
+    @pytest.mark.parametrize('index',range(5))
+    @pytest.mark.parametrize('fault',['valid','wrong-state','wrong-generation','missing-read','no-call'])
+    def test_round8_generation_query_contexts_preserve_distinct_public_mappings(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['generationQueries'];q=p['queries'][index]
+        if fault=='wrong-state':q['returned']['status']='Unavailable' if index in (1,2,3) else 'Rebuilding'
+        elif fault=='wrong-generation':q['snapshot']['index']['metadataGenerations']['watermark']+=1
+        elif fault=='missing-read':q['reads']=[]
+        elif fault=='no-call':q['executed']=False
+>       round8_submit(repository,'AC-16.2-05',data,passes=fault=='valid')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2981: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-520/test_round8_generation_query_c1/fixture')
+scenario = 'AC-16.2-05'
+data = {'beforeContractSha256': '1c4959c1c1885d1c42a427c0a3ba0eac15d351ea9643f8cbdb9b941913c035e3', 'afterContractSha256': '1c4959c1c1885d1c42a427c0a3ba0eac15d351ea9643f8cbdb9b941913c035e3', 'eventPersonalData': [], 'logPersonalData': [], ...}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+_ test_round8_generation_query_contexts_preserve_distinct_public_mappings[valid-2] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-520/test_round8_generation_query_c2/fixture')
+index = 2, fault = 'valid'
+
+    @pytest.mark.parametrize('index',range(5))
+    @pytest.mark.parametrize('fault',['valid','wrong-state','wrong-generation','missing-read','no-call'])
+    def test_round8_generation_query_contexts_preserve_distinct_public_mappings(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['generationQueries'];q=p['queries'][index]
+        if fault=='wrong-state':q['returned']['status']='Unavailable' if index in (1,2,3) else 'Rebuilding'
+        elif fault=='wrong-generation':q['snapshot']['index']['metadataGenerations']['watermark']+=1
+        elif fault=='missing-read':q['reads']=[]
+        elif fault=='no-call':q['executed']=False
+>       round8_submit(repository,'AC-16.2-05',data,passes=fault=='valid')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2981: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-520/test_round8_generation_query_c2/fixture')
+scenario = 'AC-16.2-05'
+data = {'beforeContractSha256': '1c4959c1c1885d1c42a427c0a3ba0eac15d351ea9643f8cbdb9b941913c035e3', 'afterContractSha256': '1c4959c1c1885d1c42a427c0a3ba0eac15d351ea9643f8cbdb9b941913c035e3', 'eventPersonalData': [], 'logPersonalData': [], ...}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+_ test_round8_generation_query_contexts_preserve_distinct_public_mappings[valid-3] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-520/test_round8_generation_query_c3/fixture')
+index = 3, fault = 'valid'
+
+    @pytest.mark.parametrize('index',range(5))
+    @pytest.mark.parametrize('fault',['valid','wrong-state','wrong-generation','missing-read','no-call'])
+    def test_round8_generation_query_contexts_preserve_distinct_public_mappings(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['generationQueries'];q=p['queries'][index]
+        if fault=='wrong-state':q['returned']['status']='Unavailable' if index in (1,2,3) else 'Rebuilding'
+        elif fault=='wrong-generation':q['snapshot']['index']['metadataGenerations']['watermark']+=1
+        elif fault=='missing-read':q['reads']=[]
+        elif fault=='no-call':q['executed']=False
+>       round8_submit(repository,'AC-16.2-05',data,passes=fault=='valid')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2981: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-520/test_round8_generation_query_c3/fixture')
+scenario = 'AC-16.2-05'
+data = {'beforeContractSha256': '1c4959c1c1885d1c42a427c0a3ba0eac15d351ea9643f8cbdb9b941913c035e3', 'afterContractSha256': '1c4959c1c1885d1c42a427c0a3ba0eac15d351ea9643f8cbdb9b941913c035e3', 'eventPersonalData': [], 'logPersonalData': [], ...}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+_ test_round8_generation_query_contexts_preserve_distinct_public_mappings[valid-4] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-520/test_round8_generation_query_c4/fixture')
+index = 4, fault = 'valid'
+
+    @pytest.mark.parametrize('index',range(5))
+    @pytest.mark.parametrize('fault',['valid','wrong-state','wrong-generation','missing-read','no-call'])
+    def test_round8_generation_query_contexts_preserve_distinct_public_mappings(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['generationQueries'];q=p['queries'][index]
+        if fault=='wrong-state':q['returned']['status']='Unavailable' if index in (1,2,3) else 'Rebuilding'
+        elif fault=='wrong-generation':q['snapshot']['index']['metadataGenerations']['watermark']+=1
+        elif fault=='missing-read':q['reads']=[]
+        elif fault=='no-call':q['executed']=False
+>       round8_submit(repository,'AC-16.2-05',data,passes=fault=='valid')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2981: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-520/test_round8_generation_query_c4/fixture')
+scenario = 'AC-16.2-05'
+data = {'beforeContractSha256': '1c4959c1c1885d1c42a427c0a3ba0eac15d351ea9643f8cbdb9b941913c035e3', 'afterContractSha256': '1c4959c1c1885d1c42a427c0a3ba0eac15d351ea9643f8cbdb9b941913c035e3', 'eventPersonalData': [], 'logPersonalData': [], ...}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_generation_query_contexts_preserve_distinct_public_mappings[valid-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_generation_query_contexts_preserve_distinct_public_mappings[valid-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_generation_query_contexts_preserve_distinct_public_mappings[valid-2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_generation_query_contexts_preserve_distinct_public_mappings[valid-3]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_generation_query_contexts_preserve_distinct_public_mappings[valid-4]
+5 failed, 1583 deselected in 6.68s

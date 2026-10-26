@@ -1,0 +1,121 @@
+F........F.FFF                                                           [100%]
+=================================== FAILURES ===================================
+_ test_metadata_rejects_fake_attributes_and_undiscoverable_protocol_shapes[local-fact] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-253/test_metadata_rejects_fake_att0')
+shape = 'local-fact'
+
+    @pytest.mark.parametrize('shape', ['local-fact', 'internal-class', 'abstract-class', 'generic-class', 'private-method', 'static-method', 'generic-method', 'parameterized-method', 'not-test', 'skipped-fact', 'private-constructor'])
+    def test_metadata_rejects_fake_attributes_and_undiscoverable_protocol_shapes(tmp_path, shape):
+        import epic16_native
+        header = 'public sealed class Story16_1EvidenceTests'
+        method = '[Xunit.Fact] public void Scenario01() {}'
+        extra = ''
+        if shape == 'internal-class': header = 'internal sealed class Story16_1EvidenceTests'
+        elif shape == 'abstract-class': header = 'public abstract class Story16_1EvidenceTests'
+        elif shape == 'generic-class': header = 'public class Story16_1EvidenceTests<T>'
+        elif shape == 'private-method': method = '[Xunit.Fact] private void Scenario01() {}'
+        elif shape == 'static-method': method = '[Xunit.Fact] public static void Scenario01() {}'
+        elif shape == 'generic-method': method = '[Xunit.Fact] public void Scenario01<T>() {}'
+        elif shape == 'parameterized-method': method = '[Xunit.Fact] public void Scenario01(int value) {}'
+        elif shape == 'not-test': method = 'public void Scenario01() {}'
+        elif shape == 'skipped-fact': method = '[Xunit.Fact(Skip="skipped")] public void Scenario01() {}'
+        elif shape == 'private-constructor': extra = 'private Story16_1EvidenceTests() {}'
+        content = compile_evidence(tmp_path/'build', 'a'*40, 'namespace Hexalith.Conversations.IntegrationTests.Epic16; '+header+' { '+extra+method+' }', fake=shape=='local-fact')
+>       with pytest.raises(ValueError): epic16_native.inspect_assembly(content,'a'*40,'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1114: Failed
+_ test_metadata_rejects_fake_attributes_and_undiscoverable_protocol_shapes[skipped-fact] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-253/test_metadata_rejects_fake_att9')
+shape = 'skipped-fact'
+
+    @pytest.mark.parametrize('shape', ['local-fact', 'internal-class', 'abstract-class', 'generic-class', 'private-method', 'static-method', 'generic-method', 'parameterized-method', 'not-test', 'skipped-fact', 'private-constructor'])
+    def test_metadata_rejects_fake_attributes_and_undiscoverable_protocol_shapes(tmp_path, shape):
+        import epic16_native
+        header = 'public sealed class Story16_1EvidenceTests'
+        method = '[Xunit.Fact] public void Scenario01() {}'
+        extra = ''
+        if shape == 'internal-class': header = 'internal sealed class Story16_1EvidenceTests'
+        elif shape == 'abstract-class': header = 'public abstract class Story16_1EvidenceTests'
+        elif shape == 'generic-class': header = 'public class Story16_1EvidenceTests<T>'
+        elif shape == 'private-method': method = '[Xunit.Fact] private void Scenario01() {}'
+        elif shape == 'static-method': method = '[Xunit.Fact] public static void Scenario01() {}'
+        elif shape == 'generic-method': method = '[Xunit.Fact] public void Scenario01<T>() {}'
+        elif shape == 'parameterized-method': method = '[Xunit.Fact] public void Scenario01(int value) {}'
+        elif shape == 'not-test': method = 'public void Scenario01() {}'
+        elif shape == 'skipped-fact': method = '[Xunit.Fact(Skip="skipped")] public void Scenario01() {}'
+        elif shape == 'private-constructor': extra = 'private Story16_1EvidenceTests() {}'
+        content = compile_evidence(tmp_path/'build', 'a'*40, 'namespace Hexalith.Conversations.IntegrationTests.Epic16; '+header+' { '+extra+method+' }', fake=shape=='local-fact')
+>       with pytest.raises(ValueError): epic16_native.inspect_assembly(content,'a'*40,'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1114: Failed
+_ test_external_fact_attribute_requires_pinned_framework_assembly_identity[Fake.Framework-4.0.2.0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-253/test_external_fact_attribute_r0')
+name = 'Fake.Framework', version = '4.0.2.0'
+
+    @pytest.mark.parametrize('name,version', [('Fake.Framework','4.0.2.0'),('xunit.v3.core','3.0.0.0'),('xunit.v3.core','4.0.2.0')])
+    def test_external_fact_attribute_requires_pinned_framework_assembly_identity(tmp_path, name, version):
+        import epic16_native
+        framework = tmp_path/'framework'; framework.mkdir()
+        (framework/'Framework.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>'+name+'</AssemblyName><AssemblyVersion>'+version+'</AssemblyVersion></PropertyGroup></Project>')
+        (framework/'FactAttribute.cs').write_text('namespace Xunit; public sealed class FactAttribute(string path = "", int line = -1) : System.Attribute {}')
+        directory = tmp_path/'evidence'; directory.mkdir()
+        (directory/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><GenerateAssemblyInfo>false</GenerateAssemblyInfo></PropertyGroup><ItemGroup><ProjectReference Include="../framework/Framework.csproj" /></ItemGroup></Project>')
+        (directory/'Tests.cs').write_text('[assembly: System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] namespace Hexalith.Conversations.IntegrationTests.Epic16 { public sealed class Story16_1EvidenceTests { [Xunit.Fact] public void Scenario01() {} } }')
+        result = subprocess.run(['dotnet','build','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'],cwd=directory,capture_output=True,timeout=120)
+        assert result.returncode == 0,result.stdout.decode()
+>       with pytest.raises(ValueError): epic16_native.inspect_assembly((directory/'bin/Debug/net10.0/Evidence.dll').read_bytes(),'a'*40,'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1128: Failed
+_ test_external_fact_attribute_requires_pinned_framework_assembly_identity[xunit.v3.core-3.0.0.0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-253/test_external_fact_attribute_r1')
+name = 'xunit.v3.core', version = '3.0.0.0'
+
+    @pytest.mark.parametrize('name,version', [('Fake.Framework','4.0.2.0'),('xunit.v3.core','3.0.0.0'),('xunit.v3.core','4.0.2.0')])
+    def test_external_fact_attribute_requires_pinned_framework_assembly_identity(tmp_path, name, version):
+        import epic16_native
+        framework = tmp_path/'framework'; framework.mkdir()
+        (framework/'Framework.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>'+name+'</AssemblyName><AssemblyVersion>'+version+'</AssemblyVersion></PropertyGroup></Project>')
+        (framework/'FactAttribute.cs').write_text('namespace Xunit; public sealed class FactAttribute(string path = "", int line = -1) : System.Attribute {}')
+        directory = tmp_path/'evidence'; directory.mkdir()
+        (directory/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><GenerateAssemblyInfo>false</GenerateAssemblyInfo></PropertyGroup><ItemGroup><ProjectReference Include="../framework/Framework.csproj" /></ItemGroup></Project>')
+        (directory/'Tests.cs').write_text('[assembly: System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] namespace Hexalith.Conversations.IntegrationTests.Epic16 { public sealed class Story16_1EvidenceTests { [Xunit.Fact] public void Scenario01() {} } }')
+        result = subprocess.run(['dotnet','build','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'],cwd=directory,capture_output=True,timeout=120)
+        assert result.returncode == 0,result.stdout.decode()
+>       with pytest.raises(ValueError): epic16_native.inspect_assembly((directory/'bin/Debug/net10.0/Evidence.dll').read_bytes(),'a'*40,'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1128: Failed
+_ test_external_fact_attribute_requires_pinned_framework_assembly_identity[xunit.v3.core-4.0.2.0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-253/test_external_fact_attribute_r2')
+name = 'xunit.v3.core', version = '4.0.2.0'
+
+    @pytest.mark.parametrize('name,version', [('Fake.Framework','4.0.2.0'),('xunit.v3.core','3.0.0.0'),('xunit.v3.core','4.0.2.0')])
+    def test_external_fact_attribute_requires_pinned_framework_assembly_identity(tmp_path, name, version):
+        import epic16_native
+        framework = tmp_path/'framework'; framework.mkdir()
+        (framework/'Framework.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>'+name+'</AssemblyName><AssemblyVersion>'+version+'</AssemblyVersion></PropertyGroup></Project>')
+        (framework/'FactAttribute.cs').write_text('namespace Xunit; public sealed class FactAttribute(string path = "", int line = -1) : System.Attribute {}')
+        directory = tmp_path/'evidence'; directory.mkdir()
+        (directory/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><GenerateAssemblyInfo>false</GenerateAssemblyInfo></PropertyGroup><ItemGroup><ProjectReference Include="../framework/Framework.csproj" /></ItemGroup></Project>')
+        (directory/'Tests.cs').write_text('[assembly: System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] namespace Hexalith.Conversations.IntegrationTests.Epic16 { public sealed class Story16_1EvidenceTests { [Xunit.Fact] public void Scenario01() {} } }')
+        result = subprocess.run(['dotnet','build','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'],cwd=directory,capture_output=True,timeout=120)
+        assert result.returncode == 0,result.stdout.decode()
+>       with pytest.raises(ValueError): epic16_native.inspect_assembly((directory/'bin/Debug/net10.0/Evidence.dll').read_bytes(),'a'*40,'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1128: Failed
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_metadata_rejects_fake_attributes_and_undiscoverable_protocol_shapes[local-fact]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_metadata_rejects_fake_attributes_and_undiscoverable_protocol_shapes[skipped-fact]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_external_fact_attribute_requires_pinned_framework_assembly_identity[Fake.Framework-4.0.2.0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_external_fact_attribute_requires_pinned_framework_assembly_identity[xunit.v3.core-3.0.0.0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_external_fact_attribute_requires_pinned_framework_assembly_identity[xunit.v3.core-4.0.2.0]
+5 failed, 9 passed, 372 deselected in 28.07s

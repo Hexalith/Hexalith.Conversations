@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="3.671" timestamp="2026-10-25T21:20:18.336236+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_genuine_async_void_fact_is_rejected_without_execution" time="3.400"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-391/test_round5_genuine_async_void0')
+
+    def test_round5_genuine_async_void_fact_is_rejected_without_execution(tmp_path):
+        import epic16_native
+        code='namespace Hexalith.Conversations.IntegrationTests.Epic16; public sealed class Story16_1EvidenceTests { [Xunit.Fact] public async void Scenario01() { await System.Threading.Tasks.Task.Yield(); throw new System.Exception("Never execute evidence"); } }'
+        binary=compile_evidence(tmp_path/'async-void','a'*40,code)
+&gt;       with pytest.raises(ValueError):epic16_native.inspect_assembly(binary,'a'*40,'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1925: Failed</failure></testcase></testsuite></testsuites>

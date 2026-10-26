@@ -1,0 +1,177 @@
+{
+  "scope": "Independent synthetic parent counterexamples, no runtime authority.",
+  "artifacts": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B1/Probe.csproj",
+      "sha256": "a9d403118f4ef8b97e6f2c561a566546e37425cc12f3a7b40b9b3414719f3b25"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B1/Tests.cs",
+      "sha256": "57a12c04274042ffad87faf5c37014edb57a5b7b39d35e6aa722329b44a41559"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B1/bin/Debug/net10.0/Probe.deps.json",
+      "sha256": "0336ccb249d4e2083453ebf51e05f314ac6267d16f38700277877ff59ca5fe8c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B1/bin/Debug/net10.0/Probe.dll.bytes",
+      "sha256": "ee989186910a1c5e1a137ad281802cfac1e3912632da88848e265ed1c955cafe"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B1/global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/external/External.csproj",
+      "sha256": "d96e071eb7b2b582035556b47f8e90eccfebcd507dc3afd7585cc9ce1ab3cbdd"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/external/Task.cs",
+      "sha256": "46016fe3471c2118ce7f2f1839aa88869b25fd4c0a868896a2d4d1cc2399215d"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/external/bin/Debug/net10.0/System.Threading.Tasks.dll.bytes",
+      "sha256": "aaeeac13c43808c8c0e547f0b09a5ad8f206624a606d1a750aa8fecdf15c6986"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/parent-run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/parent-run.stdout",
+      "sha256": "a114f48fe3b641f180481a307dad9794dc84064b77741af258746b2a21530af9"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/probe/Probe.csproj",
+      "sha256": "edc051e101d54d457ad813e5e3e42fef5ae030fb9e5ec61544ad13d2bbafc136"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/probe/Tests.cs",
+      "sha256": "055ce197e3e279c88a67ba9f8a36a640d74407f9b68d05debecb1ef238543938"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/probe/bin/Debug/net10.0/Probe.deps.json",
+      "sha256": "60fc3b40a3d5f72cd65352939eb75257b09cff363692512d764e0fdb4ba4c449"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/probe/bin/Debug/net10.0/Probe.dll.bytes",
+      "sha256": "4f11fe2b2525b13c8646b3468754706a21de7c679e94b53d62c9b8f238b48b94"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/probe/bin/Debug/net10.0/Probe.runtimeconfig.json",
+      "sha256": "f9bc8e9f0c46247078ed47309f19a7576b4b94e4300e9de0003917d6bd2d667a"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/probe/run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/probe/run.stdout",
+      "sha256": "63d38ff85982c484519ae034234f019426a1e27ca445eced31ab7e01e9fcc6fb"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/external/Attribute.cs",
+      "sha256": "549cc88e1459c0d61353e2342a770d12797cdd94af907bfd07757144ff564a1e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/external/External.csproj",
+      "sha256": "70c34fafea2e093c458e3d2014ec7d305658813bd4e5ec4d80b6b87fddb1bdb2"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/external/bin/Debug/net10.0/External.dll.bytes",
+      "sha256": "ef9b75605da60eb1d7e9258750ef230e4848ce6eeb77f3844dc8fd4d16d070aa"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/parent-run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/parent-run.stdout",
+      "sha256": "dfa80da0000650457cd880176b19f0ed0a98148ca2a07586e220b764a03b3986"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/probe/Probe.csproj",
+      "sha256": "05b9a477db0f4810f5591972590098a407033c5d1466f1d70e407e3edf6ff302"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/probe/Tests.cs",
+      "sha256": "8fe1cc562064a051d27fe7f8d7456059f1cf6c9a0d0d77d70593b9c8f014ebe9"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/probe/bin/Debug/net10.0/External.dll.bytes",
+      "sha256": "00d9da4aa317351775cc8414fe3ed1ebb58cda7802cc9c2c6e0548cd7ed43010"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/probe/bin/Debug/net10.0/Probe.deps.json",
+      "sha256": "373770a6ca4c8b6868169b6fc5500618b24bf2a1e0ca9ca2be7c8fc5da7f52eb"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/probe/bin/Debug/net10.0/Probe.dll.bytes",
+      "sha256": "195d614013671bcde9670e3690837b5108ed4d54d76e319ffdc54d410836d794"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/probe/bin/Debug/net10.0/Probe.runtimeconfig.json",
+      "sha256": "f9bc8e9f0c46247078ed47309f19a7576b4b94e4300e9de0003917d6bd2d667a"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/probe/run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/probe/run.stdout",
+      "sha256": "ac8e5809f6541f0dfd3eb85fadf80405b6612bd7f39039d29560311e5e30b91f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B4-AC-16.1-03.json",
+      "sha256": "89c4d8999b15a5503da80834f9d7fa2aec1ed9ac364870593e6000f1dcea3007"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B5-AC-16.1-01.json",
+      "sha256": "2300d27a107a2b41cbecfc92972e0cb830108fcbf816ccd0f3dca0df641b8595"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B5-AC-16.1-02.json",
+      "sha256": "404520d253cb618ed9bef62f85ab8bba01e32d7e1e08c1653846824e68756f9b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B6-AC-16.1-04.json",
+      "sha256": "1c59e83142e9d2a6118ac8abcef7fee1b87cec928dfe335d725ad8c579e55c88"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12E1-stage-0.json",
+      "sha256": "95024ed452880d05f7dc21a0f30b943cbe1cb2472069b09d8b2417bd353c0b0c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12E1-stage-1.json",
+      "sha256": "bb414948156a4311ac773a5c12bdf4089e1d19dcecd32a65e1cf9b56bd4420ed"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12E1-stage-2.json",
+      "sha256": "6d1bcede1c790f4399aeccbc524d5764629f04fcea8793c55d470ec03c269144"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/initial-probe-disposition.json",
+      "sha256": "a3498bf61ba3c7c92ade8d99ba8f24b8675f90baffa39c0bfb7c5329a4ce85ca"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/initial-probe.py",
+      "sha256": "25945367bb04d42445f91af5b8f8206ef6a048a1475892b2c9d85074a2c70a89"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/probe.py",
+      "sha256": "7e9bfcaa5e7a99ebeedc0835aa7146f349482e32d6579de01aba434b79bd5a3a"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/results.json",
+      "sha256": "a3a6ef551a6fcb2d6c70b3f674dabfc4da7460ebc658224c8a95937e0769a3c6"
+    }
+  ]
+}

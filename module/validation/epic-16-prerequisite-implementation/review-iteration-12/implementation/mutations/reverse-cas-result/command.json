@@ -1,0 +1,29 @@
+{
+  "name": "reverse-cas-result",
+  "path": "_bmad/scripts/epic16_schedules.py",
+  "old": "require(admissible is newer and save['succeeded'] is admissible, 'newer CAS succeeds and stale older CAS fails against that durable state')",
+  "new": "None",
+  "selector": "round12_reverse_save and (newer-result or stale-result)",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-reverse-cas-result-mxerp2x8/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_reverse_save and (newer-result or stale-result)",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/reverse-cas-result/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-reverse-cas-result-mxerp2x8",
+  "exitCode": 1,
+  "elapsedSeconds": 17.75739481599885,
+  "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+  "mutatedSha256": "028e7b60090b7cd983bfbef6ed9d5df549e55efe3953f2b108d593e5a5baad4d",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 8,
+    "failures": 8,
+    "errors": 0,
+    "skipped": 0
+  }
+}

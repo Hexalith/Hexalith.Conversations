@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_6/native/external/External.csproj (in 63 ms).
+  Restored /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_6/native/probe/Evidence.csproj (in 102 ms).
+  External -> /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_6/native/external/bin/Debug/net10.0/External.dll
+  Evidence -> /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_6/native/probe/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.24

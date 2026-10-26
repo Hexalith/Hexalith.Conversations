@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "dotnet",
+    "/tmp/epic16-r10-parent-qqxy7o6h/constructor/bin/Debug/net10.0/Evidence.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-method",
+    "Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests.Scenario01",
+    "-trx",
+    "/tmp/epic16-r10-parent-qqxy7o6h/constructor/actual.trx"
+  ],
+  "exitCode": 1
+}

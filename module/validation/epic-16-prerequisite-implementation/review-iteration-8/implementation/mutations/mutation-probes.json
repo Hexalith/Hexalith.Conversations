@@ -1,0 +1,962 @@
+[
+  {
+    "name": "completed-watermark",
+    "path": "_bmad/scripts/epic16_measurements.py",
+    "old": "rebuild['watermarkAfter'] == max(rebuild['watermarkBefore'], rebuild['C'])",
+    "new": "rebuild['watermarkAfter'] >= max(rebuild['watermarkBefore'], rebuild['C'])",
+    "selection": "round8_completed_watermark and 999",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-completed-watermark-e6dd4wgj/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_completed_watermark and 999",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/completed-watermark.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-completed-watermark-e6dd4wgj",
+    "exitCode": 1,
+    "elapsedSeconds": 8.567,
+    "originalSha256": "04aa6e3795611cdc9e28e6a3bc9de2a81bc864a368a0dc15d7dfcd08829af9b6",
+    "mutatedSha256": "41d473e6a83feb08cff6d909c4cfacad4efc2a5d17e4d3db9f1abc5a10670176",
+    "stdoutSha256": "7a5b38fb5cc5d87ae0510a3b809d2315cdb010fbc9a5cb2c732d7636d947496e",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "opaque-domain-map-boundary",
+    "path": "_bmad/scripts/epic16_faults.py",
+    "old": "                tenant_state(item)\n                continue",
+    "new": "                tenant_state(item)",
+    "selection": "round8_domain_map and version and False",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-opaque-domain-map-boundary-qtun9z0c/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_domain_map and version and False",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/opaque-domain-map-boundary.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-opaque-domain-map-boundary-qtun9z0c",
+    "exitCode": 1,
+    "elapsedSeconds": 1.466,
+    "originalSha256": "0324e925ca3e37ba0761dc908bbf5b0a6ab9f299f9c5a08e5ebebab4be16939f",
+    "mutatedSha256": "774a24f3b2d9239be23fede08d6c770a52a1bcc21e3b54f0c29f462ac20d7c29",
+    "stdoutSha256": "f691d73b3fc93eb3b80070ac8de26192f29c88b66ddee08e8c3efa58b286cb1f",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "ack-delivery-native-nonblank",
+    "path": "_bmad/scripts/epic16_measurements.py",
+    "old": "        domain.text(row['deliveryId'])",
+    "new": "        pass # removed validation in disposable mutation",
+    "selection": "round8_acknowledgement and delivery and (4 or 5)",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-ack-delivery-native-nonblank-1i5xv9n0/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_acknowledgement and delivery and (4 or 5)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/ack-delivery-native-nonblank.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-ack-delivery-native-nonblank-1i5xv9n0",
+    "exitCode": 1,
+    "elapsedSeconds": 5.734,
+    "originalSha256": "04aa6e3795611cdc9e28e6a3bc9de2a81bc864a368a0dc15d7dfcd08829af9b6",
+    "mutatedSha256": "4e0e12ba2986a39a555270e7484233a8b0fd4df1ac3bd5d469f4b12f60b4a4dc",
+    "stdoutSha256": "39b83ee29f281ca538d7a3d0ca6193fcfae795186513d75a8f16267fac5baea8",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 14,
+      "failures": 6,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "ack-record-native-nonblank",
+    "path": "_bmad/scripts/epic16_measurements.py",
+    "old": "            domain.text(operation['deliveryId']); domain.text(operation['recordId'])",
+    "new": "            pass",
+    "selection": "round8_acknowledgement and record",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-ack-record-native-nonblank-ocku2fk_/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_acknowledgement and record",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/ack-record-native-nonblank.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-ack-record-native-nonblank-ocku2fk_",
+    "exitCode": 1,
+    "elapsedSeconds": 10.916,
+    "originalSha256": "04aa6e3795611cdc9e28e6a3bc9de2a81bc864a368a0dc15d7dfcd08829af9b6",
+    "mutatedSha256": "9908ce38c72d78a182c46f65979aacc53ec9d1b9471da4e463efe50b5ffb3999",
+    "stdoutSha256": "8d1aabf86e067a19b0114c79d0a039a94fd734f306adc74aaaf04b7df21359e3",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 28,
+      "failures": 12,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "restart-caller",
+    "path": "_bmad/scripts/epic16_measurements.py",
+    "old": "            schedules.restart_resumption(data)",
+    "new": "            pass # removed validation in disposable mutation",
+    "selection": "round8_restart_requires and summary",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-restart-caller-c_otv7wf/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_restart_requires and summary",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/restart-caller.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-restart-caller-c_otv7wf",
+    "exitCode": 1,
+    "elapsedSeconds": 0.882,
+    "originalSha256": "04aa6e3795611cdc9e28e6a3bc9de2a81bc864a368a0dc15d7dfcd08829af9b6",
+    "mutatedSha256": "6e81003c7425b79b508013a5804b06f677c276330d39b5e890de682ca84eeb5e",
+    "stdoutSha256": "5596677d61d51c40dacf46743a7787c096b3ecbf237331e999a7aa29f6577c4e",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "restart-acquisition-execution",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "    require(acquisition['executed'] is True and acquisition['executor']=='EventStore' and same(acquisition['before'],before) and same(acquisition['expected'],current), 'executed lease acquisition observes complete old snapshot and fence')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_restart_requires and acquire-unexecuted",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-restart-acquisition-execution-3cfcunhe/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_restart_requires and acquire-unexecuted",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/restart-acquisition-execution.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-restart-acquisition-execution-3cfcunhe",
+    "exitCode": 1,
+    "elapsedSeconds": 0.932,
+    "originalSha256": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a",
+    "mutatedSha256": "cf2e4ea0cb245ffe6e1276d9b743a70051d2f21e2b046918c1cabc9f80f87f50",
+    "stdoutSha256": "c63844063626e273baef0d5597142f07550b4e72a0f554db6a76e5a5dc8e8378",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "restart-acquisition-atomicity",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "    require(acquisition['succeeded'] is True and acquisition['transactionId']==text(acquisition['leaseTransactionId'])==text(acquisition['recordTransactionId']), 'one durable replacement-lease record transaction')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_restart_requires and acquire-split",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-restart-acquisition-atomicity-oo1u4lri/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_restart_requires and acquire-split",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/restart-acquisition-atomicity.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-restart-acquisition-atomicity-oo1u4lri",
+    "exitCode": 1,
+    "elapsedSeconds": 1.021,
+    "originalSha256": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a",
+    "mutatedSha256": "2a1c769709903e8c36aeb98f71feaeb6c521dfa60fda9577c0ceb121c71b4753",
+    "stdoutSha256": "37ed8a8573ac4525efb76104033b68e90b76bd4fcfa6e27f155ac527897d86f5",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "restart-resumption-execution",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "    require(resume['executed'] is True and resume['order']>acquisition['order'] and resume['operation']=='resume-recovery' and resume['executor']=='EventStore', 'restarted recovery actually resumes after acquisition')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_restart_requires and resume-unexecuted",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-restart-resumption-execution-mogyhjvj/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_restart_requires and resume-unexecuted",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/restart-resumption-execution.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-restart-resumption-execution-mogyhjvj",
+    "exitCode": 1,
+    "elapsedSeconds": 0.909,
+    "originalSha256": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a",
+    "mutatedSha256": "1397f889949498b597d4fbdf4f6fed0721dcea11e733641e91f58333993610fc",
+    "stdoutSha256": "adc4f9c2878812a7673f2f217979b81f73d235b229db74cd4b6510906be42130",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "restart-resumption-scope",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "    require(resume['process']==after['process'] and resume['worker']==after['worker'] and resume['tenant']==data['tenant'] and resume['logicalStoreKey']==data['tenant'], 'resumption uses acquired worker and tenant store identity')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_restart_requires and resume-process",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-restart-resumption-scope-jggs1zfx/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_restart_requires and resume-process",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/restart-resumption-scope.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-restart-resumption-scope-jggs1zfx",
+    "exitCode": 1,
+    "elapsedSeconds": 0.888,
+    "originalSha256": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a",
+    "mutatedSha256": "ed05f2ab3a3bd823100857c0ea9c724a2c35bbec1a2724e2c6f4da7e60a0e425",
+    "stdoutSha256": "e58d7e7fbcafd04652619f7e997e4ed3d34059bc09f1e964bd911271096dc9ef",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "restart-resumption-state",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "    require(resume['observedTransactionId']==acquisition['transactionId'] and same(resume['storedBefore'],after) and same(resume['storedAfter'],after), 'resumption reads acquired durable snapshot without clearing pending work')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_restart_requires and resume-clears",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-restart-resumption-state-eql88w93/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_restart_requires and resume-clears",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/restart-resumption-state.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-restart-resumption-state-eql88w93",
+    "exitCode": 1,
+    "elapsedSeconds": 0.887,
+    "originalSha256": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a",
+    "mutatedSha256": "d81764e01d164b50eea0ec1042a488e0c1c0f65c681f68f0496e12da56b3803c",
+    "stdoutSha256": "673dfbcea52dcba7386dcd848be19ddd4fe4e206d09c1bb89c797b1f622af963",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "restart-without-redelivery",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "    require(resume['trigger']=='persisted-pending' and resume['sourceDeliveries']==[] and data['redeliveries']==0 and resume['fromSequence']==after['expectedSequence'] and resume['throughSequence']==after['horizon'], 'persisted gap resumes exact recovery interval without new delivery')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_restart_requires and resume-sequence",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-restart-without-redelivery-aqcfnr7f/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_restart_requires and resume-sequence",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/restart-without-redelivery.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-restart-without-redelivery-aqcfnr7f",
+    "exitCode": 1,
+    "elapsedSeconds": 0.929,
+    "originalSha256": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a",
+    "mutatedSha256": "5c21b966da9670f13ea49e5fed8f4c2f2299f36419c10d7272867afbaa6d47a7",
+    "stdoutSha256": "0e8a29812ade30caa1c594efea118905912ce2b50a224eb155b278532ca60cb5",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "restart-isolated-lease",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "admissible=all(same(expected[k],after[k]) for k in RESTART_FENCES)",
+    "new": "admissible=all(same(expected[k],after[k]) for k in RESTART_FENCES if k!='lease')",
+    "selection": "all_fifteen_measured_routes and AC-16.1-02",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-restart-isolated-lease-aqbdz6w2/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "all_fifteen_measured_routes and AC-16.1-02",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/restart-isolated-lease.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-restart-isolated-lease-aqbdz6w2",
+    "exitCode": 1,
+    "elapsedSeconds": 0.949,
+    "originalSha256": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a",
+    "mutatedSha256": "3d1cf54ff2861b3abc73f8cea5e5bd2177b540ae16707638cf6dd29a98ef12e3",
+    "stdoutSha256": "e13c619ec1514d4cf4156692a2c466f9e83e2feac86d1acba36fd5d3875ab9ff",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "restart-isolated-version",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "admissible=all(same(expected[k],after[k]) for k in RESTART_FENCES)",
+    "new": "admissible=all(same(expected[k],after[k]) for k in RESTART_FENCES if k!='version')",
+    "selection": "all_fifteen_measured_routes and AC-16.1-02",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-restart-isolated-version-brf97_w8/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "all_fifteen_measured_routes and AC-16.1-02",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/restart-isolated-version.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-restart-isolated-version-brf97_w8",
+    "exitCode": 1,
+    "elapsedSeconds": 0.885,
+    "originalSha256": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a",
+    "mutatedSha256": "2755ba00431cf29eb59565b77e38b2778fdd0e63fcb6481f8ebdaf62d852e37b",
+    "stdoutSha256": "b6c7b937da3ab9eb5f00e2f5da48a65ed88b75f35d69b82f341fc5a3f42ebefe",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "restart-isolated-checkpoint",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "admissible=all(same(expected[k],after[k]) for k in RESTART_FENCES)",
+    "new": "admissible=all(same(expected[k],after[k]) for k in RESTART_FENCES if k!='checkpoint')",
+    "selection": "all_fifteen_measured_routes and AC-16.1-02",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-restart-isolated-checkpoint-g811667w/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "all_fifteen_measured_routes and AC-16.1-02",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/restart-isolated-checkpoint.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-restart-isolated-checkpoint-g811667w",
+    "exitCode": 1,
+    "elapsedSeconds": 0.907,
+    "originalSha256": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a",
+    "mutatedSha256": "ed324d3c3ea821f897bf1af20756369e3758d7ef676a3a70e218f106341df441",
+    "stdoutSha256": "4e8a5dd47f27914de6aa07c8e8e0db39d6bba4fada983ead4db72532750efea6",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "restart-isolated-horizon",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "admissible=all(same(expected[k],after[k]) for k in RESTART_FENCES)",
+    "new": "admissible=all(same(expected[k],after[k]) for k in RESTART_FENCES if k!='horizon')",
+    "selection": "all_fifteen_measured_routes and AC-16.1-02",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-restart-isolated-horizon-oc71j844/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "all_fifteen_measured_routes and AC-16.1-02",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/restart-isolated-horizon.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-restart-isolated-horizon-oc71j844",
+    "exitCode": 1,
+    "elapsedSeconds": 0.915,
+    "originalSha256": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a",
+    "mutatedSha256": "5757436b2b05c52ee84db8178bad918e66546ca22e20f519c1254bae753ef489",
+    "stdoutSha256": "52f6f3f6a0c2695fd72e713ecbcaf6c394d279d39788dea261f9a0351bd87ff3",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "restart-rejection-preserves-snapshot",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "        require(same(attempt['storedBefore'],after) and same(attempt['storedAfter'],after), 'stale restart attempt preserves every newer persisted field and fingerprint')",
+    "new": "        pass # removed validation in disposable mutation",
+    "selection": "round8_restart_requires and stale-mutates",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-restart-rejection-preserves-snapshot-pdbj2erp/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_restart_requires and stale-mutates",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/restart-rejection-preserves-snapshot.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-restart-rejection-preserves-snapshot-pdbj2erp",
+    "exitCode": 1,
+    "elapsedSeconds": 0.914,
+    "originalSha256": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a",
+    "mutatedSha256": "54a148a2a766215368b5263a6955c33b59e1f64889ad320dc322c2cbb7670426",
+    "stdoutSha256": "41ea8c80f3dab10ad5939aee91803fddbf32ff539a82c5ec6cf4b57207c802a7",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "restart-current-positive",
+    "path": "_bmad/scripts/epic16_schedules.py",
+    "old": "    require(current['succeeded'] is True and current['transactionId']==text(current['leaseTransactionId'])==text(current['recordTransactionId']), 'current fences admit durable composite renewal')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_restart_requires and current-failed",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-restart-current-positive-ukpp0yte/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_restart_requires and current-failed",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/restart-current-positive.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-restart-current-positive-ukpp0yte",
+    "exitCode": 1,
+    "elapsedSeconds": 0.873,
+    "originalSha256": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a",
+    "mutatedSha256": "4d28ceef047ccd465e60d656a4864ed1715918453dd728cce5bb6b9dfab9c99c",
+    "stdoutSha256": "af59d5beb37bdaca369aad6ef11e70272e805a5ed840155c9a1987ec10b5008c",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "queue-caller",
+    "path": "_bmad/scripts/epic16_measurements.py",
+    "old": "            lifecycle.catch_up_queue(rebuild)",
+    "new": "            pass # removed validation in disposable mutation",
+    "selection": "round8_catch_up and enqueue-unexecuted",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-queue-caller-8lzx1uk6/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_catch_up and enqueue-unexecuted",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/queue-caller.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-queue-caller-8lzx1uk6",
+    "exitCode": 1,
+    "elapsedSeconds": 2.925,
+    "originalSha256": "04aa6e3795611cdc9e28e6a3bc9de2a81bc864a368a0dc15d7dfcd08829af9b6",
+    "mutatedSha256": "2a9acf10cf90c94562f1bef5dc2d07b9cd7dc807a3ba9912855f7f3d6288817d",
+    "stdoutSha256": "220559f890d488014fa647c2660fe48bd9107a06ab48e70d60910cf8ec86b517",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "queue-retained-history",
+    "path": "_bmad/scripts/epic16_lifecycle.py",
+    "old": "    for observed in authoritative.values():\n        remember(queue_reference(observed,row['afterGeneration']))",
+    "new": "    pass # retained history admission removed",
+    "selection": "round8_queue_accepts and reuse",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-queue-retained-history-7uf_1lol/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_queue_accepts and reuse",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/queue-retained-history.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-queue-retained-history-7uf_1lol",
+    "exitCode": 1,
+    "elapsedSeconds": 3.82,
+    "originalSha256": "c7ff101bf2a761de16ba2d3491a043aa81233647b1993d8ba52936f58a59c2a1",
+    "mutatedSha256": "d20e35a894c3357ac30ceec33504c017ceb3de710df1ea39b8697870057092a0",
+    "stdoutSha256": "cb52733ab07fd73fd43d6caea03923dba6b637849270b4d958448b389c5708ed",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 3,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "queue-authoritative-event",
+    "path": "_bmad/scripts/epic16_lifecycle.py",
+    "old": "    require(observation['eventId']==identity and observation['sequence']==binding['sequence'] and observation['eventSha256']==digest(canonical(observation['event'])), 'queue authoritative location binds exact envelope identity')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_catch_up and event",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-queue-authoritative-event-w0pf59jh/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_catch_up and event",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/queue-authoritative-event.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-queue-authoritative-event-w0pf59jh",
+    "exitCode": 1,
+    "elapsedSeconds": 2.989,
+    "originalSha256": "c7ff101bf2a761de16ba2d3491a043aa81233647b1993d8ba52936f58a59c2a1",
+    "mutatedSha256": "365ec06a217f8531cc8547f90fb448134f00027a64fdb2e34fd96b6df8384b3f",
+    "stdoutSha256": "72a1de011b43fca0089babf51be59d4e743dc46f9064d6d4a7de43a5567b9c39",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "queue-executed-enqueue",
+    "path": "_bmad/scripts/epic16_lifecycle.py",
+    "old": "        require(enqueue['executed'] is True and enqueue['order']>last_order and entry['cas']['order']<enqueue['order']<work['cas']['order'], 'enqueue executes after Rebuilding entry before completed catch-up')",
+    "new": "        pass # removed validation in disposable mutation",
+    "selection": "round8_catch_up and enqueue-unexecuted",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-queue-executed-enqueue-e8eij8wj/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_catch_up and enqueue-unexecuted",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/queue-executed-enqueue.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-queue-executed-enqueue-e8eij8wj",
+    "exitCode": 1,
+    "elapsedSeconds": 2.898,
+    "originalSha256": "c7ff101bf2a761de16ba2d3491a043aa81233647b1993d8ba52936f58a59c2a1",
+    "mutatedSha256": "f0d20cbb6816a64fe6d6ecfef779aa4ddc41d0dfc41375f1d791144a3a5df49e",
+    "stdoutSha256": "5132ec0e66f40197145dbe720a0502202f4cb4bb4eb4d84a7bef5b1dee39f2e6",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "queue-atomic-enqueue",
+    "path": "_bmad/scripts/epic16_lifecycle.py",
+    "old": "            require(enqueue['indexTransactionId']==transaction and enqueue['componentTransactions']==[dict(kind=part['kind'],resource=part['resource'],transactionId=transaction) for part in expected_snapshot['components']], 'one enqueue transaction commits complete captured index and component state')",
+    "new": "            pass # removed validation in disposable mutation",
+    "selection": "round8_catch_up and enqueue-split",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-queue-atomic-enqueue-hp5l3xmj/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_catch_up and enqueue-split",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/queue-atomic-enqueue.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-queue-atomic-enqueue-hp5l3xmj",
+    "exitCode": 1,
+    "elapsedSeconds": 2.97,
+    "originalSha256": "c7ff101bf2a761de16ba2d3491a043aa81233647b1993d8ba52936f58a59c2a1",
+    "mutatedSha256": "8717158322500c90636910fd96d22c9eaeb5e94c823e7e81ae74e9ac5da844dd",
+    "stdoutSha256": "8e0c51a82a211efe845fd3278f1c69ebfce2a27dc9507a8f538186ccd94e2342",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "queue-durable-before-ack",
+    "path": "_bmad/scripts/epic16_lifecycle.py",
+    "old": "    require(commit['order'] < ack['order'] and commit['utcTicks'] <= ack['utcTicks'], 'commit precedes ack by operation order even when clock ticks coincide')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_catch_up and ack-order",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-queue-durable-before-ack-od9vicry/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_catch_up and ack-order",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/queue-durable-before-ack.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-queue-durable-before-ack-od9vicry",
+    "exitCode": 1,
+    "elapsedSeconds": 3.02,
+    "originalSha256": "c7ff101bf2a761de16ba2d3491a043aa81233647b1993d8ba52936f58a59c2a1",
+    "mutatedSha256": "077eaaf66d9a401fcb1831295360bd0ff57b7d6ef19a3d6d7420f884d41216dd",
+    "stdoutSha256": "675f681f015a03c7843d60a5fbf286593c608307f4b91582385910017b262874",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "queue-drain-transaction",
+    "path": "_bmad/scripts/epic16_lifecycle.py",
+    "old": "    require(drain['executed'] is True and drain['succeeded'] is True and drain['order']>last_order and drain['order']==work['cas']['order'] and drain['transactionId']==work['cas']['transactionId'], 'executed durable drain shares captured rebuild work transaction')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_catch_up and drain-transaction",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-queue-drain-transaction-2phc3uot/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_catch_up and drain-transaction",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/queue-drain-transaction.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-queue-drain-transaction-2phc3uot",
+    "exitCode": 1,
+    "elapsedSeconds": 2.988,
+    "originalSha256": "c7ff101bf2a761de16ba2d3491a043aa81233647b1993d8ba52936f58a59c2a1",
+    "mutatedSha256": "5980c1df06b94e3bf26f412a96f969d114a676dce91a7606200db875f973b76d",
+    "stdoutSha256": "8723be245f37387c550c995aeda661cf09fefd0ecf3893542b06fdae6671c0c7",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "lifecycle-query-inventory",
+    "path": "_bmad/scripts/epic16_lifecycle.py",
+    "old": "    require([query['stage'] for query in queries]==[stage['id'] for stage in stages], 'query execution at every entry deletion quarantine and cutover boundary')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_lifecycle_queries and missing and not missing-reads",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-lifecycle-query-inventory-ifpkptdt/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_lifecycle_queries and missing and not missing-reads",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/lifecycle-query-inventory.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-lifecycle-query-inventory-ifpkptdt",
+    "exitCode": 1,
+    "elapsedSeconds": 3.773,
+    "originalSha256": "c7ff101bf2a761de16ba2d3491a043aa81233647b1993d8ba52936f58a59c2a1",
+    "mutatedSha256": "1b6c4e2dd104833daede0ddba0c33d73ba5765e0d4949f00cc82cbe5481e1201",
+    "stdoutSha256": "85a11e4503da615b86ab0ec3fa7a134d0203f9af996edd42da8c1cba93761f4c",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "query-execution",
+    "path": "_bmad/scripts/epic16_lifecycle.py",
+    "old": "    require(query['captureVersion']==1 and text(query['requestId']) and query['executed'] is True and query['completed'] is True, 'query actually executed and completed at lifecycle boundary')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_lifecycle_queries and unexecuted",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-query-execution-y_pjf_hv/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_lifecycle_queries and unexecuted",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/query-execution.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-query-execution-y_pjf_hv",
+    "exitCode": 1,
+    "elapsedSeconds": 3.732,
+    "originalSha256": "c7ff101bf2a761de16ba2d3491a043aa81233647b1993d8ba52936f58a59c2a1",
+    "mutatedSha256": "aff52f132acdd95821072e5d6d6b816950d7625cc52d6369d90a599e325abf31",
+    "stdoutSha256": "a18e38330702389118041dc16585343a93aa6ae7ff8a5d7a49612052e35cf2cb",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "query-order",
+    "path": "_bmad/scripts/epic16_lifecycle.py",
+    "old": "domain.sequence(query['order']);require(lower<query['order']<upper, 'query executes between exact committed lifecycle boundaries')",
+    "new": "domain.sequence(query['order'])",
+    "selection": "round8_lifecycle_queries and wrong-order",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-query-order-b78_wtzn/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_lifecycle_queries and wrong-order",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/query-order.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-query-order-b78_wtzn",
+    "exitCode": 1,
+    "elapsedSeconds": 3.661,
+    "originalSha256": "c7ff101bf2a761de16ba2d3491a043aa81233647b1993d8ba52936f58a59c2a1",
+    "mutatedSha256": "ce6768ae6215af04c7b827849727879a1b35f553a4a59c872f85cc3ac09191e0",
+    "stdoutSha256": "a03337379f238458b30eeffe658a4729658954f866b9a5c787c8164e9e53c87d",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "query-committed-snapshot",
+    "path": "_bmad/scripts/epic16_lifecycle.py",
+    "old": "    require(query['tenant']==snapshot['tenant'] and query['observedTransactionId']==transaction and same(query['snapshot'],snapshot), 'query binds precise committed index and component snapshot')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_lifecycle_queries and (wrong-snapshot or wrong-transaction)",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-query-committed-snapshot-zxubg79v/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_lifecycle_queries and (wrong-snapshot or wrong-transaction)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/query-committed-snapshot.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-query-committed-snapshot-zxubg79v",
+    "exitCode": 1,
+    "elapsedSeconds": 4.547,
+    "originalSha256": "c7ff101bf2a761de16ba2d3491a043aa81233647b1993d8ba52936f58a59c2a1",
+    "mutatedSha256": "9c979424af639b8a40506bfcda34b418010845c2e31dee0395cebf95fa5d3b52",
+    "stdoutSha256": "ad7902946a5a5202d0ea89720096e6bdb532696fe3cd921b27e187e7ffaa3216",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 4,
+      "failures": 4,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "query-derived-result",
+    "path": "_bmad/scripts/epic16_lifecycle.py",
+    "old": "    require(same(query['returned'],expected), 'executed query returns only snapshot-derived public state reason and content')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_lifecycle_queries and false-current",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-query-derived-result-g5iwtj50/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_lifecycle_queries and false-current",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/query-derived-result.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-query-derived-result-g5iwtj50",
+    "exitCode": 1,
+    "elapsedSeconds": 3.247,
+    "originalSha256": "c7ff101bf2a761de16ba2d3491a043aa81233647b1993d8ba52936f58a59c2a1",
+    "mutatedSha256": "c3656c3d7e8769b419a0c9b36cdf0642cf77d3dffee3b85a000108355a8aa768",
+    "stdoutSha256": "7e5558f6f9982b475c4d26533c6e21089551b429615a7887c48120af2cc1d7c6",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "query-no-repair",
+    "path": "_bmad/scripts/epic16_lifecycle.py",
+    "old": "    require(same(query['reads'],reads) and query['writes']==[] and query['recoveryCalls']==[], 'query captures exact reads with no repair recovery or mutation')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_lifecycle_queries and missing-reads",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-query-no-repair-s6vpijys/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_lifecycle_queries and missing-reads",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/query-no-repair.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-query-no-repair-s6vpijys",
+    "exitCode": 1,
+    "elapsedSeconds": 3.313,
+    "originalSha256": "c7ff101bf2a761de16ba2d3491a043aa81233647b1993d8ba52936f58a59c2a1",
+    "mutatedSha256": "bcdd6e6a767d75a67d7594303a60575074caeb926f4c5ecb3d698e38908c71be",
+    "stdoutSha256": "94f8d1d1e957cac17821a486a4b6492edf40c51f6f515cbbfee3508011e25d0a",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "cross-key-mapping",
+    "path": "_bmad/scripts/epic16_lifecycle.py",
+    "old": "return ('Rebuilding','mixed_generation')",
+    "new": "return ('Unavailable','metadata_contradictory')",
+    "selection": "round8_generation_query_contexts and valid",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-cross-key-mapping-x17l9o4j/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_generation_query_contexts and valid",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/cross-key-mapping.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-cross-key-mapping-x17l9o4j",
+    "exitCode": 1,
+    "elapsedSeconds": 6.806,
+    "originalSha256": "c7ff101bf2a761de16ba2d3491a043aa81233647b1993d8ba52936f58a59c2a1",
+    "mutatedSha256": "b642b6ad93cf7dbc4865736b99c91362379d5ec33b93e307d4ef75ee715b9cac",
+    "stdoutSha256": "de037fd16fb23436d84c85a9531b6bd0dfaca6049d544fd19de9fec37e46851c",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 5,
+      "failures": 5,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "named-internal-metadata",
+    "path": "_bmad/scripts/epic16_measurements.py",
+    "old": "    require(set(row['componentGenerations'])==set(row['controlMetadata'].values()), 'generation summary derives from named fields inside the same control record')",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_internal_control_record",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-named-internal-metadata-zwwba_wc/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_internal_control_record",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/named-internal-metadata.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-named-internal-metadata-zwwba_wc",
+    "exitCode": 0,
+    "elapsedSeconds": 3.281,
+    "originalSha256": "04aa6e3795611cdc9e28e6a3bc9de2a81bc864a368a0dc15d7dfcd08829af9b6",
+    "mutatedSha256": "bb4ee5d9d712123d95d304c70a4dc115a8ece467ab8ed1e9818ffbc479d68857",
+    "stdoutSha256": "f214f6556b6b860197b935c90f9dc2127d0f4a11166610277c22cfb05474e851",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+]

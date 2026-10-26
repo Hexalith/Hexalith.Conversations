@@ -1,0 +1,253 @@
+[
+  {
+    "id": "R11B8",
+    "schemaAccepted": true,
+    "semanticChecks": [
+      "tenant-fault-matrix",
+      "durable-acknowledgement",
+      "bounded-retry",
+      "query-purity"
+    ],
+    "capturedFields": [
+      "acknowledged",
+      "acknowledgement",
+      "attempts",
+      "deliveryId",
+      "durable",
+      "durableCommit",
+      "id"
+    ],
+    "commitFields": [
+      "deliveryId",
+      "order",
+      "outcome",
+      "recordId",
+      "utcTicks"
+    ],
+    "acknowledgementFields": [
+      "deliveryId",
+      "order",
+      "recordId",
+      "utcTicks"
+    ]
+  },
+  {
+    "id": "R11B9",
+    "schemaAccepted": true,
+    "semanticChecks": [
+      "production-wire-route",
+      "durable-idempotent-clearance",
+      "query-visible-endstate",
+      "newer-progress-fences"
+    ],
+    "capturedFields": {
+      "captureVersion": null,
+      "scope": [
+        "catalogFingerprint",
+        "catalogSha256",
+        "conversation",
+        "pendingId",
+        "runtimeId",
+        "tenant"
+      ],
+      "authoritativePositions": [
+        "eventSha256",
+        "position",
+        "sequence"
+      ],
+      "oldWorker": [
+        "expected",
+        "snapshot"
+      ],
+      "newerStored": [
+        "captureVersion",
+        "checkpoint",
+        "etag",
+        "generation",
+        "lease",
+        "leaseUntilUtcTicks",
+        "pending",
+        "projection",
+        "scope",
+        "version",
+        "watermark"
+      ],
+      "staleAttempts": [
+        "cleared",
+        "commitId",
+        "expected",
+        "id",
+        "observedAtUtcTicks",
+        "proposed",
+        "scope",
+        "storedAfter",
+        "storedBefore",
+        "succeeded"
+      ],
+      "current": [
+        "after",
+        "before",
+        "checkpointCommitId",
+        "cleared",
+        "commitId",
+        "expected",
+        "observedAtUtcTicks",
+        "pendingCommitId",
+        "projectionCommitId",
+        "scope",
+        "succeeded",
+        "watermarkCommitId"
+      ],
+      "duplicateRetry": [
+        "after",
+        "before",
+        "cleared",
+        "commitId",
+        "scope",
+        "succeeded"
+      ]
+    },
+    "wireOperationPhases": [
+      "request",
+      "authorization",
+      "dispatch",
+      "durable-result",
+      "response"
+    ]
+  },
+  {
+    "id": "R11B6",
+    "wrapper": "verify_story_16_1.py",
+    "cwd": "/tmp/epic16-r11-import-_5f6hjo4",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "/tmp/epic16-r11-import-_5f6hjo4/verify_story_16_1.py"
+    ],
+    "exitCode": 2,
+    "output": {
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "TOOLING_DEPENDENCY_UNAVAILABLE"
+      ],
+      "assertionLedger": [
+        {
+          "id": "TOOLING_DEPENDENCY_UNAVAILABLE",
+          "subject": "epic16_typo",
+          "state": "BLOCKED"
+        }
+      ],
+      "authority": {
+        "implementationHold": "ACTIVE",
+        "executionAllowed": false,
+        "ownerApprovalClaimed": false,
+        "releaseAuthorized": false,
+        "pushAuthorized": false
+      }
+    }
+  },
+  {
+    "id": "R11B6",
+    "wrapper": "verify_story_16_2.py",
+    "cwd": "/tmp/epic16-r11-import-hkwlhpbl",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "/tmp/epic16-r11-import-hkwlhpbl/verify_story_16_2.py"
+    ],
+    "exitCode": 2,
+    "output": {
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "TOOLING_DEPENDENCY_UNAVAILABLE"
+      ],
+      "assertionLedger": [
+        {
+          "id": "TOOLING_DEPENDENCY_UNAVAILABLE",
+          "subject": "epic16_typo",
+          "state": "BLOCKED"
+        }
+      ],
+      "authority": {
+        "implementationHold": "ACTIVE",
+        "executionAllowed": false,
+        "ownerApprovalClaimed": false,
+        "releaseAuthorized": false,
+        "pushAuthorized": false
+      }
+    }
+  },
+  {
+    "id": "R11B6",
+    "wrapper": "verify_story_16_3.py",
+    "cwd": "/tmp/epic16-r11-import-4ydpflmz",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "/tmp/epic16-r11-import-4ydpflmz/verify_story_16_3.py"
+    ],
+    "exitCode": 2,
+    "output": {
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "TOOLING_DEPENDENCY_UNAVAILABLE"
+      ],
+      "assertionLedger": [
+        {
+          "id": "TOOLING_DEPENDENCY_UNAVAILABLE",
+          "subject": "epic16_typo",
+          "state": "BLOCKED"
+        }
+      ],
+      "authority": {
+        "implementationHold": "ACTIVE",
+        "executionAllowed": false,
+        "ownerApprovalClaimed": false,
+        "releaseAuthorized": false,
+        "pushAuthorized": false
+      }
+    }
+  },
+  {
+    "id": "R11E2",
+    "schemaAccepted": true,
+    "eraseTargetsAccepted": true,
+    "allLifecycleTransactionsAccepted": true,
+    "eraseDeliveriesAccepted": true,
+    "evaluatorError": "actual dispatch references match control index",
+    "indexDispatch": [
+      "dispatch-retiring-a"
+    ],
+    "componentDispatch": [
+      [
+        "dispatch-retiring-a"
+      ],
+      [
+        "dispatch-retiring-a"
+      ]
+    ]
+  },
+  {
+    "id": "R11E1",
+    "admitted": {
+      "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "type": "Probe.TestClass",
+      "method": "Scenario01",
+      "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+    },
+    "cwd": "/tmp/epic16-edge-fact-jdhey1nj",
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-edge-fact-jdhey1nj/bin/Debug/net10.0/Probe.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Probe.TestClass.Scenario01",
+      "-trx",
+      "/tmp/epic16-edge-fact-jdhey1nj/parent-result.trx"
+    ],
+    "exitCode": 1
+  }
+]

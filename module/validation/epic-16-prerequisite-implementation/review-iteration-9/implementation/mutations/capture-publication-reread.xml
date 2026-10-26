@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="18.023" timestamp="2026-10-26T01:14:10.628758+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_final_inventory_rereads_admitted_bytes_and_aliases[altered-binary]" time="16.615"><failure message="AssertionError: NATIVE_CAPTURE_INVENTORY&#10;assert 'NATIVE_CAPTURE_INVENTORY' in ('NATIVE_CAPTURE_DRIFT', 'NATIVE_CAPTURE_ALIAS', 'PATH_SYMLINK', 'INPUT_SYMLINK', 'PATH_INVALID', 'INPUT_UNSAFE', ...)&#10; +  where 'NATIVE_CAPTURE_INVENTORY' = getattr(Stop('NATIVE_CAPTURE_INVENTORY'), 'code', None)&#10; +    where Stop('NATIVE_CAPTURE_INVENTORY') = &lt;ExceptionInfo Stop('NATIVE_CAPTURE_INVENTORY') tblen=3&gt;.value">qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-557/test_round9_final_inventory_re0/runtime')
+kind = 'binary', fault = 'altered'
+
+    @pytest.mark.parametrize('kind',['binary','capture','product'])
+    @pytest.mark.parametrize('fault',['altered','hardlink','symlink'])
+    def test_round9_final_inventory_rereads_admitted_bytes_and_aliases(qualified_runtime,kind,fault):
+        repo=qualified_runtime;row=runtime_evaluate(repo);assert row['result']=='PASS',row
+        binary=row['bindings']['testBinary'];entry=binary if kind=='binary' else binary['capture'] if kind=='capture' else binary['products'][0]
+        path=repo/entry['path'];original=path.read_bytes()
+        if fault=='altered':path.write_bytes(original+b'changed')
+        else:
+            path.unlink();alias=repo/'artifacts/alias-input';alias.parent.mkdir(exist_ok=True);alias.write_bytes(original)
+            if fault=='hardlink':os.link(alias,path)
+            else:path.symlink_to(alias)
+        with tooling.ContainedReader(repo) as reader,pytest.raises((tooling.Stop,tooling.ReadError)) as error:
+            tooling.capture.inventory(reader,'16.2',[row]*5,tooling.need)
+&gt;       assert getattr(error.value,'code',None) in ('NATIVE_CAPTURE_DRIFT','NATIVE_CAPTURE_ALIAS','PATH_SYMLINK','INPUT_SYMLINK','PATH_INVALID','INPUT_UNSAFE','PATH_ESCAPE'),str(error.value)
+E       AssertionError: NATIVE_CAPTURE_INVENTORY
+E       assert 'NATIVE_CAPTURE_INVENTORY' in ('NATIVE_CAPTURE_DRIFT', 'NATIVE_CAPTURE_ALIAS', 'PATH_SYMLINK', 'INPUT_SYMLINK', 'PATH_INVALID', 'INPUT_UNSAFE', ...)
+E        +  where 'NATIVE_CAPTURE_INVENTORY' = getattr(Stop('NATIVE_CAPTURE_INVENTORY'), 'code', None)
+E        +    where Stop('NATIVE_CAPTURE_INVENTORY') = &lt;ExceptionInfo Stop('NATIVE_CAPTURE_INVENTORY') tblen=3&gt;.value
+
+_bmad/scripts/tests/test_epic16_tooling.py:3392: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_final_inventory_rereads_admitted_bytes_and_aliases[altered-capture]" time="0.375"><failure message="AssertionError: NATIVE_CAPTURE_INVENTORY&#10;assert 'NATIVE_CAPTURE_INVENTORY' in ('NATIVE_CAPTURE_DRIFT', 'NATIVE_CAPTURE_ALIAS', 'PATH_SYMLINK', 'INPUT_SYMLINK', 'PATH_INVALID', 'INPUT_UNSAFE', ...)&#10; +  where 'NATIVE_CAPTURE_INVENTORY' = getattr(Stop('NATIVE_CAPTURE_INVENTORY'), 'code', None)&#10; +    where Stop('NATIVE_CAPTURE_INVENTORY') = &lt;ExceptionInfo Stop('NATIVE_CAPTURE_INVENTORY') tblen=3&gt;.value">qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-557/test_round9_final_inventory_re1/runtime')
+kind = 'capture', fault = 'altered'
+
+    @pytest.mark.parametrize('kind',['binary','capture','product'])
+    @pytest.mark.parametrize('fault',['altered','hardlink','symlink'])
+    def test_round9_final_inventory_rereads_admitted_bytes_and_aliases(qualified_runtime,kind,fault):
+        repo=qualified_runtime;row=runtime_evaluate(repo);assert row['result']=='PASS',row
+        binary=row['bindings']['testBinary'];entry=binary if kind=='binary' else binary['capture'] if kind=='capture' else binary['products'][0]
+        path=repo/entry['path'];original=path.read_bytes()
+        if fault=='altered':path.write_bytes(original+b'changed')
+        else:
+            path.unlink();alias=repo/'artifacts/alias-input';alias.parent.mkdir(exist_ok=True);alias.write_bytes(original)
+            if fault=='hardlink':os.link(alias,path)
+            else:path.symlink_to(alias)
+        with tooling.ContainedReader(repo) as reader,pytest.raises((tooling.Stop,tooling.ReadError)) as error:
+            tooling.capture.inventory(reader,'16.2',[row]*5,tooling.need)
+&gt;       assert getattr(error.value,'code',None) in ('NATIVE_CAPTURE_DRIFT','NATIVE_CAPTURE_ALIAS','PATH_SYMLINK','INPUT_SYMLINK','PATH_INVALID','INPUT_UNSAFE','PATH_ESCAPE'),str(error.value)
+E       AssertionError: NATIVE_CAPTURE_INVENTORY
+E       assert 'NATIVE_CAPTURE_INVENTORY' in ('NATIVE_CAPTURE_DRIFT', 'NATIVE_CAPTURE_ALIAS', 'PATH_SYMLINK', 'INPUT_SYMLINK', 'PATH_INVALID', 'INPUT_UNSAFE', ...)
+E        +  where 'NATIVE_CAPTURE_INVENTORY' = getattr(Stop('NATIVE_CAPTURE_INVENTORY'), 'code', None)
+E        +    where Stop('NATIVE_CAPTURE_INVENTORY') = &lt;ExceptionInfo Stop('NATIVE_CAPTURE_INVENTORY') tblen=3&gt;.value
+
+_bmad/scripts/tests/test_epic16_tooling.py:3392: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_final_inventory_rereads_admitted_bytes_and_aliases[altered-product]" time="0.370"><failure message="AssertionError: NATIVE_CAPTURE_INVENTORY&#10;assert 'NATIVE_CAPTURE_INVENTORY' in ('NATIVE_CAPTURE_DRIFT', 'NATIVE_CAPTURE_ALIAS', 'PATH_SYMLINK', 'INPUT_SYMLINK', 'PATH_INVALID', 'INPUT_UNSAFE', ...)&#10; +  where 'NATIVE_CAPTURE_INVENTORY' = getattr(Stop('NATIVE_CAPTURE_INVENTORY'), 'code', None)&#10; +    where Stop('NATIVE_CAPTURE_INVENTORY') = &lt;ExceptionInfo Stop('NATIVE_CAPTURE_INVENTORY') tblen=3&gt;.value">qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-557/test_round9_final_inventory_re2/runtime')
+kind = 'product', fault = 'altered'
+
+    @pytest.mark.parametrize('kind',['binary','capture','product'])
+    @pytest.mark.parametrize('fault',['altered','hardlink','symlink'])
+    def test_round9_final_inventory_rereads_admitted_bytes_and_aliases(qualified_runtime,kind,fault):
+        repo=qualified_runtime;row=runtime_evaluate(repo);assert row['result']=='PASS',row
+        binary=row['bindings']['testBinary'];entry=binary if kind=='binary' else binary['capture'] if kind=='capture' else binary['products'][0]
+        path=repo/entry['path'];original=path.read_bytes()
+        if fault=='altered':path.write_bytes(original+b'changed')
+        else:
+            path.unlink();alias=repo/'artifacts/alias-input';alias.parent.mkdir(exist_ok=True);alias.write_bytes(original)
+            if fault=='hardlink':os.link(alias,path)
+            else:path.symlink_to(alias)
+        with tooling.ContainedReader(repo) as reader,pytest.raises((tooling.Stop,tooling.ReadError)) as error:
+            tooling.capture.inventory(reader,'16.2',[row]*5,tooling.need)
+&gt;       assert getattr(error.value,'code',None) in ('NATIVE_CAPTURE_DRIFT','NATIVE_CAPTURE_ALIAS','PATH_SYMLINK','INPUT_SYMLINK','PATH_INVALID','INPUT_UNSAFE','PATH_ESCAPE'),str(error.value)
+E       AssertionError: NATIVE_CAPTURE_INVENTORY
+E       assert 'NATIVE_CAPTURE_INVENTORY' in ('NATIVE_CAPTURE_DRIFT', 'NATIVE_CAPTURE_ALIAS', 'PATH_SYMLINK', 'INPUT_SYMLINK', 'PATH_INVALID', 'INPUT_UNSAFE', ...)
+E        +  where 'NATIVE_CAPTURE_INVENTORY' = getattr(Stop('NATIVE_CAPTURE_INVENTORY'), 'code', None)
+E        +    where Stop('NATIVE_CAPTURE_INVENTORY') = &lt;ExceptionInfo Stop('NATIVE_CAPTURE_INVENTORY') tblen=3&gt;.value
+
+_bmad/scripts/tests/test_epic16_tooling.py:3392: AssertionError</failure></testcase></testsuite></testsuites>

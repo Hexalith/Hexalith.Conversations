@@ -1,0 +1,40 @@
+F....                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_reconciliation_requires_pending_event_derived_domain_values[same-stale-values] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-314/test_reconciliation_requires_p0/fixture')
+fault = 'same-stale-values'
+
+    @pytest.mark.parametrize('fault',['same-stale-values','pending-values','prior-values','trace-omission','checkpoint-only'])
+    def test_reconciliation_requires_pending_event_derived_domain_values(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-04'])
+        if fault=='same-stale-values':
+            for key in ('persistedProjection','queryProjection'):data[key]['state']=deepcopy(data['beforeProjection'])
+        elif fault=='pending-values':
+            body=json.loads(data['pendingEvent']['payload']);body['label']='unrelated correction';data['pendingEvent']['payload']=json.dumps(body)
+        elif fault=='prior-values':data['beforeProjection']['label']='different predecessor'
+        elif fault=='trace-omission':data['recoveryEvents']=[]
+        else:
+            data['afterCheckpoint']=4
+            for key in ('persistedProjection','queryProjection'):data[key]['sequence']=4
+>       native(repository,'AC-16.3-04',data);rejected(evaluate(repository,'AC-16.3-04'),'RECONCILIATION_IDENTITY_DRIFT' if fault=='pending-values' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_reconciliation_requires_pending_event_derived_domain_values[same-stale-values]
+1 failed, 4 passed, 585 deselected in 3.25s

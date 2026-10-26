@@ -1,0 +1,1 @@
+namespace Synthetic; public class Container { public class Value {} } public class Surface { public Container.Value Echo(Container.Value value) => value; }

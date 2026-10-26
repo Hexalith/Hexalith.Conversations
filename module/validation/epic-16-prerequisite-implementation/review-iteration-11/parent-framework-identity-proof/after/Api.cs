@@ -1,0 +1,1 @@
+extern alias custom; [assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")] [assembly:custom::System.Reflection.AssemblyFileVersion("two")] namespace Probe; public class Api {}

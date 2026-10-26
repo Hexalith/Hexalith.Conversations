@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="12" skipped="0" tests="12" time="14.901" timestamp="2026-10-26T01:13:48.240182+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice[unbounded-AC-16.3-01]" time="8.873"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost0/fixture')
+scenario = 'AC-16.3-01', fault = 'unbounded'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['missing','unbounded','used','elapsed','remaining','reason','unsafe','action'])
+    def test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['diagnostics'][0];advice=row['retryAdvice']
+        if fault=='missing':row.pop('retryAdvice')
+        elif fault=='unbounded':advice['attemptLimit']=999999
+        elif fault=='used':advice['attemptsUsed']+=1
+        elif fault=='elapsed':advice['elapsedMs']+=1
+        elif fault=='remaining':advice['automaticRetriesRemaining']=1
+        elif fault=='reason':advice['terminalReason']='unlimited'
+        elif fault=='unsafe':advice['token']='secret-canary'
+        else:advice['action']='retry-forever'
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost0/fixture')
+scenario = 'AC-16.3-01'
+data = {'resourceHealth': 'Healthy', 'connectionSucceeded': False, 'code': 'APPHOST_ENDPOINT_NOT_READY', 'endpoint': 'conversations-http', ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice[unbounded-AC-16.3-05]" time="0.381"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost1/fixture')
+scenario = 'AC-16.3-05', fault = 'unbounded'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['missing','unbounded','used','elapsed','remaining','reason','unsafe','action'])
+    def test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['diagnostics'][0];advice=row['retryAdvice']
+        if fault=='missing':row.pop('retryAdvice')
+        elif fault=='unbounded':advice['attemptLimit']=999999
+        elif fault=='used':advice['attemptsUsed']+=1
+        elif fault=='elapsed':advice['elapsedMs']+=1
+        elif fault=='remaining':advice['automaticRetriesRemaining']=1
+        elif fault=='reason':advice['terminalReason']='unlimited'
+        elif fault=='unsafe':advice['token']='secret-canary'
+        else:advice['action']='retry-forever'
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost1/fixture')
+scenario = 'AC-16.3-05'
+data = {'faults': [{'id': 'route-removal', 'observedCodes': ['ROUTE_UNAVAILABLE'], 'beforeBytes': '{"target":{"kind":"live-co...available":true}}', ...}, ...], 'environmentOutcome': 'BLOCKED', 'productOutcome': 'FAIL', 'portsBefore': [50001], ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice[used-AC-16.3-01]" time="0.391"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost2/fixture')
+scenario = 'AC-16.3-01', fault = 'used'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['missing','unbounded','used','elapsed','remaining','reason','unsafe','action'])
+    def test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['diagnostics'][0];advice=row['retryAdvice']
+        if fault=='missing':row.pop('retryAdvice')
+        elif fault=='unbounded':advice['attemptLimit']=999999
+        elif fault=='used':advice['attemptsUsed']+=1
+        elif fault=='elapsed':advice['elapsedMs']+=1
+        elif fault=='remaining':advice['automaticRetriesRemaining']=1
+        elif fault=='reason':advice['terminalReason']='unlimited'
+        elif fault=='unsafe':advice['token']='secret-canary'
+        else:advice['action']='retry-forever'
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost2/fixture')
+scenario = 'AC-16.3-01'
+data = {'resourceHealth': 'Healthy', 'connectionSucceeded': False, 'code': 'APPHOST_ENDPOINT_NOT_READY', 'endpoint': 'conversations-http', ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice[used-AC-16.3-05]" time="0.396"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost3/fixture')
+scenario = 'AC-16.3-05', fault = 'used'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['missing','unbounded','used','elapsed','remaining','reason','unsafe','action'])
+    def test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['diagnostics'][0];advice=row['retryAdvice']
+        if fault=='missing':row.pop('retryAdvice')
+        elif fault=='unbounded':advice['attemptLimit']=999999
+        elif fault=='used':advice['attemptsUsed']+=1
+        elif fault=='elapsed':advice['elapsedMs']+=1
+        elif fault=='remaining':advice['automaticRetriesRemaining']=1
+        elif fault=='reason':advice['terminalReason']='unlimited'
+        elif fault=='unsafe':advice['token']='secret-canary'
+        else:advice['action']='retry-forever'
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost3/fixture')
+scenario = 'AC-16.3-05'
+data = {'faults': [{'id': 'route-removal', 'observedCodes': ['ROUTE_UNAVAILABLE'], 'beforeBytes': '{"target":{"kind":"live-co...available":true}}', ...}, ...], 'environmentOutcome': 'BLOCKED', 'productOutcome': 'FAIL', 'portsBefore': [50001], ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice[elapsed-AC-16.3-01]" time="0.440"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost4/fixture')
+scenario = 'AC-16.3-01', fault = 'elapsed'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['missing','unbounded','used','elapsed','remaining','reason','unsafe','action'])
+    def test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['diagnostics'][0];advice=row['retryAdvice']
+        if fault=='missing':row.pop('retryAdvice')
+        elif fault=='unbounded':advice['attemptLimit']=999999
+        elif fault=='used':advice['attemptsUsed']+=1
+        elif fault=='elapsed':advice['elapsedMs']+=1
+        elif fault=='remaining':advice['automaticRetriesRemaining']=1
+        elif fault=='reason':advice['terminalReason']='unlimited'
+        elif fault=='unsafe':advice['token']='secret-canary'
+        else:advice['action']='retry-forever'
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost4/fixture')
+scenario = 'AC-16.3-01'
+data = {'resourceHealth': 'Healthy', 'connectionSucceeded': False, 'code': 'APPHOST_ENDPOINT_NOT_READY', 'endpoint': 'conversations-http', ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice[elapsed-AC-16.3-05]" time="0.396"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost5/fixture')
+scenario = 'AC-16.3-05', fault = 'elapsed'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['missing','unbounded','used','elapsed','remaining','reason','unsafe','action'])
+    def test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['diagnostics'][0];advice=row['retryAdvice']
+        if fault=='missing':row.pop('retryAdvice')
+        elif fault=='unbounded':advice['attemptLimit']=999999
+        elif fault=='used':advice['attemptsUsed']+=1
+        elif fault=='elapsed':advice['elapsedMs']+=1
+        elif fault=='remaining':advice['automaticRetriesRemaining']=1
+        elif fault=='reason':advice['terminalReason']='unlimited'
+        elif fault=='unsafe':advice['token']='secret-canary'
+        else:advice['action']='retry-forever'
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost5/fixture')
+scenario = 'AC-16.3-05'
+data = {'faults': [{'id': 'route-removal', 'observedCodes': ['ROUTE_UNAVAILABLE'], 'beforeBytes': '{"target":{"kind":"live-co...available":true}}', ...}, ...], 'environmentOutcome': 'BLOCKED', 'productOutcome': 'FAIL', 'portsBefore': [50001], ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice[remaining-AC-16.3-01]" time="0.387"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost6/fixture')
+scenario = 'AC-16.3-01', fault = 'remaining'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['missing','unbounded','used','elapsed','remaining','reason','unsafe','action'])
+    def test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['diagnostics'][0];advice=row['retryAdvice']
+        if fault=='missing':row.pop('retryAdvice')
+        elif fault=='unbounded':advice['attemptLimit']=999999
+        elif fault=='used':advice['attemptsUsed']+=1
+        elif fault=='elapsed':advice['elapsedMs']+=1
+        elif fault=='remaining':advice['automaticRetriesRemaining']=1
+        elif fault=='reason':advice['terminalReason']='unlimited'
+        elif fault=='unsafe':advice['token']='secret-canary'
+        else:advice['action']='retry-forever'
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost6/fixture')
+scenario = 'AC-16.3-01'
+data = {'resourceHealth': 'Healthy', 'connectionSucceeded': False, 'code': 'APPHOST_ENDPOINT_NOT_READY', 'endpoint': 'conversations-http', ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice[remaining-AC-16.3-05]" time="0.381"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost7/fixture')
+scenario = 'AC-16.3-05', fault = 'remaining'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['missing','unbounded','used','elapsed','remaining','reason','unsafe','action'])
+    def test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['diagnostics'][0];advice=row['retryAdvice']
+        if fault=='missing':row.pop('retryAdvice')
+        elif fault=='unbounded':advice['attemptLimit']=999999
+        elif fault=='used':advice['attemptsUsed']+=1
+        elif fault=='elapsed':advice['elapsedMs']+=1
+        elif fault=='remaining':advice['automaticRetriesRemaining']=1
+        elif fault=='reason':advice['terminalReason']='unlimited'
+        elif fault=='unsafe':advice['token']='secret-canary'
+        else:advice['action']='retry-forever'
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost7/fixture')
+scenario = 'AC-16.3-05'
+data = {'faults': [{'id': 'route-removal', 'observedCodes': ['ROUTE_UNAVAILABLE'], 'beforeBytes': '{"target":{"kind":"live-co...available":true}}', ...}, ...], 'environmentOutcome': 'BLOCKED', 'productOutcome': 'FAIL', 'portsBefore': [50001], ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice[reason-AC-16.3-01]" time="0.378"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost8/fixture')
+scenario = 'AC-16.3-01', fault = 'reason'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['missing','unbounded','used','elapsed','remaining','reason','unsafe','action'])
+    def test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['diagnostics'][0];advice=row['retryAdvice']
+        if fault=='missing':row.pop('retryAdvice')
+        elif fault=='unbounded':advice['attemptLimit']=999999
+        elif fault=='used':advice['attemptsUsed']+=1
+        elif fault=='elapsed':advice['elapsedMs']+=1
+        elif fault=='remaining':advice['automaticRetriesRemaining']=1
+        elif fault=='reason':advice['terminalReason']='unlimited'
+        elif fault=='unsafe':advice['token']='secret-canary'
+        else:advice['action']='retry-forever'
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost8/fixture')
+scenario = 'AC-16.3-01'
+data = {'resourceHealth': 'Healthy', 'connectionSucceeded': False, 'code': 'APPHOST_ENDPOINT_NOT_READY', 'endpoint': 'conversations-http', ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice[reason-AC-16.3-05]" time="0.375"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost9/fixture')
+scenario = 'AC-16.3-05', fault = 'reason'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['missing','unbounded','used','elapsed','remaining','reason','unsafe','action'])
+    def test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['diagnostics'][0];advice=row['retryAdvice']
+        if fault=='missing':row.pop('retryAdvice')
+        elif fault=='unbounded':advice['attemptLimit']=999999
+        elif fault=='used':advice['attemptsUsed']+=1
+        elif fault=='elapsed':advice['elapsedMs']+=1
+        elif fault=='remaining':advice['automaticRetriesRemaining']=1
+        elif fault=='reason':advice['terminalReason']='unlimited'
+        elif fault=='unsafe':advice['token']='secret-canary'
+        else:advice['action']='retry-forever'
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost9/fixture')
+scenario = 'AC-16.3-05'
+data = {'faults': [{'id': 'route-removal', 'observedCodes': ['ROUTE_UNAVAILABLE'], 'beforeBytes': '{"target":{"kind":"live-co...available":true}}', ...}, ...], 'environmentOutcome': 'BLOCKED', 'productOutcome': 'FAIL', 'portsBefore': [50001], ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice[action-AC-16.3-01]" time="0.374"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost10/fixture')
+scenario = 'AC-16.3-01', fault = 'action'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['missing','unbounded','used','elapsed','remaining','reason','unsafe','action'])
+    def test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['diagnostics'][0];advice=row['retryAdvice']
+        if fault=='missing':row.pop('retryAdvice')
+        elif fault=='unbounded':advice['attemptLimit']=999999
+        elif fault=='used':advice['attemptsUsed']+=1
+        elif fault=='elapsed':advice['elapsedMs']+=1
+        elif fault=='remaining':advice['automaticRetriesRemaining']=1
+        elif fault=='reason':advice['terminalReason']='unlimited'
+        elif fault=='unsafe':advice['token']='secret-canary'
+        else:advice['action']='retry-forever'
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost10/fixture')
+scenario = 'AC-16.3-01'
+data = {'resourceHealth': 'Healthy', 'connectionSucceeded': False, 'code': 'APPHOST_ENDPOINT_NOT_READY', 'endpoint': 'conversations-http', ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice[action-AC-16.3-05]" time="0.373"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost11/fixture')
+scenario = 'AC-16.3-05', fault = 'action'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['missing','unbounded','used','elapsed','remaining','reason','unsafe','action'])
+    def test_round9_readiness_diagnostic_emits_only_bound_safe_retry_advice(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['diagnostics'][0];advice=row['retryAdvice']
+        if fault=='missing':row.pop('retryAdvice')
+        elif fault=='unbounded':advice['attemptLimit']=999999
+        elif fault=='used':advice['attemptsUsed']+=1
+        elif fault=='elapsed':advice['elapsedMs']+=1
+        elif fault=='remaining':advice['automaticRetriesRemaining']=1
+        elif fault=='reason':advice['terminalReason']='unlimited'
+        elif fault=='unsafe':advice['token']='secret-canary'
+        else:advice['action']='retry-forever'
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-553/test_round9_readiness_diagnost11/fixture')
+scenario = 'AC-16.3-05'
+data = {'faults': [{'id': 'route-removal', 'observedCodes': ['ROUTE_UNAVAILABLE'], 'beforeBytes': '{"target":{"kind":"live-co...available":true}}', ...}, ...], 'environmentOutcome': 'BLOCKED', 'productOutcome': 'FAIL', 'portsBefore': [50001], ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase></testsuite></testsuites>

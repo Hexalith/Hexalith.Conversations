@@ -1,0 +1,91 @@
+[
+  {
+    "id": "R11B1-interface-attributes",
+    "apiEqual": true,
+    "additiveAccepted": true,
+    "actualConsumerBuilds": [
+      {
+        "phase": "baseline",
+        "cwd": "/tmp/epic16-r11-consumer-eonihssg",
+        "argv": [
+          "dotnet",
+          "build",
+          "Consumer.csproj",
+          "-c",
+          "Debug",
+          "--nologo",
+          "-m:1",
+          "-p:NuGetAudit=false"
+        ],
+        "exitCode": 0
+      },
+      {
+        "phase": "candidate",
+        "cwd": "/tmp/epic16-r11-consumer-w6_ychi5",
+        "argv": [
+          "dotnet",
+          "build",
+          "Consumer.csproj",
+          "-c",
+          "Debug",
+          "--nologo",
+          "-m:1",
+          "-p:NuGetAudit=false"
+        ],
+        "exitCode": 1
+      }
+    ]
+  },
+  {
+    "id": "R11B2-attribute-constructor",
+    "apiEqual": true,
+    "additiveAccepted": true
+  },
+  {
+    "id": "R11B3-preserve-sig",
+    "apiEqual": true,
+    "additiveAccepted": true
+  },
+  {
+    "id": "R11B4-assembly-attributes",
+    "apiEqual": true,
+    "additiveAccepted": true,
+    "actualConsumerBuilds": [
+      {
+        "phase": "baseline",
+        "cwd": "/tmp/epic16-r11-consumer-c757pbtw",
+        "argv": [
+          "dotnet",
+          "build",
+          "Consumer.csproj",
+          "-c",
+          "Debug",
+          "--nologo",
+          "-m:1",
+          "-p:NuGetAudit=false"
+        ],
+        "exitCode": 0
+      },
+      {
+        "phase": "candidate",
+        "cwd": "/tmp/epic16-r11-consumer-qanb5m9x",
+        "argv": [
+          "dotnet",
+          "build",
+          "Consumer.csproj",
+          "-c",
+          "Debug",
+          "--nologo",
+          "-m:1",
+          "-p:NuGetAudit=false"
+        ],
+        "exitCode": 1
+      }
+    ]
+  },
+  {
+    "id": "R11B5-owning-flags",
+    "apiEqual": true,
+    "additiveAccepted": true
+  }
+]

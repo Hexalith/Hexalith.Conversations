@@ -1,0 +1,42 @@
+[
+  {
+    "case": "preview",
+    "repository": "/tmp/epic16-refresh-result-r0j7uhcu/preview",
+    "exitCode": 1,
+    "result": {
+      "result": "FAIL",
+      "assertionLedger": [
+        {
+          "id": "REFRESH_UV_DRIFT",
+          "state": "FAIL"
+        }
+      ],
+      "blockers": [
+        {
+          "code": "REFRESH_UV_DRIFT",
+          "detail": "current CI pins"
+        }
+      ]
+    }
+  },
+  {
+    "case": "dangling-output",
+    "repository": "/tmp/epic16-refresh-result-r0j7uhcu/dangling-output",
+    "exitCode": 1,
+    "result": {
+      "result": "FAIL",
+      "assertionLedger": [
+        {
+          "id": "REFRESH_UV_DRIFT",
+          "state": "FAIL"
+        }
+      ],
+      "blockers": [
+        {
+          "code": "REFRESH_UV_DRIFT",
+          "detail": "current CI pins"
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,37 @@
+........................................................................ [  9%]
+........................................................................ [ 19%]
+........................................................................ [ 29%]
+........................................................................ [ 39%]
+.F...................................................................... [ 49%]
+........................................................................ [ 58%]
+........................................................................ [ 68%]
+........................................................................ [ 78%]
+........................................................................ [ 88%]
+........................................................................ [ 98%]
+.............                                                            [100%]
+=================================== FAILURES ===================================
+____________ test_recovered_checkpoint_cannot_precede_pending_item _____________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-260/test_recovered_checkpoint_cann0/fixture')
+
+    def test_recovered_checkpoint_cannot_precede_pending_item(repository):
+        data = deepcopy(OBSERVATIONS['AC-16.3-04']); data['pendingSequence'] = 4
+        native(repository, 'AC-16.3-04', data)
+>       rejected(evaluate(repository, 'AC-16.3-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:898: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+>       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'MEASUREMENT_INVALID' in ['RECONCILIATION_IDENTITY_DRIFT']
+
+_bmad/scripts/tests/test_epic16_tooling.py:100: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_recovered_checkpoint_cannot_precede_pending_item
+1 failed, 732 passed in 303.19s (0:05:03)

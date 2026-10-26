@@ -1,0 +1,52 @@
+{
+  "baseline": "8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3",
+  "concurrentUserCommit": "8748a6b6e80b3ecbae2bb0174b43f40e30e6a148",
+  "preservationManifest": "/tmp/epic16-review7-preservation-bt3sup0y/manifest.json",
+  "restoredTracked": [
+    ".gitattributes",
+    "_bmad/scripts/generate_story_record.py",
+    "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py"
+  ],
+  "removedOwnedNew": [
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+    "_bmad/schemas/epic-16-tooling-v1.schema.json",
+    "_bmad/scripts/epic16_capture.py",
+    "_bmad/scripts/epic16_domain.py",
+    "_bmad/scripts/epic16_faults.py",
+    "_bmad/scripts/epic16_measurements.py",
+    "_bmad/scripts/epic16_native.py",
+    "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj",
+    "_bmad/scripts/epic16_native_helper/EventStore-LICENSE",
+    "_bmad/scripts/epic16_native_helper/Program.cs",
+    "_bmad/scripts/epic16_native_helper/README.md",
+    "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs",
+    "_bmad/scripts/epic16_relationships.py",
+    "_bmad/scripts/epic16_schedules.py",
+    "_bmad/scripts/epic16_tooling.py",
+    "_bmad/scripts/epic16_trust.py",
+    "_bmad/scripts/tests/fixtures/epic16-adoption-v2-generator.py.gz",
+    "_bmad/scripts/tests/fixtures/epic16-adoption-v2-gitattributes.txt",
+    "_bmad/scripts/tests/fixtures/epic16-contract-wire-goldens.json",
+    "_bmad/scripts/tests/fixtures/epic16-contract-wire-provenance.json",
+    "_bmad/scripts/tests/fixtures/epic16-domain-sources-LICENSE.txt",
+    "_bmad/scripts/tests/fixtures/epic16-domain-sources.json",
+    "_bmad/scripts/tests/fixtures/epic16-observations-v1.json",
+    "_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "_bmad/scripts/verify_story_16_1.py",
+    "_bmad/scripts/verify_story_16_2.py",
+    "_bmad/scripts/verify_story_16_3.py"
+  ],
+  "userFilesPreserved": {
+    "_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md": "b75f23a2801096413dd356ddd5f8260bfb3ec829e66fb476566d2bee1e4a750c",
+    "docs/implementation/ext-conv-ai-1-runtime-qualification.md": "92aacc8e608b67224f3d0639644c9e23d4f878c414f69766c42a94d5beb21453",
+    "tests/tooling/test_ext_conv_ai_1_installed_delivery_packet.py": "3cf9003c5034f82fe1e8420aa6ae30f8ace9eb6bbea192b984178162dfdd31e6"
+  },
+  "frozenIntentUnchanged": true,
+  "runtimeHold": "ACTIVE",
+  "reviewLoopLimit": "overridden by user"
+}

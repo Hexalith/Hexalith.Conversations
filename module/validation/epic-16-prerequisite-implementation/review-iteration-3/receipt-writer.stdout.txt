@@ -1,0 +1,130 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_real_verifier_and_generator_entrypoints_publish_and_consume_exact_fixture_bytes[16.1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-279/test_real_verifier_and_generat0/fixture')
+story = '16.1'
+
+    @pytest.mark.parametrize('story',tooling.measurements.STORIES)
+    def test_real_verifier_and_generator_entrypoints_publish_and_consume_exact_fixture_bytes(repository,story):
+        for n in range(1,6):
+            scenario=f'AC-{story}-0{n}'; output=tooling.receipt_path(SCOPE,scenario)
+            command=[sys.executable,str(repository/f'_bmad/scripts/verify_story_{story.replace(".","_")}.py'),
+                '--repository',str(repository),'--contract',tooling.contract_path(story),
+                '--scenario',scenario,'--scope',SCOPE,'--output',output]
+            completed=subprocess.run(command,capture_output=True,timeout=120)
+            assert completed.returncode==0,(completed.stdout,completed.stderr)
+            expected=tooling.json_bytes(evaluate(repository,scenario))
+>           assert (repository/output).read_bytes()==expected
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:839: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/administrator/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-administrator/pytest-279/test_real_verifier_and_generat0/fixture/artifacts/epic16-tooling-fixture/16.1/AC-16.1-01.json')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-administrator/pytest-279/test_real_verifier_and_generat0/fixture/artifacts/epic16-tooling-fixture/16.1/AC-16.1-01.json'
+
+/home/administrator/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/pathlib.py:1044: FileNotFoundError
+_ test_real_verifier_and_generator_entrypoints_publish_and_consume_exact_fixture_bytes[16.2] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-279/test_real_verifier_and_generat1/fixture')
+story = '16.2'
+
+    @pytest.mark.parametrize('story',tooling.measurements.STORIES)
+    def test_real_verifier_and_generator_entrypoints_publish_and_consume_exact_fixture_bytes(repository,story):
+        for n in range(1,6):
+            scenario=f'AC-{story}-0{n}'; output=tooling.receipt_path(SCOPE,scenario)
+            command=[sys.executable,str(repository/f'_bmad/scripts/verify_story_{story.replace(".","_")}.py'),
+                '--repository',str(repository),'--contract',tooling.contract_path(story),
+                '--scenario',scenario,'--scope',SCOPE,'--output',output]
+            completed=subprocess.run(command,capture_output=True,timeout=120)
+            assert completed.returncode==0,(completed.stdout,completed.stderr)
+            expected=tooling.json_bytes(evaluate(repository,scenario))
+>           assert (repository/output).read_bytes()==expected
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:839: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/administrator/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-administrator/pytest-279/test_real_verifier_and_generat1/fixture/artifacts/epic16-tooling-fixture/16.2/AC-16.2-01.json')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-administrator/pytest-279/test_real_verifier_and_generat1/fixture/artifacts/epic16-tooling-fixture/16.2/AC-16.2-01.json'
+
+/home/administrator/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/pathlib.py:1044: FileNotFoundError
+_ test_real_verifier_and_generator_entrypoints_publish_and_consume_exact_fixture_bytes[16.3] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-279/test_real_verifier_and_generat2/fixture')
+story = '16.3'
+
+    @pytest.mark.parametrize('story',tooling.measurements.STORIES)
+    def test_real_verifier_and_generator_entrypoints_publish_and_consume_exact_fixture_bytes(repository,story):
+        for n in range(1,6):
+            scenario=f'AC-{story}-0{n}'; output=tooling.receipt_path(SCOPE,scenario)
+            command=[sys.executable,str(repository/f'_bmad/scripts/verify_story_{story.replace(".","_")}.py'),
+                '--repository',str(repository),'--contract',tooling.contract_path(story),
+                '--scenario',scenario,'--scope',SCOPE,'--output',output]
+            completed=subprocess.run(command,capture_output=True,timeout=120)
+            assert completed.returncode==0,(completed.stdout,completed.stderr)
+            expected=tooling.json_bytes(evaluate(repository,scenario))
+>           assert (repository/output).read_bytes()==expected
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:839: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/administrator/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-administrator/pytest-279/test_real_verifier_and_generat2/fixture/artifacts/epic16-tooling-fixture/16.3/AC-16.3-01.json')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-administrator/pytest-279/test_real_verifier_and_generat2/fixture/artifacts/epic16-tooling-fixture/16.3/AC-16.3-01.json'
+
+/home/administrator/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/pathlib.py:1044: FileNotFoundError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_real_verifier_and_generator_entrypoints_publish_and_consume_exact_fixture_bytes[16.1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_real_verifier_and_generator_entrypoints_publish_and_consume_exact_fixture_bytes[16.2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_real_verifier_and_generator_entrypoints_publish_and_consume_exact_fixture_bytes[16.3]
+3 failed, 568 deselected in 2.64s

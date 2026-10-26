@@ -1,0 +1,25 @@
+{
+  "stage03Diff": {
+    "baseline": "8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3",
+    "head": "8748a6b6e80b3ecbae2bb0174b43f40e30e6a148",
+    "diff": "/tmp/epic16-review-next-5pl7ogai/complete.diff",
+    "bytes": 69031315,
+    "sha256": "2cb4a3a22ff713a3de9074968ee6e4b583aea799900bb996a79bc3a15abaa915",
+    "untrackedFiles": 7945,
+    "indexMutated": false,
+    "binaryRepresentation": "standard Git binary patch; header paths only rewritten for no-index files"
+  },
+  "reviewMethod": "Complete file inventory plus previously reviewed preserved history, final 705-line code/docs/test delta, current schema/data source audit, and binary/evidence hash/Git-object audits.",
+  "tasksAccepted": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "runtimeEvidencePublication": "not-applicable",
+  "runtimeHold": "ACTIVE",
+  "reviewStatus": "in-review",
+  "initialEditAttempt": "The initial script failed before any edit because it expected an attribute-free frozen marker; corrected to preserve the actual marked block."
+}

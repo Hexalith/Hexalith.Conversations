@@ -1,0 +1,1 @@
+[assembly:System.Reflection.AssemblyFlags(System.Reflection.AssemblyNameFlags.Retargetable)] namespace Probe; public class Api {}

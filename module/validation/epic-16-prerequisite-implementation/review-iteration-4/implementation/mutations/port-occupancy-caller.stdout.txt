@@ -1,0 +1,202 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+_ test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration[unrelated-snapshots] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-350/test_port_collision_proves_aff0/fixture')
+fault = 'unrelated-snapshots'
+
+    @pytest.mark.parametrize('fault',['unrelated-snapshots','wrong-port','wrong-owner','wrong-endpoint','during-unoccupied','unrelated-owner-changed'])
+    def test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-02'])
+        if fault=='unrelated-snapshots':data['portsBefore']=data['portsAfter']=[123]
+        elif fault=='wrong-port':data['occupancy']['during'][1]['port']=123
+        elif fault=='wrong-owner':data['occupancy']['during'][1]['owner']='other'
+        elif fault=='wrong-endpoint':data['endpoint']='conversations-http'
+        elif fault=='during-unoccupied':data['occupancy']['during']=deepcopy(data['occupancy']['before'])
+        else:data['occupancy']['after'][-1]['owner']='replacement-process'
+>       native(repository,'AC-16.3-02',data);rejected(evaluate(repository,'AC-16.3-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1382: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration[wrong-port] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-350/test_port_collision_proves_aff1/fixture')
+fault = 'wrong-port'
+
+    @pytest.mark.parametrize('fault',['unrelated-snapshots','wrong-port','wrong-owner','wrong-endpoint','during-unoccupied','unrelated-owner-changed'])
+    def test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-02'])
+        if fault=='unrelated-snapshots':data['portsBefore']=data['portsAfter']=[123]
+        elif fault=='wrong-port':data['occupancy']['during'][1]['port']=123
+        elif fault=='wrong-owner':data['occupancy']['during'][1]['owner']='other'
+        elif fault=='wrong-endpoint':data['endpoint']='conversations-http'
+        elif fault=='during-unoccupied':data['occupancy']['during']=deepcopy(data['occupancy']['before'])
+        else:data['occupancy']['after'][-1]['owner']='replacement-process'
+>       native(repository,'AC-16.3-02',data);rejected(evaluate(repository,'AC-16.3-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1382: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration[wrong-owner] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-350/test_port_collision_proves_aff2/fixture')
+fault = 'wrong-owner'
+
+    @pytest.mark.parametrize('fault',['unrelated-snapshots','wrong-port','wrong-owner','wrong-endpoint','during-unoccupied','unrelated-owner-changed'])
+    def test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-02'])
+        if fault=='unrelated-snapshots':data['portsBefore']=data['portsAfter']=[123]
+        elif fault=='wrong-port':data['occupancy']['during'][1]['port']=123
+        elif fault=='wrong-owner':data['occupancy']['during'][1]['owner']='other'
+        elif fault=='wrong-endpoint':data['endpoint']='conversations-http'
+        elif fault=='during-unoccupied':data['occupancy']['during']=deepcopy(data['occupancy']['before'])
+        else:data['occupancy']['after'][-1]['owner']='replacement-process'
+>       native(repository,'AC-16.3-02',data);rejected(evaluate(repository,'AC-16.3-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1382: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration[wrong-endpoint] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-350/test_port_collision_proves_aff3/fixture')
+fault = 'wrong-endpoint'
+
+    @pytest.mark.parametrize('fault',['unrelated-snapshots','wrong-port','wrong-owner','wrong-endpoint','during-unoccupied','unrelated-owner-changed'])
+    def test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-02'])
+        if fault=='unrelated-snapshots':data['portsBefore']=data['portsAfter']=[123]
+        elif fault=='wrong-port':data['occupancy']['during'][1]['port']=123
+        elif fault=='wrong-owner':data['occupancy']['during'][1]['owner']='other'
+        elif fault=='wrong-endpoint':data['endpoint']='conversations-http'
+        elif fault=='during-unoccupied':data['occupancy']['during']=deepcopy(data['occupancy']['before'])
+        else:data['occupancy']['after'][-1]['owner']='replacement-process'
+>       native(repository,'AC-16.3-02',data);rejected(evaluate(repository,'AC-16.3-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1382: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration[during-unoccupied] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-350/test_port_collision_proves_aff4/fixture')
+fault = 'during-unoccupied'
+
+    @pytest.mark.parametrize('fault',['unrelated-snapshots','wrong-port','wrong-owner','wrong-endpoint','during-unoccupied','unrelated-owner-changed'])
+    def test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-02'])
+        if fault=='unrelated-snapshots':data['portsBefore']=data['portsAfter']=[123]
+        elif fault=='wrong-port':data['occupancy']['during'][1]['port']=123
+        elif fault=='wrong-owner':data['occupancy']['during'][1]['owner']='other'
+        elif fault=='wrong-endpoint':data['endpoint']='conversations-http'
+        elif fault=='during-unoccupied':data['occupancy']['during']=deepcopy(data['occupancy']['before'])
+        else:data['occupancy']['after'][-1]['owner']='replacement-process'
+>       native(repository,'AC-16.3-02',data);rejected(evaluate(repository,'AC-16.3-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1382: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration[unrelated-owner-changed] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-350/test_port_collision_proves_aff5/fixture')
+fault = 'unrelated-owner-changed'
+
+    @pytest.mark.parametrize('fault',['unrelated-snapshots','wrong-port','wrong-owner','wrong-endpoint','during-unoccupied','unrelated-owner-changed'])
+    def test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-02'])
+        if fault=='unrelated-snapshots':data['portsBefore']=data['portsAfter']=[123]
+        elif fault=='wrong-port':data['occupancy']['during'][1]['port']=123
+        elif fault=='wrong-owner':data['occupancy']['during'][1]['owner']='other'
+        elif fault=='wrong-endpoint':data['endpoint']='conversations-http'
+        elif fault=='during-unoccupied':data['occupancy']['during']=deepcopy(data['occupancy']['before'])
+        else:data['occupancy']['after'][-1]['owner']='replacement-process'
+>       native(repository,'AC-16.3-02',data);rejected(evaluate(repository,'AC-16.3-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1382: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration[unrelated-snapshots]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration[wrong-port]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration[wrong-owner]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration[wrong-endpoint]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration[during-unoccupied]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_port_collision_proves_affected_occupancy_and_unrelated_owner_restoration[unrelated-owner-changed]
+6 failed, 790 deselected in 2.20s

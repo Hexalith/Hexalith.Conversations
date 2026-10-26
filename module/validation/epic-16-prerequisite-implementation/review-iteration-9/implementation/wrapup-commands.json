@@ -1,0 +1,47 @@
+[
+  {
+    "name": "retain-api",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-retain-api.py"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 8.13,
+    "stdoutSha256": "c50c274a17f2e8074d58245a98c2c2caa7ddde1d281e606600c53fc4a732b6d4",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "retain-signatures",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-retain-signatures.py"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 2.811,
+    "stdoutSha256": "aefd55242c52add150d596d9e3185a93b824bfdc3c6b453a346d59196656cc70",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "docs",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-docs.py"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 0.021,
+    "stdoutSha256": "3365692b93cf92b438296152d69d795e84da42d04cbee010a3f14984dd9c3304",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

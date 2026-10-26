@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="24.540" timestamp="2026-10-25T22:08:50.886008+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_genuine_native_capture_publication_survives_fresh_checkout" time="24.062"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-final-record.v1', 'storyId': '16.2', 'result': 'PASS', 'validationScope': 'runtime', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-419/test_round6_genuine_native_cap0/runtime')
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-419/test_round6_genuine_native_cap0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7ea57c00d310&gt;
+capsys = &lt;_pytest.capture.CaptureFixture object at 0x7ea57b0705d0&gt;
+
+    def test_round6_genuine_native_capture_publication_survives_fresh_checkout(qualified_runtime,tmp_path,monkeypatch,capsys):
+        """Execute genuine fixture tests once, retain raw TRX, then lose build outputs."""
+        repo=qualified_runtime;story='16.2';contract_path=tooling.contract_path(story)
+        contract=json.loads((repo/contract_path).read_bytes());contract['nativeProtocol']['publicSourceBaseline']=git(repo,'rev-parse','HEAD');dump(repo,contract_path,contract)
+        monkeypatch.setattr(tooling,'CONTRACT_PINS',dict(tooling.CONTRACT_PINS,**{contract_path:digest((repo/contract_path).read_bytes())}))
+        binding=json.loads((repo/tooling.BINDING).read_bytes())
+        for row in binding['sources']:
+            if row['path']==contract_path:row['sha256']=tooling.CONTRACT_PINS[contract_path]
+        dump(repo,tooling.BINDING,binding)
+        source=contract['nativeProtocol']['runtimeTestSource']
+        code='''namespace Hexalith.Conversations.IntegrationTests.Epic16;
+    public sealed class Story16_2EvidenceTests(Xunit.ITestOutputHelper output)
+    {
+        private void Emit(string scenario) =&gt; output.WriteLine(System.IO.File.ReadAllText(System.IO.Path.Combine(System.Environment.GetEnvironmentVariable("EPIC16_FIXTURE_PAYLOADS")!, scenario+".json")));
+    '''+''.join('[Xunit.Fact] public void Scenario0'+str(n)+'() =&gt; Emit("AC-16.2-0'+str(n)+'");\n' for n in range(1,6))+'}\n'
+        (repo/source).write_bytes(code.replace('\n','\r\n').encode())
+        spec=tooling.spec_path('runtime',story);(repo/spec).write_bytes((repo/'fixture-spec.md').read_bytes())
+        git(repo,'add','.');git(repo,'commit','-qm','test: bind portable native capture fixture')
+        candidate=git(repo,'rev-parse','HEAD');build=tmp_path/'portable-build';build.mkdir()
+        (build/'Evidence.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;OutputType&gt;Exe&lt;/OutputType&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;PackageReference Include="xunit.v3" Version="4.0.2" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+        (build/'Tests.cs').write_bytes((repo/source).read_bytes());(build/'Stamp.cs').write_text('[assembly: System.Reflection.AssemblyInformationalVersion("1.0.0+'+candidate+'")]')
+        result=subprocess.run(['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'],cwd=build,capture_output=True,timeout=120);assert result.returncode==0,result.stdout.decode()
+        runner=repo/'artifacts/measurement-only-runner';shutil.copytree(build/'bin/Debug/net10.0',runner)
+        retained_binary(repo).unlink()
+        payloads=tmp_path/'payloads';payloads.mkdir()
+        captured={}
+        for n in range(1,6):
+            scenario=f'AC-{story}-0{n}';payload=dict(scenarioId=scenario,candidate=candidate,sources=[dict(path=source,sha256=digest((repo/source).read_bytes()))],contractSha256=tooling.CONTRACT_PINS[contract_path],observations=deepcopy(OBSERVATIONS[scenario]));dump(payloads,scenario+'.json',payload)
+            target=repo/tooling.native_path('runtime',scenario);target.parent.mkdir(parents=True,exist_ok=True)
+            command=['dotnet',str(runner/'Evidence.dll'),'-automated','sync','-failSkips','-method','Hexalith.Conversations.IntegrationTests.Epic16.Story16_2EvidenceTests.Scenario0'+str(n),'-trx',str(target)]
+            result=subprocess.run(command,env=dict(os.environ,EPIC16_FIXTURE_PAYLOADS=str(payloads)),capture_output=True,timeout=120);assert result.returncode==0,(result.stdout,result.stderr)
+            raw=target.read_bytes();assert records.parse_trx(raw)['code_bases']==[str(runner/'Evidence.dll')]
+            retain_capture(repo,scenario,(runner/'Evidence.dll').read_bytes());assert target.read_bytes()==raw;captured[str(target.relative_to(repo))]=raw
+            args=['--repository',str(repo),'--contract',contract_path,'--scenario',scenario,'--output',tooling.receipt_path('runtime',scenario)]
+            assert tooling.main(args,story=story)==0,capsys.readouterr().out;capsys.readouterr()
+        paths=tooling.final_paths('runtime',story);args=['--repository',str(repo),'--contract',contract_path,'--output-json',paths[0],'--output-markdown',paths[1]]
+        assert records.main(args)==0,capsys.readouterr().out
+        record=json.loads(capsys.readouterr().out);assert len(record['retainedNativeArtifacts'])==6
+        original_pair=tuple((repo/path).read_bytes() for path in paths)
+        conflicting=deepcopy(record['scenarios'][:5]);conflicting[-1]['bindings']['testBinary']['sha256']='f'*64
+        with tooling.ContainedReader(repo) as reader,pytest.raises(tooling.Stop) as conflict:
+            tooling.capture.inventory(reader,story,conflicting,tooling.need)
+        assert conflict.value.code=='NATIVE_CAPTURE_CONFLICT'
+        # Exercise real generation failure for an unconsumed retained binary.
+        extra=repo/(tooling.root_path('runtime',story)+'/binaries/'+'f'*64+'.dll');extra.write_bytes((runner/'Evidence.dll').read_bytes())
+        rejected(tooling.generate(repo,story)[0],'NATIVE_CAPTURE_INVENTORY');extra.unlink()
+        # Missing or extra manifests likewise cannot be published by the generator.
+        capture_name=tooling.capture.capture_path(story,'AC-16.2-01');saved=(repo/capture_name).read_bytes();(repo/capture_name).unlink()
+        rejected(tooling.generate(repo,story)[0],'INPUT_UNAVAILABLE','BLOCKED');(repo/capture_name).write_bytes(saved)
+        unknown=repo/tooling.root_path('runtime',story)/'extra.capture.json';unknown.write_bytes(saved)
+&gt;       rejected(tooling.generate(repo,story)[0],'NATIVE_CAPTURE_INVENTORY');unknown.unlink()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2398: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-final-record.v1', 'storyId': '16.2', 'result': 'PASS', 'validationScope': 'runtime', ...}
+code = 'NATIVE_CAPTURE_INVENTORY', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-final-record.v1', 'storyId': '16.2', 'result': 'PASS', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

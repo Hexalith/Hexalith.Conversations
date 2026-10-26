@@ -1,0 +1,17 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_round5_genuine_async_void_fact_is_rejected_without_execution _______
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-391/test_round5_genuine_async_void0')
+
+    def test_round5_genuine_async_void_fact_is_rejected_without_execution(tmp_path):
+        import epic16_native
+        code='namespace Hexalith.Conversations.IntegrationTests.Epic16; public sealed class Story16_1EvidenceTests { [Xunit.Fact] public async void Scenario01() { await System.Threading.Tasks.Task.Yield(); throw new System.Exception("Never execute evidence"); } }'
+        binary=compile_evidence(tmp_path/'async-void','a'*40,code)
+>       with pytest.raises(ValueError):epic16_native.inspect_assembly(binary,'a'*40,'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1925: Failed
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_genuine_async_void_fact_is_rejected_without_execution
+1 failed, 861 deselected in 3.69s

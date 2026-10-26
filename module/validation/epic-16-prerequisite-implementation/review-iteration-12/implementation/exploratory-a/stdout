@@ -1,0 +1,67 @@
+...............FF....................................................... [ 16%]
+........................................................................ [ 33%]
+........................................................................ [ 50%]
+........................................................................ [ 66%]
+........................................................................ [ 83%]
+......................................................................   [100%]
+=================================== FAILURES ===================================
+_ test_round5_recovered_tenant_description_preserves_native_nullable_domain[None] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-647/test_round5_recovered_tenant_d0/fixture')
+description = None
+
+    @pytest.mark.parametrize('description',[None,'Retained description'])
+    def test_round5_recovered_tenant_description_preserves_native_nullable_domain(repository,description):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03']);domain=tooling.measurements.domain
+        for events in [data['authoritativeReplay'],*[row['authoritativeReplay'] for row in data['reverseSaves']]]:
+            for row in events:
+                if row['eventType']=='TenantUpdated':
+                    payload=json.loads(row['persistedPayload']);payload['description']=description
+                    row['persistedPayload']=json.dumps(payload);row['payloadSha256']=digest(row['persistedPayload'].encode())
+        by={r['sequence']:r for r in data['authoritativeReplay']}
+        for merge in data['merges']:merge['pending']=[deepcopy(by[row['sequence']]) for row in merge['pending']]
+        data['recoveredState'],_=domain.tenant_replay(data['startingState'],data['authoritativeReplay'],data['checkpoint'],data['recovery']['horizon'])
+        proof=data['recoverySchedule'];old=proof['oldWorker']['snapshot']['horizon']
+        proof['staleCompletion']['proposed']['projection'],_=domain.tenant_replay(data['startingState'],data['authoritativeReplay'][:old-data['checkpoint']],data['checkpoint'],old)
+        for snapshot in (proof['replay']['after'],proof['currentCompletion']['before'],proof['currentCompletion']['after']):snapshot['projection']=deepcopy(data['recoveredState'])
+>       native(repository,'AC-16.1-03',data);result=evaluate(repository,'AC-16.1-03');assert result['result']=='PASS',result
+                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:1963: AssertionError
+_ test_round5_recovered_tenant_description_preserves_native_nullable_domain[Retained description] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-647/test_round5_recovered_tenant_d1/fixture')
+description = 'Retained description'
+
+    @pytest.mark.parametrize('description',[None,'Retained description'])
+    def test_round5_recovered_tenant_description_preserves_native_nullable_domain(repository,description):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03']);domain=tooling.measurements.domain
+        for events in [data['authoritativeReplay'],*[row['authoritativeReplay'] for row in data['reverseSaves']]]:
+            for row in events:
+                if row['eventType']=='TenantUpdated':
+                    payload=json.loads(row['persistedPayload']);payload['description']=description
+                    row['persistedPayload']=json.dumps(payload);row['payloadSha256']=digest(row['persistedPayload'].encode())
+        by={r['sequence']:r for r in data['authoritativeReplay']}
+        for merge in data['merges']:merge['pending']=[deepcopy(by[row['sequence']]) for row in merge['pending']]
+        data['recoveredState'],_=domain.tenant_replay(data['startingState'],data['authoritativeReplay'],data['checkpoint'],data['recovery']['horizon'])
+        proof=data['recoverySchedule'];old=proof['oldWorker']['snapshot']['horizon']
+        proof['staleCompletion']['proposed']['projection'],_=domain.tenant_replay(data['startingState'],data['authoritativeReplay'][:old-data['checkpoint']],data['checkpoint'],old)
+        for snapshot in (proof['replay']['after'],proof['currentCompletion']['before'],proof['currentCompletion']['after']):snapshot['projection']=deepcopy(data['recoveredState'])
+>       native(repository,'AC-16.1-03',data);result=evaluate(repository,'AC-16.1-03');assert result['result']=='PASS',result
+                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:1963: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_recovered_tenant_description_preserves_native_nullable_domain[None]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_recovered_tenant_description_preserves_native_nullable_domain[Retained description]
+2 failed, 428 passed, 2237 deselected in 177.68s (0:02:57)

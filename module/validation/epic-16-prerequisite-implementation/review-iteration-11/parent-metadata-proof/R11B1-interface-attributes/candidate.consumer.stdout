@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r11-consumer-w6_ychi5/Consumer.csproj (in 33 ms).
+/tmp/epic16-r11-consumer-w6_ychi5/Consumer.cs(2,76): error CS8619: Nullability of reference types in value of type 'Api' doesn't match target type 'IBase<string>'. [/tmp/epic16-r11-consumer-w6_ychi5/Consumer.csproj]
+
+Build FAILED.
+
+/tmp/epic16-r11-consumer-w6_ychi5/Consumer.cs(2,76): error CS8619: Nullability of reference types in value of type 'Api' doesn't match target type 'IBase<string>'. [/tmp/epic16-r11-consumer-w6_ychi5/Consumer.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.18

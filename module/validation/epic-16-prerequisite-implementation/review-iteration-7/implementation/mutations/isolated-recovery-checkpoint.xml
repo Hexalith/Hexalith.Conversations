@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="3.580" timestamp="2026-10-25T23:09:36.264804+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_recovery_independently_isolates_superseded_lease_and_stale_checkpoint[valid-superseded-lease]" time="2.526"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-467/test_round7_recovery_independe0/fixture')
+case = 'superseded-lease', fault = 'valid'
+
+    @pytest.mark.parametrize('case',['superseded-lease','stale-checkpoint'])
+    @pytest.mark.parametrize('fault',['valid','missing','current-fence','wrong-other-fence','expired','accepted','changed-after'])
+    def test_round7_recovery_independently_isolates_superseded_lease_and_stale_checkpoint(repository,case,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-04']);proof=data['concurrentRecovery'];row=next(x for x in proof['staleAttempts'] if x['id']==case)
+        field='lease' if case=='superseded-lease' else 'checkpoint'
+        if fault=='missing':proof['staleAttempts'].remove(row)
+        elif fault=='current-fence':row['expected'][field]=proof['newerStored'][field]
+        elif fault=='wrong-other-fence':row['expected']['version']-=1
+        elif fault=='expired':row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='changed-after':row['storedAfter']['pending']=[]
+&gt;       round7_submit(repository,'AC-16.3-04',data,passes=fault=='valid')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2677: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-467/test_round7_recovery_independe0/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+passes = True, schema = False
+
+    def round7_submit(repository, scenario, data, *, passes=False, schema=False):
+        native(repository, scenario, data)
+        result = evaluate(repository, scenario)
+        if passes:
+&gt;           assert result['result'] == 'PASS', result
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E           assert 'FAIL' == 'PASS'
+E             
+E             - PASS
+E             + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2435: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_recovery_independently_isolates_superseded_lease_and_stale_checkpoint[valid-stale-checkpoint]" time="0.549"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-467/test_round7_recovery_independe1/fixture')
+case = 'stale-checkpoint', fault = 'valid'
+
+    @pytest.mark.parametrize('case',['superseded-lease','stale-checkpoint'])
+    @pytest.mark.parametrize('fault',['valid','missing','current-fence','wrong-other-fence','expired','accepted','changed-after'])
+    def test_round7_recovery_independently_isolates_superseded_lease_and_stale_checkpoint(repository,case,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-04']);proof=data['concurrentRecovery'];row=next(x for x in proof['staleAttempts'] if x['id']==case)
+        field='lease' if case=='superseded-lease' else 'checkpoint'
+        if fault=='missing':proof['staleAttempts'].remove(row)
+        elif fault=='current-fence':row['expected'][field]=proof['newerStored'][field]
+        elif fault=='wrong-other-fence':row['expected']['version']-=1
+        elif fault=='expired':row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='changed-after':row['storedAfter']['pending']=[]
+&gt;       round7_submit(repository,'AC-16.3-04',data,passes=fault=='valid')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2677: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-467/test_round7_recovery_independe1/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+passes = True, schema = False
+
+    def round7_submit(repository, scenario, data, *, passes=False, schema=False):
+        native(repository, scenario, data)
+        result = evaluate(repository, scenario)
+        if passes:
+&gt;           assert result['result'] == 'PASS', result
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E           assert 'FAIL' == 'PASS'
+E             
+E             - PASS
+E             + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2435: AssertionError</failure></testcase></testsuite></testsuites>

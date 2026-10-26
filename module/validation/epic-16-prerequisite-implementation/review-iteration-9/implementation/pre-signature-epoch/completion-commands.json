@@ -1,0 +1,40 @@
+[
+  {
+    "argv": [
+      "python3",
+      "_bmad/scripts/verify_story_completion_workflows.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json",
+      "--scenario",
+      "AC-7.3-01",
+      "--output",
+      "artifacts/v9/7.3/AC-7.3-01.json"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "6d59ac7f009532333060170310e252c37169a8575be423f4252d0e3311f59e36",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "receiptSha256": "6d59ac7f009532333060170310e252c37169a8575be423f4252d0e3311f59e36",
+    "priorBytesRestored": true
+  },
+  {
+    "argv": [
+      "python3",
+      "_bmad/scripts/verify_story_completion_workflows.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json",
+      "--scenario",
+      "AC-7.3-02",
+      "--output",
+      "artifacts/v9/7.3/AC-7.3-02.json"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "f1e21fe4069e904dd29d85c00d127f6612c702e5f5208e82f11b764a43d04f21",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "receiptSha256": "f1e21fe4069e904dd29d85c00d127f6612c702e5f5208e82f11b764a43d04f21",
+    "priorBytesRestored": true
+  }
+]

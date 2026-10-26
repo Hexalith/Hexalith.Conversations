@@ -1,0 +1,30 @@
+{
+  "changed": [
+    {
+      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+      "previousSha256": "c94fed497f7047ab2d575d5ca448dca867a9da403351fa7709f37fbd59846af8",
+      "finalSha256": "da9d91870c9d60e89740982ddbe0b15888937834461b8c24262e47eb1bcb09e2",
+      "preserved": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/source-snapshots/_bmad/schemas/epic-16-tooling-v1.schema.json"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "previousSha256": "fc3615f9474466fafda666a8e695fc33e7b3fbe53dedfa5378b32c2ac5a64914",
+      "finalSha256": "3244aeec876545a16b89055d01231268f8c775848cfcedbc55ef6795aa7ea121",
+      "preserved": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/source-snapshots/_bmad/scripts/epic16_schedules.py"
+    },
+    {
+      "path": "_bmad/scripts/epic16_trust.py",
+      "previousSha256": "2691006670411edc8788b34bd980d598845459fb2945cfe41b1b13cd7541458c",
+      "finalSha256": "cde6c5a5d55f28109e7eb54bfe1e083d9b6a92c33f14cdbb1d544361374f857d",
+      "preserved": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/source-snapshots/_bmad/scripts/epic16_trust.py"
+    },
+    {
+      "path": "_bmad/scripts/tests/test_epic16_tooling.py",
+      "previousSha256": "99481f58fa1677f69b346449eed4d88c506c12dbd035263eea41aeae69b95ae5",
+      "finalSha256": "aaa5413088f1b1b59fd4c504af8a51b6c763c8dbe3d4431a4fc7f96de961fa9e",
+      "preserved": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/source-snapshots/_bmad/scripts/tests/test_epic16_tooling.py"
+    }
+  ],
+  "functionalGuardChanges": false,
+  "description": "Only the independent-branch schema/helper/test descriptions and consequential schema trust pin changed; the existing checkpoint-4 negative became checkpoint 5 to remain ahead of measured recovery. Previous 25 guard-removal observations keep their original source epoch and complete hashes. Final combined/legacy checks bind final source/test bytes."
+}

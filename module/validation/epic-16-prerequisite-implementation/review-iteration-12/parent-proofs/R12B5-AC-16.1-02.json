@@ -1,0 +1,1426 @@
+{
+  "beforeRestart": {
+    "lastContiguousSequence": 10,
+    "expectedSequence": 11,
+    "recoveryThrough": 14,
+    "pending": [
+      {
+        "sequence": 14,
+        "messageId": "message-14",
+        "eventType": "TenantDisabled",
+        "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+        "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+      }
+    ],
+    "authorized": false,
+    "state": "Gapped",
+    "tenant": "tenant-a"
+  },
+  "afterRestart": {
+    "lastContiguousSequence": 10,
+    "expectedSequence": 11,
+    "recoveryThrough": 14,
+    "pending": [
+      {
+        "sequence": 14,
+        "messageId": "message-14",
+        "eventType": "TenantDisabled",
+        "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+        "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+      }
+    ],
+    "authorized": false,
+    "state": "Gapped",
+    "tenant": "tenant-a"
+  },
+  "authorization": [
+    {
+      "state": "Healthy",
+      "allowed": true,
+      "lastContiguousSequence": 10
+    },
+    {
+      "state": "Unknown",
+      "allowed": false,
+      "lastContiguousSequence": 10
+    },
+    {
+      "state": "Stale",
+      "allowed": false,
+      "lastContiguousSequence": 10
+    },
+    {
+      "state": "Gapped",
+      "allowed": false,
+      "lastContiguousSequence": 10
+    },
+    {
+      "state": "Corrupt",
+      "allowed": false,
+      "lastContiguousSequence": 10
+    },
+    {
+      "state": "Unavailable",
+      "allowed": false,
+      "lastContiguousSequence": 10
+    }
+  ],
+  "redeliveries": 0,
+  "processBefore": "p1",
+  "processAfter": "p2",
+  "oldFence": 2,
+  "newFence": 3,
+  "staleWorkerWrites": 0,
+  "healthyRestarts": [
+    {
+      "id": "authorized",
+      "processBefore": "authorized-p1",
+      "processAfter": "authorized-p2",
+      "redeliveries": 0,
+      "beforeRestart": {
+        "state": "Healthy",
+        "sequence": 20,
+        "allowed": true,
+        "tenantEnabled": true,
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "domain": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        }
+      },
+      "afterRestart": {
+        "state": "Healthy",
+        "sequence": 20,
+        "allowed": true,
+        "tenantEnabled": true,
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "domain": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        }
+      },
+      "consumerBefore": {
+        "process": "authorized-p1",
+        "allowed": true,
+        "sequence": 20,
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "tenantId": "tenant-a",
+        "userId": "actor-a",
+        "requestId": "request-authorized"
+      },
+      "consumerAfter": {
+        "process": "authorized-p2",
+        "allowed": true,
+        "sequence": 20,
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "tenantId": "tenant-a",
+        "userId": "actor-a",
+        "requestId": "request-authorized"
+      },
+      "startingState": {
+        "tenantId": "tenant-a",
+        "name": "Tenant A",
+        "description": null,
+        "status": "Active",
+        "members": {
+          "actor-a": "TenantContributor"
+        },
+        "configuration": {
+          "conversations.enabled": "true"
+        }
+      },
+      "sourceCheckpoint": 19,
+      "sourceEvents": [
+        {
+          "sequence": 20,
+          "messageId": "healthy-authorized",
+          "eventType": "TenantEnabled",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"enabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+          "payloadSha256": "4f26807bfb4de15b4bbfcd234a6b34703a81a38ee88ac58f93f9de7b8fb40ec6"
+        }
+      ],
+      "snapshotBeforeBytes": "{\"state\":\"Healthy\",\"sequence\":20,\"allowed\":true,\"tenantEnabled\":true,\"freshness\":{\"lastAppliedUtcTicks\":1000,\"generatedUtcTicks\":1200,\"lagTicks\":200},\"captureVersion\":1,\"tenant\":\"tenant-a\",\"logicalStoreKey\":\"tenant-a\",\"domain\":{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":null,\"status\":\"Active\",\"members\":{\"actor-a\":\"TenantContributor\"},\"configuration\":{\"conversations.enabled\":\"true\"}}}",
+      "snapshotBeforeSha256": "93947b7dcec4ad36579b051534a62ad7a954ac5e987ea99051a81d59117ebf06",
+      "lookupBefore": {
+        "process": "authorized-p1",
+        "tenantId": "tenant-a",
+        "logicalKey": "tenant-a",
+        "snapshotSha256": "93947b7dcec4ad36579b051534a62ad7a954ac5e987ea99051a81d59117ebf06"
+      },
+      "snapshotAfterBytes": "{\"state\":\"Healthy\",\"sequence\":20,\"allowed\":true,\"tenantEnabled\":true,\"freshness\":{\"lastAppliedUtcTicks\":1000,\"generatedUtcTicks\":1200,\"lagTicks\":200},\"captureVersion\":1,\"tenant\":\"tenant-a\",\"logicalStoreKey\":\"tenant-a\",\"domain\":{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":null,\"status\":\"Active\",\"members\":{\"actor-a\":\"TenantContributor\"},\"configuration\":{\"conversations.enabled\":\"true\"}}}",
+      "snapshotAfterSha256": "93947b7dcec4ad36579b051534a62ad7a954ac5e987ea99051a81d59117ebf06",
+      "lookupAfter": {
+        "process": "authorized-p2",
+        "tenantId": "tenant-a",
+        "logicalKey": "tenant-a",
+        "snapshotSha256": "93947b7dcec4ad36579b051534a62ad7a954ac5e987ea99051a81d59117ebf06"
+      }
+    },
+    {
+      "id": "denied",
+      "processBefore": "denied-p1",
+      "processAfter": "denied-p2",
+      "redeliveries": 0,
+      "beforeRestart": {
+        "state": "Healthy",
+        "sequence": 21,
+        "allowed": false,
+        "tenantEnabled": false,
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "domain": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Disabled",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        }
+      },
+      "afterRestart": {
+        "state": "Healthy",
+        "sequence": 21,
+        "allowed": false,
+        "tenantEnabled": false,
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "domain": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Disabled",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        }
+      },
+      "consumerBefore": {
+        "process": "denied-p1",
+        "allowed": false,
+        "sequence": 21,
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "tenantId": "tenant-a",
+        "userId": "actor-a",
+        "requestId": "request-denied"
+      },
+      "consumerAfter": {
+        "process": "denied-p2",
+        "allowed": false,
+        "sequence": 21,
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "tenantId": "tenant-a",
+        "userId": "actor-a",
+        "requestId": "request-denied"
+      },
+      "startingState": {
+        "tenantId": "tenant-a",
+        "name": "Tenant A",
+        "description": null,
+        "status": "Active",
+        "members": {
+          "actor-a": "TenantContributor"
+        },
+        "configuration": {
+          "conversations.enabled": "true"
+        }
+      },
+      "sourceCheckpoint": 20,
+      "sourceEvents": [
+        {
+          "sequence": 21,
+          "messageId": "healthy-denied",
+          "eventType": "TenantDisabled",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+          "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+        }
+      ],
+      "snapshotBeforeBytes": "{\"state\":\"Healthy\",\"sequence\":21,\"allowed\":false,\"tenantEnabled\":false,\"freshness\":{\"lastAppliedUtcTicks\":1000,\"generatedUtcTicks\":1200,\"lagTicks\":200},\"captureVersion\":1,\"tenant\":\"tenant-a\",\"logicalStoreKey\":\"tenant-a\",\"domain\":{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":null,\"status\":\"Disabled\",\"members\":{\"actor-a\":\"TenantContributor\"},\"configuration\":{\"conversations.enabled\":\"true\"}}}",
+      "snapshotBeforeSha256": "fccc6f9e02f257db0cb9c1d5dcbc953628fec8eb1a87bbec9c5a4001f27086c9",
+      "lookupBefore": {
+        "process": "denied-p1",
+        "tenantId": "tenant-a",
+        "logicalKey": "tenant-a",
+        "snapshotSha256": "fccc6f9e02f257db0cb9c1d5dcbc953628fec8eb1a87bbec9c5a4001f27086c9"
+      },
+      "snapshotAfterBytes": "{\"state\":\"Healthy\",\"sequence\":21,\"allowed\":false,\"tenantEnabled\":false,\"freshness\":{\"lastAppliedUtcTicks\":1000,\"generatedUtcTicks\":1200,\"lagTicks\":200},\"captureVersion\":1,\"tenant\":\"tenant-a\",\"logicalStoreKey\":\"tenant-a\",\"domain\":{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":null,\"status\":\"Disabled\",\"members\":{\"actor-a\":\"TenantContributor\"},\"configuration\":{\"conversations.enabled\":\"true\"}}}",
+      "snapshotAfterSha256": "fccc6f9e02f257db0cb9c1d5dcbc953628fec8eb1a87bbec9c5a4001f27086c9",
+      "lookupAfter": {
+        "process": "denied-p2",
+        "tenantId": "tenant-a",
+        "logicalKey": "tenant-a",
+        "snapshotSha256": "fccc6f9e02f257db0cb9c1d5dcbc953628fec8eb1a87bbec9c5a4001f27086c9"
+      }
+    }
+  ],
+  "tenant": "tenant-a",
+  "restartSchedule": {
+    "captureVersion": 1,
+    "scheduleId": "controlled-restart",
+    "before": {
+      "captureVersion": 2,
+      "tenant": "tenant-a",
+      "logicalStoreKey": "tenant-a",
+      "projection": {
+        "tenantId": "tenant-a",
+        "name": "Tenant A",
+        "description": null,
+        "status": "Active",
+        "members": {
+          "actor-a": "TenantContributor"
+        },
+        "configuration": {
+          "conversations.enabled": "true"
+        }
+      },
+      "freshness": {
+        "lastAppliedUtcTicks": 1000,
+        "generatedUtcTicks": 1200,
+        "lagTicks": 200
+      },
+      "checkpoint": 10,
+      "expectedSequence": 11,
+      "horizon": 14,
+      "pending": [
+        {
+          "sequence": 14,
+          "messageId": "message-14",
+          "eventType": "TenantDisabled",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+          "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+        }
+      ],
+      "health": "Gapped",
+      "allowed": false,
+      "lease": 2,
+      "version": 7,
+      "etag": "restart-old",
+      "leaseUntilUtcTicks": 2000,
+      "worker": "worker-old",
+      "process": "p1"
+    },
+    "acquisition": {
+      "executed": true,
+      "executor": "EventStore",
+      "before": {
+        "captureVersion": 2,
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+            "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+          }
+        ],
+        "health": "Gapped",
+        "allowed": false,
+        "lease": 2,
+        "version": 7,
+        "etag": "restart-old",
+        "leaseUntilUtcTicks": 2000,
+        "worker": "worker-old",
+        "process": "p1"
+      },
+      "after": {
+        "captureVersion": 2,
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+            "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+          }
+        ],
+        "health": "Gapped",
+        "allowed": false,
+        "lease": 3,
+        "version": 8,
+        "etag": "restart-acquired",
+        "leaseUntilUtcTicks": 3000,
+        "worker": "worker-new",
+        "process": "p2"
+      },
+      "expected": {
+        "lease": 2,
+        "version": 7,
+        "etag": "restart-old",
+        "checkpoint": 10,
+        "horizon": 14
+      },
+      "succeeded": true,
+      "transactionId": "tx-restart-acquire",
+      "leaseTransactionId": "tx-restart-acquire",
+      "recordTransactionId": "tx-restart-acquire",
+      "order": 10,
+      "utcTicks": 1500
+    },
+    "resumption": {
+      "executed": true,
+      "order": 20,
+      "operation": "resume-recovery",
+      "executor": "EventStore",
+      "process": "p2",
+      "worker": "worker-new",
+      "tenant": "tenant-a",
+      "logicalStoreKey": "tenant-a",
+      "observedTransactionId": "tx-restart-acquire",
+      "storedBefore": {
+        "captureVersion": 2,
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+            "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+          }
+        ],
+        "health": "Gapped",
+        "allowed": false,
+        "lease": 3,
+        "version": 8,
+        "etag": "restart-acquired",
+        "leaseUntilUtcTicks": 3000,
+        "worker": "worker-new",
+        "process": "p2"
+      },
+      "storedAfter": {
+        "captureVersion": 2,
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+            "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+          }
+        ],
+        "health": "Gapped",
+        "allowed": false,
+        "lease": 3,
+        "version": 8,
+        "etag": "restart-acquired",
+        "leaseUntilUtcTicks": 3000,
+        "worker": "worker-new",
+        "process": "p2"
+      },
+      "trigger": "persisted-pending",
+      "sourceDeliveries": [],
+      "fromSequence": 11,
+      "throughSequence": 14,
+      "state": "Gapped",
+      "allowed": false,
+      "pending": [
+        {
+          "sequence": 14,
+          "messageId": "message-14",
+          "eventType": "TenantDisabled",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+          "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+        }
+      ]
+    },
+    "rejectedAttempts": [
+      {
+        "id": "old-worker",
+        "expected": {
+          "lease": 2,
+          "version": 7,
+          "etag": "restart-old",
+          "checkpoint": 10,
+          "horizon": 14
+        },
+        "executed": true,
+        "executor": "EventStore",
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "process": "p1",
+        "worker": "worker-old",
+        "observedTransactionId": "tx-restart-acquire",
+        "order": 30,
+        "utcTicks": 1600,
+        "proposed": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 9,
+          "etag": "restart-renewed",
+          "leaseUntilUtcTicks": 3010,
+          "worker": "worker-new",
+          "process": "p2"
+        },
+        "succeeded": false,
+        "transactionId": null,
+        "cleared": [],
+        "storedBefore": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 8,
+          "etag": "restart-acquired",
+          "leaseUntilUtcTicks": 3000,
+          "worker": "worker-new",
+          "process": "p2"
+        },
+        "storedAfter": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 8,
+          "etag": "restart-acquired",
+          "leaseUntilUtcTicks": 3000,
+          "worker": "worker-new",
+          "process": "p2"
+        }
+      },
+      {
+        "id": "lease-only",
+        "expected": {
+          "lease": 2,
+          "version": 8,
+          "etag": "restart-acquired",
+          "checkpoint": 10,
+          "horizon": 14
+        },
+        "executed": true,
+        "executor": "EventStore",
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "process": "p1",
+        "worker": "worker-old",
+        "observedTransactionId": "tx-restart-acquire",
+        "order": 30,
+        "utcTicks": 1600,
+        "proposed": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 9,
+          "etag": "restart-renewed",
+          "leaseUntilUtcTicks": 3010,
+          "worker": "worker-new",
+          "process": "p2"
+        },
+        "succeeded": false,
+        "transactionId": null,
+        "cleared": [],
+        "storedBefore": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 8,
+          "etag": "restart-acquired",
+          "leaseUntilUtcTicks": 3000,
+          "worker": "worker-new",
+          "process": "p2"
+        },
+        "storedAfter": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 8,
+          "etag": "restart-acquired",
+          "leaseUntilUtcTicks": 3000,
+          "worker": "worker-new",
+          "process": "p2"
+        }
+      },
+      {
+        "id": "version-only",
+        "expected": {
+          "lease": 3,
+          "version": 7,
+          "etag": "restart-acquired",
+          "checkpoint": 10,
+          "horizon": 14
+        },
+        "executed": true,
+        "executor": "EventStore",
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "process": "p1",
+        "worker": "worker-old",
+        "observedTransactionId": "tx-restart-acquire",
+        "order": 30,
+        "utcTicks": 1600,
+        "proposed": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 9,
+          "etag": "restart-renewed",
+          "leaseUntilUtcTicks": 3010,
+          "worker": "worker-new",
+          "process": "p2"
+        },
+        "succeeded": false,
+        "transactionId": null,
+        "cleared": [],
+        "storedBefore": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 8,
+          "etag": "restart-acquired",
+          "leaseUntilUtcTicks": 3000,
+          "worker": "worker-new",
+          "process": "p2"
+        },
+        "storedAfter": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 8,
+          "etag": "restart-acquired",
+          "leaseUntilUtcTicks": 3000,
+          "worker": "worker-new",
+          "process": "p2"
+        }
+      },
+      {
+        "id": "checkpoint-only",
+        "expected": {
+          "lease": 3,
+          "version": 8,
+          "etag": "restart-acquired",
+          "checkpoint": 9,
+          "horizon": 14
+        },
+        "executed": true,
+        "executor": "EventStore",
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "process": "p1",
+        "worker": "worker-old",
+        "observedTransactionId": "tx-restart-acquire",
+        "order": 30,
+        "utcTicks": 1600,
+        "proposed": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 9,
+          "etag": "restart-renewed",
+          "leaseUntilUtcTicks": 3010,
+          "worker": "worker-new",
+          "process": "p2"
+        },
+        "succeeded": false,
+        "transactionId": null,
+        "cleared": [],
+        "storedBefore": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 8,
+          "etag": "restart-acquired",
+          "leaseUntilUtcTicks": 3000,
+          "worker": "worker-new",
+          "process": "p2"
+        },
+        "storedAfter": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 8,
+          "etag": "restart-acquired",
+          "leaseUntilUtcTicks": 3000,
+          "worker": "worker-new",
+          "process": "p2"
+        }
+      },
+      {
+        "id": "horizon-only",
+        "expected": {
+          "lease": 3,
+          "version": 8,
+          "etag": "restart-acquired",
+          "checkpoint": 10,
+          "horizon": 13
+        },
+        "executed": true,
+        "executor": "EventStore",
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "process": "p1",
+        "worker": "worker-old",
+        "observedTransactionId": "tx-restart-acquire",
+        "order": 30,
+        "utcTicks": 1600,
+        "proposed": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 9,
+          "etag": "restart-renewed",
+          "leaseUntilUtcTicks": 3010,
+          "worker": "worker-new",
+          "process": "p2"
+        },
+        "succeeded": false,
+        "transactionId": null,
+        "cleared": [],
+        "storedBefore": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 8,
+          "etag": "restart-acquired",
+          "leaseUntilUtcTicks": 3000,
+          "worker": "worker-new",
+          "process": "p2"
+        },
+        "storedAfter": {
+          "captureVersion": 2,
+          "tenant": "tenant-a",
+          "logicalStoreKey": "tenant-a",
+          "projection": {
+            "tenantId": "tenant-a",
+            "name": "Tenant A",
+            "description": null,
+            "status": "Active",
+            "members": {
+              "actor-a": "TenantContributor"
+            },
+            "configuration": {
+              "conversations.enabled": "true"
+            }
+          },
+          "freshness": {
+            "lastAppliedUtcTicks": 1000,
+            "generatedUtcTicks": 1200,
+            "lagTicks": 200
+          },
+          "checkpoint": 10,
+          "expectedSequence": 11,
+          "horizon": 14,
+          "pending": [
+            {
+              "sequence": 14,
+              "messageId": "message-14",
+              "eventType": "TenantDisabled",
+              "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+              "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+            }
+          ],
+          "health": "Gapped",
+          "allowed": false,
+          "lease": 3,
+          "version": 8,
+          "etag": "restart-acquired",
+          "leaseUntilUtcTicks": 3000,
+          "worker": "worker-new",
+          "process": "p2"
+        }
+      }
+    ],
+    "currentRenewal": {
+      "executed": true,
+      "executor": "EventStore",
+      "tenant": "tenant-a",
+      "logicalStoreKey": "tenant-a",
+      "process": "p2",
+      "worker": "worker-new",
+      "expected": {
+        "lease": 3,
+        "version": 8,
+        "etag": "restart-acquired",
+        "checkpoint": 10,
+        "horizon": 14
+      },
+      "before": {
+        "captureVersion": 2,
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+            "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+          }
+        ],
+        "health": "Gapped",
+        "allowed": false,
+        "lease": 3,
+        "version": 8,
+        "etag": "restart-acquired",
+        "leaseUntilUtcTicks": 3000,
+        "worker": "worker-new",
+        "process": "p2"
+      },
+      "after": {
+        "captureVersion": 2,
+        "tenant": "tenant-a",
+        "logicalStoreKey": "tenant-a",
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "freshness": {
+          "lastAppliedUtcTicks": 1000,
+          "generatedUtcTicks": 1200,
+          "lagTicks": 200
+        },
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-01-02T03:04:05+00:00\"}",
+            "payloadSha256": "099d272aceaad35c2e91760d1bf7bb9f57440fa2c7152eafd49a1b5a28e60666"
+          }
+        ],
+        "health": "Gapped",
+        "allowed": false,
+        "lease": 3,
+        "version": 9,
+        "etag": "restart-renewed",
+        "leaseUntilUtcTicks": 3010,
+        "worker": "worker-new",
+        "process": "p2"
+      },
+      "order": 30,
+      "utcTicks": 1600,
+      "succeeded": true,
+      "transactionId": "tx-renew",
+      "leaseTransactionId": "tx-renew",
+      "recordTransactionId": "tx-renew",
+      "cleared": []
+    }
+  }
+}

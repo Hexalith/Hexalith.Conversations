@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="5" time="2.871" timestamp="2026-10-25T19:59:15.832025+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_reconciliation_requires_pending_event_derived_domain_values[same-stale-values]" time="0.538"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-296/test_reconciliation_requires_p0/fixture')
+fault = 'same-stale-values'
+
+    @pytest.mark.parametrize('fault',['same-stale-values','pending-values','prior-values','trace-omission','checkpoint-only'])
+    def test_reconciliation_requires_pending_event_derived_domain_values(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-04'])
+        if fault=='same-stale-values':
+            for key in ('persistedProjection','queryProjection'):data[key]['state']=deepcopy(data['beforeProjection'])
+        elif fault=='pending-values':
+            body=json.loads(data['pendingEvent']['payload']);body['label']='unrelated correction';data['pendingEvent']['payload']=json.dumps(body)
+        elif fault=='prior-values':data['beforeProjection']['label']='different predecessor'
+        elif fault=='trace-omission':data['recoveryEvents']=[]
+        else:
+            data['afterCheckpoint']=4
+            for key in ('persistedProjection','queryProjection'):data[key]['sequence']=4
+&gt;       native(repository,'AC-16.3-04',data);rejected(evaluate(repository,'AC-16.3-04'),'RECONCILIATION_IDENTITY_DRIFT' if fault=='pending-values' else 'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_reconciliation_requires_pending_event_derived_domain_values[pending-values]" time="0.516" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_reconciliation_requires_pending_event_derived_domain_values[prior-values]" time="0.510" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_reconciliation_requires_pending_event_derived_domain_values[trace-omission]" time="0.534" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_reconciliation_requires_pending_event_derived_domain_values[checkpoint-only]" time="0.516" /></testsuite></testsuites>

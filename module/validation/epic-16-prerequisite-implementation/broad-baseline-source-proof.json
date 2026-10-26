@@ -1,0 +1,142 @@
+{
+  "head": "8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3",
+  "sourceRows": [
+    {
+      "path": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "sha256": "197494dafdfef74c5b454bb996ca949e88cb97d2dac6c79a5102517a0181e6c4",
+      "matchesHead": true
+    },
+    {
+      "path": ".agents/skills/bmad-build/step-04-review.md",
+      "sha256": "d1ba73199d7a173f2d53e26cb05d03d5f50d86891624afda8f9d10567a2a0f6c",
+      "matchesHead": true
+    },
+    {
+      "path": ".agents/skills/bmad-build/step-05-present.md",
+      "sha256": "877a05d7ff1d4a08a9c35fadc7d684d1ea297bfb305f3149e6a79ba47a8bdf2b",
+      "matchesHead": true
+    },
+    {
+      "path": ".agents/skills/bmad-build/step-oneshot.md",
+      "sha256": "266dd91dfdf13fe5a1d2c18323c62b0c03de6a0515818eaf5c3908ac7db11eb7",
+      "matchesHead": true
+    },
+    {
+      "path": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "sha256": "a6cb2a555462fb47d0d511ab03c6640d1c309289d1c2f9b533d4dcdb1d8abfcd",
+      "matchesHead": true
+    },
+    {
+      "path": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "sha256": "197494dafdfef74c5b454bb996ca949e88cb97d2dac6c79a5102517a0181e6c4",
+      "matchesHead": true
+    },
+    {
+      "path": ".claude/skills/bmad-build/step-04-review.md",
+      "sha256": "d1ba73199d7a173f2d53e26cb05d03d5f50d86891624afda8f9d10567a2a0f6c",
+      "matchesHead": true
+    },
+    {
+      "path": ".claude/skills/bmad-build/step-05-present.md",
+      "sha256": "877a05d7ff1d4a08a9c35fadc7d684d1ea297bfb305f3149e6a79ba47a8bdf2b",
+      "matchesHead": true
+    },
+    {
+      "path": ".claude/skills/bmad-build/step-oneshot.md",
+      "sha256": "266dd91dfdf13fe5a1d2c18323c62b0c03de6a0515818eaf5c3908ac7db11eb7",
+      "matchesHead": true
+    },
+    {
+      "path": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "sha256": "a6cb2a555462fb47d0d511ab03c6640d1c309289d1c2f9b533d4dcdb1d8abfcd",
+      "matchesHead": true
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "83d426cfd36de8eff90a44931612bc385087cc660bc63e56eb10dc96689cafe6",
+      "matchesHead": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/story-10.4-current-binding-v1.json",
+      "sha256": "6cdffc3790fc6c077a98118a9beed0121a217c836981bce251d66eeb09b20ee4",
+      "matchesHead": true
+    },
+    {
+      "path": "_bmad/custom/bmad-build-auto.toml",
+      "sha256": "8a545b70b7f3a973c4f3a9e1178969dd9a6faafcf3d296e60c8b770ce5f17ee9",
+      "matchesHead": true
+    },
+    {
+      "path": "_bmad/custom/bmad-build.toml",
+      "sha256": "8a545b70b7f3a973c4f3a9e1178969dd9a6faafcf3d296e60c8b770ce5f17ee9",
+      "matchesHead": true
+    },
+    {
+      "path": "_bmad/custom/bmad-review.toml",
+      "sha256": "f57798b745e05cb7cfd64df0e6c536cce3ac9dbcfb1f58523db1d2da77ca9b25",
+      "matchesHead": true
+    },
+    {
+      "path": "_bmad/scripts/check_package_refresh_environment.py",
+      "sha256": "c809f7211049ee25864127e350e8785feda3c922fd2fac5f25b78afba44acb36",
+      "matchesHead": true
+    },
+    {
+      "path": "_bmad/scripts/config_utils.py",
+      "sha256": "48afe2bc18a29201e343cce3703be1e70df9c83ee74eeb68e57ef8ef42e8c651",
+      "matchesHead": true
+    },
+    {
+      "path": "_bmad/scripts/evidence_boundary_adoption.py",
+      "sha256": "01ee862ffc7bc9dc6476d1abbbc9a7fe962543bd1fca475f34386191810c7f90",
+      "matchesHead": true
+    },
+    {
+      "path": "_bmad/scripts/evidence_boundary_current.py",
+      "sha256": "42ae5eb021be38647bf0172db4d4b41cd7c3c5fc299edffbeee616527b6eefdd",
+      "matchesHead": true
+    },
+    {
+      "path": "_bmad/scripts/tests/test_check_package_refresh_environment.py",
+      "sha256": "cadc98a96296e9f3cfe50ad8d788ec528dd7a72866a5536ee05b9a9b15ba79dd",
+      "matchesHead": true
+    },
+    {
+      "path": "_bmad/scripts/verify_story_completion_workflows.py",
+      "sha256": "1a01c22abda5aff3ae74b277c4437490c752b130c764199e47799235d6129d99",
+      "matchesHead": true
+    },
+    {
+      "path": "docs/runbooks/current-change-validation.md",
+      "sha256": "d5284f00b8c850d43cabfcd45d2a4cf94d76a04a0bf7d6761ead7f17e5947801",
+      "matchesHead": true
+    },
+    {
+      "path": "docs/runbooks/evidence-boundary-validation.md",
+      "sha256": "8836337999b7d65b316aa9590c139bf07ed2b22e3a45d12b24825f11bd35840c",
+      "matchesHead": true
+    },
+    {
+      "path": "tests/tooling/test_evidence_boundary_adoption.py",
+      "sha256": "e21da30bd084a4d07e970dcf33fdac09e6589c101fcf427736bfd162ae406fc1",
+      "matchesHead": true
+    },
+    {
+      "path": "tests/tooling/test_evidence_boundary_current.py",
+      "sha256": "c76ead8922912eea3768d2e5602f4552048dd4e84711d464f586f8c96453a382",
+      "matchesHead": true
+    }
+  ],
+  "failedGuidanceRows": [
+    {
+      "id": "guidance:hash:docs/runbooks/current-change-validation.md",
+      "subject": "docs/runbooks/current-change-validation.md",
+      "state": "FAIL"
+    },
+    {
+      "id": "guidance:file:docs/runbooks/current-change-validation.md",
+      "subject": "docs/runbooks/current-change-validation.md",
+      "state": "FAIL"
+    }
+  ]
+}

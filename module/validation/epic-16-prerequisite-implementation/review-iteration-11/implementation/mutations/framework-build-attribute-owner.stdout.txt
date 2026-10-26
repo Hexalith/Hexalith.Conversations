@@ -1,0 +1,43 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_round11_framework_ownership_and_external_attribute_constructors_are_verified[foreign-build-attribute] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-618/test_round11_framework_ownersh0')
+control = 'foreign-build-attribute'
+
+    @pytest.mark.parametrize('control',['hidden-fact','foreign-build-attribute','external-constructor'])
+    def test_round11_framework_ownership_and_external_attribute_constructors_are_verified(tmp_path,control):
+        """Only these test-authored assemblies execute under the real pinned runner."""
+        directory=tmp_path/'attributes';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        source='namespace System.Custom { public class HiddenFactAttribute : Xunit.FactAttribute {} } namespace System.Reflection { public class AssemblyFileVersionAttribute : System.Attribute { public AssemblyFileVersionAttribute(string value) {} } } namespace Custom { public class StampAttribute : System.Attribute { public StampAttribute(int value) {} public StampAttribute(uint value) {} } }'
+        project='<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>Attributes</AssemblyName></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3.extensibility.core" Version="4.0.2" /></ItemGroup></Project>'
+        (directory/'Attributes.cs').write_text(source);(directory/'Attributes.csproj').write_text(project)
+        command=['dotnet','build','Attributes.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        external=directory/'bin/Debug/net10.0/Attributes.dll';round11_retain('external-'+control,{'Attributes.cs':source.encode(),'Attributes.csproj':project.encode(),'Attributes.dll.bytes':external.read_bytes(),'attributes.stdout':build.stdout,'attributes.stderr':build.stderr},dict(argv=command,cwd=str(directory),exitCode=build.returncode))
+        metadata=[]
+        for phase,value in [('baseline','one' if control=='foreign-build-attribute' else '1'),('candidate','two' if control=='foreign-build-attribute' else '1u')]:
+            work=tmp_path/phase;work.mkdir();(work/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+            is_test=control=='hidden-fact';name='Evidence' if is_test else 'Api'
+            project='<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><GenerateAssemblyInfo>false</GenerateAssemblyInfo><OutputType>'+('Exe' if is_test else 'Library')+'</OutputType></PropertyGroup><ItemGroup><Reference Include="Attributes"><HintPath>'+str(external)+'</HintPath><Aliases>custom</Aliases></Reference>'+('<PackageReference Include="xunit.v3" Version="4.0.2" />' if is_test else '')+'</ItemGroup></Project>'
+            code='extern alias custom; [assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] '
+            if is_test:code+='namespace Synthetic; public class TestClass { [Xunit.Fact, custom::System.Custom.HiddenFact] public void Scenario01() {} }'
+            elif control=='foreign-build-attribute':code+='[assembly:custom::System.Reflection.AssemblyFileVersion("'+value+'")] namespace Synthetic; public class Api {}'
+            else:code+='namespace Synthetic; [custom::Custom.Stamp('+value+')] public class Api {}'
+            (work/(name+'.csproj')).write_text(project);(work/'Code.cs').write_text(code)
+            command=['dotnet','build',name+'.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false']+(['-p:RunAnalyzers=false'] if is_test else []);build=subprocess.run(command,cwd=work,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+            binary=work/f'bin/Debug/net10.0/{name}.dll';artifacts={'Code.cs':code.encode(),name+'.csproj':project.encode(),name+'.dll.bytes':binary.read_bytes(),'build.stdout':build.stdout,'build.stderr':build.stderr};commands=dict(build=command,cwd=str(work),buildExit=build.returncode)
+            if is_test:
+                trx=work/'result.trx';argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(trx)];run=subprocess.run(argv,cwd=work,capture_output=True,timeout=30);assert run.returncode==1 and b'multiple [Fact]-derived attributes' in run.stdout+run.stderr
+                artifacts.update({'result.trx':trx.read_bytes(),'run.stdout':run.stdout,'run.stderr':run.stderr});commands.update(run=argv,runExit=run.returncode)
+                with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')
+            else:metadata.append(tooling.native_helper.inspect_product(binary.read_bytes(),'a'*40))
+            round11_retain('external-'+control+'-'+phase,artifacts,commands)
+            if is_test:break
+        if not is_test:
+>           with pytest.raises(tooling.Stop) as error:tooling.products.additive(*metadata,tooling.need,control)
+E           Failed: DID NOT RAISE Stop
+
+_bmad/scripts/tests/test_epic16_tooling.py:4211: Failed
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_framework_ownership_and_external_attribute_constructors_are_verified[foreign-build-attribute]
+1 failed, 2253 deselected in 7.25s

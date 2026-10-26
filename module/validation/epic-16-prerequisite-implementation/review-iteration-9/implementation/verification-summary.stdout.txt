@@ -1,0 +1,20 @@
+{
+  "combined": {
+    "tests": 2038,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "legacy": {
+    "tests": 72,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "demonstratedGuards": 41,
+  "mutationRuns": 43,
+  "targetedFailures": 192,
+  "sourceFiles": 84,
+  "commitMessages": 32,
+  "verificationPath": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/verification.json"
+}

@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native.py
++++ _bmad/scripts/epic16_native.py
+@@ -30,7 +30,7 @@
+     def bounded(value):
+         if isinstance(value, bytes): value = value.decode('utf-8', errors='replace')
+         return (value or '')[-2000:]
+-    return f"{stage}: exit={result.returncode}; stdout={bounded(result.stdout)!r}; stderr={bounded(result.stderr)!r}"
++    return f"{stage}: exit=unknown; stdout={bounded(result.stdout)!r}; stderr={bounded(result.stderr)!r}"
+ 
+ 
+ def validate_sdk(policy_bytes, selected=None):

@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r11-framework-ii8j4j7c/test/Probe.csproj (in 100 ms).
+/tmp/epic16-r11-framework-ii8j4j7c/test/Tests.cs(1,202): error xUnit1002: Test methods cannot have multiple Fact or Theory attributes. Remove all but one of the attributes. (https://xunit.net/xunit.analyzers/rules/xUnit1002) [/tmp/epic16-r11-framework-ii8j4j7c/test/Probe.csproj]
+
+Build FAILED.
+
+/tmp/epic16-r11-framework-ii8j4j7c/test/Tests.cs(1,202): error xUnit1002: Test methods cannot have multiple Fact or Theory attributes. Remove all but one of the attributes. (https://xunit.net/xunit.analyzers/rules/xUnit1002) [/tmp/epic16-r11-framework-ii8j4j7c/test/Probe.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.41

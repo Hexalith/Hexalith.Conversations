@@ -1,0 +1,29 @@
+[
+  {
+    "name": "audit-governance-time",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review4-mutant-audit-governance-time-j_1ploxa/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round4_audit_governance",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-4/implementation/post-audit/mutations/audit-governance-time.xml"
+    ],
+    "workspace": "/tmp/epic16-review4-mutant-audit-governance-time-j_1ploxa",
+    "exitCode": 1,
+    "elapsedSeconds": 0.426,
+    "replacements": 1,
+    "originalSha256": "b08fc84f0d2f2436a7715b763400a47e07ecd939db13d669bed26c0a5a6fc19c",
+    "mutatedSha256": "5726facac250218ea75e1843fa7a35e8ad82d0efacc2369f19ee27fe3a069d75",
+    "stdoutSha256": "bca399d7969e8da019d3b23ccf2ede6fe94f252532053a9b8296e97eb351a89c",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 3,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+]

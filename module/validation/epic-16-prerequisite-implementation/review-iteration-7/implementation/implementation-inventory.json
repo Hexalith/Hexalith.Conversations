@@ -1,0 +1,194 @@
+{
+  "files": [
+    {
+      "path": ".gitattributes",
+      "sha256": "3ab9a82c0c264a8b43c8ed6a8a420c0ce45f7c1189f64695b52b24fa9b7a0043",
+      "restoredSha256": "cf3a4807c89ad25b268722d186dd678e926453b9a5877d4fee7d8032c1f81081"
+    },
+    {
+      "path": "_bmad/scripts/generate_story_record.py",
+      "sha256": "69947b8726ccb0b1b56f9ec69ed03b2ce1bff1fa9ac500bdccaf76ecb1a28a0a",
+      "restoredSha256": "69947b8726ccb0b1b56f9ec69ed03b2ce1bff1fa9ac500bdccaf76ecb1a28a0a"
+    },
+    {
+      "path": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py",
+      "sha256": "0a24cbfaa943c01ae37e720c4c7ace7cc63a902148bb5fced7bba511982a9472",
+      "restoredSha256": "0a24cbfaa943c01ae37e720c4c7ace7cc63a902148bb5fced7bba511982a9472"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md",
+      "sha256": "5b828b48159223d44fcaaf46f63544ade1e3c13a3284b3aff5cc414384b56ac1",
+      "restoredSha256": "af7a6b35746f03b27677a1e14d2a20eb6c89afe0bbaaf40ce2bf203b73f4451b"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "sha256": "a64e51bf327c0bedd45f92e995e798006c3667091a8943efed10a8d05203c12d",
+      "restoredSha256": "0d27c6a06612197002ca94c6168976505abfdf9d3538c88ce6201f1081dd80ac"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "sha256": "cb9dd6845a9599aed0a9a2e8eae9d2982f922410ff6dc5b561112cb0bcb8fc2b",
+      "restoredSha256": "cb9dd6845a9599aed0a9a2e8eae9d2982f922410ff6dc5b561112cb0bcb8fc2b"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "sha256": "21ce50da6fd5ebb8ee50b78cda63f6add604a14996ee5d950a0aec45f9bae9af",
+      "restoredSha256": "21ce50da6fd5ebb8ee50b78cda63f6add604a14996ee5d950a0aec45f9bae9af"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+      "sha256": "8255231c985cf1e19abc1848cc798d46fff8080d1013596d071466c4dac9f49b",
+      "restoredSha256": "8255231c985cf1e19abc1848cc798d46fff8080d1013596d071466c4dac9f49b"
+    },
+    {
+      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+      "sha256": "ff6035784fbe5b489eb2355fc8fea6a04fb11d9f50a9e539117c8b90c8d842b5",
+      "restoredSha256": "da9d91870c9d60e89740982ddbe0b15888937834461b8c24262e47eb1bcb09e2"
+    },
+    {
+      "path": "_bmad/scripts/epic16_capture.py",
+      "sha256": "c5ffc2329228ba4ce748ac28307157531c82a74e803c6e237f987acc0629226f",
+      "restoredSha256": "c5ffc2329228ba4ce748ac28307157531c82a74e803c6e237f987acc0629226f"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "sha256": "dc043488b746651af0f528bec3ecc2788dccc4bf0962d86e52e40aabfaa745af",
+      "restoredSha256": "dc043488b746651af0f528bec3ecc2788dccc4bf0962d86e52e40aabfaa745af"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "sha256": "dfc3cb1e20e2cf453a94a0032cf63539a5c0d8dd49846f2aa84222e65490184a",
+      "restoredSha256": "dfc3cb1e20e2cf453a94a0032cf63539a5c0d8dd49846f2aa84222e65490184a"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "sha256": "7afd39f623755cffb1d779de8c03f47703c6038a68704d77ea82ad0bf0b6bef4",
+      "restoredSha256": "8e1a5842236303fba4f38b80138699625b0f06dc87f6b8fac3f6632837e0ddd2"
+    },
+    {
+      "path": "_bmad/scripts/epic16_native.py",
+      "sha256": "ab2aec05b61871a961a99f2e72d98558ca07114c24f59eac931fbba36966063e",
+      "restoredSha256": "e0013e6a73c5da32e5a4066ca3664e5de6fc69162280607e647a49c3b5c02974"
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj",
+      "sha256": "f3057cab73b03ec077940f41c8b23a30032c563c1989dc680ac7b60764d4fcb5",
+      "restoredSha256": "f3057cab73b03ec077940f41c8b23a30032c563c1989dc680ac7b60764d4fcb5"
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/EventStore-LICENSE",
+      "sha256": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2",
+      "restoredSha256": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2"
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/Program.cs",
+      "sha256": "6c8f5fe7e9512227c45e19fdae535a566168b1a81db2d218230b406b565a1d25",
+      "restoredSha256": "da0bbb778a5f0a68f86cb436def4bddc9005b25edfdca94c03418a6c144d881f"
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/README.md",
+      "sha256": "612135963bf373f08e76b644308002ccb793126b4dcb3f01f18a90b0a58d53be",
+      "restoredSha256": "494aaa78ac45ce30ef9502540349d61a90552f5eb3b1af46b51c4110a39cdc13"
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs",
+      "sha256": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9",
+      "restoredSha256": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "sha256": "b80c2632de8198ad823518844dd17e483af977947bff841b5934ce7c0ec2ceb9",
+      "restoredSha256": "b80c2632de8198ad823518844dd17e483af977947bff841b5934ce7c0ec2ceb9"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "sha256": "7198aa420ea540b81cfa3b4f117da162ef38211fb04946aff127190613e2c34c",
+      "restoredSha256": "3244aeec876545a16b89055d01231268f8c775848cfcedbc55ef6795aa7ea121"
+    },
+    {
+      "path": "_bmad/scripts/epic16_tooling.py",
+      "sha256": "4524a5523725e7298a03681d160a913665ecfe82d4baf5875734be9f6576891d",
+      "restoredSha256": "e395a87a394e72e2d6f8116f6f2a66f103015c96203d0c1ab4081b5d267ece05"
+    },
+    {
+      "path": "_bmad/scripts/epic16_trust.py",
+      "sha256": "512611c925c2e40ec62b2f2abcc6749ad3e3d5bcccb74366faf465ece4960d71",
+      "restoredSha256": "cde6c5a5d55f28109e7eb54bfe1e083d9b6a92c33f14cdbb1d544361374f857d"
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-adoption-v2-generator.py.gz",
+      "sha256": "f8a3691ae2e71fc0ea9487d162f19b32d1c2a528b71c36a3c2f390a39f7afbd5",
+      "restoredSha256": "f8a3691ae2e71fc0ea9487d162f19b32d1c2a528b71c36a3c2f390a39f7afbd5"
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-adoption-v2-gitattributes.txt",
+      "sha256": "388d83954dfd6a188ddd2beddaae31e43afe08ec5895639e502d699d5742a9c5",
+      "restoredSha256": "388d83954dfd6a188ddd2beddaae31e43afe08ec5895639e502d699d5742a9c5"
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-goldens.json",
+      "sha256": "f08bbd0ce5205a282c8cb2bfbfeac76046ee73494c41a80c527a1c191552fe93",
+      "restoredSha256": "f08bbd0ce5205a282c8cb2bfbfeac76046ee73494c41a80c527a1c191552fe93"
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-provenance.json",
+      "sha256": "daef7f4e47b2c160b9bba813e9e1e38a3806b8167823bfb60bcf277d58afe8ee",
+      "restoredSha256": "daef7f4e47b2c160b9bba813e9e1e38a3806b8167823bfb60bcf277d58afe8ee"
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-domain-sources-LICENSE.txt",
+      "sha256": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2",
+      "restoredSha256": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2"
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-domain-sources.json",
+      "sha256": "3cd7d330527499b2d932425aa2b9b4776089ce629fd022bd9e5015fd14b1d867",
+      "restoredSha256": "3cd7d330527499b2d932425aa2b9b4776089ce629fd022bd9e5015fd14b1d867"
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-observations-v1.json",
+      "sha256": "52e90a2655da67d2d1597f60ff2b97f4c7e6abb1ac724856136e3b67989c9b3e",
+      "restoredSha256": "6e37f6a5f46f4a1b080ba3ba70d1792a3ad397f49c1a2e1dded4c25bdf736cf5"
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json",
+      "sha256": "04b547e3cf9da207a67142473967fb6ca01ffc4e32df4bd886ae769a0063d373",
+      "restoredSha256": "04b547e3cf9da207a67142473967fb6ca01ffc4e32df4bd886ae769a0063d373"
+    },
+    {
+      "path": "_bmad/scripts/tests/test_epic16_tooling.py",
+      "sha256": "48a8f940b2dfcefe30a8b74e33d40129eb209c13adb32fd7671da467c4a84b47",
+      "restoredSha256": "aaa5413088f1b1b59fd4c504af8a51b6c763c8dbe3d4431a4fc7f96de961fa9e"
+    },
+    {
+      "path": "_bmad/scripts/verify_story_16_1.py",
+      "sha256": "b2747d5fadd80bb93660a2aa041d5adaee379a20acfc6d6fcb9be46fb35deb56",
+      "restoredSha256": "b2747d5fadd80bb93660a2aa041d5adaee379a20acfc6d6fcb9be46fb35deb56"
+    },
+    {
+      "path": "_bmad/scripts/verify_story_16_2.py",
+      "sha256": "3adb2712e2dbc77fa8093636db26f07fe14678f58e33c09c11671c28a90bd417",
+      "restoredSha256": "3adb2712e2dbc77fa8093636db26f07fe14678f58e33c09c11671c28a90bd417"
+    },
+    {
+      "path": "_bmad/scripts/verify_story_16_3.py",
+      "sha256": "ce69eb853971c2b9a69b9658669c37d3ced3e5e6488c7c272386fddadcd1eef0",
+      "restoredSha256": "ce69eb853971c2b9a69b9658669c37d3ced3e5e6488c7c272386fddadcd1eef0"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "sha256": "77416d72c319b0d0b4e4d297300ab423cea5895dc5314a851b45e4418bcb7e59",
+      "restoredSha256": null
+    },
+    {
+      "path": "global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652",
+      "restoredSha256": null
+    }
+  ],
+  "preservedHistoricalFixtureBytes": [
+    "_bmad/scripts/tests/fixtures/epic16-adoption-v2-generator.py.gz",
+    "_bmad/scripts/tests/fixtures/epic16-adoption-v2-gitattributes.txt",
+    "_bmad/scripts/tests/fixtures/epic16-domain-sources-LICENSE.txt"
+  ]
+}

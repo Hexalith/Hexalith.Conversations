@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="7" time="18.473" timestamp="2026-10-26T05:08:50.530248+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-0]" time="13.992" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-1]" time="0.646" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-2]" time="0.650" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-3]" time="0.634" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-4]" time="0.649" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-5]" time="0.644" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-6]" time="0.662"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-635/test_round11_recovery_operatio6/fixture')
+index = 6, fault = 'unexecuted'
+
+    @pytest.mark.parametrize('index',range(7))
+    @pytest.mark.parametrize('fault',['positive','missing','unexecuted','incomplete','identity','scope','order','expected','proposed','before','after','outcome','succeeded','transaction','clearance'])
+    def test_round11_recovery_operations_execute_complete_and_bind_exact_branch(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-04']);p=data['concurrentRecovery'];row=p['duplicateRetry'] if index==6 else p['staleAttempts'][index];ex=row['execution'];request,attempt,completion=ex['operations']
+        if fault=='missing':del row['execution']
+        elif fault=='unexecuted':attempt['executed']=False
+        elif fault=='incomplete':completion['completed']=False
+        elif fault=='identity':completion['operationId']='unrelated'
+        elif fault=='scope':ex['scope']['tenant']='foreign'
+        elif fault=='order':completion['order']=attempt['order']
+        elif fault=='expected':request['expectedSha256']='f'*64
+        elif fault=='proposed':request['proposedSha256']='f'*64
+        elif fault=='before':attempt['storedBeforeSha256']='f'*64
+        elif fault=='after':completion['storedAfterSha256']='f'*64
+        elif fault=='outcome':completion['outcome']='Completed'
+        elif fault=='succeeded':attempt['succeeded']=True
+        elif fault=='transaction':attempt['transactionId']='invented'
+        elif fault=='clearance':ex['afterClearanceTransactionId']='unrelated'
+&gt;       round8_submit(repository,'AC-16.3-04',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4094: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-635/test_round11_recovery_operatio6/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError</failure></testcase></testsuite></testsuites>

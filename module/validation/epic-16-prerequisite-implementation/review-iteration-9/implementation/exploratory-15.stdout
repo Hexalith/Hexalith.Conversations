@@ -1,0 +1,21 @@
+........F......                                                          [100%]
+=================================== FAILURES ===================================
+_ test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-04] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-532/test_all_fifteen_measured_rout8/fixture')
+scenario = 'AC-16.2-04'
+
+    @pytest.mark.parametrize('scenario', tooling.measurements.SCENARIOS)
+    def test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures(repository, scenario):
+        result = evaluate(repository, scenario)
+>       assert result['result'] == 'PASS', result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:124: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-04]
+1 failed, 14 passed, 1573 deselected in 17.14s

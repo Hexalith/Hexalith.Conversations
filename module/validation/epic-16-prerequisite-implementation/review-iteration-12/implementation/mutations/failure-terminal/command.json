@@ -1,0 +1,29 @@
+{
+  "name": "failure-terminal",
+  "path": "_bmad/scripts/epic16_schedules.py",
+  "old": "require(completion['outcome']=='Unavailable' and completion['retryable'] is True and completion['attemptIds']==[r['operationId'] for r in attempts] and completion['commits']==[], 'completed retryable processing records exact failed attempts and zero commits')",
+  "new": "None",
+  "selector": "round12_failed_deliveries and (outcome or attempt-reference)",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-failure-terminal-jew4z82n/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_failed_deliveries and (outcome or attempt-reference)",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/failure-terminal/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-failure-terminal-jew4z82n",
+  "exitCode": 1,
+  "elapsedSeconds": 15.244309896981576,
+  "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+  "mutatedSha256": "132d52b345bd09184d656c3cf7399e151dc52db8d98b3aeaff16b6b02fc5990e",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 4,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0
+  }
+}

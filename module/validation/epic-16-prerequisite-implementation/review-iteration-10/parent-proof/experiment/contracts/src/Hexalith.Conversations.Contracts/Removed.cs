@@ -1,0 +1,1 @@
+namespace Hexalith.Conversations.Contracts; public class PreviouslyPublic { public string Existing(string x) => x; }

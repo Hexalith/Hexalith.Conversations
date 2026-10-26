@@ -1,0 +1,29 @@
+{
+  "frozenFilesVerified": 84,
+  "sourceHashesVerified": 70,
+  "testHashesVerified": 3,
+  "counts": {
+    "combined": 2038,
+    "legacy": 72
+  },
+  "round9ExecutedTests": 288,
+  "previousCombinedCasesPreserved": 1750,
+  "newCombinedCases": 288,
+  "allEightMatrixRowsCoveredByExecutedEvidence": true,
+  "freshCheckoutNativeCaptureTestExecuted": true,
+  "heldRuntimeCommands": 18,
+  "completionGuards": 2,
+  "absentRuntimePaths": 54,
+  "disposableCommitMessagesValidated": 32,
+  "protectedFilesPreserved": [
+    "global.json",
+    "_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md",
+    "docs/implementation/ext-conv-ai-1-runtime-qualification.md",
+    "tests/tooling/test_ext_conv_ai_1_installed_delivery_packet.py",
+    "_bmad-output/implementation-artifacts/deferred-work.md"
+  ],
+  "indexEmpty": true,
+  "diffCheckPassed": true,
+  "runtimeHold": "ACTIVE",
+  "explicitRuntimePublication": "not-applicable"
+}

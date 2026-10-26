@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.009" timestamp="2026-10-25T19:58:58.248352+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_generator_freezes_symbolic_candidate_before_all_evaluations" time="1.728"><failure message="AssertionError: assert (['HEAD', 'HEAD', 'HEAD', 'HEAD', 'HEAD', 'e6eafc0b344c421abc8b1f0d87eb3693cbc92bc9', ...] and False)&#10; +  where False = all(&lt;generator object test_generator_freezes_symbolic_candidate_before_all_evaluations.&lt;locals&gt;.&lt;genexpr&gt; at 0x744bc1ab1700&gt;)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-289/test_generator_freezes_symboli0/fixture')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x744bc1598190&gt;
+
+    def test_generator_freezes_symbolic_candidate_before_all_evaluations(repository,monkeypatch):
+        pinned=git(repository,'rev-parse','HEAD');seen=[];original=tooling.evaluate
+        def advancing(repo,story,scenario,candidate,scope,**kwargs):
+            seen.append(candidate)
+            value=original(repo,story,scenario,candidate,scope,**kwargs)
+            if len(seen)==1:
+                git(repo,'commit','--allow-empty','-qm','test: advance disposable candidate')
+                for ac in tooling.measurements.SCENARIOS:native(repo,ac)
+            return value
+        monkeypatch.setattr(tooling,'evaluate',advancing)
+        result,j,m=tooling.generate(repository,'16.1',scope=SCOPE)
+        assert result['result']=='FAIL' and j is m is None
+&gt;       assert seen and all(value==pinned for value in seen)
+E       AssertionError: assert (['HEAD', 'HEAD', 'HEAD', 'HEAD', 'HEAD', 'e6eafc0b344c421abc8b1f0d87eb3693cbc92bc9', ...] and False)
+E        +  where False = all(&lt;generator object test_generator_freezes_symbolic_candidate_before_all_evaluations.&lt;locals&gt;.&lt;genexpr&gt; at 0x744bc1ab1700&gt;)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1265: AssertionError</failure></testcase></testsuite></testsuites>

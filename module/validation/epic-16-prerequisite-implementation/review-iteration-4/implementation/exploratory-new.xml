@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="56" time="24.060" timestamp="2026-10-25T20:29:45.393317+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_tenant_configuration_values_preserve_actual_notnull_semantics[]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_tenant_configuration_values_preserve_actual_notnull_semantics[ ]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_tenant_configuration_values_preserve_actual_notnull_semantics[\t]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_tenant_dates_use_general_native_datetimeoffset[0001-01-01T00:00:00Z]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_tenant_dates_use_general_native_datetimeoffset[1999-12-31T23:59:59Z]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_tenant_dates_use_general_native_datetimeoffset[2000-01-01T00:00:00Z]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_genuine_terminal_and_redaction_serialization_and_key_catalog_goldens" time="0.001" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_recursive_domain_values_cannot_alias_native_integer_types[float-occurredAtUtcTicks]" time="1.993" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_recursive_domain_values_cannot_alias_native_integer_types[float-sequence]" time="0.263"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']">repository = PosixPath('/tmp/pytest-of-administrator/pytest-332/test_round4_recursive_domain_v1/fixture')
+field = 'sequence', value_kind = 'float'
+
+    @pytest.mark.parametrize('field',['occurredAtUtcTicks','sequence'])
+    @pytest.mark.parametrize('value_kind',['float','boolean'])
+    def test_round4_recursive_domain_values_cannot_alias_native_integer_types(repository,field,value_kind):
+        scenario='AC-16.2-02' if field=='occurredAtUtcTicks' else 'AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario])
+        if field=='occurredAtUtcTicks':
+            for row in data['rebuilds']:
+                value=json.loads(row['canonicalJson']);item=next(i['value'] for i in value['items'] if 'occurredAtUtcTicks' in i['value']);item[field]=float(item[field]) if value_kind=='float' else True
+                row['canonicalJson']=tooling.measurements.canonicalize(json.dumps(value));row['roundTripJson']=row['canonicalJson'];row['stateHash']=digest(row['canonicalJson'].encode())
+        else:
+            for key in ('persistedProjection','queryProjection'):data[key][field]=float(data[key][field]) if value_kind=='float' else True
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1567: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+&gt;       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:100: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_recursive_domain_values_cannot_alias_native_integer_types[boolean-occurredAtUtcTicks]" time="0.314" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_recursive_domain_values_cannot_alias_native_integer_types[boolean-sequence]" time="0.275"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']">repository = PosixPath('/tmp/pytest-of-administrator/pytest-332/test_round4_recursive_domain_v3/fixture')
+field = 'sequence', value_kind = 'boolean'
+
+    @pytest.mark.parametrize('field',['occurredAtUtcTicks','sequence'])
+    @pytest.mark.parametrize('value_kind',['float','boolean'])
+    def test_round4_recursive_domain_values_cannot_alias_native_integer_types(repository,field,value_kind):
+        scenario='AC-16.2-02' if field=='occurredAtUtcTicks' else 'AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario])
+        if field=='occurredAtUtcTicks':
+            for row in data['rebuilds']:
+                value=json.loads(row['canonicalJson']);item=next(i['value'] for i in value['items'] if 'occurredAtUtcTicks' in i['value']);item[field]=float(item[field]) if value_kind=='float' else True
+                row['canonicalJson']=tooling.measurements.canonicalize(json.dumps(value));row['roundTripJson']=row['canonicalJson'];row['stateHash']=digest(row['canonicalJson'].encode())
+        else:
+            for key in ('persistedProjection','queryProjection'):data[key][field]=float(data[key][field]) if value_kind=='float' else True
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1567: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+&gt;       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:100: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[keys-AC-16.1-01]" time="0.297" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[keys-AC-16.1-05]" time="0.710" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[keys-AC-16.2-05]" time="0.795" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[same-tenant-AC-16.1-01]" time="0.293" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[same-tenant-AC-16.1-05]" time="0.706" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[same-tenant-AC-16.2-05]" time="0.727" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[other-write-AC-16.1-01]" time="0.298" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[other-write-AC-16.1-05]" time="0.713" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[other-write-AC-16.2-05]" time="0.797" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[wrong-read-AC-16.1-01]" time="0.330" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[wrong-read-AC-16.1-05]" time="0.807" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[wrong-read-AC-16.2-05]" time="0.807" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[foreign-read-AC-16.1-01]" time="0.339" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[foreign-read-AC-16.1-05]" time="0.785" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[foreign-read-AC-16.2-05]" time="0.757" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[same-content-AC-16.1-01]" time="0.286" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[same-content-AC-16.1-05]" time="0.736" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[same-content-AC-16.2-05]" time="0.748" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[wrong-resource-AC-16.1-01]" time="0.327" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[wrong-resource-AC-16.1-05]" time="0.796" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[wrong-resource-AC-16.2-05]" time="0.792" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_query_authority_is_the_complete_measured_tenant_key[projection:conversations-index:]" time="0.300" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_query_authority_is_the_complete_measured_tenant_key[projection:conversations-index:tenant-a]" time="0.311" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_query_authority_is_the_complete_measured_tenant_key[projection:conversations-index:dGVuYW50LWI]" time="0.295" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-tenant]" time="0.317" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-conversation]" time="0.306" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-eventType]" time="0.311" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-sequence]" time="0.410" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-serializationFormat]" time="0.324" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-payloadSha256]" time="0.283" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-selectedUtcTicks]" time="0.288" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-missing-id]" time="0.311" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[unchanged-invalid-time]" time="0.337" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-tenant]" time="0.349" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-conversation]" time="0.309" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-eventType]" time="0.318" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-sequence]" time="0.298" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-serializationFormat]" time="0.305" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-payloadSha256]" time="0.350" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-selectedUtcTicks]" time="0.534" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-missing-id]" time="0.401" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[wrong-field-invalid-time]" time="0.303" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[omitted-tenant]" time="0.329"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']">repository = PosixPath('/tmp/pytest-of-administrator/pytest-332/test_round4_conflict_labels_re18/fixture')
+field = 'tenant', fault = 'omitted'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+&gt;       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:100: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[omitted-conversation]" time="0.310"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']">repository = PosixPath('/tmp/pytest-of-administrator/pytest-332/test_round4_conflict_labels_re19/fixture')
+field = 'conversation', fault = 'omitted'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+&gt;       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:100: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_conflict_labels_require_the_named_original_reused_inputs[omitted-eventType]" time="0.309"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']">repository = PosixPath('/tmp/pytest-of-administrator/pytest-332/test_round4_conflict_labels_re20/fixture')
+field = 'eventType', fault = 'omitted'
+
+    @pytest.mark.parametrize('field',tooling.measurements.BINDING_FIELDS+('missing-id','invalid-time'))
+    @pytest.mark.parametrize('fault',['unchanged','wrong-field','omitted'])
+    def test_round4_conflict_labels_require_the_named_original_reused_inputs(repository,field,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=next(r for r in data['conflicts'] if r['id']==field)
+        if fault=='unchanged':row['reused']=deepcopy(row['original'])
+        elif fault=='omitted':row.pop('original')
+        else:
+            row['reused']=deepcopy(row['original']);row['reused']['sequence']+=1
+            if field=='sequence':row['reused']['tenant']='foreign'
+&gt;       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1599: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+&gt;       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'MEASUREMENT_INVALID' in ['MEASUREMENT_SCHEMA_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:100: AssertionError</failure></testcase></testsuite></testsuites>

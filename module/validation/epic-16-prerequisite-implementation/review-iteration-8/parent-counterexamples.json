@@ -1,0 +1,132 @@
+[
+  {
+    "finding": "R8B1 unsupported rebuild watermark",
+    "scenario": "AC-16.2-04",
+    "schema": "accepted",
+    "checks": [
+      "writer-CAS-boundary",
+      "generation-fences",
+      "erase-quarantine",
+      "authoritative-rebuild-cutover"
+    ],
+    "semantics": "accepted"
+  },
+  {
+    "finding": "R8B2 valid native configuration key version",
+    "scenario": "AC-16.1-04",
+    "independentTenantReplayMatchesObserved": true,
+    "schema": "accepted",
+    "semantics": "rejected",
+    "reason": "typed fault integer"
+  },
+  {
+    "finding": "R8B3 whitespace recordId",
+    "scenario": "AC-16.1-04",
+    "schema": "accepted",
+    "checks": [
+      "tenant-fault-matrix",
+      "durable-acknowledgement",
+      "bounded-retry",
+      "query-purity"
+    ],
+    "semantics": "accepted"
+  },
+  {
+    "finding": "R8B3 whitespace deliveryId",
+    "scenario": "AC-16.1-04",
+    "schema": "accepted",
+    "checks": [
+      "tenant-fault-matrix",
+      "durable-acknowledgement",
+      "bounded-retry",
+      "query-purity"
+    ],
+    "semantics": "accepted"
+  },
+  {
+    "finding": "R8B5 restart fence without measured acquisition or old-worker attempt",
+    "scenario": "AC-16.1-02",
+    "schema": "accepted",
+    "checks": [
+      "durable-restart",
+      "pending-fingerprints",
+      "fail-closed-restart",
+      "fenced-resumption"
+    ],
+    "semantics": "accepted"
+  },
+  {
+    "finding": "R8B6 post-C position-only queue [21, 21]",
+    "scenario": "AC-16.2-04",
+    "note": "Duplicates and arrival reordering alone are not prohibited; no authoritative delivery/reference identity is represented.",
+    "schema": "accepted",
+    "checks": [
+      "writer-CAS-boundary",
+      "generation-fences",
+      "erase-quarantine",
+      "authoritative-rebuild-cutover"
+    ],
+    "semantics": "accepted"
+  },
+  {
+    "finding": "R8B6 post-C position-only queue [21, 23, 22]",
+    "scenario": "AC-16.2-04",
+    "note": "Duplicates and arrival reordering alone are not prohibited; no authoritative delivery/reference identity is represented.",
+    "schema": "accepted",
+    "checks": [
+      "writer-CAS-boundary",
+      "generation-fences",
+      "erase-quarantine",
+      "authoritative-rebuild-cutover"
+    ],
+    "semantics": "accepted"
+  },
+  {
+    "finding": "R8B7 lifecycle accepts no executed-query observations",
+    "scenario": "AC-16.2-04",
+    "schema": "accepted",
+    "checks": [
+      "writer-CAS-boundary",
+      "generation-fences",
+      "erase-quarantine",
+      "authoritative-rebuild-cutover"
+    ],
+    "semantics": "accepted"
+  },
+  {
+    "finding": "R8B8 two unexplained mixed-generation contexts",
+    "scenario": "AC-16.2-03",
+    "schema": "accepted",
+    "checks": [
+      "query-mapping-matrix",
+      "current-empty-proof",
+      "authorization-before-read",
+      "sole-control-index"
+    ],
+    "semantics": "accepted"
+  },
+  {
+    "finding": "R8B8 two unexplained mixed-generation contexts",
+    "scenario": "AC-16.2-05",
+    "schema": "accepted",
+    "checks": [
+      "public-surface",
+      "tenant-isolation",
+      "generation-mismatch",
+      "replay-query-dependencies"
+    ],
+    "semantics": "accepted"
+  },
+  {
+    "finding": "R8B9 no cancellation operation observations",
+    "scenario": "AC-16.3-05",
+    "schema": "accepted",
+    "checks": [
+      "live-fault-matrix",
+      "environment-distinction",
+      "safe-cleanup",
+      "fenced-authorization"
+    ],
+    "semantics": "accepted"
+  }
+]

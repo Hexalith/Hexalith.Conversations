@@ -1,0 +1,9 @@
+{
+  "disposition": "246 affected checks passed before R7P2 pending-consumption clarification; superseded by final source checks",
+  "files": {
+    "_bmad/scripts/epic16_schedules.py": "7e4f40d83e540e5e3f533756a8a905090a82714dcf4ed10c25ca3ef32f04c479",
+    "_bmad/scripts/tests/test_epic16_tooling.py": "2ac739aa6f3ce7d1f52942b2ba2959d8061189f44c29cbbbbf80931addeee8dd",
+    "_bmad/scripts/tests/fixtures/epic16-observations-v1.json": "f4c0eb351bd9e774ab267e41d190ed578fbfd4c002071747ba1b536b486af3ac",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json": "16d240ac4749302b05c6be7db01e738207fe9c5bee9b67f996a7d8f9571b3939"
+  }
+}

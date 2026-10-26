@@ -1,0 +1,26 @@
+F...                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_round12_source_stamp_requires_exact_native_constructor_and_blob[test-named-blob] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-689/test_round12_source_stamp_requ0')
+fault = 'named-blob', consumer = 'test'
+
+    @pytest.mark.parametrize('fault',['constructor-signature','named-blob','trailing-blob'])
+    @pytest.mark.parametrize('consumer',['test','product'])
+    def test_round12_source_stamp_requires_exact_native_constructor_and_blob(tmp_path,fault,consumer):
+        source='namespace Synthetic; public class TestClass { [Xunit.Fact] public void Scenario01() {} }'
+        binary=compile_evidence(tmp_path/'source-stamp','a'*40,source)
+        if fault=='constructor-signature':
+            pattern=bytes([4,0x20,1,1,0x0e]);assert binary.count(pattern)==1;mutated=binary.replace(pattern,bytes([4,0x20,1,1,8]))
+        else:
+            value=b'1.0.0+'+b'a'*40;pattern=bytes([1,0,len(value)])+value+bytes([0,0]);assert binary.count(pattern)==1
+            changed=pattern[:-2]+bytes([1,0]) if fault=='named-blob' else bytes([1,0,len(value)-1])+value+bytes([0,0])
+            mutated=binary.replace(pattern,changed)
+        round11_retain('r12-stamp-'+consumer+'-'+fault,{'valid.dll.bytes':binary,'invalid.dll.bytes':mutated})
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4455: Failed
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_source_stamp_requires_exact_native_constructor_and_blob[test-named-blob]
+1 failed, 3 passed, 2713 deselected in 22.32s

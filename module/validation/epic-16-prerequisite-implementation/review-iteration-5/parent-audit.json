@@ -1,0 +1,14 @@
+{
+  "bindingSha256": "ade1ee4e14b197d5e2507063e063d65ba90e5e9fa13ff3c08a83ff990a32c348",
+  "sourceHashesVerified": 62,
+  "testHashesVerified": 3,
+  "artifactHashesVerified": 113,
+  "allHashesMatch": true,
+  "combinedTests": 1024,
+  "legacyTests": 72,
+  "heldRuntimeCommands": 18,
+  "completionGuards": 2,
+  "runtimeEntry": null,
+  "runtimeHold": "ACTIVE",
+  "protectedPathsUnchanged": true
+}

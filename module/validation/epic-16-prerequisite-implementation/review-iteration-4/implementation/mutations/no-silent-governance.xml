@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.285" timestamp="2026-10-25T20:46:18.745193+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_general_replay_never_silently_ignores_redaction" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">def test_round4_general_replay_never_silently_ignores_redaction():
+&gt;       with pytest.raises(ValueError,match='separate bounded redaction'):
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1645: Failed</failure></testcase></testsuite></testsuites>

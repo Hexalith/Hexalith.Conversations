@@ -1,0 +1,29 @@
+{
+  "name": "params-complete-blob",
+  "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+  "old": "&& reader.GetBlobBytes(attribute.Value).AsSpan().SequenceEqual(new byte[] { 1, 0, 0, 0 });",
+  "new": "&& true;",
+  "selector": "round12_params_requires",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-params-complete-blob-jhhvmrcm/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_params_requires",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/params-complete-blob/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-params-complete-blob-jhhvmrcm",
+  "exitCode": 1,
+  "elapsedSeconds": 6.897806691995356,
+  "originalSha256": "06c002bbe8eadf3b9203d22c122dcc74d0e835e383a91f45e67cab7209ef377d",
+  "mutatedSha256": "40a31a690ee6ae4b099290a47bceb88a045b86fb27de9ea5f40b73792cfa091f",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

@@ -1,0 +1,18 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_round7_native_helper_propagates_exact_repository_policy_and_reports_actual_runtime _
+
+    def test_round7_native_helper_propagates_exact_repository_policy_and_reports_actual_runtime():
+        helper = tooling.native_helper
+        workspace, assembly = helper._helper()
+>       assert (Path(workspace.name)/'global.json').is_file()
+E       AssertionError: assert False
+E        +  where False = is_file()
+E        +    where is_file = (PosixPath('/tmp/epic16-native-oracle-0viqnekq') / 'global.json').is_file
+E        +      where PosixPath('/tmp/epic16-native-oracle-0viqnekq') = Path('/tmp/epic16-native-oracle-0viqnekq')
+E        +        where '/tmp/epic16-native-oracle-0viqnekq' = <TemporaryDirectory '/tmp/epic16-native-oracle-0viqnekq'>.name
+
+_bmad/scripts/tests/test_epic16_tooling.py:2444: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_native_helper_propagates_exact_repository_policy_and_reports_actual_runtime
+1 failed, 1304 deselected in 2.23s

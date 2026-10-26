@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="12" time="27.797" timestamp="2026-10-26T03:28:43.230931+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[missing-AC-16.1-05]" time="11.040" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[missing-AC-16.2-05]" time="0.386" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[revision-AC-16.1-05]" time="3.115" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[revision-AC-16.2-05]" time="0.925" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[digest-AC-16.1-05]" time="0.910" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[digest-AC-16.2-05]" time="0.833" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[removed-type-AC-16.1-05]" time="2.398"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-587/test_round10_root_compiled_sha6/fixture')
+scenario = 'AC-16.1-05', fault = 'removed-type'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['missing','revision','digest','removed-type','addition','unsupported'])
+    def test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources(repository,scenario,fault):
+        path=native(repository,scenario);tree=ET.fromstring(path.read_bytes());out=tree.find('Results/UnitTestResult/Output/StdOut');payload=json.loads(out.text);data=payload['observations'];row=data['compiledContracts']['candidate']
+        if fault=='missing':del data['compiledContracts']
+        elif fault=='revision':row['revision']='f'*40
+        elif fault=='digest':row['sha256']='f'*64
+        else:
+            product=next(p for p in tooling.products.PRODUCTS if p['assemblyName']=='Hexalith.Conversations.Contracts')
+            source=round9_product_source(product)
+            if fault=='removed-type':source=source.replace('Existing(', 'Changed(')
+            elif fault=='addition':source+='namespace Synthetic { public class Extra {} }'
+            else:source=source.replace('public string Existing(string value) =&gt; value;', '[System.Runtime.InteropServices.DllImport("fixture-native")] public static extern int Unsupported();')
+            binary=round9_compile_product(product,row['revision'],source);artifact=f'artifacts/epic16-tooling-fixture/{scenario[3:7]}/binaries/{digest(binary)}.dll';(repository/artifact).write_bytes(binary);row.update(path=artifact,sha256=digest(binary))
+        out.text=json.dumps(payload);path.write_bytes(ET.tostring(tree));result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3764: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[removed-type-AC-16.2-05]" time="0.840"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-587/test_round10_root_compiled_sha7/fixture')
+scenario = 'AC-16.2-05', fault = 'removed-type'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['missing','revision','digest','removed-type','addition','unsupported'])
+    def test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources(repository,scenario,fault):
+        path=native(repository,scenario);tree=ET.fromstring(path.read_bytes());out=tree.find('Results/UnitTestResult/Output/StdOut');payload=json.loads(out.text);data=payload['observations'];row=data['compiledContracts']['candidate']
+        if fault=='missing':del data['compiledContracts']
+        elif fault=='revision':row['revision']='f'*40
+        elif fault=='digest':row['sha256']='f'*64
+        else:
+            product=next(p for p in tooling.products.PRODUCTS if p['assemblyName']=='Hexalith.Conversations.Contracts')
+            source=round9_product_source(product)
+            if fault=='removed-type':source=source.replace('Existing(', 'Changed(')
+            elif fault=='addition':source+='namespace Synthetic { public class Extra {} }'
+            else:source=source.replace('public string Existing(string value) =&gt; value;', '[System.Runtime.InteropServices.DllImport("fixture-native")] public static extern int Unsupported();')
+            binary=round9_compile_product(product,row['revision'],source);artifact=f'artifacts/epic16-tooling-fixture/{scenario[3:7]}/binaries/{digest(binary)}.dll';(repository/artifact).write_bytes(binary);row.update(path=artifact,sha256=digest(binary))
+        out.text=json.dumps(payload);path.write_bytes(ET.tostring(tree));result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3764: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[addition-AC-16.1-05]" time="2.435"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-587/test_round10_root_compiled_sha8/fixture')
+scenario = 'AC-16.1-05', fault = 'addition'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['missing','revision','digest','removed-type','addition','unsupported'])
+    def test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources(repository,scenario,fault):
+        path=native(repository,scenario);tree=ET.fromstring(path.read_bytes());out=tree.find('Results/UnitTestResult/Output/StdOut');payload=json.loads(out.text);data=payload['observations'];row=data['compiledContracts']['candidate']
+        if fault=='missing':del data['compiledContracts']
+        elif fault=='revision':row['revision']='f'*40
+        elif fault=='digest':row['sha256']='f'*64
+        else:
+            product=next(p for p in tooling.products.PRODUCTS if p['assemblyName']=='Hexalith.Conversations.Contracts')
+            source=round9_product_source(product)
+            if fault=='removed-type':source=source.replace('Existing(', 'Changed(')
+            elif fault=='addition':source+='namespace Synthetic { public class Extra {} }'
+            else:source=source.replace('public string Existing(string value) =&gt; value;', '[System.Runtime.InteropServices.DllImport("fixture-native")] public static extern int Unsupported();')
+            binary=round9_compile_product(product,row['revision'],source);artifact=f'artifacts/epic16-tooling-fixture/{scenario[3:7]}/binaries/{digest(binary)}.dll';(repository/artifact).write_bytes(binary);row.update(path=artifact,sha256=digest(binary))
+        out.text=json.dumps(payload);path.write_bytes(ET.tostring(tree));result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3764: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[addition-AC-16.2-05]" time="0.833"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-587/test_round10_root_compiled_sha9/fixture')
+scenario = 'AC-16.2-05', fault = 'addition'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['missing','revision','digest','removed-type','addition','unsupported'])
+    def test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources(repository,scenario,fault):
+        path=native(repository,scenario);tree=ET.fromstring(path.read_bytes());out=tree.find('Results/UnitTestResult/Output/StdOut');payload=json.loads(out.text);data=payload['observations'];row=data['compiledContracts']['candidate']
+        if fault=='missing':del data['compiledContracts']
+        elif fault=='revision':row['revision']='f'*40
+        elif fault=='digest':row['sha256']='f'*64
+        else:
+            product=next(p for p in tooling.products.PRODUCTS if p['assemblyName']=='Hexalith.Conversations.Contracts')
+            source=round9_product_source(product)
+            if fault=='removed-type':source=source.replace('Existing(', 'Changed(')
+            elif fault=='addition':source+='namespace Synthetic { public class Extra {} }'
+            else:source=source.replace('public string Existing(string value) =&gt; value;', '[System.Runtime.InteropServices.DllImport("fixture-native")] public static extern int Unsupported();')
+            binary=round9_compile_product(product,row['revision'],source);artifact=f'artifacts/epic16-tooling-fixture/{scenario[3:7]}/binaries/{digest(binary)}.dll';(repository/artifact).write_bytes(binary);row.update(path=artifact,sha256=digest(binary))
+        out.text=json.dumps(payload);path.write_bytes(ET.tostring(tree));result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3764: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[unsupported-AC-16.1-05]" time="2.485" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[unsupported-AC-16.2-05]" time="0.926" /></testsuite></testsuites>

@@ -1,0 +1,1384 @@
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF                                           [100%]
+=================================== FAILURES ===================================
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[missing-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_0/fixture')
+name = 'duplicate', fault = 'missing'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[missing-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_1/fixture')
+name = 'conflict', fault = 'missing'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[tenant-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_2/fixture')
+name = 'duplicate', fault = 'tenant'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[tenant-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_3/fixture')
+name = 'conflict', fault = 'tenant'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[sequence-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_4/fixture')
+name = 'duplicate', fault = 'sequence'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[sequence-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_5/fixture')
+name = 'conflict', fault = 'sequence'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[native-payload-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_6/fixture')
+name = 'duplicate', fault = 'native-payload'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[native-payload-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_7/fixture')
+name = 'conflict', fault = 'native-payload'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[fingerprint-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_8/fixture')
+name = 'duplicate', fault = 'fingerprint'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[fingerprint-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_9/fixture')
+name = 'conflict', fault = 'fingerprint'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[removed-pending-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_10/fixture')
+name = 'duplicate', fault = 'removed-pending'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[removed-pending-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_11/fixture')
+name = 'conflict', fault = 'removed-pending'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[replaced-pending-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_12/fixture')
+name = 'duplicate', fault = 'replaced-pending'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[replaced-pending-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_13/fixture')
+name = 'conflict', fault = 'replaced-pending'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[checkpoint-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_14/fixture')
+name = 'duplicate', fault = 'checkpoint'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[checkpoint-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_15/fixture')
+name = 'conflict', fault = 'checkpoint'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[horizon-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_16/fixture')
+name = 'duplicate', fault = 'horizon'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[horizon-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_17/fixture')
+name = 'conflict', fault = 'horizon'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[projection-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_18/fixture')
+name = 'duplicate', fault = 'projection'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[projection-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_19/fixture')
+name = 'conflict', fault = 'projection'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[allowed-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_20/fixture')
+name = 'duplicate', fault = 'allowed'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[allowed-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_21/fixture')
+name = 'conflict', fault = 'allowed'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[expected-version-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_22/fixture')
+name = 'duplicate', fault = 'expected-version'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[expected-version-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_23/fixture')
+name = 'conflict', fault = 'expected-version'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[expected-etag-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_24/fixture')
+name = 'duplicate', fault = 'expected-etag'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[expected-etag-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_25/fixture')
+name = 'conflict', fault = 'expected-etag'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[split-commit-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_26/fixture')
+name = 'duplicate', fault = 'split-commit'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[split-commit-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_27/fixture')
+name = 'conflict', fault = 'split-commit'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[ignored-health-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_28/fixture')
+name = 'duplicate', fault = 'ignored-health'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_future_repeat_and_conflict_require_bound_composite_schedule[ignored-health-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-421/test_round6_future_repeat_and_29/fixture')
+name = 'conflict', fault = 'ignored-health'
+
+    @pytest.mark.parametrize('name', ['duplicate','conflict'])
+    @pytest.mark.parametrize('fault', ['missing','tenant','sequence','native-payload','fingerprint','removed-pending','replaced-pending','checkpoint','horizon','projection','allowed','expected-version','expected-etag','split-commit','ignored-health'])
+    def test_round6_future_repeat_and_conflict_require_bound_composite_schedule(repository,name,fault):
+        scenario='AC-16.1-03';data=deepcopy(OBSERVATIONS[scenario]);row=next(x for x in data['futureSchedules'] if x['id']==name)
+        if fault=='missing':data['futureSchedules'].remove(row)
+        elif fault=='tenant':row['before']['tenant']='other-tenant'
+        elif fault=='sequence':row['delivered']['sequence']=data['checkpoint']
+        elif fault=='native-payload':row['delivered']['persistedPayload']='not native JSON';row['delivered']['payloadSha256']=digest(b'not native JSON')
+        elif fault=='fingerprint':
+            row['delivered']=deepcopy(row['before']['pending'][0])
+            if name=='duplicate':row['delivered']['messageId']='different'
+        elif fault=='removed-pending':row['after']['pending'].pop()
+        elif fault=='replaced-pending':row['after']['pending'][0]=deepcopy(row['delivered']);row['after']['pending'][0]['messageId']='replacement'
+        elif fault=='checkpoint':row['after']['checkpoint']+=1
+        elif fault=='horizon':row['after']['horizon']-=1
+        elif fault=='projection':row['after']['projection']['name']='wrong value'
+        elif fault=='allowed':row['after']['allowed']=True
+        elif fault=='expected-version':row['cas']['expectedVersion']+=1
+        elif fault=='expected-etag':row['cas']['expectedEtag']='foreign-etag'
+        elif fault=='split-commit':row['cas']['pendingCommitId']='other-commit'
+        elif name=='conflict':row['after']['health']='Gapped'
+        else:row['cas'].update(succeeded=True,commitId='unnecessary-write')
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[missing-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[missing-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[tenant-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[tenant-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[sequence-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[sequence-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[native-payload-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[native-payload-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[fingerprint-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[fingerprint-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[removed-pending-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[removed-pending-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[replaced-pending-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[replaced-pending-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[checkpoint-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[checkpoint-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[horizon-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[horizon-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[projection-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[projection-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[allowed-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[allowed-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[expected-version-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[expected-version-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[expected-etag-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[expected-etag-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[split-commit-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[split-commit-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[ignored-health-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_future_repeat_and_conflict_require_bound_composite_schedule[ignored-health-conflict]
+30 failed, 1021 deselected in 12.59s

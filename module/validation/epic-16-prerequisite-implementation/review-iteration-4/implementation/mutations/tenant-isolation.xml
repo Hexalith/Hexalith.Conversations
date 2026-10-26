@@ -1,0 +1,652 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="21" skipped="0" tests="21" time="14.582" timestamp="2026-10-25T20:45:29.011659+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[keys-AC-16.1-01]" time="0.278"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is0/fixture')
+scenario = 'AC-16.1-01', fault = 'keys'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[keys-AC-16.1-05]" time="0.702"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is1/fixture')
+scenario = 'AC-16.1-05', fault = 'keys'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[keys-AC-16.2-05]" time="2.539"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is2/fixture')
+scenario = 'AC-16.2-05', fault = 'keys'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[same-tenant-AC-16.1-01]" time="0.273"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is3/fixture')
+scenario = 'AC-16.1-01', fault = 'same-tenant'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[same-tenant-AC-16.1-05]" time="0.681"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is4/fixture')
+scenario = 'AC-16.1-05', fault = 'same-tenant'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[same-tenant-AC-16.2-05]" time="0.684"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is5/fixture')
+scenario = 'AC-16.2-05', fault = 'same-tenant'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[other-write-AC-16.1-01]" time="0.278"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is6/fixture')
+scenario = 'AC-16.1-01', fault = 'other-write'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[other-write-AC-16.1-05]" time="0.703"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is7/fixture')
+scenario = 'AC-16.1-05', fault = 'other-write'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[other-write-AC-16.2-05]" time="0.695"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is8/fixture')
+scenario = 'AC-16.2-05', fault = 'other-write'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[wrong-read-AC-16.1-01]" time="0.279"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is9/fixture')
+scenario = 'AC-16.1-01', fault = 'wrong-read'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[wrong-read-AC-16.1-05]" time="0.706"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is10/fixture')
+scenario = 'AC-16.1-05', fault = 'wrong-read'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[wrong-read-AC-16.2-05]" time="0.682"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is11/fixture')
+scenario = 'AC-16.2-05', fault = 'wrong-read'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[foreign-read-AC-16.1-01]" time="0.286"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is12/fixture')
+scenario = 'AC-16.1-01', fault = 'foreign-read'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[foreign-read-AC-16.1-05]" time="0.685"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is13/fixture')
+scenario = 'AC-16.1-05', fault = 'foreign-read'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[foreign-read-AC-16.2-05]" time="0.706"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is14/fixture')
+scenario = 'AC-16.2-05', fault = 'foreign-read'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[same-content-AC-16.1-01]" time="0.274"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is15/fixture')
+scenario = 'AC-16.1-01', fault = 'same-content'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[same-content-AC-16.1-05]" time="0.727"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is16/fixture')
+scenario = 'AC-16.1-05', fault = 'same-content'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[same-content-AC-16.2-05]" time="0.695"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is17/fixture')
+scenario = 'AC-16.2-05', fault = 'same-content'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[wrong-resource-AC-16.1-01]" time="0.286"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is18/fixture')
+scenario = 'AC-16.1-01', fault = 'wrong-resource'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[wrong-resource-AC-16.1-05]" time="0.700"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is19/fixture')
+scenario = 'AC-16.1-05', fault = 'wrong-resource'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations[wrong-resource-AC-16.2-05]" time="0.686"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-366/test_round4_measured_tenant_is20/fixture')
+scenario = 'AC-16.2-05', fault = 'wrong-resource'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['keys','same-tenant','other-write','wrong-read','foreign-read','same-content','wrong-resource'])
+    def test_round4_measured_tenant_isolation_derives_keys_and_scoped_operations(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['isolation']
+        if fault=='keys':data['tenantKeys']=['unsegmented-a','unsegmented-b']
+        elif fault=='same-tenant':p['tenants'][1]=p['tenants'][0]
+        elif fault=='other-write':p['writes'][0]['after'][data['tenantKeys'][1]]='changed other tenant'
+        elif fault=='wrong-read':p['reads'][0]['value']=p['reads'][1]['value']
+        elif fault=='foreign-read':p['reads'][2].update(result='Current',value=p['reads'][1]['value'],key=data['tenantKeys'][1])
+        elif fault=='same-content':p['after'][data['tenantKeys'][1]]=p['after'][data['tenantKeys'][0]]
+        else:p['writes'][0]['resource']='different-resource'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

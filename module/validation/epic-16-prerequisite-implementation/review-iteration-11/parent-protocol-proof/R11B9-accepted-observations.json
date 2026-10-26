@@ -1,0 +1,2070 @@
+{
+  "wireRoute": "project/v2/reconcile",
+  "authenticated": true,
+  "coordinator": "EventStore",
+  "pendingBefore": 1,
+  "pendingAfter": 0,
+  "clearCount": 1,
+  "duplicateClearCount": 0,
+  "persistedProjection": {
+    "sequence": 4,
+    "state": {
+      "tenantId": "tenant-a",
+      "conversationId": "conversation-a",
+      "lifecycle": "Open",
+      "label": "Seed conversation",
+      "businessReference": {
+        "system": "case",
+        "value": "a"
+      },
+      "projectId": "project-a",
+      "folderId": "folder-a",
+      "attributes": {},
+      "participants": [
+        {
+          "participantPartyId": "participant-a",
+          "participantType": "Human",
+          "participantRole": "Member",
+          "occurredAtUtcTicks": 639029198470000000
+        }
+      ],
+      "messages": [
+        {
+          "messageId": "message-a",
+          "authorPartyId": "actor-a",
+          "text": "Controlled message",
+          "providerCorrelation": null,
+          "occurredAtUtcTicks": 639029198480000000
+        }
+      ],
+      "fileReferences": [
+        {
+          "fileId": "file-a",
+          "folderId": "folder-a",
+          "messageId": "message-a",
+          "occurredAtUtcTicks": 639029198490000000
+        }
+      ],
+      "processedEventIds": [
+        "event-1",
+        "event-2",
+        "event-3",
+        "event-4"
+      ]
+    }
+  },
+  "queryProjection": {
+    "sequence": 4,
+    "state": {
+      "tenantId": "tenant-a",
+      "conversationId": "conversation-a",
+      "lifecycle": "Open",
+      "label": "Seed conversation",
+      "businessReference": {
+        "system": "case",
+        "value": "a"
+      },
+      "projectId": "project-a",
+      "folderId": "folder-a",
+      "attributes": {},
+      "participants": [
+        {
+          "participantPartyId": "participant-a",
+          "participantType": "Human",
+          "participantRole": "Member",
+          "occurredAtUtcTicks": 639029198470000000
+        }
+      ],
+      "messages": [
+        {
+          "messageId": "message-a",
+          "authorPartyId": "actor-a",
+          "text": "Controlled message",
+          "providerCorrelation": null,
+          "occurredAtUtcTicks": 639029198480000000
+        }
+      ],
+      "fileReferences": [
+        {
+          "fileId": "file-a",
+          "folderId": "folder-a",
+          "messageId": "message-a",
+          "occurredAtUtcTicks": 639029198490000000
+        }
+      ],
+      "processedEventIds": [
+        "event-1",
+        "event-2",
+        "event-3",
+        "event-4"
+      ]
+    }
+  },
+  "afterCheckpoint": 4,
+  "beforeCheckpoint": 2,
+  "afterGeneration": 4,
+  "beforeGeneration": 3,
+  "afterWatermark": 1100,
+  "beforeWatermark": 300,
+  "staleWorkerWrites": 0,
+  "directHandlerCalls": 0,
+  "pendingReceipt": "AC-16.3-03",
+  "persistedPendingId": "pending-1",
+  "tenant": "tenant-a",
+  "runtimeId": "conversation@v1",
+  "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+  "pendingSequence": 3,
+  "precedingEvents": [
+    {
+      "tenant": "tenant-a",
+      "conversation": "conversation-a",
+      "eventType": "ConversationCreated",
+      "sequence": 1,
+      "serializationFormat": "json",
+      "messageId": "delivery-1",
+      "timestampUtcTicks": 639029198460000010,
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-1\",\"eventType\":\"ConversationCreated\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:06+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-1|1\"},\"businessReference\":{\"system\":\"case\",\"value\":\"a\"},\"projectId\":\"project:project-a\",\"folderId\":\"folder:folder-a\",\"label\":\"Seed conversation\",\"providerCorrelation\":null,\"createdAt\":\"2026-01-02T03:04:06+00:00\"}"
+    },
+    {
+      "tenant": "tenant-a",
+      "conversation": "conversation-a",
+      "eventType": "ParticipantAdded",
+      "sequence": 2,
+      "serializationFormat": "json",
+      "messageId": "delivery-2",
+      "timestampUtcTicks": 639029198470000010,
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-2\",\"eventType\":\"ParticipantAdded\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:07+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-2|1\"},\"participantPartyId\":\"party:participant-a\",\"participantType\":\"Human\",\"participantRole\":\"Member\"}"
+    }
+  ],
+  "beforeProjection": {
+    "tenantId": "tenant-a",
+    "conversationId": "conversation-a",
+    "lifecycle": "Open",
+    "label": "Seed conversation",
+    "businessReference": {
+      "system": "case",
+      "value": "a"
+    },
+    "projectId": "project-a",
+    "folderId": "folder-a",
+    "attributes": {},
+    "participants": [
+      {
+        "participantPartyId": "participant-a",
+        "participantType": "Human",
+        "participantRole": "Member",
+        "occurredAtUtcTicks": 639029198470000000
+      }
+    ],
+    "messages": [],
+    "fileReferences": [],
+    "processedEventIds": [
+      "event-1",
+      "event-2"
+    ]
+  },
+  "pendingEvent": {
+    "tenant": "tenant-a",
+    "conversation": "conversation-a",
+    "eventType": "MessageAppended",
+    "sequence": 3,
+    "serializationFormat": "json",
+    "messageId": "delivery-3",
+    "timestampUtcTicks": 639029198480000010,
+    "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-3\",\"eventType\":\"MessageAppended\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:08+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-3|1\"},\"messageId\":\"message:message-a\",\"authorPartyId\":\"party:actor-a\",\"text\":\"Controlled message\",\"providerCorrelation\":null}"
+  },
+  "pendingBinding": {
+    "tenant": "tenant-a",
+    "conversation": "conversation-a",
+    "eventType": "MessageAppended",
+    "sequence": 3,
+    "serializationFormat": "json",
+    "payloadSha256": "5b5e16daa5d7515736cc0c37e2bc3333b1c2b81ff8c649b3edf8e6a521dad829",
+    "selectedUtcTicks": 639029198480000000
+  },
+  "recoveryEvents": [
+    {
+      "tenant": "tenant-a",
+      "conversation": "conversation-a",
+      "eventType": "MessageAppended",
+      "sequence": 3,
+      "serializationFormat": "json",
+      "messageId": "delivery-3",
+      "timestampUtcTicks": 639029198480000010,
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-3\",\"eventType\":\"MessageAppended\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:08+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-3|1\"},\"messageId\":\"message:message-a\",\"authorPartyId\":\"party:actor-a\",\"text\":\"Controlled message\",\"providerCorrelation\":null}"
+    },
+    {
+      "tenant": "tenant-a",
+      "conversation": "conversation-a",
+      "eventType": "FileReferenceAttached",
+      "sequence": 4,
+      "serializationFormat": "json",
+      "messageId": "delivery-4",
+      "timestampUtcTicks": 639029198490000010,
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-4\",\"eventType\":\"FileReferenceAttached\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:09+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-4|1\"},\"fileId\":\"file:file-a\",\"folderId\":\"folder:folder-a\",\"messageId\":\"message:message-a\"}"
+    }
+  ],
+  "catalogBytes": "{\"domains\":[{\"domain\":\"conversation\",\"eventTypes\":[],\"rejectionEventTypes\":[],\"commandTypes\":[],\"aggregateTypes\":[],\"projectionNames\":[],\"queryTypes\":[],\"namedProjectionTypes\":[\"conversation-read-model\"],\"ordinaryProjectionTypes\":[\"conversation-read-model\"],\"fullReplayProjectionTypes\":[\"conversation-read-model\"],\"mappedOnlyStreamedProjectionTypes\":[],\"incrementalReplayProjectionTypes\":[],\"sharedEpochProjectionTypes\":[],\"singleEventProjectionTypes\":[]}],\"dispatchVersion\":2,\"dispatchCapability\":\"named-projection-dispatch-v2\",\"appId\":\"conversation\",\"serviceVersion\":\"v1\",\"catalogFingerprint\":\"2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f\"}",
+  "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f",
+  "wireRoutes": [
+    "/project/v2",
+    "/project/v2/reconcile"
+  ],
+  "pendingLocation": {
+    "id": "pending-1",
+    "tenant": "tenant-a",
+    "conversation": "conversation-a",
+    "sequence": 3,
+    "domain": "conversation",
+    "projectionType": "conversation-read-model",
+    "appId": "conversation",
+    "serviceVersion": "v1",
+    "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f",
+    "route": "/project/v2/reconcile"
+  },
+  "concurrentRecovery": {
+    "captureVersion": 1,
+    "scope": {
+      "pendingId": "pending-1",
+      "tenant": "tenant-a",
+      "conversation": "conversation-a",
+      "runtimeId": "conversation@v1",
+      "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+      "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+    },
+    "authoritativePositions": [
+      {
+        "sequence": 1,
+        "eventSha256": "27f632ef7ae41a2486a60926f1df454c1fa1ee95b82e83382109fb5da41e6bfc",
+        "position": 100
+      },
+      {
+        "sequence": 2,
+        "eventSha256": "fbd6811281cfe8b2da94b22c9ff6ae26b7bc027e88d5fc2d63aa2d9ecfe313b7",
+        "position": 300
+      },
+      {
+        "sequence": 3,
+        "eventSha256": "d1ab9a40a8962aeab01a3269abff6e81a3e3c8fddf8fc91e3665b071396c05dd",
+        "position": 700
+      },
+      {
+        "sequence": 4,
+        "eventSha256": "e11a0c410c0cc6a19077196a7bb2615acc4f13a55de3d510111466b27fd2328e",
+        "position": 1100
+      }
+    ],
+    "oldWorker": {
+      "snapshot": {
+        "captureVersion": 1,
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "conversation": "conversation-a",
+          "runtimeId": "conversation@v1",
+          "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+        },
+        "lease": 2,
+        "version": 7,
+        "etag": "recovery-old",
+        "generation": 3,
+        "checkpoint": 2,
+        "watermark": 300,
+        "leaseUntilUtcTicks": 2000,
+        "projection": {
+          "tenantId": "tenant-a",
+          "conversationId": "conversation-a",
+          "lifecycle": "Open",
+          "label": "Seed conversation",
+          "businessReference": {
+            "system": "case",
+            "value": "a"
+          },
+          "projectId": "project-a",
+          "folderId": "folder-a",
+          "attributes": {},
+          "participants": [
+            {
+              "participantPartyId": "participant-a",
+              "participantType": "Human",
+              "participantRole": "Member",
+              "occurredAtUtcTicks": 639029198470000000
+            }
+          ],
+          "messages": [],
+          "fileReferences": [],
+          "processedEventIds": [
+            "event-1",
+            "event-2"
+          ]
+        },
+        "pending": [
+          "pending-1"
+        ]
+      },
+      "expected": {
+        "lease": 2,
+        "version": 7,
+        "etag": "recovery-old",
+        "generation": 3,
+        "checkpoint": 2,
+        "watermark": 300
+      }
+    },
+    "newerStored": {
+      "captureVersion": 1,
+      "scope": {
+        "pendingId": "pending-1",
+        "tenant": "tenant-a",
+        "conversation": "conversation-a",
+        "runtimeId": "conversation@v1",
+        "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+        "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+      },
+      "lease": 3,
+      "version": 8,
+      "etag": "recovery-newer",
+      "generation": 4,
+      "checkpoint": 4,
+      "watermark": 1100,
+      "leaseUntilUtcTicks": 4000,
+      "projection": {
+        "tenantId": "tenant-a",
+        "conversationId": "conversation-a",
+        "lifecycle": "Open",
+        "label": "Seed conversation",
+        "businessReference": {
+          "system": "case",
+          "value": "a"
+        },
+        "projectId": "project-a",
+        "folderId": "folder-a",
+        "attributes": {},
+        "participants": [
+          {
+            "participantPartyId": "participant-a",
+            "participantType": "Human",
+            "participantRole": "Member",
+            "occurredAtUtcTicks": 639029198470000000
+          }
+        ],
+        "messages": [
+          {
+            "messageId": "message-a",
+            "authorPartyId": "actor-a",
+            "text": "Controlled message",
+            "providerCorrelation": null,
+            "occurredAtUtcTicks": 639029198480000000
+          }
+        ],
+        "fileReferences": [
+          {
+            "fileId": "file-a",
+            "folderId": "folder-a",
+            "messageId": "message-a",
+            "occurredAtUtcTicks": 639029198490000000
+          }
+        ],
+        "processedEventIds": [
+          "event-1",
+          "event-2",
+          "event-3",
+          "event-4"
+        ]
+      },
+      "pending": [
+        "pending-1"
+      ]
+    },
+    "staleAttempts": [
+      {
+        "id": "stale-version",
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "conversation": "conversation-a",
+          "runtimeId": "conversation@v1",
+          "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+        },
+        "expected": {
+          "lease": 3,
+          "version": 7,
+          "etag": "recovery-old",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100
+        },
+        "observedAtUtcTicks": 3000,
+        "proposed": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 2,
+          "version": 7,
+          "etag": "recovery-old",
+          "generation": 3,
+          "checkpoint": 3,
+          "watermark": 700,
+          "leaseUntilUtcTicks": 2000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3"
+            ]
+          },
+          "pending": []
+        },
+        "storedBefore": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100,
+          "leaseUntilUtcTicks": 4000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [
+              {
+                "fileId": "file-a",
+                "folderId": "folder-a",
+                "messageId": "message-a",
+                "occurredAtUtcTicks": 639029198490000000
+              }
+            ],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3",
+              "event-4"
+            ]
+          },
+          "pending": [
+            "pending-1"
+          ]
+        },
+        "storedAfter": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100,
+          "leaseUntilUtcTicks": 4000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [
+              {
+                "fileId": "file-a",
+                "folderId": "folder-a",
+                "messageId": "message-a",
+                "occurredAtUtcTicks": 639029198490000000
+              }
+            ],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3",
+              "event-4"
+            ]
+          },
+          "pending": [
+            "pending-1"
+          ]
+        },
+        "succeeded": false,
+        "commitId": null,
+        "cleared": []
+      },
+      {
+        "id": "expired-lease",
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "conversation": "conversation-a",
+          "runtimeId": "conversation@v1",
+          "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+        },
+        "expected": {
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100
+        },
+        "observedAtUtcTicks": 4001,
+        "proposed": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 2,
+          "version": 7,
+          "etag": "recovery-old",
+          "generation": 3,
+          "checkpoint": 3,
+          "watermark": 700,
+          "leaseUntilUtcTicks": 2000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3"
+            ]
+          },
+          "pending": []
+        },
+        "storedBefore": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100,
+          "leaseUntilUtcTicks": 4000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [
+              {
+                "fileId": "file-a",
+                "folderId": "folder-a",
+                "messageId": "message-a",
+                "occurredAtUtcTicks": 639029198490000000
+              }
+            ],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3",
+              "event-4"
+            ]
+          },
+          "pending": [
+            "pending-1"
+          ]
+        },
+        "storedAfter": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100,
+          "leaseUntilUtcTicks": 4000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [
+              {
+                "fileId": "file-a",
+                "folderId": "folder-a",
+                "messageId": "message-a",
+                "occurredAtUtcTicks": 639029198490000000
+              }
+            ],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3",
+              "event-4"
+            ]
+          },
+          "pending": [
+            "pending-1"
+          ]
+        },
+        "succeeded": false,
+        "commitId": null,
+        "cleared": []
+      },
+      {
+        "id": "newer-generation",
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "conversation": "conversation-a",
+          "runtimeId": "conversation@v1",
+          "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+        },
+        "expected": {
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 3,
+          "checkpoint": 4,
+          "watermark": 1100
+        },
+        "observedAtUtcTicks": 3000,
+        "proposed": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 2,
+          "version": 7,
+          "etag": "recovery-old",
+          "generation": 3,
+          "checkpoint": 3,
+          "watermark": 700,
+          "leaseUntilUtcTicks": 2000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3"
+            ]
+          },
+          "pending": []
+        },
+        "storedBefore": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100,
+          "leaseUntilUtcTicks": 4000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [
+              {
+                "fileId": "file-a",
+                "folderId": "folder-a",
+                "messageId": "message-a",
+                "occurredAtUtcTicks": 639029198490000000
+              }
+            ],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3",
+              "event-4"
+            ]
+          },
+          "pending": [
+            "pending-1"
+          ]
+        },
+        "storedAfter": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100,
+          "leaseUntilUtcTicks": 4000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [
+              {
+                "fileId": "file-a",
+                "folderId": "folder-a",
+                "messageId": "message-a",
+                "occurredAtUtcTicks": 639029198490000000
+              }
+            ],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3",
+              "event-4"
+            ]
+          },
+          "pending": [
+            "pending-1"
+          ]
+        },
+        "succeeded": false,
+        "commitId": null,
+        "cleared": []
+      },
+      {
+        "id": "newer-watermark",
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "conversation": "conversation-a",
+          "runtimeId": "conversation@v1",
+          "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+        },
+        "expected": {
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 300
+        },
+        "observedAtUtcTicks": 3000,
+        "proposed": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 2,
+          "version": 7,
+          "etag": "recovery-old",
+          "generation": 3,
+          "checkpoint": 3,
+          "watermark": 700,
+          "leaseUntilUtcTicks": 2000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3"
+            ]
+          },
+          "pending": []
+        },
+        "storedBefore": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100,
+          "leaseUntilUtcTicks": 4000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [
+              {
+                "fileId": "file-a",
+                "folderId": "folder-a",
+                "messageId": "message-a",
+                "occurredAtUtcTicks": 639029198490000000
+              }
+            ],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3",
+              "event-4"
+            ]
+          },
+          "pending": [
+            "pending-1"
+          ]
+        },
+        "storedAfter": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100,
+          "leaseUntilUtcTicks": 4000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [
+              {
+                "fileId": "file-a",
+                "folderId": "folder-a",
+                "messageId": "message-a",
+                "occurredAtUtcTicks": 639029198490000000
+              }
+            ],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3",
+              "event-4"
+            ]
+          },
+          "pending": [
+            "pending-1"
+          ]
+        },
+        "succeeded": false,
+        "commitId": null,
+        "cleared": []
+      },
+      {
+        "id": "superseded-lease",
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "conversation": "conversation-a",
+          "runtimeId": "conversation@v1",
+          "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+        },
+        "expected": {
+          "lease": 2,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100
+        },
+        "observedAtUtcTicks": 3000,
+        "proposed": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 2,
+          "version": 7,
+          "etag": "recovery-old",
+          "generation": 3,
+          "checkpoint": 3,
+          "watermark": 700,
+          "leaseUntilUtcTicks": 2000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3"
+            ]
+          },
+          "pending": []
+        },
+        "storedBefore": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100,
+          "leaseUntilUtcTicks": 4000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [
+              {
+                "fileId": "file-a",
+                "folderId": "folder-a",
+                "messageId": "message-a",
+                "occurredAtUtcTicks": 639029198490000000
+              }
+            ],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3",
+              "event-4"
+            ]
+          },
+          "pending": [
+            "pending-1"
+          ]
+        },
+        "storedAfter": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100,
+          "leaseUntilUtcTicks": 4000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [
+              {
+                "fileId": "file-a",
+                "folderId": "folder-a",
+                "messageId": "message-a",
+                "occurredAtUtcTicks": 639029198490000000
+              }
+            ],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3",
+              "event-4"
+            ]
+          },
+          "pending": [
+            "pending-1"
+          ]
+        },
+        "succeeded": false,
+        "commitId": null,
+        "cleared": []
+      },
+      {
+        "id": "stale-checkpoint",
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "conversation": "conversation-a",
+          "runtimeId": "conversation@v1",
+          "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+        },
+        "expected": {
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 2,
+          "watermark": 1100
+        },
+        "observedAtUtcTicks": 3000,
+        "proposed": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 2,
+          "version": 7,
+          "etag": "recovery-old",
+          "generation": 3,
+          "checkpoint": 3,
+          "watermark": 700,
+          "leaseUntilUtcTicks": 2000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3"
+            ]
+          },
+          "pending": []
+        },
+        "storedBefore": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100,
+          "leaseUntilUtcTicks": 4000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [
+              {
+                "fileId": "file-a",
+                "folderId": "folder-a",
+                "messageId": "message-a",
+                "occurredAtUtcTicks": 639029198490000000
+              }
+            ],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3",
+              "event-4"
+            ]
+          },
+          "pending": [
+            "pending-1"
+          ]
+        },
+        "storedAfter": {
+          "captureVersion": 1,
+          "scope": {
+            "pendingId": "pending-1",
+            "tenant": "tenant-a",
+            "conversation": "conversation-a",
+            "runtimeId": "conversation@v1",
+            "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+            "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+          },
+          "lease": 3,
+          "version": 8,
+          "etag": "recovery-newer",
+          "generation": 4,
+          "checkpoint": 4,
+          "watermark": 1100,
+          "leaseUntilUtcTicks": 4000,
+          "projection": {
+            "tenantId": "tenant-a",
+            "conversationId": "conversation-a",
+            "lifecycle": "Open",
+            "label": "Seed conversation",
+            "businessReference": {
+              "system": "case",
+              "value": "a"
+            },
+            "projectId": "project-a",
+            "folderId": "folder-a",
+            "attributes": {},
+            "participants": [
+              {
+                "participantPartyId": "participant-a",
+                "participantType": "Human",
+                "participantRole": "Member",
+                "occurredAtUtcTicks": 639029198470000000
+              }
+            ],
+            "messages": [
+              {
+                "messageId": "message-a",
+                "authorPartyId": "actor-a",
+                "text": "Controlled message",
+                "providerCorrelation": null,
+                "occurredAtUtcTicks": 639029198480000000
+              }
+            ],
+            "fileReferences": [
+              {
+                "fileId": "file-a",
+                "folderId": "folder-a",
+                "messageId": "message-a",
+                "occurredAtUtcTicks": 639029198490000000
+              }
+            ],
+            "processedEventIds": [
+              "event-1",
+              "event-2",
+              "event-3",
+              "event-4"
+            ]
+          },
+          "pending": [
+            "pending-1"
+          ]
+        },
+        "succeeded": false,
+        "commitId": null,
+        "cleared": []
+      }
+    ],
+    "current": {
+      "scope": {
+        "pendingId": "pending-1",
+        "tenant": "tenant-a",
+        "conversation": "conversation-a",
+        "runtimeId": "conversation@v1",
+        "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+        "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+      },
+      "expected": {
+        "lease": 3,
+        "version": 8,
+        "etag": "recovery-newer",
+        "generation": 4,
+        "checkpoint": 4,
+        "watermark": 1100
+      },
+      "observedAtUtcTicks": 3500,
+      "before": {
+        "captureVersion": 1,
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "conversation": "conversation-a",
+          "runtimeId": "conversation@v1",
+          "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+        },
+        "lease": 3,
+        "version": 8,
+        "etag": "recovery-newer",
+        "generation": 4,
+        "checkpoint": 4,
+        "watermark": 1100,
+        "leaseUntilUtcTicks": 4000,
+        "projection": {
+          "tenantId": "tenant-a",
+          "conversationId": "conversation-a",
+          "lifecycle": "Open",
+          "label": "Seed conversation",
+          "businessReference": {
+            "system": "case",
+            "value": "a"
+          },
+          "projectId": "project-a",
+          "folderId": "folder-a",
+          "attributes": {},
+          "participants": [
+            {
+              "participantPartyId": "participant-a",
+              "participantType": "Human",
+              "participantRole": "Member",
+              "occurredAtUtcTicks": 639029198470000000
+            }
+          ],
+          "messages": [
+            {
+              "messageId": "message-a",
+              "authorPartyId": "actor-a",
+              "text": "Controlled message",
+              "providerCorrelation": null,
+              "occurredAtUtcTicks": 639029198480000000
+            }
+          ],
+          "fileReferences": [
+            {
+              "fileId": "file-a",
+              "folderId": "folder-a",
+              "messageId": "message-a",
+              "occurredAtUtcTicks": 639029198490000000
+            }
+          ],
+          "processedEventIds": [
+            "event-1",
+            "event-2",
+            "event-3",
+            "event-4"
+          ]
+        },
+        "pending": [
+          "pending-1"
+        ]
+      },
+      "after": {
+        "captureVersion": 1,
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "conversation": "conversation-a",
+          "runtimeId": "conversation@v1",
+          "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+        },
+        "lease": 3,
+        "version": 9,
+        "etag": "recovery-cleared",
+        "generation": 4,
+        "checkpoint": 4,
+        "watermark": 1100,
+        "leaseUntilUtcTicks": 4000,
+        "projection": {
+          "tenantId": "tenant-a",
+          "conversationId": "conversation-a",
+          "lifecycle": "Open",
+          "label": "Seed conversation",
+          "businessReference": {
+            "system": "case",
+            "value": "a"
+          },
+          "projectId": "project-a",
+          "folderId": "folder-a",
+          "attributes": {},
+          "participants": [
+            {
+              "participantPartyId": "participant-a",
+              "participantType": "Human",
+              "participantRole": "Member",
+              "occurredAtUtcTicks": 639029198470000000
+            }
+          ],
+          "messages": [
+            {
+              "messageId": "message-a",
+              "authorPartyId": "actor-a",
+              "text": "Controlled message",
+              "providerCorrelation": null,
+              "occurredAtUtcTicks": 639029198480000000
+            }
+          ],
+          "fileReferences": [
+            {
+              "fileId": "file-a",
+              "folderId": "folder-a",
+              "messageId": "message-a",
+              "occurredAtUtcTicks": 639029198490000000
+            }
+          ],
+          "processedEventIds": [
+            "event-1",
+            "event-2",
+            "event-3",
+            "event-4"
+          ]
+        },
+        "pending": []
+      },
+      "succeeded": true,
+      "cleared": [
+        "pending-1"
+      ],
+      "commitId": "current-clearance-commit",
+      "projectionCommitId": "current-clearance-commit",
+      "checkpointCommitId": "current-clearance-commit",
+      "pendingCommitId": "current-clearance-commit",
+      "watermarkCommitId": "current-clearance-commit"
+    },
+    "duplicateRetry": {
+      "scope": {
+        "pendingId": "pending-1",
+        "tenant": "tenant-a",
+        "conversation": "conversation-a",
+        "runtimeId": "conversation@v1",
+        "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+        "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+      },
+      "before": {
+        "captureVersion": 1,
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "conversation": "conversation-a",
+          "runtimeId": "conversation@v1",
+          "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+        },
+        "lease": 3,
+        "version": 9,
+        "etag": "recovery-cleared",
+        "generation": 4,
+        "checkpoint": 4,
+        "watermark": 1100,
+        "leaseUntilUtcTicks": 4000,
+        "projection": {
+          "tenantId": "tenant-a",
+          "conversationId": "conversation-a",
+          "lifecycle": "Open",
+          "label": "Seed conversation",
+          "businessReference": {
+            "system": "case",
+            "value": "a"
+          },
+          "projectId": "project-a",
+          "folderId": "folder-a",
+          "attributes": {},
+          "participants": [
+            {
+              "participantPartyId": "participant-a",
+              "participantType": "Human",
+              "participantRole": "Member",
+              "occurredAtUtcTicks": 639029198470000000
+            }
+          ],
+          "messages": [
+            {
+              "messageId": "message-a",
+              "authorPartyId": "actor-a",
+              "text": "Controlled message",
+              "providerCorrelation": null,
+              "occurredAtUtcTicks": 639029198480000000
+            }
+          ],
+          "fileReferences": [
+            {
+              "fileId": "file-a",
+              "folderId": "folder-a",
+              "messageId": "message-a",
+              "occurredAtUtcTicks": 639029198490000000
+            }
+          ],
+          "processedEventIds": [
+            "event-1",
+            "event-2",
+            "event-3",
+            "event-4"
+          ]
+        },
+        "pending": []
+      },
+      "after": {
+        "captureVersion": 1,
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "conversation": "conversation-a",
+          "runtimeId": "conversation@v1",
+          "catalogSha256": "66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+        },
+        "lease": 3,
+        "version": 9,
+        "etag": "recovery-cleared",
+        "generation": 4,
+        "checkpoint": 4,
+        "watermark": 1100,
+        "leaseUntilUtcTicks": 4000,
+        "projection": {
+          "tenantId": "tenant-a",
+          "conversationId": "conversation-a",
+          "lifecycle": "Open",
+          "label": "Seed conversation",
+          "businessReference": {
+            "system": "case",
+            "value": "a"
+          },
+          "projectId": "project-a",
+          "folderId": "folder-a",
+          "attributes": {},
+          "participants": [
+            {
+              "participantPartyId": "participant-a",
+              "participantType": "Human",
+              "participantRole": "Member",
+              "occurredAtUtcTicks": 639029198470000000
+            }
+          ],
+          "messages": [
+            {
+              "messageId": "message-a",
+              "authorPartyId": "actor-a",
+              "text": "Controlled message",
+              "providerCorrelation": null,
+              "occurredAtUtcTicks": 639029198480000000
+            }
+          ],
+          "fileReferences": [
+            {
+              "fileId": "file-a",
+              "folderId": "folder-a",
+              "messageId": "message-a",
+              "occurredAtUtcTicks": 639029198490000000
+            }
+          ],
+          "processedEventIds": [
+            "event-1",
+            "event-2",
+            "event-3",
+            "event-4"
+          ]
+        },
+        "pending": []
+      },
+      "succeeded": null,
+      "commitId": null,
+      "cleared": []
+    }
+  },
+  "wireObservation": {
+    "captureVersion": 1,
+    "policy": {
+      "method": "POST",
+      "path": "/project/v2/reconcile",
+      "requestType": "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest",
+      "responseType": "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchResponse",
+      "dispatcher": "Hexalith.EventStore.DomainService.DomainProjectionDispatcher.ReconcileAsync",
+      "policy": "EventStoreWorkload:domain-service:project"
+    },
+    "requestId": "wire-reconcile-1",
+    "scheduledWork": {
+      "pendingId": "pending-1",
+      "tenant": "tenant-a",
+      "runtimeId": "conversation@v1",
+      "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f",
+      "dispatchId": "dispatch-reconcile-1"
+    },
+    "operations": [
+      {
+        "phase": "request",
+        "order": 1,
+        "executed": true,
+        "completed": true,
+        "requestId": "wire-reconcile-1",
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "runtimeId": "conversation@v1",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f",
+          "projectionTypes": [
+            "conversation-read-model"
+          ]
+        },
+        "method": "POST",
+        "path": "/project/v2/reconcile",
+        "contractType": "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest",
+        "dispatchId": "dispatch-reconcile-1",
+        "requestScope": {
+          "tenantId": "tenant-a",
+          "domain": "conversation",
+          "aggregateId": "conversation-a"
+        }
+      },
+      {
+        "phase": "authorization",
+        "order": 2,
+        "executed": true,
+        "completed": true,
+        "requestId": "wire-reconcile-1",
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "runtimeId": "conversation@v1",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f",
+          "projectionTypes": [
+            "conversation-read-model"
+          ]
+        },
+        "method": "POST",
+        "path": "/project/v2/reconcile",
+        "authenticated": true,
+        "allowed": true,
+        "policy": "EventStoreWorkload:domain-service:project"
+      },
+      {
+        "phase": "dispatch",
+        "order": 3,
+        "executed": true,
+        "completed": true,
+        "requestId": "wire-reconcile-1",
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "runtimeId": "conversation@v1",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f",
+          "projectionTypes": [
+            "conversation-read-model"
+          ]
+        },
+        "method": "POST",
+        "path": "/project/v2/reconcile",
+        "coordinator": "EventStore",
+        "target": "Hexalith.EventStore.DomainService.DomainProjectionDispatcher.ReconcileAsync",
+        "directHandlerCalls": 0
+      },
+      {
+        "phase": "durable-result",
+        "order": 4,
+        "executed": true,
+        "completed": true,
+        "requestId": "wire-reconcile-1",
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "runtimeId": "conversation@v1",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f",
+          "projectionTypes": [
+            "conversation-read-model"
+          ]
+        },
+        "method": "POST",
+        "path": "/project/v2/reconcile",
+        "transactionId": "current-clearance-commit",
+        "persistedAfterSha256": "bd4bbc70bf08d2c45099e5925e542c47041d4b424111c3c5c2bba24466e83765"
+      },
+      {
+        "phase": "response",
+        "order": 5,
+        "executed": true,
+        "completed": true,
+        "requestId": "wire-reconcile-1",
+        "scope": {
+          "pendingId": "pending-1",
+          "tenant": "tenant-a",
+          "runtimeId": "conversation@v1",
+          "catalogFingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f",
+          "projectionTypes": [
+            "conversation-read-model"
+          ]
+        },
+        "method": "POST",
+        "path": "/project/v2/reconcile",
+        "contractType": "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchResponse",
+        "statusCode": 200,
+        "body": {
+          "version": 2,
+          "outcomes": [
+            {
+              "projectionType": "conversation-read-model",
+              "status": 0,
+              "reasonCode": null
+            }
+          ]
+        },
+        "instrumentation": {
+          "transactionId": "current-clearance-commit",
+          "cleared": [
+            "pending-1"
+          ]
+        }
+      }
+    ]
+  }
+}

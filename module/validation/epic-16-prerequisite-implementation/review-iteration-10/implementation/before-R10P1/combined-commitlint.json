@@ -1,0 +1,117 @@
+{
+  "test: retain synthetic product source fixtures": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: initialize disposable fixture": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: bind disposable fixture sources": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: publish disposable measured fixtures": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: insert disposable final record": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: change disposable source": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: restore disposable source": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: remove disposable native source": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: complete disposable fixture lifecycle": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: create direct dependency fixture": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: advance direct dependency fixture": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: pin prior fixture authorization": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: sibling authorization": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: qualify disposable runtime consumer": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: alter disposable canonicalizer": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: bind changed disposable dependency": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: bind different disposable source": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: bind differing runtime consumer source": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: unrelated runtime authorization": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: bind unrelated fixture entry": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: advance disposable candidate": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: alter disposable contract surface": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: restore candidate with drifted baseline": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

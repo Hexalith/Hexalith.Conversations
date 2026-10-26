@@ -1,0 +1,37 @@
+{
+  "root": "/tmp/epic16-review10-constraint-3rf7ll_p",
+  "oracle": "PASS",
+  "equalApi": true,
+  "builds": [
+    {
+      "phase": "before",
+      "command": [
+        "dotnet",
+        "build",
+        "Consumer.csproj",
+        "-c",
+        "Debug",
+        "--nologo",
+        "-m:1",
+        "-p:NuGetAudit=false"
+      ],
+      "exitCode": 0,
+      "stdout": "  Determining projects to restore...\n  Restored /tmp/epic16-review10-constraint-3rf7ll_p/before/Consumer.csproj (in 33 ms).\n  Consumer -> /tmp/epic16-review10-constraint-3rf7ll_p/before/bin/Debug/net10.0/Consumer.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:01.23\n"
+    },
+    {
+      "phase": "after",
+      "command": [
+        "dotnet",
+        "build",
+        "Consumer.csproj",
+        "-c",
+        "Debug",
+        "--nologo",
+        "-m:1",
+        "-p:NuGetAudit=false"
+      ],
+      "exitCode": 1,
+      "stdout": "  Determining projects to restore...\n  Restored /tmp/epic16-review10-constraint-3rf7ll_p/after/Consumer.csproj (in 33 ms).\n/tmp/epic16-review10-constraint-3rf7ll_p/after/Consumer.cs(1,72): error CS8631: The type 'Probe.IFoo?' cannot be used as type parameter 'T' in the generic type or method 'Surface.Existing<T>(T)'. Nullability of type argument 'Probe.IFoo?' doesn't match constraint type 'Probe.IFoo'. [/tmp/epic16-review10-constraint-3rf7ll_p/after/Consumer.csproj]\n\nBuild FAILED.\n\n/tmp/epic16-review10-constraint-3rf7ll_p/after/Consumer.cs(1,72): error CS8631: The type 'Probe.IFoo?' cannot be used as type parameter 'T' in the generic type or method 'Surface.Existing<T>(T)'. Nullability of type argument 'Probe.IFoo?' doesn't match constraint type 'Probe.IFoo'. [/tmp/epic16-review10-constraint-3rf7ll_p/after/Consumer.csproj]\n    0 Warning(s)\n    1 Error(s)\n\nTime Elapsed 00:00:01.21\n"
+    }
+  ]
+}

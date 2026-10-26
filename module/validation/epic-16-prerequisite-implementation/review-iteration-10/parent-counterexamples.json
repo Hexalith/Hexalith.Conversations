@@ -1,0 +1,294 @@
+{
+  "workspace": "/tmp/epic16-r10-parent-qqxy7o6h",
+  "rows": [
+    {
+      "finding": "R10B5",
+      "mutation": "TestMethod",
+      "accepted": true,
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "finding": "R10B5",
+      "mutation": "Execution",
+      "accepted": true,
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "finding": "R10B5",
+      "mutation": "both",
+      "accepted": true,
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "finding": "R10B9",
+      "exitCode": 2,
+      "stdout": {
+        "schemaVersion": "hexalith.conversations.story-record-generator-failure.v1",
+        "result": "BLOCKED",
+        "exitCode": 2,
+        "blockers": [
+          "SCHEMA_UNAVAILABLE"
+        ],
+        "diagnostics": [
+          {
+            "code": "SCHEMA_UNAVAILABLE",
+            "subject": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+            "message": "the Epic 16 successor consumer is unavailable"
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "finding": "R10B8",
+      "acceptedControl": true,
+      "authorizationRows": [
+        {
+          "id": "unauthorized",
+          "status": "Forbidden",
+          "reason": "forbidden",
+          "writes": 0,
+          "indexReads": 0,
+          "indexVersion": 2,
+          "summaries": [],
+          "pendingDispatch": [],
+          "indexPresent": true,
+          "providerState": "Available",
+          "lifecycle": "Ready",
+          "generation": 3,
+          "componentGenerations": [
+            3,
+            3,
+            3,
+            3,
+            3
+          ],
+          "sourceGap": false,
+          "authorized": false,
+          "tenantExists": true,
+          "survivingDetails": [],
+          "rebuildPending": false,
+          "corrupt": false,
+          "controlMetadata": {
+            "index": 3,
+            "lifecycle": 3,
+            "manifest": 3,
+            "watermark": 3,
+            "dispatch": 3
+          }
+        },
+        {
+          "id": "nonexistent",
+          "status": "Forbidden",
+          "reason": "forbidden",
+          "writes": 0,
+          "indexReads": 0,
+          "indexVersion": 2,
+          "summaries": [],
+          "pendingDispatch": [],
+          "indexPresent": true,
+          "providerState": "Available",
+          "lifecycle": "Ready",
+          "generation": 3,
+          "componentGenerations": [
+            3,
+            3,
+            3,
+            3,
+            3
+          ],
+          "sourceGap": false,
+          "authorized": false,
+          "tenantExists": false,
+          "survivingDetails": [],
+          "rebuildPending": false,
+          "corrupt": false,
+          "controlMetadata": {
+            "index": 3,
+            "lifecycle": 3,
+            "manifest": 3,
+            "watermark": 3,
+            "dispatch": 3
+          }
+        }
+      ],
+      "returnedResponseCaptured": false
+    },
+    {
+      "finding": "R10E1",
+      "accepted": true,
+      "equalApi": true,
+      "independentlyReinspected": true,
+      "callerEvidence": {
+        "root": "/tmp/epic16-review10-constraint-3rf7ll_p",
+        "oracle": "PASS",
+        "equalApi": true,
+        "builds": [
+          {
+            "phase": "before",
+            "command": [
+              "dotnet",
+              "build",
+              "Consumer.csproj",
+              "-c",
+              "Debug",
+              "--nologo",
+              "-m:1",
+              "-p:NuGetAudit=false"
+            ],
+            "exitCode": 0,
+            "stdout": "  Determining projects to restore...\n  Restored /tmp/epic16-review10-constraint-3rf7ll_p/before/Consumer.csproj (in 33 ms).\n  Consumer -> /tmp/epic16-review10-constraint-3rf7ll_p/before/bin/Debug/net10.0/Consumer.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:01.23\n"
+          },
+          {
+            "phase": "after",
+            "command": [
+              "dotnet",
+              "build",
+              "Consumer.csproj",
+              "-c",
+              "Debug",
+              "--nologo",
+              "-m:1",
+              "-p:NuGetAudit=false"
+            ],
+            "exitCode": 1,
+            "stdout": "  Determining projects to restore...\n  Restored /tmp/epic16-review10-constraint-3rf7ll_p/after/Consumer.csproj (in 33 ms).\n/tmp/epic16-review10-constraint-3rf7ll_p/after/Consumer.cs(1,72): error CS8631: The type 'Probe.IFoo?' cannot be used as type parameter 'T' in the generic type or method 'Surface.Existing<T>(T)'. Nullability of type argument 'Probe.IFoo?' doesn't match constraint type 'Probe.IFoo'. [/tmp/epic16-review10-constraint-3rf7ll_p/after/Consumer.csproj]\n\nBuild FAILED.\n\n/tmp/epic16-review10-constraint-3rf7ll_p/after/Consumer.cs(1,72): error CS8631: The type 'Probe.IFoo?' cannot be used as type parameter 'T' in the generic type or method 'Surface.Existing<T>(T)'. Nullability of type argument 'Probe.IFoo?' doesn't match constraint type 'Probe.IFoo'. [/tmp/epic16-review10-constraint-3rf7ll_p/after/Consumer.csproj]\n    0 Warning(s)\n    1 Error(s)\n\nTime Elapsed 00:00:01.21\n"
+          }
+        ]
+      }
+    },
+    {
+      "finding": "R10B4",
+      "testInspectorAccepted": false,
+      "productInspectorAccepted": true,
+      "informationalVersion": "1.0.0+existing.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "finding": "R10B6",
+      "inspectorAccepted": true,
+      "metadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      },
+      "scope": "Metadata admission only; actual runner dependency resolution is not executed by the consumer."
+    },
+    {
+      "finding": "R10B7",
+      "sourcePreservationAccepted": true,
+      "proof": {
+        "baseline": "0f9c753b378784b299343254ff0b8f1ef3347838",
+        "candidate": "058359cd6d6102b95c19001081a1c10ca80c933f",
+        "before": [
+          {
+            "path": "src/Hexalith.Conversations.Contracts/Contracts.csproj",
+            "sha256": "55c56b56b8d51eddec5b8971452de4ef2c0ee06e9fca56fba60f291b92260ebc"
+          },
+          {
+            "path": "src/Hexalith.Conversations.Contracts/Removed.cs",
+            "sha256": "7b045fa9f6e6299a35894dbea9e8c14abb9592cfbec86484145736ab8d84a77a"
+          },
+          {
+            "path": "src/Hexalith.Conversations.Contracts/Stable.cs",
+            "sha256": "1a8c1e6064f801c81ff0118b0a6da26f7060689fb4908c2e90f80f842c49f352"
+          }
+        ],
+        "after": [
+          {
+            "path": "src/Hexalith.Conversations.Contracts/Contracts.csproj",
+            "sha256": "55c56b56b8d51eddec5b8971452de4ef2c0ee06e9fca56fba60f291b92260ebc"
+          },
+          {
+            "path": "src/Hexalith.Conversations.Contracts/Removed.cs",
+            "sha256": "7b045fa9f6e6299a35894dbea9e8c14abb9592cfbec86484145736ab8d84a77a"
+          },
+          {
+            "path": "src/Hexalith.Conversations.Contracts/Stable.cs",
+            "sha256": "1a8c1e6064f801c81ff0118b0a6da26f7060689fb4908c2e90f80f842c49f352"
+          }
+        ],
+        "kind": "complete-tracked-source-preservation"
+      },
+      "beforeTypes": [
+        ".<Module>",
+        "Hexalith.Conversations.Contracts.PreviouslyPublic",
+        "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+      ],
+      "afterTypes": [
+        ".<Module>",
+        "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+      ],
+      "compiledPublicApiChanged": true
+    },
+    {
+      "finding": "R10B6",
+      "actualPinnedRunnerExit": 1,
+      "actualCounts": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "metadataStillAccepted": true,
+      "stderr": "",
+      "stdout": "{\"$type\":\"diagnostic\",\"Message\":\"warning: The '-trx' switch has been deprecated in favor of '-result-trx' and will be removed in the next major version\"}\n{\"$type\":\"discovery-starting\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"AssemblyName\":\"Evidence\",\"AssemblyPath\":\"/tmp/epic16-r10-parent-qqxy7o6h/constructor/bin/Debug/net10.0/Evidence.dll\",\"StartTime\":\"2026-10-26T01:45:21.4616302+00:00\"}\n{\"$type\":\"discovery-complete\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"FinishTime\":\"2026-10-26T01:45:21.4853492+00:00\",\"TestCasesToRun\":1}\n{\"$type\":\"test-assembly-starting\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"AssemblyName\":\"Evidence\",\"AssemblyPath\":\"/tmp/epic16-r10-parent-qqxy7o6h/constructor/bin/Debug/net10.0/Evidence.dll\",\"Seed\":1241107746,\"StartTime\":\"2026-10-26T01:45:21.4919262+00:00\",\"TargetFramework\":\".NETCoreApp,Version=v10.0\",\"TestEnvironment\":\"64-bit (x64) .NET 10.0.13 [collection-per-class, parallel (collections, 14 threads)]\",\"TestFrameworkDisplayName\":\"xUnit.net v3 4.0.2+0c7aa4991f\"}\n{\"$type\":\"test-collection-starting\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"TestCollectionUniqueID\":\"3c30031841de96e1bac1e9a2343139b48eb2ff88f0cabf056fff153463d989fe\",\"StartTime\":\"2026-10-26T01:45:21.5100913+00:00\",\"TestCollectionDisplayName\":\"Test collection for Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests (id: e2c74d170d2faa50d65e5fa3ad25680b4aa55f09d0ef5748cad0cd558a3c5529)\"}\n{\"$type\":\"test-class-starting\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"TestCollectionUniqueID\":\"3c30031841de96e1bac1e9a2343139b48eb2ff88f0cabf056fff153463d989fe\",\"TestClassUniqueID\":\"57fd162081ee3a35d1c67fa7a772b1ed89d0919502c1dff9e13fb3b83bb5e548\",\"StartTime\":\"2026-10-26T01:45:21.5220574+00:00\",\"TestClassName\":\"Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests\",\"TestClassNamespace\":\"Hexalith.Conversations.IntegrationTests.Epic16\",\"TestClassSimpleName\":\"Story16_1EvidenceTests\"}\n{\"$type\":\"test-method-starting\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"TestCollectionUniqueID\":\"3c30031841de96e1bac1e9a2343139b48eb2ff88f0cabf056fff153463d989fe\",\"TestClassUniqueID\":\"57fd162081ee3a35d1c67fa7a772b1ed89d0919502c1dff9e13fb3b83bb5e548\",\"TestMethodUniqueID\":\"8134fd36ef4f83b739da3f04b66e4910cbb89738de030dbcf57ed7c15066c893\",\"MethodArity\":0,\"MethodName\":\"Scenario01\",\"StartTime\":\"2026-10-26T01:45:21.5330950+00:00\"}\n{\"$type\":\"test-case-starting\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"TestCollectionUniqueID\":\"3c30031841de96e1bac1e9a2343139b48eb2ff88f0cabf056fff153463d989fe\",\"TestClassUniqueID\":\"57fd162081ee3a35d1c67fa7a772b1ed89d0919502c1dff9e13fb3b83bb5e548\",\"TestMethodUniqueID\":\"8134fd36ef4f83b739da3f04b66e4910cbb89738de030dbcf57ed7c15066c893\",\"TestCaseUniqueID\":\"e89ba2d5501df0e48cc84b6833e361af3ec831bd1ac93ad03d6374ccb0ce00dd\",\"Explicit\":false,\"SourceFilePath\":\"/tmp/epic16-r10-parent-qqxy7o6h/constructor/Tests.cs\",\"SourceLineNumber\":1,\"StartTime\":\"2026-10-26T01:45:21.5415708+00:00\",\"TestCaseDisplayName\":\"Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests.Scenario01\",\"TestClassMetadataToken\":33554437,\"TestClassName\":\"Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests\",\"TestClassNamespace\":\"Hexalith.Conversations.IntegrationTests.Epic16\",\"TestClassSimpleName\":\"Story16_1EvidenceTests\",\"TestMethodArity\":0,\"TestMethodMetadataToken\":100663302,\"TestMethodName\":\"Scenario01\",\"TestMethodParameterTypesVSTest\":[],\"TestMethodReturnTypeVSTest\":\"System.Void\"}\n{\"$type\":\"test-starting\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"TestCollectionUniqueID\":\"3c30031841de96e1bac1e9a2343139b48eb2ff88f0cabf056fff153463d989fe\",\"TestClassUniqueID\":\"57fd162081ee3a35d1c67fa7a772b1ed89d0919502c1dff9e13fb3b83bb5e548\",\"TestMethodUniqueID\":\"8134fd36ef4f83b739da3f04b66e4910cbb89738de030dbcf57ed7c15066c893\",\"TestCaseUniqueID\":\"e89ba2d5501df0e48cc84b6833e361af3ec831bd1ac93ad03d6374ccb0ce00dd\",\"TestUniqueID\":\"51dfedddd41530f94529f967aba8fcb46d0de5fe539fb14bea1e1d2488d271ac\",\"Explicit\":false,\"StartTime\":\"2026-10-26T01:45:21.5516291+00:00\",\"TestDisplayName\":\"Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests.Scenario01\",\"Timeout\":0}\n{\"$type\":\"test-class-construction-starting\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"TestCollectionUniqueID\":\"3c30031841de96e1bac1e9a2343139b48eb2ff88f0cabf056fff153463d989fe\",\"TestClassUniqueID\":\"57fd162081ee3a35d1c67fa7a772b1ed89d0919502c1dff9e13fb3b83bb5e548\",\"TestMethodUniqueID\":\"8134fd36ef4f83b739da3f04b66e4910cbb89738de030dbcf57ed7c15066c893\",\"TestCaseUniqueID\":\"e89ba2d5501df0e48cc84b6833e361af3ec831bd1ac93ad03d6374ccb0ce00dd\",\"TestUniqueID\":\"51dfedddd41530f94529f967aba8fcb46d0de5fe539fb14bea1e1d2488d271ac\"}\n{\"$type\":\"test-class-construction-finished\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"TestCollectionUniqueID\":\"3c30031841de96e1bac1e9a2343139b48eb2ff88f0cabf056fff153463d989fe\",\"TestClassUniqueID\":\"57fd162081ee3a35d1c67fa7a772b1ed89d0919502c1dff9e13fb3b83bb5e548\",\"TestMethodUniqueID\":\"8134fd36ef4f83b739da3f04b66e4910cbb89738de030dbcf57ed7c15066c893\",\"TestCaseUniqueID\":\"e89ba2d5501df0e48cc84b6833e361af3ec831bd1ac93ad03d6374ccb0ce00dd\",\"TestUniqueID\":\"51dfedddd41530f94529f967aba8fcb46d0de5fe539fb14bea1e1d2488d271ac\"}\n{\"$type\":\"test-failed\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"TestCollectionUniqueID\":\"3c30031841de96e1bac1e9a2343139b48eb2ff88f0cabf056fff153463d989fe\",\"TestClassUniqueID\":\"57fd162081ee3a35d1c67fa7a772b1ed89d0919502c1dff9e13fb3b83bb5e548\",\"TestMethodUniqueID\":\"8134fd36ef4f83b739da3f04b66e4910cbb89738de030dbcf57ed7c15066c893\",\"TestCaseUniqueID\":\"e89ba2d5501df0e48cc84b6833e361af3ec831bd1ac93ad03d6374ccb0ce00dd\",\"TestUniqueID\":\"51dfedddd41530f94529f967aba8fcb46d0de5fe539fb14bea1e1d2488d271ac\",\"ExecutionTime\":0.004,\"FinishTime\":\"2026-10-26T01:45:21.5691651+00:00\",\"Cause\":\"Exception\",\"ExceptionParentIndices\":[-1],\"ExceptionTypes\":[\"Xunit.Sdk.TestPipelineException\"],\"Messages\":[\"The following constructor parameters did not have matching fixture data: String unavailable\"],\"StackTraces\":[\"   at Xunit.v3.TypeActivator.DefaultTypeActivator.Xunit.v3.ITypeActivator.CreateInstance(ConstructorInfo constructor, Object[] arguments, Func`3 missingArgumentMessageFormatter) in /_/src/xunit.v3.core/Framework/TypeActivator_reflection.cs:line 55\\n   at Xunit.v3.XunitTestRunnerBase`2.CreateTestClassInstance(TContext ctxt) in /_/src/xunit.v3.core/Runners/Reflection/XunitTestRunnerBase_reflection.cs:line 52\\n   at Xunit.v3.ExceptionAggregator.RunAsync[T](Func`1 code, T defaultValue) in /_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:line 141\"]}\n{\"$type\":\"test-finished\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"TestCollectionUniqueID\":\"3c30031841de96e1bac1e9a2343139b48eb2ff88f0cabf056fff153463d989fe\",\"TestClassUniqueID\":\"57fd162081ee3a35d1c67fa7a772b1ed89d0919502c1dff9e13fb3b83bb5e548\",\"TestMethodUniqueID\":\"8134fd36ef4f83b739da3f04b66e4910cbb89738de030dbcf57ed7c15066c893\",\"TestCaseUniqueID\":\"e89ba2d5501df0e48cc84b6833e361af3ec831bd1ac93ad03d6374ccb0ce00dd\",\"TestUniqueID\":\"51dfedddd41530f94529f967aba8fcb46d0de5fe539fb14bea1e1d2488d271ac\",\"ExecutionTime\":0.004,\"FinishTime\":\"2026-10-26T01:45:21.5737283+00:00\"}\n{\"$type\":\"test-case-finished\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"TestCollectionUniqueID\":\"3c30031841de96e1bac1e9a2343139b48eb2ff88f0cabf056fff153463d989fe\",\"TestClassUniqueID\":\"57fd162081ee3a35d1c67fa7a772b1ed89d0919502c1dff9e13fb3b83bb5e548\",\"TestMethodUniqueID\":\"8134fd36ef4f83b739da3f04b66e4910cbb89738de030dbcf57ed7c15066c893\",\"TestCaseUniqueID\":\"e89ba2d5501df0e48cc84b6833e361af3ec831bd1ac93ad03d6374ccb0ce00dd\",\"ExecutionTime\":0.004,\"FinishTime\":\"2026-10-26T01:45:21.5759307+00:00\",\"TestsFailed\":1,\"TestsNotRun\":0,\"TestsSkipped\":0,\"TestsTotal\":1}\n{\"$type\":\"test-method-finished\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"TestCollectionUniqueID\":\"3c30031841de96e1bac1e9a2343139b48eb2ff88f0cabf056fff153463d989fe\",\"TestClassUniqueID\":\"57fd162081ee3a35d1c67fa7a772b1ed89d0919502c1dff9e13fb3b83bb5e548\",\"TestMethodUniqueID\":\"8134fd36ef4f83b739da3f04b66e4910cbb89738de030dbcf57ed7c15066c893\",\"ExecutionTime\":0.004,\"FinishTime\":\"2026-10-26T01:45:21.5771587+00:00\",\"TestsFailed\":1,\"TestsNotRun\":0,\"TestsSkipped\":0,\"TestsTotal\":1}\n{\"$type\":\"test-class-finished\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"TestCollectionUniqueID\":\"3c30031841de96e1bac1e9a2343139b48eb2ff88f0cabf056fff153463d989fe\",\"TestClassUniqueID\":\"57fd162081ee3a35d1c67fa7a772b1ed89d0919502c1dff9e13fb3b83bb5e548\",\"ExecutionTime\":0.004,\"FinishTime\":\"2026-10-26T01:45:21.5790323+00:00\",\"TestsFailed\":1,\"TestsNotRun\":0,\"TestsSkipped\":0,\"TestsTotal\":1}\n{\"$type\":\"test-collection-finished\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"TestCollectionUniqueID\":\"3c30031841de96e1bac1e9a2343139b48eb2ff88f0cabf056fff153463d989fe\",\"ExecutionTime\":0.004,\"FinishTime\":\"2026-10-26T01:45:21.5806385+00:00\",\"TestsFailed\":1,\"TestsNotRun\":0,\"TestsSkipped\":0,\"TestsTotal\":1}\n{\"$type\":\"test-assembly-finished\",\"AssemblyUniqueID\":\"6b92bae819f6ae1fc08741fc078a39eb9f31fd8e9d14d52d1878b593f134cd3d\",\"ExecutionTime\":0.092,\"FinishTime\":\"2026-10-26T01:45:21.5831643+00:00\",\"TestsFailed\":1,\"TestsNotRun\":0,\"TestsSkipped\":0,\"TestsTotal\":1}\n"
+    },
+    {
+      "finding": "R10B3",
+      "accepted": true,
+      "equalApi": true,
+      "externalPublicKeysDifferent": true,
+      "externalPublicKeys": [
+        "0024000004800000940000000602000000240000525341310004000001000100dde40bcb9de6036779601242e44097fcd2800e17ccb145813de845b6403de3b71edbafe35eca13f5ffebb4dd03e79ff75149da59787bd7a6439f70b4d7f09cf0864585c58fe74aaa05abeb717e73acb44fb32d669ec3ef8357f56ee29a347fdcc9150d4d073dc0452bbd1076773fe1c66ebd229052821514faf6e638889174b9",
+        "0024000004800000940000000602000000240000525341310004000001000100c5593f6305915bacb1f5ba56a9f1755d26c5ceccc80864e3433b8528a5ac152ab8d489491e81ff933b8db95caa6f0561205328cfe4700d66a8ede81773b9b415824540f4d24acfc4a9ee43fd80e0c108d2138af1550564ebc06dc9c4ba286a1ae53c3f20a856fee0ca6cd155fcf90a961e172e65604840b6be98781bcb1fb2d0"
+      ]
+    },
+    {
+      "finding": "R10B2",
+      "control": "PASS",
+      "mixedFinal": "PASS",
+      "changed": [
+        {
+          "assemblyName": "Hexalith.Conversations.Server",
+          "before": "31de12935ded6a220e319478ab2965fe56d33365dec3bbfed49ffef46796c514",
+          "after": "7b955995a6943dd27e028688fa30cafc949d90d82ce5ba55eda32ec32824f45b",
+          "sourceRevision": "715b505eb94716c6cab50851c14e474dbec8dd0c"
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "before": "b4e218f61cc8152bc6c38bebe58729425789b9214fba311f98852e09bdb0b34f",
+          "after": "8a0e7870b43ce15a796e8b47ccb130b232e434393bc03b0cb702e128c02bce03",
+          "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+        }
+      ],
+      "retainedAssemblies": 10
+    },
+    {
+      "finding": "R10B1",
+      "loadedAccepted": true,
+      "upstreamPreservationAccepted": true,
+      "assembly": "Hexalith.Tenants.Client",
+      "loadedSha256": "8a0e7870b43ce15a796e8b47ccb130b232e434393bc03b0cb702e128c02bce03",
+      "comparedSha256": "fcfb695829321b3c7a1ae984e0e4515b231b89187675ee280a752d2439188125",
+      "apiDifferent": true,
+      "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+    }
+  ]
+}

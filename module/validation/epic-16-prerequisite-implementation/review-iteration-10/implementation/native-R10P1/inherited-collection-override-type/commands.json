@@ -1,0 +1,28 @@
+{
+  "build": [
+    "dotnet",
+    "build",
+    "Evidence.csproj",
+    "-c",
+    "Debug",
+    "--nologo",
+    "-m:1",
+    "-p:NuGetAudit=false"
+  ],
+  "run": [
+    "dotnet",
+    "/tmp/pytest-of-administrator/pytest-602/test_round10_inherited_collect3/runner/bin/Debug/net10.0/Evidence.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-method",
+    "Synthetic.TestClass.Scenario01",
+    "-trx",
+    "/tmp/pytest-of-administrator/pytest-602/test_round10_inherited_collect3/runner/result.trx"
+  ],
+  "buildExit": 0,
+  "runExit": 0,
+  "timedOut": false,
+  "timeoutSeconds": 120,
+  "expectedRunnable": true
+}

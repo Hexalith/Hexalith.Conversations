@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="6" time="16.254" timestamp="2026-10-26T06:29:05.015265+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[number-path10-2-4]" time="12.491"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-672/test_round12_failed_deliveries0/fixture')
+index = 4, fault = 'number', path = ('attempts', 0, 'number'), value = 2
+
+    @pytest.mark.parametrize('index',[4,5])
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_FAILURE])
+    def test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack(repository,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];p=row['failureEvidence']
+        if fault=='missing':row['failureEvidence']=None
+        elif fault=='attempt-count':
+            p['attempts']=p['attempts'][:-1];p['completion']['attemptIds']=[a['operationId'] for a in p['attempts']]
+        elif path:round12_set(p,path,value)
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4343: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-672/test_round12_failed_deliveries0/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[number-path10-2-5]" time="0.472"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-672/test_round12_failed_deliveries1/fixture')
+index = 5, fault = 'number', path = ('attempts', 0, 'number'), value = 2
+
+    @pytest.mark.parametrize('index',[4,5])
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_FAILURE])
+    def test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack(repository,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];p=row['failureEvidence']
+        if fault=='missing':row['failureEvidence']=None
+        elif fault=='attempt-count':
+            p['attempts']=p['attempts'][:-1];p['completion']['attemptIds']=[a['operationId'] for a in p['attempts']]
+        elif path:round12_set(p,path,value)
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4343: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-672/test_round12_failed_deliveries1/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[expected-path11-foreign-4]" time="0.440"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-672/test_round12_failed_deliveries2/fixture')
+index = 4, fault = 'expected', path = ('attempts', 0, 'expectedEtag')
+value = 'foreign'
+
+    @pytest.mark.parametrize('index',[4,5])
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_FAILURE])
+    def test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack(repository,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];p=row['failureEvidence']
+        if fault=='missing':row['failureEvidence']=None
+        elif fault=='attempt-count':
+            p['attempts']=p['attempts'][:-1];p['completion']['attemptIds']=[a['operationId'] for a in p['attempts']]
+        elif path:round12_set(p,path,value)
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4343: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-672/test_round12_failed_deliveries2/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[expected-path11-foreign-5]" time="0.417"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-672/test_round12_failed_deliveries3/fixture')
+index = 5, fault = 'expected', path = ('attempts', 0, 'expectedEtag')
+value = 'foreign'
+
+    @pytest.mark.parametrize('index',[4,5])
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_FAILURE])
+    def test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack(repository,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];p=row['failureEvidence']
+        if fault=='missing':row['failureEvidence']=None
+        elif fault=='attempt-count':
+            p['attempts']=p['attempts'][:-1];p['completion']['attemptIds']=[a['operationId'] for a in p['attempts']]
+        elif path:round12_set(p,path,value)
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4343: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-672/test_round12_failed_deliveries3/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[proposed-path12-99-4]" time="0.409"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-672/test_round12_failed_deliveries4/fixture')
+index = 4, fault = 'proposed', path = ('attempts', 0, 'proposed', 'checkpoint')
+value = 99
+
+    @pytest.mark.parametrize('index',[4,5])
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_FAILURE])
+    def test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack(repository,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];p=row['failureEvidence']
+        if fault=='missing':row['failureEvidence']=None
+        elif fault=='attempt-count':
+            p['attempts']=p['attempts'][:-1];p['completion']['attemptIds']=[a['operationId'] for a in p['attempts']]
+        elif path:round12_set(p,path,value)
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4343: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-672/test_round12_failed_deliveries4/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[proposed-path12-99-5]" time="0.412"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-672/test_round12_failed_deliveries5/fixture')
+index = 5, fault = 'proposed', path = ('attempts', 0, 'proposed', 'checkpoint')
+value = 99
+
+    @pytest.mark.parametrize('index',[4,5])
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_FAILURE])
+    def test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack(repository,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];p=row['failureEvidence']
+        if fault=='missing':row['failureEvidence']=None
+        elif fault=='attempt-count':
+            p['attempts']=p['attempts'][:-1];p['completion']['attemptIds']=[a['operationId'] for a in p['attempts']]
+        elif path:round12_set(p,path,value)
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4343: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-672/test_round12_failed_deliveries5/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase></testsuite></testsuites>

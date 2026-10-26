@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="13.602" timestamp="2026-10-26T06:27:58.274893+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_reverse_read_operations_are_distinct_and_ordered[store-operation]" time="12.311"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-663/test_round12_reverse_read_oper0/fixture')
+fault = 'store-operation'
+
+    @pytest.mark.parametrize('fault',['store-operation','response-operation','request-reuse','same-order'])
+    def test_round12_reverse_read_operations_are_distinct_and_ordered(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03']);proof=data['reverseSaves'][0]['execution'];read=proof['consumers'][0]
+        if fault=='store-operation':read['storeRead']['operationId']=proof['saves'][0]['operationId']
+        elif fault=='response-operation':read['response']['operationId']=read['storeRead']['operationId']
+        elif fault=='request-reuse':read['requestId']=proof['saves'][0]['requestId'];read['scope']['requestId']=read['requestId']
+        else:read['response']['order']=read['storeRead']['completedOrder']
+&gt;       round8_submit(repository,'AC-16.1-03',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4467: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-663/test_round12_reverse_read_oper0/fixture')
+scenario = 'AC-16.1-03'
+data = {'checkpoint': 10, 'merges': [{'expectedSequence': 11, 'beforeHorizon': 11, 'deliveredSequence': 12, 'afterHorizon': 1...se, 'allowed': False}, 'replicaB': {'state': 'Healthy', 'sequence': 14, 'tenantEnabled': False, 'allowed': False}, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_reverse_read_operations_are_distinct_and_ordered[response-operation]" time="0.443"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-663/test_round12_reverse_read_oper1/fixture')
+fault = 'response-operation'
+
+    @pytest.mark.parametrize('fault',['store-operation','response-operation','request-reuse','same-order'])
+    def test_round12_reverse_read_operations_are_distinct_and_ordered(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03']);proof=data['reverseSaves'][0]['execution'];read=proof['consumers'][0]
+        if fault=='store-operation':read['storeRead']['operationId']=proof['saves'][0]['operationId']
+        elif fault=='response-operation':read['response']['operationId']=read['storeRead']['operationId']
+        elif fault=='request-reuse':read['requestId']=proof['saves'][0]['requestId'];read['scope']['requestId']=read['requestId']
+        else:read['response']['order']=read['storeRead']['completedOrder']
+&gt;       round8_submit(repository,'AC-16.1-03',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4467: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-663/test_round12_reverse_read_oper1/fixture')
+scenario = 'AC-16.1-03'
+data = {'checkpoint': 10, 'merges': [{'expectedSequence': 11, 'beforeHorizon': 11, 'deliveredSequence': 12, 'afterHorizon': 1...se, 'allowed': False}, 'replicaB': {'state': 'Healthy', 'sequence': 14, 'tenantEnabled': False, 'allowed': False}, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase></testsuite></testsuites>

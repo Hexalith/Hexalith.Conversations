@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="3.516" timestamp="2026-10-25T23:08:19.266515+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_rebuild_boundaries_derive_from_exact_authoritative_envelopes_and_global_positions[wrong-event-id]" time="2.316"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-453/test_round7_rebuild_boundaries0/fixture')
+fault = 'wrong-event-id'
+
+    @pytest.mark.parametrize('fault',['equal-global-cutover','wrong-event-id','wrong-envelope','wrong-stream','wrong-conversation','position-hash','beyond-b','missing-prefix','missing-history','reversed-positions','duplicate-position'])
+    def test_round7_rebuild_boundaries_derive_from_exact_authoritative_envelopes_and_global_positions(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1];stream=row['streams'][0];events=stream['authoritativeEvents']
+        if fault=='equal-global-cutover':row['C']=row['B'];row['drainedThrough']=row['C'];stream['capturedThrough']=row['C']
+        elif fault=='wrong-event-id':events[1]['eventId']='other-event'
+        elif fault=='wrong-envelope':events[1]['event']['messageId']='other-message'
+        elif fault=='wrong-stream':events[1]['stream']='other-stream'
+        elif fault=='wrong-conversation':stream['conversation']='other-conversation'
+        elif fault=='position-hash':events[1]['eventSha256']='0'*64
+        elif fault=='beyond-b':events[1]['position']=11
+        elif fault=='missing-prefix':events.pop(0);stream['start']=1;stream['applied']=[2,3]
+        elif fault=='missing-history':events.pop(1)
+        elif fault=='reversed-positions':events.reverse()
+        else:events[1]['position']=events[0]['position']
+&gt;       round7_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2586: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_rebuild_boundaries_derive_from_exact_authoritative_envelopes_and_global_positions[wrong-envelope]" time="0.320"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-453/test_round7_rebuild_boundaries1/fixture')
+fault = 'wrong-envelope'
+
+    @pytest.mark.parametrize('fault',['equal-global-cutover','wrong-event-id','wrong-envelope','wrong-stream','wrong-conversation','position-hash','beyond-b','missing-prefix','missing-history','reversed-positions','duplicate-position'])
+    def test_round7_rebuild_boundaries_derive_from_exact_authoritative_envelopes_and_global_positions(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1];stream=row['streams'][0];events=stream['authoritativeEvents']
+        if fault=='equal-global-cutover':row['C']=row['B'];row['drainedThrough']=row['C'];stream['capturedThrough']=row['C']
+        elif fault=='wrong-event-id':events[1]['eventId']='other-event'
+        elif fault=='wrong-envelope':events[1]['event']['messageId']='other-message'
+        elif fault=='wrong-stream':events[1]['stream']='other-stream'
+        elif fault=='wrong-conversation':stream['conversation']='other-conversation'
+        elif fault=='position-hash':events[1]['eventSha256']='0'*64
+        elif fault=='beyond-b':events[1]['position']=11
+        elif fault=='missing-prefix':events.pop(0);stream['start']=1;stream['applied']=[2,3]
+        elif fault=='missing-history':events.pop(1)
+        elif fault=='reversed-positions':events.reverse()
+        else:events[1]['position']=events[0]['position']
+&gt;       round7_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2586: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_rebuild_boundaries_derive_from_exact_authoritative_envelopes_and_global_positions[position-hash]" time="0.323"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-453/test_round7_rebuild_boundaries2/fixture')
+fault = 'position-hash'
+
+    @pytest.mark.parametrize('fault',['equal-global-cutover','wrong-event-id','wrong-envelope','wrong-stream','wrong-conversation','position-hash','beyond-b','missing-prefix','missing-history','reversed-positions','duplicate-position'])
+    def test_round7_rebuild_boundaries_derive_from_exact_authoritative_envelopes_and_global_positions(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1];stream=row['streams'][0];events=stream['authoritativeEvents']
+        if fault=='equal-global-cutover':row['C']=row['B'];row['drainedThrough']=row['C'];stream['capturedThrough']=row['C']
+        elif fault=='wrong-event-id':events[1]['eventId']='other-event'
+        elif fault=='wrong-envelope':events[1]['event']['messageId']='other-message'
+        elif fault=='wrong-stream':events[1]['stream']='other-stream'
+        elif fault=='wrong-conversation':stream['conversation']='other-conversation'
+        elif fault=='position-hash':events[1]['eventSha256']='0'*64
+        elif fault=='beyond-b':events[1]['position']=11
+        elif fault=='missing-prefix':events.pop(0);stream['start']=1;stream['applied']=[2,3]
+        elif fault=='missing-history':events.pop(1)
+        elif fault=='reversed-positions':events.reverse()
+        else:events[1]['position']=events[0]['position']
+&gt;       round7_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2586: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

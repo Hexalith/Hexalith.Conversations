@@ -1,0 +1,29 @@
+{
+  "name": "source-constructor-signature",
+  "path": "_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+  "old": "&& reader.GetBlobBytes(constructor.Signature).AsSpan().SequenceEqual(signature);",
+  "new": "&& true;",
+  "selector": "round12_source_stamp and constructor-signature",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-source-constructor-signature-xwa2t2x8/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_source_stamp and constructor-signature",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/source-constructor-signature/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-source-constructor-signature-xwa2t2x8",
+  "exitCode": 1,
+  "elapsedSeconds": 11.525154275004752,
+  "originalSha256": "ef75fbd3b889b78c2e2678db4d99cdb7448f231f29b3d22cb300dff0bb5e3902",
+  "mutatedSha256": "5d5784dee05ab6baae15e4927c19526a4584d253699b65f5ecd8dc8c477beb98",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  }
+}

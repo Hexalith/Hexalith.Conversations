@@ -1,0 +1,545 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--scenario",
+        "AC-16.1-01",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.1/AC-16.1-01.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.1-01",
+      "startedAt": "2026-10-25T17:11:19.676744+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "3d3fbd9fd81253e9dc957e309f7366f02c73babc56e98fd6560da48dbad8832e"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--scenario",
+        "AC-16.1-02",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.1/AC-16.1-02.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.1-02",
+      "startedAt": "2026-10-25T17:11:19.753949+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "30c4e5ea7003f2bf41241a1e176fdaf9c71dd9e7d08b932c81bfa3bbf2f05e39"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--scenario",
+        "AC-16.1-03",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.1/AC-16.1-03.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.1-03",
+      "startedAt": "2026-10-25T17:11:19.834986+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "a591f00e40908642d8578a8ae89a6a709252a34f338c98e4167a45f5a9f808d5"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--scenario",
+        "AC-16.1-04",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.1/AC-16.1-04.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.1-04",
+      "startedAt": "2026-10-25T17:11:19.918182+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "26a7ff6e57ba12f54f12275713c09181838533e3056b88079a2d43fe3a0f1399"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--scenario",
+        "AC-16.1-05",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.1/AC-16.1-05.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.1-05",
+      "startedAt": "2026-10-25T17:11:19.997880+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "de6c23dc826836e497eb840e2677899087f49034b2aa9fdd8d78ecfe2d00d19e"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/generate_story_record.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--format",
+        "bundle",
+        "--output-json",
+        "docs/release-evidence/story-16.1-final-record-v2.json",
+        "--output-markdown",
+        "docs/release-evidence/story-16.1-final-record-v2.md"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.1-06",
+      "startedAt": "2026-10-25T17:11:20.077533+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "3d3fbd9fd81253e9dc957e309f7366f02c73babc56e98fd6560da48dbad8832e"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_2.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+        "--scenario",
+        "AC-16.2-01",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.2/AC-16.2-01.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.2-01",
+      "startedAt": "2026-10-25T17:11:20.251703+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "7f096c50e5d22fef41229bd65005b0d7e1fbcf2311783e96c9c352ecde9a224e"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_2.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+        "--scenario",
+        "AC-16.2-02",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.2/AC-16.2-02.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.2-02",
+      "startedAt": "2026-10-25T17:11:20.328676+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "7f5430cf9f51f084d352176a8674b0795866d564ba3b392a744f764ff084145e"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_2.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+        "--scenario",
+        "AC-16.2-03",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.2/AC-16.2-03.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.2-03",
+      "startedAt": "2026-10-25T17:11:20.408816+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "0d179acacfde915bbbe0401e79d283d8409bb39b879b62c20ecf3244124923ab"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_2.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+        "--scenario",
+        "AC-16.2-04",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.2/AC-16.2-04.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.2-04",
+      "startedAt": "2026-10-25T17:11:20.486717+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "d60a681bc92ad71998380592b32259bdc5744f60ab09293de48c0e1a6d078f1b"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_2.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+        "--scenario",
+        "AC-16.2-05",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.2/AC-16.2-05.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.2-05",
+      "startedAt": "2026-10-25T17:11:20.567169+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "6278f67e79471d3fb6e057b4a0388a0a712044afbe02ce95cc6c2b37999795df"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/generate_story_record.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+        "--format",
+        "bundle",
+        "--output-json",
+        "docs/release-evidence/story-16.2-final-record-v2.json",
+        "--output-markdown",
+        "docs/release-evidence/story-16.2-final-record-v2.md"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.2-06",
+      "startedAt": "2026-10-25T17:11:20.646632+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "7f096c50e5d22fef41229bd65005b0d7e1fbcf2311783e96c9c352ecde9a224e"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_3.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+        "--scenario",
+        "AC-16.3-01",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.3/AC-16.3-01.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.3-01",
+      "startedAt": "2026-10-25T17:11:20.817267+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "28bd46ec3fe4af85c0f196349f76ec1c1dca57502fab4fab514de19ab0e32562"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_3.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+        "--scenario",
+        "AC-16.3-02",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.3/AC-16.3-02.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.3-02",
+      "startedAt": "2026-10-25T17:11:20.893533+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "8aa4c9e48d21045ae626a53586d17b03388f92488d70fed35b193ec1e90d50c8"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_3.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+        "--scenario",
+        "AC-16.3-03",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.3/AC-16.3-03.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.3-03",
+      "startedAt": "2026-10-25T17:11:20.971009+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "01164456e9cd54eee06bd3e45ecbf0d84444473c32fd58f669df848770cdbdb1"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_3.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+        "--scenario",
+        "AC-16.3-04",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.3/AC-16.3-04.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.3-04",
+      "startedAt": "2026-10-25T17:11:21.053864+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "bd125b51a08f894cd7c0303d2aeb58432f79d1ffd47d8ff4b44ce1d4c99b70ab"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/verify_story_16_3.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+        "--scenario",
+        "AC-16.3-05",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.3/AC-16.3-05.json"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.3-05",
+      "startedAt": "2026-10-25T17:11:21.135981+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "a948714deefb249a430c177922cf196bdb1fd7f0f5433a552245abf919d45a00"
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "_bmad/scripts/generate_story_record.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+        "--format",
+        "bundle",
+        "--output-json",
+        "docs/release-evidence/story-16.3-final-record-v2.json",
+        "--output-markdown",
+        "docs/release-evidence/story-16.3-final-record-v2.md"
+      ],
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "scenarioId": "AC-16.3-06",
+      "startedAt": "2026-10-25T17:11:21.216487+00:00",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "28bd46ec3fe4af85c0f196349f76ec1c1dca57502fab4fab514de19ab0e32562"
+    }
+  ],
+  "toolingBindingSha256": "b2ad8ad78df6317e78453a507fbb6c9600bf3fc566f7c9e872563662f3e7e395"
+}

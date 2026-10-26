@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-parent-reference-kind-z8_m5epq/class/external/External.csproj (in 63 ms).
+  Restored /tmp/epic16-parent-reference-kind-z8_m5epq/class/api/Api.csproj (in 63 ms).
+  External -> /tmp/epic16-parent-reference-kind-z8_m5epq/class/external/bin/Debug/net10.0/External.dll
+  Api -> /tmp/epic16-parent-reference-kind-z8_m5epq/class/api/bin/Debug/net10.0/Probe.Api.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.17

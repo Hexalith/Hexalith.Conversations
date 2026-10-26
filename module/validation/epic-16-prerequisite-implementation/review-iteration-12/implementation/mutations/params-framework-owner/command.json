@@ -1,0 +1,29 @@
+{
+  "name": "params-framework-owner",
+  "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+  "old": "=> ProductMetadata.IsFrameworkAttribute(reader, attribute, \"System.ParamArrayAttribute\", [0x20, 0, 1])",
+  "new": "=> true",
+  "selector": "round12_native_framework and custom-params",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-params-framework-owner-58w6plfr/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_native_framework and custom-params",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/params-framework-owner/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-params-framework-owner-58w6plfr",
+  "exitCode": 1,
+  "elapsedSeconds": 8.151956989982864,
+  "originalSha256": "06c002bbe8eadf3b9203d22c122dcc74d0e835e383a91f45e67cab7209ef377d",
+  "mutatedSha256": "1d0358371158b10f6f44720f22ddee0d41fe4b0be34b0d53d81c7aa2d53c0fe3",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="16.762" timestamp="2026-10-26T06:29:51.727006+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit[0]" time="14.681"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-679/test_round12_enqueue_transacti0/fixture')
+index = 0
+
+    @pytest.mark.parametrize('index',range(3))
+    def test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit(repository,index):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1];delivery=next(d for d in row['catchUp']['deliveries'] if d['enqueue']['transactionId'] is not None);transaction=row['atomicity']['stages'][index]['cas']['transactionId'];enqueue=delivery['enqueue']
+        enqueue['transactionId']=enqueue['indexTransactionId']=transaction
+        for part in enqueue['componentTransactions']:part['transactionId']=transaction
+        delivery['operations']['commit']['transactionId']=delivery['operations']['acknowledgement']['transactionId']=transaction
+&gt;       round8_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4352: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-679/test_round12_enqueue_transacti0/fixture')
+scenario = 'AC-16.2-04'
+data = {'lifecycle': [{'id': 'erase', 'beforeGeneration': 2, 'afterGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3]...erGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3], ...}], 'queryWrites': [], 'unauthorizedRebuildWrites': 0}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit[1]" time="0.475"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-679/test_round12_enqueue_transacti1/fixture')
+index = 1
+
+    @pytest.mark.parametrize('index',range(3))
+    def test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit(repository,index):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1];delivery=next(d for d in row['catchUp']['deliveries'] if d['enqueue']['transactionId'] is not None);transaction=row['atomicity']['stages'][index]['cas']['transactionId'];enqueue=delivery['enqueue']
+        enqueue['transactionId']=enqueue['indexTransactionId']=transaction
+        for part in enqueue['componentTransactions']:part['transactionId']=transaction
+        delivery['operations']['commit']['transactionId']=delivery['operations']['acknowledgement']['transactionId']=transaction
+&gt;       round8_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4352: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-679/test_round12_enqueue_transacti1/fixture')
+scenario = 'AC-16.2-04'
+data = {'lifecycle': [{'id': 'erase', 'beforeGeneration': 2, 'afterGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3]...erGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3], ...}], 'queryWrites': [], 'unauthorizedRebuildWrites': 0}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit[2]" time="0.519"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-679/test_round12_enqueue_transacti2/fixture')
+index = 2
+
+    @pytest.mark.parametrize('index',range(3))
+    def test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit(repository,index):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1];delivery=next(d for d in row['catchUp']['deliveries'] if d['enqueue']['transactionId'] is not None);transaction=row['atomicity']['stages'][index]['cas']['transactionId'];enqueue=delivery['enqueue']
+        enqueue['transactionId']=enqueue['indexTransactionId']=transaction
+        for part in enqueue['componentTransactions']:part['transactionId']=transaction
+        delivery['operations']['commit']['transactionId']=delivery['operations']['acknowledgement']['transactionId']=transaction
+&gt;       round8_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4352: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-679/test_round12_enqueue_transacti2/fixture')
+scenario = 'AC-16.2-04'
+data = {'lifecycle': [{'id': 'erase', 'beforeGeneration': 2, 'afterGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3]...erGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3], ...}], 'queryWrites': [], 'unauthorizedRebuildWrites': 0}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase></testsuite></testsuites>

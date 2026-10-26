@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="9.781" timestamp="2026-10-26T01:59:32.001252+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_native_api_comparison_preserves_supported_contracts[abstract-interface]" time="5.793"><failure message="Failed: DID NOT RAISE Stop">shape = 'abstract-interface'
+
+    @pytest.mark.parametrize('shape',['return','parameter','parameter-name','nullable','property','generic','visibility','abstract-interface','abstract-class'])
+    def test_round9_native_api_comparison_preserves_supported_contracts(shape):
+        product=dict(assemblyName='Synthetic.Api',surfaces=['Synthetic.Surface'])
+        before='namespace Synthetic; public class Surface { public string Existing(string value) =&gt; value; public string Value { get; set; } = ""; public T Generic&lt;T&gt;(T value) where T : class =&gt; value; }'
+        after=before
+        if shape=='return':after=before.replace('string Existing(string value) =&gt; value','object Existing(string value) =&gt; value')
+        elif shape=='parameter':after=before.replace('string Existing(string value) =&gt; value','string Existing(object value) =&gt; value.ToString()!')
+        elif shape=='parameter-name':after=before.replace('string Existing(string value) =&gt; value','string Existing(string renamed) =&gt; renamed')
+        elif shape=='nullable':after=before.replace('string Existing(string value)','string? Existing(string? value)')
+        elif shape=='property':after=before.replace('get; set;', 'get;')
+        elif shape=='generic':after=before.replace('where T : class', 'where T : class, new()')
+        elif shape=='visibility':after=before.replace('public string Existing','protected string Existing')
+        elif shape=='abstract-interface':
+            before='namespace Synthetic; public interface Surface { string Existing(string value); }';after=before.replace('string Existing', 'void Added(); string Existing')
+        else:
+            before='namespace Synthetic; public abstract class Surface { public string Existing(string value) =&gt; value; }';after=before.replace('public string Existing', 'public abstract void Added(); public string Existing')
+        b=tooling.native_helper.inspect_product(round9_compile_product(product,'a'*40,before),'a'*40)
+        a=tooling.native_helper.inspect_product(round9_compile_product(product,'b'*40,after),'b'*40)
+&gt;       with pytest.raises(tooling.Stop) as error:tooling.products.additive(b,a,tooling.need,shape)
+E       Failed: DID NOT RAISE Stop
+
+_bmad/scripts/tests/test_epic16_tooling.py:3458: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_native_api_comparison_preserves_supported_contracts[abstract-class]" time="3.283"><failure message="Failed: DID NOT RAISE Stop">shape = 'abstract-class'
+
+    @pytest.mark.parametrize('shape',['return','parameter','parameter-name','nullable','property','generic','visibility','abstract-interface','abstract-class'])
+    def test_round9_native_api_comparison_preserves_supported_contracts(shape):
+        product=dict(assemblyName='Synthetic.Api',surfaces=['Synthetic.Surface'])
+        before='namespace Synthetic; public class Surface { public string Existing(string value) =&gt; value; public string Value { get; set; } = ""; public T Generic&lt;T&gt;(T value) where T : class =&gt; value; }'
+        after=before
+        if shape=='return':after=before.replace('string Existing(string value) =&gt; value','object Existing(string value) =&gt; value')
+        elif shape=='parameter':after=before.replace('string Existing(string value) =&gt; value','string Existing(object value) =&gt; value.ToString()!')
+        elif shape=='parameter-name':after=before.replace('string Existing(string value) =&gt; value','string Existing(string renamed) =&gt; renamed')
+        elif shape=='nullable':after=before.replace('string Existing(string value)','string? Existing(string? value)')
+        elif shape=='property':after=before.replace('get; set;', 'get;')
+        elif shape=='generic':after=before.replace('where T : class', 'where T : class, new()')
+        elif shape=='visibility':after=before.replace('public string Existing','protected string Existing')
+        elif shape=='abstract-interface':
+            before='namespace Synthetic; public interface Surface { string Existing(string value); }';after=before.replace('string Existing', 'void Added(); string Existing')
+        else:
+            before='namespace Synthetic; public abstract class Surface { public string Existing(string value) =&gt; value; }';after=before.replace('public string Existing', 'public abstract void Added(); public string Existing')
+        b=tooling.native_helper.inspect_product(round9_compile_product(product,'a'*40,before),'a'*40)
+        a=tooling.native_helper.inspect_product(round9_compile_product(product,'b'*40,after),'b'*40)
+&gt;       with pytest.raises(tooling.Stop) as error:tooling.products.additive(b,a,tooling.need,shape)
+E       Failed: DID NOT RAISE Stop
+
+_bmad/scripts/tests/test_epic16_tooling.py:3458: Failed</failure></testcase></testsuite></testsuites>

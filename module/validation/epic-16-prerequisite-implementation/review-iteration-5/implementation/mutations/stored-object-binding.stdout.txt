@@ -1,0 +1,414 @@
+FFFFFF.F..FFF                                                            [100%]
+=================================== FAILURES ===================================
+_ test_round5_erase_targets_bind_captured_stored_identity_and_source[foreign-key] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-382/test_round5_erase_targets_bind0/fixture')
+fault = 'foreign-key'
+
+    @pytest.mark.parametrize('fault', ['foreign-key','record-tenant','record-resource','record-generation','record-position','dispatch','missing-capture','extra-capture','missing-delete','extra-delete','source-tenant','source-resource','source-digest'])
+    def test_round5_erase_targets_bind_captured_stored_identity_and_source(repository, fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][0];capture=row['capturedObjects'][0]
+        stored=json.loads(capture['storedMetadataBytes'])
+        if fault=='foreign-key':
+            key=tooling.measurements.relationships.conversation_key('foreign',capture['sourceRecords'][0]['conversation'])
+            row['deletionTargets'][0]['key']=row['deletedTargets'][0]['key']=capture['key']=key
+        elif fault=='record-tenant':
+            for part in ('summary','detail'):stored[part]['tenantId']='tenant:foreign'
+        elif fault=='record-resource':
+            for part in ('summary','detail'):stored[part]['conversationId']='conv:foreign'
+        elif fault=='record-generation':stored['lifecycleGeneration']+=1
+        elif fault=='record-position':
+            for part in ('summary','detail'):stored[part]['freshness']['lastAppliedEventPosition']+=1
+        elif fault=='dispatch':stored['dispatchId']='foreign-dispatch'
+        elif fault=='missing-capture':row['capturedObjects']=[]
+        elif fault=='extra-capture':row['capturedObjects'].append(deepcopy(capture))
+        elif fault=='missing-delete':row['deletedTargets']=[]
+        elif fault=='extra-delete':row['deletedTargets'].append(deepcopy(row['deletedTargets'][0]))
+        elif fault in ('source-tenant','source-resource'):
+            field='tenant' if fault=='source-tenant' else 'conversation'
+            capture['sourceRecords'][0][field]='foreign'
+        else:capture['storedMetadataSha256']='0'*64
+        capture['storedMetadataBytes']=json.dumps(stored)
+        if fault!='source-digest':capture['storedMetadataSha256']=digest(capture['storedMetadataBytes'].encode())
+        native(repository,'AC-16.2-04',data)
+        result=evaluate(repository,'AC-16.2-04')
+>       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1854: AssertionError
+_ test_round5_erase_targets_bind_captured_stored_identity_and_source[record-tenant] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-382/test_round5_erase_targets_bind1/fixture')
+fault = 'record-tenant'
+
+    @pytest.mark.parametrize('fault', ['foreign-key','record-tenant','record-resource','record-generation','record-position','dispatch','missing-capture','extra-capture','missing-delete','extra-delete','source-tenant','source-resource','source-digest'])
+    def test_round5_erase_targets_bind_captured_stored_identity_and_source(repository, fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][0];capture=row['capturedObjects'][0]
+        stored=json.loads(capture['storedMetadataBytes'])
+        if fault=='foreign-key':
+            key=tooling.measurements.relationships.conversation_key('foreign',capture['sourceRecords'][0]['conversation'])
+            row['deletionTargets'][0]['key']=row['deletedTargets'][0]['key']=capture['key']=key
+        elif fault=='record-tenant':
+            for part in ('summary','detail'):stored[part]['tenantId']='tenant:foreign'
+        elif fault=='record-resource':
+            for part in ('summary','detail'):stored[part]['conversationId']='conv:foreign'
+        elif fault=='record-generation':stored['lifecycleGeneration']+=1
+        elif fault=='record-position':
+            for part in ('summary','detail'):stored[part]['freshness']['lastAppliedEventPosition']+=1
+        elif fault=='dispatch':stored['dispatchId']='foreign-dispatch'
+        elif fault=='missing-capture':row['capturedObjects']=[]
+        elif fault=='extra-capture':row['capturedObjects'].append(deepcopy(capture))
+        elif fault=='missing-delete':row['deletedTargets']=[]
+        elif fault=='extra-delete':row['deletedTargets'].append(deepcopy(row['deletedTargets'][0]))
+        elif fault in ('source-tenant','source-resource'):
+            field='tenant' if fault=='source-tenant' else 'conversation'
+            capture['sourceRecords'][0][field]='foreign'
+        else:capture['storedMetadataSha256']='0'*64
+        capture['storedMetadataBytes']=json.dumps(stored)
+        if fault!='source-digest':capture['storedMetadataSha256']=digest(capture['storedMetadataBytes'].encode())
+        native(repository,'AC-16.2-04',data)
+        result=evaluate(repository,'AC-16.2-04')
+>       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1854: AssertionError
+_ test_round5_erase_targets_bind_captured_stored_identity_and_source[record-resource] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-382/test_round5_erase_targets_bind2/fixture')
+fault = 'record-resource'
+
+    @pytest.mark.parametrize('fault', ['foreign-key','record-tenant','record-resource','record-generation','record-position','dispatch','missing-capture','extra-capture','missing-delete','extra-delete','source-tenant','source-resource','source-digest'])
+    def test_round5_erase_targets_bind_captured_stored_identity_and_source(repository, fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][0];capture=row['capturedObjects'][0]
+        stored=json.loads(capture['storedMetadataBytes'])
+        if fault=='foreign-key':
+            key=tooling.measurements.relationships.conversation_key('foreign',capture['sourceRecords'][0]['conversation'])
+            row['deletionTargets'][0]['key']=row['deletedTargets'][0]['key']=capture['key']=key
+        elif fault=='record-tenant':
+            for part in ('summary','detail'):stored[part]['tenantId']='tenant:foreign'
+        elif fault=='record-resource':
+            for part in ('summary','detail'):stored[part]['conversationId']='conv:foreign'
+        elif fault=='record-generation':stored['lifecycleGeneration']+=1
+        elif fault=='record-position':
+            for part in ('summary','detail'):stored[part]['freshness']['lastAppliedEventPosition']+=1
+        elif fault=='dispatch':stored['dispatchId']='foreign-dispatch'
+        elif fault=='missing-capture':row['capturedObjects']=[]
+        elif fault=='extra-capture':row['capturedObjects'].append(deepcopy(capture))
+        elif fault=='missing-delete':row['deletedTargets']=[]
+        elif fault=='extra-delete':row['deletedTargets'].append(deepcopy(row['deletedTargets'][0]))
+        elif fault in ('source-tenant','source-resource'):
+            field='tenant' if fault=='source-tenant' else 'conversation'
+            capture['sourceRecords'][0][field]='foreign'
+        else:capture['storedMetadataSha256']='0'*64
+        capture['storedMetadataBytes']=json.dumps(stored)
+        if fault!='source-digest':capture['storedMetadataSha256']=digest(capture['storedMetadataBytes'].encode())
+        native(repository,'AC-16.2-04',data)
+        result=evaluate(repository,'AC-16.2-04')
+>       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1854: AssertionError
+_ test_round5_erase_targets_bind_captured_stored_identity_and_source[record-generation] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-382/test_round5_erase_targets_bind3/fixture')
+fault = 'record-generation'
+
+    @pytest.mark.parametrize('fault', ['foreign-key','record-tenant','record-resource','record-generation','record-position','dispatch','missing-capture','extra-capture','missing-delete','extra-delete','source-tenant','source-resource','source-digest'])
+    def test_round5_erase_targets_bind_captured_stored_identity_and_source(repository, fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][0];capture=row['capturedObjects'][0]
+        stored=json.loads(capture['storedMetadataBytes'])
+        if fault=='foreign-key':
+            key=tooling.measurements.relationships.conversation_key('foreign',capture['sourceRecords'][0]['conversation'])
+            row['deletionTargets'][0]['key']=row['deletedTargets'][0]['key']=capture['key']=key
+        elif fault=='record-tenant':
+            for part in ('summary','detail'):stored[part]['tenantId']='tenant:foreign'
+        elif fault=='record-resource':
+            for part in ('summary','detail'):stored[part]['conversationId']='conv:foreign'
+        elif fault=='record-generation':stored['lifecycleGeneration']+=1
+        elif fault=='record-position':
+            for part in ('summary','detail'):stored[part]['freshness']['lastAppliedEventPosition']+=1
+        elif fault=='dispatch':stored['dispatchId']='foreign-dispatch'
+        elif fault=='missing-capture':row['capturedObjects']=[]
+        elif fault=='extra-capture':row['capturedObjects'].append(deepcopy(capture))
+        elif fault=='missing-delete':row['deletedTargets']=[]
+        elif fault=='extra-delete':row['deletedTargets'].append(deepcopy(row['deletedTargets'][0]))
+        elif fault in ('source-tenant','source-resource'):
+            field='tenant' if fault=='source-tenant' else 'conversation'
+            capture['sourceRecords'][0][field]='foreign'
+        else:capture['storedMetadataSha256']='0'*64
+        capture['storedMetadataBytes']=json.dumps(stored)
+        if fault!='source-digest':capture['storedMetadataSha256']=digest(capture['storedMetadataBytes'].encode())
+        native(repository,'AC-16.2-04',data)
+        result=evaluate(repository,'AC-16.2-04')
+>       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1854: AssertionError
+_ test_round5_erase_targets_bind_captured_stored_identity_and_source[record-position] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-382/test_round5_erase_targets_bind4/fixture')
+fault = 'record-position'
+
+    @pytest.mark.parametrize('fault', ['foreign-key','record-tenant','record-resource','record-generation','record-position','dispatch','missing-capture','extra-capture','missing-delete','extra-delete','source-tenant','source-resource','source-digest'])
+    def test_round5_erase_targets_bind_captured_stored_identity_and_source(repository, fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][0];capture=row['capturedObjects'][0]
+        stored=json.loads(capture['storedMetadataBytes'])
+        if fault=='foreign-key':
+            key=tooling.measurements.relationships.conversation_key('foreign',capture['sourceRecords'][0]['conversation'])
+            row['deletionTargets'][0]['key']=row['deletedTargets'][0]['key']=capture['key']=key
+        elif fault=='record-tenant':
+            for part in ('summary','detail'):stored[part]['tenantId']='tenant:foreign'
+        elif fault=='record-resource':
+            for part in ('summary','detail'):stored[part]['conversationId']='conv:foreign'
+        elif fault=='record-generation':stored['lifecycleGeneration']+=1
+        elif fault=='record-position':
+            for part in ('summary','detail'):stored[part]['freshness']['lastAppliedEventPosition']+=1
+        elif fault=='dispatch':stored['dispatchId']='foreign-dispatch'
+        elif fault=='missing-capture':row['capturedObjects']=[]
+        elif fault=='extra-capture':row['capturedObjects'].append(deepcopy(capture))
+        elif fault=='missing-delete':row['deletedTargets']=[]
+        elif fault=='extra-delete':row['deletedTargets'].append(deepcopy(row['deletedTargets'][0]))
+        elif fault in ('source-tenant','source-resource'):
+            field='tenant' if fault=='source-tenant' else 'conversation'
+            capture['sourceRecords'][0][field]='foreign'
+        else:capture['storedMetadataSha256']='0'*64
+        capture['storedMetadataBytes']=json.dumps(stored)
+        if fault!='source-digest':capture['storedMetadataSha256']=digest(capture['storedMetadataBytes'].encode())
+        native(repository,'AC-16.2-04',data)
+        result=evaluate(repository,'AC-16.2-04')
+>       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1854: AssertionError
+_ test_round5_erase_targets_bind_captured_stored_identity_and_source[dispatch] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-382/test_round5_erase_targets_bind5/fixture')
+fault = 'dispatch'
+
+    @pytest.mark.parametrize('fault', ['foreign-key','record-tenant','record-resource','record-generation','record-position','dispatch','missing-capture','extra-capture','missing-delete','extra-delete','source-tenant','source-resource','source-digest'])
+    def test_round5_erase_targets_bind_captured_stored_identity_and_source(repository, fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][0];capture=row['capturedObjects'][0]
+        stored=json.loads(capture['storedMetadataBytes'])
+        if fault=='foreign-key':
+            key=tooling.measurements.relationships.conversation_key('foreign',capture['sourceRecords'][0]['conversation'])
+            row['deletionTargets'][0]['key']=row['deletedTargets'][0]['key']=capture['key']=key
+        elif fault=='record-tenant':
+            for part in ('summary','detail'):stored[part]['tenantId']='tenant:foreign'
+        elif fault=='record-resource':
+            for part in ('summary','detail'):stored[part]['conversationId']='conv:foreign'
+        elif fault=='record-generation':stored['lifecycleGeneration']+=1
+        elif fault=='record-position':
+            for part in ('summary','detail'):stored[part]['freshness']['lastAppliedEventPosition']+=1
+        elif fault=='dispatch':stored['dispatchId']='foreign-dispatch'
+        elif fault=='missing-capture':row['capturedObjects']=[]
+        elif fault=='extra-capture':row['capturedObjects'].append(deepcopy(capture))
+        elif fault=='missing-delete':row['deletedTargets']=[]
+        elif fault=='extra-delete':row['deletedTargets'].append(deepcopy(row['deletedTargets'][0]))
+        elif fault in ('source-tenant','source-resource'):
+            field='tenant' if fault=='source-tenant' else 'conversation'
+            capture['sourceRecords'][0][field]='foreign'
+        else:capture['storedMetadataSha256']='0'*64
+        capture['storedMetadataBytes']=json.dumps(stored)
+        if fault!='source-digest':capture['storedMetadataSha256']=digest(capture['storedMetadataBytes'].encode())
+        native(repository,'AC-16.2-04',data)
+        result=evaluate(repository,'AC-16.2-04')
+>       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1854: AssertionError
+_ test_round5_erase_targets_bind_captured_stored_identity_and_source[extra-capture] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-382/test_round5_erase_targets_bind7/fixture')
+fault = 'extra-capture'
+
+    @pytest.mark.parametrize('fault', ['foreign-key','record-tenant','record-resource','record-generation','record-position','dispatch','missing-capture','extra-capture','missing-delete','extra-delete','source-tenant','source-resource','source-digest'])
+    def test_round5_erase_targets_bind_captured_stored_identity_and_source(repository, fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][0];capture=row['capturedObjects'][0]
+        stored=json.loads(capture['storedMetadataBytes'])
+        if fault=='foreign-key':
+            key=tooling.measurements.relationships.conversation_key('foreign',capture['sourceRecords'][0]['conversation'])
+            row['deletionTargets'][0]['key']=row['deletedTargets'][0]['key']=capture['key']=key
+        elif fault=='record-tenant':
+            for part in ('summary','detail'):stored[part]['tenantId']='tenant:foreign'
+        elif fault=='record-resource':
+            for part in ('summary','detail'):stored[part]['conversationId']='conv:foreign'
+        elif fault=='record-generation':stored['lifecycleGeneration']+=1
+        elif fault=='record-position':
+            for part in ('summary','detail'):stored[part]['freshness']['lastAppliedEventPosition']+=1
+        elif fault=='dispatch':stored['dispatchId']='foreign-dispatch'
+        elif fault=='missing-capture':row['capturedObjects']=[]
+        elif fault=='extra-capture':row['capturedObjects'].append(deepcopy(capture))
+        elif fault=='missing-delete':row['deletedTargets']=[]
+        elif fault=='extra-delete':row['deletedTargets'].append(deepcopy(row['deletedTargets'][0]))
+        elif fault in ('source-tenant','source-resource'):
+            field='tenant' if fault=='source-tenant' else 'conversation'
+            capture['sourceRecords'][0][field]='foreign'
+        else:capture['storedMetadataSha256']='0'*64
+        capture['storedMetadataBytes']=json.dumps(stored)
+        if fault!='source-digest':capture['storedMetadataSha256']=digest(capture['storedMetadataBytes'].encode())
+        native(repository,'AC-16.2-04',data)
+        result=evaluate(repository,'AC-16.2-04')
+>       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1854: AssertionError
+_ test_round5_erase_targets_bind_captured_stored_identity_and_source[source-tenant] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-382/test_round5_erase_targets_bind10/fixture')
+fault = 'source-tenant'
+
+    @pytest.mark.parametrize('fault', ['foreign-key','record-tenant','record-resource','record-generation','record-position','dispatch','missing-capture','extra-capture','missing-delete','extra-delete','source-tenant','source-resource','source-digest'])
+    def test_round5_erase_targets_bind_captured_stored_identity_and_source(repository, fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][0];capture=row['capturedObjects'][0]
+        stored=json.loads(capture['storedMetadataBytes'])
+        if fault=='foreign-key':
+            key=tooling.measurements.relationships.conversation_key('foreign',capture['sourceRecords'][0]['conversation'])
+            row['deletionTargets'][0]['key']=row['deletedTargets'][0]['key']=capture['key']=key
+        elif fault=='record-tenant':
+            for part in ('summary','detail'):stored[part]['tenantId']='tenant:foreign'
+        elif fault=='record-resource':
+            for part in ('summary','detail'):stored[part]['conversationId']='conv:foreign'
+        elif fault=='record-generation':stored['lifecycleGeneration']+=1
+        elif fault=='record-position':
+            for part in ('summary','detail'):stored[part]['freshness']['lastAppliedEventPosition']+=1
+        elif fault=='dispatch':stored['dispatchId']='foreign-dispatch'
+        elif fault=='missing-capture':row['capturedObjects']=[]
+        elif fault=='extra-capture':row['capturedObjects'].append(deepcopy(capture))
+        elif fault=='missing-delete':row['deletedTargets']=[]
+        elif fault=='extra-delete':row['deletedTargets'].append(deepcopy(row['deletedTargets'][0]))
+        elif fault in ('source-tenant','source-resource'):
+            field='tenant' if fault=='source-tenant' else 'conversation'
+            capture['sourceRecords'][0][field]='foreign'
+        else:capture['storedMetadataSha256']='0'*64
+        capture['storedMetadataBytes']=json.dumps(stored)
+        if fault!='source-digest':capture['storedMetadataSha256']=digest(capture['storedMetadataBytes'].encode())
+        native(repository,'AC-16.2-04',data)
+        result=evaluate(repository,'AC-16.2-04')
+>       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1854: AssertionError
+_ test_round5_erase_targets_bind_captured_stored_identity_and_source[source-resource] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-382/test_round5_erase_targets_bind11/fixture')
+fault = 'source-resource'
+
+    @pytest.mark.parametrize('fault', ['foreign-key','record-tenant','record-resource','record-generation','record-position','dispatch','missing-capture','extra-capture','missing-delete','extra-delete','source-tenant','source-resource','source-digest'])
+    def test_round5_erase_targets_bind_captured_stored_identity_and_source(repository, fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][0];capture=row['capturedObjects'][0]
+        stored=json.loads(capture['storedMetadataBytes'])
+        if fault=='foreign-key':
+            key=tooling.measurements.relationships.conversation_key('foreign',capture['sourceRecords'][0]['conversation'])
+            row['deletionTargets'][0]['key']=row['deletedTargets'][0]['key']=capture['key']=key
+        elif fault=='record-tenant':
+            for part in ('summary','detail'):stored[part]['tenantId']='tenant:foreign'
+        elif fault=='record-resource':
+            for part in ('summary','detail'):stored[part]['conversationId']='conv:foreign'
+        elif fault=='record-generation':stored['lifecycleGeneration']+=1
+        elif fault=='record-position':
+            for part in ('summary','detail'):stored[part]['freshness']['lastAppliedEventPosition']+=1
+        elif fault=='dispatch':stored['dispatchId']='foreign-dispatch'
+        elif fault=='missing-capture':row['capturedObjects']=[]
+        elif fault=='extra-capture':row['capturedObjects'].append(deepcopy(capture))
+        elif fault=='missing-delete':row['deletedTargets']=[]
+        elif fault=='extra-delete':row['deletedTargets'].append(deepcopy(row['deletedTargets'][0]))
+        elif fault in ('source-tenant','source-resource'):
+            field='tenant' if fault=='source-tenant' else 'conversation'
+            capture['sourceRecords'][0][field]='foreign'
+        else:capture['storedMetadataSha256']='0'*64
+        capture['storedMetadataBytes']=json.dumps(stored)
+        if fault!='source-digest':capture['storedMetadataSha256']=digest(capture['storedMetadataBytes'].encode())
+        native(repository,'AC-16.2-04',data)
+        result=evaluate(repository,'AC-16.2-04')
+>       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1854: AssertionError
+_ test_round5_erase_targets_bind_captured_stored_identity_and_source[source-digest] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-382/test_round5_erase_targets_bind12/fixture')
+fault = 'source-digest'
+
+    @pytest.mark.parametrize('fault', ['foreign-key','record-tenant','record-resource','record-generation','record-position','dispatch','missing-capture','extra-capture','missing-delete','extra-delete','source-tenant','source-resource','source-digest'])
+    def test_round5_erase_targets_bind_captured_stored_identity_and_source(repository, fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][0];capture=row['capturedObjects'][0]
+        stored=json.loads(capture['storedMetadataBytes'])
+        if fault=='foreign-key':
+            key=tooling.measurements.relationships.conversation_key('foreign',capture['sourceRecords'][0]['conversation'])
+            row['deletionTargets'][0]['key']=row['deletedTargets'][0]['key']=capture['key']=key
+        elif fault=='record-tenant':
+            for part in ('summary','detail'):stored[part]['tenantId']='tenant:foreign'
+        elif fault=='record-resource':
+            for part in ('summary','detail'):stored[part]['conversationId']='conv:foreign'
+        elif fault=='record-generation':stored['lifecycleGeneration']+=1
+        elif fault=='record-position':
+            for part in ('summary','detail'):stored[part]['freshness']['lastAppliedEventPosition']+=1
+        elif fault=='dispatch':stored['dispatchId']='foreign-dispatch'
+        elif fault=='missing-capture':row['capturedObjects']=[]
+        elif fault=='extra-capture':row['capturedObjects'].append(deepcopy(capture))
+        elif fault=='missing-delete':row['deletedTargets']=[]
+        elif fault=='extra-delete':row['deletedTargets'].append(deepcopy(row['deletedTargets'][0]))
+        elif fault in ('source-tenant','source-resource'):
+            field='tenant' if fault=='source-tenant' else 'conversation'
+            capture['sourceRecords'][0][field]='foreign'
+        else:capture['storedMetadataSha256']='0'*64
+        capture['storedMetadataBytes']=json.dumps(stored)
+        if fault!='source-digest':capture['storedMetadataSha256']=digest(capture['storedMetadataBytes'].encode())
+        native(repository,'AC-16.2-04',data)
+        result=evaluate(repository,'AC-16.2-04')
+>       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1854: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_erase_targets_bind_captured_stored_identity_and_source[foreign-key]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_erase_targets_bind_captured_stored_identity_and_source[record-tenant]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_erase_targets_bind_captured_stored_identity_and_source[record-resource]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_erase_targets_bind_captured_stored_identity_and_source[record-generation]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_erase_targets_bind_captured_stored_identity_and_source[record-position]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_erase_targets_bind_captured_stored_identity_and_source[dispatch]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_erase_targets_bind_captured_stored_identity_and_source[extra-capture]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_erase_targets_bind_captured_stored_identity_and_source[source-tenant]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_erase_targets_bind_captured_stored_identity_and_source[source-resource]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_erase_targets_bind_captured_stored_identity_and_source[source-digest]
+10 failed, 3 passed, 849 deselected in 4.63s

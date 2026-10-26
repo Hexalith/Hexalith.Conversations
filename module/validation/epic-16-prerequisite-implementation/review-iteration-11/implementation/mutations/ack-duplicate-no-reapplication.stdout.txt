@@ -1,0 +1,200 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_round11_acknowledgement_derives_executed_durable_contents[write-count-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-634/test_round11_acknowledgement_d0/fixture')
+index = 0, fault = 'write-count'
+
+    @pytest.mark.parametrize('index',range(4))
+    @pytest.mark.parametrize('fault',['positive','missing-evidence','missing-commit','commit-unexecuted','commit-failed','ack-unexecuted','transaction','record','delivery','persisted','observed','both-swapped','source','delivered','etag','write-count','early','equal-ticks'])
+    def test_round11_acknowledgement_derives_executed_durable_contents(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];commit=row['durableCommit'];ack=row['acknowledgement'];proof=row['durableEvidence']
+        if fault=='missing-evidence':del row['durableEvidence']
+        elif fault=='missing-commit':row['durableCommit']=None
+        elif fault=='commit-unexecuted':commit['executed']=False
+        elif fault=='commit-failed':commit['succeeded']=False
+        elif fault=='ack-unexecuted':ack['executed']=False
+        elif fault=='transaction':ack['transactionId']='unrelated'
+        elif fault=='record':ack['recordId']='unrelated'
+        elif fault=='delivery':ack['deliveryId']='unrelated'
+        elif fault=='persisted':commit['persisted']['projection']['name']='Wrong persisted content'
+        elif fault=='observed':ack['observedRecord']['checkpoint']+=1
+        elif fault=='both-swapped':
+            for value in (proof['after'],commit['persisted'],ack['observedRecord']):value['projection']['name']='Equally wrong'
+        elif fault=='source':proof['sourceRecord']['payloadSha256']='f'*64
+        elif fault=='delivered':proof['delivered']=deepcopy(proof['sourceRecord'] if index!=1 else OBSERVATIONS['AC-16.1-04']['acknowledgements'][0]['durableEvidence']['delivered'])
+        elif fault=='etag':proof['expectedEtag']='foreign'
+        elif fault=='write-count':proof['writeCount']=1-proof['writeCount']
+        elif fault=='early':ack['order']=commit['order']
+        elif fault=='equal-ticks':ack['utcTicks']=commit['utcTicks']
+>       round8_submit(repository,'AC-16.1-04',data,passes=fault in ('positive','equal-ticks'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:4065: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-634/test_round11_acknowledgement_d0/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+_ test_round11_acknowledgement_derives_executed_durable_contents[write-count-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-634/test_round11_acknowledgement_d1/fixture')
+index = 1, fault = 'write-count'
+
+    @pytest.mark.parametrize('index',range(4))
+    @pytest.mark.parametrize('fault',['positive','missing-evidence','missing-commit','commit-unexecuted','commit-failed','ack-unexecuted','transaction','record','delivery','persisted','observed','both-swapped','source','delivered','etag','write-count','early','equal-ticks'])
+    def test_round11_acknowledgement_derives_executed_durable_contents(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];commit=row['durableCommit'];ack=row['acknowledgement'];proof=row['durableEvidence']
+        if fault=='missing-evidence':del row['durableEvidence']
+        elif fault=='missing-commit':row['durableCommit']=None
+        elif fault=='commit-unexecuted':commit['executed']=False
+        elif fault=='commit-failed':commit['succeeded']=False
+        elif fault=='ack-unexecuted':ack['executed']=False
+        elif fault=='transaction':ack['transactionId']='unrelated'
+        elif fault=='record':ack['recordId']='unrelated'
+        elif fault=='delivery':ack['deliveryId']='unrelated'
+        elif fault=='persisted':commit['persisted']['projection']['name']='Wrong persisted content'
+        elif fault=='observed':ack['observedRecord']['checkpoint']+=1
+        elif fault=='both-swapped':
+            for value in (proof['after'],commit['persisted'],ack['observedRecord']):value['projection']['name']='Equally wrong'
+        elif fault=='source':proof['sourceRecord']['payloadSha256']='f'*64
+        elif fault=='delivered':proof['delivered']=deepcopy(proof['sourceRecord'] if index!=1 else OBSERVATIONS['AC-16.1-04']['acknowledgements'][0]['durableEvidence']['delivered'])
+        elif fault=='etag':proof['expectedEtag']='foreign'
+        elif fault=='write-count':proof['writeCount']=1-proof['writeCount']
+        elif fault=='early':ack['order']=commit['order']
+        elif fault=='equal-ticks':ack['utcTicks']=commit['utcTicks']
+>       round8_submit(repository,'AC-16.1-04',data,passes=fault in ('positive','equal-ticks'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:4065: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-634/test_round11_acknowledgement_d1/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+_ test_round11_acknowledgement_derives_executed_durable_contents[write-count-2] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-634/test_round11_acknowledgement_d2/fixture')
+index = 2, fault = 'write-count'
+
+    @pytest.mark.parametrize('index',range(4))
+    @pytest.mark.parametrize('fault',['positive','missing-evidence','missing-commit','commit-unexecuted','commit-failed','ack-unexecuted','transaction','record','delivery','persisted','observed','both-swapped','source','delivered','etag','write-count','early','equal-ticks'])
+    def test_round11_acknowledgement_derives_executed_durable_contents(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];commit=row['durableCommit'];ack=row['acknowledgement'];proof=row['durableEvidence']
+        if fault=='missing-evidence':del row['durableEvidence']
+        elif fault=='missing-commit':row['durableCommit']=None
+        elif fault=='commit-unexecuted':commit['executed']=False
+        elif fault=='commit-failed':commit['succeeded']=False
+        elif fault=='ack-unexecuted':ack['executed']=False
+        elif fault=='transaction':ack['transactionId']='unrelated'
+        elif fault=='record':ack['recordId']='unrelated'
+        elif fault=='delivery':ack['deliveryId']='unrelated'
+        elif fault=='persisted':commit['persisted']['projection']['name']='Wrong persisted content'
+        elif fault=='observed':ack['observedRecord']['checkpoint']+=1
+        elif fault=='both-swapped':
+            for value in (proof['after'],commit['persisted'],ack['observedRecord']):value['projection']['name']='Equally wrong'
+        elif fault=='source':proof['sourceRecord']['payloadSha256']='f'*64
+        elif fault=='delivered':proof['delivered']=deepcopy(proof['sourceRecord'] if index!=1 else OBSERVATIONS['AC-16.1-04']['acknowledgements'][0]['durableEvidence']['delivered'])
+        elif fault=='etag':proof['expectedEtag']='foreign'
+        elif fault=='write-count':proof['writeCount']=1-proof['writeCount']
+        elif fault=='early':ack['order']=commit['order']
+        elif fault=='equal-ticks':ack['utcTicks']=commit['utcTicks']
+>       round8_submit(repository,'AC-16.1-04',data,passes=fault in ('positive','equal-ticks'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:4065: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-634/test_round11_acknowledgement_d2/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+_ test_round11_acknowledgement_derives_executed_durable_contents[write-count-3] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-634/test_round11_acknowledgement_d3/fixture')
+index = 3, fault = 'write-count'
+
+    @pytest.mark.parametrize('index',range(4))
+    @pytest.mark.parametrize('fault',['positive','missing-evidence','missing-commit','commit-unexecuted','commit-failed','ack-unexecuted','transaction','record','delivery','persisted','observed','both-swapped','source','delivered','etag','write-count','early','equal-ticks'])
+    def test_round11_acknowledgement_derives_executed_durable_contents(repository,index,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];commit=row['durableCommit'];ack=row['acknowledgement'];proof=row['durableEvidence']
+        if fault=='missing-evidence':del row['durableEvidence']
+        elif fault=='missing-commit':row['durableCommit']=None
+        elif fault=='commit-unexecuted':commit['executed']=False
+        elif fault=='commit-failed':commit['succeeded']=False
+        elif fault=='ack-unexecuted':ack['executed']=False
+        elif fault=='transaction':ack['transactionId']='unrelated'
+        elif fault=='record':ack['recordId']='unrelated'
+        elif fault=='delivery':ack['deliveryId']='unrelated'
+        elif fault=='persisted':commit['persisted']['projection']['name']='Wrong persisted content'
+        elif fault=='observed':ack['observedRecord']['checkpoint']+=1
+        elif fault=='both-swapped':
+            for value in (proof['after'],commit['persisted'],ack['observedRecord']):value['projection']['name']='Equally wrong'
+        elif fault=='source':proof['sourceRecord']['payloadSha256']='f'*64
+        elif fault=='delivered':proof['delivered']=deepcopy(proof['sourceRecord'] if index!=1 else OBSERVATIONS['AC-16.1-04']['acknowledgements'][0]['durableEvidence']['delivered'])
+        elif fault=='etag':proof['expectedEtag']='foreign'
+        elif fault=='write-count':proof['writeCount']=1-proof['writeCount']
+        elif fault=='early':ack['order']=commit['order']
+        elif fault=='equal-ticks':ack['utcTicks']=commit['utcTicks']
+>       round8_submit(repository,'AC-16.1-04',data,passes=fault in ('positive','equal-ticks'))
+
+_bmad/scripts/tests/test_epic16_tooling.py:4065: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-634/test_round11_acknowledgement_d3/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2859: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_acknowledgement_derives_executed_durable_contents[write-count-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_acknowledgement_derives_executed_durable_contents[write-count-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_acknowledgement_derives_executed_durable_contents[write-count-2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_acknowledgement_derives_executed_durable_contents[write-count-3]
+4 failed, 2250 deselected in 13.95s

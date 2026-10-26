@@ -1,0 +1,2 @@
+[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
+namespace Probe; public class TestClass { [Xunit.Fact, Xunit.Theory] public void Scenario01() {} }

@@ -1,0 +1,124 @@
+{
+  "scope": "Parent independent corrected caller/native controls; no runtime authority",
+  "controls": [
+    {
+      "name": "local-test-stamp",
+      "result": "invalid native evidence",
+      "artifact": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B1/bin/Debug/net10.0/Probe.dll.bytes",
+      "sha256": "ee989186910a1c5e1a137ad281802cfac1e3912632da88848e265ed1c955cafe"
+    },
+    {
+      "name": "fake-task",
+      "result": "invalid native evidence",
+      "artifact": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B2/probe/bin/Debug/net10.0/Probe.dll.bytes",
+      "sha256": "4f11fe2b2525b13c8646b3468754706a21de7c679e94b53d62c9b8f238b48b94"
+    },
+    {
+      "name": "foreign-params",
+      "result": "invalid native evidence",
+      "artifact": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-proofs/R12B3/probe/bin/Debug/net10.0/Probe.dll.bytes",
+      "sha256": "195d614013671bcde9670e3690837b5108ed4d54d76e319ffdc54d410836d794"
+    },
+    {
+      "name": "external-product-stamp",
+      "result": "invalid native evidence",
+      "artifact": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-product-stamp-proof/retained/product/bin/Debug/net10.0/Product.dll.bytes",
+      "sha256": "822954aa320eac05feb4135b3c1ba584f1ba70b54c6f54f22afc29edd271f0fb"
+    },
+    {
+      "name": "genuine-test",
+      "result": "accepted",
+      "artifact": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-b/native-r12/genuine/probe/bin/Debug/net10.0/Evidence.dll.bytes",
+      "sha256": "65358e9e1589a2e787383e3cb639837df1b6ad29d76a32acc7c55346a4ceddfe"
+    },
+    {
+      "name": "genuine-product",
+      "result": "accepted",
+      "artifact": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-b/native-r12/genuine/probe/bin/Debug/net10.0/Evidence.dll.bytes",
+      "sha256": "65358e9e1589a2e787383e3cb639837df1b6ad29d76a32acc7c55346a4ceddfe"
+    },
+    {
+      "name": "baseline-AC-16.1-01",
+      "result": "accepted",
+      "schemaAccepted": true
+    },
+    {
+      "name": "baseline-AC-16.1-02",
+      "result": "accepted",
+      "schemaAccepted": true
+    },
+    {
+      "name": "baseline-AC-16.1-03",
+      "result": "accepted",
+      "schemaAccepted": true
+    },
+    {
+      "name": "baseline-AC-16.1-04",
+      "result": "accepted",
+      "schemaAccepted": true
+    },
+    {
+      "name": "baseline-AC-16.2-04",
+      "result": "accepted",
+      "schemaAccepted": true
+    },
+    {
+      "name": "actual-native-unknown-role",
+      "result": "accepted",
+      "schemaAccepted": true
+    },
+    {
+      "name": "native-control-principal",
+      "result": "controlled native access tenant and principal are validated before the store read",
+      "schemaAccepted": true
+    },
+    {
+      "name": "native-malformed-tenant",
+      "result": "controlled native access tenant and principal are validated before the store read",
+      "schemaAccepted": true
+    },
+    {
+      "name": "lifecycle-transaction-0",
+      "result": "each enqueue outcome has its own measured durable transaction",
+      "schemaAccepted": true
+    },
+    {
+      "name": "lifecycle-transaction-1",
+      "result": "each enqueue outcome has its own measured durable transaction",
+      "schemaAccepted": true
+    },
+    {
+      "name": "lifecycle-transaction-2",
+      "result": "each enqueue outcome has its own measured durable transaction",
+      "schemaAccepted": true
+    },
+    {
+      "name": "reverse-save-unexecuted",
+      "result": "tenant operation actually executed and completed",
+      "schemaAccepted": true
+    },
+    {
+      "name": "access-response-unexecuted",
+      "result": "tenant operation actually executed and completed",
+      "schemaAccepted": true
+    },
+    {
+      "name": "failed-attempt-unexecuted",
+      "result": "tenant operation actually executed and completed",
+      "schemaAccepted": true
+    }
+  ],
+  "count": 20,
+  "sourceHashes": {
+    "_bmad/scripts/epic16_native.py": "f4a254c51e1c3e139c2aab173dd3dc0e754370466af54e0627bc6624561368f0",
+    "_bmad/scripts/epic16_schedules.py": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+    "_bmad/scripts/epic16_measurements.py": "ff956e3d86bcb034d02f50ce98e540e0ff67e8de3338bd975aecb41eebe425eb",
+    "_bmad/scripts/epic16_lifecycle.py": "0c429d1608323c71c9605bab3a02556d5d5d389a79515f0d08b0083d75ada465",
+    "_bmad/scripts/epic16_native_helper/Program.cs": "950cdd62a13d75db36cc39c2d7e1f505ab5db4c99caf908bf08f415f10475b3e",
+    "_bmad/scripts/epic16_native_helper/ProductMetadata.cs": "ef75fbd3b889b78c2e2678db4d99cdb7448f231f29b3d22cb300dff0bb5e3902",
+    "_bmad/scripts/epic16_native_helper/TestConstruction.cs": "06c002bbe8eadf3b9203d22c122dcc74d0e835e383a91f45e67cab7209ef377d",
+    "_bmad/schemas/epic-16-tooling-v1.schema.json": "ebfb75d5e8df14b79226d23cb1fd776c555971d0325b5111fa71bdbf16e43148",
+    "_bmad/scripts/tests/fixtures/epic16-observations-v1.json": "0c92ee2de6565cb692688aef786c99af23ea56f013c1fba44b12d767969512b7"
+  },
+  "changedDuringRun": []
+}

@@ -1,0 +1,70 @@
+[
+  {
+    "path": "src/Hexalith.Conversations.Server/Program.cs",
+    "sha256": "c5155b67f8478d4d74ec731161157d7e6d980ec1cfcd226e21409a1c4fef9ed9"
+  },
+  {
+    "path": "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+    "sha256": "589a3d25a6b0f5c86eb27b5f3120724dc7f91677f306501faaa5a7cedef1cc4f"
+  },
+  {
+    "path": "Directory.Build.props",
+    "sha256": "dad1b26bf2cc8f87fdb764d66b8d476e0a9c1599c4b99de7af515818bf1a51f6"
+  },
+  {
+    "path": "references/Hexalith.EventStore/Directory.Build.props",
+    "sha256": "66b2d5f9b4b60ef17fff045881badc565fcca6e4dfb51919aee760feebb6f477"
+  },
+  {
+    "path": "references/Hexalith.Tenants/Directory.Build.props",
+    "sha256": "aa63a48d8cc10fef234bb2335058dd18d863cd8487952c478f89dc33b5414ba2"
+  },
+  {
+    "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs",
+    "sha256": "9eec74eae1f408b66fe2c6a225e4bdea8966b07ad66b05b34486379be95ce71d"
+  },
+  {
+    "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceRoutes.cs",
+    "sha256": "7e8215d6e69c8c077e9995de7355cf72fb4d8d8863a781e599464633545f87f6"
+  },
+  {
+    "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServicePolicies.cs",
+    "sha256": "76710ac3b8a5f78fcfb2ca6ce5a4605e372b52d76a9f995fca259d48efb53fa6"
+  },
+  {
+    "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Authentication/EventStoreWorkloadAuthenticationDefaults.cs",
+    "sha256": "d5f678108f436a7027d44d8ecb5d23ae204353b23324f5217c674c325031c272"
+  },
+  {
+    "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Authentication/EventStoreWorkloadOperations.cs",
+    "sha256": "58f0adf647ad3f57034318a2dd2eeccf0d553491b819fc5525e3eaf3b7b5d6f7"
+  },
+  {
+    "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Projections/ProjectionDispatchRequest.cs",
+    "sha256": "b3120c674cfb52a06e1ce15c0cd5dfa0059e97b8f02d4f978cd0faa3fb1147bd"
+  },
+  {
+    "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Projections/ProjectionDispatchResponse.cs",
+    "sha256": "c922085fc8488aab06f64e4b23727654a28068ae5c922fdcb04ef4b12e1cc572"
+  },
+  {
+    "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.Server/Projections/NamedProjectionDispatchCoordinator.cs",
+    "sha256": "269c48187ad91a3dca18973ed94e01376c5ea58da29e628ccbffc05d1ab01c76"
+  },
+  {
+    "path": "/home/administrator/.dotnet/sdk/10.0.402/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.GenerateAssemblyInfo.targets",
+    "sha256": "aed5db2d53cb2517edb7cae09dfd543b177ae733d5331536bd044d772bad18e8"
+  },
+  {
+    "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Projections/ProjectionDispatchOutcome.cs",
+    "sha256": "44126408c4d8b39691e9db9f9a7e48927c202664b05a97c9632062548196968e"
+  },
+  {
+    "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Projections/ProjectionDispatchStatus.cs",
+    "sha256": "12852cc9ff2da05672d99ac8659a10683751660f876519fcb7f7ee280f47b9a6"
+  },
+  {
+    "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/DomainProjectionDispatcher.cs",
+    "sha256": "e349fd39755ab533181375471df16ba8d72702fa535451adb487962be889975c"
+  }
+]

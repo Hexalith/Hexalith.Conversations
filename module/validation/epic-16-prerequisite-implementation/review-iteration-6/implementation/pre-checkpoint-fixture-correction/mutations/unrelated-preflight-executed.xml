@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="3.588" timestamp="2026-10-25T22:10:02.971468+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_unrelated_port_requires_separate_executed_negative_operation[not-executed]" time="0.827"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-425/test_round6_unrelated_port_req0/fixture')
+fault = 'not-executed'
+
+    @pytest.mark.parametrize('fault',['missing','not-executed','not-completed','same-operation','owned-occupied','unrelated-free','inventory','result','diagnostic','lane-started'])
+    def test_round6_unrelated_port_requires_separate_executed_negative_operation(repository,fault):
+        scenario='AC-16.3-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['negativePreflight']
+        if fault=='missing':data.pop('negativePreflight')
+        elif fault=='not-executed':row['executed']=False
+        elif fault=='not-completed':row['completed']=False
+        elif fault=='same-operation':row['operationId']=data['collisionOperationId']
+        elif fault=='owned-occupied':row['occupancy'][1]['owner']='collision-fixture'
+        elif fault=='unrelated-free':row['occupancy'][-1]['owner']=None
+        elif fault=='inventory':row['endpointInventory'][1]['port']+=10
+        elif fault=='result':row['result']['checkedEndpointIds'].pop()
+        elif fault=='diagnostic':row['diagnostics'].append('DAPR_CONTROL_PLANE_PORT_COLLISION')
+        else:row['liveLaneStarted']=True
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_SCHEMA_INVALID' if fault=='missing' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_unrelated_port_requires_separate_executed_negative_operation[not-completed]" time="0.926"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-425/test_round6_unrelated_port_req1/fixture')
+fault = 'not-completed'
+
+    @pytest.mark.parametrize('fault',['missing','not-executed','not-completed','same-operation','owned-occupied','unrelated-free','inventory','result','diagnostic','lane-started'])
+    def test_round6_unrelated_port_requires_separate_executed_negative_operation(repository,fault):
+        scenario='AC-16.3-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['negativePreflight']
+        if fault=='missing':data.pop('negativePreflight')
+        elif fault=='not-executed':row['executed']=False
+        elif fault=='not-completed':row['completed']=False
+        elif fault=='same-operation':row['operationId']=data['collisionOperationId']
+        elif fault=='owned-occupied':row['occupancy'][1]['owner']='collision-fixture'
+        elif fault=='unrelated-free':row['occupancy'][-1]['owner']=None
+        elif fault=='inventory':row['endpointInventory'][1]['port']+=10
+        elif fault=='result':row['result']['checkedEndpointIds'].pop()
+        elif fault=='diagnostic':row['diagnostics'].append('DAPR_CONTROL_PLANE_PORT_COLLISION')
+        else:row['liveLaneStarted']=True
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_SCHEMA_INVALID' if fault=='missing' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_unrelated_port_requires_separate_executed_negative_operation[same-operation]" time="1.001"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-425/test_round6_unrelated_port_req2/fixture')
+fault = 'same-operation'
+
+    @pytest.mark.parametrize('fault',['missing','not-executed','not-completed','same-operation','owned-occupied','unrelated-free','inventory','result','diagnostic','lane-started'])
+    def test_round6_unrelated_port_requires_separate_executed_negative_operation(repository,fault):
+        scenario='AC-16.3-02';data=deepcopy(OBSERVATIONS[scenario]);row=data['negativePreflight']
+        if fault=='missing':data.pop('negativePreflight')
+        elif fault=='not-executed':row['executed']=False
+        elif fault=='not-completed':row['completed']=False
+        elif fault=='same-operation':row['operationId']=data['collisionOperationId']
+        elif fault=='owned-occupied':row['occupancy'][1]['owner']='collision-fixture'
+        elif fault=='unrelated-free':row['occupancy'][-1]['owner']=None
+        elif fault=='inventory':row['endpointInventory'][1]['port']+=10
+        elif fault=='result':row['result']['checkedEndpointIds'].pop()
+        elif fault=='diagnostic':row['diagnostics'].append('DAPR_CONTROL_PLANE_PORT_COLLISION')
+        else:row['liveLaneStarted']=True
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_SCHEMA_INVALID' if fault=='missing' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

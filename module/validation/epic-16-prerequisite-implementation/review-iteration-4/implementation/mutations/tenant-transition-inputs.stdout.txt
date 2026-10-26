@@ -1,0 +1,1345 @@
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF                                  [100%]
+=================================== FAILURES ===================================
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-next] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_0/fixture')
+name = 'next', fault = 'wrong-event'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_1/fixture')
+name = 'duplicate', fault = 'wrong-event'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_2/fixture')
+name = 'conflict', fault = 'wrong-event'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-older-match] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_3/fixture')
+name = 'older-match', fault = 'wrong-event'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-older-missing] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_4/fixture')
+name = 'older-missing', fault = 'wrong-event'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-older-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_5/fixture')
+name = 'older-conflict', fault = 'wrong-event'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-older-unavailable] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_6/fixture')
+name = 'older-unavailable', fault = 'wrong-event'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-next] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_7/fixture')
+name = 'next', fault = 'history'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_8/fixture')
+name = 'duplicate', fault = 'history'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_9/fixture')
+name = 'conflict', fault = 'history'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-older-match] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_10/fixture')
+name = 'older-match', fault = 'history'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-older-missing] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_11/fixture')
+name = 'older-missing', fault = 'history'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-older-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_12/fixture')
+name = 'older-conflict', fault = 'history'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-older-unavailable] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_13/fixture')
+name = 'older-unavailable', fault = 'history'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-next] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_14/fixture')
+name = 'next', fault = 'split-write'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_15/fixture')
+name = 'duplicate', fault = 'split-write'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_16/fixture')
+name = 'conflict', fault = 'split-write'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-older-match] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_17/fixture')
+name = 'older-match', fault = 'split-write'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-older-missing] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_18/fixture')
+name = 'older-missing', fault = 'split-write'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-older-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_19/fixture')
+name = 'older-conflict', fault = 'split-write'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-older-unavailable] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_20/fixture')
+name = 'older-unavailable', fault = 'split-write'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-next] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_21/fixture')
+name = 'next', fault = 'failed-cas'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_22/fixture')
+name = 'duplicate', fault = 'failed-cas'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_23/fixture')
+name = 'conflict', fault = 'failed-cas'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-older-match] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_24/fixture')
+name = 'older-match', fault = 'failed-cas'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-older-missing] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_25/fixture')
+name = 'older-missing', fault = 'failed-cas'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-older-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_26/fixture')
+name = 'older-conflict', fault = 'failed-cas'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-older-unavailable] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_27/fixture')
+name = 'older-unavailable', fault = 'failed-cas'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-next] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_28/fixture')
+name = 'next', fault = 'healthy-persisted'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-duplicate] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_29/fixture')
+name = 'duplicate', fault = 'healthy-persisted'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_30/fixture')
+name = 'conflict', fault = 'healthy-persisted'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-older-match] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_31/fixture')
+name = 'older-match', fault = 'healthy-persisted'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-older-missing] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_32/fixture')
+name = 'older-missing', fault = 'healthy-persisted'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-older-conflict] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_33/fixture')
+name = 'older-conflict', fault = 'healthy-persisted'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-older-unavailable] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_tenant_transition_34/fixture')
+name = 'older-unavailable', fault = 'healthy-persisted'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match','older-missing','older-conflict','older-unavailable'])
+    @pytest.mark.parametrize('fault',['wrong-event','history','split-write','failed-cas','healthy-persisted'])
+    def test_round4_tenant_transition_inputs_and_composite_cas_are_measured(repository,name,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);row=next(r for r in data['transitions'] if r['id']==name);p=row['proof']
+        if fault=='wrong-event':p['delivered']['messageId']='wrong-event' if name in ('duplicate','older-match') else p['accepted']['messageId'];p['delivered']['sequence']=p['before']['checkpoint']+4
+        elif fault=='history':p['historyState']='Unavailable' if p['historyState']!='Unavailable' else 'Available'
+        elif fault=='split-write':p['cas']['checkpointCommitId']='split-transaction'
+        elif fault=='failed-cas':p['cas']['succeeded']=False
+        else:
+            if name in ('conflict','older-missing','older-conflict','older-unavailable'):p['after']['health']='Healthy'
+            else:p['after']['projection']['name']='unmeasured change'
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+______ test_round4_last_accepted_event_is_the_persisted_checkpoint[next] _______
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_last_accepted_even0/fixture')
+name = 'next'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match'])
+    def test_round4_last_accepted_event_is_the_persisted_checkpoint(repository,name):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);p=next(r for r in data['transitions'] if r['id']==name)['proof']
+        p['accepted']['sequence']=9;p['before']['lastAccepted']['sequence']=9
+        if name in ('duplicate','older-match'):p['after']['lastAccepted']['sequence']=9
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1749: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+____ test_round4_last_accepted_event_is_the_persisted_checkpoint[duplicate] ____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_last_accepted_even1/fixture')
+name = 'duplicate'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match'])
+    def test_round4_last_accepted_event_is_the_persisted_checkpoint(repository,name):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);p=next(r for r in data['transitions'] if r['id']==name)['proof']
+        p['accepted']['sequence']=9;p['before']['lastAccepted']['sequence']=9
+        if name in ('duplicate','older-match'):p['after']['lastAccepted']['sequence']=9
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1749: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+____ test_round4_last_accepted_event_is_the_persisted_checkpoint[conflict] _____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_last_accepted_even2/fixture')
+name = 'conflict'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match'])
+    def test_round4_last_accepted_event_is_the_persisted_checkpoint(repository,name):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);p=next(r for r in data['transitions'] if r['id']==name)['proof']
+        p['accepted']['sequence']=9;p['before']['lastAccepted']['sequence']=9
+        if name in ('duplicate','older-match'):p['after']['lastAccepted']['sequence']=9
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1749: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+___ test_round4_last_accepted_event_is_the_persisted_checkpoint[older-match] ___
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-370/test_round4_last_accepted_even3/fixture')
+name = 'older-match'
+
+    @pytest.mark.parametrize('name',['next','duplicate','conflict','older-match'])
+    def test_round4_last_accepted_event_is_the_persisted_checkpoint(repository,name):
+        data=deepcopy(OBSERVATIONS['AC-16.1-01']);p=next(r for r in data['transitions'] if r['id']==name)['proof']
+        p['accepted']['sequence']=9;p['before']['lastAccepted']['sequence']=9
+        if name in ('duplicate','older-match'):p['after']['lastAccepted']['sequence']=9
+>       native(repository,'AC-16.1-01',data);rejected(evaluate(repository,'AC-16.1-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1749: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-next]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-older-match]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-older-missing]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-older-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[wrong-event-older-unavailable]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-next]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-older-match]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-older-missing]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-older-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[history-older-unavailable]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-next]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-older-match]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-older-missing]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-older-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[split-write-older-unavailable]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-next]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-older-match]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-older-missing]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-older-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[failed-cas-older-unavailable]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-next]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-older-match]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-older-missing]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-older-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_transition_inputs_and_composite_cas_are_measured[healthy-persisted-older-unavailable]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_last_accepted_event_is_the_persisted_checkpoint[next]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_last_accepted_event_is_the_persisted_checkpoint[duplicate]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_last_accepted_event_is_the_persisted_checkpoint[conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_last_accepted_event_is_the_persisted_checkpoint[older-match]
+39 failed, 757 deselected in 12.72s

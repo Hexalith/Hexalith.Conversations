@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="29.365" timestamp="2026-10-26T05:07:13.543489+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-attribute-overload]" time="18.233"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-613/test_round11_native_contract_c0/fixture')
+change = 'attribute-overload', scenario = 'AC-16.1-05'
+
+    @pytest.mark.parametrize('change',ROUND11_METADATA)
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05','upstream'])
+    def test_round11_native_contract_changes_reject_at_api_callers(repository,change,scenario):
+        ac='AC-16.1-05' if scenario=='upstream' else scenario
+        path=native(repository,ac);tree=ET.fromstring(path.read_bytes());output=tree.find('Results/UnitTestResult/Output/StdOut');payload=json.loads(output.text)
+        if scenario=='upstream':
+            product=tooling.products.PRODUCTS[2];row=payload['observations']['upstreamSurfaces'][0]
+        else:product=tooling.products.PRODUCTS[1];row=payload['observations']['compiledContracts']
+        for phase,source in zip(('baseline','candidate'),ROUND11_METADATA[change]):
+            source=source+'\n'+round9_product_source(product)
+            artifact=row[phase];binary=round9_compile_product(product,artifact['revision'],source)
+            retained=f'artifacts/epic16-tooling-fixture/{ac[3:7]}/binaries/{digest(binary)}.dll'
+            (repository/retained).write_bytes(binary);artifact.update(path=retained,sha256=digest(binary))
+            round11_retain(change+'-'+scenario,{phase+'.cs':source.encode(),phase+'.dll.bytes':binary})
+        output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree))
+&gt;       rejected(evaluate(repository,ac),'UPSTREAM_API_DRIFT' if scenario=='upstream' else 'ROOT_API_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4024: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'ROOT_API_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-attribute-overload]" time="0.990"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-613/test_round11_native_contract_c1/fixture')
+change = 'attribute-overload', scenario = 'AC-16.2-05'
+
+    @pytest.mark.parametrize('change',ROUND11_METADATA)
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05','upstream'])
+    def test_round11_native_contract_changes_reject_at_api_callers(repository,change,scenario):
+        ac='AC-16.1-05' if scenario=='upstream' else scenario
+        path=native(repository,ac);tree=ET.fromstring(path.read_bytes());output=tree.find('Results/UnitTestResult/Output/StdOut');payload=json.loads(output.text)
+        if scenario=='upstream':
+            product=tooling.products.PRODUCTS[2];row=payload['observations']['upstreamSurfaces'][0]
+        else:product=tooling.products.PRODUCTS[1];row=payload['observations']['compiledContracts']
+        for phase,source in zip(('baseline','candidate'),ROUND11_METADATA[change]):
+            source=source+'\n'+round9_product_source(product)
+            artifact=row[phase];binary=round9_compile_product(product,artifact['revision'],source)
+            retained=f'artifacts/epic16-tooling-fixture/{ac[3:7]}/binaries/{digest(binary)}.dll'
+            (repository/retained).write_bytes(binary);artifact.update(path=retained,sha256=digest(binary))
+            round11_retain(change+'-'+scenario,{phase+'.cs':source.encode(),phase+'.dll.bytes':binary})
+        output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree))
+&gt;       rejected(evaluate(repository,ac),'UPSTREAM_API_DRIFT' if scenario=='upstream' else 'ROOT_API_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4024: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'ROOT_API_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round11_native_contract_changes_reject_at_api_callers[upstream-attribute-overload]" time="4.285"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-613/test_round11_native_contract_c2/fixture')
+change = 'attribute-overload', scenario = 'upstream'
+
+    @pytest.mark.parametrize('change',ROUND11_METADATA)
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05','upstream'])
+    def test_round11_native_contract_changes_reject_at_api_callers(repository,change,scenario):
+        ac='AC-16.1-05' if scenario=='upstream' else scenario
+        path=native(repository,ac);tree=ET.fromstring(path.read_bytes());output=tree.find('Results/UnitTestResult/Output/StdOut');payload=json.loads(output.text)
+        if scenario=='upstream':
+            product=tooling.products.PRODUCTS[2];row=payload['observations']['upstreamSurfaces'][0]
+        else:product=tooling.products.PRODUCTS[1];row=payload['observations']['compiledContracts']
+        for phase,source in zip(('baseline','candidate'),ROUND11_METADATA[change]):
+            source=source+'\n'+round9_product_source(product)
+            artifact=row[phase];binary=round9_compile_product(product,artifact['revision'],source)
+            retained=f'artifacts/epic16-tooling-fixture/{ac[3:7]}/binaries/{digest(binary)}.dll'
+            (repository/retained).write_bytes(binary);artifact.update(path=retained,sha256=digest(binary))
+            round11_retain(change+'-'+scenario,{phase+'.cs':source.encode(),phase+'.dll.bytes':binary})
+        output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree))
+&gt;       rejected(evaluate(repository,ac),'UPSTREAM_API_DRIFT' if scenario=='upstream' else 'ROOT_API_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4024: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'UPSTREAM_API_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round11_framework_ownership_and_external_attribute_constructors_are_verified[external-constructor]" time="4.843"><failure message="Failed: DID NOT RAISE Stop">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-613/test_round11_framework_ownersh0')
+control = 'external-constructor'
+
+    @pytest.mark.parametrize('control',['hidden-fact','foreign-build-attribute','external-constructor'])
+    def test_round11_framework_ownership_and_external_attribute_constructors_are_verified(tmp_path,control):
+        """Only these test-authored assemblies execute under the real pinned runner."""
+        directory=tmp_path/'attributes';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        source='namespace System.Custom { public class HiddenFactAttribute : Xunit.FactAttribute {} } namespace System.Reflection { public class AssemblyFileVersionAttribute : System.Attribute { public AssemblyFileVersionAttribute(string value) {} } } namespace Custom { public class StampAttribute : System.Attribute { public StampAttribute(int value) {} public StampAttribute(uint value) {} } }'
+        project='&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;AssemblyName&gt;Attributes&lt;/AssemblyName&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;PackageReference Include="xunit.v3.extensibility.core" Version="4.0.2" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;'
+        (directory/'Attributes.cs').write_text(source);(directory/'Attributes.csproj').write_text(project)
+        command=['dotnet','build','Attributes.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        external=directory/'bin/Debug/net10.0/Attributes.dll';round11_retain('external-'+control,{'Attributes.cs':source.encode(),'Attributes.csproj':project.encode(),'Attributes.dll.bytes':external.read_bytes(),'attributes.stdout':build.stdout,'attributes.stderr':build.stderr},dict(argv=command,cwd=str(directory),exitCode=build.returncode))
+        metadata=[]
+        for phase,value in [('baseline','one' if control=='foreign-build-attribute' else '1'),('candidate','two' if control=='foreign-build-attribute' else '1u')]:
+            work=tmp_path/phase;work.mkdir();(work/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+            is_test=control=='hidden-fact';name='Evidence' if is_test else 'Api'
+            project='&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;OutputType&gt;'+('Exe' if is_test else 'Library')+'&lt;/OutputType&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;Reference Include="Attributes"&gt;&lt;HintPath&gt;'+str(external)+'&lt;/HintPath&gt;&lt;Aliases&gt;custom&lt;/Aliases&gt;&lt;/Reference&gt;'+('&lt;PackageReference Include="xunit.v3" Version="4.0.2" /&gt;' if is_test else '')+'&lt;/ItemGroup&gt;&lt;/Project&gt;'
+            code='extern alias custom; [assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] '
+            if is_test:code+='namespace Synthetic; public class TestClass { [Xunit.Fact, custom::System.Custom.HiddenFact] public void Scenario01() {} }'
+            elif control=='foreign-build-attribute':code+='[assembly:custom::System.Reflection.AssemblyFileVersion("'+value+'")] namespace Synthetic; public class Api {}'
+            else:code+='namespace Synthetic; [custom::Custom.Stamp('+value+')] public class Api {}'
+            (work/(name+'.csproj')).write_text(project);(work/'Code.cs').write_text(code)
+            command=['dotnet','build',name+'.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false']+(['-p:RunAnalyzers=false'] if is_test else []);build=subprocess.run(command,cwd=work,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+            binary=work/f'bin/Debug/net10.0/{name}.dll';artifacts={'Code.cs':code.encode(),name+'.csproj':project.encode(),name+'.dll.bytes':binary.read_bytes(),'build.stdout':build.stdout,'build.stderr':build.stderr};commands=dict(build=command,cwd=str(work),buildExit=build.returncode)
+            if is_test:
+                trx=work/'result.trx';argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(trx)];run=subprocess.run(argv,cwd=work,capture_output=True,timeout=30);assert run.returncode==1 and b'multiple [Fact]-derived attributes' in run.stdout+run.stderr
+                artifacts.update({'result.trx':trx.read_bytes(),'run.stdout':run.stdout,'run.stderr':run.stderr});commands.update(run=argv,runExit=run.returncode)
+                with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')
+            else:metadata.append(tooling.native_helper.inspect_product(binary.read_bytes(),'a'*40))
+            round11_retain('external-'+control+'-'+phase,artifacts,commands)
+            if is_test:break
+        if not is_test:
+&gt;           with pytest.raises(tooling.Stop) as error:tooling.products.additive(*metadata,tooling.need,control)
+E           Failed: DID NOT RAISE Stop
+
+_bmad/scripts/tests/test_epic16_tooling.py:4211: Failed</failure></testcase></testsuite></testsuites>

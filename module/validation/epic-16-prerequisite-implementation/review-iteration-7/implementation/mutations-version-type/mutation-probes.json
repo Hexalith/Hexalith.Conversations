@@ -1,0 +1,31 @@
+[
+  {
+    "name": "capture-integer-tokens",
+    "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+    "kind": "schema",
+    "selection": "round7_capture_versions_require",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review7-mutant-capture-integer-tokens-v2i9mu88/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round7_capture_versions_require",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/mutations-version-type/capture-integer-tokens.xml"
+    ],
+    "workspace": "/tmp/epic16-review7-mutant-capture-integer-tokens-v2i9mu88",
+    "exitCode": 1,
+    "elapsedSeconds": 6.568,
+    "originalSha256": "ff6035784fbe5b489eb2355fc8fea6a04fb11d9f50a9e539117c8b90c8d842b5",
+    "mutatedSha256": "a792e5a9da2f46fdf29674a69343244fc69bb791b88b7927a25656f3f379fe2a",
+    "stdoutSha256": "5dd7f41ba0542900bfb4c35ae49dc29f5df5007b2b6c2d18816249f31fbca6f1",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 12,
+      "failures": 4,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+]

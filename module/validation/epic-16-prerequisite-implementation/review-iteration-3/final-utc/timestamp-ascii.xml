@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="6" time="1.978" timestamp="2026-10-25T20:03:46.698929+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[2026-01-02T03:04:05.\u0661Z]" time="0.288"><failure message="Failed: DID NOT RAISE ValueError">repository = PosixPath('/tmp/pytest-of-administrator/pytest-330/test_native_datetimeoffset_rej0/fixture')
+value = '2026-01-02T03:04:05.١Z'
+
+    @pytest.mark.parametrize('value',['2026-01-02T03:04:05.١Z','2026-01-02T03:04:05+00:60','2026-01-02T03:04:05-01:99','2026-01-02T03:04:05+14:01','2026-01-02T03:04:05-15:00','9999-12-31T23:59:59.9999999-00:01'])
+    def test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably(repository,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=data['events'][0];env=row['authoritativeEnvelope'];body=json.loads(env['payload'])
+        body['metadata']['occurredAt']=body['createdAt']=value
+        row['persistedPayload']=env['payload']=json.dumps(body);row['binding']['payloadSha256']=digest(env['payload'].encode())
+        native(repository,'AC-16.2-01',data)
+        rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+&gt;       with pytest.raises(ValueError):tooling.measurements.domain.timestamp(value)
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1513: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[2026-01-02T03:04:05+00:60]" time="0.293" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[2026-01-02T03:04:05-01:99]" time="0.284" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[2026-01-02T03:04:05+14:01]" time="0.293" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[2026-01-02T03:04:05-15:00]" time="0.295" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_native_datetimeoffset_rejects_invalid_offsets_and_utc_overflow_stably[9999-12-31T23:59:59.9999999-00:01]" time="0.281" /></testsuite></testsuites>

@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="86" time="120.314" timestamp="2026-10-26T03:10:08.259513+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-01]" time="11.117" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-02]" time="0.391" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-03]" time="0.369" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-04]" time="0.395" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-05]" time="3.113" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-01]" time="0.367" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-02]" time="0.482" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-03]" time="0.372" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-04]" time="0.402" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-05]" time="0.849" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-01]" time="0.384" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-02]" time="0.376" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-03]" time="0.368" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-04]" time="0.623" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-05]" time="0.387" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_trx_definition_children_are_exactly_one[TestMethod]" time="0.358" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_trx_definition_children_are_exactly_one[Execution]" time="0.366" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_trx_definition_children_are_exactly_one[both]" time="0.350" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_generator_classifies_only_missing_declared_dependencies[ImportError]" time="0.094" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_generator_classifies_only_missing_declared_dependencies[ModuleNotFoundError]" time="0.089" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_generator_classifies_only_missing_declared_dependencies[missing-declared]" time="0.082" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_sdk_informational_version_forms_match_both_inspectors[1.0.0+]" time="2.925" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_sdk_informational_version_forms_match_both_inspectors[1.0.0+existing.]" time="2.940" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_sdk_informational_version_forms_match_both_inspectors[1.0.0+existing.more.]" time="2.916" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[content-unauthorized]" time="0.365" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[content-nonexistent]" time="0.396" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[extra-member-unauthorized]" time="0.383" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[extra-member-nonexistent]" time="0.377" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[page-count-unauthorized]" time="0.374" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[page-count-nonexistent]" time="0.381" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[cursor-unauthorized]" time="0.361" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[cursor-nonexistent]" time="0.382" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[action-unauthorized]" time="0.368" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[action-nonexistent]" time="0.360" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[version-unauthorized]" time="0.369" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[version-nonexistent]" time="0.361" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[state-unauthorized]" time="0.375" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[state-nonexistent]" time="0.363" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[reason-unauthorized]" time="0.356" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[reason-nonexistent]" time="0.374" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[response-tenant-unauthorized]" time="0.365" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[response-tenant-nonexistent]" time="0.367" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[request-tenant-unauthorized]" time="0.372" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[request-tenant-nonexistent]" time="0.377" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[correlation-unauthorized]" time="0.378" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[correlation-nonexistent]" time="0.367" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[request-execution-unauthorized]" time="0.360" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[request-execution-nonexistent]" time="0.354" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[response-execution-unauthorized]" time="0.386" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[response-execution-nonexistent]" time="0.349" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[order-unauthorized]" time="0.370" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[order-nonexistent]" time="0.363" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[read-unauthorized]" time="0.367" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[read-nonexistent]" time="0.373" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[write-unauthorized]" time="0.366" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[write-nonexistent]" time="0.376" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[missing-unauthorized]" time="0.353" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[missing-nonexistent]" time="0.371" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[auth-input-unauthorized]" time="0.370" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[auth-input-nonexistent]" time="0.379" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[float-version-unauthorized]" time="0.358" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_is_executed_correlated_and_nondisclosing[float-version-nonexistent]" time="0.407" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_authorization_response_positive_preserves_native_hidden_shape" time="0.375" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_api_candidate_must_be_the_actual_loaded_product[upstream]" time="10.640" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_api_candidate_must_be_the_actual_loaded_product[root]" time="5.313" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_generator_rejects_different_owned_implementations_across_five_tests[0]" time="8.106" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_generator_rejects_different_owned_implementations_across_five_tests[2]" time="7.940" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_explicit_product_reuse_survives_empty_compiler_cache" time="6.500" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[missing-AC-16.1-05]" time="10.537" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[missing-AC-16.2-05]" time="0.378" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[revision-AC-16.1-05]" time="1.237" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[revision-AC-16.2-05]" time="0.875" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[digest-AC-16.1-05]" time="0.912" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[digest-AC-16.2-05]" time="0.900" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[removed-type-AC-16.1-05]" time="2.440" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[removed-type-AC-16.2-05]" time="0.892" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[addition-AC-16.1-05]" time="2.412" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[addition-AC-16.2-05]" time="0.854" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[unsupported-AC-16.1-05]" time="2.403" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_root_compiled_shape_is_required_in_addition_to_unchanged_sources[unsupported-AC-16.2-05]" time="0.923" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_construction_metadata_agrees_with_actual_pinned_runner[plain]" time="2.039"><failure message="ValueError: invalid native evidence">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-579/test_round10_construction_meta0')
+shape = 'plain'
+
+    @pytest.mark.parametrize('shape', ['plain','output','context','class','inherited-class','collection-name','collection-type','collection-generic','assembly','assembly-generic','fixture-hierarchy','default','optional','params','missing','missing-fixture-dependency','foreign-collection'])
+    def test_round10_construction_metadata_agrees_with_actual_pinned_runner(tmp_path,shape):
+        """Execute only test-authored fixtures here; the evidence inspector never executes them."""
+        support='';attributes='';declaration='';constructor='';assembly='';body=''
+        if shape=='output':constructor='Xunit.ITestOutputHelper value';body='value.WriteLine("synthetic output");'
+        elif shape=='context':constructor='Xunit.ITestContextAccessor value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape in ('class','inherited-class'):
+            support='public class Fixture {}';declaration=' : Xunit.IClassFixture&lt;Fixture&gt;';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            if shape=='inherited-class':support+='public class Base : Xunit.IClassFixture&lt;Fixture&gt; {}';declaration=' : Base'
+        elif shape.startswith('collection') or shape=='foreign-collection':
+            support='public class Fixture {} [Xunit.CollectionDefinition("named")] public class Group : Xunit.ICollectionFixture&lt;Fixture&gt; {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            attributes={'collection-name':'[Xunit.Collection("named")]','collection-type':'[Xunit.Collection(typeof(Group))]','collection-generic':'[Xunit.Collection&lt;Group&gt;]','foreign-collection':'[Xunit.Collection("other")]'}[shape]
+        elif shape in ('assembly','assembly-generic'):
+            support='public class Fixture {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(Fixture))]' if shape=='assembly' else '[assembly:Xunit.AssemblyFixture&lt;Fixture&gt;]'
+        elif shape=='fixture-hierarchy':
+            support='public class AssemblyData {} public class CollectionData(AssemblyData value) {} public class ClassData(CollectionData value) {} [Xunit.CollectionDefinition("nested")] public class Group : Xunit.ICollectionFixture&lt;CollectionData&gt;, Xunit.IClassFixture&lt;ClassData&gt; {}'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(AssemblyData))]';attributes='[Xunit.Collection("nested")]';constructor='ClassData value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape=='default':constructor='string value = "default"'
+        elif shape=='optional':constructor='[System.Runtime.InteropServices.Optional] string value'
+        elif shape=='params':constructor='params string[] values'
+        elif shape=='missing':constructor='string unavailable'
+        elif shape=='missing-fixture-dependency':support='public class Fixture(string missing) {}';declaration=' : Xunit.IClassFixture&lt;Fixture&gt;';constructor='Fixture value'
+        directory=tmp_path/'runner';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Evidence.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;OutputType&gt;Exe&lt;/OutputType&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;PackageReference Include="xunit.v3" Version="4.0.2" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+        code=assembly+'\n[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]\n'+support+'\n'+attributes+' public class TestClass'+declaration+' { '+('public TestClass('+constructor+') { '+body+' }' if constructor else '')+' [Xunit.Fact] public void Scenario01() {} }'
+        (directory/'Tests.cs').write_text(code)
+        command=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        binary=(directory/'bin/Debug/net10.0/Evidence.dll').read_bytes();trx=directory/'result.trx'
+        runner=['dotnet',str(directory/'bin/Debug/net10.0/Evidence.dll'),'-automated','sync','-failSkips','-method','TestClass.Scenario01','-trx',str(trx)]
+        run=subprocess.run(runner,capture_output=True,timeout=120)
+        expected=shape not in ('missing','missing-fixture-dependency','foreign-collection')
+        assert run.returncode==(0 if expected else 1),(shape,run.stdout,run.stderr)
+        counts=records.parse_trx(trx.read_bytes())['recomputed'];assert counts['passed']==int(expected) and counts['failed']==int(not expected)
+        if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+            retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('constructor-'+shape);retain.mkdir(parents=True,exist_ok=True)
+            for name,data in [('Tests.cs',code.encode()),('Evidence.dll',binary),('result.trx',trx.read_bytes()),('build.stdout',build.stdout),('build.stderr',build.stderr),('run.stdout',run.stdout),('run.stderr',run.stderr)]: (retain/name).write_bytes(data)
+            (retain/'commands.json').write_text(json.dumps(dict(build=command,run=runner,buildExit=build.returncode,runExit=run.returncode),indent=2)+'\n')
+&gt;       if expected:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'TestClass','Scenario01')['method']=='Scenario01'
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3801: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_native.py:156: in inspect_assembly
+    return _run(dict(operation='metadata', assembly=base64.b64encode(content).decode(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = {'operation': 'metadata', 'assembly': 'TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 'revision': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'type': 'TestClass', ...}
+
+    def _run(request):
+        workspace, assembly = _helper()
+        try:
+            result = subprocess.run(['dotnet', str(assembly)], input=json.dumps(request).encode(),
+                cwd=workspace.name, capture_output=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise HelperUnavailable('fixed helper execution unavailable') from error
+        if result.returncode:
+&gt;           raise ValueError('invalid native evidence')
+E           ValueError: invalid native evidence
+
+_bmad/scripts/epic16_native.py:139: ValueError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_construction_metadata_agrees_with_actual_pinned_runner[output]" time="1.922"><failure message="ValueError: invalid native evidence">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-579/test_round10_construction_meta1')
+shape = 'output'
+
+    @pytest.mark.parametrize('shape', ['plain','output','context','class','inherited-class','collection-name','collection-type','collection-generic','assembly','assembly-generic','fixture-hierarchy','default','optional','params','missing','missing-fixture-dependency','foreign-collection'])
+    def test_round10_construction_metadata_agrees_with_actual_pinned_runner(tmp_path,shape):
+        """Execute only test-authored fixtures here; the evidence inspector never executes them."""
+        support='';attributes='';declaration='';constructor='';assembly='';body=''
+        if shape=='output':constructor='Xunit.ITestOutputHelper value';body='value.WriteLine("synthetic output");'
+        elif shape=='context':constructor='Xunit.ITestContextAccessor value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape in ('class','inherited-class'):
+            support='public class Fixture {}';declaration=' : Xunit.IClassFixture&lt;Fixture&gt;';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            if shape=='inherited-class':support+='public class Base : Xunit.IClassFixture&lt;Fixture&gt; {}';declaration=' : Base'
+        elif shape.startswith('collection') or shape=='foreign-collection':
+            support='public class Fixture {} [Xunit.CollectionDefinition("named")] public class Group : Xunit.ICollectionFixture&lt;Fixture&gt; {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            attributes={'collection-name':'[Xunit.Collection("named")]','collection-type':'[Xunit.Collection(typeof(Group))]','collection-generic':'[Xunit.Collection&lt;Group&gt;]','foreign-collection':'[Xunit.Collection("other")]'}[shape]
+        elif shape in ('assembly','assembly-generic'):
+            support='public class Fixture {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(Fixture))]' if shape=='assembly' else '[assembly:Xunit.AssemblyFixture&lt;Fixture&gt;]'
+        elif shape=='fixture-hierarchy':
+            support='public class AssemblyData {} public class CollectionData(AssemblyData value) {} public class ClassData(CollectionData value) {} [Xunit.CollectionDefinition("nested")] public class Group : Xunit.ICollectionFixture&lt;CollectionData&gt;, Xunit.IClassFixture&lt;ClassData&gt; {}'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(AssemblyData))]';attributes='[Xunit.Collection("nested")]';constructor='ClassData value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape=='default':constructor='string value = "default"'
+        elif shape=='optional':constructor='[System.Runtime.InteropServices.Optional] string value'
+        elif shape=='params':constructor='params string[] values'
+        elif shape=='missing':constructor='string unavailable'
+        elif shape=='missing-fixture-dependency':support='public class Fixture(string missing) {}';declaration=' : Xunit.IClassFixture&lt;Fixture&gt;';constructor='Fixture value'
+        directory=tmp_path/'runner';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Evidence.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;OutputType&gt;Exe&lt;/OutputType&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;PackageReference Include="xunit.v3" Version="4.0.2" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+        code=assembly+'\n[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]\n'+support+'\n'+attributes+' public class TestClass'+declaration+' { '+('public TestClass('+constructor+') { '+body+' }' if constructor else '')+' [Xunit.Fact] public void Scenario01() {} }'
+        (directory/'Tests.cs').write_text(code)
+        command=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        binary=(directory/'bin/Debug/net10.0/Evidence.dll').read_bytes();trx=directory/'result.trx'
+        runner=['dotnet',str(directory/'bin/Debug/net10.0/Evidence.dll'),'-automated','sync','-failSkips','-method','TestClass.Scenario01','-trx',str(trx)]
+        run=subprocess.run(runner,capture_output=True,timeout=120)
+        expected=shape not in ('missing','missing-fixture-dependency','foreign-collection')
+        assert run.returncode==(0 if expected else 1),(shape,run.stdout,run.stderr)
+        counts=records.parse_trx(trx.read_bytes())['recomputed'];assert counts['passed']==int(expected) and counts['failed']==int(not expected)
+        if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+            retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('constructor-'+shape);retain.mkdir(parents=True,exist_ok=True)
+            for name,data in [('Tests.cs',code.encode()),('Evidence.dll',binary),('result.trx',trx.read_bytes()),('build.stdout',build.stdout),('build.stderr',build.stderr),('run.stdout',run.stdout),('run.stderr',run.stderr)]: (retain/name).write_bytes(data)
+            (retain/'commands.json').write_text(json.dumps(dict(build=command,run=runner,buildExit=build.returncode,runExit=run.returncode),indent=2)+'\n')
+&gt;       if expected:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'TestClass','Scenario01')['method']=='Scenario01'
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3801: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_native.py:156: in inspect_assembly
+    return _run(dict(operation='metadata', assembly=base64.b64encode(content).decode(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = {'operation': 'metadata', 'assembly': 'TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 'revision': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'type': 'TestClass', ...}
+
+    def _run(request):
+        workspace, assembly = _helper()
+        try:
+            result = subprocess.run(['dotnet', str(assembly)], input=json.dumps(request).encode(),
+                cwd=workspace.name, capture_output=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise HelperUnavailable('fixed helper execution unavailable') from error
+        if result.returncode:
+&gt;           raise ValueError('invalid native evidence')
+E           ValueError: invalid native evidence
+
+_bmad/scripts/epic16_native.py:139: ValueError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_construction_metadata_agrees_with_actual_pinned_runner[context]" time="1.869"><failure message="ValueError: invalid native evidence">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-579/test_round10_construction_meta2')
+shape = 'context'
+
+    @pytest.mark.parametrize('shape', ['plain','output','context','class','inherited-class','collection-name','collection-type','collection-generic','assembly','assembly-generic','fixture-hierarchy','default','optional','params','missing','missing-fixture-dependency','foreign-collection'])
+    def test_round10_construction_metadata_agrees_with_actual_pinned_runner(tmp_path,shape):
+        """Execute only test-authored fixtures here; the evidence inspector never executes them."""
+        support='';attributes='';declaration='';constructor='';assembly='';body=''
+        if shape=='output':constructor='Xunit.ITestOutputHelper value';body='value.WriteLine("synthetic output");'
+        elif shape=='context':constructor='Xunit.ITestContextAccessor value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape in ('class','inherited-class'):
+            support='public class Fixture {}';declaration=' : Xunit.IClassFixture&lt;Fixture&gt;';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            if shape=='inherited-class':support+='public class Base : Xunit.IClassFixture&lt;Fixture&gt; {}';declaration=' : Base'
+        elif shape.startswith('collection') or shape=='foreign-collection':
+            support='public class Fixture {} [Xunit.CollectionDefinition("named")] public class Group : Xunit.ICollectionFixture&lt;Fixture&gt; {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            attributes={'collection-name':'[Xunit.Collection("named")]','collection-type':'[Xunit.Collection(typeof(Group))]','collection-generic':'[Xunit.Collection&lt;Group&gt;]','foreign-collection':'[Xunit.Collection("other")]'}[shape]
+        elif shape in ('assembly','assembly-generic'):
+            support='public class Fixture {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(Fixture))]' if shape=='assembly' else '[assembly:Xunit.AssemblyFixture&lt;Fixture&gt;]'
+        elif shape=='fixture-hierarchy':
+            support='public class AssemblyData {} public class CollectionData(AssemblyData value) {} public class ClassData(CollectionData value) {} [Xunit.CollectionDefinition("nested")] public class Group : Xunit.ICollectionFixture&lt;CollectionData&gt;, Xunit.IClassFixture&lt;ClassData&gt; {}'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(AssemblyData))]';attributes='[Xunit.Collection("nested")]';constructor='ClassData value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape=='default':constructor='string value = "default"'
+        elif shape=='optional':constructor='[System.Runtime.InteropServices.Optional] string value'
+        elif shape=='params':constructor='params string[] values'
+        elif shape=='missing':constructor='string unavailable'
+        elif shape=='missing-fixture-dependency':support='public class Fixture(string missing) {}';declaration=' : Xunit.IClassFixture&lt;Fixture&gt;';constructor='Fixture value'
+        directory=tmp_path/'runner';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Evidence.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;OutputType&gt;Exe&lt;/OutputType&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;PackageReference Include="xunit.v3" Version="4.0.2" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+        code=assembly+'\n[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]\n'+support+'\n'+attributes+' public class TestClass'+declaration+' { '+('public TestClass('+constructor+') { '+body+' }' if constructor else '')+' [Xunit.Fact] public void Scenario01() {} }'
+        (directory/'Tests.cs').write_text(code)
+        command=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        binary=(directory/'bin/Debug/net10.0/Evidence.dll').read_bytes();trx=directory/'result.trx'
+        runner=['dotnet',str(directory/'bin/Debug/net10.0/Evidence.dll'),'-automated','sync','-failSkips','-method','TestClass.Scenario01','-trx',str(trx)]
+        run=subprocess.run(runner,capture_output=True,timeout=120)
+        expected=shape not in ('missing','missing-fixture-dependency','foreign-collection')
+        assert run.returncode==(0 if expected else 1),(shape,run.stdout,run.stderr)
+        counts=records.parse_trx(trx.read_bytes())['recomputed'];assert counts['passed']==int(expected) and counts['failed']==int(not expected)
+        if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+            retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('constructor-'+shape);retain.mkdir(parents=True,exist_ok=True)
+            for name,data in [('Tests.cs',code.encode()),('Evidence.dll',binary),('result.trx',trx.read_bytes()),('build.stdout',build.stdout),('build.stderr',build.stderr),('run.stdout',run.stdout),('run.stderr',run.stderr)]: (retain/name).write_bytes(data)
+            (retain/'commands.json').write_text(json.dumps(dict(build=command,run=runner,buildExit=build.returncode,runExit=run.returncode),indent=2)+'\n')
+&gt;       if expected:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'TestClass','Scenario01')['method']=='Scenario01'
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3801: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_native.py:156: in inspect_assembly
+    return _run(dict(operation='metadata', assembly=base64.b64encode(content).decode(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = {'operation': 'metadata', 'assembly': 'TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 'revision': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'type': 'TestClass', ...}
+
+    def _run(request):
+        workspace, assembly = _helper()
+        try:
+            result = subprocess.run(['dotnet', str(assembly)], input=json.dumps(request).encode(),
+                cwd=workspace.name, capture_output=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise HelperUnavailable('fixed helper execution unavailable') from error
+        if result.returncode:
+&gt;           raise ValueError('invalid native evidence')
+E           ValueError: invalid native evidence
+
+_bmad/scripts/epic16_native.py:139: ValueError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_construction_metadata_agrees_with_actual_pinned_runner[class]" time="1.942"><failure message="ValueError: invalid native evidence">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-579/test_round10_construction_meta3')
+shape = 'class'
+
+    @pytest.mark.parametrize('shape', ['plain','output','context','class','inherited-class','collection-name','collection-type','collection-generic','assembly','assembly-generic','fixture-hierarchy','default','optional','params','missing','missing-fixture-dependency','foreign-collection'])
+    def test_round10_construction_metadata_agrees_with_actual_pinned_runner(tmp_path,shape):
+        """Execute only test-authored fixtures here; the evidence inspector never executes them."""
+        support='';attributes='';declaration='';constructor='';assembly='';body=''
+        if shape=='output':constructor='Xunit.ITestOutputHelper value';body='value.WriteLine("synthetic output");'
+        elif shape=='context':constructor='Xunit.ITestContextAccessor value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape in ('class','inherited-class'):
+            support='public class Fixture {}';declaration=' : Xunit.IClassFixture&lt;Fixture&gt;';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            if shape=='inherited-class':support+='public class Base : Xunit.IClassFixture&lt;Fixture&gt; {}';declaration=' : Base'
+        elif shape.startswith('collection') or shape=='foreign-collection':
+            support='public class Fixture {} [Xunit.CollectionDefinition("named")] public class Group : Xunit.ICollectionFixture&lt;Fixture&gt; {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            attributes={'collection-name':'[Xunit.Collection("named")]','collection-type':'[Xunit.Collection(typeof(Group))]','collection-generic':'[Xunit.Collection&lt;Group&gt;]','foreign-collection':'[Xunit.Collection("other")]'}[shape]
+        elif shape in ('assembly','assembly-generic'):
+            support='public class Fixture {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(Fixture))]' if shape=='assembly' else '[assembly:Xunit.AssemblyFixture&lt;Fixture&gt;]'
+        elif shape=='fixture-hierarchy':
+            support='public class AssemblyData {} public class CollectionData(AssemblyData value) {} public class ClassData(CollectionData value) {} [Xunit.CollectionDefinition("nested")] public class Group : Xunit.ICollectionFixture&lt;CollectionData&gt;, Xunit.IClassFixture&lt;ClassData&gt; {}'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(AssemblyData))]';attributes='[Xunit.Collection("nested")]';constructor='ClassData value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape=='default':constructor='string value = "default"'
+        elif shape=='optional':constructor='[System.Runtime.InteropServices.Optional] string value'
+        elif shape=='params':constructor='params string[] values'
+        elif shape=='missing':constructor='string unavailable'
+        elif shape=='missing-fixture-dependency':support='public class Fixture(string missing) {}';declaration=' : Xunit.IClassFixture&lt;Fixture&gt;';constructor='Fixture value'
+        directory=tmp_path/'runner';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Evidence.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;OutputType&gt;Exe&lt;/OutputType&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;PackageReference Include="xunit.v3" Version="4.0.2" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+        code=assembly+'\n[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]\n'+support+'\n'+attributes+' public class TestClass'+declaration+' { '+('public TestClass('+constructor+') { '+body+' }' if constructor else '')+' [Xunit.Fact] public void Scenario01() {} }'
+        (directory/'Tests.cs').write_text(code)
+        command=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        binary=(directory/'bin/Debug/net10.0/Evidence.dll').read_bytes();trx=directory/'result.trx'
+        runner=['dotnet',str(directory/'bin/Debug/net10.0/Evidence.dll'),'-automated','sync','-failSkips','-method','TestClass.Scenario01','-trx',str(trx)]
+        run=subprocess.run(runner,capture_output=True,timeout=120)
+        expected=shape not in ('missing','missing-fixture-dependency','foreign-collection')
+        assert run.returncode==(0 if expected else 1),(shape,run.stdout,run.stderr)
+        counts=records.parse_trx(trx.read_bytes())['recomputed'];assert counts['passed']==int(expected) and counts['failed']==int(not expected)
+        if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+            retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('constructor-'+shape);retain.mkdir(parents=True,exist_ok=True)
+            for name,data in [('Tests.cs',code.encode()),('Evidence.dll',binary),('result.trx',trx.read_bytes()),('build.stdout',build.stdout),('build.stderr',build.stderr),('run.stdout',run.stdout),('run.stderr',run.stderr)]: (retain/name).write_bytes(data)
+            (retain/'commands.json').write_text(json.dumps(dict(build=command,run=runner,buildExit=build.returncode,runExit=run.returncode),indent=2)+'\n')
+&gt;       if expected:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'TestClass','Scenario01')['method']=='Scenario01'
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3801: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_native.py:156: in inspect_assembly
+    return _run(dict(operation='metadata', assembly=base64.b64encode(content).decode(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = {'operation': 'metadata', 'assembly': 'TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=', 'revision': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'type': 'TestClass', ...}
+
+    def _run(request):
+        workspace, assembly = _helper()
+        try:
+            result = subprocess.run(['dotnet', str(assembly)], input=json.dumps(request).encode(),
+                cwd=workspace.name, capture_output=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise HelperUnavailable('fixed helper execution unavailable') from error
+        if result.returncode:
+&gt;           raise ValueError('invalid native evidence')
+E           ValueError: invalid native evidence
+
+_bmad/scripts/epic16_native.py:139: ValueError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_construction_metadata_agrees_with_actual_pinned_runner[inherited-class]" time="1.895"><failure message="ValueError: invalid native evidence">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-579/test_round10_construction_meta4')
+shape = 'inherited-class'
+
+    @pytest.mark.parametrize('shape', ['plain','output','context','class','inherited-class','collection-name','collection-type','collection-generic','assembly','assembly-generic','fixture-hierarchy','default','optional','params','missing','missing-fixture-dependency','foreign-collection'])
+    def test_round10_construction_metadata_agrees_with_actual_pinned_runner(tmp_path,shape):
+        """Execute only test-authored fixtures here; the evidence inspector never executes them."""
+        support='';attributes='';declaration='';constructor='';assembly='';body=''
+        if shape=='output':constructor='Xunit.ITestOutputHelper value';body='value.WriteLine("synthetic output");'
+        elif shape=='context':constructor='Xunit.ITestContextAccessor value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape in ('class','inherited-class'):
+            support='public class Fixture {}';declaration=' : Xunit.IClassFixture&lt;Fixture&gt;';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            if shape=='inherited-class':support+='public class Base : Xunit.IClassFixture&lt;Fixture&gt; {}';declaration=' : Base'
+        elif shape.startswith('collection') or shape=='foreign-collection':
+            support='public class Fixture {} [Xunit.CollectionDefinition("named")] public class Group : Xunit.ICollectionFixture&lt;Fixture&gt; {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            attributes={'collection-name':'[Xunit.Collection("named")]','collection-type':'[Xunit.Collection(typeof(Group))]','collection-generic':'[Xunit.Collection&lt;Group&gt;]','foreign-collection':'[Xunit.Collection("other")]'}[shape]
+        elif shape in ('assembly','assembly-generic'):
+            support='public class Fixture {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(Fixture))]' if shape=='assembly' else '[assembly:Xunit.AssemblyFixture&lt;Fixture&gt;]'
+        elif shape=='fixture-hierarchy':
+            support='public class AssemblyData {} public class CollectionData(AssemblyData value) {} public class ClassData(CollectionData value) {} [Xunit.CollectionDefinition("nested")] public class Group : Xunit.ICollectionFixture&lt;CollectionData&gt;, Xunit.IClassFixture&lt;ClassData&gt; {}'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(AssemblyData))]';attributes='[Xunit.Collection("nested")]';constructor='ClassData value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape=='default':constructor='string value = "default"'
+        elif shape=='optional':constructor='[System.Runtime.InteropServices.Optional] string value'
+        elif shape=='params':constructor='params string[] values'
+        elif shape=='missing':constructor='string unavailable'
+        elif shape=='missing-fixture-dependency':support='public class Fixture(string missing) {}';declaration=' : Xunit.IClassFixture&lt;Fixture&gt;';constructor='Fixture value'
+        directory=tmp_path/'runner';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Evidence.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;OutputType&gt;Exe&lt;/OutputType&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;PackageReference Include="xunit.v3" Version="4.0.2" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+        code=assembly+'\n[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]\n'+support+'\n'+attributes+' public class TestClass'+declaration+' { '+('public TestClass('+constructor+') { '+body+' }' if constructor else '')+' [Xunit.Fact] public void Scenario01() {} }'
+        (directory/'Tests.cs').write_text(code)
+        command=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        binary=(directory/'bin/Debug/net10.0/Evidence.dll').read_bytes();trx=directory/'result.trx'
+        runner=['dotnet',str(directory/'bin/Debug/net10.0/Evidence.dll'),'-automated','sync','-failSkips','-method','TestClass.Scenario01','-trx',str(trx)]
+        run=subprocess.run(runner,capture_output=True,timeout=120)
+        expected=shape not in ('missing','missing-fixture-dependency','foreign-collection')
+        assert run.returncode==(0 if expected else 1),(shape,run.stdout,run.stderr)
+        counts=records.parse_trx(trx.read_bytes())['recomputed'];assert counts['passed']==int(expected) and counts['failed']==int(not expected)
+        if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+            retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('constructor-'+shape);retain.mkdir(parents=True,exist_ok=True)
+            for name,data in [('Tests.cs',code.encode()),('Evidence.dll',binary),('result.trx',trx.read_bytes()),('build.stdout',build.stdout),('build.stderr',build.stderr),('run.stdout',run.stdout),('run.stderr',run.stderr)]: (retain/name).write_bytes(data)
+            (retain/'commands.json').write_text(json.dumps(dict(build=command,run=runner,buildExit=build.returncode,runExit=run.returncode),indent=2)+'\n')
+&gt;       if expected:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'TestClass','Scenario01')['method']=='Scenario01'
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3801: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_native.py:156: in inspect_assembly
+    return _run(dict(operation='metadata', assembly=base64.b64encode(content).decode(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = {'operation': 'metadata', 'assembly': 'TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=', 'revision': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'type': 'TestClass', ...}
+
+    def _run(request):
+        workspace, assembly = _helper()
+        try:
+            result = subprocess.run(['dotnet', str(assembly)], input=json.dumps(request).encode(),
+                cwd=workspace.name, capture_output=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise HelperUnavailable('fixed helper execution unavailable') from error
+        if result.returncode:
+&gt;           raise ValueError('invalid native evidence')
+E           ValueError: invalid native evidence
+
+_bmad/scripts/epic16_native.py:139: ValueError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_construction_metadata_agrees_with_actual_pinned_runner[collection-name]" time="1.934"><failure message="ValueError: invalid native evidence">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-579/test_round10_construction_meta5')
+shape = 'collection-name'
+
+    @pytest.mark.parametrize('shape', ['plain','output','context','class','inherited-class','collection-name','collection-type','collection-generic','assembly','assembly-generic','fixture-hierarchy','default','optional','params','missing','missing-fixture-dependency','foreign-collection'])
+    def test_round10_construction_metadata_agrees_with_actual_pinned_runner(tmp_path,shape):
+        """Execute only test-authored fixtures here; the evidence inspector never executes them."""
+        support='';attributes='';declaration='';constructor='';assembly='';body=''
+        if shape=='output':constructor='Xunit.ITestOutputHelper value';body='value.WriteLine("synthetic output");'
+        elif shape=='context':constructor='Xunit.ITestContextAccessor value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape in ('class','inherited-class'):
+            support='public class Fixture {}';declaration=' : Xunit.IClassFixture&lt;Fixture&gt;';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            if shape=='inherited-class':support+='public class Base : Xunit.IClassFixture&lt;Fixture&gt; {}';declaration=' : Base'
+        elif shape.startswith('collection') or shape=='foreign-collection':
+            support='public class Fixture {} [Xunit.CollectionDefinition("named")] public class Group : Xunit.ICollectionFixture&lt;Fixture&gt; {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            attributes={'collection-name':'[Xunit.Collection("named")]','collection-type':'[Xunit.Collection(typeof(Group))]','collection-generic':'[Xunit.Collection&lt;Group&gt;]','foreign-collection':'[Xunit.Collection("other")]'}[shape]
+        elif shape in ('assembly','assembly-generic'):
+            support='public class Fixture {}';constructor='Fixture value';body='System.ArgumentNullException.ThrowIfNull(value);'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(Fixture))]' if shape=='assembly' else '[assembly:Xunit.AssemblyFixture&lt;Fixture&gt;]'
+        elif shape=='fixture-hierarchy':
+            support='public class AssemblyData {} public class CollectionData(AssemblyData value) {} public class ClassData(CollectionData value) {} [Xunit.CollectionDefinition("nested")] public class Group : Xunit.ICollectionFixture&lt;CollectionData&gt;, Xunit.IClassFixture&lt;ClassData&gt; {}'
+            assembly='[assembly:Xunit.AssemblyFixture(typeof(AssemblyData))]';attributes='[Xunit.Collection("nested")]';constructor='ClassData value';body='System.ArgumentNullException.ThrowIfNull(value);'
+        elif shape=='default':constructor='string value = "default"'
+        elif shape=='optional':constructor='[System.Runtime.InteropServices.Optional] string value'
+        elif shape=='params':constructor='params string[] values'
+        elif shape=='missing':constructor='string unavailable'
+        elif shape=='missing-fixture-dependency':support='public class Fixture(string missing) {}';declaration=' : Xunit.IClassFixture&lt;Fixture&gt;';constructor='Fixture value'
+        directory=tmp_path/'runner';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Evidence.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;OutputType&gt;Exe&lt;/OutputType&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;PackageReference Include="xunit.v3" Version="4.0.2" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+        code=assembly+'\n[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]\n'+support+'\n'+attributes+' public class TestClass'+declaration+' { '+('public TestClass('+constructor+') { '+body+' }' if constructor else '')+' [Xunit.Fact] public void Scenario01() {} }'
+        (directory/'Tests.cs').write_text(code)
+        command=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        binary=(directory/'bin/Debug/net10.0/Evidence.dll').read_bytes();trx=directory/'result.trx'
+        runner=['dotnet',str(directory/'bin/Debug/net10.0/Evidence.dll'),'-automated','sync','-failSkips','-method','TestClass.Scenario01','-trx',str(trx)]
+        run=subprocess.run(runner,capture_output=True,timeout=120)
+        expected=shape not in ('missing','missing-fixture-dependency','foreign-collection')
+        assert run.returncode==(0 if expected else 1),(shape,run.stdout,run.stderr)
+        counts=records.parse_trx(trx.read_bytes())['recomputed'];assert counts['passed']==int(expected) and counts['failed']==int(not expected)
+        if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+            retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('constructor-'+shape);retain.mkdir(parents=True,exist_ok=True)
+            for name,data in [('Tests.cs',code.encode()),('Evidence.dll',binary),('result.trx',trx.read_bytes()),('build.stdout',build.stdout),('build.stderr',build.stderr),('run.stdout',run.stdout),('run.stderr',run.stderr)]: (retain/name).write_bytes(data)
+            (retain/'commands.json').write_text(json.dumps(dict(build=command,run=runner,buildExit=build.returncode,runExit=run.returncode),indent=2)+'\n')
+&gt;       if expected:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'TestClass','Scenario01')['method']=='Scenario01'
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3801: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_native.py:156: in inspect_assembly
+    return _run(dict(operation='metadata', assembly=base64.b64encode(content).decode(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = {'operation': 'metadata', 'assembly': 'TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=', 'revision': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'type': 'TestClass', ...}
+
+    def _run(request):
+        workspace, assembly = _helper()
+        try:
+            result = subprocess.run(['dotnet', str(assembly)], input=json.dumps(request).encode(),
+                cwd=workspace.name, capture_output=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise HelperUnavailable('fixed helper execution unavailable') from error
+        if result.returncode:
+&gt;           raise ValueError('invalid native evidence')
+E           ValueError: invalid native evidence
+
+_bmad/scripts/epic16_native.py:139: ValueError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,91 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_______ test_round10_trx_definition_children_are_exactly_one[TestMethod] _______
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-594/test_round10_trx_definition_ch0/fixture')
+child = 'TestMethod'
+
+    @pytest.mark.parametrize('child', ['TestMethod', 'Execution', 'both'])
+    def test_round10_trx_definition_children_are_exactly_one(repository, child):
+        path=native(repository,'AC-16.1-01');tree=ET.fromstring(path.read_bytes());definition=tree.find('TestDefinitions/UnitTest')
+        for name in ('TestMethod','Execution') if child=='both' else (child,):
+            extra=deepcopy(definition.find(name));extra.set('id' if name=='Execution' else 'name','conflicting');definition.append(extra)
+>       path.write_bytes(ET.tostring(tree));rejected(evaluate(repository),'NATIVE_IDENTITY_DRIFT')
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3613: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'NATIVE_IDENTITY_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError
+_______ test_round10_trx_definition_children_are_exactly_one[Execution] ________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-594/test_round10_trx_definition_ch1/fixture')
+child = 'Execution'
+
+    @pytest.mark.parametrize('child', ['TestMethod', 'Execution', 'both'])
+    def test_round10_trx_definition_children_are_exactly_one(repository, child):
+        path=native(repository,'AC-16.1-01');tree=ET.fromstring(path.read_bytes());definition=tree.find('TestDefinitions/UnitTest')
+        for name in ('TestMethod','Execution') if child=='both' else (child,):
+            extra=deepcopy(definition.find(name));extra.set('id' if name=='Execution' else 'name','conflicting');definition.append(extra)
+>       path.write_bytes(ET.tostring(tree));rejected(evaluate(repository),'NATIVE_IDENTITY_DRIFT')
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3613: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'NATIVE_IDENTITY_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError
+__________ test_round10_trx_definition_children_are_exactly_one[both] __________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-594/test_round10_trx_definition_ch2/fixture')
+child = 'both'
+
+    @pytest.mark.parametrize('child', ['TestMethod', 'Execution', 'both'])
+    def test_round10_trx_definition_children_are_exactly_one(repository, child):
+        path=native(repository,'AC-16.1-01');tree=ET.fromstring(path.read_bytes());definition=tree.find('TestDefinitions/UnitTest')
+        for name in ('TestMethod','Execution') if child=='both' else (child,):
+            extra=deepcopy(definition.find(name));extra.set('id' if name=='Execution' else 'name','conflicting');definition.append(extra)
+>       path.write_bytes(ET.tostring(tree));rejected(evaluate(repository),'NATIVE_IDENTITY_DRIFT')
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3613: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'NATIVE_IDENTITY_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_trx_definition_children_are_exactly_one[TestMethod]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_trx_definition_children_are_exactly_one[Execution]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_trx_definition_children_are_exactly_one[both]
+3 failed, 1975 deselected in 12.47s

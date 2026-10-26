@@ -1,0 +1,8 @@
+{
+  "verificationSha256": "f8fc7b3a71598e90ee82fa82c3ec87781913279b4442b108210f2ccb282f53e6",
+  "artifactHashesVerified": 879,
+  "exactImplementationArtifactInventory": true,
+  "frozenFilesVerified": 84,
+  "topLevelReferencesVerified": true,
+  "scope": "Final prerequisite implementation evidence; no runtime qualification or owner approval."
+}

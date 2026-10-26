@@ -1,0 +1,645 @@
+{
+  "scope": "authorized prerequisite implementation only; no real runtime/owner authority",
+  "reviewIteration": 5,
+  "rootHead": "8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3",
+  "preservation": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/preservation-restoration.json",
+    "sha256": "e42601c25f5170ba9fd25807458acd516bffaa0824803653b0ae9e6fbe22f58c"
+  },
+  "sourceEpoch": {
+    "name": "final iteration-5 implementation",
+    "sourceBinding": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/verification-source.json",
+      "sha256": "8e855c13c62fc649e605d2a8054596af32aca8d7e532b946dbb74792c725fab2"
+    },
+    "unchangedDuringCombinedLegacyMutationsAndHeldChecks": true
+  },
+  "combined": {
+    "command": {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests/test_epic16_tooling.py",
+        "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py",
+        "--maxfail=3",
+        "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/combined.xml"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 408.781,
+      "stdoutSha256": "7a1961b692e3201534e6ce0276d06dcdce8fe8861fadf69f8946714fc136ab6b",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "junitSha256": "b671a2d6d8b75d399fdce98cb9f1eb1412de9bac08d1040d56c5d5e220b4de09"
+    },
+    "counts": {
+      "tests": 1024,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "successorTests": 862,
+    "historicalAdoptionV2Tests": 162
+  },
+  "legacy": {
+    "command": {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests/test_generate_story_record.py",
+        "_bmad/scripts/tests/test_epic16_tooling.py",
+        "-k",
+        "story_111 or story_112 or standalone_generator",
+        "--maxfail=3",
+        "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/legacy.xml"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 85.656,
+      "stdoutSha256": "81fd85c2e7d5cc8ca4de174e915f89114527a7f074c47c5cd4558ffba5fd6a23",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "junitSha256": "654f1e0c0056c6e13b78d4bb8e3888045ca1a4d10b633404292540504abe9d12"
+    },
+    "counts": {
+      "tests": 72,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "mutationProbes": {
+    "record": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/mutation-probes.json",
+      "sha256": "094272e55ff01a1ec57820df1d551fcc6d2679886b1590015f12ef3870a6c595"
+    },
+    "mutants": 15,
+    "targetedFailures": 39,
+    "setupErrors": 0,
+    "retainedPriorGuards": 47,
+    "priorEvidence": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-4/verification.json",
+      "sha256": "21c9a745db979239f26f01c326cc72017f18d003a627255259d713c792935dd5"
+    },
+    "note": "15 new guard mutations were run against this final source. The 47 earlier guard observations remain retained with their original source epochs; all corresponding prior regression tests passed in the final combined suite."
+  },
+  "held": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-commands.json",
+    "sha256": "878bc2a001eb4c03d6e29a3fa039bc04962c1cd18d6e759f65e4aff580f9779b"
+  },
+  "completion": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/completion-commands.json",
+    "sha256": "a316371d7424b453deaf2a16e11012920b9f1d598442811248822c62d91b12e8"
+  },
+  "whitespace": {
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "parentCounterexamples": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/parent-counterexamples-after.json",
+    "sha256": "4df83b55c494ef470cbca428281c82625dae9114b519fa0fa50c16d423f079b6"
+  },
+  "nativePartyGoldens": {
+    "protocol": {
+      "path": "_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json",
+      "sha256": "04b547e3cf9da207a67142473967fb6ca01ffc4e32df4bd886ae769a0063d373"
+    },
+    "stdout": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/run.stdout.txt",
+      "sha256": "40ac8b252a233b5f064cbc79667ddc097949a4ed7547c0e39f20c971dc0b9e25"
+    },
+    "stderr": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/run.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "actual retained Contracts artifact constructor/JSON serialization/deserialization in isolated Debug experiment; synthetic inputs; no runtime entry"
+  },
+  "runtime": {
+    "entry": null,
+    "trustedEntries": {},
+    "actualEvidenceAbsent": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/actual-runtime-paths-absent.json",
+      "sha256": "96ea7d702ca034771bf4f9613bb78f34f94353bc5e4c00b3347c77150f3fedee"
+    },
+    "story16_1": "draft/backlog",
+    "acceptedCliPins": "4.35.2",
+    "publication": "not-applicable",
+    "disposableInsertion": "test-only entry plus public-baseline/contract pin injection; actual caller blocked until atomic native/receipt/final-pair commit then passed"
+  },
+  "broadLane": {
+    "rerun": false,
+    "reason": "amended spec explicitly prohibits repeating the 39-minute broad lane",
+    "retained": {
+      "path": "module/validation/epic-16-prerequisite-implementation/verification-final.json",
+      "sha256": "bd618a708a99feb0cbcaf9d789b9c9391bcf9702d70f49ce47556d392df0fad6"
+    },
+    "unresolved": [
+      "REFRESH_UV_DRIFT package-refresh baseline",
+      "Story 10.4 guidance-binding baseline"
+    ],
+    "gateWeakened": false
+  },
+  "intermediateObservations": {
+    "initialSelector": "24 passed, 775 deselected in 15.03s; before final additions",
+    "newSelector": "62 passed, 799 deselected in 31.19s; before final native warning/real-runner assertions",
+    "retainedJunit": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/intermediate-new.xml",
+      "sha256": "5080668c4cc1736149e1470812f72fb5a74f404b8684f23a5b10b1c31b7645b0"
+    },
+    "disposition": "Intermediate checks are superseded by the complete final-source combined and legacy runs; they are not represented as final-source evidence.",
+    "fixtureEditingCorrection": "Initial schema-edit helper expected oneOf for lifecycle items; it raised KeyError before schema writes. Corrected to the existing anyOf before verification."
+  },
+  "orchestrationDeviation": {
+    "command": [
+      "uv",
+      "run",
+      "--no-cache",
+      "/home/administrator/projects/hexalith/conversations/_bmad/scripts/render_skill.py",
+      "--project-root",
+      "/home/administrator/projects/hexalith/conversations",
+      "--skill",
+      "/home/administrator/projects/hexalith/conversations/.agents/skills/bmad-build"
+    ],
+    "exitCode": 0,
+    "renderedWorkflow": "/home/administrator/projects/hexalith/conversations/_bmad/render/bmad-build/conversations-f0fc90326eb5/afbdeefb80a1404d78bf/workflow.md",
+    "note": "Worker rendered once before reaching the spec instruction prohibiting a second workflow. No secondary steps or additional agents were invoked; root orchestration and spec remained authoritative."
+  },
+  "remainingOwnerWork": [
+    "actual Platform integration qualification",
+    "seventeen adoption findings",
+    "operational/provider/environment parity",
+    "recovery drills",
+    "operator/deputy coverage",
+    "capacity/waiver disposition",
+    "human SM-2",
+    "separate scoped owner entry"
+  ],
+  "artifacts": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/actual-runtime-paths-absent.json",
+      "sha256": "96ea7d702ca034771bf4f9613bb78f34f94353bc5e4c00b3347c77150f3fedee"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/combined.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/combined.stdout.txt",
+      "sha256": "7a1961b692e3201534e6ce0276d06dcdce8fe8861fadf69f8946714fc136ab6b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/combined.xml",
+      "sha256": "b671a2d6d8b75d399fdce98cb9f1eb1412de9bac08d1040d56c5d5e220b4de09"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/completion-1.receipt.txt",
+      "sha256": "60fdf33158afc77a67a4bdf8ea7d67300ba61a5eee39841f8ec2f0e31741d5c4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/completion-1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/completion-1.stdout.txt",
+      "sha256": "60fdf33158afc77a67a4bdf8ea7d67300ba61a5eee39841f8ec2f0e31741d5c4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/completion-2.receipt.txt",
+      "sha256": "7431262a56017e4f18535f71781ac6cb4f188050bc382bb796406dcb161ee5d1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/completion-2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/completion-2.stdout.txt",
+      "sha256": "7431262a56017e4f18535f71781ac6cb4f188050bc382bb796406dcb161ee5d1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/completion-commands.json",
+      "sha256": "a316371d7424b453deaf2a16e11012920b9f1d598442811248822c62d91b12e8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-01.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-01.stdout.txt",
+      "sha256": "3d3fbd9fd81253e9dc957e309f7366f02c73babc56e98fd6560da48dbad8832e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-02.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-02.stdout.txt",
+      "sha256": "30c4e5ea7003f2bf41241a1e176fdaf9c71dd9e7d08b932c81bfa3bbf2f05e39"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-03.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-03.stdout.txt",
+      "sha256": "a591f00e40908642d8578a8ae89a6a709252a34f338c98e4167a45f5a9f808d5"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-04.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-04.stdout.txt",
+      "sha256": "26a7ff6e57ba12f54f12275713c09181838533e3056b88079a2d43fe3a0f1399"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-05.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-05.stdout.txt",
+      "sha256": "de6c23dc826836e497eb840e2677899087f49034b2aa9fdd8d78ecfe2d00d19e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-06.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-06.stdout.txt",
+      "sha256": "3d3fbd9fd81253e9dc957e309f7366f02c73babc56e98fd6560da48dbad8832e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-07.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-07.stdout.txt",
+      "sha256": "7f096c50e5d22fef41229bd65005b0d7e1fbcf2311783e96c9c352ecde9a224e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-08.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-08.stdout.txt",
+      "sha256": "7f5430cf9f51f084d352176a8674b0795866d564ba3b392a744f764ff084145e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-09.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-09.stdout.txt",
+      "sha256": "0d179acacfde915bbbe0401e79d283d8409bb39b879b62c20ecf3244124923ab"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-10.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-10.stdout.txt",
+      "sha256": "d60a681bc92ad71998380592b32259bdc5744f60ab09293de48c0e1a6d078f1b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-11.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-11.stdout.txt",
+      "sha256": "6278f67e79471d3fb6e057b4a0388a0a712044afbe02ce95cc6c2b37999795df"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-12.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-12.stdout.txt",
+      "sha256": "7f096c50e5d22fef41229bd65005b0d7e1fbcf2311783e96c9c352ecde9a224e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-13.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-13.stdout.txt",
+      "sha256": "28bd46ec3fe4af85c0f196349f76ec1c1dca57502fab4fab514de19ab0e32562"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-14.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-14.stdout.txt",
+      "sha256": "8aa4c9e48d21045ae626a53586d17b03388f92488d70fed35b193ec1e90d50c8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-15.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-15.stdout.txt",
+      "sha256": "01164456e9cd54eee06bd3e45ecbf0d84444473c32fd58f669df848770cdbdb1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-16.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-16.stdout.txt",
+      "sha256": "bd125b51a08f894cd7c0303d2aeb58432f79d1ffd47d8ff4b44ce1d4c99b70ab"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-17.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-17.stdout.txt",
+      "sha256": "a948714deefb249a430c177922cf196bdb1fd7f0f5433a552245abf919d45a00"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-18.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-18.stdout.txt",
+      "sha256": "28bd46ec3fe4af85c0f196349f76ec1c1dca57502fab4fab514de19ab0e32562"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/held-commands.json",
+      "sha256": "878bc2a001eb4c03d6e29a3fa039bc04962c1cd18d6e759f65e4aff580f9779b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/intermediate-new.xml",
+      "sha256": "5080668c4cc1736149e1470812f72fb5a74f404b8684f23a5b10b1c31b7645b0"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/legacy.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/legacy.stdout.txt",
+      "sha256": "81fd85c2e7d5cc8ca4de174e915f89114527a7f074c47c5cd4558ffba5fd6a23"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/legacy.xml",
+      "sha256": "654f1e0c0056c6e13b78d4bb8e3888045ca1a4d10b633404292540504abe9d12"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/actor-normalization.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/actor-normalization.stdout.txt",
+      "sha256": "b5e4a5195e6cc5420ff16dd159de6ece2cf3e70cd15075ac619ee7fdd5199e6e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/actor-normalization.xml",
+      "sha256": "28e973414dd693dfe19896dd2d5d5183da2f3438249fa719397d5368311decb0"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/async-void-native.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/async-void-native.stdout.txt",
+      "sha256": "77af3fb034b73666161fbaf6dac8c744a6aacde41f618fc5cc187d6a1e8ccc10"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/async-void-native.xml",
+      "sha256": "602ff370196ba31e3daf01524df52ffd5939e5f74c9c87bc7d2e28f3bc8b52c2"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/checkout-native-bytes.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/checkout-native-bytes.stdout.txt",
+      "sha256": "006c038912a9611e4f488f4af949ddd6121a4bd00ff742c95661b306ac92c522"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/checkout-native-bytes.xml",
+      "sha256": "9ea3cba02e18d24d6aef7a0a502947b51b633ff5af25938dcf82321ed5a91156"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/checkout-shared-helper.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/checkout-shared-helper.stdout.txt",
+      "sha256": "990e8d3048818d5b317cefe022c47900b2dac7dc2bf5b1c3257c19251fb864e1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/checkout-shared-helper.xml",
+      "sha256": "4ea23593134da6b376a4a13930dcfa5b2540c21e4d45a58b7f4885c437b134f8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/creation-prefix.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/creation-prefix.stdout.txt",
+      "sha256": "9cf17365dd06d1c6d8518e50651d209fa76e1639e9107ebe0e2ddce7c320e90d"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/creation-prefix.xml",
+      "sha256": "ede189c42fe6220cf16b8e24b5d1647024d0806d1958af4214f1f9efb10b5555"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/lifecycle-generation.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/lifecycle-generation.stdout.txt",
+      "sha256": "54bcc113cbb724ad42be8a0127c95772d27d6355c5fb089b9ac36d538d1daa22"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/lifecycle-generation.xml",
+      "sha256": "3189aa23df1a91b15add021bbdbac10b03644841624cb79aa0cb1b86ad305f20"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/mutation-probes.json",
+      "sha256": "094272e55ff01a1ec57820df1d551fcc6d2679886b1590015f12ef3870a6c595"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/native-pending-record.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/native-pending-record.stdout.txt",
+      "sha256": "4f43ee883da08c1e2727cb2f37d0fc2cb1fa61592d5f7a07eb91ac9b1e3ee07d"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/native-pending-record.xml",
+      "sha256": "1d939c65628169e9cd079222fdc29612786f2fdd7bbc1b1a516e89005ae22702"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/native-run-failure.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/native-run-failure.stdout.txt",
+      "sha256": "c3592b8d35060f84b8f05635c30391e97151ae476ea722f0705ade821dd1aa37"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/native-run-failure.xml",
+      "sha256": "a83cdc1d291f11afe577f5694986f2e98edc7ad17c30106f38b44347ac4978a3"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/native-unicode-normalization.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/native-unicode-normalization.stdout.txt",
+      "sha256": "1d76870286f55b87dafd8604a6edf29f54d0651159d3f79c6642221a4a2b369c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/native-unicode-normalization.xml",
+      "sha256": "803d311f75e50b90ffc2a71fdc0e775700b3e0568e99666efc2e739bca9d7a3b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/party-normalization.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/party-normalization.stdout.txt",
+      "sha256": "9d8a0fe9365e7fd402983bab732cd25af0f8447ca2311cb9f74645b8e7896efe"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/party-normalization.xml",
+      "sha256": "16f67cde6a49d47b0cae4b88f15d0ff578ee42c8c49a2948340b4b20b81da8b6"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/publication-required.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/publication-required.stdout.txt",
+      "sha256": "83ef65802d3381608c4c2b9fe13276f8ec474ff950f94852ceab1ba63c5e21ac"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/publication-required.xml",
+      "sha256": "62237c1dcdc916a679f0adb88148ff362e861e8f1c89856040b1bfe897c2239e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/raw-lease-version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/raw-lease-version.stdout.txt",
+      "sha256": "60fa4f4e0e1b0713619c58dc6e4de13e5d7587f912f3560063063243cd30a67c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/raw-lease-version.xml",
+      "sha256": "93bb0b451b9bfd933e489068804237dd844939d13b52e41e521ce5119886aaf0"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/raw-utc-domain.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/raw-utc-domain.stdout.txt",
+      "sha256": "7f9ccda8265b0bf820402fba074aa6b934c0facc908eaf89616dc373eddbd78f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/raw-utc-domain.xml",
+      "sha256": "9907e220c383f39e952f7d080701de5c7f93093bd9fe229312e9983bc7a19a41"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/redaction-new-identity.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/redaction-new-identity.stdout.txt",
+      "sha256": "585e29560adea42c8158c9e373c484539a338891a5fa6519d10e37aa40206723"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/redaction-new-identity.xml",
+      "sha256": "cafc1c55cc39fd22873d5b58d57f19c9d66fb1fac53f373c25aff2352ea24c77"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/stored-object-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/stored-object-binding.stdout.txt",
+      "sha256": "e6b67ddf6d29a2e9da4efcaba03c94a12e424ac0d74ede284a2e662f1d2fdcb0"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/mutations/stored-object-binding.xml",
+      "sha256": "ea9d488ceebcae22649d2bb929d1e5d5fdedd53eda625535ece5525f08ffd12c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/parent-counterexamples-after.json",
+      "sha256": "4df83b55c494ef470cbca428281c82625dae9114b519fa0fa50c16d423f079b6"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/Goldens.csproj",
+      "sha256": "81fd557d02f30494cf2daf896b933771e58cac5377f46b25934164b7a98c3191"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/Program.cs",
+      "sha256": "9dd086e0dd8ae78bd2e6d747440291ad8062efe11491700d0bb45b11afa3f279"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/run.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/run.stdout.txt",
+      "sha256": "40ac8b252a233b5f064cbc79667ddc097949a4ed7547c0e39f20c971dc0b9e25"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/preservation-restoration.json",
+      "sha256": "e42601c25f5170ba9fd25807458acd516bffaa0824803653b0ae9e6fbe22f58c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/test-commands.json",
+      "sha256": "7a24d6d0a0b5ec2531e6d7af0e26da78111b327d282c9bd3d7d335e60e0b02ed"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/verification-scripts/epic16-r5-guards.py",
+      "sha256": "ef1c19216412c6d4b457f41eba7b37bb216fdb2de87cd223124413600852fd45"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/verification-scripts/epic16-r5-mutations.py",
+      "sha256": "b4dee98a30371499e6e98528945079086938f351368b64402eeb8c431c84f0e5"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/verification-scripts/epic16-r5-record.py",
+      "sha256": "a2629a12eb20ce34cbc7baf8300b4255ac40d4a45285772d4ec936ed0bad189f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/verification-scripts/epic16-r5-verify.py",
+      "sha256": "b4888383117d6245d7da9377dc457112a2eb766beceb32726258f4ea408cc914"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/verification-source.json",
+      "sha256": "8e855c13c62fc649e605d2a8054596af32aca8d7e532b946dbb74792c725fab2"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/whitespace.json",
+      "sha256": "3bfcb59510e116b1afab8649df0d35f3e07bc8da9b008742400f4a33ae75beaf"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/whitespace.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/whitespace.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

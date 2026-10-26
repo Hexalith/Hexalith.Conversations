@@ -1,0 +1,33 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_round10_runtime_admission_rejects_unprovided_constructor _________
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-603/test_round10_runtime_admission0/runtime')
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-603/test_round10_runtime_admission0')
+
+    def test_round10_runtime_admission_rejects_unprovided_constructor(qualified_runtime,tmp_path):
+        repo=qualified_runtime;candidate=git(repo,'rev-parse','HEAD')
+        code='namespace Hexalith.Conversations.IntegrationTests.Epic16; public sealed class Story16_2EvidenceTests(string unavailable) { [Xunit.Fact] public void Scenario02() {} }'
+        binary=compile_evidence(tmp_path/'missing-provider',candidate,code)
+        root=json.loads((repo/tooling.capture.capture_path('16.2','AC-16.2-02')).read_bytes())['originalRepositoryRoot']
+        retain_capture(repo,'AC-16.2-02',binary,root=root)
+>       rejected(runtime_evaluate(repo),'NATIVE_BINARY_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:3913: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'NATIVE_BINARY_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_runtime_admission_rejects_unprovided_constructor
+1 failed, 1986 deselected in 20.47s

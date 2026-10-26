@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.790" timestamp="2026-10-25T20:43:41.231695+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_generator_rejects_any_mixed_candidate_return_even_with_passing_rows" time="1.538"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-06', 'validationScope': 'tooling-fixture', ...}&#10;assert 'BLOCKED' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + BLOCKED">repository = PosixPath('/tmp/pytest-of-administrator/pytest-341/test_generator_rejects_any_mix0/fixture')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x76fc7c7d5750&gt;
+
+    def test_generator_rejects_any_mixed_candidate_return_even_with_passing_rows(repository,monkeypatch):
+        original=tooling.evaluate
+        def altered(*args,**kwargs):
+            result=original(*args,**kwargs)
+            if args[2]=='AC-16.1-03':result['candidate']['commit']='f'*40
+            return result
+        monkeypatch.setattr(tooling,'evaluate',altered)
+        result,j,m=tooling.generate(repository,'16.1',scope=SCOPE)
+&gt;       rejected(result,'CANDIDATE_DRIFT');assert j is m is None
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-06', 'validationScope': 'tooling-fixture', ...}
+code = 'CANDIDATE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-06', 'validationScope': 'tooling-fixture', ...}
+E       assert 'BLOCKED' == 'FAIL'
+E         
+E         - FAIL
+E         + BLOCKED
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

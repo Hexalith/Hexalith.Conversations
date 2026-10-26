@@ -1,0 +1,10 @@
+{
+  "verificationSha256": "b0e80072de3ead047948dda9078537f2e34f67b60e7285a189324d7dca339722",
+  "artifactHashesVerified": 2854,
+  "exactImplementationArtifactInventory": true,
+  "allArtifactsTrackable": true,
+  "frozenFilesVerified": 86,
+  "allNestedReferencesVerified": true,
+  "nestedReferenceCount": 2878,
+  "scope": "Final prerequisite implementation evidence; no runtime qualification or owner approval."
+}

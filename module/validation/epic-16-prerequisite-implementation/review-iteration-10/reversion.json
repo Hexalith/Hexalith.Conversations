@@ -1,0 +1,10 @@
+{
+  "backup": "/tmp/epic16-review10-preservation-2ci2k503",
+  "manifestSha256": "26886e99c21fc0615461bb46129fed291f44f629e3742aacd3c7affb28f6e02a",
+  "ownedFiles": 40,
+  "trackedRestored": 3,
+  "newFilesRemoved": 37,
+  "protectedVerified": 5,
+  "indexEmpty": true,
+  "allEvidencePreserved": true
+}

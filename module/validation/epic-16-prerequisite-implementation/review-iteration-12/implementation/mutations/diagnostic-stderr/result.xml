@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="0.788" timestamp="2026-10-26T06:30:07.877857+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-sdk]" time="0.002"><failure message="assert 'ERR-END' in &quot;repository-approved SDK unavailable: exit=41; stdout=''; stderr=omitted&quot;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7c16b8591290&gt;
+stage = 'sdk', stream = 'stderr'
+
+    @pytest.mark.parametrize('stage',['sdk','build'])
+    @pytest.mark.parametrize('stream',['stderr','stdout','both','oversized'])
+    def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
+        native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
+        def run(argv,**kwargs):
+            if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+            stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
+            stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
+            return subprocess.CompletedProcess(argv,code,stdout,stderr)
+        monkeypatch.setattr(native.subprocess,'run',run)
+        with pytest.raises(native.HelperUnavailable) as error:native._helper()
+        message=str(error.value);assert 'exit='+str(code) in message and 'stdout=' in message and 'stderr=' in message
+        if stream in ('stdout','both','oversized'):assert 'OUT-END' in message
+&gt;       if stream in ('stderr','both','oversized'):assert 'ERR-END' in message
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 'ERR-END' in "repository-approved SDK unavailable: exit=41; stdout=''; stderr=omitted"
+
+_bmad/scripts/tests/test_epic16_tooling.py:4368: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-build]" time="0.002"><failure message="assert 'ERR-END' in &quot;fixed helper build failed: exit=42; stdout=''; stderr=omitted&quot;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7c16b8ae08d0&gt;
+stage = 'build', stream = 'stderr'
+
+    @pytest.mark.parametrize('stage',['sdk','build'])
+    @pytest.mark.parametrize('stream',['stderr','stdout','both','oversized'])
+    def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
+        native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
+        def run(argv,**kwargs):
+            if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+            stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
+            stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
+            return subprocess.CompletedProcess(argv,code,stdout,stderr)
+        monkeypatch.setattr(native.subprocess,'run',run)
+        with pytest.raises(native.HelperUnavailable) as error:native._helper()
+        message=str(error.value);assert 'exit='+str(code) in message and 'stdout=' in message and 'stderr=' in message
+        if stream in ('stdout','both','oversized'):assert 'OUT-END' in message
+&gt;       if stream in ('stderr','both','oversized'):assert 'ERR-END' in message
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 'ERR-END' in "fixed helper build failed: exit=42; stdout=''; stderr=omitted"
+
+_bmad/scripts/tests/test_epic16_tooling.py:4368: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,66 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_round8_completed_watermark_derives_from_barrier_and_prior_progress[10-999-False] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-490/test_round8_completed_watermar0/fixture')
+before = 10, after = 999, passes = False
+
+    @pytest.mark.parametrize('before,after,passes',[(10,999,False),(25,25,True),(25,24,False),(25,999,False),(10,20,True)])
+    def test_round8_completed_watermark_derives_from_barrier_and_prior_progress(repository,before,after,passes):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1]
+        row.update(watermarkBefore=before,watermarkAfter=after);round8_refresh(row)
+>       round8_submit(repository,'AC-16.2-04',data,passes=passes)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2844: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-490/test_round8_completed_watermar0/fixture')
+scenario = 'AC-16.2-04'
+data = {'lifecycle': [{'id': 'erase', 'beforeGeneration': 2, 'afterGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3]...erGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3], ...}], 'queryWrites': [], 'unauthorizedRebuildWrites': 0}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+_ test_round8_completed_watermark_derives_from_barrier_and_prior_progress[25-999-False] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-490/test_round8_completed_watermar1/fixture')
+before = 25, after = 999, passes = False
+
+    @pytest.mark.parametrize('before,after,passes',[(10,999,False),(25,25,True),(25,24,False),(25,999,False),(10,20,True)])
+    def test_round8_completed_watermark_derives_from_barrier_and_prior_progress(repository,before,after,passes):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1]
+        row.update(watermarkBefore=before,watermarkAfter=after);round8_refresh(row)
+>       round8_submit(repository,'AC-16.2-04',data,passes=passes)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2844: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-490/test_round8_completed_watermar1/fixture')
+scenario = 'AC-16.2-04'
+data = {'lifecycle': [{'id': 'erase', 'beforeGeneration': 2, 'afterGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3]...erGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3], ...}], 'queryWrites': [], 'unauthorizedRebuildWrites': 0}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_completed_watermark_derives_from_barrier_and_prior_progress[10-999-False]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_completed_watermark_derives_from_barrier_and_prior_progress[25-999-False]
+2 failed, 1586 deselected in 8.42s

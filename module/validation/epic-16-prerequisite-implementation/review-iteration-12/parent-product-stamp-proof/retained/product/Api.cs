@@ -1,0 +1,1 @@
+extern alias custom; [assembly:custom::System.Reflection.AssemblyInformationalVersion("1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")] namespace Example; public class Api { public string Read()=>"value"; }

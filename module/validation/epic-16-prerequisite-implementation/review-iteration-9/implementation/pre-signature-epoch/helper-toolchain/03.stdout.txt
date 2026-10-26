@@ -1,0 +1,1 @@
+{"frameworkDescription":".NET 10.0.13","runtimeVersion":"10.0.13","targetFramework":".NETCoreApp,Version=v10.0","coreLibraryIdentity":"System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e"}

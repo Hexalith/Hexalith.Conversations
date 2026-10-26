@@ -1,0 +1,29 @@
+{
+  "name": "failure-proposal",
+  "path": "_bmad/scripts/epic16_schedules.py",
+  "old": "require(attempt['number']==number and attempt['method']=='compare-exchange' and attempt['expectedEtag']==before['etag'] and same(attempt['proposed'],dict(expected,checkpoint=delivered['sequence'],horizon=delivered['sequence'],projection=domain.tenant_replay(state,[proof['delivered']],source['sequence'],delivered['sequence'])[0],lastAccepted=delivered)), 'ordered attempt actually proposes source-derived exact-next composite write')",
+  "new": "None",
+  "selector": "round12_failed_deliveries and (number or expected or proposed)",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-failure-proposal-nt3k0yhp/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_failed_deliveries and (number or expected or proposed)",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/failure-proposal/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-failure-proposal-nt3k0yhp",
+  "exitCode": 1,
+  "elapsedSeconds": 16.525569904973963,
+  "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+  "mutatedSha256": "acec30ec0986fc878826c9f3d093c31dea2d52fc80f2181ff144301a14e01ddc",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 6,
+    "failures": 6,
+    "errors": 0,
+    "skipped": 0
+  }
+}

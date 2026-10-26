@@ -1,0 +1,73 @@
+{
+  "scope": "Synthetic independent counterexamples; no runtime qualification or authority.",
+  "artifacts": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/R11B8-accepted-observations.json",
+      "sha256": "64a704b8dce10b41ddcdc8738d91f302282f4bde04c7eab59c9a1160e80bd831"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/R11B9-accepted-observations.json",
+      "sha256": "c00695a69dc965d528d3f4609087a399615eb2f8040e4b25fdfa267422d23058"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/R11E1-Probe.csproj",
+      "sha256": "d5b97446ac156c3af905a9cef2824cb2dfec75a075fa5b6566ae889421565c1d"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/R11E1-Probe.dll.bytes",
+      "sha256": "e6e10a73336fc8e0448883ef529466421e31aff4c5c308a89752ce73bd381bb1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/R11E1-Tests.cs",
+      "sha256": "afe654607b5faeda8ffa92c6651a91464f2335fb3fa9b08872d492a6c9497774"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/R11E1-global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/R11E1-result.trx",
+      "sha256": "a4082498eac39e89e553b49aa168e9e80d44ed01d488207ca66919a9c32f257c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/R11E1-run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/R11E1-run.stdout",
+      "sha256": "20630711a967a63864a8aaf0d5e57d74cf92e8c13ad6d491cf1e12ee6ad65227"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/R11E2-closed-two-resource-capture.json",
+      "sha256": "ab622c87cc9959371a0b428fe86f7a992b04736151023eb2174d5fc284d74acd"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/results.json",
+      "sha256": "8b89420773b03bc93c7fc0efc1039bab38a0fdf47b6ac14dab743d451aa78c0b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/verify_story_16_1.py.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/verify_story_16_1.py.stdout",
+      "sha256": "77c0d51ca74866c3453443b8b343ad418d963637364776e9bc82be880a3f98ac"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/verify_story_16_2.py.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/verify_story_16_2.py.stdout",
+      "sha256": "77c0d51ca74866c3453443b8b343ad418d963637364776e9bc82be880a3f98ac"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/verify_story_16_3.py.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-protocol-proof/verify_story_16_3.py.stdout",
+      "sha256": "77c0d51ca74866c3453443b8b343ad418d963637364776e9bc82be880a3f98ac"
+    }
+  ]
+}

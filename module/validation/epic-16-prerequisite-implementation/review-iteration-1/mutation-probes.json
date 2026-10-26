@@ -1,0 +1,44 @@
+[
+  {
+    "name": "receipt-writer",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "real_verifier_and_generator_entrypoints",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-1/receipt-writer.xml"
+    ],
+    "cwd": "/tmp/epic16-review1-mutant-ew2grbga",
+    "exitCode": 1,
+    "mutation": {
+      "before": "safe_write(Path(args.repository), [(args.output, json_bytes(result))], [native_path(args.scope, args.scenario)])",
+      "after": "pass  # Disposable no-op publication mutation"
+    },
+    "stdoutSha256": "ffb580b7becd4753123aba7c832c4a0419a4b7547de48de6b912a902bdf54362",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dependency-loop",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "every_dependency_edge",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-1/dependency-loop.xml"
+    ],
+    "cwd": "/tmp/epic16-review1-mutant-mqdvk1hd",
+    "exitCode": 1,
+    "mutation": {
+      "before": "for dependency in dependencies:",
+      "after": "for dependency in ():"
+    },
+    "stdoutSha256": "a0278f29c629c48c41ed694e9b905d6d6f87a325084328979f8cf6b98b56accd",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

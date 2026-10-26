@@ -1,0 +1,80 @@
+.FF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_round7_native_nullable_creation_state_passes_schema_and_consumer[AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-449/test_round7_native_nullable_cr1/fixture')
+scenario = 'AC-16.3-03'
+
+    @pytest.mark.parametrize('scenario',['AC-16.2-02','AC-16.3-03','AC-16.3-04'])
+    def test_round7_native_nullable_creation_state_passes_schema_and_consumer(repository,scenario):
+        data=round7_nullable(deepcopy(OBSERVATIONS[scenario]))
+        if scenario=='AC-16.2-02':refresh_replay(data)
+        elif scenario=='AC-16.3-04':
+            first=round7_nullable(deepcopy(OBSERVATIONS['AC-16.3-03']));native(repository,'AC-16.3-03',first)
+            # The authoritative position hashes bind the altered, valid native history.
+            from evidence_boundary_current import canonical
+            events=data['precedingEvents']+data['recoveryEvents']
+            for pos,event in zip(data['concurrentRecovery']['authoritativePositions'],events):pos['eventSha256']=digest(canonical(event))
+>       round7_submit(repository,scenario,data,passes=True)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2531: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-449/test_round7_native_nullable_cr1/fixture')
+scenario = 'AC-16.3-03'
+data = {'transport': 'production-delivery', 'coordinator': 'EventStore', 'handlerInvocations': 0, 'pendingBefore': 0, ...}
+passes = True, schema = False
+
+    def round7_submit(repository, scenario, data, *, passes=False, schema=False):
+        native(repository, scenario, data)
+        result = evaluate(repository, scenario)
+        if passes:
+>           assert result['result'] == 'PASS', result
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E           assert 'FAIL' == 'PASS'
+E             
+E             - PASS
+E             + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2435: AssertionError
+_ test_round7_native_nullable_creation_state_passes_schema_and_consumer[AC-16.3-04] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-449/test_round7_native_nullable_cr2/fixture')
+scenario = 'AC-16.3-04'
+
+    @pytest.mark.parametrize('scenario',['AC-16.2-02','AC-16.3-03','AC-16.3-04'])
+    def test_round7_native_nullable_creation_state_passes_schema_and_consumer(repository,scenario):
+        data=round7_nullable(deepcopy(OBSERVATIONS[scenario]))
+        if scenario=='AC-16.2-02':refresh_replay(data)
+        elif scenario=='AC-16.3-04':
+            first=round7_nullable(deepcopy(OBSERVATIONS['AC-16.3-03']));native(repository,'AC-16.3-03',first)
+            # The authoritative position hashes bind the altered, valid native history.
+            from evidence_boundary_current import canonical
+            events=data['precedingEvents']+data['recoveryEvents']
+            for pos,event in zip(data['concurrentRecovery']['authoritativePositions'],events):pos['eventSha256']=digest(canonical(event))
+>       round7_submit(repository,scenario,data,passes=True)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2531: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-449/test_round7_native_nullable_cr2/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+passes = True, schema = False
+
+    def round7_submit(repository, scenario, data, *, passes=False, schema=False):
+        native(repository, scenario, data)
+        result = evaluate(repository, scenario)
+        if passes:
+>           assert result['result'] == 'PASS', result
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E           assert 'FAIL' == 'PASS'
+E             
+E             - PASS
+E             + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2435: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_native_nullable_creation_state_passes_schema_and_consumer[AC-16.3-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_native_nullable_creation_state_passes_schema_and_consumer[AC-16.3-04]
+2 failed, 1 passed, 1286 deselected in 3.68s

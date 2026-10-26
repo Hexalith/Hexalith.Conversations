@@ -1,0 +1,25 @@
+{
+  "assemblyName": "Probe",
+  "assemblyVersion": "0.0.0.0",
+  "culture": "",
+  "publicKey": "",
+  "mvid": "f06e42f3-41f9-42af-8d94-fc839e355293",
+  "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "declaredTypes": [
+    ".<Module>",
+    "Probe.Api"
+  ],
+  "api": {
+    "kind": "conservative-ecma335-public-declarations-v1",
+    "types": {
+      "Probe.Api": {
+        "header": "Public, ClassSemanticsMask, Abstract, Import, BeforeFieldInit:::0:0:[{\"name\":\"System.Runtime.InteropServices\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.InteropServices.GuidAttribute:01002446303030303030302D303030302D303030302D303030302D3030303030303030303030310000",
+        "interfaces": [],
+        "members": [
+          "method:Method:Public, Virtual, HideBySig, VtableLayoutMask, Abstract:32:0:0:Int32():::"
+        ]
+      }
+    }
+  }
+}

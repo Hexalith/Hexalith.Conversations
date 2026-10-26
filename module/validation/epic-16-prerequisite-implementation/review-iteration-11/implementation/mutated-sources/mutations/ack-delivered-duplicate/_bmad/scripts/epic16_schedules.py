@@ -1,0 +1,327 @@
+"""Closed measured schedules for the controlled Epic 16 evidence experiment.
+
+These versioned capture DTOs describe observations; they do not implement a
+projection store, worker, transport, or durable provider.
+"""
+from copy import deepcopy
+
+import epic16_domain as domain
+from epic16_domain import require, same, shape, text
+from epic16_native import strict_json
+from evidence_boundary_current import canonical, digest
+from epic16_relationships import tenant_record
+
+
+def future_deliveries(data):
+    rows = data['futureSchedules']
+    require([row['id'] for row in rows] == ['duplicate', 'conflict'], 'exact future repeat/conflict schedules')
+    tenant = data['startingState']['tenantId']
+    pending = data['merges'][-1]['pending']
+    horizon = data['merges'][-1]['afterHorizon']
+    baseline = rows[0]['before']
+    for row in rows:
+        before, after, cas = row['before'], row['after'], row['cas']
+        require(same(before, baseline), 'same composite gap for both controlled future schedules')
+        for snapshot in (before, after):
+            domain.sequence(snapshot['version']); text(snapshot['etag'])
+            require(snapshot['tenant'] == tenant and snapshot['projection']['tenantId'] == tenant, 'future schedule tenant binding')
+        require(before['captureVersion'] == 1 and before['checkpoint'] == data['checkpoint'] and before['expectedSequence'] == data['checkpoint']+1 and before['horizon'] == horizon, 'future schedule exact checkpoint and horizon')
+        require(same(before['pending'], pending) and same(before['projection'], data['startingState']) and before['health'] == 'Gapped' and before['allowed'] is False, 'future schedule binds complete gap inventory and projection')
+        delivered = tenant_record(row['delivered'], tenant)
+        require(before['expectedSequence'] < delivered['sequence'] <= horizon, 'repeated delivery remains future in measured gap')
+        originals = [record for record in pending if record['sequence'] == delivered['sequence']]
+        require(len(originals) == 1, 'future schedule addresses an existing pending sequence')
+        original = tenant_record(originals[0], tenant)
+        duplicate = row['id'] == 'duplicate'
+        require(same(delivered, original) is duplicate, 'actual identical or conflicting native pending fingerprint')
+        require(cas['expectedEtag'] == before['etag'] and cas['expectedVersion'] == before['version'], 'future CAS binds expected opaque etag and version')
+        expected = deepcopy(before)
+        commit_fields = ('commitId', 'projectionCommitId', 'checkpointCommitId', 'healthCommitId', 'pendingCommitId')
+        if duplicate:
+            require(cas['succeeded'] is None and all(cas[key] is None for key in commit_fields), 'identical future delivery causes no commit')
+        else:
+            expected.update(health='Corrupt', etag=after['etag'], version=before['version']+1)
+            require(after['etag'] != before['etag'] and cas['succeeded'] is True and all(cas[key] == text(cas['commitId']) for key in commit_fields), 'future conflict durably CAS-marks composite corrupt state')
+        require(same(after, expected), 'future delivery preserves pending evidence and projection/checkpoint atomically')
+        require(data['duplicateFutureState' if duplicate else 'conflictingFutureState'] == after['health'], 'future outcome derives from persisted health')
+
+
+def healthy_restart_identity(row, tenant):
+    """Logical ITenantProjectionStore tenant key, not an invented physical key."""
+    before, after = row['beforeRestart'], row['afterRestart']
+    require(before['captureVersion'] == 1 and before['tenant'] == tenant == before['logicalStoreKey'], 'healthy capture binds exact tenant logical key')
+    require(row['startingState']['tenantId'] == tenant, 'healthy restart source state belongs to tenant')
+    state, _ = domain.tenant_replay(row['startingState'], row['sourceEvents'], row['sourceCheckpoint'], before['sequence'])
+    decision = domain.tenant_decision(state, before['sequence'])
+    require(same(before['domain'], state), 'healthy persisted full domain state derives from retained events')
+    require(before['allowed'] is decision['allowed'] and before['tenantEnabled'] is decision['tenantEnabled'] and decision['allowed'] is (row['id'] == 'authorized'), 'healthy decision derives from membership role configuration and status')
+    for phase, snapshot in (('Before', before), ('After', after)):
+        raw = row['snapshot'+phase+'Bytes']; sha = digest(raw.encode())
+        require(same(strict_json(raw.encode()), snapshot) and sha == row['snapshot'+phase+'Sha256'], 'raw immutable healthy snapshot capture')
+        lookup = row['lookup'+phase]
+        require(lookup == dict(process=row['process'+phase], tenantId=tenant, logicalKey=tenant, snapshotSha256=sha), 'same-tenant projection-store lookup and returned snapshot')
+        consumer = row['consumer'+phase]
+        require(consumer['tenantId'] == tenant and consumer['userId'] == 'actor-a' and text(consumer['requestId']) == row['consumerBefore']['requestId'], 'same-tenant consumer request identity')
+    require(row['snapshotBeforeBytes'] == row['snapshotAfterBytes'], 'restart retains exact persisted snapshot bytes')
+
+
+SCOPE_FIELDS = ('pendingId', 'tenant', 'conversation', 'runtimeId', 'catalogSha256', 'catalogFingerprint')
+FENCE_FIELDS = ('lease', 'version', 'etag', 'generation', 'checkpoint', 'watermark')
+STATE_FIELDS = ('captureVersion', 'scope', *FENCE_FIELDS, 'leaseUntilUtcTicks', 'projection', 'pending')
+
+
+def recovery_execution(row, data, *, duplicate=False):
+    """Bind each independently reset negative branch to its executed CAS and completion."""
+    proof = row['execution']; current = data['concurrentRecovery']['current']
+    require(proof['captureVersion'] == 1 and text(proof['operationId']), 'versioned recovery execution identity')
+    require(proof['branchId'] == ('current-clearance' if duplicate else row['id']) and same(proof['scope'], row['scope']), 'execution belongs to exact recovery branch and scope')
+    operations = proof['operations']
+    require([op['phase'] for op in operations] == ['request', 'attempt', 'completion'], 'complete recovery execution schedule')
+    previous = data['wireObservation']['operations'][-1]['order'] if duplicate else 0
+    for operation in operations:
+        domain.sequence(operation['order'])
+        require(operation['order'] > previous, 'recovery request attempt completion occur in order')
+        previous = operation['order']
+        require(operation['operationId'] == proof['operationId'] and operation['executed'] is True and operation['completed'] is True, 'same recovery operation actually executed and completed')
+    request, attempt, completion = operations
+    before, after = (row['before'], row['after']) if duplicate else (row['storedBefore'], row['storedAfter'])
+    expected = {key:before[key] for key in FENCE_FIELDS} if duplicate else row['expected']
+    proposed = before if duplicate else row['proposed']
+    require(request['expectedSha256'] == digest(canonical(expected)) and request['proposedSha256'] == digest(canonical(proposed)), 'execution request binds exact expected and proposed state')
+    require(attempt['storedBeforeSha256'] == digest(canonical(before)) and attempt['kind'] == ('observe-completion' if duplicate else 'compare-exchange'), 'attempt observes exact scoped stored state')
+    require(attempt['succeeded'] is row['succeeded'] and attempt['transactionId'] == row['commitId'], 'executed attempt records actual CAS or no-write outcome')
+    require(completion['storedAfterSha256'] == digest(canonical(after)) and completion['cleared'] == row['cleared'] and completion['outcome'] == ('AlreadyCompleted' if duplicate else 'FenceRejected'), 'completion binds exact preserved state and actual outcome')
+    require(proof['afterClearanceTransactionId'] == (current['commitId'] if duplicate else None)
+            and proof['wireRequestId'] == (data['wireObservation']['requestId'] if duplicate else None), 'duplicate execution follows the same current wire clearance')
+
+
+def tenant_durable_outcome(row):
+    """Derive a controlled AD-6 persisted outcome from native source and delivered events."""
+    proof = row['durableEvidence']; name = row['id']
+    require(proof['captureVersion'] == 1, 'versioned tenant durable outcome capture')
+    tenant = text(proof['tenant']); before, after = proof['before'], proof['after']
+    source = proof['sourceRecord']; accepted = tenant_record(source, tenant)
+    state, _ = domain.tenant_replay(proof['sourceState'], [source], source['sequence']-1, source['sequence'])
+    require(proof['sourceState']['tenantId'] == tenant, 'source state belongs to durable tenant')
+    expected_before = dict(tenant=tenant, checkpoint=source['sequence'], projection=state,
+        lastAccepted=accepted, health='Healthy', pending=[], horizon=source['sequence'], etag=before['etag'])
+    text(before['etag']); text(after['etag'])
+    require(same(before, expected_before), 'complete durable starting state derives from source event')
+    delivered = tenant_record(proof['delivered'], tenant)
+    expected = deepcopy(before)
+    if name == 'accepted':
+        require(delivered['sequence'] == before['checkpoint']+1, 'acknowledged accepted event is exact next')
+        projection, _ = domain.tenant_replay(state, [proof['delivered']], before['checkpoint'], delivered['sequence'])
+        expected.update(checkpoint=delivered['sequence'], projection=projection, lastAccepted=delivered, horizon=delivered['sequence'])
+    elif name == 'duplicate':
+        pass
+    elif name == 'pending':
+        require(delivered['sequence'] > before['checkpoint']+1, 'acknowledged pending event is genuinely future')
+        expected.update(health='Gapped', pending=[delivered], horizon=delivered['sequence'])
+    else:
+        require(name == 'corrupt' and delivered['sequence'] == before['checkpoint'] and not same(delivered, accepted), 'acknowledged corruption derives from conflicting native fingerprint')
+        expected['health'] = 'Corrupt'
+    mutation = name != 'duplicate'
+    require(proof['writeCount'] == int(mutation) and proof['expectedEtag'] == before['etag'], 'outcome proves current CAS or previously committed duplicate without reapplication')
+    if mutation:
+        require(after['etag'] != before['etag'], 'durable outcome mutation advances opaque etag')
+        expected['etag'] = after['etag']
+    require(same(after, expected), 'persisted tenant outcome is the exact source-derived state')
+    require(row['durableCommit']['transactionId'] == text(proof['transactionId']), 'actual outcome transaction is the acknowledged durable transaction')
+    return after
+
+
+def reconciliation(data):
+    """Measure competing progress in independently captured control branches.
+
+    Each stale attempt's storedBefore is its reset/fork boundary, with storedAfter
+    proving preservation. Current clearance and duplicate retry form a separate
+    positive branch from newerStored. Cross-branch timestamps are not ordered;
+    the expired-lease control isolates expiry while its other fence fields match.
+    """
+    proof = data['concurrentRecovery']
+    require(proof['captureVersion'] == 1, 'versioned controlled reconciliation schedule')
+    scope = dict(pendingId=data['persistedPendingId'], tenant=data['tenant'], conversation=data['pendingBinding']['conversation'], runtimeId=data['runtimeId'], catalogSha256=data['catalogSha256'], catalogFingerprint=data['catalogFingerprint'])
+    require(proof['scope'] == scope, 'concurrent recovery exact pending runtime catalog and tenant scope')
+    events = data['precedingEvents'] + data['recoveryEvents']
+    positions = proof['authoritativePositions']
+    require(len(positions) == len(events), 'complete authoritative global-position observations')
+    previous = 0
+    for observed, event in zip(positions, events):
+        domain.sequence(observed['position'])
+        require(observed['position'] > previous and observed['sequence'] == event['sequence'] and observed['eventSha256'] == digest(canonical(event)), 'global position bound to exact authoritative envelope')
+        previous = observed['position']
+    initial, newer, final = proof['oldWorker']['snapshot'], proof['newerStored'], proof['current']['after']
+    for snapshot in (initial, newer, final):
+        shape(snapshot, STATE_FIELDS)
+        require(snapshot['captureVersion'] == 1 and snapshot['scope'] == scope, 'complete persisted recovery scope')
+        for key in ('lease','version','generation','checkpoint','watermark'): domain.sequence(snapshot[key])
+        domain.ticks(snapshot['leaseUntilUtcTicks']);text(snapshot['etag'])
+    before_checkpoint = data['beforeCheckpoint']
+    require(initial['checkpoint'] == before_checkpoint and initial['generation'] == data['beforeGeneration'] and initial['watermark'] == positions[before_checkpoint-1]['position'] == data['beforeWatermark'] and same(initial['projection'],data['beforeProjection']) and initial['pending'] == [scope['pendingId']], 'old worker captures actual preceding checkpoint watermark and pending state')
+    require(proof['oldWorker']['expected'] == {key:initial[key] for key in FENCE_FIELDS}, 'old worker complete measured expectation')
+    require(newer['checkpoint'] == data['afterCheckpoint'] and newer['generation'] == data['afterGeneration'] and newer['watermark'] == positions[-1]['position'] == data['afterWatermark'] and same(newer['projection'],data['persistedProjection']['state']) and newer['pending'] == initial['pending'], 'intervening newer progress from authoritative events and global positions')
+    require(newer['checkpoint'] > initial['checkpoint'] and newer['generation'] > initial['generation'] and newer['watermark'] > initial['watermark'] and newer['version'] > initial['version'] and newer['lease'] > initial['lease'] and newer['etag'] != initial['etag'], 'measured concurrent newer progress and worker fence')
+    prefix = data['recoveryEvents'][:1]
+    stale, _ = domain.conversation_replay(prefix, before=data['beforeProjection'], checkpoint=before_checkpoint)
+    stale_proposal = deepcopy(initial)
+    stale_proposal.update(checkpoint=before_checkpoint+1, watermark=positions[before_checkpoint]['position'], projection=stale, pending=[])
+    attempts = proof['staleAttempts']
+    require([row['id'] for row in attempts] == ['stale-version','expired-lease','newer-generation','newer-watermark','superseded-lease','stale-checkpoint'], 'complete stale worker schedule inventory')
+    for attempt in attempts:
+        recovery_execution(attempt, data)
+        expected = {key:newer[key] for key in FENCE_FIELDS}
+        if attempt['id'] == 'stale-version': expected.update(version=initial['version'], etag=initial['etag'])
+        elif attempt['id'] == 'newer-generation': expected['generation'] = initial['generation']
+        elif attempt['id'] == 'newer-watermark': expected['watermark'] = initial['watermark']
+        elif attempt['id'] == 'superseded-lease': expected['lease'] = initial['lease']
+        elif attempt['id'] == 'stale-checkpoint': expected['checkpoint'] = initial['checkpoint']
+        require(attempt['scope'] == scope and same(attempt['expected'],expected) and same(attempt['proposed'],stale_proposal), 'stale CAS uses measured worker expectation and recovery-derived proposal')
+        domain.ticks(attempt['observedAtUtcTicks'])
+        expired = attempt['observedAtUtcTicks'] >= newer['leaseUntilUtcTicks']
+        require(expired is (attempt['id'] == 'expired-lease'), 'expired versus live measured worker lease')
+        admissible = same(expected,{key:newer[key] for key in FENCE_FIELDS}) and not expired
+        require(admissible is False and attempt['succeeded'] is False and attempt['commitId'] is None and attempt['cleared'] == [], 'stale or expired CAS cannot write or clear')
+        require(same(attempt['storedBefore'],newer) and same(attempt['storedAfter'],newer), 'stale attempt preserves complete newer stored state')
+    current = proof['current']
+    require(current['scope'] == scope and current['expected'] == {key:newer[key] for key in FENCE_FIELDS}, 'current worker expectation matches surviving newer state')
+    domain.ticks(current['observedAtUtcTicks'])
+    require(current['observedAtUtcTicks'] < newer['leaseUntilUtcTicks'], 'current recovery lease remains live')
+    expected_final = deepcopy(newer);expected_final.update(pending=[],version=newer['version']+1,etag=final['etag'])
+    require(final['etag'] != newer['etag'] and same(final,expected_final) and same(current['before'],newer), 'current clearance preserves complete newer domain progress')
+    require(current['succeeded'] is True and current['cleared'] == [scope['pendingId']] and all(current[key] == text(current['commitId']) for key in ('projectionCommitId','checkpointCommitId','pendingCommitId','watermarkCommitId')), 'one durable current-worker composite clearance')
+    retry = proof['duplicateRetry']
+    recovery_execution(retry, data, duplicate=True)
+    require(retry['scope'] == scope and same(retry['before'],final) and same(retry['after'],final) and retry['succeeded'] is None and retry['commitId'] is None and retry['cleared'] == [], 'duplicate retry observes durable clearance and preserves newer state')
+    require(data['clearCount'] == len(current['cleared']) and data['duplicateClearCount'] == len(retry['cleared']) and data['staleWorkerWrites'] == sum(row['succeeded'] for row in attempts), 'clearance and stale-write counts derive from measured schedule')
+    require(same(data['queryProjection'],dict(sequence=final['checkpoint'],state=final['projection'])), 'query observes final current-worker state')
+
+
+GAP_FENCES = ('lease', 'version', 'etag', 'checkpoint', 'horizon')
+GAP_COMMITS = ('commitId', 'projectionCommitId', 'checkpointCommitId', 'healthCommitId', 'pendingCommitId')
+
+
+def gap_cas(cas, before, after, expected, succeeds):
+    require(cas['executed'] is True and same(cas['expected'], expected) and cas['succeeded'] is succeeds, 'observed gap CAS attempt binds complete worker expectation')
+    if succeeds:
+        require(same(expected, {key:before[key] for key in GAP_FENCES}), 'current gap CAS matches stored lease version checkpoint horizon and etag')
+        require(after['version'] == before['version']+1 and after['etag'] != before['etag'] and all(cas[key] == text(cas['commitId']) for key in GAP_COMMITS), 'one durable composite gap CAS')
+    else:
+        require(not same(expected, {key:before[key] for key in GAP_FENCES}) and same(before, after) and all(cas[key] is None for key in GAP_COMMITS), 'stale gap completion preserves complete enlarged persisted state')
+
+
+def horizon_extension(data):
+    """Actual future merges, stale completion, replay, then current completion."""
+    rows = data['merges']; tenant = data['startingState']['tenantId']
+    prior = rows[0]['before']
+    require(prior['pending'] == [] and prior['horizon'] == data['checkpoint']+1, 'controlled gap starts without preloaded future evidence')
+    growth = 0
+    for row in rows:
+        before, after = row['before'], row['after']
+        require(same(before, prior), 'future deliveries observe preceding complete persisted state')
+        require(before['tenant'] == tenant and before['checkpoint'] == data['checkpoint'] and before['expectedSequence'] == data['checkpoint']+1 and before['health'] == 'Gapped' and before['allowed'] is False and same(before['projection'],data['startingState']), 'future merge remains in measured tenant recovery gap')
+        for snapshot in (before, after):
+            for field in ('lease','version','checkpoint','expectedSequence','horizon'): domain.sequence(snapshot[field], checkpoint=field=='checkpoint')
+            text(snapshot['etag'])
+            require(snapshot['captureVersion'] == 1, 'controlled composite gap capture version')
+        delivered = tenant_record(row['delivered'], tenant)
+        sequence = delivered['sequence']
+        require(sequence == row['deliveredSequence'] and sequence > before['expectedSequence'] and all(item['sequence'] != sequence for item in before['pending']), 'new distinct future delivery extends existing pending inventory')
+        expected = deepcopy(before)
+        expected.update(pending=sorted(before['pending']+[row['delivered']],key=lambda item:item['sequence']), horizon=max(before['horizon'],sequence), version=before['version']+1,etag=after['etag'])
+        require(same(after,expected), 'exact durable pending union and monotonic horizon from delivered native fingerprint')
+        require(row['beforeHorizon'] == before['horizon'] and row['afterHorizon'] == after['horizon'] and same(row['pending'],after['pending']), 'future merge summaries derive from persisted before and after')
+        gap_cas(row['cas'],before,after,{key:before[key] for key in GAP_FENCES},True)
+        growth += after['horizon'] > before['horizon'];prior = after
+    require(growth >= 2, 'observed horizon grows again while recovery is already in progress')
+    require(same(prior,data['futureSchedules'][0]['before']), 'repeat and conflict branches start at enlarged persisted gap')
+    proof = data['recoverySchedule'];old = proof['oldWorker']
+    require(proof['captureVersion'] == 1 and same(old['snapshot'],rows[0]['after']) and same(old['expected'],{key:old['snapshot'][key] for key in GAP_FENCES}), 'earlier worker captured before the observed extension')
+    stale = proof['staleCompletion'];proposal = deepcopy(old['snapshot'])
+    old_horizon = old['snapshot']['horizon']
+    old_state, _ = domain.tenant_replay(data['startingState'],data['authoritativeReplay'][:old_horizon-data['checkpoint']],data['checkpoint'],old_horizon)
+    proposal.update(checkpoint=old_horizon,expectedSequence=old_horizon+1,health='Healthy',allowed=domain.tenant_decision(old_state,old_horizon)['allowed'],projection=old_state,pending=[],version=old['snapshot']['version']+1,etag=stale['proposed']['etag'])
+    require(same(stale['before'],prior) and same(stale['proposed'],proposal), 'old worker attempts only its earlier replay horizon against enlarged persisted gap')
+    gap_cas(stale['cas'],stale['before'],stale['after'],old['expected'],False)
+    replay = proof['replay'];current = proof['currentCompletion']
+    recovered,_ = domain.tenant_replay(data['startingState'],data['authoritativeReplay'],data['checkpoint'],prior['horizon'])
+    expected = deepcopy(prior);expected.update(checkpoint=prior['horizon'],expectedSequence=prior['horizon']+1,projection=recovered,pending=[],version=prior['version']+1,etag=replay['after']['etag'])
+    require(same(replay['before'],prior) and same(replay['after'],expected), 'complete authoritative enlarged replay durably advances composite checkpoint and values')
+    gap_cas(replay['cas'],replay['before'],replay['after'],{key:prior[key] for key in GAP_FENCES},True)
+    recovered_snapshot = replay['after']
+    require(same(current['before'],recovered_snapshot), 'current completion observes fully replayed enlarged snapshot')
+    require(current['before']['pending'] == [], 'AD-6 completion CAS observes no remaining pending fingerprint')
+    expected = deepcopy(recovered_snapshot);expected.update(health='Healthy',pending=[],allowed=domain.tenant_decision(recovered,prior['horizon'])['allowed'],version=recovered_snapshot['version']+1,etag=current['after']['etag'])
+    require(same(current['after'],expected), 'current completion proves consumed evidence and establishes derived access state')
+    gap_cas(current['cas'],current['before'],current['after'],{key:recovered_snapshot[key] for key in GAP_FENCES},True)
+    fence = {key:recovered_snapshot[key] for key in ('lease','version','checkpoint','horizon')}
+    require(data['healthyCas']['expected'] == data['healthyCas']['observed'] == fence and data['recovery'] == dict(**fence,state='Gapped',allowed=False), 'completion summaries derive from actual recovered composite fence')
+    require(data['pendingAtHealthy'] == current['after']['pending'] and data['staleWorkerWrites'] == int(stale['cas']['succeeded']), 'completion summaries derive from observed attempts')
+
+
+RESTART_FENCES = ('lease', 'version', 'etag', 'checkpoint', 'horizon')
+
+
+def restart_resumption(data):
+    """Future-v2 restart capture: durable acquisition, resumption and isolated CAS controls.
+
+    Each rejection is an independent reset to the acquired snapshot. The actual old
+    worker uses its full pre-restart expectation; the other controls isolate fences.
+    This describes evidence, not a durable provider or a Tenants freshness clock.
+    """
+    proof = data['restartSchedule']; before = proof['before']; acquisition = proof['acquisition']; after = acquisition['after']
+    require(proof['captureVersion'] == 1 and text(proof['scheduleId']), 'versioned executed restart schedule')
+    for snapshot in (before, after):
+        require(snapshot['captureVersion'] == 2 and snapshot['tenant'] == snapshot['logicalStoreKey'] == data['tenant'], 'restart complete stored tenant and exact logical lookup')
+        domain.tenant_state(snapshot['projection'])
+        require(snapshot['projection']['tenantId'] == data['tenant'] and snapshot['health'] == 'Gapped' and snapshot['allowed'] is False, 'restart persisted projection remains fail closed')
+        for key in ('lease','version','checkpoint','expectedSequence','horizon'): domain.sequence(snapshot[key],checkpoint=key=='checkpoint')
+        text(snapshot['etag']);text(snapshot['worker']);text(snapshot['process']);domain.ticks(snapshot['leaseUntilUtcTicks'])
+        fresh=snapshot['freshness'];domain.ticks(fresh['lastAppliedUtcTicks']);domain.ticks(fresh['generatedUtcTicks'])
+        require(fresh['generatedUtcTicks'] >= fresh['lastAppliedUtcTicks'] and type(fresh['lagTicks']) is int and fresh['lagTicks']==fresh['generatedUtcTicks']-fresh['lastAppliedUtcTicks'], 'restart stored freshness round trip without business-event clock inference')
+    expected_native=dict(tenant=before['tenant'],lastContiguousSequence=before['checkpoint'],expectedSequence=before['expectedSequence'],recoveryThrough=before['horizon'],pending=before['pending'],state=before['health'],authorized=before['allowed'])
+    require(same(data['beforeRestart'],expected_native) and same(data['afterRestart'],expected_native), 'restart summary derives from complete persisted gap')
+    require(before['process']==data['processBefore'] and after['process']==data['processAfter'] and before['worker']!=after['worker'], 'replacement recovery worker and restarted process identity')
+    current={key:before[key] for key in RESTART_FENCES}
+    require(acquisition['executed'] is True and acquisition['executor']=='EventStore' and same(acquisition['before'],before) and same(acquisition['expected'],current), 'executed lease acquisition observes complete old snapshot and fence')
+    expected=deepcopy(before);expected.update(lease=before['lease']+1,version=before['version']+1,etag=after['etag'],worker=after['worker'],process=after['process'],leaseUntilUtcTicks=after['leaseUntilUtcTicks'])
+    require(same(after,expected) and after['etag']!=before['etag'] and after['leaseUntilUtcTicks']>before['leaseUntilUtcTicks'], 'lease acquisition atomically advances fencing token and record version preserving all pending state')
+    require(acquisition['succeeded'] is True and acquisition['transactionId']==text(acquisition['leaseTransactionId'])==text(acquisition['recordTransactionId']), 'one durable replacement-lease record transaction')
+    domain.sequence(acquisition['order']);domain.ticks(acquisition['utcTicks'])
+    require(acquisition['utcTicks'] < after['leaseUntilUtcTicks'], 'replacement lease is live when acquired')
+    resume=proof['resumption']
+    domain.sequence(resume['order'])
+    require(resume['executed'] is True and resume['order']>acquisition['order'] and resume['operation']=='resume-recovery' and resume['executor']=='EventStore', 'restarted recovery actually resumes after acquisition')
+    require(resume['process']==after['process'] and resume['worker']==after['worker'] and resume['tenant']==data['tenant'] and resume['logicalStoreKey']==data['tenant'], 'resumption uses acquired worker and tenant store identity')
+    require(resume['observedTransactionId']==acquisition['transactionId'] and same(resume['storedBefore'],after) and same(resume['storedAfter'],after), 'resumption reads acquired durable snapshot without clearing pending work')
+    require(resume['trigger']=='persisted-pending' and resume['sourceDeliveries']==[] and data['redeliveries']==0 and resume['fromSequence']==after['expectedSequence'] and resume['throughSequence']==after['horizon'], 'persisted gap resumes exact recovery interval without new delivery')
+    require(resume['state']=='Gapped' and resume['allowed'] is False and same(resume['pending'],after['pending']), 'resuming recovery keeps pending denial until verified Healthy')
+    attempts=proof['rejectedAttempts']
+    require([r['id'] for r in attempts]==['old-worker','lease-only','version-only','checkpoint-only','horizon-only'], 'complete independent restart fence controls')
+    for attempt in attempts:
+        expected={key:after[key] for key in RESTART_FENCES}
+        if attempt['id']=='old-worker':expected=current
+        else:
+            field=attempt['id'].removesuffix('-only');expected[field]=after[field]-1
+        require(same(attempt['expected'],expected), 'isolated restart CAS expectation changes only its named precondition')
+        require(attempt['executed'] is True and attempt['executor']=='EventStore' and attempt['tenant']==data['tenant'] and attempt['logicalStoreKey']==data['tenant'], 'actual stale worker CAS targets same durable tenant')
+        require(attempt['process']==before['process'] and attempt['worker']==before['worker'] and attempt['observedTransactionId']==acquisition['transactionId'], 'old worker attempts against acquired replacement record')
+        domain.sequence(attempt['order']);domain.ticks(attempt['utcTicks'])
+        require(attempt['order']>resume['order'] and acquisition['utcTicks']<=attempt['utcTicks']<min(before['leaseUntilUtcTicks'],after['leaseUntilUtcTicks']), 'restart fence isolation keeps lease live and operation after resumption')
+        proposal=deepcopy(after);proposal.update(version=after['version']+1,etag=attempt['proposed']['etag'],leaseUntilUtcTicks=after['leaseUntilUtcTicks']+10)
+        domain.ticks(proposal['leaseUntilUtcTicks'])
+        require(same(attempt['proposed'],proposal) and proposal['etag']!=after['etag'], 'isolated restart proposal is otherwise admissible pending-preserving lease renewal')
+        admissible=all(same(expected[k],after[k]) for k in RESTART_FENCES)
+        require(not admissible and attempt['succeeded'] is False and attempt['transactionId'] is None and attempt['cleared']==[], 'each isolated restart precondition rejects stale clearance')
+        require(same(attempt['storedBefore'],after) and same(attempt['storedAfter'],after), 'stale restart attempt preserves every newer persisted field and fingerprint')
+    require(data['oldFence']==before['lease'] and data['newFence']==after['lease'] and data['staleWorkerWrites']==sum(r['succeeded'] for r in attempts), 'restart fence summaries derive from acquisition and attempted writes')
+
+    current=proof['currentRenewal'];expected={key:after[key] for key in RESTART_FENCES}
+    proposal=deepcopy(after);proposal.update(version=after['version']+1,etag=current['after']['etag'],leaseUntilUtcTicks=after['leaseUntilUtcTicks']+10)
+    require(current['executed'] is True and current['executor']=='EventStore' and current['process']==after['process'] and current['worker']==after['worker'], 'current restarted worker actually attempts the same admissible renewal')
+    require(current['tenant']==data['tenant']==current['logicalStoreKey'] and same(current['expected'],expected) and same(current['before'],after), 'current renewal uses complete acquired scope and fences')
+    domain.sequence(current['order']);domain.ticks(current['utcTicks'])
+    require(current['order']>resume['order'] and acquisition['utcTicks']<=current['utcTicks']<after['leaseUntilUtcTicks'], 'independent current renewal branch has live acquired lease')
+    require(current['succeeded'] is True and current['transactionId']==text(current['leaseTransactionId'])==text(current['recordTransactionId']), 'current fences admit durable composite renewal')
+    domain.ticks(proposal['leaseUntilUtcTicks'])
+    require(same(current['after'],proposal) and current['after']['etag']!=after['etag'] and current['cleared']==[], 'admissible current renewal preserves complete Gapped pending state')

@@ -1,0 +1,56 @@
+[
+  {
+    "finding": "R4B4",
+    "scenario": "AC-16.2-03",
+    "result": "accepted"
+  },
+  {
+    "finding": "R4B5",
+    "scenario": "AC-16.1-01",
+    "result": "accepted"
+  },
+  {
+    "finding": "R4B9",
+    "scenario": "AC-16.3-03",
+    "result": "accepted"
+  },
+  {
+    "finding": "R4B10",
+    "scenario": "AC-16.2-04",
+    "result": "accepted"
+  },
+  {
+    "finding": "R4B3",
+    "scenario": "AC-16.1-04",
+    "result": "accepted"
+  },
+  {
+    "finding": "R4E2",
+    "scenario": "AC-16.1-04",
+    "result": "accepted"
+  },
+  {
+    "finding": "R4E3",
+    "scenario": "AC-16.2-01",
+    "result": "accepted"
+  },
+  {
+    "finding": "R4E1",
+    "scenario": "AC-16.2-02",
+    "result": "accepted"
+  },
+  {
+    "finding": "R4B1",
+    "value": "",
+    "result": "ValueError: nonempty domain identity"
+  },
+  {
+    "finding": "R4B1",
+    "value": "   ",
+    "result": "ValueError: nonempty domain identity"
+  },
+  {
+    "finding": "R4B2",
+    "result": "ValueError: Conversations plausible DateTimeOffset timestamp"
+  }
+]

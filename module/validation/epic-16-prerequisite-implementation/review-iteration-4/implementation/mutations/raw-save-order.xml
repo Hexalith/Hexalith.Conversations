@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="0.876" timestamp="2026-10-25T20:45:12.414309+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_raw_reverse_save_order_rejects_boolean_and_float_integer_aliases[True]" time="0.286"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-358/test_raw_reverse_save_order_re0/fixture')
+value = True
+
+    @pytest.mark.parametrize('value',[True,1.0])
+    def test_raw_reverse_save_order_rejects_boolean_and_float_integer_aliases(repository,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['faults'][0]
+        for key in ('beforeBytes','injectedBytes','afterBytes'):
+            body=json.loads(row[key]);body['state']['versions']=[1,2]
+            body['state']['saveOrder']=[2,value] if key=='injectedBytes' else [value,2]
+            row[key]=json.dumps(body)
+        row['observed']['version']=2
+        row['beforeSha256']=digest(row['beforeBytes'].encode());row['afterSha256']=digest(row['afterBytes'].encode())
+&gt;       native(repository,'AC-16.1-04',data);rejected(evaluate(repository,'AC-16.1-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1496: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_raw_reverse_save_order_rejects_boolean_and_float_integer_aliases[1.0]" time="0.289"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-358/test_raw_reverse_save_order_re1/fixture')
+value = 1.0
+
+    @pytest.mark.parametrize('value',[True,1.0])
+    def test_raw_reverse_save_order_rejects_boolean_and_float_integer_aliases(repository,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['faults'][0]
+        for key in ('beforeBytes','injectedBytes','afterBytes'):
+            body=json.loads(row[key]);body['state']['versions']=[1,2]
+            body['state']['saveOrder']=[2,value] if key=='injectedBytes' else [value,2]
+            row[key]=json.dumps(body)
+        row['observed']['version']=2
+        row['beforeSha256']=digest(row['beforeBytes'].encode());row['afterSha256']=digest(row['afterBytes'].encode())
+&gt;       native(repository,'AC-16.1-04',data);rejected(evaluate(repository,'AC-16.1-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1496: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

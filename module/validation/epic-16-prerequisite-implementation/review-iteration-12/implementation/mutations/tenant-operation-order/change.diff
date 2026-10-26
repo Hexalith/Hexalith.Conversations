@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_schedules.py
++++ _bmad/scripts/epic16_schedules.py
+@@ -337,7 +337,7 @@
+     require(operation['executed'] is True and operation['completed'] is True, 'tenant operation actually executed and completed')
+     require(same(operation['scope'], scope), 'tenant operation exact request tenant store record process scope')
+     domain.sequence(operation['order']); domain.sequence(operation['completedOrder'])
+-    require(minimum_order < operation['order'] < operation['completedOrder'], 'ordered tenant operation and completion')
++    None
+     return operation['completedOrder']
+ 
+ 

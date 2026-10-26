@@ -1,0 +1,229 @@
+{
+  "finalSource": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-source.json",
+    "sha256": "1c8a5e7006b737555a5212940f7e623f74f19e5ee23c90989121cd53eb4f8982"
+  },
+  "unchangedDuringFinalVerification": true,
+  "intermediate": [
+    {
+      "label": "exploratory-a",
+      "counts": {
+        "tests": 32,
+        "failures": 15,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-a.xml",
+        "sha256": "2c4a6b6099479fafafcebc6704b79c021183f9668f2f77a2cee1803e67a24a29"
+      },
+      "stdout": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-a.stdout",
+        "sha256": "c58fe4990d9b99114c20beb5772474a433fbe6239d4ffaeb6890b0e47de418a2"
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-a.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "note": "15 route failures were EXECUTING_SOURCE_DRIFT because the new C# helper lacked its narrow Git byte-preservation attribute. The attribute was added; 17 native helper/API cases had passed. This is a pre-final epoch without a complete source snapshot."
+    },
+    {
+      "label": "exploratory-b",
+      "counts": {
+        "tests": 86,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-b.xml",
+        "sha256": "a424c9c209f93c1883bfc40d70d3b640b32fa2db0903b6555ae057af7fc3d475"
+      },
+      "stdout": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-b.stdout",
+        "sha256": "e30cd9fa83b16f1a171f1f7731896d4a4580cd9a69143eb8fe589b94e28e7604"
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-b.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "note": "80 passed and six fixture failures before maxfail=6 stopped the run. New global-namespace constructor fixtures did not match the existing namespace-qualified metadata protocol; fixtures were placed in Synthetic namespace. No required-provider admission was weakened. Pre-final source, no complete frozen snapshot."
+    },
+    {
+      "label": "exploratory-c",
+      "counts": {
+        "tests": 27,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-c.xml",
+        "sha256": "3bcea9658261ebf3f3bf1bab145449392355a0d54a58fdde74b678cae9cb36f3"
+      },
+      "stdout": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-c.stdout",
+        "sha256": "f8b070580381e1d7d04de8f29ecb77076bc629c54c03ac1ab79c810fdd101637"
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-c.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "note": "27 native constructor, SDK constraint/reference and external-build controls passed after fixture correction. Focused-source-c records this intermediate implementation; later pre-R10P1 refinements are explicitly listed in before-R10P1/final-source-delta.json."
+    },
+    {
+      "label": "affected",
+      "counts": {
+        "tests": 124,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected.xml",
+        "sha256": "3f321383c52e3714fd25b3caffec87d90bf508ed8ef679846dac6ff937142725"
+      },
+      "stdout": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected.stdout",
+        "sha256": "186377bf71e750a57e575b151268cb642dbb9d85694632f3eaa7574a919141a9"
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "note": "124 affected cases passed, including old routes, real runtime insertion, fresh-checkout publication, root/upstream API checks and all then-current round10 tests. Subsequent pre-R10P1 controls added seven cases and commit-tree message validation; the R10P1 controls are recorded separately."
+    },
+    {
+      "label": "R10P1-shared",
+      "counts": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/R10P1-shared.xml",
+        "sha256": "96eaca3edf7b3576e2c15b145756eaf117485b9a30517c8a67766149c9536378"
+      },
+      "stdout": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/R10P1-shared.stdout",
+        "sha256": "920c48036a104debbca672b7f0dd8be5297831b27461a865ee7855079dfc4b42"
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/R10P1-shared.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "note": "Three actual ambiguous collection cases with shared fixture providers pass their expected native discovery rejection and isolate the metadata ambiguity guard from provider availability."
+    },
+    {
+      "label": "R10P1",
+      "counts": {
+        "tests": 26,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/R10P1.xml",
+        "sha256": "105903b726f51bc232495078a13831497d019533823c140ef0073c11178cc2e1"
+      },
+      "stdout": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/R10P1.stdout",
+        "sha256": "76b070876c8a8ca777bcb809395f48d2fcc9616f9506410a3ff79fccc76c9b62"
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/R10P1.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "note": "26 genuine native constructor controls passed after the parent proved distinct inherited Collection attribute types were admitted despite genuine discovery failure. Nine added controls cover inherited providers, valid same-concrete-type overrides and bounded actual discovery diagnostics."
+    },
+    {
+      "label": "final-controls",
+      "counts": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-controls.xml",
+        "sha256": "3552781c3f196157e3cf049d1fe0966913a506f7e713bea5c6f294c5b025c902"
+      },
+      "stdout": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-controls.stdout",
+        "sha256": "922bff27e2e13ac50bc16521d57a52bf65fa8f960fd9d6097cf833434079fb31"
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-controls.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "note": "Eight pre-R10P1 final-source controls passed, covering signed-reference flags, equal malicious authorization content, compiled baseline byte/alias rereads and sibling entry ancestry. Full combined verification supersedes this selection."
+    }
+  ],
+  "intermediateCommands": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-invocations.json",
+    "sha256": "647538e2f718dda44c3a3aa3b419b318c8653c41cfa4ef5cf6c2fc0b728dd77c"
+  },
+  "extractionScriptCorrection": "Initial extraction selected both the numbered pytest fixture directory and its current symlink. The failed read-only assertion/streams are retained; resolving and deduplicating fixture directories produced one actual fixture and 31 retained artifacts. No source/test change or rerun was needed.",
+  "intermediateSourceLimitation": "The first two exploratory epochs have no complete frozen source inventory; they remain superseded by the unchanged final source run.",
+  "interruptedCombined": {
+    "source": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/final-source.json",
+      "sha256": "eac619e5a3c2611074f1c69290f12293e0ae21127ec4776b51a3b2fcfd9e8bd7"
+    },
+    "commands": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/test-commands.json",
+      "sha256": "e4e2901e4632e2b66bc7111d07b8d11ccacd00217aa564cdd170bab6ca2767eb"
+    },
+    "interruption": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/interruption.json",
+      "sha256": "a61c17dd724884ed9c7863a481ea8242ae67ba6d0cf09a2d2dce2c7ac80e138b"
+    },
+    "junit": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined.xml",
+      "sha256": "733b0e81c50212f02c98539d84e69152e537244ed040eacfa44e8df13ee0626f"
+    },
+    "completedPasses": 578,
+    "fullSuiteCompleted": false
+  },
+  "mutationEpochs": [
+    {
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/final-source.json",
+        "sha256": "eac619e5a3c2611074f1c69290f12293e0ae21127ec4776b51a3b2fcfd9e8bd7"
+      },
+      "record": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/mutation-probes.json",
+        "sha256": "1dc986f5237152db92d5912121159b5f4c9fb39e6c477d7c3ff1ec11f719ac27"
+      },
+      "runs": 19,
+      "targetedFailures": 47
+    },
+    {
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-shared-provider-controls/final-source.json",
+        "sha256": "68850a18e6913c8fd41180cb55a0864ce228ea25a2a38479b58577e6df5696ed"
+      },
+      "record": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations-R10P1/mutation-probes.json",
+        "sha256": "67b6f9a4761e781a75236ce219872c521e0b21333aa0fdcdab336553304452fc"
+      },
+      "runs": 4,
+      "targetedFailures": 4,
+      "insensitive": "inherited-collection-types: independent missing-provider admission still rejects original differing-provider conflicts"
+    },
+    {
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-source.json",
+        "sha256": "1c8a5e7006b737555a5212940f7e623f74f19e5ee23c90989121cd53eb4f8982"
+      },
+      "record": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations-R10P1-shared/mutation-probes.json",
+        "sha256": "d1e7fa5e3641c72ffb15ccec6c827a081de9b1a62d3ca61cc5d366a9e14455f6"
+      },
+      "runs": 1,
+      "targetedFailures": 3,
+      "sharedProviderControlsIsolateAmbiguity": true
+    }
+  ]
+}

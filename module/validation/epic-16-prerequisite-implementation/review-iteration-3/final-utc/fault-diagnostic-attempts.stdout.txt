@@ -1,0 +1,42 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_fault_measurements_correlate_complete_targets_and_emitted_observations[attempts] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-328/test_fault_measurements_correl0/fixture')
+fault = 'attempts'
+
+    @pytest.mark.parametrize('fault',['port','attempts','replica-domain','foreign-recovery'])
+    def test_fault_measurements_correlate_complete_targets_and_emitted_observations(repository,fault):
+        scenario='AC-16.3-05' if fault in ('port','attempts') else 'AC-16.1-04'
+        data=deepcopy(OBSERVATIONS[scenario])
+        name={'port':'port-collision','attempts':'endpoint-race','replica-domain':'two-replicas','foreign-recovery':'recovery-success'}[fault]
+        row=next(r for r in data['faults'] if r['id']==name)
+        if fault=='port':
+            for key in ('beforeBytes','injectedBytes','afterBytes'):
+                value=json.loads(row[key]);value['state']['port']=50004;row[key]=json.dumps(value)
+            row['beforeSha256']=digest(row['beforeBytes'].encode());row['afterSha256']=digest(row['afterBytes'].encode());row['observed']['collisionPort']=50004;data['portsBefore']=data['portsAfter']=[50004]
+        elif fault=='attempts':row['observed']['attempts']=1
+        elif fault=='replica-domain':row['observed']['replicaA']['domain']['configuration']['conversations.enabled']='different'
+        else:
+            before=json.loads(row['beforeBytes']);before['state']['domain']['tenantId']='foreign';row['beforeBytes']=row['afterBytes']=json.dumps(before);row['beforeSha256']=row['afterSha256']=digest(row['beforeBytes'].encode())
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1485: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_fault_measurements_correlate_complete_targets_and_emitted_observations[attempts]
+1 failed, 589 deselected in 0.56s

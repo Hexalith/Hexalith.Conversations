@@ -1,0 +1,12 @@
+[
+  {
+    "path": "/tmp/epic16-cli-417kkyns/tool/.store/hexalith.builds.module.cli/4.38.0/hexalith.builds.module.cli/4.38.0/tools/net10.0/any/Hexalith.Builds.Tooling.dll",
+    "size": 1459200,
+    "sha256": "0266257a74c1dbc49407c61b07d90f7c95b806d937ea4f338b98bf8d128256fd"
+  },
+  {
+    "path": "/tmp/epic16-cli-417kkyns/tool/.store/hexalith.builds.module.cli/4.38.0/hexalith.builds.module.cli/4.38.0/tools/net10.0/any/g4-host/Hexalith.Builds.Tooling.dll",
+    "size": 1459200,
+    "sha256": "0266257a74c1dbc49407c61b07d90f7c95b806d937ea4f338b98bf8d128256fd"
+  }
+]

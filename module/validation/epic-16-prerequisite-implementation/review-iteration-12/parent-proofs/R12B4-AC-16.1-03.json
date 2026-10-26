@@ -1,0 +1,1395 @@
+{
+  "checkpoint": 10,
+  "merges": [
+    {
+      "expectedSequence": 11,
+      "beforeHorizon": 11,
+      "deliveredSequence": 12,
+      "afterHorizon": 12,
+      "pending": [
+        {
+          "sequence": 12,
+          "messageId": "message-12",
+          "eventType": "TenantDisabled",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+          "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+        }
+      ],
+      "before": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 11,
+        "pending": [],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-initial",
+        "version": 4,
+        "lease": 3
+      },
+      "delivered": {
+        "sequence": 12,
+        "messageId": "message-12",
+        "eventType": "TenantDisabled",
+        "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+        "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+      },
+      "after": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 12,
+        "pending": [
+          {
+            "sequence": 12,
+            "messageId": "message-12",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          }
+        ],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-0",
+        "version": 5,
+        "lease": 3
+      },
+      "cas": {
+        "executed": true,
+        "expected": {
+          "lease": 3,
+          "version": 4,
+          "etag": "gap-initial",
+          "checkpoint": 10,
+          "horizon": 11
+        },
+        "succeeded": true,
+        "commitId": "merge-0",
+        "projectionCommitId": "merge-0",
+        "checkpointCommitId": "merge-0",
+        "healthCommitId": "merge-0",
+        "pendingCommitId": "merge-0"
+      }
+    },
+    {
+      "expectedSequence": 11,
+      "beforeHorizon": 12,
+      "deliveredSequence": 13,
+      "afterHorizon": 13,
+      "pending": [
+        {
+          "sequence": 12,
+          "messageId": "message-12",
+          "eventType": "TenantDisabled",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+          "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+        },
+        {
+          "sequence": 13,
+          "messageId": "message-13",
+          "eventType": "TenantDisabled",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+          "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+        }
+      ],
+      "before": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 12,
+        "pending": [
+          {
+            "sequence": 12,
+            "messageId": "message-12",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          }
+        ],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-0",
+        "version": 5,
+        "lease": 3
+      },
+      "delivered": {
+        "sequence": 13,
+        "messageId": "message-13",
+        "eventType": "TenantDisabled",
+        "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+        "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+      },
+      "after": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 13,
+        "pending": [
+          {
+            "sequence": 12,
+            "messageId": "message-12",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 13,
+            "messageId": "message-13",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          }
+        ],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-1",
+        "version": 6,
+        "lease": 3
+      },
+      "cas": {
+        "executed": true,
+        "expected": {
+          "lease": 3,
+          "version": 5,
+          "etag": "gap-0",
+          "checkpoint": 10,
+          "horizon": 12
+        },
+        "succeeded": true,
+        "commitId": "merge-1",
+        "projectionCommitId": "merge-1",
+        "checkpointCommitId": "merge-1",
+        "healthCommitId": "merge-1",
+        "pendingCommitId": "merge-1"
+      }
+    },
+    {
+      "expectedSequence": 11,
+      "beforeHorizon": 13,
+      "deliveredSequence": 14,
+      "afterHorizon": 14,
+      "pending": [
+        {
+          "sequence": 12,
+          "messageId": "message-12",
+          "eventType": "TenantDisabled",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+          "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+        },
+        {
+          "sequence": 13,
+          "messageId": "message-13",
+          "eventType": "TenantDisabled",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+          "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+        },
+        {
+          "sequence": 14,
+          "messageId": "message-14",
+          "eventType": "TenantDisabled",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+          "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+        }
+      ],
+      "before": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 13,
+        "pending": [
+          {
+            "sequence": 12,
+            "messageId": "message-12",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 13,
+            "messageId": "message-13",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          }
+        ],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-1",
+        "version": 6,
+        "lease": 3
+      },
+      "delivered": {
+        "sequence": 14,
+        "messageId": "message-14",
+        "eventType": "TenantDisabled",
+        "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+        "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+      },
+      "after": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 12,
+            "messageId": "message-12",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 13,
+            "messageId": "message-13",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          }
+        ],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-etag",
+        "version": 7,
+        "lease": 3
+      },
+      "cas": {
+        "executed": true,
+        "expected": {
+          "lease": 3,
+          "version": 6,
+          "etag": "gap-1",
+          "checkpoint": 10,
+          "horizon": 13
+        },
+        "succeeded": true,
+        "commitId": "merge-2",
+        "projectionCommitId": "merge-2",
+        "checkpointCommitId": "merge-2",
+        "healthCommitId": "merge-2",
+        "pendingCommitId": "merge-2"
+      }
+    }
+  ],
+  "replicaA": {
+    "state": "Healthy",
+    "sequence": 14,
+    "tenantEnabled": false,
+    "allowed": false
+  },
+  "replicaB": {
+    "state": "Healthy",
+    "sequence": 14,
+    "tenantEnabled": false,
+    "allowed": false
+  },
+  "pendingAtHealthy": [],
+  "staleWorkerWrites": 0,
+  "healthyCas": {
+    "expected": {
+      "lease": 3,
+      "version": 8,
+      "checkpoint": 14,
+      "horizon": 14
+    },
+    "observed": {
+      "lease": 3,
+      "version": 8,
+      "checkpoint": 14,
+      "horizon": 14
+    }
+  },
+  "deliveryCopies": [
+    1,
+    1,
+    1
+  ],
+  "duplicateFutureState": "Gapped",
+  "conflictingFutureState": "Corrupt",
+  "recovery": {
+    "lease": 3,
+    "version": 8,
+    "checkpoint": 14,
+    "horizon": 14,
+    "state": "Gapped",
+    "allowed": false
+  },
+  "reverseSaves": [
+    {
+      "id": "disable",
+      "saveOrder": [
+        "newer",
+        "older"
+      ],
+      "staleAccepted": false,
+      "older": {
+        "state": "Healthy",
+        "sequence": 11,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": true
+      },
+      "newer": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": false,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": false
+      },
+      "replicaABefore": {
+        "state": "Healthy",
+        "sequence": 11,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": true
+      },
+      "replicaBBefore": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": false,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": false
+      },
+      "replicaAAfter": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": false,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": false
+      },
+      "replicaBAfter": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": false,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": false
+      },
+      "authoritativeReplay": [
+        {
+          "sequence": 11,
+          "messageId": "message-11",
+          "eventType": "TenantUpdated",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":\"Updated\",\"updatedAt\":\"2026-10-25T12:00:00+00:00\"}",
+          "payloadSha256": "c444545c7044116c3622dfa5926a1083cdf647b7ddee59cd2ef8d1b40f019818"
+        },
+        {
+          "sequence": 12,
+          "messageId": "message-12",
+          "eventType": "TenantDisabled",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+          "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+        },
+        {
+          "sequence": 13,
+          "messageId": "message-13",
+          "eventType": "TenantDisabled",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+          "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+        },
+        {
+          "sequence": 14,
+          "messageId": "message-14",
+          "eventType": "TenantDisabled",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+          "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+        }
+      ]
+    },
+    {
+      "id": "membership",
+      "saveOrder": [
+        "newer",
+        "older"
+      ],
+      "staleAccepted": false,
+      "older": {
+        "state": "Healthy",
+        "sequence": 11,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": true
+      },
+      "newer": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": true,
+        "member": false,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": false
+      },
+      "replicaABefore": {
+        "state": "Healthy",
+        "sequence": 11,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": true
+      },
+      "replicaBBefore": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": true,
+        "member": false,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": false
+      },
+      "replicaAAfter": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": true,
+        "member": false,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": false
+      },
+      "replicaBAfter": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": true,
+        "member": false,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": false
+      },
+      "authoritativeReplay": [
+        {
+          "sequence": 11,
+          "messageId": "message-11",
+          "eventType": "TenantUpdated",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":\"Updated\",\"updatedAt\":\"2026-10-25T12:00:00+00:00\"}",
+          "payloadSha256": "c444545c7044116c3622dfa5926a1083cdf647b7ddee59cd2ef8d1b40f019818"
+        },
+        {
+          "sequence": 12,
+          "messageId": "message-12",
+          "eventType": "UserRemovedFromTenant",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"userId\":\"actor-a\"}",
+          "payloadSha256": "22694a7df2653a2ab383680d292de629ec31841811c2c32fc5e8624a415f3290"
+        },
+        {
+          "sequence": 13,
+          "messageId": "message-13",
+          "eventType": "UserRemovedFromTenant",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"userId\":\"actor-a\"}",
+          "payloadSha256": "22694a7df2653a2ab383680d292de629ec31841811c2c32fc5e8624a415f3290"
+        },
+        {
+          "sequence": 14,
+          "messageId": "message-14",
+          "eventType": "UserRemovedFromTenant",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"userId\":\"actor-a\"}",
+          "payloadSha256": "22694a7df2653a2ab383680d292de629ec31841811c2c32fc5e8624a415f3290"
+        }
+      ]
+    },
+    {
+      "id": "role",
+      "saveOrder": [
+        "newer",
+        "older"
+      ],
+      "staleAccepted": false,
+      "older": {
+        "state": "Healthy",
+        "sequence": 11,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": true
+      },
+      "newer": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": false,
+        "configurationAllowed": true,
+        "allowed": false
+      },
+      "replicaABefore": {
+        "state": "Healthy",
+        "sequence": 11,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": true
+      },
+      "replicaBBefore": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": false,
+        "configurationAllowed": true,
+        "allowed": false
+      },
+      "replicaAAfter": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": false,
+        "configurationAllowed": true,
+        "allowed": false
+      },
+      "replicaBAfter": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": false,
+        "configurationAllowed": true,
+        "allowed": false
+      },
+      "authoritativeReplay": [
+        {
+          "sequence": 11,
+          "messageId": "message-11",
+          "eventType": "TenantUpdated",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":\"Updated\",\"updatedAt\":\"2026-10-25T12:00:00+00:00\"}",
+          "payloadSha256": "c444545c7044116c3622dfa5926a1083cdf647b7ddee59cd2ef8d1b40f019818"
+        },
+        {
+          "sequence": 12,
+          "messageId": "message-12",
+          "eventType": "UserRoleChanged",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"userId\":\"actor-a\",\"oldRole\":\"TenantContributor\",\"newRole\":\"TenantReader\"}",
+          "payloadSha256": "b3b7f2310dc7c20973585340ea7cfe0ab062df8f2e3c970b9813706c29cb3452"
+        },
+        {
+          "sequence": 13,
+          "messageId": "message-13",
+          "eventType": "UserRoleChanged",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"userId\":\"actor-a\",\"oldRole\":\"TenantContributor\",\"newRole\":\"TenantReader\"}",
+          "payloadSha256": "b3b7f2310dc7c20973585340ea7cfe0ab062df8f2e3c970b9813706c29cb3452"
+        },
+        {
+          "sequence": 14,
+          "messageId": "message-14",
+          "eventType": "UserRoleChanged",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"userId\":\"actor-a\",\"oldRole\":\"TenantContributor\",\"newRole\":\"TenantReader\"}",
+          "payloadSha256": "b3b7f2310dc7c20973585340ea7cfe0ab062df8f2e3c970b9813706c29cb3452"
+        }
+      ]
+    },
+    {
+      "id": "configuration",
+      "saveOrder": [
+        "newer",
+        "older"
+      ],
+      "staleAccepted": false,
+      "older": {
+        "state": "Healthy",
+        "sequence": 11,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": true
+      },
+      "newer": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": false,
+        "allowed": false
+      },
+      "replicaABefore": {
+        "state": "Healthy",
+        "sequence": 11,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": true,
+        "allowed": true
+      },
+      "replicaBBefore": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": false,
+        "allowed": false
+      },
+      "replicaAAfter": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": false,
+        "allowed": false
+      },
+      "replicaBAfter": {
+        "state": "Healthy",
+        "sequence": 14,
+        "tenantEnabled": true,
+        "member": true,
+        "roleAllowed": true,
+        "configurationAllowed": false,
+        "allowed": false
+      },
+      "authoritativeReplay": [
+        {
+          "sequence": 11,
+          "messageId": "message-11",
+          "eventType": "TenantUpdated",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":\"Updated\",\"updatedAt\":\"2026-10-25T12:00:00+00:00\"}",
+          "payloadSha256": "c444545c7044116c3622dfa5926a1083cdf647b7ddee59cd2ef8d1b40f019818"
+        },
+        {
+          "sequence": 12,
+          "messageId": "message-12",
+          "eventType": "TenantConfigurationSet",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"key\":\"conversations.enabled\",\"value\":\"false\"}",
+          "payloadSha256": "eb56a64c504642b9ebb85eb830a9eeda468819253f1cfeaa2a6b6de62f85c115"
+        },
+        {
+          "sequence": 13,
+          "messageId": "message-13",
+          "eventType": "TenantConfigurationSet",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"key\":\"conversations.enabled\",\"value\":\"false\"}",
+          "payloadSha256": "eb56a64c504642b9ebb85eb830a9eeda468819253f1cfeaa2a6b6de62f85c115"
+        },
+        {
+          "sequence": 14,
+          "messageId": "message-14",
+          "eventType": "TenantConfigurationSet",
+          "persistedPayload": "{\"tenantId\":\"tenant-a\",\"key\":\"conversations.enabled\",\"value\":\"false\"}",
+          "payloadSha256": "eb56a64c504642b9ebb85eb830a9eeda468819253f1cfeaa2a6b6de62f85c115"
+        }
+      ]
+    }
+  ],
+  "startingState": {
+    "tenantId": "tenant-a",
+    "name": "Tenant A",
+    "description": null,
+    "status": "Active",
+    "members": {
+      "actor-a": "TenantContributor"
+    },
+    "configuration": {
+      "conversations.enabled": "true"
+    }
+  },
+  "authoritativeReplay": [
+    {
+      "sequence": 11,
+      "messageId": "message-11",
+      "eventType": "TenantUpdated",
+      "persistedPayload": "{\"tenantId\":\"tenant-a\",\"name\":\"Tenant A\",\"description\":\"Updated\",\"updatedAt\":\"2026-10-25T12:00:00+00:00\"}",
+      "payloadSha256": "c444545c7044116c3622dfa5926a1083cdf647b7ddee59cd2ef8d1b40f019818"
+    },
+    {
+      "sequence": 12,
+      "messageId": "message-12",
+      "eventType": "TenantDisabled",
+      "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+      "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+    },
+    {
+      "sequence": 13,
+      "messageId": "message-13",
+      "eventType": "TenantDisabled",
+      "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+      "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+    },
+    {
+      "sequence": 14,
+      "messageId": "message-14",
+      "eventType": "TenantDisabled",
+      "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+      "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+    }
+  ],
+  "recoveredState": {
+    "tenantId": "tenant-a",
+    "name": "Tenant A",
+    "description": "Updated",
+    "status": "Disabled",
+    "members": {
+      "actor-a": "TenantContributor"
+    },
+    "configuration": {
+      "conversations.enabled": "true"
+    }
+  },
+  "futureSchedules": [
+    {
+      "id": "duplicate",
+      "before": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 12,
+            "messageId": "message-12",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 13,
+            "messageId": "message-13",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          }
+        ],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-etag",
+        "version": 7,
+        "lease": 3
+      },
+      "after": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 12,
+            "messageId": "message-12",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 13,
+            "messageId": "message-13",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          }
+        ],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-etag",
+        "version": 7,
+        "lease": 3
+      },
+      "delivered": {
+        "sequence": 12,
+        "messageId": "message-12",
+        "eventType": "TenantDisabled",
+        "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+        "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+      },
+      "cas": {
+        "expectedEtag": "gap-etag",
+        "expectedVersion": 7,
+        "succeeded": null,
+        "commitId": null,
+        "projectionCommitId": null,
+        "checkpointCommitId": null,
+        "healthCommitId": null,
+        "pendingCommitId": null
+      }
+    },
+    {
+      "id": "conflict",
+      "before": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 12,
+            "messageId": "message-12",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 13,
+            "messageId": "message-13",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          }
+        ],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-etag",
+        "version": 7,
+        "lease": 3
+      },
+      "after": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 12,
+            "messageId": "message-12",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 13,
+            "messageId": "message-13",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          }
+        ],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Corrupt",
+        "allowed": false,
+        "etag": "corrupt-etag",
+        "version": 8,
+        "lease": 3
+      },
+      "delivered": {
+        "sequence": 12,
+        "messageId": "different-future-delivery",
+        "eventType": "TenantDisabled",
+        "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:02+00:00\"}",
+        "payloadSha256": "2884719aeb00282bd0ab4e47d9387c567d638cab1796a4fff5f2006d7872ffb6"
+      },
+      "cas": {
+        "expectedEtag": "gap-etag",
+        "expectedVersion": 7,
+        "succeeded": true,
+        "commitId": "future-conflict-commit",
+        "projectionCommitId": "future-conflict-commit",
+        "checkpointCommitId": "future-conflict-commit",
+        "healthCommitId": "future-conflict-commit",
+        "pendingCommitId": "future-conflict-commit"
+      }
+    }
+  ],
+  "recoverySchedule": {
+    "captureVersion": 1,
+    "oldWorker": {
+      "snapshot": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 12,
+        "pending": [
+          {
+            "sequence": 12,
+            "messageId": "message-12",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          }
+        ],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-0",
+        "version": 5,
+        "lease": 3
+      },
+      "expected": {
+        "lease": 3,
+        "version": 5,
+        "etag": "gap-0",
+        "checkpoint": 10,
+        "horizon": 12
+      }
+    },
+    "staleCompletion": {
+      "before": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 12,
+            "messageId": "message-12",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 13,
+            "messageId": "message-13",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          }
+        ],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-etag",
+        "version": 7,
+        "lease": 3
+      },
+      "after": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 12,
+            "messageId": "message-12",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 13,
+            "messageId": "message-13",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          }
+        ],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-etag",
+        "version": 7,
+        "lease": 3
+      },
+      "proposed": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 12,
+        "expectedSequence": 13,
+        "horizon": 12,
+        "pending": [],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": "Updated",
+          "status": "Disabled",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Healthy",
+        "allowed": false,
+        "etag": "stale-proposal",
+        "version": 6,
+        "lease": 3
+      },
+      "cas": {
+        "executed": true,
+        "expected": {
+          "lease": 3,
+          "version": 5,
+          "etag": "gap-0",
+          "checkpoint": 10,
+          "horizon": 12
+        },
+        "succeeded": false,
+        "commitId": null,
+        "projectionCommitId": null,
+        "checkpointCommitId": null,
+        "healthCommitId": null,
+        "pendingCommitId": null
+      }
+    },
+    "replay": {
+      "before": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 10,
+        "expectedSequence": 11,
+        "horizon": 14,
+        "pending": [
+          {
+            "sequence": 12,
+            "messageId": "message-12",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 13,
+            "messageId": "message-13",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          },
+          {
+            "sequence": 14,
+            "messageId": "message-14",
+            "eventType": "TenantDisabled",
+            "persistedPayload": "{\"tenantId\":\"tenant-a\",\"disabledAt\":\"2026-10-25T12:00:01+00:00\"}",
+            "payloadSha256": "2ba32fcb69a556ba6ea3cde5402cb99d14038d9bc474705e4ccf67df7306cc94"
+          }
+        ],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": null,
+          "status": "Active",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-etag",
+        "version": 7,
+        "lease": 3
+      },
+      "after": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 14,
+        "expectedSequence": 15,
+        "horizon": 14,
+        "pending": [],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": "Updated",
+          "status": "Disabled",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-replayed",
+        "version": 8,
+        "lease": 3
+      },
+      "cas": {
+        "executed": true,
+        "expected": {
+          "lease": 3,
+          "version": 7,
+          "etag": "gap-etag",
+          "checkpoint": 10,
+          "horizon": 14
+        },
+        "succeeded": true,
+        "commitId": "replay-commit",
+        "projectionCommitId": "replay-commit",
+        "checkpointCommitId": "replay-commit",
+        "healthCommitId": "replay-commit",
+        "pendingCommitId": "replay-commit"
+      }
+    },
+    "currentCompletion": {
+      "before": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 14,
+        "expectedSequence": 15,
+        "horizon": 14,
+        "pending": [],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": "Updated",
+          "status": "Disabled",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Gapped",
+        "allowed": false,
+        "etag": "gap-replayed",
+        "version": 8,
+        "lease": 3
+      },
+      "after": {
+        "captureVersion": 1,
+        "tenant": "tenant-a",
+        "checkpoint": 14,
+        "expectedSequence": 15,
+        "horizon": 14,
+        "pending": [],
+        "projection": {
+          "tenantId": "tenant-a",
+          "name": "Tenant A",
+          "description": "Updated",
+          "status": "Disabled",
+          "members": {
+            "actor-a": "TenantContributor"
+          },
+          "configuration": {
+            "conversations.enabled": "true"
+          }
+        },
+        "health": "Healthy",
+        "allowed": false,
+        "etag": "gap-healthy",
+        "version": 9,
+        "lease": 3
+      },
+      "cas": {
+        "executed": true,
+        "expected": {
+          "lease": 3,
+          "version": 8,
+          "etag": "gap-replayed",
+          "checkpoint": 14,
+          "horizon": 14
+        },
+        "succeeded": true,
+        "commitId": "healthy-commit",
+        "projectionCommitId": "healthy-commit",
+        "checkpointCommitId": "healthy-commit",
+        "healthCommitId": "healthy-commit",
+        "pendingCommitId": "healthy-commit"
+      }
+    }
+  }
+}

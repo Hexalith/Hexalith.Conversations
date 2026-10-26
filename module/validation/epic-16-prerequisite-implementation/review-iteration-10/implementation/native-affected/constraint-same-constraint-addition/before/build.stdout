@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/pytest-of-administrator/pytest-581/test_round10_constraint_attrib1/before/Consumer.csproj (in 34 ms).
+  Consumer -> /tmp/pytest-of-administrator/pytest-581/test_round10_constraint_attrib1/before/bin/Debug/net10.0/Consumer.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.24

@@ -1,0 +1,1877 @@
+{
+  "priorCombined": 2152,
+  "retainedCombined": 2152,
+  "currentCombined": 2416,
+  "newCases": [
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[ack-unexecuted-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[ack-unexecuted-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[ack-unexecuted-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[ack-unexecuted-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[both-swapped-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[both-swapped-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[both-swapped-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[both-swapped-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[commit-failed-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[commit-failed-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[commit-failed-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[commit-failed-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[commit-unexecuted-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[commit-unexecuted-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[commit-unexecuted-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[commit-unexecuted-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[delivered-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[delivered-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[delivered-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[delivered-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[delivery-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[delivery-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[delivery-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[delivery-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[early-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[early-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[early-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[early-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[equal-ticks-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[equal-ticks-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[equal-ticks-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[equal-ticks-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[etag-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[etag-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[etag-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[etag-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[missing-commit-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[missing-commit-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[missing-commit-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[missing-commit-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[missing-evidence-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[missing-evidence-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[missing-evidence-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[missing-evidence-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[observed-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[observed-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[observed-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[observed-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[persisted-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[persisted-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[persisted-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[persisted-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[positive-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[positive-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[positive-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[positive-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[record-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[record-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[record-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[record-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[source-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[source-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[source-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[source-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[transaction-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[transaction-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[transaction-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[transaction-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[write-count-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[write-count-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[write-count-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_acknowledgement_derives_executed_durable_contents[write-count-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[alternate-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[alternate-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[alternate-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[alternate-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[configuration-invalid-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[configuration-invalid-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[configuration-invalid-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[configuration-invalid-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[empty-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[empty-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[empty-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[empty-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[reserved-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[reserved-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[reserved-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[reserved-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[role-invalid-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[role-invalid-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[role-invalid-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[role-invalid-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[unknown-role-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[unknown-role-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[unknown-role-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[unknown-role-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_fact_discovery_agrees_with_actual_pinned_runner[derived-conflict]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_fact_discovery_agrees_with_actual_pinned_runner[fact]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_fact_discovery_agrees_with_actual_pinned_runner[indirect-conflict]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_fact_discovery_agrees_with_actual_pinned_runner[ordinary-attribute]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_fact_discovery_agrees_with_actual_pinned_runner[task]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_fact_discovery_agrees_with_actual_pinned_runner[theory-conflict]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_fact_discovery_agrees_with_actual_pinned_runner[value-task]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_framework_ownership_and_external_attribute_constructors_are_verified[external-constructor]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_framework_ownership_and_external_attribute_constructors_are_verified[foreign-build-attribute]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_framework_ownership_and_external_attribute_constructors_are_verified[hidden-fact]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_launchers_classify_only_genuinely_missing_declared_modules[absent-16_1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_launchers_classify_only_genuinely_missing_declared_modules[absent-16_2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_launchers_classify_only_genuinely_missing_declared_modules[absent-16_3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_launchers_classify_only_genuinely_missing_declared_modules[internal-16_1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_launchers_classify_only_genuinely_missing_declared_modules[internal-16_2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_launchers_classify_only_genuinely_missing_declared_modules[internal-16_3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_launchers_classify_only_genuinely_missing_declared_modules[present-declared-16_1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_launchers_classify_only_genuinely_missing_declared_modules[present-declared-16_2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_launchers_classify_only_genuinely_missing_declared_modules[present-declared-16_3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_launchers_classify_only_genuinely_missing_declared_modules[typo-16_1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_launchers_classify_only_genuinely_missing_declared_modules[typo-16_2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_launchers_classify_only_genuinely_missing_declared_modules[typo-16_3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_multi_resource_erase_retains_dispatch_multiplicity_and_queries[extra]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_multi_resource_erase_retains_dispatch_multiplicity_and_queries[foreign]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_multi_resource_erase_retains_dispatch_multiplicity_and_queries[missing]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_multi_resource_erase_retains_dispatch_multiplicity_and_queries[positive]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_multi_resource_erase_retains_dispatch_multiplicity_and_queries[query-foreign]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_multi_resource_erase_retains_dispatch_multiplicity_and_queries[query-missing]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-assembly-cls]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-assembly-metadata]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-attribute-overload]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-interface-nullability]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-module-cls]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-owning-flags]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-preserve-sig]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-assembly-cls]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-assembly-metadata]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-attribute-overload]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-interface-nullability]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-module-cls]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-owning-flags]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-preserve-sig]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[upstream-assembly-cls]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[upstream-assembly-metadata]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[upstream-attribute-overload]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[upstream-interface-nullability]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[upstream-module-cls]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[upstream-owning-flags]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_native_contract_changes_reject_at_api_callers[upstream-preserve-sig]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[missing-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[missing-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[missing-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[missing-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[missing-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[missing-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[missing-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[positive-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[positive-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[positive-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[positive-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[positive-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[positive-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[positive-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-6]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_supported_declarations_preserve_revision_and_version_policy[addition]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_supported_declarations_preserve_revision_and_version_policy[build-stamps]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_supported_declarations_preserve_revision_and_version_policy[unchanged]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_supported_declarations_preserve_revision_and_version_policy[version]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_terminal_failures_cannot_carry_durable_success[ack-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_terminal_failures_cannot_carry_durable_success[ack-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_terminal_failures_cannot_carry_durable_success[commit-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_terminal_failures_cannot_carry_durable_success[commit-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_terminal_failures_cannot_carry_durable_success[evidence-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round11_terminal_failures_cannot_carry_durable_success[evidence-5]"
+    ]
+  ],
+  "priorLegacy": 72,
+  "identicalLegacy": true,
+  "mutantFailuresPassingOnFinalSource": [
+    {
+      "mutation": "method-implementation-flags",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-preserve-sig]"
+    },
+    {
+      "mutation": "method-implementation-flags",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-preserve-sig]"
+    },
+    {
+      "mutation": "method-implementation-flags",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[upstream-preserve-sig]"
+    },
+    {
+      "mutation": "interface-annotations",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-interface-nullability]"
+    },
+    {
+      "mutation": "interface-annotations",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-interface-nullability]"
+    },
+    {
+      "mutation": "interface-annotations",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[upstream-interface-nullability]"
+    },
+    {
+      "mutation": "attribute-constructor-signatures",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-attribute-overload]"
+    },
+    {
+      "mutation": "attribute-constructor-signatures",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-attribute-overload]"
+    },
+    {
+      "mutation": "attribute-constructor-signatures",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[upstream-attribute-overload]"
+    },
+    {
+      "mutation": "attribute-constructor-signatures",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_framework_ownership_and_external_attribute_constructors_are_verified[external-constructor]"
+    },
+    {
+      "mutation": "assembly-contract-attributes",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-assembly-cls]"
+    },
+    {
+      "mutation": "assembly-contract-attributes",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-assembly-cls]"
+    },
+    {
+      "mutation": "assembly-contract-attributes",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[upstream-assembly-cls]"
+    },
+    {
+      "mutation": "module-contract-attributes",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-module-cls]"
+    },
+    {
+      "mutation": "module-contract-attributes",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-module-cls]"
+    },
+    {
+      "mutation": "module-contract-attributes",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[upstream-module-cls]"
+    },
+    {
+      "mutation": "non-source-assembly-metadata",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-assembly-metadata]"
+    },
+    {
+      "mutation": "non-source-assembly-metadata",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-assembly-metadata]"
+    },
+    {
+      "mutation": "non-source-assembly-metadata",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[upstream-assembly-metadata]"
+    },
+    {
+      "mutation": "framework-build-attribute-owner",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_framework_ownership_and_external_attribute_constructors_are_verified[foreign-build-attribute]"
+    },
+    {
+      "mutation": "fact-derived-discovery",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_fact_discovery_agrees_with_actual_pinned_runner[theory-conflict]"
+    },
+    {
+      "mutation": "fact-derived-discovery",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_fact_discovery_agrees_with_actual_pinned_runner[derived-conflict]"
+    },
+    {
+      "mutation": "fact-derived-discovery",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_fact_discovery_agrees_with_actual_pinned_runner[indirect-conflict]"
+    },
+    {
+      "mutation": "launcher-exact-dependencies-1",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_launchers_classify_only_genuinely_missing_declared_modules[typo-16_1]"
+    },
+    {
+      "mutation": "launcher-actual-absence-1",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_launchers_classify_only_genuinely_missing_declared_modules[present-declared-16_1]"
+    },
+    {
+      "mutation": "framework-method-attribute-owner",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_framework_ownership_and_external_attribute_constructors_are_verified[hidden-fact]"
+    },
+    {
+      "mutation": "launcher-exact-dependencies-2",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_launchers_classify_only_genuinely_missing_declared_modules[typo-16_2]"
+    },
+    {
+      "mutation": "launcher-actual-absence-2",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_launchers_classify_only_genuinely_missing_declared_modules[present-declared-16_2]"
+    },
+    {
+      "mutation": "launcher-exact-dependencies-3",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_launchers_classify_only_genuinely_missing_declared_modules[typo-16_3]"
+    },
+    {
+      "mutation": "launcher-actual-absence-3",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_launchers_classify_only_genuinely_missing_declared_modules[present-declared-16_3]"
+    },
+    {
+      "mutation": "owning-assembly-flags",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.1-05-owning-flags]"
+    },
+    {
+      "mutation": "owning-assembly-flags",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[AC-16.2-05-owning-flags]"
+    },
+    {
+      "mutation": "owning-assembly-flags",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_native_contract_changes_reject_at_api_callers[upstream-owning-flags]"
+    },
+    {
+      "mutation": "ack-source-derived-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[both-swapped-0]"
+    },
+    {
+      "mutation": "ack-source-derived-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[both-swapped-1]"
+    },
+    {
+      "mutation": "ack-source-derived-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[both-swapped-2]"
+    },
+    {
+      "mutation": "ack-source-derived-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[both-swapped-3]"
+    },
+    {
+      "mutation": "ack-commit-execution",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[commit-failed-0]"
+    },
+    {
+      "mutation": "ack-commit-execution",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[commit-failed-1]"
+    },
+    {
+      "mutation": "ack-commit-execution",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[commit-failed-2]"
+    },
+    {
+      "mutation": "ack-commit-execution",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[commit-failed-3]"
+    },
+    {
+      "mutation": "ack-correlated-transaction",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[transaction-0]"
+    },
+    {
+      "mutation": "ack-correlated-transaction",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[transaction-1]"
+    },
+    {
+      "mutation": "ack-correlated-transaction",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[transaction-2]"
+    },
+    {
+      "mutation": "ack-correlated-transaction",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[transaction-3]"
+    },
+    {
+      "mutation": "ack-persisted-observation",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[persisted-0]"
+    },
+    {
+      "mutation": "ack-persisted-observation",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[persisted-1]"
+    },
+    {
+      "mutation": "ack-persisted-observation",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[persisted-2]"
+    },
+    {
+      "mutation": "ack-persisted-observation",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[persisted-3]"
+    },
+    {
+      "mutation": "ack-persisted-observation",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[observed-0]"
+    },
+    {
+      "mutation": "ack-persisted-observation",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[observed-1]"
+    },
+    {
+      "mutation": "ack-persisted-observation",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[observed-2]"
+    },
+    {
+      "mutation": "ack-persisted-observation",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[observed-3]"
+    },
+    {
+      "mutation": "ack-actual-operations",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[commit-unexecuted-0]"
+    },
+    {
+      "mutation": "ack-actual-operations",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[commit-unexecuted-1]"
+    },
+    {
+      "mutation": "ack-actual-operations",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[commit-unexecuted-2]"
+    },
+    {
+      "mutation": "ack-actual-operations",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[commit-unexecuted-3]"
+    },
+    {
+      "mutation": "ack-actual-operations",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[ack-unexecuted-0]"
+    },
+    {
+      "mutation": "ack-actual-operations",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[ack-unexecuted-1]"
+    },
+    {
+      "mutation": "ack-actual-operations",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[ack-unexecuted-2]"
+    },
+    {
+      "mutation": "ack-actual-operations",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[ack-unexecuted-3]"
+    },
+    {
+      "mutation": "ack-delivered-duplicate",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[delivered-1]"
+    },
+    {
+      "mutation": "ack-duplicate-no-reapplication",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[write-count-0]"
+    },
+    {
+      "mutation": "ack-duplicate-no-reapplication",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[write-count-1]"
+    },
+    {
+      "mutation": "ack-duplicate-no-reapplication",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[write-count-2]"
+    },
+    {
+      "mutation": "ack-duplicate-no-reapplication",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_acknowledgement_derives_executed_durable_contents[write-count-3]"
+    },
+    {
+      "mutation": "duplicate-execution-caller",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-6]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-0]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-1]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-2]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-3]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-4]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-5]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[incomplete-6]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-0]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-1]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-2]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-3]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-4]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-5]"
+    },
+    {
+      "mutation": "recovery-operation-identity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[identity-6]"
+    },
+    {
+      "mutation": "recovery-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-0]"
+    },
+    {
+      "mutation": "recovery-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-1]"
+    },
+    {
+      "mutation": "recovery-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-2]"
+    },
+    {
+      "mutation": "recovery-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-3]"
+    },
+    {
+      "mutation": "recovery-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-4]"
+    },
+    {
+      "mutation": "recovery-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-5]"
+    },
+    {
+      "mutation": "recovery-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[order-6]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-0]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-1]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-2]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-3]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-4]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-5]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[expected-6]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-0]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-1]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-2]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-3]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-4]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-5]"
+    },
+    {
+      "mutation": "recovery-exact-request",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[proposed-6]"
+    },
+    {
+      "mutation": "recovery-observed-before",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-0]"
+    },
+    {
+      "mutation": "recovery-observed-before",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-1]"
+    },
+    {
+      "mutation": "recovery-observed-before",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-2]"
+    },
+    {
+      "mutation": "recovery-observed-before",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-3]"
+    },
+    {
+      "mutation": "recovery-observed-before",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-4]"
+    },
+    {
+      "mutation": "recovery-observed-before",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-5]"
+    },
+    {
+      "mutation": "recovery-observed-before",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[before-6]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-0]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-1]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-2]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-3]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-4]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-5]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[succeeded-6]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-0]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-1]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-2]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-3]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-4]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-5]"
+    },
+    {
+      "mutation": "recovery-actual-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[transaction-6]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-0]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-1]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-2]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-3]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-4]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-5]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[after-6]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-0]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-1]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-2]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-3]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-4]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-5]"
+    },
+    {
+      "mutation": "recovery-completed-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[outcome-6]"
+    },
+    {
+      "mutation": "recovery-wire-clearance",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-0]"
+    },
+    {
+      "mutation": "recovery-wire-clearance",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-1]"
+    },
+    {
+      "mutation": "recovery-wire-clearance",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-2]"
+    },
+    {
+      "mutation": "recovery-wire-clearance",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-3]"
+    },
+    {
+      "mutation": "recovery-wire-clearance",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-4]"
+    },
+    {
+      "mutation": "recovery-wire-clearance",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-5]"
+    },
+    {
+      "mutation": "recovery-wire-clearance",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[clearance-6]"
+    },
+    {
+      "mutation": "resource-dispatch-multiplicity",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_multi_resource_erase_retains_dispatch_multiplicity_and_queries[positive]"
+    },
+    {
+      "mutation": "native-domain-map-openness",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-0]"
+    },
+    {
+      "mutation": "native-domain-map-openness",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-1]"
+    },
+    {
+      "mutation": "native-domain-map-openness",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-2]"
+    },
+    {
+      "mutation": "native-domain-map-openness",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values[extra-3]"
+    },
+    {
+      "mutation": "recovery-execution-caller",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-0]"
+    },
+    {
+      "mutation": "recovery-execution-caller",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-1]"
+    },
+    {
+      "mutation": "recovery-execution-caller",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-2]"
+    },
+    {
+      "mutation": "recovery-execution-caller",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-3]"
+    },
+    {
+      "mutation": "recovery-execution-caller",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-4]"
+    },
+    {
+      "mutation": "recovery-execution-caller",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[unexecuted-5]"
+    },
+    {
+      "mutation": "recovery-branch-scope",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-0]"
+    },
+    {
+      "mutation": "recovery-branch-scope",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-1]"
+    },
+    {
+      "mutation": "recovery-branch-scope",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-2]"
+    },
+    {
+      "mutation": "recovery-branch-scope",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-3]"
+    },
+    {
+      "mutation": "recovery-branch-scope",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-4]"
+    },
+    {
+      "mutation": "recovery-branch-scope",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-5]"
+    },
+    {
+      "mutation": "recovery-branch-scope",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round11_recovery_operations_execute_complete_and_bind_exact_branch[scope-6]"
+    }
+  ]
+}

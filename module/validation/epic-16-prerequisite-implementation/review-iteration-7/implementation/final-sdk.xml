@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="27" time="9.692" timestamp="2026-10-25T23:12:45.483299+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_native_helper_propagates_exact_repository_policy_and_reports_actual_runtime" time="2.134" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_runtime_consumer_blocks_unavailable_or_mismatched_helper_sdk[unavailable]" time="1.947" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_runtime_consumer_blocks_unavailable_or_mismatched_helper_sdk[wrong-feature-band]" time="0.264" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_runtime_consumer_blocks_unavailable_or_mismatched_helper_sdk[older-patch]" time="0.274" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_latest_patch_policy_permits_only_approved_feature_band[10.0.402]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_latest_patch_policy_permits_only_approved_feature_band[10.0.403]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_latest_patch_policy_permits_only_approved_feature_band[10.0.499]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_invalid_toolchain_policy_is_invalid_input[not json]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_invalid_toolchain_policy_is_invalid_input[{&quot;sdk&quot;:{&quot;version&quot;:&quot;10.0.402&quot;,&quot;rollForward&quot;:&quot;latestMajor&quot;}}]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_invalid_toolchain_policy_is_invalid_input[{&quot;sdk&quot;:{&quot;version&quot;:10,&quot;rollForward&quot;:&quot;latestPatch&quot;}}]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_global_policy_is_an_executing_source_binding" time="0.126" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_capture_versions_require_actual_integer_tokens[1.0-AC-16.2-04-path0]" time="0.344" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_capture_versions_require_actual_integer_tokens[1.0-AC-16.1-03-path1]" time="0.312" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_capture_versions_require_actual_integer_tokens[1.0-AC-16.3-03-path2]" time="0.311" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_capture_versions_require_actual_integer_tokens[1.0-AC-16.2-04-path3]" time="0.338" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_capture_versions_require_actual_integer_tokens[True-AC-16.2-04-path0]" time="0.326" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_capture_versions_require_actual_integer_tokens[True-AC-16.1-03-path1]" time="0.309" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_capture_versions_require_actual_integer_tokens[True-AC-16.3-03-path2]" time="0.310" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_capture_versions_require_actual_integer_tokens[True-AC-16.2-04-path3]" time="0.346" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_capture_versions_require_actual_integer_tokens[1-AC-16.2-04-path0]" time="0.327" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_capture_versions_require_actual_integer_tokens[1-AC-16.1-03-path1]" time="0.313" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_capture_versions_require_actual_integer_tokens[1-AC-16.3-03-path2]" time="0.312" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_capture_versions_require_actual_integer_tokens[1-AC-16.2-04-path3]" time="0.326" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[not json]" time="0.178"><failure message="AssertionError: {'result': 'FAIL', 'error': 'JSONDecodeError', 'commands': []}&#10;assert ('FAIL' == 'FAIL'&#10;  &#10;    FAIL and 'JSONDecodeError' == 'ValueError'&#10;  &#10;  - ValueError&#10;  + JSONDecodeError)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-479/test_round7_actual_isolated_he0/fixture')
+policy = b'not json'
+
+    @pytest.mark.parametrize('policy',[b'not json',b'[]',b'{"sdk":[]}',b'{"sdk":{"version":42,"rollForward":"latestPatch"}}'])
+    def test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet(repository,policy):
+        (repository/'global.json').write_bytes(policy)
+        # Import the actual isolated helper installation, including its own contained
+        # root/policy lookup. Observe real fixed-command calls instead of a validator-only surrogate.
+        script='''import sys,json
+    sys.path.insert(0,sys.argv[1])
+    import epic16_native as native
+    calls=[]
+    original=native.subprocess.run
+    def run(argv,**kwargs):
+        calls.append(argv)
+        return original(argv,**kwargs)
+    native.subprocess.run=run
+    try:
+        native._helper()
+        result='PASS';error=None
+    except native.HelperUnavailable as exception:
+        result='BLOCKED';error=type(exception).__name__
+    except ValueError as exception:
+        result='FAIL';error=type(exception).__name__
+    print(json.dumps(dict(result=result,error=error,commands=calls)))
+    '''
+        result=subprocess.run([sys.executable,'-c',script,str(repository/'_bmad/scripts')],cwd=repository,capture_output=True,timeout=180)
+        assert result.returncode==0,result.stderr.decode()
+        report=json.loads(result.stdout)
+&gt;       assert report['result']=='FAIL' and report['error']=='ValueError',report
+E       AssertionError: {'result': 'FAIL', 'error': 'JSONDecodeError', 'commands': []}
+E       assert ('FAIL' == 'FAIL'
+E         
+E           FAIL and 'JSONDecodeError' == 'ValueError'
+E         
+E         - ValueError
+E         + JSONDecodeError)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2797: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[[]]" time="0.186" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[{&quot;sdk&quot;:[]}]" time="0.180" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[{&quot;sdk&quot;:{&quot;version&quot;:42,&quot;rollForward&quot;:&quot;latestPatch&quot;}}]" time="0.177" /></testsuite></testsuites>

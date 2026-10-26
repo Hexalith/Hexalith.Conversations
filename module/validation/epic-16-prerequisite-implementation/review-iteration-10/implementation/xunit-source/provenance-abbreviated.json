@@ -1,0 +1,27 @@
+{
+  "source": "xunit/xunit",
+  "revision": "0c7aa4991f",
+  "files": [
+    {
+      "path": "LICENSE",
+      "sha256": "58662904756b51beb58c8828c89fe83957100e864ef916867a9602cfbcd02581"
+    },
+    {
+      "path": "Utility_ExtensibilityPointFactory.TestClass.cs",
+      "sha256": "b41f90e211494c868f9ef12336689cf7c7fbec2a6f28914dc71015b09da4e143"
+    },
+    {
+      "path": "Utility_ExtensibilityPointFactory.TestCollection.cs",
+      "sha256": "00116caca512a0175b05a89672489d08812596b5a04b630ed7b357b3edc30904"
+    },
+    {
+      "path": "Utility_FixtureMappingManager_reflection.cs",
+      "sha256": "9450adcf5eb0c1850b07c29d6c4e3ed588970512e83ce7f61b6cd2f5322faa42"
+    },
+    {
+      "path": "Runners_Reflection_XunitTestClassRunnerBase_reflection.cs",
+      "sha256": "8d5d57b13497998c3e51866f4e46a4aa65d80b1b1be5a0ef73289fdf7e920139"
+    }
+  ],
+  "purpose": "Read-only source inspection for pinned framework metadata-provider rules; no evidence assembly execution."
+}

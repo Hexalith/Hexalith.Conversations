@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="0.333" timestamp="2026-10-25T20:45:27.334432+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_actual_configuration_whitespace_keys_set_and_remove[ ]" time="0.001"><failure message="ValueError: nonempty configuration key">key = ' '
+
+    @pytest.mark.parametrize('key',[' ','\t','  '])
+    def test_round4_actual_configuration_whitespace_keys_set_and_remove(key):
+        domain=tooling.measurements.domain;start=deepcopy(OBSERVATIONS['AC-16.1-03']['startingState'])
+        rows=[]
+        for number,kind,payload in [(1,'TenantConfigurationSet',dict(tenantId='tenant-a',key=key,value='')),(2,'TenantConfigurationRemoved',dict(tenantId='tenant-a',key=key))]:
+            raw=json.dumps(payload);rows.append(dict(sequence=number,messageId='key-'+str(number),eventType=kind,persistedPayload=raw,payloadSha256=digest(raw.encode())))
+&gt;       after,states=domain.tenant_replay(start,rows,0,2)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1768: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:244: in tenant_replay
+    state['configuration'][configuration_key(value['key'])]=value['value']
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_domain.py:202: in configuration_key
+    require(isinstance(value, str) and bool(value.strip()), 'nonempty configuration key')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'nonempty configuration key'
+
+    def require(condition, detail):
+&gt;       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: nonempty configuration key
+
+_bmad/scripts/epic16_domain.py:20: ValueError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_actual_configuration_whitespace_keys_set_and_remove[\t]" time="0.000"><failure message="ValueError: nonempty configuration key">key = '\t'
+
+    @pytest.mark.parametrize('key',[' ','\t','  '])
+    def test_round4_actual_configuration_whitespace_keys_set_and_remove(key):
+        domain=tooling.measurements.domain;start=deepcopy(OBSERVATIONS['AC-16.1-03']['startingState'])
+        rows=[]
+        for number,kind,payload in [(1,'TenantConfigurationSet',dict(tenantId='tenant-a',key=key,value='')),(2,'TenantConfigurationRemoved',dict(tenantId='tenant-a',key=key))]:
+            raw=json.dumps(payload);rows.append(dict(sequence=number,messageId='key-'+str(number),eventType=kind,persistedPayload=raw,payloadSha256=digest(raw.encode())))
+&gt;       after,states=domain.tenant_replay(start,rows,0,2)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1768: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:244: in tenant_replay
+    state['configuration'][configuration_key(value['key'])]=value['value']
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_domain.py:202: in configuration_key
+    require(isinstance(value, str) and bool(value.strip()), 'nonempty configuration key')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'nonempty configuration key'
+
+    def require(condition, detail):
+&gt;       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: nonempty configuration key
+
+_bmad/scripts/epic16_domain.py:20: ValueError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_actual_configuration_whitespace_keys_set_and_remove[  ]" time="0.000"><failure message="ValueError: nonempty configuration key">key = '  '
+
+    @pytest.mark.parametrize('key',[' ','\t','  '])
+    def test_round4_actual_configuration_whitespace_keys_set_and_remove(key):
+        domain=tooling.measurements.domain;start=deepcopy(OBSERVATIONS['AC-16.1-03']['startingState'])
+        rows=[]
+        for number,kind,payload in [(1,'TenantConfigurationSet',dict(tenantId='tenant-a',key=key,value='')),(2,'TenantConfigurationRemoved',dict(tenantId='tenant-a',key=key))]:
+            raw=json.dumps(payload);rows.append(dict(sequence=number,messageId='key-'+str(number),eventType=kind,persistedPayload=raw,payloadSha256=digest(raw.encode())))
+&gt;       after,states=domain.tenant_replay(start,rows,0,2)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1768: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:244: in tenant_replay
+    state['configuration'][configuration_key(value['key'])]=value['value']
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_domain.py:202: in configuration_key
+    require(isinstance(value, str) and bool(value.strip()), 'nonempty configuration key')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'nonempty configuration key'
+
+    def require(condition, detail):
+&gt;       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: nonempty configuration key
+
+_bmad/scripts/epic16_domain.py:20: ValueError</failure></testcase></testsuite></testsuites>

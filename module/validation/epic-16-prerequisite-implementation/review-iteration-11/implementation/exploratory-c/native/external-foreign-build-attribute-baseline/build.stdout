@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/pytest-of-administrator/pytest-611/test_round11_framework_ownersh1/baseline/Api.csproj (in 32 ms).
+/tmp/pytest-of-administrator/pytest-611/test_round11_framework_ownersh1/baseline/Code.cs(1,186): warning CS7035: The specified version string 'one' does not conform to the recommended format - major.minor.build.revision [/tmp/pytest-of-administrator/pytest-611/test_round11_framework_ownersh1/baseline/Api.csproj]
+  Api -> /tmp/pytest-of-administrator/pytest-611/test_round11_framework_ownersh1/baseline/bin/Debug/net10.0/Api.dll
+
+Build succeeded.
+
+/tmp/pytest-of-administrator/pytest-611/test_round11_framework_ownersh1/baseline/Code.cs(1,186): warning CS7035: The specified version string 'one' does not conform to the recommended format - major.minor.build.revision [/tmp/pytest-of-administrator/pytest-611/test_round11_framework_ownersh1/baseline/Api.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.20

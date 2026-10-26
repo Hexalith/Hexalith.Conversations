@@ -1,0 +1,89 @@
+{
+  "binary": {
+    "path": "artifacts/epic16-runtime/16.2/binaries/4ff55f3958055f68c889cd5f89d7de954daf25a39f2a6e5b1a75a718ca456289.dll",
+    "sha256": "4ff55f3958055f68c889cd5f89d7de954daf25a39f2a6e5b1a75a718ca456289"
+  },
+  "candidate": "e7321cbe86933ddbfedbdcbbf8fb66cad491541f",
+  "captureVersion": 2,
+  "native": {
+    "path": "artifacts/epic16-runtime/16.2/AC-16.2-05.trx",
+    "sha256": "1cc6d4065d32424374e79a9f6954dc7970ddd1313ba62b4b5a170f25c4a34f15"
+  },
+  "originalCodeBase": "/tmp/epic16-r11-final-22f35zao/combined/test_round6_genuine_native_cap0/runtime/artifacts/measurement-only-runner/Evidence.dll",
+  "originalRelativePath": "artifacts/measurement-only-runner/Evidence.dll",
+  "originalRepositoryRoot": "/tmp/epic16-r11-final-22f35zao/combined/test_round6_genuine_native_cap0/runtime",
+  "pathStyle": "posix",
+  "products": [
+    {
+      "assemblyName": "Hexalith.Conversations.Server",
+      "mvid": "b8a97970-7ebd-41fe-93ee-e59799458674",
+      "originalCodeBase": "/tmp/epic16-r11-final-22f35zao/combined/test_round6_genuine_native_cap0/runtime/artifacts/measurement-only-runner/Hexalith.Conversations.Server.dll",
+      "originalRelativePath": "artifacts/measurement-only-runner/Hexalith.Conversations.Server.dll",
+      "owner": ".",
+      "path": "artifacts/epic16-runtime/16.2/binaries/224ebeaaa35abeb879604af4e9fff5c279c097fe7cc64844632de4e832f1eb27.dll",
+      "sha256": "224ebeaaa35abeb879604af4e9fff5c279c097fe7cc64844632de4e832f1eb27",
+      "sourceRevision": "e7321cbe86933ddbfedbdcbbf8fb66cad491541f"
+    },
+    {
+      "assemblyName": "Hexalith.Conversations.Contracts",
+      "mvid": "ec46da61-607a-4a29-8a23-ac0d36dca9e6",
+      "originalCodeBase": "/tmp/epic16-r11-final-22f35zao/combined/test_round6_genuine_native_cap0/runtime/artifacts/measurement-only-runner/Hexalith.Conversations.Contracts.dll",
+      "originalRelativePath": "artifacts/measurement-only-runner/Hexalith.Conversations.Contracts.dll",
+      "owner": ".",
+      "path": "artifacts/epic16-runtime/16.2/binaries/e28101a25046c73277104bbfb7fe52203322948540e5eafe491778e122fec665.dll",
+      "sha256": "e28101a25046c73277104bbfb7fe52203322948540e5eafe491778e122fec665",
+      "sourceRevision": "e7321cbe86933ddbfedbdcbbf8fb66cad491541f"
+    },
+    {
+      "assemblyName": "Hexalith.Tenants.Client",
+      "mvid": "558f7528-f397-490a-933c-3a3019cce2ea",
+      "originalCodeBase": "/tmp/epic16-r11-final-22f35zao/combined/test_round6_genuine_native_cap0/runtime/artifacts/measurement-only-runner/Hexalith.Tenants.Client.dll",
+      "originalRelativePath": "artifacts/measurement-only-runner/Hexalith.Tenants.Client.dll",
+      "owner": "references/Hexalith.Tenants",
+      "path": "artifacts/epic16-runtime/16.2/binaries/bb3b8198aad09ea96ccf6bd1115522da49380b1b191ae5582aa69b637b7d7ad2.dll",
+      "sha256": "bb3b8198aad09ea96ccf6bd1115522da49380b1b191ae5582aa69b637b7d7ad2",
+      "sourceRevision": "dc3e3d332158e4c0e60c53cf6dd5a6c93fa47cdf"
+    },
+    {
+      "assemblyName": "Hexalith.Tenants.Contracts",
+      "mvid": "e42e6487-1512-4be0-a250-52f388eda0c9",
+      "originalCodeBase": "/tmp/epic16-r11-final-22f35zao/combined/test_round6_genuine_native_cap0/runtime/artifacts/measurement-only-runner/Hexalith.Tenants.Contracts.dll",
+      "originalRelativePath": "artifacts/measurement-only-runner/Hexalith.Tenants.Contracts.dll",
+      "owner": "references/Hexalith.Tenants",
+      "path": "artifacts/epic16-runtime/16.2/binaries/77a2a7e9ca5915bfe6228cde7b3c5a02d1f50d9ca96c08ad2ba52b32ec064d01.dll",
+      "sha256": "77a2a7e9ca5915bfe6228cde7b3c5a02d1f50d9ca96c08ad2ba52b32ec064d01",
+      "sourceRevision": "dc3e3d332158e4c0e60c53cf6dd5a6c93fa47cdf"
+    },
+    {
+      "assemblyName": "Hexalith.EventStore.Client",
+      "mvid": "24cd533e-241f-4a1e-9a96-7774ea34f68d",
+      "originalCodeBase": "/tmp/epic16-r11-final-22f35zao/combined/test_round6_genuine_native_cap0/runtime/artifacts/measurement-only-runner/Hexalith.EventStore.Client.dll",
+      "originalRelativePath": "artifacts/measurement-only-runner/Hexalith.EventStore.Client.dll",
+      "owner": "references/Hexalith.EventStore",
+      "path": "artifacts/epic16-runtime/16.2/binaries/cb2ad6889e12f9bdcf3146ccdb284ce046533805617907a31394a504d8b2d6ba.dll",
+      "sha256": "cb2ad6889e12f9bdcf3146ccdb284ce046533805617907a31394a504d8b2d6ba",
+      "sourceRevision": "2b29131e7254c827a2320ba0d2b76bf7a6f8b4d2"
+    },
+    {
+      "assemblyName": "Hexalith.EventStore.Contracts",
+      "mvid": "102ec26b-3fa0-47cd-ac7e-59cd8e17836b",
+      "originalCodeBase": "/tmp/epic16-r11-final-22f35zao/combined/test_round6_genuine_native_cap0/runtime/artifacts/measurement-only-runner/Hexalith.EventStore.Contracts.dll",
+      "originalRelativePath": "artifacts/measurement-only-runner/Hexalith.EventStore.Contracts.dll",
+      "owner": "references/Hexalith.EventStore",
+      "path": "artifacts/epic16-runtime/16.2/binaries/ad7027048abe6e75ea1439f091b406a2dff6e38f3a6556902f693583b26edc14.dll",
+      "sha256": "ad7027048abe6e75ea1439f091b406a2dff6e38f3a6556902f693583b26edc14",
+      "sourceRevision": "2b29131e7254c827a2320ba0d2b76bf7a6f8b4d2"
+    },
+    {
+      "assemblyName": "Hexalith.EventStore.DomainService",
+      "mvid": "e8c9a152-3855-41fb-b293-c7b3e780876f",
+      "originalCodeBase": "/tmp/epic16-r11-final-22f35zao/combined/test_round6_genuine_native_cap0/runtime/artifacts/measurement-only-runner/Hexalith.EventStore.DomainService.dll",
+      "originalRelativePath": "artifacts/measurement-only-runner/Hexalith.EventStore.DomainService.dll",
+      "owner": "references/Hexalith.EventStore",
+      "path": "artifacts/epic16-runtime/16.2/binaries/5fd99356301d73080c5ea975df5714b073f24974ebc0112d0162d5fb9dac9162.dll",
+      "sha256": "5fd99356301d73080c5ea975df5714b073f24974ebc0112d0162d5fb9dac9162",
+      "sourceRevision": "2b29131e7254c827a2320ba0d2b76bf7a6f8b4d2"
+    }
+  ],
+  "scenarioId": "AC-16.2-05"
+}

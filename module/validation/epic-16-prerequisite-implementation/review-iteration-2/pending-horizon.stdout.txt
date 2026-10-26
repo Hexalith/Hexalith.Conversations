@@ -1,0 +1,62 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_______ test_pending_inventory_cannot_exceed_merged_recovery_horizon[99] _______
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-240/test_pending_inventory_cannot_0/fixture')
+extra = 99
+
+    @pytest.mark.parametrize('extra', [99, 999])
+    def test_pending_inventory_cannot_exceed_merged_recovery_horizon(repository, extra):
+        data = deepcopy(OBSERVATIONS['AC-16.1-03'])
+        pending = deepcopy(data['merges'][0]['pending'][0]); pending['sequence'] = extra
+        for merge in data['merges']: merge['pending'].append(deepcopy(pending))
+        native(repository, 'AC-16.1-03', data)
+>       rejected(evaluate(repository, 'AC-16.1-03'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:854: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+______ test_pending_inventory_cannot_exceed_merged_recovery_horizon[999] _______
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-240/test_pending_inventory_cannot_1/fixture')
+extra = 999
+
+    @pytest.mark.parametrize('extra', [99, 999])
+    def test_pending_inventory_cannot_exceed_merged_recovery_horizon(repository, extra):
+        data = deepcopy(OBSERVATIONS['AC-16.1-03'])
+        pending = deepcopy(data['merges'][0]['pending'][0]); pending['sequence'] = extra
+        for merge in data['merges']: merge['pending'].append(deepcopy(pending))
+        native(repository, 'AC-16.1-03', data)
+>       rejected(evaluate(repository, 'AC-16.1-03'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:854: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_pending_inventory_cannot_exceed_merged_recovery_horizon[99]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_pending_inventory_cannot_exceed_merged_recovery_horizon[999]
+2 failed, 384 deselected in 0.93s

@@ -1,0 +1,139 @@
+FFFFF..                                                                  [100%]
+=================================== FAILURES ===================================
+_ test_every_duplicate_binding_component_matches_retained_envelope[tenant-other] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-267/test_every_duplicate_binding_c0/fixture')
+field = 'tenant', value = 'other'
+
+    @pytest.mark.parametrize('field,value',[('tenant','other'),('conversation','other'),('eventType','Other'),('sequence',0),('serializationFormat','unknown'),('payloadSha256','f'*64),('selectedUtcTicks',2000)])
+    def test_every_duplicate_binding_component_matches_retained_envelope(repository,field,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);data['events'][0]['binding'][field]=value
+>       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1301: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_every_duplicate_binding_component_matches_retained_envelope[conversation-other] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-267/test_every_duplicate_binding_c1/fixture')
+field = 'conversation', value = 'other'
+
+    @pytest.mark.parametrize('field,value',[('tenant','other'),('conversation','other'),('eventType','Other'),('sequence',0),('serializationFormat','unknown'),('payloadSha256','f'*64),('selectedUtcTicks',2000)])
+    def test_every_duplicate_binding_component_matches_retained_envelope(repository,field,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);data['events'][0]['binding'][field]=value
+>       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1301: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_every_duplicate_binding_component_matches_retained_envelope[eventType-Other] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-267/test_every_duplicate_binding_c2/fixture')
+field = 'eventType', value = 'Other'
+
+    @pytest.mark.parametrize('field,value',[('tenant','other'),('conversation','other'),('eventType','Other'),('sequence',0),('serializationFormat','unknown'),('payloadSha256','f'*64),('selectedUtcTicks',2000)])
+    def test_every_duplicate_binding_component_matches_retained_envelope(repository,field,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);data['events'][0]['binding'][field]=value
+>       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1301: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_every_duplicate_binding_component_matches_retained_envelope[sequence-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-267/test_every_duplicate_binding_c3/fixture')
+field = 'sequence', value = 0
+
+    @pytest.mark.parametrize('field,value',[('tenant','other'),('conversation','other'),('eventType','Other'),('sequence',0),('serializationFormat','unknown'),('payloadSha256','f'*64),('selectedUtcTicks',2000)])
+    def test_every_duplicate_binding_component_matches_retained_envelope(repository,field,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);data['events'][0]['binding'][field]=value
+>       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1301: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_every_duplicate_binding_component_matches_retained_envelope[serializationFormat-unknown] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-267/test_every_duplicate_binding_c4/fixture')
+field = 'serializationFormat', value = 'unknown'
+
+    @pytest.mark.parametrize('field,value',[('tenant','other'),('conversation','other'),('eventType','Other'),('sequence',0),('serializationFormat','unknown'),('payloadSha256','f'*64),('selectedUtcTicks',2000)])
+    def test_every_duplicate_binding_component_matches_retained_envelope(repository,field,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);data['events'][0]['binding'][field]=value
+>       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1301: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_duplicate_binding_component_matches_retained_envelope[tenant-other]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_duplicate_binding_component_matches_retained_envelope[conversation-other]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_duplicate_binding_component_matches_retained_envelope[eventType-Other]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_duplicate_binding_component_matches_retained_envelope[sequence-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_duplicate_binding_component_matches_retained_envelope[serializationFormat-unknown]
+5 failed, 2 passed, 564 deselected in 2.50s

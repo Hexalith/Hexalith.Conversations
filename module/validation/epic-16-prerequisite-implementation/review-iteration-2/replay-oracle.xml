@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="7" time="4.122" timestamp="2026-10-25T19:14:00.165925+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_rejects_self_consistent_noncanonical_or_unbound_bytes[{&quot;anchorUtcTicks&quot;:2000,&quot;items&quot;:[&quot;a&quot;,&quot;b&quot;],&quot;version&quot;:2,&quot;version&quot;:2}]" time="0.275" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_rejects_self_consistent_noncanonical_or_unbound_bytes[{&quot;anchorUtcTicks&quot;:2000,&quot;items&quot;:[&quot;a&quot;,&quot;b&quot;],&quot;version&quot;:NaN}]" time="0.297" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_rejects_self_consistent_noncanonical_or_unbound_bytes[{&quot;anchorUtcTicks&quot;:2000,&quot;items&quot;:[&quot;a&quot;,&quot;b&quot;],&quot;version&quot;:Infinity}]" time="0.306" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_rejects_self_consistent_noncanonical_or_unbound_bytes[{&quot;anchorUtcTicks&quot;:2000,&quot;items&quot;:[&quot;a&quot;,&quot;b&quot;],&quot;version&quot;:1e999}]" time="0.295" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_rejects_self_consistent_noncanonical_or_unbound_bytes[{ &quot;anchorUtcTicks&quot;:2000,&quot;items&quot;:[&quot;a&quot;,&quot;b&quot;],&quot;version&quot;:2}]" time="2.174"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-245/test_replay_rejects_self_consi4/fixture')
+value = '{ "anchorUtcTicks":2000,"items":["a","b"],"version":2}'
+
+    @pytest.mark.parametrize('value', [
+        '{"anchorUtcTicks":2000,"items":["a","b"],"version":2,"version":2}',
+        '{"anchorUtcTicks":2000,"items":["a","b"],"version":NaN}',
+        '{"anchorUtcTicks":2000,"items":["a","b"],"version":Infinity}',
+        '{"anchorUtcTicks":2000,"items":["a","b"],"version":1e999}',
+        '{ "anchorUtcTicks":2000,"items":["a","b"],"version":2}',
+        '{"version":2,"anchorUtcTicks":2000,"items":["a","b"]}',
+        '{"anchorUtcTicks":2000,"items":["b","a"],"version":2}',
+    ])
+    def test_replay_rejects_self_consistent_noncanonical_or_unbound_bytes(repository, value):
+        data = deepcopy(OBSERVATIONS['AC-16.2-02'])
+        for row in data['rebuilds']: row.update(canonicalJson=value, roundTripJson=value, stateHash=digest(value.encode()))
+        native(repository, 'AC-16.2-02', data)
+&gt;       rejected(evaluate(repository, 'AC-16.2-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:739: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_rejects_self_consistent_noncanonical_or_unbound_bytes[{&quot;version&quot;:2,&quot;anchorUtcTicks&quot;:2000,&quot;items&quot;:[&quot;a&quot;,&quot;b&quot;]}]" time="0.264"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-245/test_replay_rejects_self_consi5/fixture')
+value = '{"version":2,"anchorUtcTicks":2000,"items":["a","b"]}'
+
+    @pytest.mark.parametrize('value', [
+        '{"anchorUtcTicks":2000,"items":["a","b"],"version":2,"version":2}',
+        '{"anchorUtcTicks":2000,"items":["a","b"],"version":NaN}',
+        '{"anchorUtcTicks":2000,"items":["a","b"],"version":Infinity}',
+        '{"anchorUtcTicks":2000,"items":["a","b"],"version":1e999}',
+        '{ "anchorUtcTicks":2000,"items":["a","b"],"version":2}',
+        '{"version":2,"anchorUtcTicks":2000,"items":["a","b"]}',
+        '{"anchorUtcTicks":2000,"items":["b","a"],"version":2}',
+    ])
+    def test_replay_rejects_self_consistent_noncanonical_or_unbound_bytes(repository, value):
+        data = deepcopy(OBSERVATIONS['AC-16.2-02'])
+        for row in data['rebuilds']: row.update(canonicalJson=value, roundTripJson=value, stateHash=digest(value.encode()))
+        native(repository, 'AC-16.2-02', data)
+&gt;       rejected(evaluate(repository, 'AC-16.2-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:739: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_rejects_self_consistent_noncanonical_or_unbound_bytes[{&quot;anchorUtcTicks&quot;:2000,&quot;items&quot;:[&quot;b&quot;,&quot;a&quot;],&quot;version&quot;:2}]" time="0.270" /></testsuite></testsuites>

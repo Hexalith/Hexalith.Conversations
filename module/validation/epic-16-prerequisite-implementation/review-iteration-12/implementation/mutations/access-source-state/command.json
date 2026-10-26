@@ -1,0 +1,29 @@
+{
+  "name": "access-source-state",
+  "path": "_bmad/scripts/epic16_schedules.py",
+  "old": "require(proof['sourceState']['tenantId']==tenant and snapshot['tenant']==tenant and snapshot['checkpoint']==source['sequence'] and same(snapshot['lastAccepted'],source) and same(snapshot['projection'],expected), 'authorization native projection checkpoint and fingerprint derive from retained source')",
+  "new": "None",
+  "selector": "round12_authorization_state and projection",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-access-source-state-xz9w83l_/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_authorization_state and projection",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/access-source-state/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-access-source-state-xz9w83l_",
+  "exitCode": 1,
+  "elapsedSeconds": 15.209066548995906,
+  "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+  "mutatedSha256": "70d8650027b6543d0245f7cf34312d6f0e6901e2a578099306229f57eb98785d",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

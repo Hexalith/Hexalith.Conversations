@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="21.454" timestamp="2026-10-26T03:29:11.178739+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_external_signature_preserves_complete_assembly_identity[key]" time="6.491"><failure message="Failed: DID NOT RAISE Stop">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-588/test_round10_external_signatur0')
+change = 'key'
+
+    @pytest.mark.parametrize('change',['key','version','culture','flags','same-identity-addition'])
+    def test_round10_external_signature_preserves_complete_assembly_identity(tmp_path,change):
+        metadata=[]
+        for phase in ('before','after'):
+            directory=tmp_path/phase;external=directory/'external';api=directory/'api';external.mkdir(parents=True);api.mkdir()
+            (directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+            (external/'public.snk').write_bytes(bytes.fromhex(_ROUND10_KEYS[int(change=='key' and phase=='after')]))
+            version='2.0.0.0' if change=='version' and phase=='after' else '1.0.0.0'
+            culture='[assembly:System.Reflection.AssemblyCulture("fr-FR")]' if change=='culture' and phase=='after' else ''
+            if change=='flags' and phase=='after':culture='[assembly:System.Reflection.AssemblyFlags(System.Reflection.AssemblyNameFlags.Retargetable)]'
+            (external/'External.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;AssemblyVersion&gt;'+version+'&lt;/AssemblyVersion&gt;&lt;SignAssembly&gt;true&lt;/SignAssembly&gt;&lt;PublicSign&gt;true&lt;/PublicSign&gt;&lt;AssemblyOriginatorKeyFile&gt;public.snk&lt;/AssemblyOriginatorKeyFile&gt;&lt;/PropertyGroup&gt;&lt;/Project&gt;')
+            (external/'Value.cs').write_text(culture+'namespace External { public class Value {} }')
+            (api/'Api.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;AssemblyName&gt;Probe.Api&lt;/AssemblyName&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;ProjectReference Include="../external/External.csproj" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+            extra='public int Added() =&gt; 1;' if phase=='after' and change=='same-identity-addition' else ''
+            (api/'Api.cs').write_text('[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] namespace Probe { public class Surface { public External.Value Echo(External.Value value) =&gt; value; '+extra+' } }')
+            command=['dotnet','build','Api.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];run=subprocess.run(command,cwd=api,capture_output=True,timeout=120);assert run.returncode==0,run.stdout
+            binary=(api/'bin/Debug/net10.0/Probe.Api.dll').read_bytes();metadata.append(tooling.native_helper.inspect_product(binary,'a'*40))
+            if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+                retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('identity-'+change)/phase;retain.mkdir(parents=True,exist_ok=True)
+                for source in (external/'External.csproj',external/'Value.cs',external/'public.snk',api/'Api.csproj',api/'Api.cs',api/'bin/Debug/net10.0/Probe.Api.dll',external/'bin/Debug/net10.0/External.dll'):shutil.copyfile(source,retain/source.name)
+                (retain/'build.stdout').write_bytes(run.stdout);(retain/'build.stderr').write_bytes(run.stderr);(retain/'command.json').write_text(json.dumps(dict(command=command,exitCode=run.returncode),indent=2)+'\n')
+        if change=='same-identity-addition':tooling.products.additive(*metadata,tooling.need,change)
+        else:
+&gt;           with pytest.raises(tooling.Stop):tooling.products.additive(*metadata,tooling.need,change)
+E           Failed: DID NOT RAISE Stop
+
+_bmad/scripts/tests/test_epic16_tooling.py:3866: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_external_signature_preserves_complete_assembly_identity[version]" time="4.726"><failure message="Failed: DID NOT RAISE Stop">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-588/test_round10_external_signatur1')
+change = 'version'
+
+    @pytest.mark.parametrize('change',['key','version','culture','flags','same-identity-addition'])
+    def test_round10_external_signature_preserves_complete_assembly_identity(tmp_path,change):
+        metadata=[]
+        for phase in ('before','after'):
+            directory=tmp_path/phase;external=directory/'external';api=directory/'api';external.mkdir(parents=True);api.mkdir()
+            (directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+            (external/'public.snk').write_bytes(bytes.fromhex(_ROUND10_KEYS[int(change=='key' and phase=='after')]))
+            version='2.0.0.0' if change=='version' and phase=='after' else '1.0.0.0'
+            culture='[assembly:System.Reflection.AssemblyCulture("fr-FR")]' if change=='culture' and phase=='after' else ''
+            if change=='flags' and phase=='after':culture='[assembly:System.Reflection.AssemblyFlags(System.Reflection.AssemblyNameFlags.Retargetable)]'
+            (external/'External.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;AssemblyVersion&gt;'+version+'&lt;/AssemblyVersion&gt;&lt;SignAssembly&gt;true&lt;/SignAssembly&gt;&lt;PublicSign&gt;true&lt;/PublicSign&gt;&lt;AssemblyOriginatorKeyFile&gt;public.snk&lt;/AssemblyOriginatorKeyFile&gt;&lt;/PropertyGroup&gt;&lt;/Project&gt;')
+            (external/'Value.cs').write_text(culture+'namespace External { public class Value {} }')
+            (api/'Api.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;AssemblyName&gt;Probe.Api&lt;/AssemblyName&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;ProjectReference Include="../external/External.csproj" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+            extra='public int Added() =&gt; 1;' if phase=='after' and change=='same-identity-addition' else ''
+            (api/'Api.cs').write_text('[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] namespace Probe { public class Surface { public External.Value Echo(External.Value value) =&gt; value; '+extra+' } }')
+            command=['dotnet','build','Api.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];run=subprocess.run(command,cwd=api,capture_output=True,timeout=120);assert run.returncode==0,run.stdout
+            binary=(api/'bin/Debug/net10.0/Probe.Api.dll').read_bytes();metadata.append(tooling.native_helper.inspect_product(binary,'a'*40))
+            if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+                retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('identity-'+change)/phase;retain.mkdir(parents=True,exist_ok=True)
+                for source in (external/'External.csproj',external/'Value.cs',external/'public.snk',api/'Api.csproj',api/'Api.cs',api/'bin/Debug/net10.0/Probe.Api.dll',external/'bin/Debug/net10.0/External.dll'):shutil.copyfile(source,retain/source.name)
+                (retain/'build.stdout').write_bytes(run.stdout);(retain/'build.stderr').write_bytes(run.stderr);(retain/'command.json').write_text(json.dumps(dict(command=command,exitCode=run.returncode),indent=2)+'\n')
+        if change=='same-identity-addition':tooling.products.additive(*metadata,tooling.need,change)
+        else:
+&gt;           with pytest.raises(tooling.Stop):tooling.products.additive(*metadata,tooling.need,change)
+E           Failed: DID NOT RAISE Stop
+
+_bmad/scripts/tests/test_epic16_tooling.py:3866: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_external_signature_preserves_complete_assembly_identity[culture]" time="4.806"><failure message="Failed: DID NOT RAISE Stop">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-588/test_round10_external_signatur2')
+change = 'culture'
+
+    @pytest.mark.parametrize('change',['key','version','culture','flags','same-identity-addition'])
+    def test_round10_external_signature_preserves_complete_assembly_identity(tmp_path,change):
+        metadata=[]
+        for phase in ('before','after'):
+            directory=tmp_path/phase;external=directory/'external';api=directory/'api';external.mkdir(parents=True);api.mkdir()
+            (directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+            (external/'public.snk').write_bytes(bytes.fromhex(_ROUND10_KEYS[int(change=='key' and phase=='after')]))
+            version='2.0.0.0' if change=='version' and phase=='after' else '1.0.0.0'
+            culture='[assembly:System.Reflection.AssemblyCulture("fr-FR")]' if change=='culture' and phase=='after' else ''
+            if change=='flags' and phase=='after':culture='[assembly:System.Reflection.AssemblyFlags(System.Reflection.AssemblyNameFlags.Retargetable)]'
+            (external/'External.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;AssemblyVersion&gt;'+version+'&lt;/AssemblyVersion&gt;&lt;SignAssembly&gt;true&lt;/SignAssembly&gt;&lt;PublicSign&gt;true&lt;/PublicSign&gt;&lt;AssemblyOriginatorKeyFile&gt;public.snk&lt;/AssemblyOriginatorKeyFile&gt;&lt;/PropertyGroup&gt;&lt;/Project&gt;')
+            (external/'Value.cs').write_text(culture+'namespace External { public class Value {} }')
+            (api/'Api.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;AssemblyName&gt;Probe.Api&lt;/AssemblyName&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;ProjectReference Include="../external/External.csproj" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+            extra='public int Added() =&gt; 1;' if phase=='after' and change=='same-identity-addition' else ''
+            (api/'Api.cs').write_text('[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] namespace Probe { public class Surface { public External.Value Echo(External.Value value) =&gt; value; '+extra+' } }')
+            command=['dotnet','build','Api.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];run=subprocess.run(command,cwd=api,capture_output=True,timeout=120);assert run.returncode==0,run.stdout
+            binary=(api/'bin/Debug/net10.0/Probe.Api.dll').read_bytes();metadata.append(tooling.native_helper.inspect_product(binary,'a'*40))
+            if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+                retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('identity-'+change)/phase;retain.mkdir(parents=True,exist_ok=True)
+                for source in (external/'External.csproj',external/'Value.cs',external/'public.snk',api/'Api.csproj',api/'Api.cs',api/'bin/Debug/net10.0/Probe.Api.dll',external/'bin/Debug/net10.0/External.dll'):shutil.copyfile(source,retain/source.name)
+                (retain/'build.stdout').write_bytes(run.stdout);(retain/'build.stderr').write_bytes(run.stderr);(retain/'command.json').write_text(json.dumps(dict(command=command,exitCode=run.returncode),indent=2)+'\n')
+        if change=='same-identity-addition':tooling.products.additive(*metadata,tooling.need,change)
+        else:
+&gt;           with pytest.raises(tooling.Stop):tooling.products.additive(*metadata,tooling.need,change)
+E           Failed: DID NOT RAISE Stop
+
+_bmad/scripts/tests/test_epic16_tooling.py:3866: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_external_signature_preserves_complete_assembly_identity[flags]" time="4.688"><failure message="Failed: DID NOT RAISE Stop">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-588/test_round10_external_signatur3')
+change = 'flags'
+
+    @pytest.mark.parametrize('change',['key','version','culture','flags','same-identity-addition'])
+    def test_round10_external_signature_preserves_complete_assembly_identity(tmp_path,change):
+        metadata=[]
+        for phase in ('before','after'):
+            directory=tmp_path/phase;external=directory/'external';api=directory/'api';external.mkdir(parents=True);api.mkdir()
+            (directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+            (external/'public.snk').write_bytes(bytes.fromhex(_ROUND10_KEYS[int(change=='key' and phase=='after')]))
+            version='2.0.0.0' if change=='version' and phase=='after' else '1.0.0.0'
+            culture='[assembly:System.Reflection.AssemblyCulture("fr-FR")]' if change=='culture' and phase=='after' else ''
+            if change=='flags' and phase=='after':culture='[assembly:System.Reflection.AssemblyFlags(System.Reflection.AssemblyNameFlags.Retargetable)]'
+            (external/'External.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;AssemblyVersion&gt;'+version+'&lt;/AssemblyVersion&gt;&lt;SignAssembly&gt;true&lt;/SignAssembly&gt;&lt;PublicSign&gt;true&lt;/PublicSign&gt;&lt;AssemblyOriginatorKeyFile&gt;public.snk&lt;/AssemblyOriginatorKeyFile&gt;&lt;/PropertyGroup&gt;&lt;/Project&gt;')
+            (external/'Value.cs').write_text(culture+'namespace External { public class Value {} }')
+            (api/'Api.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;AssemblyName&gt;Probe.Api&lt;/AssemblyName&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;ProjectReference Include="../external/External.csproj" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+            extra='public int Added() =&gt; 1;' if phase=='after' and change=='same-identity-addition' else ''
+            (api/'Api.cs').write_text('[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] namespace Probe { public class Surface { public External.Value Echo(External.Value value) =&gt; value; '+extra+' } }')
+            command=['dotnet','build','Api.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];run=subprocess.run(command,cwd=api,capture_output=True,timeout=120);assert run.returncode==0,run.stdout
+            binary=(api/'bin/Debug/net10.0/Probe.Api.dll').read_bytes();metadata.append(tooling.native_helper.inspect_product(binary,'a'*40))
+            if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+                retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('identity-'+change)/phase;retain.mkdir(parents=True,exist_ok=True)
+                for source in (external/'External.csproj',external/'Value.cs',external/'public.snk',api/'Api.csproj',api/'Api.cs',api/'bin/Debug/net10.0/Probe.Api.dll',external/'bin/Debug/net10.0/External.dll'):shutil.copyfile(source,retain/source.name)
+                (retain/'build.stdout').write_bytes(run.stdout);(retain/'build.stderr').write_bytes(run.stderr);(retain/'command.json').write_text(json.dumps(dict(command=command,exitCode=run.returncode),indent=2)+'\n')
+        if change=='same-identity-addition':tooling.products.additive(*metadata,tooling.need,change)
+        else:
+&gt;           with pytest.raises(tooling.Stop):tooling.products.additive(*metadata,tooling.need,change)
+E           Failed: DID NOT RAISE Stop
+
+_bmad/scripts/tests/test_epic16_tooling.py:3866: Failed</failure></testcase></testsuite></testsuites>

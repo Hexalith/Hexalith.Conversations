@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.753" timestamp="2026-10-26T00:10:22.814153+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_catch_up_requires_authoritative_references_complete_enqueue_and_drain[enqueue-unexecuted]" time="2.318"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-510/test_round8_catch_up_requires_0/fixture')
+fault = 'enqueue-unexecuted'
+
+    @pytest.mark.parametrize('fault',['missing','lost-ref','forged-ref','foreign','generation','event','identity-conflict','enqueue-unexecuted','enqueue-before','enqueue-after','enqueue-split','enqueue-snapshot','enqueue-fence','ack-order','ack-identity','drain-unexecuted','drain-before','premature-drain','lost-at-ready','drain-transaction','wrong-stream'])
+    def test_round8_catch_up_requires_authoritative_references_complete_enqueue_and_drain(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][1];p=row['catchUp'];delivery=p['deliveries'][1];en=delivery['enqueue']
+        if fault=='missing':del row['catchUp']
+        elif fault=='lost-ref':p['drain']['after']=[];row['queuedAfterC']=[];round8_refresh(row)
+        elif fault=='forged-ref':delivery['reference']['messageId']='forged';delivery['referenceId']=digest(tooling.canonical(delivery['reference']))
+        elif fault=='foreign':delivery['reference']['tenant']='foreign'
+        elif fault=='generation':delivery['reference']['generation']-=1
+        elif fault=='event':delivery['authoritative']['eventId']='unrelated'
+        elif fault=='identity-conflict':p['deliveries'][-1]['authoritative']['position']=22
+        elif fault=='enqueue-unexecuted':en['executed']=False
+        elif fault=='enqueue-before':en['before']=[deepcopy(delivery['reference'])]
+        elif fault=='enqueue-after':en['after']=[]
+        elif fault=='enqueue-split':en['indexTransactionId']='other'
+        elif fault=='enqueue-snapshot':en['storedAfter']['index']['watermark']=999
+        elif fault=='enqueue-fence':en['expected']['version']+=1
+        elif fault=='ack-order':delivery['operations']['acknowledgement']['order']=en['order']
+        elif fault=='ack-identity':delivery['operations']['acknowledgement']['recordId']='unrelated'
+        elif fault=='drain-unexecuted':p['drain']['executed']=False
+        elif fault=='drain-before':p['drain']['before']=[];round8_refresh(row)
+        elif fault=='premature-drain':p['drain']['drained']+=p['drain']['after'];p['drain']['after']=[];row['queuedAfterC']=[];round8_refresh(row)
+        elif fault=='lost-at-ready':next(x for x in row['atomicity']['stages'][-1]['after']['components'] if x['kind']=='queue')['value']=[]
+        elif fault=='drain-transaction':p['drain']['transactionId']='unrelated'
+        else:delivery['streamIdentity']['conversation']='other'
+&gt;       round8_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2950: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-510/test_round8_catch_up_requires_0/fixture')
+scenario = 'AC-16.2-04'
+data = {'lifecycle': [{'id': 'erase', 'beforeGeneration': 2, 'afterGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3]...erGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3], ...}], 'queryWrites': [], 'unauthorizedRebuildWrites': 0}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase></testsuite></testsuites>

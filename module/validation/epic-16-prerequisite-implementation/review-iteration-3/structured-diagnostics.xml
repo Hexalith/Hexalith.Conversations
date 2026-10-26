@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="12" skipped="0" tests="15" time="4.768" timestamp="2026-10-25T19:51:39.020579+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[empty-AC-16.3-01]" time="0.286"><failure message="AssertionError: assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-275/test_actual_structured_diagnos0/fixture')
+scenario = 'AC-16.3-01', fault = 'empty'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-02','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['empty','tenant','token','extra','unbound-endpoint'])
+    def test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if fault=='empty':data['diagnostics']=[]
+        elif fault=='extra':data['diagnostics'][0]['payload']='secret'
+        elif fault=='unbound-endpoint':data['diagnostics'][0]['endpointId']='other-endpoint'
+        else:data['diagnostics'][0]['endpointId']='tenant@example.invalid' if fault=='tenant' else 'Bearer confidential-token'
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID')
+E       AssertionError: assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1393: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[empty-AC-16.3-02]" time="0.274"><failure message="AssertionError: assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-275/test_actual_structured_diagnos1/fixture')
+scenario = 'AC-16.3-02', fault = 'empty'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-02','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['empty','tenant','token','extra','unbound-endpoint'])
+    def test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if fault=='empty':data['diagnostics']=[]
+        elif fault=='extra':data['diagnostics'][0]['payload']='secret'
+        elif fault=='unbound-endpoint':data['diagnostics'][0]['endpointId']='other-endpoint'
+        else:data['diagnostics'][0]['endpointId']='tenant@example.invalid' if fault=='tenant' else 'Bearer confidential-token'
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID')
+E       AssertionError: assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1393: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[empty-AC-16.3-05]" time="0.295"><failure message="AssertionError: assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-275/test_actual_structured_diagnos2/fixture')
+scenario = 'AC-16.3-05', fault = 'empty'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-02','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['empty','tenant','token','extra','unbound-endpoint'])
+    def test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if fault=='empty':data['diagnostics']=[]
+        elif fault=='extra':data['diagnostics'][0]['payload']='secret'
+        elif fault=='unbound-endpoint':data['diagnostics'][0]['endpointId']='other-endpoint'
+        else:data['diagnostics'][0]['endpointId']='tenant@example.invalid' if fault=='tenant' else 'Bearer confidential-token'
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID')
+E       AssertionError: assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1393: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[tenant-AC-16.3-01]" time="0.280"><failure message="AssertionError: assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-275/test_actual_structured_diagnos3/fixture')
+scenario = 'AC-16.3-01', fault = 'tenant'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-02','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['empty','tenant','token','extra','unbound-endpoint'])
+    def test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if fault=='empty':data['diagnostics']=[]
+        elif fault=='extra':data['diagnostics'][0]['payload']='secret'
+        elif fault=='unbound-endpoint':data['diagnostics'][0]['endpointId']='other-endpoint'
+        else:data['diagnostics'][0]['endpointId']='tenant@example.invalid' if fault=='tenant' else 'Bearer confidential-token'
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID')
+E       AssertionError: assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1393: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[tenant-AC-16.3-02]" time="0.283"><failure message="AssertionError: assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-275/test_actual_structured_diagnos4/fixture')
+scenario = 'AC-16.3-02', fault = 'tenant'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-02','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['empty','tenant','token','extra','unbound-endpoint'])
+    def test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if fault=='empty':data['diagnostics']=[]
+        elif fault=='extra':data['diagnostics'][0]['payload']='secret'
+        elif fault=='unbound-endpoint':data['diagnostics'][0]['endpointId']='other-endpoint'
+        else:data['diagnostics'][0]['endpointId']='tenant@example.invalid' if fault=='tenant' else 'Bearer confidential-token'
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID')
+E       AssertionError: assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1393: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[tenant-AC-16.3-05]" time="0.316"><failure message="AssertionError: assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-275/test_actual_structured_diagnos5/fixture')
+scenario = 'AC-16.3-05', fault = 'tenant'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-02','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['empty','tenant','token','extra','unbound-endpoint'])
+    def test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if fault=='empty':data['diagnostics']=[]
+        elif fault=='extra':data['diagnostics'][0]['payload']='secret'
+        elif fault=='unbound-endpoint':data['diagnostics'][0]['endpointId']='other-endpoint'
+        else:data['diagnostics'][0]['endpointId']='tenant@example.invalid' if fault=='tenant' else 'Bearer confidential-token'
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID')
+E       AssertionError: assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1393: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[token-AC-16.3-01]" time="0.283"><failure message="AssertionError: assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-275/test_actual_structured_diagnos6/fixture')
+scenario = 'AC-16.3-01', fault = 'token'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-02','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['empty','tenant','token','extra','unbound-endpoint'])
+    def test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if fault=='empty':data['diagnostics']=[]
+        elif fault=='extra':data['diagnostics'][0]['payload']='secret'
+        elif fault=='unbound-endpoint':data['diagnostics'][0]['endpointId']='other-endpoint'
+        else:data['diagnostics'][0]['endpointId']='tenant@example.invalid' if fault=='tenant' else 'Bearer confidential-token'
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID')
+E       AssertionError: assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1393: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[token-AC-16.3-02]" time="0.281"><failure message="AssertionError: assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-275/test_actual_structured_diagnos7/fixture')
+scenario = 'AC-16.3-02', fault = 'token'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-02','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['empty','tenant','token','extra','unbound-endpoint'])
+    def test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if fault=='empty':data['diagnostics']=[]
+        elif fault=='extra':data['diagnostics'][0]['payload']='secret'
+        elif fault=='unbound-endpoint':data['diagnostics'][0]['endpointId']='other-endpoint'
+        else:data['diagnostics'][0]['endpointId']='tenant@example.invalid' if fault=='tenant' else 'Bearer confidential-token'
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID')
+E       AssertionError: assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1393: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[token-AC-16.3-05]" time="0.298"><failure message="AssertionError: assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-275/test_actual_structured_diagnos8/fixture')
+scenario = 'AC-16.3-05', fault = 'token'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-02','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['empty','tenant','token','extra','unbound-endpoint'])
+    def test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if fault=='empty':data['diagnostics']=[]
+        elif fault=='extra':data['diagnostics'][0]['payload']='secret'
+        elif fault=='unbound-endpoint':data['diagnostics'][0]['endpointId']='other-endpoint'
+        else:data['diagnostics'][0]['endpointId']='tenant@example.invalid' if fault=='tenant' else 'Bearer confidential-token'
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID')
+E       AssertionError: assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1393: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[extra-AC-16.3-01]" time="0.282" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[extra-AC-16.3-02]" time="0.277" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[extra-AC-16.3-05]" time="0.299" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[unbound-endpoint-AC-16.3-01]" time="0.273"><failure message="AssertionError: assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-275/test_actual_structured_diagnos12/fixture')
+scenario = 'AC-16.3-01', fault = 'unbound-endpoint'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-02','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['empty','tenant','token','extra','unbound-endpoint'])
+    def test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if fault=='empty':data['diagnostics']=[]
+        elif fault=='extra':data['diagnostics'][0]['payload']='secret'
+        elif fault=='unbound-endpoint':data['diagnostics'][0]['endpointId']='other-endpoint'
+        else:data['diagnostics'][0]['endpointId']='tenant@example.invalid' if fault=='tenant' else 'Bearer confidential-token'
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID')
+E       AssertionError: assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1393: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[unbound-endpoint-AC-16.3-02]" time="0.271"><failure message="AssertionError: assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-275/test_actual_structured_diagnos13/fixture')
+scenario = 'AC-16.3-02', fault = 'unbound-endpoint'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-02','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['empty','tenant','token','extra','unbound-endpoint'])
+    def test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if fault=='empty':data['diagnostics']=[]
+        elif fault=='extra':data['diagnostics'][0]['payload']='secret'
+        elif fault=='unbound-endpoint':data['diagnostics'][0]['endpointId']='other-endpoint'
+        else:data['diagnostics'][0]['endpointId']='tenant@example.invalid' if fault=='tenant' else 'Bearer confidential-token'
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID')
+E       AssertionError: assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1393: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity[unbound-endpoint-AC-16.3-05]" time="0.297"><failure message="AssertionError: assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-275/test_actual_structured_diagnos14/fixture')
+scenario = 'AC-16.3-05', fault = 'unbound-endpoint'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-02','AC-16.3-05'])
+    @pytest.mark.parametrize('fault',['empty','tenant','token','extra','unbound-endpoint'])
+    def test_actual_structured_diagnostics_have_safe_exact_fields_and_bound_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if fault=='empty':data['diagnostics']=[]
+        elif fault=='extra':data['diagnostics'][0]['payload']='secret'
+        elif fault=='unbound-endpoint':data['diagnostics'][0]['endpointId']='other-endpoint'
+        else:data['diagnostics'][0]['endpointId']='tenant@example.invalid' if fault=='tenant' else 'Bearer confidential-token'
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+&gt;       assert result['result']=='FAIL' and result['blockers'][0] in ('MEASUREMENT_INVALID','MEASUREMENT_SCHEMA_INVALID')
+E       AssertionError: assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1393: AssertionError</failure></testcase></testsuite></testsuites>

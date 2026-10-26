@@ -1,0 +1,86 @@
+{
+  "finalSource": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/final-source.json",
+    "sha256": "514f87ae667d6c9bf1a47c4a867fe34196de84078a504d53d953e39823e65c61"
+  },
+  "unchangedDuringFinalVerification": true,
+  "intermediate": [
+    {
+      "label": "exploratory-a",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/exploratory-a/command.json",
+        "sha256": "5e64abb4ef991147b538b6ef6003fd0416eaee709fc22cabd7eba088bd393c21"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/exploratory-a/source-hashes.json",
+        "sha256": "37e7406547578a93a15320eaa5cd696cabfb6e12fcb75e4b95661841ffa767b2"
+      },
+      "counts": {
+        "tests": 248,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "245 passed, three intentionally conflicting Fact fixture builds rejected by xUnit analyzer before runner execution. Only those deliberately invalid fixture builds subsequently disable analyzers; inspector admission was not weakened. Exact source snapshot and original failing run retained."
+    },
+    {
+      "label": "exploratory-b",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/exploratory-b/command.json",
+        "sha256": "54df789c38ac203d5f446994d7062512b605e51c5a09cf64e8671dc0d2993615"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/exploratory-b/source-hashes.json",
+        "sha256": "9f36c10d3b048f89e9064435ba87f52d3772a6001af2be28bc889aa98ea1f087"
+      },
+      "counts": {
+        "tests": 282,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "279 passed, three new external attribute library fixture builds failed because xunit.v3 requires executable projects. The synthetic library uses the same pinned 4.0.2 extensibility-core package instead; actual test runner remains xunit.v3. This epoch includes P1 framework owner and P2 native map corrections."
+    },
+    {
+      "label": "exploratory-c",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/exploratory-c/command.json",
+        "sha256": "408704574e074b6c8a61c6531ea2df639fb01cb0c81443e203070f27355f967f"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/exploratory-c/source-hashes.json",
+        "sha256": "2259371a3407529a237b4f48e667059783640e8f34fef037187ae50e45facd5a"
+      },
+      "counts": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "All three actual external attribute/discovery controls passed after the fixture library reference correction. No implementation guard changed after exploratory-b; final full source verification supersedes all exploratory selections."
+    }
+  ],
+  "mutationDisposition": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutation-disposition.json",
+    "sha256": "7e7c481eaff1032744b7758d9d3345a7b9b4cd6fdeb0cd40fa33e15a555d36df"
+  },
+  "archiveMapping": {
+    ".gitignore": ".gitignore.bytes"
+  },
+  "initialLibraryReproduction": {
+    "argv": [
+      "dotnet",
+      "build",
+      "Attributes.csproj",
+      "-c",
+      "Debug",
+      "--nologo",
+      "-m:1",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/tmp/pytest-of-administrator/pytest-610/test_round11_framework_ownersh0/attributes",
+    "exitCode": 1,
+    "diagnostic": "xUnit.net v3 test projects must be executable; use xunit.v3.extensibility.core for a non-test library"
+  },
+  "retainedHistoryArtifactCount": 1623
+}

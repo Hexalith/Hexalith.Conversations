@@ -1,0 +1,148 @@
+FFFF...                                                                  [100%]
+=================================== FAILURES ===================================
+____ test_round5_pending_restart_binds_actual_tenant_event_bytes[malformed] ____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-385/test_round5_pending_restart_bi0/fixture')
+fault = 'malformed'
+
+    @pytest.mark.parametrize('fault',['malformed','wrong-shape','wrong-type','wrong-tenant','wrong-snapshot-tenant','digest','after-drift'])
+    def test_round5_pending_restart_binds_actual_tenant_event_bytes(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-02'])
+        for phase in ('beforeRestart','afterRestart'):
+            row=data[phase]['pending'][0]
+            if fault=='malformed':row['persistedPayload']='not JSON'
+            elif fault=='wrong-shape':row['persistedPayload']='{"enabled":false}'
+            elif fault=='wrong-type':row['eventType']='TenantEnabled'
+            elif fault=='wrong-tenant':row['persistedPayload']=row['persistedPayload'].replace('tenant-a','foreign')
+            elif fault=='wrong-snapshot-tenant':data[phase]['tenant']='foreign'
+            elif fault=='after-drift' and phase=='afterRestart':row['persistedPayload']=row['persistedPayload'].replace('03:04:05','03:04:06')
+            row['payloadSha256']='0'*64 if fault=='digest' else digest(row['persistedPayload'].encode())
+>       native(repository,'AC-16.1-02',data);rejected(evaluate(repository,'AC-16.1-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1882: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+___ test_round5_pending_restart_binds_actual_tenant_event_bytes[wrong-shape] ___
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-385/test_round5_pending_restart_bi1/fixture')
+fault = 'wrong-shape'
+
+    @pytest.mark.parametrize('fault',['malformed','wrong-shape','wrong-type','wrong-tenant','wrong-snapshot-tenant','digest','after-drift'])
+    def test_round5_pending_restart_binds_actual_tenant_event_bytes(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-02'])
+        for phase in ('beforeRestart','afterRestart'):
+            row=data[phase]['pending'][0]
+            if fault=='malformed':row['persistedPayload']='not JSON'
+            elif fault=='wrong-shape':row['persistedPayload']='{"enabled":false}'
+            elif fault=='wrong-type':row['eventType']='TenantEnabled'
+            elif fault=='wrong-tenant':row['persistedPayload']=row['persistedPayload'].replace('tenant-a','foreign')
+            elif fault=='wrong-snapshot-tenant':data[phase]['tenant']='foreign'
+            elif fault=='after-drift' and phase=='afterRestart':row['persistedPayload']=row['persistedPayload'].replace('03:04:05','03:04:06')
+            row['payloadSha256']='0'*64 if fault=='digest' else digest(row['persistedPayload'].encode())
+>       native(repository,'AC-16.1-02',data);rejected(evaluate(repository,'AC-16.1-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1882: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+___ test_round5_pending_restart_binds_actual_tenant_event_bytes[wrong-type] ____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-385/test_round5_pending_restart_bi2/fixture')
+fault = 'wrong-type'
+
+    @pytest.mark.parametrize('fault',['malformed','wrong-shape','wrong-type','wrong-tenant','wrong-snapshot-tenant','digest','after-drift'])
+    def test_round5_pending_restart_binds_actual_tenant_event_bytes(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-02'])
+        for phase in ('beforeRestart','afterRestart'):
+            row=data[phase]['pending'][0]
+            if fault=='malformed':row['persistedPayload']='not JSON'
+            elif fault=='wrong-shape':row['persistedPayload']='{"enabled":false}'
+            elif fault=='wrong-type':row['eventType']='TenantEnabled'
+            elif fault=='wrong-tenant':row['persistedPayload']=row['persistedPayload'].replace('tenant-a','foreign')
+            elif fault=='wrong-snapshot-tenant':data[phase]['tenant']='foreign'
+            elif fault=='after-drift' and phase=='afterRestart':row['persistedPayload']=row['persistedPayload'].replace('03:04:05','03:04:06')
+            row['payloadSha256']='0'*64 if fault=='digest' else digest(row['persistedPayload'].encode())
+>       native(repository,'AC-16.1-02',data);rejected(evaluate(repository,'AC-16.1-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1882: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+__ test_round5_pending_restart_binds_actual_tenant_event_bytes[wrong-tenant] ___
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-385/test_round5_pending_restart_bi3/fixture')
+fault = 'wrong-tenant'
+
+    @pytest.mark.parametrize('fault',['malformed','wrong-shape','wrong-type','wrong-tenant','wrong-snapshot-tenant','digest','after-drift'])
+    def test_round5_pending_restart_binds_actual_tenant_event_bytes(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-02'])
+        for phase in ('beforeRestart','afterRestart'):
+            row=data[phase]['pending'][0]
+            if fault=='malformed':row['persistedPayload']='not JSON'
+            elif fault=='wrong-shape':row['persistedPayload']='{"enabled":false}'
+            elif fault=='wrong-type':row['eventType']='TenantEnabled'
+            elif fault=='wrong-tenant':row['persistedPayload']=row['persistedPayload'].replace('tenant-a','foreign')
+            elif fault=='wrong-snapshot-tenant':data[phase]['tenant']='foreign'
+            elif fault=='after-drift' and phase=='afterRestart':row['persistedPayload']=row['persistedPayload'].replace('03:04:05','03:04:06')
+            row['payloadSha256']='0'*64 if fault=='digest' else digest(row['persistedPayload'].encode())
+>       native(repository,'AC-16.1-02',data);rejected(evaluate(repository,'AC-16.1-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1882: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_pending_restart_binds_actual_tenant_event_bytes[malformed]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_pending_restart_binds_actual_tenant_event_bytes[wrong-shape]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_pending_restart_binds_actual_tenant_event_bytes[wrong-type]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_pending_restart_binds_actual_tenant_event_bytes[wrong-tenant]
+4 failed, 3 passed, 855 deselected in 2.40s

@@ -1,0 +1,186 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-tool-qualification-observation.v1",
+  "scope": "isolated-published-artifact-static-qualification",
+  "result": "BLOCKED",
+  "installedVersion": "4.38.0+e171c5a788eab183b32683431b084198c9b8d373",
+  "packageRepository": {
+    "type": "git",
+    "url": "https://github.com/Hexalith/Hexalith.Builds",
+    "branch": "refs/heads/main",
+    "commit": "e171c5a788eab183b32683431b084198c9b8d373"
+  },
+  "sourceIdentities": [
+    {
+      "path": ".config/dotnet-tools.json",
+      "sha256": "5d72a022a9416cb753da75cda1b0f1945fd938c065521fd9946aaa525fe048da"
+    },
+    {
+      "path": "module/hexalith.module-manifest.v2.json",
+      "sha256": "0bed1c297c9c9d78fdb8f37197ac5f71d829191c0535fdd78e4034aaa017bdf0"
+    },
+    {
+      "path": "module/hosting-inventory.json",
+      "sha256": "1bfd46248158637c950cd6764a47f926b1683568218208a0107d3b1ed3ada1e7"
+    },
+    {
+      "path": "references/Hexalith.Platform/.config/dotnet-tools.json",
+      "sha256": "5d72a022a9416cb753da75cda1b0f1945fd938c065521fd9946aaa525fe048da"
+    },
+    {
+      "path": "references/Hexalith.Platform/hexalith-platform.json",
+      "sha256": "3ba6c30a8d602bbc3216f0a4f9f90fb9e1f2e11ea985b4fb5058c3611149fb23"
+    },
+    {
+      "path": "references/Hexalith.Platform/README.md",
+      "sha256": "a5218c3932ca0716c0bbbd7d946858cebeb490d69180221f2f60c9015b561314"
+    },
+    {
+      "path": "references/Hexalith.Platform/docs/domain-module-enrollment.md",
+      "sha256": "f3871a49eb4a741a521ae02378f4fa494d7388313f6bbf22695b114173c4cb44"
+    }
+  ],
+  "platformDisposition": {
+    "versionRange": "[4.35.2, 5.0.0-0)",
+    "rangeAccepted": true,
+    "platformExactPin": "4.35.2",
+    "conversationsExactPin": "4.35.2",
+    "enrollmentPinParity": true,
+    "selectedArtifactIsEnrollmentPin": false,
+    "acceptedPinsChanged": false,
+    "integrationQualified": false,
+    "ownerAcceptanceClaimed": false
+  },
+  "measured": {
+    "ordinaryHumanExit": 0,
+    "ordinaryJsonExit": 0,
+    "adoptionHumanExit": 1,
+    "adoptionJsonExit": 1,
+    "adoptionPassingRows": 7,
+    "adoptionFailingRows": 17,
+    "malformedKeyProbes": 36,
+    "malformedKeyRejections": 36,
+    "signatureExit": 0,
+    "trackedSourceOnly": true,
+    "newPrerequisiteSourcesTrackedAtObservation": false
+  },
+  "adoptionFailures": [
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "Directory.Build.props",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "Directory.Packages.props",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "src/Hexalith.Conversations/Hexalith.Conversations.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "tests/Hexalith.Conversations.Contracts.Tests/ContractPackageInventoryTest.cs",
+      "reason": "Known sibling/nested/package-fallback helper or file-based dependency/mode selection; use only the tool-resolved mapping."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dapr-subscriptions",
+      "passed": false,
+      "file": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs",
+      "reason": "Literal Dapr component name; obtain the name from the declared configuration key."
+    },
+    {
+      "requirement": "dapr-subscriptions",
+      "passed": false,
+      "file": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs",
+      "reason": "Literal Dapr component name; obtain the name from the declared configuration key."
+    },
+    {
+      "requirement": "dapr-subscriptions",
+      "passed": false,
+      "file": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs",
+      "reason": "Literal Dapr component name; obtain the name from the declared configuration key."
+    }
+  ],
+  "blockers": [
+    "ADOPTION_17_FINDINGS",
+    "EXACT_PIN_CHANGE_REQUIRES_RELEASE_SOURCE_PAIR",
+    "PUBLISHED_RUNTIME_REVIEW_OPEN",
+    "PLATFORM_INTEGRATION_QUALIFICATION_PENDING",
+    "HUMAN_SM2_PENDING",
+    "OPERATIONAL_ENVELOPE_PARITY_RECOVERY_PENDING",
+    "SCOPED_OWNER_ENTRY_PENDING"
+  ],
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  }
+}

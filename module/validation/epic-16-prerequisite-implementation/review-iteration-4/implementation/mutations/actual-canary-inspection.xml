@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="5.046" timestamp="2026-10-25T20:46:34.179489+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_actual_canary_scan_cannot_be_replaced_by_matching_emitted_claims[label-AC-16.1-05]" time="0.711"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-373/test_round4_actual_canary_scan0/fixture')
+scenario = 'AC-16.1-05', field = 'label'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('field',['label','businessReference'])
+    def test_round4_actual_canary_scan_cannot_be_replaced_by_matching_emitted_claims(repository,scenario,field):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];payload=json.loads(p['conversationEvents'][0]['payload']);canary=p['canaries']['configuration']
+        if field=='label':payload[field]=canary
+        else:payload[field]['value']=canary
+        encoded=json.dumps(payload);p['conversationEvents'][0]['payload']=p['emittedEvents'][0]=encoded
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1719: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_actual_canary_scan_cannot_be_replaced_by_matching_emitted_claims[label-AC-16.2-05]" time="2.521"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-373/test_round4_actual_canary_scan1/fixture')
+scenario = 'AC-16.2-05', field = 'label'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('field',['label','businessReference'])
+    def test_round4_actual_canary_scan_cannot_be_replaced_by_matching_emitted_claims(repository,scenario,field):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];payload=json.loads(p['conversationEvents'][0]['payload']);canary=p['canaries']['configuration']
+        if field=='label':payload[field]=canary
+        else:payload[field]['value']=canary
+        encoded=json.dumps(payload);p['conversationEvents'][0]['payload']=p['emittedEvents'][0]=encoded
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1719: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_actual_canary_scan_cannot_be_replaced_by_matching_emitted_claims[businessReference-AC-16.1-05]" time="0.707"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-373/test_round4_actual_canary_scan2/fixture')
+scenario = 'AC-16.1-05', field = 'businessReference'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('field',['label','businessReference'])
+    def test_round4_actual_canary_scan_cannot_be_replaced_by_matching_emitted_claims(repository,scenario,field):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];payload=json.loads(p['conversationEvents'][0]['payload']);canary=p['canaries']['configuration']
+        if field=='label':payload[field]=canary
+        else:payload[field]['value']=canary
+        encoded=json.dumps(payload);p['conversationEvents'][0]['payload']=p['emittedEvents'][0]=encoded
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1719: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_actual_canary_scan_cannot_be_replaced_by_matching_emitted_claims[businessReference-AC-16.2-05]" time="0.706"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-373/test_round4_actual_canary_scan3/fixture')
+scenario = 'AC-16.2-05', field = 'businessReference'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('field',['label','businessReference'])
+    def test_round4_actual_canary_scan_cannot_be_replaced_by_matching_emitted_claims(repository,scenario,field):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];payload=json.loads(p['conversationEvents'][0]['payload']);canary=p['canaries']['configuration']
+        if field=='label':payload[field]=canary
+        else:payload[field]['value']=canary
+        encoded=json.dumps(payload);p['conversationEvents'][0]['payload']=p['emittedEvents'][0]=encoded
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1719: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

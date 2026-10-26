@@ -1,0 +1,199 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-adoption-candidate.v2",
+  "status": "candidate-for-owner-review",
+  "source": {
+    "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json",
+    "sha256": "5eeccfb8427e4ebccc1955f965d00e3c5655834a3c3005443c970be2dd99509a"
+  },
+  "preservedContract": {
+    "schemaVersion": "hexalith.conversations.epic16-successor-draft.v1",
+    "status": "draft",
+    "storyId": "16.3",
+    "predecessorContract": "_bmad-output/planning-artifacts/v9/story-contracts/16.3.json",
+    "architectureDecisions": [
+      "AD-5",
+      "AD-6",
+      "AD-7",
+      "AD-8"
+    ],
+    "predecessors": [
+      "16.2"
+    ],
+    "outcome": {
+      "title": "Diagnose AppHost preflight failures and prove terminal reconciliation live",
+      "bounded": "Add stable endpoint-readiness and Dapr control-plane port-collision diagnostics, then prove durable pending work is cleared through the live `project/v2/reconcile` production route and becomes query-visible."
+    },
+    "rollback": {
+      "boundary": "Remove only the diagnostics, AppHost fixtures/tests, route assertions, and Story 16.3 record. Preserve the production route, platform hosting ownership, Stories 16.1/16.2, and public contracts."
+    },
+    "scenarios": [
+      {
+        "id": "AC-16.3-01",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-01 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-01.json",
+        "given": "Given accepted Stories 16.1/16.2, separately authorized entry, an accepted operational envelope, and an explicit baseline-owner/Architect/Runtime AppHost exemption or relocation amendment.",
+        "when": "When an AppHost resource reports healthy but its named effective endpoint remains unavailable for connection within the bounded readiness policy.",
+        "then": "Then preflight fails before the live lane with stable APPHOST_ENDPOINT_NOT_READY, endpoint identity, and bounded retry advice; diagnostics contain no content or tenant data. The non-packable local fixture remains test infrastructure and cannot assert production-provider parity, baseline conformance, or new runtime authority. The AppHost ownership decision remains pending in this draft.",
+        "requirementIds": [
+          "E6-A6-ENDPOINT-READINESS-DIAGNOSTIC",
+          "AD5-ENVIRONMENT-PROVIDER-PARITY",
+          "AD5-DEPENDENCIES-HEALTH-TELEMETRY",
+          "ARCH-APPHOST-OWNERSHIP-DECISION"
+        ]
+      },
+      {
+        "id": "AC-16.3-02",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-02 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-02.json",
+        "given": "Given the effective Dapr control-plane endpoint/port inventory for the isolated live fixture and its provider responsibilities from the operational envelope.",
+        "when": "When one effective Dapr control-plane binding is occupied and the unrelated-port negative case is also exercised.",
+        "then": "Then preflight emits stable DAPR_CONTROL_PLANE_PORT_COLLISION naming the owning endpoint/port before running the lane; unrelated port use does not produce the classification. The fixture restores its own occupied ports and cannot claim environment parity or a capacity waiver through local test topology.",
+        "requirementIds": [
+          "E6-A6-DAPR-PORT-COLLISION-DIAGNOSTIC",
+          "AD5-ENVIRONMENT-PROVIDER-PARITY",
+          "AD5-RECOVERY-RUNBOOKS-SCALING-WAIVERS"
+        ]
+      },
+      {
+        "id": "AC-16.3-03",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-03 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-03.json",
+        "given": "Given a live, authorized AppHost topology using the production EventStore coordinator and the adopted durable tenant and lifecycle/replay seams.",
+        "when": "When a controlled first Conversations projection failure is induced through production delivery.",
+        "then": "Then durable pending or terminal projection work is observable before retry, while tenant access remains fail-closed and derived-state lifecycle/generation checks remain effective. Evidence binds the live runtime, route/catalog identity, and persisted pending state. Direct handler invocation, reflective worker access, query-triggered recovery, and a second reconciliation implementation cannot establish this proof. EventStore owns durable scheduling and acknowledgement; accepted pending outcomes acknowledge only after durable commit.",
+        "requirementIds": [
+          "E6-A6-LIVE-TERMINAL-RECONCILIATION",
+          "AD6-PLATFORM-TENANT-OWNERSHIP",
+          "AD6-ACKNOWLEDGEMENT-RETRY",
+          "AD7-SAFE-QUERY-MAPPINGS"
+        ]
+      },
+      {
+        "id": "AC-16.3-04",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-04 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-04.json",
+        "given": "Given the measured durable terminal item from the live first-failure scenario and authenticated access to the production project/v2/reconcile coordinator/module route.",
+        "when": "When a production reconciliation request is observed on the wire and retry executes through the hosted EventStore coordinator into Conversations.",
+        "then": "Then retry clears the durable terminal item exactly once and corrected persisted projection state becomes visible through production queries. Duplicate requests and concurrent newer progress remain idempotent without erasing newer checkpoints, generations, or watermarks; stale/expired workers cannot clear newer state. Existing tenant authorization, lifecycle mappings, and event-identity/time bindings continue to apply. A direct handler result or mock count cannot replace durable end-state and query evidence.",
+        "requirementIds": [
+          "E6-A6-DURABLE-RETRY-CLEARANCE",
+          "AD6-FENCED-REPLAY-RECOVERY",
+          "AD7-LIFECYCLE-GENERATION-ERASE",
+          "AD7-SAFE-QUERY-MAPPINGS",
+          "AD8-IDENTITY-PAYLOAD-TIME",
+          "AD8-DUPLICATE-FULL-BINDING"
+        ]
+      },
+      {
+        "id": "AC-16.3-05",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-05 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-05.json",
+        "given": "Given isolated route-removal/fingerprint-drift, duplicate-retry, endpoint-race, effective-port-collision, unavailable-Dapr, and empty-test-selection faults.",
+        "when": "When the production-route live lane and preflight are exercised for each fault with bounded cancellation and captured fixture/port state before and after.",
+        "then": "Then each expected stable failure/blocker is observed with a nonempty ledger, no failed/skipped/not-run required result passes, and fixture files/ports restore. Endpoint and provider faults remain distinct from product failures; environmental inability is BLOCKED. Pending/recovery evidence remains durable and tenant/content-safe, unauthorized calls never gain access, and recovery cannot bypass AD-6 fences, AD-7 generation/lifecycle rules, or AD-8 identity/time validation. Required operational health/telemetry and recovery/runbook expectations remain owned by the envelope; tests cannot invent a waiver.",
+        "requirementIds": [
+          "E6-A6-ENDPOINT-READINESS-DIAGNOSTIC",
+          "E6-A6-DAPR-PORT-COLLISION-DIAGNOSTIC",
+          "E6-A6-LIVE-TERMINAL-RECONCILIATION",
+          "E6-A6-DURABLE-RETRY-CLEARANCE",
+          "AD5-DEPENDENCIES-HEALTH-TELEMETRY",
+          "AD5-RECOVERY-RUNBOOKS-SCALING-WAIVERS",
+          "AD6-CONCURRENCY-FAULT-MATRIX",
+          "AD7-LIFECYCLE-GENERATION-ERASE",
+          "AD8-DUPLICATE-FULL-BINDING"
+        ]
+      },
+      {
+        "id": "AC-16.3-06",
+        "legacyCommand": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/16.3.json --format bundle --output-json docs/release-evidence/story-16.3-final-record-v2.json --output-markdown docs/release-evidence/story-16.3-final-record-v2.md",
+        "given": "Given compatible accepted predecessors, a resolved AppHost ownership decision, separate scoped execution authorization, adopted successor contracts, and five passing current measured results.",
+        "when": "When the canonical generator supports the successor and derives the Story 16.3 JSON/Markdown pair.",
+        "then": "Then the summary is 6/6/0/0/0/0 and binds AppHost/runtime identities, production route proof, safe diagnostics, exact candidate/root gitlinks, input/output/fault digests, and unchanged rollback. Preserve production routes, platform hosting ownership, Stories 16.1/16.2, public contracts, and prior evidence. This draft claims no owner approval, accepted envelope/waiver, AppHost exemption, runtime verification, generator compatibility, or execution authority; hold remains ACTIVE.",
+        "requirementIds": [
+          "E6-A6-LIVE-TERMINAL-RECONCILIATION",
+          "E6-A6-DURABLE-RETRY-CLEARANCE",
+          "AD5-ENVELOPE-OWNERSHIP",
+          "ARCH-APPHOST-OWNERSHIP-DECISION"
+        ]
+      }
+    ],
+    "finalRecord": {
+      "paths": [
+        "docs/release-evidence/story-16.3-final-record-v2.json",
+        "docs/release-evidence/story-16.3-final-record-v2.md"
+      ],
+      "summary": {
+        "required": 6,
+        "passed": 6,
+        "failed": 0,
+        "blocked": 0,
+        "skipped": 0,
+        "notRun": 0
+      }
+    },
+    "adoption": {
+      "generatorCompatible": false,
+      "scenarioVerifiersAvailable": false,
+      "requiresOwnerDecision": true
+    }
+  },
+  "futureCommands": [
+    {
+      "scenarioId": "AC-16.3-01",
+      "command": "python3 _bmad/scripts/verify_story_16_3.py --repository . --contract _bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json --scenario AC-16.3-01 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-01.json",
+      "outputs": [
+        "artifacts/v14/16.3/AC-16.3-01.json"
+      ],
+      "state": "unavailable",
+      "executed": false
+    },
+    {
+      "scenarioId": "AC-16.3-02",
+      "command": "python3 _bmad/scripts/verify_story_16_3.py --repository . --contract _bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json --scenario AC-16.3-02 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-02.json",
+      "outputs": [
+        "artifacts/v14/16.3/AC-16.3-02.json"
+      ],
+      "state": "unavailable",
+      "executed": false
+    },
+    {
+      "scenarioId": "AC-16.3-03",
+      "command": "python3 _bmad/scripts/verify_story_16_3.py --repository . --contract _bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json --scenario AC-16.3-03 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-03.json",
+      "outputs": [
+        "artifacts/v14/16.3/AC-16.3-03.json"
+      ],
+      "state": "unavailable",
+      "executed": false
+    },
+    {
+      "scenarioId": "AC-16.3-04",
+      "command": "python3 _bmad/scripts/verify_story_16_3.py --repository . --contract _bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json --scenario AC-16.3-04 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-04.json",
+      "outputs": [
+        "artifacts/v14/16.3/AC-16.3-04.json"
+      ],
+      "state": "unavailable",
+      "executed": false
+    },
+    {
+      "scenarioId": "AC-16.3-05",
+      "command": "python3 _bmad/scripts/verify_story_16_3.py --repository . --contract _bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json --scenario AC-16.3-05 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-05.json",
+      "outputs": [
+        "artifacts/v14/16.3/AC-16.3-05.json"
+      ],
+      "state": "unavailable",
+      "executed": false
+    },
+    {
+      "scenarioId": "AC-16.3-06",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json --format bundle --output-json docs/release-evidence/story-16.3-final-record-v2.json --output-markdown docs/release-evidence/story-16.3-final-record-v2.md",
+      "outputs": [
+        "docs/release-evidence/story-16.3-final-record-v2.json",
+        "docs/release-evidence/story-16.3-final-record-v2.md"
+      ],
+      "state": "unavailable",
+      "executed": false
+    }
+  ],
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  }
+}

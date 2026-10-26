@@ -1,0 +1,10 @@
+namespace Hexalith.Conversations.IntegrationTests.Epic16;
+public sealed class Story16_2EvidenceTests(Xunit.ITestOutputHelper output)
+{
+    private void Emit(string scenario) => output.WriteLine(System.IO.File.ReadAllText(System.IO.Path.Combine(System.Environment.GetEnvironmentVariable("EPIC16_FIXTURE_PAYLOADS")!, scenario+".json")));
+[Xunit.Fact] public void Scenario01() => Emit("AC-16.2-01");
+[Xunit.Fact] public void Scenario02() => Emit("AC-16.2-02");
+[Xunit.Fact] public void Scenario03() => Emit("AC-16.2-03");
+[Xunit.Fact] public void Scenario04() => Emit("AC-16.2-04");
+[Xunit.Fact] public void Scenario05() => Emit("AC-16.2-05");
+}

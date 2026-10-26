@@ -1,0 +1,29 @@
+{
+  "name": "reverse-process-replicas",
+  "path": "_bmad/scripts/epic16_schedules.py",
+  "old": "require(replica not in replicas and process not in [p for p,_ in replicas.values()], 'distinct reverse-save replicas and processes')",
+  "new": "None",
+  "selector": "round12_reverse_save_rejects_coherent_shared_process",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-reverse-process-replicas-risjyx7d/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_reverse_save_rejects_coherent_shared_process",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/reverse-process-replicas/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-reverse-process-replicas-risjyx7d",
+  "exitCode": 1,
+  "elapsedSeconds": 15.261887678992935,
+  "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+  "mutatedSha256": "22873e31faa427e0ca8d83d81de33db6181997a8a3d46a0acf9e5bdb66e4a728",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 4,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0
+  }
+}

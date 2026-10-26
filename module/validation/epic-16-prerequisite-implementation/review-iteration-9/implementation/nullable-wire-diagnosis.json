@@ -1,0 +1,8 @@
+{
+  "fixture": "/tmp/pytest-of-administrator/pytest-574/test_round7_native_nullable_cr2/fixture",
+  "sourceEpochSha256": "a09db8ee134fdf0381c48b98c21fd865f08618a0b6ce42fbfffb076b5b90ebd8",
+  "nativeSha256": "86b7a829d4e32e1cf41f46ab602af57087da543eba8f31a262b023ca7391e39d",
+  "operation": "epic16_measurements.evaluate(AC-16.3-04, captured observations)",
+  "exception": "ValueError",
+  "message": "wire durable outcome binds exact measured transaction and complete persisted state"
+}

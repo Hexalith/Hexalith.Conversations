@@ -1,0 +1,221 @@
+FFFFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+__ test_round5_native_run_level_failure_cannot_hide_behind_passed_test[Error] __
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-392/test_round5_native_run_level_f0/fixture')
+fault = 'Error'
+
+    @pytest.mark.parametrize('fault',['Error','Failed','Aborted','Timeout','NotExecuted','missing-outcome','cleanup-error'])
+    def test_round5_native_run_level_failure_cannot_hide_behind_passed_test(repository,fault):
+        path=native(repository,'AC-16.1-01');tree=ET.fromstring(path.read_bytes());summary=tree.find('ResultSummary')
+        if fault=='cleanup-error':ET.SubElement(ET.SubElement(summary,'Output'),'ErrorInfo')
+        else:
+            info=ET.SubElement(ET.SubElement(summary,'RunInfos'),'RunInfo')
+            if fault!='missing-outcome':info.set('outcome',fault)
+>       path.write_bytes(ET.tostring(tree));rejected(evaluate(repository),'NATIVE_RUN_FAILED')
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1935: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'NATIVE_RUN_FAILED', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round5_native_run_level_failure_cannot_hide_behind_passed_test[Failed] __
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-392/test_round5_native_run_level_f1/fixture')
+fault = 'Failed'
+
+    @pytest.mark.parametrize('fault',['Error','Failed','Aborted','Timeout','NotExecuted','missing-outcome','cleanup-error'])
+    def test_round5_native_run_level_failure_cannot_hide_behind_passed_test(repository,fault):
+        path=native(repository,'AC-16.1-01');tree=ET.fromstring(path.read_bytes());summary=tree.find('ResultSummary')
+        if fault=='cleanup-error':ET.SubElement(ET.SubElement(summary,'Output'),'ErrorInfo')
+        else:
+            info=ET.SubElement(ET.SubElement(summary,'RunInfos'),'RunInfo')
+            if fault!='missing-outcome':info.set('outcome',fault)
+>       path.write_bytes(ET.tostring(tree));rejected(evaluate(repository),'NATIVE_RUN_FAILED')
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1935: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'NATIVE_RUN_FAILED', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round5_native_run_level_failure_cannot_hide_behind_passed_test[Aborted] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-392/test_round5_native_run_level_f2/fixture')
+fault = 'Aborted'
+
+    @pytest.mark.parametrize('fault',['Error','Failed','Aborted','Timeout','NotExecuted','missing-outcome','cleanup-error'])
+    def test_round5_native_run_level_failure_cannot_hide_behind_passed_test(repository,fault):
+        path=native(repository,'AC-16.1-01');tree=ET.fromstring(path.read_bytes());summary=tree.find('ResultSummary')
+        if fault=='cleanup-error':ET.SubElement(ET.SubElement(summary,'Output'),'ErrorInfo')
+        else:
+            info=ET.SubElement(ET.SubElement(summary,'RunInfos'),'RunInfo')
+            if fault!='missing-outcome':info.set('outcome',fault)
+>       path.write_bytes(ET.tostring(tree));rejected(evaluate(repository),'NATIVE_RUN_FAILED')
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1935: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'NATIVE_RUN_FAILED', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round5_native_run_level_failure_cannot_hide_behind_passed_test[Timeout] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-392/test_round5_native_run_level_f3/fixture')
+fault = 'Timeout'
+
+    @pytest.mark.parametrize('fault',['Error','Failed','Aborted','Timeout','NotExecuted','missing-outcome','cleanup-error'])
+    def test_round5_native_run_level_failure_cannot_hide_behind_passed_test(repository,fault):
+        path=native(repository,'AC-16.1-01');tree=ET.fromstring(path.read_bytes());summary=tree.find('ResultSummary')
+        if fault=='cleanup-error':ET.SubElement(ET.SubElement(summary,'Output'),'ErrorInfo')
+        else:
+            info=ET.SubElement(ET.SubElement(summary,'RunInfos'),'RunInfo')
+            if fault!='missing-outcome':info.set('outcome',fault)
+>       path.write_bytes(ET.tostring(tree));rejected(evaluate(repository),'NATIVE_RUN_FAILED')
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1935: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'NATIVE_RUN_FAILED', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round5_native_run_level_failure_cannot_hide_behind_passed_test[NotExecuted] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-392/test_round5_native_run_level_f4/fixture')
+fault = 'NotExecuted'
+
+    @pytest.mark.parametrize('fault',['Error','Failed','Aborted','Timeout','NotExecuted','missing-outcome','cleanup-error'])
+    def test_round5_native_run_level_failure_cannot_hide_behind_passed_test(repository,fault):
+        path=native(repository,'AC-16.1-01');tree=ET.fromstring(path.read_bytes());summary=tree.find('ResultSummary')
+        if fault=='cleanup-error':ET.SubElement(ET.SubElement(summary,'Output'),'ErrorInfo')
+        else:
+            info=ET.SubElement(ET.SubElement(summary,'RunInfos'),'RunInfo')
+            if fault!='missing-outcome':info.set('outcome',fault)
+>       path.write_bytes(ET.tostring(tree));rejected(evaluate(repository),'NATIVE_RUN_FAILED')
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1935: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'NATIVE_RUN_FAILED', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round5_native_run_level_failure_cannot_hide_behind_passed_test[missing-outcome] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-392/test_round5_native_run_level_f5/fixture')
+fault = 'missing-outcome'
+
+    @pytest.mark.parametrize('fault',['Error','Failed','Aborted','Timeout','NotExecuted','missing-outcome','cleanup-error'])
+    def test_round5_native_run_level_failure_cannot_hide_behind_passed_test(repository,fault):
+        path=native(repository,'AC-16.1-01');tree=ET.fromstring(path.read_bytes());summary=tree.find('ResultSummary')
+        if fault=='cleanup-error':ET.SubElement(ET.SubElement(summary,'Output'),'ErrorInfo')
+        else:
+            info=ET.SubElement(ET.SubElement(summary,'RunInfos'),'RunInfo')
+            if fault!='missing-outcome':info.set('outcome',fault)
+>       path.write_bytes(ET.tostring(tree));rejected(evaluate(repository),'NATIVE_RUN_FAILED')
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1935: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'NATIVE_RUN_FAILED', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round5_native_run_level_failure_cannot_hide_behind_passed_test[cleanup-error] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-392/test_round5_native_run_level_f6/fixture')
+fault = 'cleanup-error'
+
+    @pytest.mark.parametrize('fault',['Error','Failed','Aborted','Timeout','NotExecuted','missing-outcome','cleanup-error'])
+    def test_round5_native_run_level_failure_cannot_hide_behind_passed_test(repository,fault):
+        path=native(repository,'AC-16.1-01');tree=ET.fromstring(path.read_bytes());summary=tree.find('ResultSummary')
+        if fault=='cleanup-error':ET.SubElement(ET.SubElement(summary,'Output'),'ErrorInfo')
+        else:
+            info=ET.SubElement(ET.SubElement(summary,'RunInfos'),'RunInfo')
+            if fault!='missing-outcome':info.set('outcome',fault)
+>       path.write_bytes(ET.tostring(tree));rejected(evaluate(repository),'NATIVE_RUN_FAILED')
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1935: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'NATIVE_RUN_FAILED', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_native_run_level_failure_cannot_hide_behind_passed_test[Error]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_native_run_level_failure_cannot_hide_behind_passed_test[Failed]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_native_run_level_failure_cannot_hide_behind_passed_test[Aborted]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_native_run_level_failure_cannot_hide_behind_passed_test[Timeout]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_native_run_level_failure_cannot_hide_behind_passed_test[NotExecuted]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_native_run_level_failure_cannot_hide_behind_passed_test[missing-outcome]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_native_run_level_failure_cannot_hide_behind_passed_test[cleanup-error]
+7 failed, 855 deselected in 2.63s

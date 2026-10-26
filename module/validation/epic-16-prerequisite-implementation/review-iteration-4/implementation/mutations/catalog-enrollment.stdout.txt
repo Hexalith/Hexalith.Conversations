@@ -1,0 +1,30 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_round4_catalog_identity_must_match_bound_actual_module_enrollment ____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-376/test_round4_catalog_identity_m0/fixture')
+
+    def test_round4_catalog_identity_must_match_bound_actual_module_enrollment(repository):
+        path='module/hexalith.module-manifest.v2.json';value=json.loads((repository/path).read_bytes());value['modules'][0]['identity']['servers'][0]['appId']='foreign'
+        dump(repository,path,value);bind(repository);git(repository,'add','.');git(repository,'commit','-qm','test: alter disposable enrollment identity')
+>       native(repository,'AC-16.3-03');rejected(evaluate(repository,'AC-16.3-03'),'CONTRACT_DRIFT')
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1800: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'CONTRACT_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_catalog_identity_must_match_bound_actual_module_enrollment
+1 failed, 795 deselected in 0.63s

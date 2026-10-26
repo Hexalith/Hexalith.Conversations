@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup><Reference Include="xunit.v3.core"><HintPath>/tmp/epic16-edge-fact-jdhey1nj/bin/Debug/net10.0/xunit.v3.core.dll</HintPath></Reference></ItemGroup></Project>

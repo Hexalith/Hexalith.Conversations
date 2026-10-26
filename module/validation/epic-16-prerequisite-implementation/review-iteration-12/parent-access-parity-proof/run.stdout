@@ -1,0 +1,2 @@
+{"Id":"unknown-role","IsAllowed":false,"Denial":"InsufficientRole","Reads":1,"ReadsHealth":1}
+{"Id":"control-principal","IsAllowed":false,"Denial":"MissingCaller","Reads":0,"ReadsHealth":0}

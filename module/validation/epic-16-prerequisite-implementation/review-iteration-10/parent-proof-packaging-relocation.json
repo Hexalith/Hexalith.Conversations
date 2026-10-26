@@ -1,0 +1,10 @@
+{
+  "originalPath": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-proof/experiment/contracts/.gitignore",
+  "retainedPath": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-proof/experiment/contracts/.gitignore.bytes",
+  "sha256": "45ac3cef29cbc5bb8357ab332feaadc20c51cd98d8ac7a353c30a0c55ed1e691",
+  "originalManifest": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-proof-manifest-before-packaging.json",
+  "originalManifestSha256": "f0ec28f0f8e88223b7dafa566fe36ee1837c60b2a2939a43307a835df9a837ff",
+  "currentManifest": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-proof-manifest.json",
+  "currentManifestSha256": "ebbbfd2f69ff5ae76db3d8139fd4b2feea1fa23cc40723244ebd7d59ce580de0",
+  "reason": "Treat archived .gitignore as source bytes instead of active repository ignore policy."
+}

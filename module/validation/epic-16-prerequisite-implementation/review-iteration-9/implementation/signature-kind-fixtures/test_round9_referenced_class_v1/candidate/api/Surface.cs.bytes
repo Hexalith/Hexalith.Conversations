@@ -1,0 +1,1 @@
+namespace Probe; public class Surface { public void Consume(External.Value value) {} }

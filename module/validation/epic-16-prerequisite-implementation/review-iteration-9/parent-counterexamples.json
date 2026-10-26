@@ -1,0 +1,198 @@
+[
+  {
+    "finding": "R9E1/E2 dispatch-omitted",
+    "scenario": "AC-16.2-05",
+    "schema": "accepted",
+    "semantics": "raised",
+    "exceptionType": "StopIteration",
+    "message": ""
+  },
+  {
+    "finding": "R9E1/E2 foreign-dispatch",
+    "scenario": "AC-16.2-05",
+    "schema": "accepted",
+    "checks": [
+      "public-surface",
+      "tenant-isolation",
+      "generation-mismatch",
+      "replay-query-dependencies"
+    ],
+    "semantics": "accepted"
+  },
+  {
+    "finding": "R9E1/E2 pending-dispatch",
+    "scenario": "AC-16.2-05",
+    "schema": "accepted",
+    "checks": [
+      "public-surface",
+      "tenant-isolation",
+      "generation-mismatch",
+      "replay-query-dependencies"
+    ],
+    "semantics": "accepted"
+  },
+  {
+    "finding": "R9B4 unsupported lifecycle",
+    "scenario": "AC-16.2-03",
+    "schema": "accepted",
+    "checks": [
+      "query-mapping-matrix",
+      "current-empty-proof",
+      "authorization-before-read",
+      "sole-control-index"
+    ],
+    "semantics": "accepted"
+  },
+  {
+    "finding": "R9B4 unsupported providerState",
+    "scenario": "AC-16.2-03",
+    "schema": "accepted",
+    "checks": [
+      "query-mapping-matrix",
+      "current-empty-proof",
+      "authorization-before-read",
+      "sole-control-index"
+    ],
+    "semantics": "accepted"
+  },
+  {
+    "finding": "R9B3 negative controls absent",
+    "scenario": "AC-16.2-02",
+    "schema": "accepted",
+    "checks": [
+      "canonical-replay-bytes",
+      "hash-and-roundtrip",
+      "event-derived-anchor",
+      "observation-freshness"
+    ],
+    "semantics": "accepted",
+    "relevantFields": {
+      "unorderedCollectionPersisted": false,
+      "generationBeforeAnchorState": "Unavailable"
+    }
+  },
+  {
+    "finding": "R9B5 warning removal only scalar",
+    "scenario": "AC-16.1-05",
+    "schema": "accepted",
+    "checks": [
+      "additive-contracts",
+      "tenant-safety",
+      "platform-ownership",
+      "warning-proof-dependencies"
+    ],
+    "semantics": "accepted",
+    "relevantFields": {
+      "warningRemoved": true
+    }
+  },
+  {
+    "finding": "R9B9 no executed wire request",
+    "scenario": "AC-16.3-04",
+    "schema": "accepted",
+    "checks": [
+      "production-wire-route",
+      "durable-idempotent-clearance",
+      "query-visible-endstate",
+      "newer-progress-fences"
+    ],
+    "semantics": "accepted",
+    "relevantFields": {
+      "wireRoute": "project/v2/reconcile",
+      "authenticated": true,
+      "coordinator": "EventStore"
+    }
+  },
+  {
+    "finding": "R9B10 no emitted bounded retry advice",
+    "scenario": "AC-16.3-01",
+    "schema": "accepted",
+    "checks": [
+      "effective-endpoint",
+      "bounded-preflight",
+      "stable-diagnostic",
+      "content-safe"
+    ],
+    "semantics": "accepted",
+    "relevantFields": {
+      "diagnostics": [
+        {
+          "code": "APPHOST_ENDPOINT_NOT_READY",
+          "endpointId": "conversations-http",
+          "owner": "apphost",
+          "port": 50000,
+          "attempts": 3
+        }
+      ]
+    }
+  },
+  {
+    "finding": "R9V1 missing Python dependency",
+    "story": "16.1",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "/tmp/epic16-review9-partial-1h6104ml/_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      "/home/administrator/projects/hexalith/conversations",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-01"
+    ],
+    "exitCode": 1,
+    "stdoutEmpty": true,
+    "stderrContainsModuleNotFoundError": true
+  },
+  {
+    "finding": "R9V1 missing Python dependency",
+    "story": "16.2",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "/tmp/epic16-review9-partial-1h6104ml/_bmad/scripts/verify_story_16_2.py",
+      "--repository",
+      "/home/administrator/projects/hexalith/conversations",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "--scenario",
+      "AC-16.2-01"
+    ],
+    "exitCode": 1,
+    "stdoutEmpty": true,
+    "stderrContainsModuleNotFoundError": true
+  },
+  {
+    "finding": "R9V1 missing Python dependency",
+    "story": "16.3",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "/tmp/epic16-review9-partial-1h6104ml/_bmad/scripts/verify_story_16_3.py",
+      "--repository",
+      "/home/administrator/projects/hexalith/conversations",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+      "--scenario",
+      "AC-16.3-01"
+    ],
+    "exitCode": 1,
+    "stdoutEmpty": true,
+    "stderrContainsModuleNotFoundError": true
+  },
+  {
+    "finding": "R9B6 retained inventory after content replacement",
+    "originalRowsFrom": "/tmp/pytest-of-administrator/pytest-489/test_round6_genuine_native_cap0/fresh-checkout",
+    "artifacts": 6,
+    "initialAccepted": true,
+    "laterAccepted": true,
+    "allClaimedDigestsNowWrong": true,
+    "scopeNote": "Demonstrates absent boundary recheck; does not claim protection against a hostile concurrent mutator."
+  },
+  {
+    "finding": "R9B1 unchanged existing default CI selection",
+    "baseline": "8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3",
+    "unchanged": {
+      ".github/workflows/ci.yml": true,
+      "pyproject.toml": true,
+      "package.json": true
+    }
+  }
+]

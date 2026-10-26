@@ -1,0 +1,29 @@
+{
+  "id": "R10P1",
+  "verdict": "medium",
+  "source": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+  "actualBadOutcome": "Metadata provider admission accepts inherited classic/generic collection conflict that genuine pinned xUnit rejects during discovery.",
+  "scope": "Step-03 parent verification; explicit existing constructor/provider requirement. No change to approved intent.",
+  "frozenSource": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/final-source.json",
+    "sha256": "eac619e5a3c2611074f1c69290f12293e0ae21127ec4776b51a3b2fcfd9e8bd7",
+    "originalPath": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-source.json"
+  },
+  "inspectorSourceSha256": "dd69b9053eacb9457146cbad909157dd2f6c5fd9f0430eabb04e67658699faeb",
+  "files": {
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/Evidence.csproj": "d5b97446ac156c3af905a9cef2824cb2dfec75a075fa5b6566ae889421565c1d",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/Evidence.deps.json": "d51a844887075f46c49ba532e037607eaa1bd38a0926aeceb8bb132de34701c1",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/Evidence.dll.bytes": "b8d7056ff586a6f3ca062b71a4a84cd7557584cc5c8f385572956f9f36b6fe85",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/Evidence.runtimeconfig.json": "f9bc8e9f0c46247078ed47309f19a7576b4b94e4300e9de0003917d6bd2d667a",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/Tests.cs": "2f5a3d630f4f89800568731677dd8cda44e067cad594b165e76d976e410950fc",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/build.stdout": "f5690d45666fbee16568f6dfdd17bc59f0e21356cf0c26f0eb190cdbbfe9cb13",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/global.json": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/result.json": "8d03d942878c172775230fc60172e8ab9df618641667d1c0b9eca37a68c51e1d",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/runner.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/runner.stdout": "23aac8750ff78c8456620834a343a9032aec6f501e360d4abb1d95feb64b2857"
+  },
+  "runnerDiagnostic": "System.ArgumentException: More than one collection attribute was found",
+  "runnerLimitation": "No successful runner exit asserted; process was bounded to eight seconds after discovery diagnostic.",
+  "disposition": "Worker notified to preserve interrupted epoch, correct inherited concrete-attribute ambiguity, and retain real positive/negative controls before final refreeze."
+}

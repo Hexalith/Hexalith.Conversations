@@ -1,0 +1,60 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "/tmp/epic16-review11-parent-audit.py"
+      ],
+      "retainedScript": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-audit-scripts/epic16-review11-parent-audit.py",
+      "scriptSha256": "5bfc3001f8e6b68e6a007473d043061c439674d49f53fb5907fedb2fc391f263",
+      "finalExitCode": 0,
+      "result": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-audit.json",
+      "resultSha256": "b5341da4a91e86835ddf8eee350f882b78323f2a493c1108969d5e1220c8c032"
+    },
+    {
+      "argv": [
+        "python3",
+        "/tmp/epic16-review11-parent-artifacts.py"
+      ],
+      "retainedScript": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-audit-scripts/epic16-review11-parent-artifacts.py",
+      "scriptSha256": "fe27bddd152b4b64041df200b8f8c0022c8baf96fd648cd007bbd8e31532a0e9",
+      "finalExitCode": 0,
+      "result": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-artifact-audit.json",
+      "resultSha256": "626d1e3bb2c4594da52c1f365c2ad07bdd41b88c8c835797b572b0179808d81b"
+    },
+    {
+      "argv": [
+        "python3",
+        "/tmp/epic16-review11-parent-mutations.py"
+      ],
+      "retainedScript": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-audit-scripts/epic16-review11-parent-mutations.py",
+      "scriptSha256": "2b9915b73b0dda4e51eb2f1f369d8afb54d83fc7410961428eaa7e17887e74c8",
+      "finalExitCode": 0,
+      "result": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-mutation-audit.json",
+      "resultSha256": "c136d7358346d742f17f036e17902a9710ccda65d9ece4566718c00aece4aa1a"
+    },
+    {
+      "argv": [
+        "python3",
+        "/tmp/epic16-review11-parent-native-retention.py"
+      ],
+      "retainedScript": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-audit-scripts/epic16-review11-parent-native-retention.py",
+      "scriptSha256": "ed7250b3d8a350f03f588fd4387d495094ecf0586531f231898c881b284bb306",
+      "finalExitCode": 0,
+      "result": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-native-retention-audit.json",
+      "resultSha256": "5b897ca9511eeaa8807749d4654d858dd8ea3671a9507d584f140eac114cb223"
+    },
+    {
+      "argv": [
+        "python3",
+        "/tmp/epic16-review11-parent-source.py"
+      ],
+      "retainedScript": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-audit-scripts/epic16-review11-parent-source.py",
+      "scriptSha256": "e9e367049cca0feda6d9a28d996d88936044c71717dfe5e53d69f7ac9bdb23d4",
+      "finalExitCode": 0,
+      "result": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-source-audit.json",
+      "resultSha256": "36bc354a865a9dc7048251a1b8a40a93ce1b2ee41b9a9e88994fc12a07af1932"
+    }
+  ],
+  "notes": "Initial source audit used the undeclared archived .gitignore path; corrected mapping verified. Initial mutation audit assumed textual replacement; exact structured schema mutation and sole trust-pin adjustment subsequently verified."
+}

@@ -462,3 +462,6 @@ _bmad/render/
 !/artifacts/v9/10.3/AC-10.3-05.xml
 !/artifacts/v9/10.3/AC-10.3-06.xml
 !/artifacts/v9/10.3/AC-10.3-07.xml
+
+# Retain exact native outputs and archived build bytes bound by prerequisite evidence.
+!/module/validation/epic-16-prerequisite-implementation/**

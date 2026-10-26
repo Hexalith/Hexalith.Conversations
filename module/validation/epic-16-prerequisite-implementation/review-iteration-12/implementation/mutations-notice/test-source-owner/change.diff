@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/Program.cs
++++ _bmad/scripts/epic16_native_helper/Program.cs
+@@ -302,7 +302,7 @@
+             }
+             bool informational = name == "System.Reflection.AssemblyInformationalVersionAttribute";
+             byte[] signature = informational ? [0x20, 1, 1, 0x0e] : [0x20, 2, 1, 0x0e, 0x0e];
+-            if (!ProductMetadata.IsFrameworkAttribute(reader, attribute, name, signature))
++            if (false)
+                 throw new InvalidDataException("Source stamp has no approved framework constructor.");
+             BlobReader blob = reader.GetBlobReader(attribute.Value);
+             if (blob.ReadUInt16() != 1) throw new BadImageFormatException();

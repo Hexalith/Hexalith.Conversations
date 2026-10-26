@@ -1,0 +1,91 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_round10_final_inventory_rechecks_compiled_baseline_bytes_and_aliases[bytes] _
+
+round10_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-601/test_round10_final_inventory_r0/fixture')
+fault = 'bytes'
+
+    @pytest.mark.parametrize('fault',['bytes','hardlink','symlink'])
+    def test_round10_final_inventory_rechecks_compiled_baseline_bytes_and_aliases(round10_runtime,fault):
+        repo=round10_runtime;rows=[tooling.evaluate(repo,'16.1',f'AC-16.1-0{n}') for n in range(1,6)]
+        assert all(r['result']=='PASS' for r in rows),rows
+        for row in rows:dump(repo,tooling.receipt_path('runtime',row['scenarioId']),row)
+>       with tooling.ContainedReader(repo) as reader:assert tooling.capture.inventory(reader,'16.1',rows,tooling.need)
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3928: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_capture.py:141: in inventory
+    need(directory_names(reader,root+'/binaries') == {path.rsplit('/',1)[1] for path in artifacts if path.endswith('.dll')}, 'NATIVE_CAPTURE_INVENTORY', root+'/binaries')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, code = 'NATIVE_CAPTURE_INVENTORY'
+subject = 'artifacts/epic16-runtime/16.1/binaries', blocked = False
+
+    def need(condition, code, subject, *, blocked=False):
+        if not condition:
+>           raise Stop(code, subject, blocked=blocked)
+E           epic16_tooling.Stop: NATIVE_CAPTURE_INVENTORY
+
+_bmad/scripts/epic16_tooling.py:104: Stop
+_ test_round10_final_inventory_rechecks_compiled_baseline_bytes_and_aliases[hardlink] _
+
+round10_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-601/test_round10_final_inventory_r1/fixture')
+fault = 'hardlink'
+
+    @pytest.mark.parametrize('fault',['bytes','hardlink','symlink'])
+    def test_round10_final_inventory_rechecks_compiled_baseline_bytes_and_aliases(round10_runtime,fault):
+        repo=round10_runtime;rows=[tooling.evaluate(repo,'16.1',f'AC-16.1-0{n}') for n in range(1,6)]
+        assert all(r['result']=='PASS' for r in rows),rows
+        for row in rows:dump(repo,tooling.receipt_path('runtime',row['scenarioId']),row)
+>       with tooling.ContainedReader(repo) as reader:assert tooling.capture.inventory(reader,'16.1',rows,tooling.need)
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3928: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_capture.py:141: in inventory
+    need(directory_names(reader,root+'/binaries') == {path.rsplit('/',1)[1] for path in artifacts if path.endswith('.dll')}, 'NATIVE_CAPTURE_INVENTORY', root+'/binaries')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, code = 'NATIVE_CAPTURE_INVENTORY'
+subject = 'artifacts/epic16-runtime/16.1/binaries', blocked = False
+
+    def need(condition, code, subject, *, blocked=False):
+        if not condition:
+>           raise Stop(code, subject, blocked=blocked)
+E           epic16_tooling.Stop: NATIVE_CAPTURE_INVENTORY
+
+_bmad/scripts/epic16_tooling.py:104: Stop
+_ test_round10_final_inventory_rechecks_compiled_baseline_bytes_and_aliases[symlink] _
+
+round10_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-601/test_round10_final_inventory_r2/fixture')
+fault = 'symlink'
+
+    @pytest.mark.parametrize('fault',['bytes','hardlink','symlink'])
+    def test_round10_final_inventory_rechecks_compiled_baseline_bytes_and_aliases(round10_runtime,fault):
+        repo=round10_runtime;rows=[tooling.evaluate(repo,'16.1',f'AC-16.1-0{n}') for n in range(1,6)]
+        assert all(r['result']=='PASS' for r in rows),rows
+        for row in rows:dump(repo,tooling.receipt_path('runtime',row['scenarioId']),row)
+>       with tooling.ContainedReader(repo) as reader:assert tooling.capture.inventory(reader,'16.1',rows,tooling.need)
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3928: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_capture.py:141: in inventory
+    need(directory_names(reader,root+'/binaries') == {path.rsplit('/',1)[1] for path in artifacts if path.endswith('.dll')}, 'NATIVE_CAPTURE_INVENTORY', root+'/binaries')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, code = 'NATIVE_CAPTURE_INVENTORY'
+subject = 'artifacts/epic16-runtime/16.1/binaries', blocked = False
+
+    def need(condition, code, subject, *, blocked=False):
+        if not condition:
+>           raise Stop(code, subject, blocked=blocked)
+E           epic16_tooling.Stop: NATIVE_CAPTURE_INVENTORY
+
+_bmad/scripts/epic16_tooling.py:104: Stop
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_final_inventory_rechecks_compiled_baseline_bytes_and_aliases[bytes]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_final_inventory_rechecks_compiled_baseline_bytes_and_aliases[hardlink]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_final_inventory_rechecks_compiled_baseline_bytes_and_aliases[symlink]
+3 failed, 1975 deselected in 30.51s

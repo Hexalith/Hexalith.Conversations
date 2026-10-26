@@ -1,0 +1,1 @@
+<Project><ItemGroup><Compile Remove="PreviouslyPublic.cs" /></ItemGroup></Project>

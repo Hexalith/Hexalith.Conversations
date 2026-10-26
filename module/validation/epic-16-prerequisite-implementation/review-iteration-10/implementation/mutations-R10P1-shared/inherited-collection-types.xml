@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="31.750" timestamp="2026-10-26T03:46:33.791147+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_inherited_collection_attributes_match_actual_runner[mixed-shared-name-generic]" time="11.587"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-608/test_round10_inherited_collect0')
+shape = 'mixed-shared-name-generic'
+
+    @pytest.mark.parametrize('shape', ['inherited-name','inherited-generic','override-name','override-type','override-generic','mixed-name-generic','mixed-generic-name','mixed-generic-types','mixed-declared','mixed-shared-name-generic','mixed-shared-generic-name','mixed-shared-generic-types'])
+    def test_round10_inherited_collection_attributes_match_actual_runner(tmp_path,shape):
+        """Actual reflection suppresses inherited attributes only by their concrete type."""
+        choices={
+            'inherited-name':('[Xunit.Collection("a")]','', 'A',True),
+            'inherited-generic':('[Xunit.Collection&lt;GroupA&gt;]','', 'A',True),
+            'override-name':('[Xunit.Collection("a")]','[Xunit.Collection("b")]', 'B',True),
+            'override-type':('[Xunit.Collection("a")]','[Xunit.Collection(typeof(GroupB))]', 'B',True),
+            'override-generic':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection&lt;GroupA&gt;]', 'A',True),
+            'mixed-name-generic':('[Xunit.Collection("a")]','[Xunit.Collection&lt;GroupB&gt;]', 'B',False),
+            'mixed-generic-name':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection("b")]', 'B',False),
+            'mixed-generic-types':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection&lt;GroupB&gt;]', 'B',False),
+            'mixed-declared':('','[Xunit.Collection("a"), Xunit.Collection&lt;GroupB&gt;]', 'B',False),
+            'mixed-shared-name-generic':('[Xunit.Collection("a")]','[Xunit.Collection&lt;GroupB&gt;]', 'A',False),
+            'mixed-shared-generic-name':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection("b")]', 'A',False),
+            'mixed-shared-generic-types':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection&lt;GroupB&gt;]', 'A',False),
+        }
+        inherited,declared,parameter,expected=choices[shape]
+        directory=tmp_path/'runner';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Evidence.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;OutputType&gt;Exe&lt;/OutputType&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;PackageReference Include="xunit.v3" Version="4.0.2" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+        code='[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]\nnamespace Synthetic;\npublic class A {} public class B {}\n[Xunit.CollectionDefinition("a")] public class GroupA : Xunit.ICollectionFixture&lt;A&gt; {}\n[Xunit.CollectionDefinition("b")] public class GroupB : Xunit.ICollectionFixture&lt;B&gt; {}\n'+inherited+' public class Base {}\n'+declared+' public class TestClass : Base { public TestClass('+parameter+' value) { System.ArgumentNullException.ThrowIfNull(value); } [Xunit.Fact] public void Scenario01() {} }\n'
+        if shape.startswith('mixed-shared-'):code=code.replace('ICollectionFixture&lt;B&gt;', 'ICollectionFixture&lt;A&gt;')
+        (directory/'Tests.cs').write_text(code)
+        command=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        binary=(directory/'bin/Debug/net10.0/Evidence.dll').read_bytes();trx=directory/'result.trx'
+        runner=['dotnet',str(directory/'bin/Debug/net10.0/Evidence.dll'),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(trx)]
+        timed_out=False
+        with subprocess.Popen(runner,stdout=subprocess.PIPE,stderr=subprocess.PIPE) as process:
+            try:stdout,stderr=process.communicate(timeout=120 if expected else 8)
+            except subprocess.TimeoutExpired:
+                timed_out=True;process.kill();stdout,stderr=process.communicate()
+            exit_code=process.returncode
+        if expected:
+            assert not timed_out and exit_code==0,(shape,stdout,stderr)
+            counts=records.parse_trx(trx.read_bytes())['recomputed'];assert counts['passed']==1 and counts['failed']==0
+        else:
+            assert b'More than one collection attribute was found on test class Synthetic.TestClass' in stdout,(shape,stdout,stderr)
+            assert b'System.ArgumentException' in stdout and (timed_out or exit_code!=0)
+        if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+            retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('inherited-collection-'+shape);retain.mkdir(parents=True,exist_ok=True)
+            for name,data in [('Tests.cs',code.encode()),('Evidence.dll',binary),('build.stdout',build.stdout),('build.stderr',build.stderr),('run.stdout',stdout),('run.stderr',stderr)]: (retain/name).write_bytes(data)
+            if trx.exists():(retain/'result.trx').write_bytes(trx.read_bytes())
+            (retain/'commands.json').write_text(json.dumps(dict(build=command,run=runner,buildExit=build.returncode,runExit=exit_code,timedOut=timed_out,timeoutSeconds=120 if expected else 8,expectedRunnable=expected),indent=2)+'\n')
+        if expected:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        else:
+&gt;           with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')
+E           Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:3984: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_inherited_collection_attributes_match_actual_runner[mixed-shared-generic-name]" time="9.749"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-608/test_round10_inherited_collect1')
+shape = 'mixed-shared-generic-name'
+
+    @pytest.mark.parametrize('shape', ['inherited-name','inherited-generic','override-name','override-type','override-generic','mixed-name-generic','mixed-generic-name','mixed-generic-types','mixed-declared','mixed-shared-name-generic','mixed-shared-generic-name','mixed-shared-generic-types'])
+    def test_round10_inherited_collection_attributes_match_actual_runner(tmp_path,shape):
+        """Actual reflection suppresses inherited attributes only by their concrete type."""
+        choices={
+            'inherited-name':('[Xunit.Collection("a")]','', 'A',True),
+            'inherited-generic':('[Xunit.Collection&lt;GroupA&gt;]','', 'A',True),
+            'override-name':('[Xunit.Collection("a")]','[Xunit.Collection("b")]', 'B',True),
+            'override-type':('[Xunit.Collection("a")]','[Xunit.Collection(typeof(GroupB))]', 'B',True),
+            'override-generic':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection&lt;GroupA&gt;]', 'A',True),
+            'mixed-name-generic':('[Xunit.Collection("a")]','[Xunit.Collection&lt;GroupB&gt;]', 'B',False),
+            'mixed-generic-name':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection("b")]', 'B',False),
+            'mixed-generic-types':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection&lt;GroupB&gt;]', 'B',False),
+            'mixed-declared':('','[Xunit.Collection("a"), Xunit.Collection&lt;GroupB&gt;]', 'B',False),
+            'mixed-shared-name-generic':('[Xunit.Collection("a")]','[Xunit.Collection&lt;GroupB&gt;]', 'A',False),
+            'mixed-shared-generic-name':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection("b")]', 'A',False),
+            'mixed-shared-generic-types':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection&lt;GroupB&gt;]', 'A',False),
+        }
+        inherited,declared,parameter,expected=choices[shape]
+        directory=tmp_path/'runner';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Evidence.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;OutputType&gt;Exe&lt;/OutputType&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;PackageReference Include="xunit.v3" Version="4.0.2" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+        code='[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]\nnamespace Synthetic;\npublic class A {} public class B {}\n[Xunit.CollectionDefinition("a")] public class GroupA : Xunit.ICollectionFixture&lt;A&gt; {}\n[Xunit.CollectionDefinition("b")] public class GroupB : Xunit.ICollectionFixture&lt;B&gt; {}\n'+inherited+' public class Base {}\n'+declared+' public class TestClass : Base { public TestClass('+parameter+' value) { System.ArgumentNullException.ThrowIfNull(value); } [Xunit.Fact] public void Scenario01() {} }\n'
+        if shape.startswith('mixed-shared-'):code=code.replace('ICollectionFixture&lt;B&gt;', 'ICollectionFixture&lt;A&gt;')
+        (directory/'Tests.cs').write_text(code)
+        command=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        binary=(directory/'bin/Debug/net10.0/Evidence.dll').read_bytes();trx=directory/'result.trx'
+        runner=['dotnet',str(directory/'bin/Debug/net10.0/Evidence.dll'),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(trx)]
+        timed_out=False
+        with subprocess.Popen(runner,stdout=subprocess.PIPE,stderr=subprocess.PIPE) as process:
+            try:stdout,stderr=process.communicate(timeout=120 if expected else 8)
+            except subprocess.TimeoutExpired:
+                timed_out=True;process.kill();stdout,stderr=process.communicate()
+            exit_code=process.returncode
+        if expected:
+            assert not timed_out and exit_code==0,(shape,stdout,stderr)
+            counts=records.parse_trx(trx.read_bytes())['recomputed'];assert counts['passed']==1 and counts['failed']==0
+        else:
+            assert b'More than one collection attribute was found on test class Synthetic.TestClass' in stdout,(shape,stdout,stderr)
+            assert b'System.ArgumentException' in stdout and (timed_out or exit_code!=0)
+        if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+            retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('inherited-collection-'+shape);retain.mkdir(parents=True,exist_ok=True)
+            for name,data in [('Tests.cs',code.encode()),('Evidence.dll',binary),('build.stdout',build.stdout),('build.stderr',build.stderr),('run.stdout',stdout),('run.stderr',stderr)]: (retain/name).write_bytes(data)
+            if trx.exists():(retain/'result.trx').write_bytes(trx.read_bytes())
+            (retain/'commands.json').write_text(json.dumps(dict(build=command,run=runner,buildExit=build.returncode,runExit=exit_code,timedOut=timed_out,timeoutSeconds=120 if expected else 8,expectedRunnable=expected),indent=2)+'\n')
+        if expected:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        else:
+&gt;           with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')
+E           Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:3984: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round10_inherited_collection_attributes_match_actual_runner[mixed-shared-generic-types]" time="9.789"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-608/test_round10_inherited_collect2')
+shape = 'mixed-shared-generic-types'
+
+    @pytest.mark.parametrize('shape', ['inherited-name','inherited-generic','override-name','override-type','override-generic','mixed-name-generic','mixed-generic-name','mixed-generic-types','mixed-declared','mixed-shared-name-generic','mixed-shared-generic-name','mixed-shared-generic-types'])
+    def test_round10_inherited_collection_attributes_match_actual_runner(tmp_path,shape):
+        """Actual reflection suppresses inherited attributes only by their concrete type."""
+        choices={
+            'inherited-name':('[Xunit.Collection("a")]','', 'A',True),
+            'inherited-generic':('[Xunit.Collection&lt;GroupA&gt;]','', 'A',True),
+            'override-name':('[Xunit.Collection("a")]','[Xunit.Collection("b")]', 'B',True),
+            'override-type':('[Xunit.Collection("a")]','[Xunit.Collection(typeof(GroupB))]', 'B',True),
+            'override-generic':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection&lt;GroupA&gt;]', 'A',True),
+            'mixed-name-generic':('[Xunit.Collection("a")]','[Xunit.Collection&lt;GroupB&gt;]', 'B',False),
+            'mixed-generic-name':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection("b")]', 'B',False),
+            'mixed-generic-types':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection&lt;GroupB&gt;]', 'B',False),
+            'mixed-declared':('','[Xunit.Collection("a"), Xunit.Collection&lt;GroupB&gt;]', 'B',False),
+            'mixed-shared-name-generic':('[Xunit.Collection("a")]','[Xunit.Collection&lt;GroupB&gt;]', 'A',False),
+            'mixed-shared-generic-name':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection("b")]', 'A',False),
+            'mixed-shared-generic-types':('[Xunit.Collection&lt;GroupA&gt;]','[Xunit.Collection&lt;GroupB&gt;]', 'A',False),
+        }
+        inherited,declared,parameter,expected=choices[shape]
+        directory=tmp_path/'runner';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Evidence.csproj').write_text('&lt;Project Sdk="Microsoft.NET.Sdk"&gt;&lt;PropertyGroup&gt;&lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;&lt;OutputType&gt;Exe&lt;/OutputType&gt;&lt;GenerateAssemblyInfo&gt;false&lt;/GenerateAssemblyInfo&gt;&lt;/PropertyGroup&gt;&lt;ItemGroup&gt;&lt;PackageReference Include="xunit.v3" Version="4.0.2" /&gt;&lt;/ItemGroup&gt;&lt;/Project&gt;')
+        code='[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]\nnamespace Synthetic;\npublic class A {} public class B {}\n[Xunit.CollectionDefinition("a")] public class GroupA : Xunit.ICollectionFixture&lt;A&gt; {}\n[Xunit.CollectionDefinition("b")] public class GroupB : Xunit.ICollectionFixture&lt;B&gt; {}\n'+inherited+' public class Base {}\n'+declared+' public class TestClass : Base { public TestClass('+parameter+' value) { System.ArgumentNullException.ThrowIfNull(value); } [Xunit.Fact] public void Scenario01() {} }\n'
+        if shape.startswith('mixed-shared-'):code=code.replace('ICollectionFixture&lt;B&gt;', 'ICollectionFixture&lt;A&gt;')
+        (directory/'Tests.cs').write_text(code)
+        command=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        binary=(directory/'bin/Debug/net10.0/Evidence.dll').read_bytes();trx=directory/'result.trx'
+        runner=['dotnet',str(directory/'bin/Debug/net10.0/Evidence.dll'),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(trx)]
+        timed_out=False
+        with subprocess.Popen(runner,stdout=subprocess.PIPE,stderr=subprocess.PIPE) as process:
+            try:stdout,stderr=process.communicate(timeout=120 if expected else 8)
+            except subprocess.TimeoutExpired:
+                timed_out=True;process.kill();stdout,stderr=process.communicate()
+            exit_code=process.returncode
+        if expected:
+            assert not timed_out and exit_code==0,(shape,stdout,stderr)
+            counts=records.parse_trx(trx.read_bytes())['recomputed'];assert counts['passed']==1 and counts['failed']==0
+        else:
+            assert b'More than one collection attribute was found on test class Synthetic.TestClass' in stdout,(shape,stdout,stderr)
+            assert b'System.ArgumentException' in stdout and (timed_out or exit_code!=0)
+        if os.environ.get('EPIC16_R10_NATIVE_EVIDENCE'):
+            retain=Path(os.environ['EPIC16_R10_NATIVE_EVIDENCE'])/('inherited-collection-'+shape);retain.mkdir(parents=True,exist_ok=True)
+            for name,data in [('Tests.cs',code.encode()),('Evidence.dll',binary),('build.stdout',build.stdout),('build.stderr',build.stderr),('run.stdout',stdout),('run.stderr',stderr)]: (retain/name).write_bytes(data)
+            if trx.exists():(retain/'result.trx').write_bytes(trx.read_bytes())
+            (retain/'commands.json').write_text(json.dumps(dict(build=command,run=runner,buildExit=build.returncode,runExit=exit_code,timedOut=timed_out,timeoutSeconds=120 if expected else 8,expectedRunnable=expected),indent=2)+'\n')
+        if expected:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        else:
+&gt;           with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')
+E           Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:3984: Failed</failure></testcase></testsuite></testsuites>

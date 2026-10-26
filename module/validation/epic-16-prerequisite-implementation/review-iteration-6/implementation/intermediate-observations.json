@@ -1,0 +1,55 @@
+{
+  "scope": "intermediate source epochs; superseded by final verification",
+  "streamRetention": "These exploratory results were reported in tool output; separate stdout/stderr files were not captured for these seven selectors. The first six command strings were transcribed. The final corrected checkpoint/concurrent selector is retained only as an observed result, not a reconstructed exact command. Final combined/legacy/mutation/held/workflow commands retain exact separate streams and JUnit.",
+  "observations": [
+    {
+      "command": "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'all_fifteen or final_record_derives_sixth' --maxfail=2",
+      "exitCode": 1,
+      "passed": 16,
+      "failed": 2,
+      "seconds": 22.02,
+      "disposition": "New negative-port occupancy schema inferred a non-null endpoint ID; corrected to the existing nullable endpoint inventory schema."
+    },
+    {
+      "command": "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'all_fifteen or runtime_insertion or qualified_runtime_evaluate or runtime_evaluator_admits or port_domain_includes' --maxfail=3",
+      "exitCode": 0,
+      "passed": 22,
+      "seconds": 27.29
+    },
+    {
+      "command": "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'round6 and not capture' --maxfail=3",
+      "exitCode": 0,
+      "passed": 150,
+      "seconds": 105.42
+    },
+    {
+      "command": "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'round6 and capture' --maxfail=3",
+      "exitCode": 1,
+      "passed": 37,
+      "failed": 1,
+      "seconds": 34.99,
+      "disposition": "Disposable capture producer assumed the synthetic StdOut element spelling. Replaced that extraction with the existing shared TRX parser; raw genuine TRX remains unmodified."
+    },
+    {
+      "command": "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'genuine_native_capture_publication' --maxfail=1",
+      "exitCode": 0,
+      "passed": 1,
+      "seconds": 30.47
+    },
+    {
+      "command": "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'round6_capture_rejects or requires_pending_event_derived' --maxfail=2",
+      "exitCode": 0,
+      "passed": 38,
+      "seconds": 14.73
+    },
+    {
+      "command": null,
+      "selectorDescription": "corrected ahead-of-recovery checkpoint and concurrent stale-schedule checks",
+      "exitCode": 0,
+      "passed": 47,
+      "deselected": 1004,
+      "seconds": 30.43,
+      "disposition": "Final schema/helper descriptions and checkpoint-negative input 5; subsequently included in the complete final 1,213-pass run. Exact selector string and separate streams were not retained in this artifact."
+    }
+  ]
+}

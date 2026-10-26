@@ -1,0 +1,122 @@
+[
+  {
+    "name": "constructor-admission-caller",
+    "path": "_bmad/scripts/epic16_native_helper/Program.cs",
+    "old": "            TestConstruction.Validate(reader, handle);",
+    "new": "            // validation removed",
+    "selection": "round10_runtime_admission_rejects",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r10-mutant-constructor-admission-caller-5230vzm4/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round10_runtime_admission_rejects",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations-R10P1/constructor-admission-caller.xml"
+    ],
+    "workspace": "/tmp/epic16-r10-mutant-constructor-admission-caller-5230vzm4",
+    "exitCode": 1,
+    "elapsedSeconds": 20.605,
+    "originalSha256": "a7993e5c4eea5da52cfb36ae85ef990c7a1c6cb06e7c45f58c6d2374028363b8",
+    "mutatedSha256": "bb76d4ef46d17e8f3045d61d9088cacb242cae07a3d8ffaf6b9d5cb3110b5d7a",
+    "stdoutSha256": "86734a9b73872736cdb633a6a666eea04645c1d1db25f70bff65e89dd7a2797a",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "required-constructor-provider",
+    "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "old": "            if (!supplied) throw new InvalidDataException(\"Required constructor parameter has no supported provider.\");",
+    "new": "            _ = supplied;",
+    "selection": "round10_construction and missing",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r10-mutant-required-constructor-provider-0iz9n2q6/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round10_construction and missing",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations-R10P1/required-constructor-provider.xml"
+    ],
+    "workspace": "/tmp/epic16-r10-mutant-required-constructor-provider-0iz9n2q6",
+    "exitCode": 1,
+    "elapsedSeconds": 6.5,
+    "originalSha256": "e1ffbcf2d009c2afd5ee1847eac79c1e171d1cf3219b98bb8c5cf4e9fa7fe076",
+    "mutatedSha256": "42ac90c532abf49929cc3eddd9f24901c730c57f06b18920b84b01a006af460b",
+    "stdoutSha256": "7a44f464680b78b7a16d72e57440a666647e6c6f41b24c9d3f31ef39f3e7bd21",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "fixture-parent-providers",
+    "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "old": "            Parameters(reader, handle, parents, false);",
+    "new": "            // validation removed",
+    "selection": "round10_construction and missing-fixture-dependency",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r10-mutant-fixture-parent-providers-yqal7dzr/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round10_construction and missing-fixture-dependency",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations-R10P1/fixture-parent-providers.xml"
+    ],
+    "workspace": "/tmp/epic16-r10-mutant-fixture-parent-providers-yqal7dzr",
+    "exitCode": 1,
+    "elapsedSeconds": 4.369,
+    "originalSha256": "e1ffbcf2d009c2afd5ee1847eac79c1e171d1cf3219b98bb8c5cf4e9fa7fe076",
+    "mutatedSha256": "d9324c2d80751dcb422fcab040aa61fc86133bb16c50dd8f83d004526fbb6cd8",
+    "stdoutSha256": "34986c8b2c4c9a33d4df1e369677863c2df3455225b0742ee77f50082e7581bb",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "inherited-collection-types",
+    "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "old": "if (++collectionTypes > 1)",
+    "new": "if (++collectionTypes < 0)",
+    "selection": "round10_inherited_collection",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r10-mutant-inherited-collection-types-vx0nbvwe/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round10_inherited_collection",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations-R10P1/inherited-collection-types.xml"
+    ],
+    "workspace": "/tmp/epic16-r10-mutant-inherited-collection-types-vx0nbvwe",
+    "exitCode": 0,
+    "elapsedSeconds": 51.789,
+    "originalSha256": "e1ffbcf2d009c2afd5ee1847eac79c1e171d1cf3219b98bb8c5cf4e9fa7fe076",
+    "mutatedSha256": "c974af72cc05a4c2e30b0b8571d76dcb784a23eeffb5d04d6f908c6cf4cbca9e",
+    "stdoutSha256": "5ac16b496a88522638d68ea1a519f649d7c4b7b34dd53f7d4b96ffb6c280a252",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+]

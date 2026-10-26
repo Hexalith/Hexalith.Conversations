@@ -1,0 +1,363 @@
+using System.Globalization;
+using System.Reflection;
+using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
+using System.Text;
+using System.Text.Json;
+using Hexalith.EventStore.Client.Projections;
+
+namespace Hexalith.Conversations.Tooling;
+
+/// <summary>Fixed JSON oracle and non-executing managed assembly metadata inspector.</summary>
+internal static class Program
+{
+    private static int Main()
+    {
+        try
+        {
+            using JsonDocument request = JsonDocument.Parse(Console.In.ReadToEnd());
+            JsonElement root = request.RootElement;
+            string operation = root.GetProperty("operation").GetString()!;
+            if (operation == "canonicalize")
+            {
+                byte[] input = Encoding.UTF8.GetBytes(root.GetProperty("json").GetString()!);
+                Console.Write(JsonSerializer.Serialize(new { canonical = Encoding.UTF8.GetString(ReadModelBatchCanonicalJson.Canonicalize(input)) }));
+            }
+            else if (operation == "partyId")
+            {
+                // PartyId.Normalize: retain exact .NET whitespace and invariant casing.
+                string value = root.GetProperty("value").GetString()!;
+                ArgumentException.ThrowIfNullOrWhiteSpace(value);
+                Console.Write(JsonSerializer.Serialize(new { value = value.Trim().ToLowerInvariant() }));
+            }
+            else if (operation == "opaqueId")
+            {
+                string value = root.GetProperty("value").GetString()!;
+                ArgumentException.ThrowIfNullOrWhiteSpace(value);
+                Console.Write(JsonSerializer.Serialize(new { value }));
+            }
+            else if (operation == "tenantAccessInputs")
+            {
+                // Exact retained Commons input rules, independent of opaque identifier rules.
+                bool tenantValid = TryValidateTenantValue(root.GetProperty("tenant").GetString(), out _);
+                bool principalValid = TryValidateCallerPrincipalId(root.GetProperty("principal").GetString());
+                Console.Write(JsonSerializer.Serialize(new { tenantValid, principalValid }));
+            }
+            else if (operation == "whitespace")
+            {
+                int[] codePoints = Enumerable.Range(0, 65536).Where(value => char.IsWhiteSpace((char)value)).ToArray();
+                Console.Write(JsonSerializer.Serialize(new { codePoints }));
+            }
+            else if (operation == "provenance")
+            {
+                Console.Write(JsonSerializer.Serialize(new
+                {
+                    frameworkDescription = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
+                    runtimeVersion = Environment.Version.ToString(),
+                    targetFramework = typeof(Program).Assembly.GetCustomAttribute<System.Runtime.Versioning.TargetFrameworkAttribute>()!.FrameworkName,
+                    coreLibraryIdentity = typeof(object).Assembly.FullName,
+                }));
+            }
+            else if (operation == "productMetadata")
+            {
+                ProductMetadata.Inspect(root);
+            }
+            else if (operation == "metadata")
+            {
+                Inspect(root);
+            }
+            else
+            {
+                throw new InvalidDataException("Unknown fixed operation.");
+            }
+            return 0;
+        }
+        catch (Exception error) when (error is BadImageFormatException or InvalidDataException or ArgumentException or InvalidOperationException or JsonException or OverflowException)
+        {
+            Console.Error.Write("Invalid native evidence.");
+            return 1;
+        }
+    }
+
+    // The following two validation methods are copied from Hexalith.Commons
+    // src/libraries/Hexalith.Commons.TenantAccess/TenantAccessEvaluator.cs.
+    // Copyright (c) 2025 Hexalith. MIT notice retained in
+    // ../tests/fixtures/epic16-domain-sources-LICENSE.txt.
+    private static bool TryValidateTenantValue(string? value, out string? canonical)
+    {
+        canonical = null;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        if (!string.Equals(value, value.Trim(), StringComparison.Ordinal)
+            || !string.Equals(value, value.Normalize(NormalizationForm.FormC), StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        foreach (char c in value)
+        {
+            if (char.IsWhiteSpace(c) || char.IsControl(c))
+            {
+                return false;
+            }
+
+            if (c is ':' or '/' or '\\' or '|' or '#' or '?' or '&' or '%' or ',' or ';' or '<' or '>' or '"' or '\'')
+            {
+                return false;
+            }
+
+            UnicodeCategory category = CharUnicodeInfo.GetUnicodeCategory(c);
+            if (category is UnicodeCategory.Format
+                or UnicodeCategory.Surrogate
+                or UnicodeCategory.PrivateUse
+                or UnicodeCategory.OtherNotAssigned)
+            {
+                return false;
+            }
+        }
+
+        canonical = value;
+        return true;
+    }
+
+    private static bool TryValidateCallerPrincipalId(string? callerPrincipalId)
+    {
+        if (string.IsNullOrWhiteSpace(callerPrincipalId))
+        {
+            return false;
+        }
+
+        if (!string.Equals(callerPrincipalId, callerPrincipalId.Trim(), StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        foreach (char c in callerPrincipalId)
+        {
+            if (char.IsControl(c))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static string TypeName(MetadataReader reader, EntityHandle handle)
+    {
+        if (handle.Kind == HandleKind.TypeReference)
+        {
+            TypeReference type = reader.GetTypeReference((TypeReferenceHandle)handle);
+            return reader.GetString(type.Namespace) + "." + reader.GetString(type.Name);
+        }
+        if (handle.Kind == HandleKind.TypeDefinition)
+        {
+            TypeDefinition type = reader.GetTypeDefinition((TypeDefinitionHandle)handle);
+            return reader.GetString(type.Namespace) + "." + reader.GetString(type.Name);
+        }
+        return string.Empty;
+    }
+
+    private static string AttributeType(MetadataReader reader, CustomAttribute attribute)
+    {
+        EntityHandle constructor = attribute.Constructor;
+        return constructor.Kind switch
+        {
+            HandleKind.MemberReference => TypeName(reader, reader.GetMemberReference((MemberReferenceHandle)constructor).Parent),
+            HandleKind.MethodDefinition => TypeName(reader, reader.GetMethodDefinition((MethodDefinitionHandle)constructor).GetDeclaringType()),
+            _ => string.Empty,
+        };
+    }
+
+    // Pinned by Hexalith.Builds central package version xunit.v3 4.0.2.
+    private const string FrameworkIdentity = "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c";
+
+    private static bool IsFact(MetadataReader reader, CustomAttribute attribute)
+    {
+        // A local lookalike has a MethodDefinition constructor, never this external reference.
+        if (attribute.Constructor.Kind != HandleKind.MemberReference)
+        {
+            return false;
+        }
+        MemberReference constructor = reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor);
+        if (constructor.Parent.Kind != HandleKind.TypeReference || reader.GetString(constructor.Name) != ".ctor")
+        {
+            return false;
+        }
+        TypeReference type = reader.GetTypeReference((TypeReferenceHandle)constructor.Parent);
+        if (TypeName(reader, constructor.Parent) != "Xunit.FactAttribute" || type.ResolutionScope.Kind != HandleKind.AssemblyReference)
+        {
+            return false;
+        }
+        AssemblyReference assembly = reader.GetAssemblyReference((AssemblyReferenceHandle)type.ResolutionScope);
+        if (reader.GetString(assembly.Name) != "xunit.v3.core" || assembly.Version != new Version(4, 0, 2, 0)
+            || !assembly.Culture.IsNil && reader.GetString(assembly.Culture) != string.Empty
+            || (assembly.Flags & AssemblyFlags.PublicKey) != 0
+            || Convert.ToHexString(reader.GetBlobBytes(assembly.PublicKeyOrToken)) != "8D05B1BB7A6FDB6C")
+        {
+            return false;
+        }
+        // xUnit 4.0.2 Fact takes compiler-supplied source path/line constructor
+        // arguments. No named settings (Skip, Explicit, conditional skipping) are
+        // admitted by this one-result evidence protocol.
+        if (!reader.GetBlobBytes(constructor.Signature).AsSpan().SequenceEqual(new byte[] { 0x20, 2, 1, 0x0e, 8 }))
+        {
+            return false;
+        }
+        BlobReader value = reader.GetBlobReader(attribute.Value);
+        if (value.ReadUInt16() != 1)
+        {
+            return false;
+        }
+        _ = value.ReadSerializedString();
+        int sourceLine = value.ReadInt32();
+        return sourceLine >= -1 && value.ReadUInt16() == 0 && value.RemainingBytes == 0;
+    }
+
+    /// <summary>Recognizes resolvable Fact-derived attributes without loading their declarations.</summary>
+    private static bool IsFactDerived(MetadataReader reader, CustomAttribute attribute)
+    {
+        EntityHandle type = attribute.Constructor.Kind switch
+        {
+            HandleKind.MemberReference => reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor).Parent,
+            HandleKind.MethodDefinition => reader.GetMethodDefinition((MethodDefinitionHandle)attribute.Constructor).GetDeclaringType(),
+            _ => throw new InvalidDataException("Unsupported test attribute constructor."),
+        };
+        var visited = new HashSet<EntityHandle>();
+        while (type.Kind == HandleKind.TypeDefinition)
+        {
+            if (!visited.Add(type)) throw new InvalidDataException("Cyclic attribute inheritance.");
+            type = reader.GetTypeDefinition((TypeDefinitionHandle)type).BaseType;
+        }
+        if (type.Kind != HandleKind.TypeReference) throw new InvalidDataException("Unsupported attribute inheritance.");
+        string name = TypeName(reader, type);
+        if (name is "Xunit.FactAttribute" or "Xunit.TheoryAttribute") return true;
+        // Approved framework attributes are non-Fact metadata. An unresolved external custom
+        // attribute could derive Fact, so it cannot establish unambiguous discovery.
+        if (!ProductMetadata.IsFrameworkType(reader, (TypeReferenceHandle)type))
+            throw new InvalidDataException("Unresolved external test attribute inheritance.");
+        return false;
+    }
+
+    private static bool IsTestSignature(MetadataReader reader, MethodDefinition method)
+    {
+        BlobReader signature = reader.GetBlobReader(method.Signature);
+        SignatureHeader header = signature.ReadSignatureHeader();
+        if (header.Kind != SignatureKind.Method || !header.IsInstance || header.IsGeneric
+            || signature.ReadCompressedInteger() != 0)
+        {
+            return false;
+        }
+        SignatureTypeCode returnType = signature.ReadSignatureTypeCode();
+        if (returnType == SignatureTypeCode.Void)
+        {
+            return signature.RemainingBytes == 0
+                && !method.GetCustomAttributes().Any(handle =>
+                    AttributeType(reader, reader.GetCustomAttribute(handle)) == "System.Runtime.CompilerServices.AsyncStateMachineAttribute");
+        }
+        if (returnType != SignatureTypeCode.TypeHandle)
+        {
+            return false;
+        }
+        EntityHandle handle = signature.ReadTypeHandle();
+        // xUnit supports async Task and ValueTask. Inspect only the external type
+        // identity; never load return types or run state-machine code.
+        if (handle.Kind != HandleKind.TypeReference || signature.RemainingBytes != 0
+            || TypeName(reader, handle) is not ("System.Threading.Tasks.Task" or "System.Threading.Tasks.ValueTask"))
+        {
+            return false;
+        }
+        return ProductMetadata.IsFrameworkType(reader, (TypeReferenceHandle)handle);
+    }
+
+    private static void Inspect(JsonElement root)
+    {
+        byte[] bytes = Convert.FromBase64String(root.GetProperty("assembly").GetString()!);
+        using var stream = new MemoryStream(bytes, writable: false);
+        using var pe = new PEReader(stream);
+        if (!pe.HasMetadata || pe.PEHeaders.CorHeader is null)
+        {
+            throw new BadImageFormatException();
+        }
+        MetadataReader reader = pe.GetMetadataReader();
+        if (!reader.IsAssembly)
+        {
+            throw new BadImageFormatException();
+        }
+        string requiredType = root.GetProperty("type").GetString()!;
+        string requiredMethod = root.GetProperty("method").GetString()!;
+        string revision = root.GetProperty("revision").GetString()!;
+        var versions = new List<string>();
+        var revisions = new List<string>();
+        foreach (CustomAttributeHandle handle in reader.GetAssemblyDefinition().GetCustomAttributes())
+        {
+            CustomAttribute attribute = reader.GetCustomAttribute(handle);
+            string name = AttributeType(reader, attribute);
+            if (name is not ("System.Reflection.AssemblyInformationalVersionAttribute" or "System.Reflection.AssemblyMetadataAttribute"))
+            {
+                continue;
+            }
+            bool informational = name == "System.Reflection.AssemblyInformationalVersionAttribute";
+            byte[] signature = informational ? [0x20, 1, 1, 0x0e] : [0x20, 2, 1, 0x0e, 0x0e];
+            if (!ProductMetadata.IsFrameworkAttribute(reader, attribute, name, signature))
+                throw new InvalidDataException("Source stamp has no approved framework constructor.");
+            BlobReader blob = reader.GetBlobReader(attribute.Value);
+            if (blob.ReadUInt16() != 1) throw new BadImageFormatException();
+            string? key = blob.ReadSerializedString();
+            string? value = informational ? key : blob.ReadSerializedString();
+            _ = blob.ReadUInt16();
+            if (informational) versions.Add(value ?? string.Empty);
+            else if (key == "SourceRevisionId") revisions.Add(value ?? string.Empty);
+        }
+        if (versions.Count != 1 || !versions[0].Contains('+') || versions[0].Split('+')[^1].Split('.')[^1] != revision
+            || revisions.Any(value => value != revision))
+        {
+            throw new InvalidDataException("Source metadata differs.");
+        }
+        int matches = 0;
+        foreach (TypeDefinitionHandle handle in reader.TypeDefinitions)
+        {
+            if (TypeName(reader, handle) != requiredType)
+            {
+                continue;
+            }
+            TypeDefinition type = reader.GetTypeDefinition(handle);
+            if ((type.Attributes & TypeAttributes.VisibilityMask) != TypeAttributes.Public
+                || (type.Attributes & (TypeAttributes.Abstract | TypeAttributes.Interface)) != 0
+                || type.GetGenericParameters().Count != 0
+                || type.GetMethods().Count(methodHandle =>
+                {
+                    MethodDefinition constructor = reader.GetMethodDefinition(methodHandle);
+                    return reader.GetString(constructor.Name) == ".ctor"
+                        && (constructor.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public;
+                }) != 1)
+            {
+                throw new InvalidDataException("Test class is not discoverable by this protocol.");
+            }
+            TestConstruction.Validate(reader, handle);
+            foreach (MethodDefinitionHandle methodHandle in type.GetMethods())
+            {
+                MethodDefinition method = reader.GetMethodDefinition(methodHandle);
+                if (reader.GetString(method.Name) == requiredMethod && method.RelativeVirtualAddress != 0
+                    && (method.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
+                    && (method.Attributes & (MethodAttributes.Abstract | MethodAttributes.Static)) == 0
+                    && method.GetGenericParameters().Count == 0 && IsTestSignature(reader, method)
+                    && method.GetCustomAttributes().Count(attributeHandle => IsFact(reader, reader.GetCustomAttribute(attributeHandle))) == 1
+                    && method.GetCustomAttributes().Count(attributeHandle => IsFactDerived(reader, reader.GetCustomAttribute(attributeHandle))) == 1)
+                {
+                    // Verify a valid method body exists, but never load or invoke it.
+                    _ = pe.GetMethodBody(method.RelativeVirtualAddress).GetILBytes();
+                    matches++;
+                }
+            }
+        }
+        if (matches != 1)
+        {
+            throw new InvalidDataException("Required test metadata differs.");
+        }
+        Console.Write(JsonSerializer.Serialize(new { sourceRevision = revision, type = requiredType, method = requiredMethod, informationalVersion = versions[0], testFramework = FrameworkIdentity }));
+    }
+}

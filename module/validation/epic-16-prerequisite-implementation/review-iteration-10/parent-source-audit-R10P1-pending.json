@@ -1,0 +1,39 @@
+{
+  "frozenSourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/final-source.json",
+  "frozenSourceSha256": "eac619e5a3c2611074f1c69290f12293e0ae21127ec4776b51a3b2fcfd9e8bd7",
+  "allFrozenFilesVerified": 85,
+  "incrementalCodeReview": {
+    "path": "/tmp/epic16-review10-incremental-c.diff",
+    "sha256": "bf21ce982889f882e11038a886ff5095c9ecfb481e275255e3d99aadb3c57638",
+    "lines": 845
+  },
+  "finalCodeReview": {
+    "path": "/tmp/epic16-r10-final-source-delta.diff",
+    "sha256": "458fadf639e3c5f9dc517563b3f6a9ce5e4555cbb426c850df5d56992f092a0f",
+    "lines": 727
+  },
+  "dataAudit": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-data-source-audit.json",
+    "sha256": "73710a82c63aaa129dc3a7038fc784d87bc0764dec8053bed3dc9fca7a6b9f85"
+  },
+  "independentProbes": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-final-probes.json",
+    "sha256": "051e2dca3eda82b28e59fcd2637b204de4912da2eeaa8c5023ec22cdb0fec297",
+    "passed": 79,
+    "total": 79,
+    "partialMissingModuleBoundaries": 9
+  },
+  "collectionProof": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-collection-proof/result.json",
+    "sha256": "8700e20b42d6353898fa79c885672c8e062c72d16da85b3ebbf0e457f41c0d52"
+  },
+  "rejectedHypothesis": {
+    "name": "external fake ParamArrayAttribute",
+    "outcome": "C# compilation rejected direct attribute use with CS0674 before inspection or execution; no demonstrated admitted bad state and no fix requested"
+  },
+  "conclusion": "Superseded by demonstrated inherited collection ambiguity R10P1; correction and final verification pending.",
+  "counterexample": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/manifest.json",
+    "sha256": "e4546b2865e61b75bb3534a5f9754b72542995b98a75f8595b3aca0b89dc597e"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "epoch": "iteration-9 signature-corrected frozen source; final combined verification pending",
+  "incrementalCodeDiff": "/tmp/epic16-review9-code.diff",
+  "incrementalCodeDiffSha256": "c06e4193b5dc8649ceae07b81738074c3dde6866ab972abdafa6623417547d05",
+  "incrementalCodeDiffLinesRead": 1618,
+  "frozenFilesVerified": 84,
+  "preservedContractsUnchanged": [
+    "16.1",
+    "16.2",
+    "16.3"
+  ],
+  "bindingSourceHashesVerified": 70,
+  "entry": null,
+  "changedObjectNodes": 40,
+  "changedOpenObjectNodes": [],
+  "changedNumericConstantsTypedInteger": [
+    "/$defs/nativeCapture/properties/captureVersion"
+  ],
+  "earlyFeedbackResolved": [
+    "R9P1 abstract flags with valid Abstract names",
+    "R9P2 exact CRLF native helper bytes",
+    "R9P3 content-free wire state digest",
+    "R9P4 actual safe HTTP-200 outcome classification",
+    "R9P5 decoded class/value-type markers in references, definitions and constructed signatures"
+  ],
+  "implementationHold": "ACTIVE",
+  "firstFrozenSourceAudit": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-first-frozen-source-audit.json",
+    "sha256": "382e4e91534a22edcfe5604d5cb1a02b23848a0372d0568304918918cdf5df02"
+  },
+  "correctedFixtureDelta": {
+    "path": "_bmad/scripts/tests/test_epic16_tooling.py",
+    "oldSha256": "cbf0b6ab464f5d0f166bddf0ad452d5b9f674ff6b4a70bf5dc2681850a1621a9",
+    "newSha256": "7961393ff86be145d9acd2ec43853a37edf6410009545343ee2dac5fa123da5c",
+    "exactThreeLineAdditionVerified": true,
+    "implementationAndRound9ControlTestsUnchanged": true
+  },
+  "finalSourceSha256": "ee12104feb9ac08493e51a1f8f6ea566d384a1495df2ad5118bfc78efcde6b0b",
+  "signatureCorrection": {
+    "previousSource": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/pre-signature-epoch/final-source.json",
+      "sha256": "bf45f4eab6a11a0ce69d2fcd848050e26ca91d058de5786e172bb2acb7ca1bfb"
+    },
+    "exactChangedFiles": [
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "_bmad/scripts/epic16_native_helper/README.md",
+      "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+      "_bmad/scripts/tests/test_epic16_tooling.py"
+    ],
+    "independentCompiledProof": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/parent-reference-kind-correction/manifest.json",
+      "sha256": "985a02b94bcc29423ae5d061e65b34a212dc78469a35fc24c75c2c5258fc0a56",
+      "artifactHashesVerified": 25
+    },
+    "compiledNegativeCases": 6,
+    "compiledPositiveCases": 4,
+    "currentFrozenFilesVerified": 84
+  }
+}

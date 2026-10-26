@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="2.521" timestamp="2026-10-25T19:54:20.594091+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_expanded_domain_state_still_calls_actual_eventstore_canonicalizer[whitespace]" time="2.004"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-282/test_expanded_domain_state_sti0/fixture')
+fault = 'whitespace'
+
+    @pytest.mark.parametrize('fault',['whitespace','property-order'])
+    def test_expanded_domain_state_still_calls_actual_eventstore_canonicalizer(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-02'])
+        value=json.loads(data['rebuilds'][0]['canonicalJson'])
+        if fault=='whitespace':raw='{ '+data['rebuilds'][0]['canonicalJson'][1:]
+        else:raw=json.dumps(dict(version=value['version'],anchorUtcTicks=value['anchorUtcTicks'],items=value['items']),ensure_ascii=True,separators=(',',':'))
+        assert json.loads(raw)==value
+        for row in data['rebuilds']:row.update(canonicalJson=raw,roundTripJson=raw,stateHash=digest(raw.encode()))
+&gt;       native(repository,'AC-16.2-02',data);rejected(evaluate(repository,'AC-16.2-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1469: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_expanded_domain_state_still_calls_actual_eventstore_canonicalizer[property-order]" time="0.266"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-282/test_expanded_domain_state_sti1/fixture')
+fault = 'property-order'
+
+    @pytest.mark.parametrize('fault',['whitespace','property-order'])
+    def test_expanded_domain_state_still_calls_actual_eventstore_canonicalizer(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-02'])
+        value=json.loads(data['rebuilds'][0]['canonicalJson'])
+        if fault=='whitespace':raw='{ '+data['rebuilds'][0]['canonicalJson'][1:]
+        else:raw=json.dumps(dict(version=value['version'],anchorUtcTicks=value['anchorUtcTicks'],items=value['items']),ensure_ascii=True,separators=(',',':'))
+        assert json.loads(raw)==value
+        for row in data['rebuilds']:row.update(canonicalJson=raw,roundTripJson=raw,stateHash=digest(raw.encode()))
+&gt;       native(repository,'AC-16.2-02',data);rejected(evaluate(repository,'AC-16.2-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1469: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

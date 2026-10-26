@@ -1,0 +1,101 @@
+{
+  "scope": "reviewed-implementation-before-rederivation",
+  "runtimeAuthority": false,
+  "measurementSourceSha256": "f6fd527f125c2f2fab9b3a0c7ded1fa7696711b7b44bb87ecf57f6151520b385",
+  "schemaSha256": "854ceafa8cedf943f1df0b8e2d6662e76f546ed416de61d729100c23d583a718",
+  "observations": [
+    {
+      "probe": "authorized gapped restart",
+      "schemaValid": true,
+      "accepted": true,
+      "checks": [
+        "durable-restart",
+        "pending-fingerprints",
+        "fail-closed-restart",
+        "fenced-resumption"
+      ]
+    },
+    {
+      "probe": "past pending fingerprint",
+      "schemaValid": true,
+      "accepted": true,
+      "checks": [
+        "durable-restart",
+        "pending-fingerprints",
+        "fail-closed-restart",
+        "fenced-resumption"
+      ]
+    },
+    {
+      "probe": "unrelated completion fence",
+      "schemaValid": true,
+      "accepted": true,
+      "checks": [
+        "monotonic-horizon",
+        "immutable-pending-evidence",
+        "two-replica-convergence",
+        "fenced-cutover"
+      ]
+    },
+    {
+      "probe": "invalid unordered replay JSON",
+      "schemaValid": true,
+      "accepted": true,
+      "checks": [
+        "canonical-replay-bytes",
+        "hash-and-roundtrip",
+        "event-derived-anchor",
+        "observation-freshness"
+      ]
+    },
+    {
+      "probe": "missing manifest stream",
+      "schemaValid": true,
+      "accepted": true,
+      "checks": [
+        "writer-CAS-boundary",
+        "generation-fences",
+        "erase-quarantine",
+        "authoritative-rebuild-cutover"
+      ]
+    },
+    {
+      "probe": "overflow stream range",
+      "schemaValid": true,
+      "accepted": false,
+      "exception": "OverflowError",
+      "message": "Python int too large to convert to C ssize_t"
+    }
+  ],
+  "afterRederivation": {
+    "measurementSourceSha256": "f70795d9dff98799363605e87e9cac8afa39d4b51fd9ee57a4f9c3989f51d59e",
+    "observations": [
+      {
+        "probe": "authorized gapped restart",
+        "result": "rejected: ValueError"
+      },
+      {
+        "probe": "past pending fingerprint",
+        "result": "rejected: ValueError"
+      },
+      {
+        "probe": "unrelated completion fence",
+        "result": "rejected: ValueError"
+      },
+      {
+        "probe": "invalid unordered replay JSON",
+        "result": "rejected: ValueError"
+      },
+      {
+        "probe": "missing manifest stream",
+        "result": "rejected: ValueError"
+      },
+      {
+        "probe": "overflow stream range",
+        "result": "rejected: ValueError"
+      }
+    ],
+    "deepJson": "JSON_INVALID",
+    "exponentOverflow": "JSON_INVALID"
+  }
+}

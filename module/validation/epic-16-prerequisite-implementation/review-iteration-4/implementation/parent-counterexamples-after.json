@@ -1,0 +1,64 @@
+[
+  {
+    "finding": "R4B4",
+    "scenario": "AC-16.2-03",
+    "result": "ValueError: sole control index"
+  },
+  {
+    "finding": "R4B5",
+    "scenario": "AC-16.1-01",
+    "result": "ValueError: actual base64url tenant/resource key derivation"
+  },
+  {
+    "finding": "R4B9",
+    "scenario": "AC-16.3-03",
+    "result": "ValueError: actual framed catalog fingerprint and raw byte digest"
+  },
+  {
+    "finding": "R4B10",
+    "scenario": "AC-16.2-04",
+    "result": "ValueError: durable reference precedes acknowledgement"
+  },
+  {
+    "finding": "R4B3",
+    "scenario": "AC-16.1-04",
+    "result": "ValueError: representable native Int64 sequence"
+  },
+  {
+    "finding": "R4E2",
+    "scenario": "AC-16.1-04",
+    "result": "ValueError: representable native Int64 sequence"
+  },
+  {
+    "finding": "R4E3",
+    "scenario": "AC-16.2-01",
+    "result": "ValidationError: 9223372036854775808 is greater than the maximum of 9223372036854775807"
+  },
+  {
+    "finding": "R4E1",
+    "scenario": "AC-16.2-02",
+    "result": "ValueError: serialized domain values match authoritative replay"
+  },
+  {
+    "finding": "R4B1/R4P4",
+    "key": "key",
+    "value": "",
+    "result": "accepted"
+  },
+  {
+    "finding": "R4B1/R4P4",
+    "key": "key",
+    "value": "   ",
+    "result": "accepted"
+  },
+  {
+    "finding": "R4B1/R4P4",
+    "key": " ",
+    "value": "",
+    "result": "accepted"
+  },
+  {
+    "finding": "R4B2",
+    "result": 630822815990000000
+  }
+]

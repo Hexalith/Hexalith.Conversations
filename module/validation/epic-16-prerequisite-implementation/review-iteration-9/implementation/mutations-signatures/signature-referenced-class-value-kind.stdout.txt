@@ -1,0 +1,130 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+_ test_round9_referenced_class_value_signature_change_cannot_pass[public External.Value Get() => default;] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-577/test_round9_referenced_class_v0')
+shape = 'public External.Value Get() => default;'
+
+    @pytest.mark.parametrize('shape',[
+        'public External.Value Get() => default;',
+        'public void Consume(External.Value value) {}',
+        'public External.Value Item { get; set; }',
+        'public External.Value Item;',
+        'public System.Collections.Generic.List<External.Value> Get() => default;',
+        'public ref External.Value Echo(ref External.Value value) => ref value;',
+    ])
+    def test_round9_referenced_class_value_signature_change_cannot_pass(tmp_path,shape):
+        before=round9_referenced_product(tmp_path/'baseline','class','a'*40,shape)
+        after=round9_referenced_product(tmp_path/'candidate','struct','b'*40,shape)
+>       assert before['api']!=after['api']
+E       AssertionError: assert {'kind': 'conservative-ecma335-public-declarations-v1', 'types': {'Probe.Surface': {'header': 'Public, BeforeFieldInit..., SpecialName, RTSpecialName:32:0:0:Void():::', 'method:Get:Public, HideBySig:32:0:0:[External]External.Value():::']}}} != {'kind': 'conservative-ecma335-public-declarations-v1', 'types': {'Probe.Surface': {'header': 'Public, BeforeFieldInit..., SpecialName, RTSpecialName:32:0:0:Void():::', 'method:Get:Public, HideBySig:32:0:0:[External]External.Value():::']}}}
+
+_bmad/scripts/tests/test_epic16_tooling.py:3553: AssertionError
+_ test_round9_referenced_class_value_signature_change_cannot_pass[public void Consume(External.Value value) {}] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-577/test_round9_referenced_class_v1')
+shape = 'public void Consume(External.Value value) {}'
+
+    @pytest.mark.parametrize('shape',[
+        'public External.Value Get() => default;',
+        'public void Consume(External.Value value) {}',
+        'public External.Value Item { get; set; }',
+        'public External.Value Item;',
+        'public System.Collections.Generic.List<External.Value> Get() => default;',
+        'public ref External.Value Echo(ref External.Value value) => ref value;',
+    ])
+    def test_round9_referenced_class_value_signature_change_cannot_pass(tmp_path,shape):
+        before=round9_referenced_product(tmp_path/'baseline','class','a'*40,shape)
+        after=round9_referenced_product(tmp_path/'candidate','struct','b'*40,shape)
+>       assert before['api']!=after['api']
+E       AssertionError: assert {'kind': 'conservative-ecma335-public-declarations-v1', 'types': {'Probe.Surface': {'header': 'Public, BeforeFieldInit...:32:0:0:Void():::', 'method:Consume:Public, HideBySig:32:0:1:Void([External]External.Value)::1:value:None:absent::']}}} != {'kind': 'conservative-ecma335-public-declarations-v1', 'types': {'Probe.Surface': {'header': 'Public, BeforeFieldInit...:32:0:0:Void():::', 'method:Consume:Public, HideBySig:32:0:1:Void([External]External.Value)::1:value:None:absent::']}}}
+
+_bmad/scripts/tests/test_epic16_tooling.py:3553: AssertionError
+_ test_round9_referenced_class_value_signature_change_cannot_pass[public External.Value Item { get; set; }] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-577/test_round9_referenced_class_v2')
+shape = 'public External.Value Item { get; set; }'
+
+    @pytest.mark.parametrize('shape',[
+        'public External.Value Get() => default;',
+        'public void Consume(External.Value value) {}',
+        'public External.Value Item { get; set; }',
+        'public External.Value Item;',
+        'public System.Collections.Generic.List<External.Value> Get() => default;',
+        'public ref External.Value Echo(ref External.Value value) => ref value;',
+    ])
+    def test_round9_referenced_class_value_signature_change_cannot_pass(tmp_path,shape):
+        before=round9_referenced_product(tmp_path/'baseline','class','a'*40,shape)
+        after=round9_referenced_product(tmp_path/'candidate','struct','b'*40,shape)
+>       assert before['api']!=after['api']
+E       AssertionError: assert {'kind': 'conservative-ecma335-public-declarations-v1', 'types': {'Probe.Surface': {'header': 'Public, BeforeFieldInit...[External]External.Value():get_Item:Public, HideBySig, SpecialName:set_Item:Public, HideBySig, SpecialName:absent:']}}} != {'kind': 'conservative-ecma335-public-declarations-v1', 'types': {'Probe.Surface': {'header': 'Public, BeforeFieldInit...[External]External.Value():get_Item:Public, HideBySig, SpecialName:set_Item:Public, HideBySig, SpecialName:absent:']}}}
+
+_bmad/scripts/tests/test_epic16_tooling.py:3553: AssertionError
+_ test_round9_referenced_class_value_signature_change_cannot_pass[public External.Value Item;] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-577/test_round9_referenced_class_v3')
+shape = 'public External.Value Item;'
+
+    @pytest.mark.parametrize('shape',[
+        'public External.Value Get() => default;',
+        'public void Consume(External.Value value) {}',
+        'public External.Value Item { get; set; }',
+        'public External.Value Item;',
+        'public System.Collections.Generic.List<External.Value> Get() => default;',
+        'public ref External.Value Echo(ref External.Value value) => ref value;',
+    ])
+    def test_round9_referenced_class_value_signature_change_cannot_pass(tmp_path,shape):
+        before=round9_referenced_product(tmp_path/'baseline','class','a'*40,shape)
+        after=round9_referenced_product(tmp_path/'candidate','struct','b'*40,shape)
+>       assert before['api']!=after['api']
+E       AssertionError: assert {'kind': 'conservative-ecma335-public-declarations-v1', 'types': {'Probe.Surface': {'header': 'Public, BeforeFieldInit...[External]External.Value:-1:absent:', 'method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::']}}} != {'kind': 'conservative-ecma335-public-declarations-v1', 'types': {'Probe.Surface': {'header': 'Public, BeforeFieldInit...[External]External.Value:-1:absent:', 'method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::']}}}
+
+_bmad/scripts/tests/test_epic16_tooling.py:3553: AssertionError
+_ test_round9_referenced_class_value_signature_change_cannot_pass[public System.Collections.Generic.List<External.Value> Get() => default;] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-577/test_round9_referenced_class_v4')
+shape = 'public System.Collections.Generic.List<External.Value> Get() => default;'
+
+    @pytest.mark.parametrize('shape',[
+        'public External.Value Get() => default;',
+        'public void Consume(External.Value value) {}',
+        'public External.Value Item { get; set; }',
+        'public External.Value Item;',
+        'public System.Collections.Generic.List<External.Value> Get() => default;',
+        'public ref External.Value Echo(ref External.Value value) => ref value;',
+    ])
+    def test_round9_referenced_class_value_signature_change_cannot_pass(tmp_path,shape):
+        before=round9_referenced_product(tmp_path/'baseline','class','a'*40,shape)
+        after=round9_referenced_product(tmp_path/'candidate','struct','b'*40,shape)
+>       assert before['api']!=after['api']
+E       AssertionError: assert {'kind': 'conservative-ecma335-public-declarations-v1', 'types': {'Probe.Surface': {'header': 'Public, BeforeFieldInit...:Get:Public, HideBySig:32:0:0:[System.Collections]System.Collections.Generic.List`1<[External]External.Value>():::']}}} != {'kind': 'conservative-ecma335-public-declarations-v1', 'types': {'Probe.Surface': {'header': 'Public, BeforeFieldInit...:Get:Public, HideBySig:32:0:0:[System.Collections]System.Collections.Generic.List`1<[External]External.Value>():::']}}}
+
+_bmad/scripts/tests/test_epic16_tooling.py:3553: AssertionError
+_ test_round9_referenced_class_value_signature_change_cannot_pass[public ref External.Value Echo(ref External.Value value) => ref value;] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-577/test_round9_referenced_class_v5')
+shape = 'public ref External.Value Echo(ref External.Value value) => ref value;'
+
+    @pytest.mark.parametrize('shape',[
+        'public External.Value Get() => default;',
+        'public void Consume(External.Value value) {}',
+        'public External.Value Item { get; set; }',
+        'public External.Value Item;',
+        'public System.Collections.Generic.List<External.Value> Get() => default;',
+        'public ref External.Value Echo(ref External.Value value) => ref value;',
+    ])
+    def test_round9_referenced_class_value_signature_change_cannot_pass(tmp_path,shape):
+        before=round9_referenced_product(tmp_path/'baseline','class','a'*40,shape)
+        after=round9_referenced_product(tmp_path/'candidate','struct','b'*40,shape)
+>       assert before['api']!=after['api']
+E       AssertionError: assert {'kind': 'conservative-ecma335-public-declarations-v1', 'types': {'Probe.Surface': {'header': 'Public, BeforeFieldInit... 'method:Echo:Public, HideBySig:32:0:1:[External]External.Value&([External]External.Value&)::1:value:None:absent::']}}} != {'kind': 'conservative-ecma335-public-declarations-v1', 'types': {'Probe.Surface': {'header': 'Public, BeforeFieldInit... 'method:Echo:Public, HideBySig:32:0:1:[External]External.Value&([External]External.Value&)::1:value:None:absent::']}}}
+
+_bmad/scripts/tests/test_epic16_tooling.py:3553: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_referenced_class_value_signature_change_cannot_pass[public External.Value Get() => default;]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_referenced_class_value_signature_change_cannot_pass[public void Consume(External.Value value) {}]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_referenced_class_value_signature_change_cannot_pass[public External.Value Item { get; set; }]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_referenced_class_value_signature_change_cannot_pass[public External.Value Item;]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_referenced_class_value_signature_change_cannot_pass[public System.Collections.Generic.List<External.Value> Get() => default;]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_referenced_class_value_signature_change_cannot_pass[public ref External.Value Echo(ref External.Value value) => ref value;]
+6 failed, 1870 deselected in 32.64s

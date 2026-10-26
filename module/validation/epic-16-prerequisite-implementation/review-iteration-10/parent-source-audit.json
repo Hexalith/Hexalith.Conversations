@@ -1,0 +1,57 @@
+{
+  "frozenSourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-source.json",
+  "frozenSourceSha256": "1c8a5e7006b737555a5212940f7e623f74f19e5ee23c90989121cd53eb4f8982",
+  "allFrozenFilesVerified": 85,
+  "incrementalCodeReview": {
+    "path": "/tmp/epic16-review10-incremental-c.diff",
+    "sha256": "bf21ce982889f882e11038a886ff5095c9ecfb481e275255e3d99aadb3c57638",
+    "lines": 845
+  },
+  "finalCodeReview": {
+    "path": "/tmp/epic16-r10-final-source-delta.diff",
+    "sha256": "458fadf639e3c5f9dc517563b3f6a9ce5e4555cbb426c850df5d56992f092a0f",
+    "lines": 727
+  },
+  "dataAudit": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-data-source-audit.json",
+    "sha256": "73710a82c63aaa129dc3a7038fc784d87bc0764dec8053bed3dc9fca7a6b9f85"
+  },
+  "independentProbes": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-final-probes.json",
+    "sha256": "681aaabeed17f255440ce877ad281c3244c790f8b68bb8b6fde6497b3e63629c",
+    "passed": 79,
+    "total": 79,
+    "partialMissingModuleBoundaries": 9
+  },
+  "collectionProof": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-collection-proof/result.json",
+    "sha256": "8700e20b42d6353898fa79c885672c8e062c72d16da85b3ebbf0e457f41c0d52"
+  },
+  "rejectedHypothesis": {
+    "name": "external fake ParamArrayAttribute",
+    "outcome": "C# compilation rejected direct attribute use with CS0674 before inspection or execution; no demonstrated admitted bad state and no fix requested"
+  },
+  "conclusion": "R10P1 corrected; all 29 relevant native constructor/inheritance/shared-provider controls pass. Existing independent 79/79 semantic and nine import controls still bind identical current source bytes. Final combined, legacy, mutation/retention and held-state audit remains pending.",
+  "counterexample": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/manifest.json",
+    "sha256": "e4546b2865e61b75bb3534a5f9754b72542995b98a75f8595b3aca0b89dc597e"
+  },
+  "R10P1Correction": {
+    "diffPath": "/tmp/epic16-r10-parent-R10P1.diff",
+    "diffSha256": "25a34c0138019c4706b6017a39a02f77ef01cfd984676c03e3a628d7bdeba3fc",
+    "nativeFocusedTests": 26,
+    "sourceFileSha256": "e1ffbcf2d009c2afd5ee1847eac79c1e171d1cf3219b98bb8c5cf4e9fa7fe076",
+    "testFileSha256": "6894b7a8a8252e92df60f12db44795e7aca9ba5bbce624d59b38cf00053c437c",
+    "recheckPath": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-R10P1-recheck.json",
+    "recheckSha256": "75c754686537d0dfcc56dcef11304fc8dfb6d6ecff51a51ed2e1e402de52e010"
+  },
+  "sharedProviderControls": {
+    "priorSourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-shared-provider-controls/final-source.json",
+    "priorSourceSha256": "68850a18e6913c8fd41180cb55a0864ce228ea25a2a38479b58577e6df5696ed",
+    "changedFiles": [
+      "_bmad/scripts/tests/test_epic16_tooling.py"
+    ],
+    "nativeFocusedTests": 3,
+    "priorParentProbeSourceHashesStillMatch": true
+  }
+}

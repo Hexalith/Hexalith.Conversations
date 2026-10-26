@@ -1,0 +1,80 @@
+{
+  "compared": {
+    "metadata": {
+      "api": {
+        "kind": "conservative-ecma335-public-declarations-v1",
+        "types": {
+          "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler": {
+            "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+            "interfaces": [],
+            "members": [
+              "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+              "method:Existing:Public, HideBySig:32:0:1:String(String)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000"
+            ]
+          },
+          "Hexalith.Tenants.Client.Projections.ITenantProjectionStore": {
+            "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+            "interfaces": [],
+            "members": [
+              "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+              "method:Existing:Public, HideBySig:32:0:1:String(String)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000"
+            ]
+          }
+        }
+      },
+      "assemblyName": "Hexalith.Tenants.Client",
+      "assemblyVersion": "0.0.0.0",
+      "culture": "",
+      "declaredTypes": [
+        ".<Module>",
+        "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler",
+        "Hexalith.Tenants.Client.Projections.ITenantProjectionStore"
+      ],
+      "informationalVersion": "1.0.0+863ab8ea3bfa5584924fe9231213af47f5eec151",
+      "mvid": "e48b0e33-1618-45e0-85f2-b6a2feebe7b5",
+      "publicKey": "",
+      "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+    },
+    "path": "artifacts/epic16-runtime/16.1/binaries/fcfb695829321b3c7a1ae984e0e4515b231b89187675ee280a752d2439188125.dll",
+    "revision": "863ab8ea3bfa5584924fe9231213af47f5eec151",
+    "sha256": "fcfb695829321b3c7a1ae984e0e4515b231b89187675ee280a752d2439188125"
+  },
+  "loaded": {
+    "api": {
+      "kind": "conservative-ecma335-public-declarations-v1",
+      "types": {
+        "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler": {
+          "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+          "interfaces": [],
+          "members": [
+            "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+            "method:Changed:Public, HideBySig:32:0:0:Int32():::"
+          ]
+        },
+        "Hexalith.Tenants.Client.Projections.ITenantProjectionStore": {
+          "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+          "interfaces": [],
+          "members": [
+            "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+            "method:Changed:Public, HideBySig:32:0:0:Int32():::"
+          ]
+        }
+      }
+    },
+    "assemblyName": "Hexalith.Tenants.Client",
+    "assemblyVersion": "0.0.0.0",
+    "culture": "",
+    "declaredTypes": [
+      ".<Module>",
+      "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler",
+      "Hexalith.Tenants.Client.Projections.ITenantProjectionStore"
+    ],
+    "informationalVersion": "1.0.0+863ab8ea3bfa5584924fe9231213af47f5eec151",
+    "mvid": "0b61b44e-fe04-45cd-8b35-2502fe1e923e",
+    "owner": "references/Hexalith.Tenants",
+    "path": "artifacts/epic16-runtime/16.2/binaries/8a0e7870b43ce15a796e8b47ccb130b232e434393bc03b0cb702e128c02bce03.dll",
+    "publicKey": "",
+    "sha256": "8a0e7870b43ce15a796e8b47ccb130b232e434393bc03b0cb702e128c02bce03",
+    "sourceRevision": "863ab8ea3bfa5584924fe9231213af47f5eec151"
+  }
+}

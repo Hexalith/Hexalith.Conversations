@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.572" timestamp="2026-10-26T05:08:18.878325+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round11_launchers_classify_only_genuinely_missing_declared_modules[present-declared-16_3]" time="0.017"><failure message="assert (2 == 1)&#10; +  where 2 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini...onAllowed&quot;: false, &quot;ownerApprovalClaimed&quot;: false, &quot;releaseAuthorized&quot;: false, &quot;pushAuthorized&quot;: false}}\n', stderr=b'').returncode">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-627/test_round11_launchers_classif0')
+story = '16_3', defect = 'present-declared'
+
+    @pytest.mark.parametrize('story',['16_1','16_2','16_3'])
+    @pytest.mark.parametrize('defect',['absent','typo','internal','present-declared'])
+    def test_round11_launchers_classify_only_genuinely_missing_declared_modules(tmp_path,story,defect):
+        wrapper='verify_story_'+story+'.py';shutil.copyfile(ROOT/'_bmad/scripts'/wrapper,tmp_path/wrapper)
+        if defect=='typo':(tmp_path/'epic16_tooling.py').write_text('import epic16_typo\n')
+        elif defect=='internal':(tmp_path/'epic16_tooling.py').write_text('raise ImportError("internal defect")\n')
+        elif defect=='present-declared':(tmp_path/'epic16_tooling.py').write_text('raise ModuleNotFoundError("internal defect", name="epic16_tooling")\n')
+        run=subprocess.run([sys.executable,str(tmp_path/wrapper)],cwd=tmp_path,capture_output=True)
+        if defect=='absent':assert run.returncode==2 and json.loads(run.stdout)['blockers']==['TOOLING_DEPENDENCY_UNAVAILABLE']
+&gt;       else:assert run.returncode==1 and b'Traceback' in run.stderr and not run.stdout
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (2 == 1)
+E        +  where 2 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini...onAllowed": false, "ownerApprovalClaimed": false, "releaseAuthorized": false, "pushAuthorized": false}}\n', stderr=b'').returncode
+
+_bmad/scripts/tests/test_epic16_tooling.py:4106: AssertionError</failure></testcase></testsuite></testsuites>

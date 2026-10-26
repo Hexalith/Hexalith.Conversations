@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/epic16-r10-final-tests.py", line 14, in <module>
+    assert result.returncode==0 and counts['failures']==counts['errors']==counts['skipped']==0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

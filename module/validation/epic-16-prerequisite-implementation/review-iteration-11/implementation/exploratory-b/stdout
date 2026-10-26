@@ -1,0 +1,85 @@
+........................................................................ [ 25%]
+........................................................................ [ 51%]
+........................................................................ [ 76%]
+...............................................................FFF       [100%]
+=================================== FAILURES ===================================
+_ test_round11_framework_ownership_and_external_attribute_constructors_are_verified[hidden-fact] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-610/test_round11_framework_ownersh0')
+control = 'hidden-fact'
+
+    @pytest.mark.parametrize('control',['hidden-fact','foreign-build-attribute','external-constructor'])
+    def test_round11_framework_ownership_and_external_attribute_constructors_are_verified(tmp_path,control):
+        """Only these test-authored assemblies execute under the real pinned runner."""
+        directory=tmp_path/'attributes';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        source='namespace System.Custom { public class HiddenFactAttribute : Xunit.FactAttribute {} } namespace System.Reflection { public class AssemblyFileVersionAttribute : System.Attribute { public AssemblyFileVersionAttribute(string value) {} } } namespace Custom { public class StampAttribute : System.Attribute { public StampAttribute(int value) {} public StampAttribute(uint value) {} } }'
+        project='<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>Attributes</AssemblyName></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" /></ItemGroup></Project>'
+        (directory/'Attributes.cs').write_text(source);(directory/'Attributes.csproj').write_text(project)
+>       command=['dotnet','build','Attributes.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+                                                                                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: b"  Determining projects to restore...
+E           Restored /tmp/pytest-of-administrator/pytest-610/test_round11_framework_owne...und11_framework_ownersh0/attributes/Attributes.csproj]
+E             0 Warning(s)
+E             1 Error(s)
+E         
+E         Time Elapsed 00:00:00.47
+E         "
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['dotnet', 'build', 'Attributes.csproj', '-c', 'Debug', '--nologo', '-m:1', '-p:NuGetAudit=false...rk_ownersh0/attributes/Attributes.csproj]\n    0 Warning(s)\n    1 Error(s)\n\nTime Elapsed 00:00:00.47\n", stderr=b'').returncode
+
+_bmad/scripts/tests/test_epic16_tooling.py:4189: AssertionError
+_ test_round11_framework_ownership_and_external_attribute_constructors_are_verified[foreign-build-attribute] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-610/test_round11_framework_ownersh1')
+control = 'foreign-build-attribute'
+
+    @pytest.mark.parametrize('control',['hidden-fact','foreign-build-attribute','external-constructor'])
+    def test_round11_framework_ownership_and_external_attribute_constructors_are_verified(tmp_path,control):
+        """Only these test-authored assemblies execute under the real pinned runner."""
+        directory=tmp_path/'attributes';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        source='namespace System.Custom { public class HiddenFactAttribute : Xunit.FactAttribute {} } namespace System.Reflection { public class AssemblyFileVersionAttribute : System.Attribute { public AssemblyFileVersionAttribute(string value) {} } } namespace Custom { public class StampAttribute : System.Attribute { public StampAttribute(int value) {} public StampAttribute(uint value) {} } }'
+        project='<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>Attributes</AssemblyName></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" /></ItemGroup></Project>'
+        (directory/'Attributes.cs').write_text(source);(directory/'Attributes.csproj').write_text(project)
+>       command=['dotnet','build','Attributes.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+                                                                                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: b"  Determining projects to restore...
+E           Restored /tmp/pytest-of-administrator/pytest-610/test_round11_framework_owne...und11_framework_ownersh1/attributes/Attributes.csproj]
+E             0 Warning(s)
+E             1 Error(s)
+E         
+E         Time Elapsed 00:00:00.49
+E         "
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['dotnet', 'build', 'Attributes.csproj', '-c', 'Debug', '--nologo', '-m:1', '-p:NuGetAudit=false...rk_ownersh1/attributes/Attributes.csproj]\n    0 Warning(s)\n    1 Error(s)\n\nTime Elapsed 00:00:00.49\n", stderr=b'').returncode
+
+_bmad/scripts/tests/test_epic16_tooling.py:4189: AssertionError
+_ test_round11_framework_ownership_and_external_attribute_constructors_are_verified[external-constructor] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-610/test_round11_framework_ownersh2')
+control = 'external-constructor'
+
+    @pytest.mark.parametrize('control',['hidden-fact','foreign-build-attribute','external-constructor'])
+    def test_round11_framework_ownership_and_external_attribute_constructors_are_verified(tmp_path,control):
+        """Only these test-authored assemblies execute under the real pinned runner."""
+        directory=tmp_path/'attributes';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        source='namespace System.Custom { public class HiddenFactAttribute : Xunit.FactAttribute {} } namespace System.Reflection { public class AssemblyFileVersionAttribute : System.Attribute { public AssemblyFileVersionAttribute(string value) {} } } namespace Custom { public class StampAttribute : System.Attribute { public StampAttribute(int value) {} public StampAttribute(uint value) {} } }'
+        project='<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>Attributes</AssemblyName></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" /></ItemGroup></Project>'
+        (directory/'Attributes.cs').write_text(source);(directory/'Attributes.csproj').write_text(project)
+>       command=['dotnet','build','Attributes.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+                                                                                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: b"  Determining projects to restore...
+E           Restored /tmp/pytest-of-administrator/pytest-610/test_round11_framework_owne...und11_framework_ownersh2/attributes/Attributes.csproj]
+E             0 Warning(s)
+E             1 Error(s)
+E         
+E         Time Elapsed 00:00:00.50
+E         "
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['dotnet', 'build', 'Attributes.csproj', '-c', 'Debug', '--nologo', '-m:1', '-p:NuGetAudit=false...rk_ownersh2/attributes/Attributes.csproj]\n    0 Warning(s)\n    1 Error(s)\n\nTime Elapsed 00:00:00.50\n", stderr=b'').returncode
+
+_bmad/scripts/tests/test_epic16_tooling.py:4189: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_framework_ownership_and_external_attribute_constructors_are_verified[hidden-fact]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_framework_ownership_and_external_attribute_constructors_are_verified[foreign-build-attribute]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_framework_ownership_and_external_attribute_constructors_are_verified[external-constructor]
+3 failed, 279 passed, 1972 deselected in 218.26s (0:03:38)

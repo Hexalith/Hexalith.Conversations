@@ -1,0 +1,31 @@
+{
+  "assemblyName": "Probe",
+  "assemblyVersion": "0.0.0.0",
+  "culture": "",
+  "publicKey": "",
+  "mvid": "c704bf52-66d9-4c61-9c62-18340cf596d2",
+  "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "declaredTypes": [
+    ".<Module>",
+    "Probe.Api",
+    "Probe.IBase`1"
+  ],
+  "api": {
+    "kind": "conservative-ecma335-public-declarations-v1",
+    "types": {
+      "Probe.Api": {
+        "header": "Public, ClassSemanticsMask, Abstract, BeforeFieldInit:::0:0:",
+        "interfaces": [
+          "class Probe.IBase`1<String>"
+        ],
+        "members": []
+      },
+      "Probe.IBase`1": {
+        "header": "Public, ClassSemanticsMask, Abstract, BeforeFieldInit::0:T:None:::0:0:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:0100020000",
+        "interfaces": [],
+        "members": []
+      }
+    }
+  }
+}

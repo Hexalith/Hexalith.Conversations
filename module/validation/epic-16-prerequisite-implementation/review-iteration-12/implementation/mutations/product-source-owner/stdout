@@ -1,0 +1,88 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_round12_native_framework_identity_matches_supported_source_return_and_params[external-stamp] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-681/test_round12_native_framework_0')
+shape = 'external-stamp'
+
+    @pytest.mark.parametrize('shape',['genuine','metadata-version','local-stamp','external-stamp','external-metadata','custom-task','custom-params','genuine-params'])
+    def test_round12_native_framework_identity_matches_supported_source_return_and_params(tmp_path,shape):
+        directory=tmp_path/'native';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes());external=directory/'external';external.mkdir();probe=directory/'probe';probe.mkdir();commands=[]
+        source='';external_source='';assembly='External';prefix='';stamp='[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]'
+        body='public void Scenario01() {}';constructor=''
+        if shape=='local-stamp':source='namespace System.Reflection { public class AssemblyInformationalVersionAttribute(string value):System.Attribute {} }'
+        elif shape=='external-stamp':external_source='namespace System.Reflection; public class AssemblyInformationalVersionAttribute(string value):System.Attribute {}';prefix='extern alias custom;';stamp='[assembly:custom::System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]'
+        elif shape=='external-metadata':external_source='namespace System.Reflection; public class AssemblyMetadataAttribute(string key,string value):System.Attribute {}';prefix='extern alias custom;';stamp+='[assembly:custom::System.Reflection.AssemblyMetadata("SourceRevisionId","'+'a'*40+'")]'
+        elif shape=='metadata-version':stamp='[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+existing.'+'a'*40+'")][assembly:System.Reflection.AssemblyMetadata("SourceRevisionId","'+'a'*40+'")]'
+        elif shape=='custom-task':external_source='namespace System.Threading.Tasks; public class Task {}';assembly='System.Threading.Tasks';prefix='extern alias custom;';body='public custom::System.Threading.Tasks.Task Scenario01() => null;'
+        elif shape=='custom-params':external_source='namespace System; [System.AttributeUsage(System.AttributeTargets.Parameter)] public class OtherArrayAttribute:System.Attribute {}';prefix='extern alias custom;';constructor='public TestClass([custom::System.OtherArray] string[] values) {}'
+        elif shape=='genuine-params':constructor='public TestClass(params string[] values) {}'
+        project='<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><GenerateAssemblyInfo>false</GenerateAssemblyInfo><AssemblyName>'+assembly+'</AssemblyName></PropertyGroup></Project>'
+        (external/'External.csproj').write_text(project);(external/'Attribute.cs').write_text(external_source or 'namespace Synthetic; public class Unused {}')
+        reference='<ProjectReference Include="../external/External.csproj" Aliases="custom" />' if external_source else ''
+        (probe/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><GenerateAssemblyInfo>false</GenerateAssemblyInfo><RunAnalyzers>false</RunAnalyzers></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" />'+reference+'</ItemGroup></Project>')
+        (probe/'Tests.cs').write_text(prefix+stamp+source+' namespace Synthetic { public class TestClass { '+constructor+' [Xunit.Fact] '+body+' } }')
+        argv=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(argv,cwd=probe,capture_output=True,timeout=120);commands.append(dict(argv=argv,cwd=str(probe),exitCode=build.returncode));(directory/'build.stdout').write_bytes(build.stdout);(directory/'build.stderr').write_bytes(build.stderr);assert build.returncode==0,(build.stdout,build.stderr)
+        binary=probe/'bin/Debug/net10.0/Evidence.dll'
+        if shape=='custom-params':
+            for path in [binary,probe/'bin/Debug/net10.0/External.dll',external/'bin/Debug/net10.0/External.dll']:
+                content=path.read_bytes();assert content.count(b'OtherArrayAttribute')==1;path.write_bytes(content.replace(b'OtherArrayAttribute',b'ParamArrayAttribute'))
+        positive=shape in ('genuine','metadata-version','genuine-params')
+        if shape in ('custom-task','custom-params','genuine','genuine-params','metadata-version'):
+            argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(directory/'result.trx')];run=subprocess.run(argv,cwd=probe,capture_output=True,timeout=30);commands.append(dict(argv=argv,cwd=str(probe),exitCode=run.returncode));(directory/'run.stdout').write_bytes(run.stdout);(directory/'run.stderr').write_bytes(run.stderr)
+            assert run.returncode==(1 if shape=='custom-params' else 0),(run.stdout,run.stderr)
+            if shape=='custom-params':assert b'constructor parameters did not have matching fixture data' in run.stdout+run.stderr
+        round12_retain_native(shape,directory,commands)
+        if positive:assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['sourceRevision']=='a'*40
+        else:
+            with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')
+        if shape in ('local-stamp','external-stamp','external-metadata'):
+>           with pytest.raises(ValueError):tooling.native_helper.inspect_product(binary.read_bytes(),'a'*40)
+E           Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4427: Failed
+_ test_round12_native_framework_identity_matches_supported_source_return_and_params[external-metadata] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-681/test_round12_native_framework_1')
+shape = 'external-metadata'
+
+    @pytest.mark.parametrize('shape',['genuine','metadata-version','local-stamp','external-stamp','external-metadata','custom-task','custom-params','genuine-params'])
+    def test_round12_native_framework_identity_matches_supported_source_return_and_params(tmp_path,shape):
+        directory=tmp_path/'native';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes());external=directory/'external';external.mkdir();probe=directory/'probe';probe.mkdir();commands=[]
+        source='';external_source='';assembly='External';prefix='';stamp='[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]'
+        body='public void Scenario01() {}';constructor=''
+        if shape=='local-stamp':source='namespace System.Reflection { public class AssemblyInformationalVersionAttribute(string value):System.Attribute {} }'
+        elif shape=='external-stamp':external_source='namespace System.Reflection; public class AssemblyInformationalVersionAttribute(string value):System.Attribute {}';prefix='extern alias custom;';stamp='[assembly:custom::System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]'
+        elif shape=='external-metadata':external_source='namespace System.Reflection; public class AssemblyMetadataAttribute(string key,string value):System.Attribute {}';prefix='extern alias custom;';stamp+='[assembly:custom::System.Reflection.AssemblyMetadata("SourceRevisionId","'+'a'*40+'")]'
+        elif shape=='metadata-version':stamp='[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+existing.'+'a'*40+'")][assembly:System.Reflection.AssemblyMetadata("SourceRevisionId","'+'a'*40+'")]'
+        elif shape=='custom-task':external_source='namespace System.Threading.Tasks; public class Task {}';assembly='System.Threading.Tasks';prefix='extern alias custom;';body='public custom::System.Threading.Tasks.Task Scenario01() => null;'
+        elif shape=='custom-params':external_source='namespace System; [System.AttributeUsage(System.AttributeTargets.Parameter)] public class OtherArrayAttribute:System.Attribute {}';prefix='extern alias custom;';constructor='public TestClass([custom::System.OtherArray] string[] values) {}'
+        elif shape=='genuine-params':constructor='public TestClass(params string[] values) {}'
+        project='<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><GenerateAssemblyInfo>false</GenerateAssemblyInfo><AssemblyName>'+assembly+'</AssemblyName></PropertyGroup></Project>'
+        (external/'External.csproj').write_text(project);(external/'Attribute.cs').write_text(external_source or 'namespace Synthetic; public class Unused {}')
+        reference='<ProjectReference Include="../external/External.csproj" Aliases="custom" />' if external_source else ''
+        (probe/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><GenerateAssemblyInfo>false</GenerateAssemblyInfo><RunAnalyzers>false</RunAnalyzers></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" />'+reference+'</ItemGroup></Project>')
+        (probe/'Tests.cs').write_text(prefix+stamp+source+' namespace Synthetic { public class TestClass { '+constructor+' [Xunit.Fact] '+body+' } }')
+        argv=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(argv,cwd=probe,capture_output=True,timeout=120);commands.append(dict(argv=argv,cwd=str(probe),exitCode=build.returncode));(directory/'build.stdout').write_bytes(build.stdout);(directory/'build.stderr').write_bytes(build.stderr);assert build.returncode==0,(build.stdout,build.stderr)
+        binary=probe/'bin/Debug/net10.0/Evidence.dll'
+        if shape=='custom-params':
+            for path in [binary,probe/'bin/Debug/net10.0/External.dll',external/'bin/Debug/net10.0/External.dll']:
+                content=path.read_bytes();assert content.count(b'OtherArrayAttribute')==1;path.write_bytes(content.replace(b'OtherArrayAttribute',b'ParamArrayAttribute'))
+        positive=shape in ('genuine','metadata-version','genuine-params')
+        if shape in ('custom-task','custom-params','genuine','genuine-params','metadata-version'):
+            argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(directory/'result.trx')];run=subprocess.run(argv,cwd=probe,capture_output=True,timeout=30);commands.append(dict(argv=argv,cwd=str(probe),exitCode=run.returncode));(directory/'run.stdout').write_bytes(run.stdout);(directory/'run.stderr').write_bytes(run.stderr)
+            assert run.returncode==(1 if shape=='custom-params' else 0),(run.stdout,run.stderr)
+            if shape=='custom-params':assert b'constructor parameters did not have matching fixture data' in run.stdout+run.stderr
+        round12_retain_native(shape,directory,commands)
+        if positive:assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['sourceRevision']=='a'*40
+        else:
+            with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')
+        if shape in ('local-stamp','external-stamp','external-metadata'):
+>           with pytest.raises(ValueError):tooling.native_helper.inspect_product(binary.read_bytes(),'a'*40)
+E           Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4427: Failed
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_native_framework_identity_matches_supported_source_return_and_params[external-stamp]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round12_native_framework_identity_matches_supported_source_return_and_params[external-metadata]
+2 failed, 2715 deselected in 8.99s

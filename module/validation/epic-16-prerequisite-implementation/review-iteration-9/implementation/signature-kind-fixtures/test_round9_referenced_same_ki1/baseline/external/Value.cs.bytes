@@ -1,0 +1,1 @@
+namespace External; public struct Value {}

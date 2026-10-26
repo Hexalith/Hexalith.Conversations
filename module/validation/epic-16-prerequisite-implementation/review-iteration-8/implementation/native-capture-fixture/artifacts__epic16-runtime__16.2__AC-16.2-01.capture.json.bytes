@@ -1,0 +1,17 @@
+{
+  "binary": {
+    "path": "artifacts/epic16-runtime/16.2/binaries/8142b8e1530657ed2138cfdb1ceb3589c09bae823163c573e8a9a3c235337ffd.dll",
+    "sha256": "8142b8e1530657ed2138cfdb1ceb3589c09bae823163c573e8a9a3c235337ffd"
+  },
+  "candidate": "4e52e0a2c8bfadf9d733bdce08b4fd97e7ca1439",
+  "captureVersion": 1,
+  "native": {
+    "path": "artifacts/epic16-runtime/16.2/AC-16.2-01.trx",
+    "sha256": "b86cb7141e8502d4d9bff226affe55e35adb39a40a1aef961dccf671e6a18e5e"
+  },
+  "originalCodeBase": "/tmp/pytest-of-administrator/pytest-489/test_round6_genuine_native_cap0/runtime/artifacts/measurement-only-runner/Evidence.dll",
+  "originalRelativePath": "artifacts/measurement-only-runner/Evidence.dll",
+  "originalRepositoryRoot": "/tmp/pytest-of-administrator/pytest-489/test_round6_genuine_native_cap0/runtime",
+  "pathStyle": "posix",
+  "scenarioId": "AC-16.2-01"
+}

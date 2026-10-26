@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="4.095" timestamp="2026-10-26T01:15:34.113898+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_product_metadata_rejects_conflicting_optional_source_revision" time="3.593"><failure message="Failed: DID NOT RAISE ValueError">def test_round9_product_metadata_rejects_conflicting_optional_source_revision():
+        product=dict(assemblyName='Synthetic.RevisionApi',surfaces=['Synthetic.Surface'])
+        source='[assembly: System.Reflection.AssemblyMetadata("SourceRevisionId","'+('b'*40)+'")]\nnamespace Synthetic; public class Surface {}'
+&gt;       with pytest.raises(ValueError):tooling.native_helper.inspect_product(round9_compile_product(product,'a'*40,source),'a'*40)
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:3505: Failed</failure></testcase></testsuite></testsuites>

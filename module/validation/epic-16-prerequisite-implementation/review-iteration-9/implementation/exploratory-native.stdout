@@ -1,0 +1,126 @@
+...............FF                                                        [100%]
+=================================== FAILURES ===================================
+_ test_qualified_runtime_evaluate_binds_binary_dependency_canonicalizer_and_ancestor _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-533/test_qualified_runtime_evaluat0/runtime')
+
+    def test_qualified_runtime_evaluate_binds_binary_dependency_canonicalizer_and_ancestor(qualified_runtime):
+        result = runtime_evaluate(qualified_runtime)
+        assert result['result'] == 'PASS', result
+        assert result['runtimeQualified'] is True
+        assert result['bindings']['entry']['authorizationRevision'] != result['candidate']['commit']
+        assert result['bindings']['testBinary']['sha256'] == digest(retained_binary(qualified_runtime).read_bytes())
+        assert result['bindings']['testBinary']['sourceRevision'] == result['candidate']['commit']
+        assert result['bindings']['testBinary']['testFramework'] == 'xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c'
+        assert result['bindings']['canonicalizerSource'] == dict(path=tooling.CANONICALIZER_SOURCE,sha256=tooling.measurements.EVENTSTORE_CANONICALIZER_SHA256)
+>       assert result['candidate']['gitlinks'] == [dict(path='references/Hexalith.EventStore',commit=git(qualified_runtime/'references/Hexalith.EventStore','rev-parse','HEAD'))]
+E       AssertionError: assert [{'path': 're...9b5bd7c3dd6'}] == [{'path': 're...8ba3b9f2e85'}]
+E         
+E         Left contains one more item: {'path': 'references/Hexalith.Tenants', 'commit': '30c809d13877e1ae59e996ee15ec59b5bd7c3dd6'}
+E         Use -v to get more diff
+
+_bmad/scripts/tests/test_epic16_tooling.py:1075: AssertionError
+____ test_round6_genuine_native_capture_publication_survives_fresh_checkout ____
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-533/test_round6_genuine_native_cap0/runtime')
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-533/test_round6_genuine_native_cap0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7601060e78d0>
+capsys = <_pytest.capture.CaptureFixture object at 0x7601060e55d0>
+
+    def test_round6_genuine_native_capture_publication_survives_fresh_checkout(qualified_runtime,tmp_path,monkeypatch,capsys):
+        """Execute genuine fixture tests once, retain raw TRX, then lose build outputs."""
+        repo=qualified_runtime;story='16.2';contract_path=tooling.contract_path(story)
+        contract=json.loads((repo/contract_path).read_bytes());contract['nativeProtocol']['publicSourceBaseline']=git(repo,'rev-parse','HEAD');dump(repo,contract_path,contract)
+        monkeypatch.setattr(tooling,'CONTRACT_PINS',dict(tooling.CONTRACT_PINS,**{contract_path:digest((repo/contract_path).read_bytes())}))
+        binding=json.loads((repo/tooling.BINDING).read_bytes())
+        for row in binding['sources']:
+            if row['path']==contract_path:row['sha256']=tooling.CONTRACT_PINS[contract_path]
+        dump(repo,tooling.BINDING,binding)
+        source=contract['nativeProtocol']['runtimeTestSource']
+        code='''namespace Hexalith.Conversations.IntegrationTests.Epic16;
+    public sealed class Story16_2EvidenceTests(Xunit.ITestOutputHelper output)
+    {
+        private void Emit(string scenario)
+        {
+            var payload = System.Text.Json.Nodes.JsonNode.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(System.Environment.GetEnvironmentVariable("EPIC16_FIXTURE_PAYLOADS")!, scenario+".json")))!;
+            System.Reflection.Assembly[] assemblies = [typeof(Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter).Assembly, typeof(Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1).Assembly, typeof(Hexalith.Tenants.Client.Projections.ITenantProjectionStore).Assembly, typeof(Hexalith.Tenants.Contracts.Events.TenantDisabled).Assembly, typeof(Hexalith.EventStore.Client.Projections.IReadModelStore).Assembly, typeof(Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest).Assembly, typeof(Hexalith.EventStore.DomainService.DomainProjectionDispatcher).Assembly];
+            string[] owners = [".",".","references/Hexalith.Tenants","references/Hexalith.Tenants","references/Hexalith.EventStore","references/Hexalith.EventStore","references/Hexalith.EventStore"];
+            var loaded = new System.Text.Json.Nodes.JsonArray();
+            for (int i=0;i<assemblies.Length;i++)
+            {
+                var assembly=assemblies[i];
+                string version=System.Reflection.CustomAttributeExtensions.GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>(assembly)!.InformationalVersion;
+                loaded.Add(new System.Text.Json.Nodes.JsonObject { ["assemblyName"]=assembly.GetName().Name, ["owner"]=owners[i], ["sourceRevision"]=version[(version.LastIndexOf('+')+1)..], ["mvid"]=assembly.ManifestModule.ModuleVersionId.ToString(), ["sha256"]=System.Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.IO.File.ReadAllBytes(assembly.Location))).ToLowerInvariant(), ["codeBase"]=assembly.Location });
+            }
+            payload["loadedProducts"]=loaded;
+            output.WriteLine(payload.ToJsonString());
+        }
+    '''+''.join('[Xunit.Fact] public void Scenario0'+str(n)+'() => Emit("AC-16.2-0'+str(n)+'");\n' for n in range(1,6))+'}\n'
+        (repo/source).write_bytes(code.replace('\n','\r\n').encode())
+        spec=tooling.spec_path('runtime',story);(repo/spec).write_bytes((repo/'fixture-spec.md').read_bytes())
+        git(repo,'add','.');git(repo,'commit','-qm','test: bind portable native capture fixture')
+        candidate=git(repo,'rev-parse','HEAD');build=tmp_path/'portable-build';build.mkdir()
+        product_rows=round9_loaded_products(repo,candidate)
+        references=''.join('<Reference Include="'+row['assemblyName']+'"><HintPath>'+row['codeBase']+'</HintPath></Reference>' for row in product_rows)
+        (build/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><GenerateAssemblyInfo>false</GenerateAssemblyInfo></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" />'+references+'</ItemGroup></Project>')
+        (build/'Tests.cs').write_bytes((repo/source).read_bytes());(build/'Stamp.cs').write_text('[assembly: System.Reflection.AssemblyInformationalVersion("1.0.0+'+candidate+'")]')
+        result=subprocess.run(['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'],cwd=build,capture_output=True,timeout=120);assert result.returncode==0,result.stdout.decode()
+        runner=repo/'artifacts/measurement-only-runner';shutil.copytree(build/'bin/Debug/net10.0',runner)
+        retained_binary(repo).unlink()
+        payloads=tmp_path/'payloads';payloads.mkdir()
+        captured={}
+        for n in range(1,6):
+            scenario=f'AC-{story}-0{n}';payload=dict(scenarioId=scenario,candidate=candidate,sources=[dict(path=source,sha256=digest((repo/source).read_bytes()))],contractSha256=tooling.CONTRACT_PINS[contract_path],observations=deepcopy(OBSERVATIONS[scenario]));dump(payloads,scenario+'.json',payload)
+            target=repo/tooling.native_path('runtime',scenario);target.parent.mkdir(parents=True,exist_ok=True)
+            command=['dotnet',str(runner/'Evidence.dll'),'-automated','sync','-failSkips','-method','Hexalith.Conversations.IntegrationTests.Epic16.Story16_2EvidenceTests.Scenario0'+str(n),'-trx',str(target)]
+            result=subprocess.run(command,env=dict(os.environ,EPIC16_FIXTURE_PAYLOADS=str(payloads)),capture_output=True,timeout=120);assert result.returncode==0,(result.stdout,result.stderr)
+            raw=target.read_bytes();assert records.parse_trx(raw)['code_bases']==[str(runner/'Evidence.dll')]
+            retain_capture(repo,scenario,(runner/'Evidence.dll').read_bytes());assert target.read_bytes()==raw;captured[str(target.relative_to(repo))]=raw
+            args=['--repository',str(repo),'--contract',contract_path,'--scenario',scenario,'--output',tooling.receipt_path('runtime',scenario)]
+            assert tooling.main(args,story=story)==0,capsys.readouterr().out;capsys.readouterr()
+        paths=tooling.final_paths('runtime',story);args=['--repository',str(repo),'--contract',contract_path,'--output-json',paths[0],'--output-markdown',paths[1]]
+>       assert records.main(args)==0,capsys.readouterr().out
+E       AssertionError: {
+E           "assertionLedger": [
+E             {
+E               "id": "NATIVE_CAPTURE_INVENTORY",
+E               "state": "FAIL",
+E               "subject": "artifacts/epic16-runtime/16.2/binaries"
+E             }
+E           ],
+E           "authority": {
+E             "executionAllowed": false,
+E             "implementationHold": "ACTIVE",
+E             "ownerApprovalClaimed": false,
+E             "pushAuthorized": false,
+E             "releaseAuthorized": false
+E           },
+E           "bindings": {},
+E           "blockers": [
+E             "NATIVE_CAPTURE_INVENTORY"
+E           ],
+E           "candidate": null,
+E           "counts": {
+E             "failed": 0,
+E             "passed": 0,
+E             "skipped": 0,
+E             "total": 0
+E           },
+E           "exitCode": 1,
+E           "result": "FAIL",
+E           "runtimeQualified": false,
+E           "scenarioId": "AC-16.2-06",
+E           "schemaVersion": "hexalith.conversations.epic16-measured-result.v1",
+E           "storyId": "16.2",
+E           "validationScope": "runtime"
+E         }
+E         
+E       assert 1 == 0
+E        +  where 1 = <function main at 0x760105563560>(['--repository', '/tmp/pytest-of-administrator/pytest-533/test_round6_genuine_native_cap0/runtime', '--contract', '_bm...6-tooling-v1/story-contracts/16.2.json', '--output-json', 'docs/release-evidence/story-16.2-final-record-v2.json', ...])
+E        +    where <function main at 0x760105563560> = records.main
+
+_bmad/scripts/tests/test_epic16_tooling.py:2424: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_qualified_runtime_evaluate_binds_binary_dependency_canonicalizer_and_ancestor
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_genuine_native_capture_publication_survives_fresh_checkout
+2 failed, 15 passed, 1571 deselected in 41.59s

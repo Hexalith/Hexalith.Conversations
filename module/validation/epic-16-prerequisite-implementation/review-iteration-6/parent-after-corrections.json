@@ -1,0 +1,62 @@
+[
+  {
+    "finding": "R6B3 prior horizon 999 becomes 14",
+    "scenario": "AC-16.1-04",
+    "schema": "accepted",
+    "error": "ValueError: typed injected condition and measured outcome"
+  },
+  {
+    "finding": "R6B5 healthy rows reused for another tenant",
+    "scenario": "AC-16.1-02",
+    "schema": "accepted",
+    "error": "ValueError: healthy capture binds exact tenant logical key"
+  },
+  {
+    "finding": "R6B7 readiness terminates after 1 attempt and 1 ms",
+    "scenario": "AC-16.3-01",
+    "schema": "accepted",
+    "error": "ValueError: readiness reached retry or timeout terminal condition"
+  },
+  {
+    "finding": "R6B9 zero watermarks with recovered checkpoint",
+    "scenario": "AC-16.3-04",
+    "schema": "accepted",
+    "error": "ValueError: old worker captures actual preceding checkpoint watermark and pending state"
+  },
+  {
+    "finding": "R6B6 legitimate smaller multicollection history",
+    "scenario": "AC-16.2-02",
+    "schema": "accepted",
+    "checks": [
+      "canonical-replay-bytes",
+      "hash-and-roundtrip",
+      "event-derived-anchor",
+      "observation-freshness"
+    ],
+    "semantic": "accepted"
+  },
+  {
+    "finding": "R6B10/R6E1 native whitespace",
+    "codepoint": "U+001C",
+    "nativePartyId": "\u001c",
+    "opaqueOracle": "\u001c"
+  },
+  {
+    "finding": "R6B10/R6E1 native whitespace",
+    "codepoint": "U+001D",
+    "nativePartyId": "\u001d",
+    "opaqueOracle": "\u001d"
+  },
+  {
+    "finding": "R6B10/R6E1 native whitespace",
+    "codepoint": "U+001E",
+    "nativePartyId": "\u001e",
+    "opaqueOracle": "\u001e"
+  },
+  {
+    "finding": "R6B10/R6E1 native whitespace",
+    "codepoint": "U+001F",
+    "nativePartyId": "\u001f",
+    "opaqueOracle": "\u001f"
+  }
+]

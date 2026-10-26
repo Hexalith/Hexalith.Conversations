@@ -1,0 +1,26 @@
+{
+  "epoch": "iteration-9 frozen source; combined verification still pending",
+  "incrementalCodeDiff": "/tmp/epic16-review9-code.diff",
+  "incrementalCodeDiffSha256": "f55b3d7dda5b0e6e66bd880e110d2419f49b72f13d187e87210557a7e9a1d6d1",
+  "incrementalCodeDiffLinesRead": 1533,
+  "frozenFilesVerified": 84,
+  "preservedContractsUnchanged": [
+    "16.1",
+    "16.2",
+    "16.3"
+  ],
+  "bindingSourceHashesVerified": 70,
+  "entry": null,
+  "changedObjectNodes": 40,
+  "changedOpenObjectNodes": [],
+  "changedNumericConstantsTypedInteger": [
+    "/$defs/nativeCapture/properties/captureVersion"
+  ],
+  "earlyFeedbackResolved": [
+    "R9P1 abstract flags with valid Abstract names",
+    "R9P2 exact CRLF native helper bytes",
+    "R9P3 content-free wire state digest",
+    "R9P4 actual safe HTTP-200 outcome classification"
+  ],
+  "implementationHold": "ACTIVE"
+}

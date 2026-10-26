@@ -1,0 +1,137 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_clean_different_repository_cannot_claim_unexecuted_bound_source_bytes[_bmad/scripts/epic16_tooling.py] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-239/test_clean_different_repositor0/fixture')
+path = '_bmad/scripts/epic16_tooling.py'
+
+    @pytest.mark.parametrize('path', ['_bmad/scripts/epic16_tooling.py', '_bmad/scripts/epic16_measurements.py', '_bmad/scripts/epic16_native_helper/Program.cs'])
+    def test_clean_different_repository_cannot_claim_unexecuted_bound_source_bytes(repository, path):
+        target = repository/path; target.write_bytes(target.read_bytes()+b'\n# different bound source\n')
+        bind(repository); git(repository, 'add', '.'); git(repository, 'commit', '-qm', 'test: bind different disposable source')
+>       rejected(evaluate(repository), 'EXECUTING_SOURCE_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:1081: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'EXECUTING_SOURCE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+>       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'EXECUTING_SOURCE_DRIFT' in ['NATIVE_BINDING_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:98: AssertionError
+_ test_clean_different_repository_cannot_claim_unexecuted_bound_source_bytes[_bmad/scripts/epic16_measurements.py] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-239/test_clean_different_repositor1/fixture')
+path = '_bmad/scripts/epic16_measurements.py'
+
+    @pytest.mark.parametrize('path', ['_bmad/scripts/epic16_tooling.py', '_bmad/scripts/epic16_measurements.py', '_bmad/scripts/epic16_native_helper/Program.cs'])
+    def test_clean_different_repository_cannot_claim_unexecuted_bound_source_bytes(repository, path):
+        target = repository/path; target.write_bytes(target.read_bytes()+b'\n# different bound source\n')
+        bind(repository); git(repository, 'add', '.'); git(repository, 'commit', '-qm', 'test: bind different disposable source')
+>       rejected(evaluate(repository), 'EXECUTING_SOURCE_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:1081: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'EXECUTING_SOURCE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+>       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'EXECUTING_SOURCE_DRIFT' in ['NATIVE_BINDING_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:98: AssertionError
+_ test_clean_different_repository_cannot_claim_unexecuted_bound_source_bytes[_bmad/scripts/epic16_native_helper/Program.cs] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-239/test_clean_different_repositor2/fixture')
+path = '_bmad/scripts/epic16_native_helper/Program.cs'
+
+    @pytest.mark.parametrize('path', ['_bmad/scripts/epic16_tooling.py', '_bmad/scripts/epic16_measurements.py', '_bmad/scripts/epic16_native_helper/Program.cs'])
+    def test_clean_different_repository_cannot_claim_unexecuted_bound_source_bytes(repository, path):
+        target = repository/path; target.write_bytes(target.read_bytes()+b'\n# different bound source\n')
+        bind(repository); git(repository, 'add', '.'); git(repository, 'commit', '-qm', 'test: bind different disposable source')
+>       rejected(evaluate(repository), 'EXECUTING_SOURCE_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:1081: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'EXECUTING_SOURCE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+>       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'EXECUTING_SOURCE_DRIFT' in ['NATIVE_BINDING_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:98: AssertionError
+_ test_runtime_evaluator_rejects_clean_bound_sources_that_differ_from_executing_tree[_bmad/scripts/epic16_tooling.py] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-239/test_runtime_evaluator_rejects0/runtime')
+path = '_bmad/scripts/epic16_tooling.py'
+
+    @pytest.mark.parametrize('path', ['_bmad/scripts/epic16_tooling.py', '_bmad/scripts/epic16_native_helper/Program.cs'])
+    def test_runtime_evaluator_rejects_clean_bound_sources_that_differ_from_executing_tree(qualified_runtime, path):
+        target = qualified_runtime/path; target.write_bytes(target.read_bytes()+b'\n// differing source bytes\n')
+        binding = json.loads((qualified_runtime/tooling.BINDING).read_bytes())
+        for row in binding['sources']:
+            if row['path'] == path: row['sha256'] = digest(target.read_bytes())
+        dump(qualified_runtime, tooling.BINDING, binding)
+        git(qualified_runtime, 'add', '.'); git(qualified_runtime, 'commit', '-qm', 'test: bind differing runtime consumer source')
+>       rejected(runtime_evaluate(qualified_runtime), 'EXECUTING_SOURCE_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:1139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'EXECUTING_SOURCE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+>       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'EXECUTING_SOURCE_DRIFT' in ['NATIVE_BINDING_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:98: AssertionError
+_ test_runtime_evaluator_rejects_clean_bound_sources_that_differ_from_executing_tree[_bmad/scripts/epic16_native_helper/Program.cs] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-239/test_runtime_evaluator_rejects1/runtime')
+path = '_bmad/scripts/epic16_native_helper/Program.cs'
+
+    @pytest.mark.parametrize('path', ['_bmad/scripts/epic16_tooling.py', '_bmad/scripts/epic16_native_helper/Program.cs'])
+    def test_runtime_evaluator_rejects_clean_bound_sources_that_differ_from_executing_tree(qualified_runtime, path):
+        target = qualified_runtime/path; target.write_bytes(target.read_bytes()+b'\n// differing source bytes\n')
+        binding = json.loads((qualified_runtime/tooling.BINDING).read_bytes())
+        for row in binding['sources']:
+            if row['path'] == path: row['sha256'] = digest(target.read_bytes())
+        dump(qualified_runtime, tooling.BINDING, binding)
+        git(qualified_runtime, 'add', '.'); git(qualified_runtime, 'commit', '-qm', 'test: bind differing runtime consumer source')
+>       rejected(runtime_evaluate(qualified_runtime), 'EXECUTING_SOURCE_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:1139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'EXECUTING_SOURCE_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+>       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'EXECUTING_SOURCE_DRIFT' in ['NATIVE_BINDING_INVALID']
+
+_bmad/scripts/tests/test_epic16_tooling.py:98: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_clean_different_repository_cannot_claim_unexecuted_bound_source_bytes[_bmad/scripts/epic16_tooling.py]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_clean_different_repository_cannot_claim_unexecuted_bound_source_bytes[_bmad/scripts/epic16_measurements.py]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_clean_different_repository_cannot_claim_unexecuted_bound_source_bytes[_bmad/scripts/epic16_native_helper/Program.cs]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_runtime_evaluator_rejects_clean_bound_sources_that_differ_from_executing_tree[_bmad/scripts/epic16_tooling.py]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_runtime_evaluator_rejects_clean_bound_sources_that_differ_from_executing_tree[_bmad/scripts/epic16_native_helper/Program.cs]
+5 failed, 381 deselected in 3.45s

@@ -1,0 +1,13 @@
+{
+  "rootHead": "8748a6b6e80b3ecbae2bb0174b43f40e30e6a148",
+  "story161Status": "draft",
+  "stories161Through163SprintStatus": "backlog",
+  "actualAuthority": "ACTIVE hold; entry null; trust empty; all four authority flags false",
+  "unrelatedUserCommit": "8748a6b6e80b3ecbae2bb0174b43f40e30e6a148",
+  "unrelatedFilesUnchangedAtHead": {
+    "_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md": "b75f23a2801096413dd356ddd5f8260bfb3ec829e66fb476566d2bee1e4a750c",
+    "docs/implementation/ext-conv-ai-1-runtime-qualification.md": "92aacc8e608b67224f3d0639644c9e23d4f878c414f69766c42a94d5beb21453",
+    "tests/tooling/test_ext_conv_ai_1_installed_delivery_packet.py": "3cf9003c5034f82fe1e8420aa6ae30f8ace9eb6bbea192b984178162dfdd31e6"
+  },
+  "deferredLedgerDisposition": "Pre-existing parent/user edits preserved; this worker did not write it."
+}

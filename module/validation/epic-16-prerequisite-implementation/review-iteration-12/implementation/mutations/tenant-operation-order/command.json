@@ -1,0 +1,29 @@
+{
+  "name": "tenant-operation-order",
+  "path": "_bmad/scripts/epic16_schedules.py",
+  "old": "require(minimum_order < operation['order'] < operation['completedOrder'], 'ordered tenant operation and completion')",
+  "new": "None",
+  "selector": "round12 and (attempt-order or read-early or same-order)",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-tenant-operation-order-5kftetka/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12 and (attempt-order or read-early or same-order)",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/tenant-operation-order/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-tenant-operation-order-5kftetka",
+  "exitCode": 1,
+  "elapsedSeconds": 17.5392292800243,
+  "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+  "mutatedSha256": "94d7c75399633f81ca8fb62d306b1034f35ee40f2d30e74330a73a111f80dc5c",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 7,
+    "failures": 7,
+    "errors": 0,
+    "skipped": 0
+  }
+}

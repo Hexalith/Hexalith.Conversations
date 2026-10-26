@@ -1,0 +1,112 @@
+{
+  "artifacts": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/build.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/build.stdout",
+      "sha256": "9e9c3b3c8fcaf11dd0e30a8bbe8250476916b6e2ebb3c90ed85dcfc21937e776"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/control-principal.json",
+      "sha256": "177c78707591944238a89b339180e716783471e4238f740a0af8047bdabcba66"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/initial-build.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/initial-build.stdout",
+      "sha256": "9b242cb0c6238aff0f7d44ae5d407126e464135326eb215d0adfb850d2956aa6"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/initial-probe-disposition.json",
+      "sha256": "9a1d3ed673053d33a9747f36f23d51342de26ae9f80abdab63ba58fb0c3adfa1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/initial-probe.py",
+      "sha256": "7af2e4159e78c92de4c0af73350593b28f23bfc40784debb8df4ac1e6fd7fd77"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/probe.py",
+      "sha256": "a90b3aadb6a0085ddfe65b69ee9143a3d2929647430382e647046c3b131ba289"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/results.json",
+      "sha256": "9432e9e71b2434ce843d88a61d1c8bd065da31485624762ccd5a1b9abb6becc8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/ITenantAccessProjectionHealthProvider.cs",
+      "sha256": "395265907f3c6e4e5b114000d196b29decef5970b64905972cc3ff5174c7cedf"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/ITenantAccessStateStore.cs",
+      "sha256": "b1277a7a11c41765e784ee2a07248c4f56cb84ec93ba6e341d02f67196d6acd9"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/Probe.csproj",
+      "sha256": "77d24600c7fbe765e5274497273bcacc2ef06ac806abdac524d417b115107122"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/Program.cs",
+      "sha256": "0ba4441dffc2b6c6673a5bc7090e8809d89b87d29aabe6c048b2074c40b5857d"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/TenantAccessDenialKind.cs",
+      "sha256": "5e11afbb24d63758e1265dfb86214c72ea870dab5e19838bc571bddd7e456882"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/TenantAccessEvaluation.cs",
+      "sha256": "3e1dafd3ba7717cfd2dd66e96faa908a1b666dc5a7afde43ae77ae55465ec730"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/TenantAccessEvaluator.cs",
+      "sha256": "0ce89e385db66952b366900f8cbd787c42eee03e81597236029fa94e2c6cc16b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/TenantAccessProjectionHealth.cs",
+      "sha256": "c185f193a380c13508f2e72b0ea3ddc78c6d1f2cb5bb8cfdb3699a90cb6b82d9"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/TenantAccessState.cs",
+      "sha256": "5dd919be4c65a633cd49253a8258be292bd9f082caaaa70baf052d41a76f65b4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/TenantRole.cs",
+      "sha256": "78dbc4d45629e0dca93c01de9ac9ca0960371fa3a50a6fa4facb12829876291f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/TenantStatus.cs",
+      "sha256": "576ca1f1a957a067708b7c2d32fd9287a60be89db54e056b1003eae713aa9b47"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/TenantStatusJsonConverter.cs",
+      "sha256": "97688d479cfe4d0bba267fd2a97ba01b02df25a6b6d5682a64bb2547ee3e4b26"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/bin/Debug/net10.0/Probe.dll.bytes",
+      "sha256": "3576f4da1ca17e181795fe5182fa19aa358431c360e55b8856b07f2a0212ac2a"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/bin/Debug/net10.0/Probe.runtimeconfig.json",
+      "sha256": "dd72603f49fc74ad956017904a955b25d7043d65291c0c7d033a2064e141622a"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/retained/global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/run.stdout",
+      "sha256": "f89b790957d557aa0f76139ac2cd258c3841d22e0376d83c1d017477c8fa2c3b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-access-parity-proof/unknown-role.json",
+      "sha256": "06574e7b8103a1cd1a8675112625810eb8f99b81f1ee86fb171827d23f5666eb"
+    }
+  ]
+}

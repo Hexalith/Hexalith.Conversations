@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.262" timestamp="2026-10-25T20:46:49.099296+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_genuine_terminal_and_redaction_serialization_and_key_catalog_goldens" time="0.002"><failure message="AssertionError: assert '446b8a3ad75f...49e4d72a1718b' == '2e6c37d48709...ce91e14d3af9f'&#10;  &#10;  - 2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f&#10;  + 446b8a3ad75fdfe2680c312655bfb763a5df3906962432edfe849e4d72a1718b">def test_round4_genuine_terminal_and_redaction_serialization_and_key_catalog_goldens():
+        domain=tooling.measurements.domain;relations=tooling.measurements.relationships
+        goldens=json.loads((ROOT/'_bmad/scripts/tests/fixtures/epic16-contract-wire-goldens.json').read_bytes())
+        assert len(goldens['additionalEvents'])==5
+        for row in goldens['additionalEvents']:
+            envelope=dict(tenant='tenant-a',conversation='conversation-a',sequence=1,eventType=row['eventType'],messageId='transport',timestampUtcTicks=1,serializationFormat='json',payload=row['payload'])
+            binding,_,payload=domain.conversation_envelope(envelope)
+            assert binding['eventType']==row['eventType']
+            if row['eventType']!='MessageContentRedacted': assert 'reasonCode' in payload
+        vectors=json.loads((ROOT/'_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json').read_bytes())
+        for row in vectors['keys']:
+            assert relations.conversation_key(row['tenant'],row['resource'])==row['key']
+            assert relations.index_key(row['tenant'])==row['index']
+        assert len({row['key'] for row in vectors['keys']})==len(vectors['keys'])
+        for row in vectors['catalogs']:
+&gt;           assert relations.catalog_fingerprint(row['appId'],row['serviceVersion'],row['routes'],row['ordinary'])==row['fingerprint']
+E           AssertionError: assert '446b8a3ad75f...49e4d72a1718b' == '2e6c37d48709...ce91e14d3af9f'
+E             
+E             - 2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f
+E             + 446b8a3ad75fdfe2680c312655bfb763a5df3906962432edfe849e4d72a1718b
+
+_bmad/scripts/tests/test_epic16_tooling.py:1554: AssertionError</failure></testcase></testsuite></testsuites>

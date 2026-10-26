@@ -1,0 +1,233 @@
+{
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+    "--config",
+    "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+  ],
+  "stdin": "Exact full message plus newline; before each first use in each test process",
+  "scope": "disposable fixture commits only; no real repository staging or commits",
+  "uniqueMessageCount": 38,
+  "messages": {
+    "test: retain synthetic product source fixtures": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-controls-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/authorization-response-caller-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/authorization-response-content-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/authorization-response-order-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/compiled-baseline-retention-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/constructor-admission-caller-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/five-product-consistency-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/root-compiled-caller-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/root-declaration-equality-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/root-loaded-correlation-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/trx-definition-cardinality-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/upstream-loaded-correlation-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations-R10P1/constructor-admission-caller-commitlint.json"
+    ],
+    "test: initialize disposable fixture": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-controls-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/authorization-response-caller-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/authorization-response-content-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/authorization-response-order-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/compiled-baseline-retention-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/constructor-admission-caller-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/five-product-consistency-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/root-compiled-caller-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/root-declaration-equality-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/root-loaded-correlation-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/trx-definition-cardinality-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/upstream-loaded-correlation-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations-R10P1/constructor-admission-caller-commitlint.json"
+    ],
+    "test: bind disposable fixture sources": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-controls-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/authorization-response-caller-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/authorization-response-content-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/authorization-response-order-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/compiled-baseline-retention-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/constructor-admission-caller-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/five-product-consistency-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/root-compiled-caller-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/root-declaration-equality-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/root-loaded-correlation-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/trx-definition-cardinality-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/upstream-loaded-correlation-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations-R10P1/constructor-admission-caller-commitlint.json"
+    ],
+    "test: qualify disposable runtime consumer": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/constructor-admission-caller-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations-R10P1/constructor-admission-caller-commitlint.json"
+    ],
+    "test: bind disposable runtime insertion source": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: atomically publish disposable runtime evidence": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: bind portable native capture fixture": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: publish portable native capture fixture": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: retain portable native fixture insertion": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: retain upstream API comparison baseline": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: change synthetic upstream public API": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: bind synthetic upstream API candidate": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: establish correlated runtime baseline": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-controls-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/compiled-baseline-retention-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/five-product-consistency-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/root-loaded-correlation-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/upstream-loaded-correlation-commitlint.json"
+    ],
+    "test: bind correlated runtime product experiment": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-controls-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/compiled-baseline-retention-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/five-product-consistency-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/root-loaded-correlation-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/upstream-loaded-correlation-commitlint.json"
+    ],
+    "test: bind disposable compiled root baseline": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/root-compiled-caller-commitlint.json"
+    ],
+    "test: alter only external root compilation input": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/affected-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/exploratory-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations/root-compiled-caller-commitlint.json"
+    ],
+    "test: publish disposable measured fixtures": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: insert disposable final record": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: change disposable source": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: restore disposable source": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: remove disposable native source": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: complete disposable fixture lifecycle": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: create direct dependency fixture": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: advance direct dependency fixture": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: pin prior fixture authorization": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-controls-commitlint.json"
+    ],
+    "test: sibling authorization": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-controls-commitlint.json"
+    ],
+    "test: alter disposable canonicalizer": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: bind changed disposable dependency": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: bind different disposable source": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: bind differing runtime consumer source": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: unrelated runtime authorization": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: bind unrelated fixture entry": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: advance disposable candidate": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: alter disposable contract surface": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: restore candidate with drifted baseline": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/combined-commitlint.json",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: alter disposable enrollment identity": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: retain disposable native checkout bytes": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ],
+    "test: exercise candidate warning surface": [
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/combined-commitlint.json"
+    ]
+  },
+  "policy": {
+    "path": "commitlint.config.mjs",
+    "sha256": "6e903d777eba127cd8998956e9cdbd9500e5837bea8e580b1828a9e8d269f1b1"
+  },
+  "packageLock": {
+    "path": "package-lock.json",
+    "sha256": "928c2591dabfacc9ab7fc3d568e5cd79a72d726357363a48ddacc4c4e396f3b7"
+  }
+}

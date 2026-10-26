@@ -1,0 +1,25 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_round11_launchers_classify_only_genuinely_missing_declared_modules[present-declared-16_1] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-623/test_round11_launchers_classif0')
+story = '16_1', defect = 'present-declared'
+
+    @pytest.mark.parametrize('story',['16_1','16_2','16_3'])
+    @pytest.mark.parametrize('defect',['absent','typo','internal','present-declared'])
+    def test_round11_launchers_classify_only_genuinely_missing_declared_modules(tmp_path,story,defect):
+        wrapper='verify_story_'+story+'.py';shutil.copyfile(ROOT/'_bmad/scripts'/wrapper,tmp_path/wrapper)
+        if defect=='typo':(tmp_path/'epic16_tooling.py').write_text('import epic16_typo\n')
+        elif defect=='internal':(tmp_path/'epic16_tooling.py').write_text('raise ImportError("internal defect")\n')
+        elif defect=='present-declared':(tmp_path/'epic16_tooling.py').write_text('raise ModuleNotFoundError("internal defect", name="epic16_tooling")\n')
+        run=subprocess.run([sys.executable,str(tmp_path/wrapper)],cwd=tmp_path,capture_output=True)
+        if defect=='absent':assert run.returncode==2 and json.loads(run.stdout)['blockers']==['TOOLING_DEPENDENCY_UNAVAILABLE']
+>       else:assert run.returncode==1 and b'Traceback' in run.stderr and not run.stdout
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (2 == 1)
+E        +  where 2 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini...onAllowed": false, "ownerApprovalClaimed": false, "releaseAuthorized": false, "pushAuthorized": false}}\n', stderr=b'').returncode
+
+_bmad/scripts/tests/test_epic16_tooling.py:4106: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_launchers_classify_only_genuinely_missing_declared_modules[present-declared-16_1]
+1 failed, 2253 deselected in 0.54s

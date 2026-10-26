@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "dotnet",
+    "build",
+    "Api.csproj",
+    "-c",
+    "Debug",
+    "--nologo",
+    "-m:1",
+    "-p:NuGetAudit=false"
+  ],
+  "cwd": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_referenced_same_ki1/candidate/api",
+  "exitCode": 0
+}

@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_schedules.py
++++ _bmad/scripts/epic16_schedules.py
+@@ -397,7 +397,7 @@
+     proof=row['capture']; require(proof['captureVersion']==1 and same(proof['control'],TENANT_ACCESS_CONTROL), 'pinned tenant freshness observation control')
+     scope=proof['scope'];require(scope['tenant']==scope['recordId']==tenant, 'authorization same tenant logical store record')
+     for field in ('storeId','processId','requestId','principal'):text(scope[field])
+-    require(tenant_access_inputs(tenant, scope['principal']) == dict(tenantValid=True, principalValid=True), 'controlled native access tenant and principal are validated before the store read')
++    None
+     request,read,response=proof['request'],proof['storeRead'],proof['response']
+     previous=0;ids=[]
+     for operation in (request,read,response):

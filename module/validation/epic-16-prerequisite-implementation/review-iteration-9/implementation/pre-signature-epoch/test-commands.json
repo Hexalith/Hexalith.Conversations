@@ -1,0 +1,48 @@
+[
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py",
+      "--maxfail=3",
+      "--basetemp=/tmp/epic16-r9-final-pytest-kykyavwm/combined",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/combined.xml"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 1023.566,
+    "stdoutSha256": "db55f2d1949e3fdfc61d6cc91153900169fb0aaafdbbef86c7f59975f07106b8",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "junitSha256": "cfeda03f70f256a22cc45175d73b17c1a6042c56ecb76658a0bca19689f5023b"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "_bmad/scripts/tests/test_generate_story_record.py",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "story_111 or story_112 or standalone_generator",
+      "--maxfail=3",
+      "--basetemp=/tmp/epic16-r9-final-pytest-kykyavwm/legacy",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/legacy.xml"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 79.479,
+    "stdoutSha256": "7f8053fd425192940dedcf2d400ed9ae929d7b3f7e22a0aa15e9c76d4d8d5582",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "junitSha256": "0021432ae90cd8d482594f1956706eb9e9f16e141a9c0dd882fcf75a844a012f"
+  }
+]

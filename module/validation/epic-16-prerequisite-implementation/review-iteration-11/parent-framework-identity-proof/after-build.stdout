@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r11-framework-3rsm810o/after/Api.csproj (in 35 ms).
+/tmp/epic16-r11-framework-3rsm810o/after/Api.cs(1,186): warning CS7035: The specified version string 'two' does not conform to the recommended format - major.minor.build.revision [/tmp/epic16-r11-framework-3rsm810o/after/Api.csproj]
+  Api -> /tmp/epic16-r11-framework-3rsm810o/after/bin/Debug/net10.0/Api.dll
+
+Build succeeded.
+
+/tmp/epic16-r11-framework-3rsm810o/after/Api.cs(1,186): warning CS7035: The specified version string 'two' does not conform to the recommended format - major.minor.build.revision [/tmp/epic16-r11-framework-3rsm810o/after/Api.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.34

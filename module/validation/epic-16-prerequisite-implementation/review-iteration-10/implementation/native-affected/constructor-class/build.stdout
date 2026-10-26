@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/pytest-of-administrator/pytest-581/test_round10_construction_meta3/runner/Evidence.csproj (in 95 ms).
+  Evidence -> /tmp/pytest-of-administrator/pytest-581/test_round10_construction_meta3/runner/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.47

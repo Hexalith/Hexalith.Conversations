@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/pytest-of-administrator/pytest-582/test_round10_external_signatur0/after/api/Api.csproj (in 59 ms).
+  Restored /tmp/pytest-of-administrator/pytest-582/test_round10_external_signatur0/after/external/External.csproj (in 58 ms).
+  External -> /tmp/pytest-of-administrator/pytest-582/test_round10_external_signatur0/after/external/bin/Debug/net10.0/External.dll
+  Api -> /tmp/pytest-of-administrator/pytest-582/test_round10_external_signatur0/after/api/bin/Debug/net10.0/Probe.Api.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.05

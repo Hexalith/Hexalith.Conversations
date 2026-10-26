@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_schedules.py
++++ _bmad/scripts/epic16_schedules.py
+@@ -356,7 +356,7 @@
+     persisted = baseline; last = 0; identities = set(); replicas = {}; transactions = []
+     for save in saves:
+         replica = text(save['replicaId']); process = text(save['processId']); request = text(save['requestId'])
+-        require(replica not in replicas and process not in [p for p,_ in replicas.values()], 'distinct reverse-save replicas and processes')
++        None
+         replicas[replica] = (process, save['id'])
+         local_scope = dict(scope, replicaId=replica, processId=process, requestId=request)
+         last = executed_operation(save, local_scope, last)

@@ -1,0 +1,46 @@
+.......................F...                                              [100%]
+=================================== FAILURES ===================================
+_ test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[not json] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-479/test_round7_actual_isolated_he0/fixture')
+policy = b'not json'
+
+    @pytest.mark.parametrize('policy',[b'not json',b'[]',b'{"sdk":[]}',b'{"sdk":{"version":42,"rollForward":"latestPatch"}}'])
+    def test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet(repository,policy):
+        (repository/'global.json').write_bytes(policy)
+        # Import the actual isolated helper installation, including its own contained
+        # root/policy lookup. Observe real fixed-command calls instead of a validator-only surrogate.
+        script='''import sys,json
+    sys.path.insert(0,sys.argv[1])
+    import epic16_native as native
+    calls=[]
+    original=native.subprocess.run
+    def run(argv,**kwargs):
+        calls.append(argv)
+        return original(argv,**kwargs)
+    native.subprocess.run=run
+    try:
+        native._helper()
+        result='PASS';error=None
+    except native.HelperUnavailable as exception:
+        result='BLOCKED';error=type(exception).__name__
+    except ValueError as exception:
+        result='FAIL';error=type(exception).__name__
+    print(json.dumps(dict(result=result,error=error,commands=calls)))
+    '''
+        result=subprocess.run([sys.executable,'-c',script,str(repository/'_bmad/scripts')],cwd=repository,capture_output=True,timeout=180)
+        assert result.returncode==0,result.stderr.decode()
+        report=json.loads(result.stdout)
+>       assert report['result']=='FAIL' and report['error']=='ValueError',report
+E       AssertionError: {'result': 'FAIL', 'error': 'JSONDecodeError', 'commands': []}
+E       assert ('FAIL' == 'FAIL'
+E         
+E           FAIL and 'JSONDecodeError' == 'ValueError'
+E         
+E         - ValueError
+E         + JSONDecodeError)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2797: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[not json]
+1 failed, 26 passed, 1278 deselected in 9.70s

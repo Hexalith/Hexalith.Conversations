@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_schedules.py
++++ _bmad/scripts/epic16_schedules.py
+@@ -480,7 +480,7 @@
+     acknowledgements=proof['acknowledgements'];previous=executed_operation(acknowledgements,scope,previous);identities.append(acknowledgements['operationId'])
+     require(acknowledgements['processingCompletionId']==completion['operationId'] and acknowledgements['deliveries']==[], 'completed failed delivery has observed empty acknowledgement inventory')
+     restoration=proof['restoration'];previous=executed_operation(restoration,scope,previous);identities.append(restoration['operationId'])
+-    require(restoration['provider']=='Available' and restoration['faultAfterSha256']==fault['afterSha256'], 'provider restored according to same fault experiment')
++    None
+     after=proof['afterRead'];executed_operation(after,scope,previous);identities.append(after['operationId'])
+     require(after['logicalKey']==tenant and after['outcome']=='Available' and same(after['snapshot'],before), 'actual read after restoration proves complete durable state unchanged')
+     require(len(set(identities))==len(identities), 'distinct executed failure operation inventory')

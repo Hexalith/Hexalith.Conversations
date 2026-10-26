@@ -1,0 +1,1 @@
+Retained all eight final API fixtures with exact binary/source bytes, raw baseline/candidate gitlinks and read-only derived results

@@ -1,0 +1,159 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_round8_internal_control_record_contradiction_requires_named_metadata[index] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-522/test_round8_internal_control_r0/fixture')
+field = 'index'
+
+    @pytest.mark.parametrize('field',['index','lifecycle','manifest','watermark','dispatch'])
+    def test_round8_internal_control_record_contradiction_requires_named_metadata(repository,field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-03']);row=next(q for q in data['queries'] if q['id']=='mixed')
+        row['controlMetadata']={k:3 for k in row['controlMetadata']};row['controlMetadata'][field]=2
+>       round8_submit(repository,'AC-16.2-03',data,passes=True)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2988: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-522/test_round8_internal_control_r0/fixture')
+scenario = 'AC-16.2-03'
+data = {'queries': [{'id': 'ready-empty', 'status': 'Current', 'reason': 'current', 'writes': 0, ...}, {'id': 'v1', 'status':... 'Erased', ...}, {'id': 'erased-delivery', 'before': 'Erased', 'cause': 'Delivery', 'after': 'Erased', ...}, ...], ...}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+_ test_round8_internal_control_record_contradiction_requires_named_metadata[lifecycle] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-522/test_round8_internal_control_r1/fixture')
+field = 'lifecycle'
+
+    @pytest.mark.parametrize('field',['index','lifecycle','manifest','watermark','dispatch'])
+    def test_round8_internal_control_record_contradiction_requires_named_metadata(repository,field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-03']);row=next(q for q in data['queries'] if q['id']=='mixed')
+        row['controlMetadata']={k:3 for k in row['controlMetadata']};row['controlMetadata'][field]=2
+>       round8_submit(repository,'AC-16.2-03',data,passes=True)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2988: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-522/test_round8_internal_control_r1/fixture')
+scenario = 'AC-16.2-03'
+data = {'queries': [{'id': 'ready-empty', 'status': 'Current', 'reason': 'current', 'writes': 0, ...}, {'id': 'v1', 'status':... 'Erased', ...}, {'id': 'erased-delivery', 'before': 'Erased', 'cause': 'Delivery', 'after': 'Erased', ...}, ...], ...}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+_ test_round8_internal_control_record_contradiction_requires_named_metadata[manifest] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-522/test_round8_internal_control_r2/fixture')
+field = 'manifest'
+
+    @pytest.mark.parametrize('field',['index','lifecycle','manifest','watermark','dispatch'])
+    def test_round8_internal_control_record_contradiction_requires_named_metadata(repository,field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-03']);row=next(q for q in data['queries'] if q['id']=='mixed')
+        row['controlMetadata']={k:3 for k in row['controlMetadata']};row['controlMetadata'][field]=2
+>       round8_submit(repository,'AC-16.2-03',data,passes=True)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2988: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-522/test_round8_internal_control_r2/fixture')
+scenario = 'AC-16.2-03'
+data = {'queries': [{'id': 'ready-empty', 'status': 'Current', 'reason': 'current', 'writes': 0, ...}, {'id': 'v1', 'status':... 'Erased', ...}, {'id': 'erased-delivery', 'before': 'Erased', 'cause': 'Delivery', 'after': 'Erased', ...}, ...], ...}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+_ test_round8_internal_control_record_contradiction_requires_named_metadata[watermark] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-522/test_round8_internal_control_r3/fixture')
+field = 'watermark'
+
+    @pytest.mark.parametrize('field',['index','lifecycle','manifest','watermark','dispatch'])
+    def test_round8_internal_control_record_contradiction_requires_named_metadata(repository,field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-03']);row=next(q for q in data['queries'] if q['id']=='mixed')
+        row['controlMetadata']={k:3 for k in row['controlMetadata']};row['controlMetadata'][field]=2
+>       round8_submit(repository,'AC-16.2-03',data,passes=True)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2988: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-522/test_round8_internal_control_r3/fixture')
+scenario = 'AC-16.2-03'
+data = {'queries': [{'id': 'ready-empty', 'status': 'Current', 'reason': 'current', 'writes': 0, ...}, {'id': 'v1', 'status':... 'Erased', ...}, {'id': 'erased-delivery', 'before': 'Erased', 'cause': 'Delivery', 'after': 'Erased', ...}, ...], ...}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+_ test_round8_internal_control_record_contradiction_requires_named_metadata[dispatch] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-522/test_round8_internal_control_r4/fixture')
+field = 'dispatch'
+
+    @pytest.mark.parametrize('field',['index','lifecycle','manifest','watermark','dispatch'])
+    def test_round8_internal_control_record_contradiction_requires_named_metadata(repository,field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-03']);row=next(q for q in data['queries'] if q['id']=='mixed')
+        row['controlMetadata']={k:3 for k in row['controlMetadata']};row['controlMetadata'][field]=2
+>       round8_submit(repository,'AC-16.2-03',data,passes=True)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2988: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-522/test_round8_internal_control_r4/fixture')
+scenario = 'AC-16.2-03'
+data = {'queries': [{'id': 'ready-empty', 'status': 'Current', 'reason': 'current', 'writes': 0, ...}, {'id': 'v1', 'status':... 'Erased', ...}, {'id': 'erased-delivery', 'before': 'Erased', 'cause': 'Delivery', 'after': 'Erased', ...}, ...], ...}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_internal_control_record_contradiction_requires_named_metadata[index]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_internal_control_record_contradiction_requires_named_metadata[lifecycle]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_internal_control_record_contradiction_requires_named_metadata[manifest]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_internal_control_record_contradiction_requires_named_metadata[watermark]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_internal_control_record_contradiction_requires_named_metadata[dispatch]
+5 failed, 1583 deselected in 2.32s

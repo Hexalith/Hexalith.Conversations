@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="5" time="1.561" timestamp="2026-10-26T01:14:17.153611+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_all_wrappers_report_missing_internal_imports_without_artifacts[epic16_capture.py-16.2]" time="0.163"><failure message="AssertionError: (b'', b'Traceback (most recent call last):&#10;    File &quot;/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_r...line 26, in &lt;module&gt;&#10;      import epic16_capture as capture&#10;  ModuleNotFoundError: No module named \'epic16_capture\'&#10;  ')&#10;assert (1 == 2)&#10; +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini...line 26, in &lt;module&gt;\n    import epic16_capture as capture\nModuleNotFoundError: No module named \'epic16_capture\'\n').returncode">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_repor0')
+story = '16.2', missing = 'epic16_capture.py'
+
+    @pytest.mark.parametrize('story',tooling.measurements.STORIES)
+    @pytest.mark.parametrize('missing',['epic16_capture.py','epic16_products.py','epic16_execution.py','epic16_domain.py','contained_reader.py'])
+    def test_round9_all_wrappers_report_missing_internal_imports_without_artifacts(tmp_path,story,missing):
+        repo=tmp_path/'partial';(repo/'_bmad/scripts').mkdir(parents=True)
+        for path in tooling.TOOL_SOURCES:
+            if path.endswith('.py') and Path(path).name!=missing:
+                target=repo/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((ROOT/path).read_bytes())
+        output='artifacts/never-written.json'
+        command=[sys.executable,str(repo/f'_bmad/scripts/verify_story_{story.replace(".","_")}.py'),'--repository',str(repo),'--contract',tooling.contract_path(story),'--scenario',f'AC-{story}-01','--output',output]
+        result=subprocess.run(command,capture_output=True,timeout=30)
+&gt;       assert result.returncode==2 and b'Traceback' not in result.stderr,(result.stdout,result.stderr)
+E       AssertionError: (b'', b'Traceback (most recent call last):
+E           File "/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_r...line 26, in &lt;module&gt;
+E             import epic16_capture as capture
+E         ModuleNotFoundError: No module named \'epic16_capture\'
+E         ')
+E       assert (1 == 2)
+E        +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini...line 26, in &lt;module&gt;\n    import epic16_capture as capture\nModuleNotFoundError: No module named \'epic16_capture\'\n').returncode
+
+_bmad/scripts/tests/test_epic16_tooling.py:3274: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_all_wrappers_report_missing_internal_imports_without_artifacts[epic16_products.py-16.2]" time="0.163"><failure message="AssertionError: (b'', b'Traceback (most recent call last):&#10;    File &quot;/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_r...e 27, in &lt;module&gt;&#10;      import epic16_products as products&#10;  ModuleNotFoundError: No module named \'epic16_products\'&#10;  ')&#10;assert (1 == 2)&#10; +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini...e 27, in &lt;module&gt;\n    import epic16_products as products\nModuleNotFoundError: No module named \'epic16_products\'\n').returncode">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_repor1')
+story = '16.2', missing = 'epic16_products.py'
+
+    @pytest.mark.parametrize('story',tooling.measurements.STORIES)
+    @pytest.mark.parametrize('missing',['epic16_capture.py','epic16_products.py','epic16_execution.py','epic16_domain.py','contained_reader.py'])
+    def test_round9_all_wrappers_report_missing_internal_imports_without_artifacts(tmp_path,story,missing):
+        repo=tmp_path/'partial';(repo/'_bmad/scripts').mkdir(parents=True)
+        for path in tooling.TOOL_SOURCES:
+            if path.endswith('.py') and Path(path).name!=missing:
+                target=repo/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((ROOT/path).read_bytes())
+        output='artifacts/never-written.json'
+        command=[sys.executable,str(repo/f'_bmad/scripts/verify_story_{story.replace(".","_")}.py'),'--repository',str(repo),'--contract',tooling.contract_path(story),'--scenario',f'AC-{story}-01','--output',output]
+        result=subprocess.run(command,capture_output=True,timeout=30)
+&gt;       assert result.returncode==2 and b'Traceback' not in result.stderr,(result.stdout,result.stderr)
+E       AssertionError: (b'', b'Traceback (most recent call last):
+E           File "/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_r...e 27, in &lt;module&gt;
+E             import epic16_products as products
+E         ModuleNotFoundError: No module named \'epic16_products\'
+E         ')
+E       assert (1 == 2)
+E        +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini...e 27, in &lt;module&gt;\n    import epic16_products as products\nModuleNotFoundError: No module named \'epic16_products\'\n').returncode
+
+_bmad/scripts/tests/test_epic16_tooling.py:3274: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_all_wrappers_report_missing_internal_imports_without_artifacts[epic16_execution.py-16.2]" time="0.163"><failure message="AssertionError: (b'', b'Traceback (most recent call last):&#10;    File &quot;/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_r...5, in &lt;module&gt;&#10;      import epic16_execution as execution&#10;  ModuleNotFoundError: No module named \'epic16_execution\'&#10;  ')&#10;assert (1 == 2)&#10; +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini...5, in &lt;module&gt;\n    import epic16_execution as execution\nModuleNotFoundError: No module named \'epic16_execution\'\n').returncode">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_repor2')
+story = '16.2', missing = 'epic16_execution.py'
+
+    @pytest.mark.parametrize('story',tooling.measurements.STORIES)
+    @pytest.mark.parametrize('missing',['epic16_capture.py','epic16_products.py','epic16_execution.py','epic16_domain.py','contained_reader.py'])
+    def test_round9_all_wrappers_report_missing_internal_imports_without_artifacts(tmp_path,story,missing):
+        repo=tmp_path/'partial';(repo/'_bmad/scripts').mkdir(parents=True)
+        for path in tooling.TOOL_SOURCES:
+            if path.endswith('.py') and Path(path).name!=missing:
+                target=repo/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((ROOT/path).read_bytes())
+        output='artifacts/never-written.json'
+        command=[sys.executable,str(repo/f'_bmad/scripts/verify_story_{story.replace(".","_")}.py'),'--repository',str(repo),'--contract',tooling.contract_path(story),'--scenario',f'AC-{story}-01','--output',output]
+        result=subprocess.run(command,capture_output=True,timeout=30)
+&gt;       assert result.returncode==2 and b'Traceback' not in result.stderr,(result.stdout,result.stderr)
+E       AssertionError: (b'', b'Traceback (most recent call last):
+E           File "/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_r...5, in &lt;module&gt;
+E             import epic16_execution as execution
+E         ModuleNotFoundError: No module named \'epic16_execution\'
+E         ')
+E       assert (1 == 2)
+E        +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini...5, in &lt;module&gt;\n    import epic16_execution as execution\nModuleNotFoundError: No module named \'epic16_execution\'\n').returncode
+
+_bmad/scripts/tests/test_epic16_tooling.py:3274: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_all_wrappers_report_missing_internal_imports_without_artifacts[epic16_domain.py-16.2]" time="0.152"><failure message="AssertionError: (b'', b'Traceback (most recent call last):&#10;    File &quot;/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_r...&quot;, line 10, in &lt;module&gt;&#10;      import epic16_domain as domain&#10;  ModuleNotFoundError: No module named \'epic16_domain\'&#10;  ')&#10;assert (1 == 2)&#10; +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini...&quot;, line 10, in &lt;module&gt;\n    import epic16_domain as domain\nModuleNotFoundError: No module named \'epic16_domain\'\n').returncode">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_repor3')
+story = '16.2', missing = 'epic16_domain.py'
+
+    @pytest.mark.parametrize('story',tooling.measurements.STORIES)
+    @pytest.mark.parametrize('missing',['epic16_capture.py','epic16_products.py','epic16_execution.py','epic16_domain.py','contained_reader.py'])
+    def test_round9_all_wrappers_report_missing_internal_imports_without_artifacts(tmp_path,story,missing):
+        repo=tmp_path/'partial';(repo/'_bmad/scripts').mkdir(parents=True)
+        for path in tooling.TOOL_SOURCES:
+            if path.endswith('.py') and Path(path).name!=missing:
+                target=repo/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((ROOT/path).read_bytes())
+        output='artifacts/never-written.json'
+        command=[sys.executable,str(repo/f'_bmad/scripts/verify_story_{story.replace(".","_")}.py'),'--repository',str(repo),'--contract',tooling.contract_path(story),'--scenario',f'AC-{story}-01','--output',output]
+        result=subprocess.run(command,capture_output=True,timeout=30)
+&gt;       assert result.returncode==2 and b'Traceback' not in result.stderr,(result.stdout,result.stderr)
+E       AssertionError: (b'', b'Traceback (most recent call last):
+E           File "/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_r...", line 10, in &lt;module&gt;
+E             import epic16_domain as domain
+E         ModuleNotFoundError: No module named \'epic16_domain\'
+E         ')
+E       assert (1 == 2)
+E        +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini...", line 10, in &lt;module&gt;\n    import epic16_domain as domain\nModuleNotFoundError: No module named \'epic16_domain\'\n').returncode
+
+_bmad/scripts/tests/test_epic16_tooling.py:3274: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_all_wrappers_report_missing_internal_imports_without_artifacts[contained_reader.py-16.2]" time="0.060"><failure message="AssertionError: (b'', b'Traceback (most recent call last):&#10;    File &quot;/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_r..._reader import ContainedReader, ReadError, relative_path&#10;  ModuleNotFoundError: No module named \'contained_reader\'&#10;  ')&#10;assert (1 == 2)&#10; +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini..._reader import ContainedReader, ReadError, relative_path\nModuleNotFoundError: No module named \'contained_reader\'\n').returncode">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_repor4')
+story = '16.2', missing = 'contained_reader.py'
+
+    @pytest.mark.parametrize('story',tooling.measurements.STORIES)
+    @pytest.mark.parametrize('missing',['epic16_capture.py','epic16_products.py','epic16_execution.py','epic16_domain.py','contained_reader.py'])
+    def test_round9_all_wrappers_report_missing_internal_imports_without_artifacts(tmp_path,story,missing):
+        repo=tmp_path/'partial';(repo/'_bmad/scripts').mkdir(parents=True)
+        for path in tooling.TOOL_SOURCES:
+            if path.endswith('.py') and Path(path).name!=missing:
+                target=repo/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((ROOT/path).read_bytes())
+        output='artifacts/never-written.json'
+        command=[sys.executable,str(repo/f'_bmad/scripts/verify_story_{story.replace(".","_")}.py'),'--repository',str(repo),'--contract',tooling.contract_path(story),'--scenario',f'AC-{story}-01','--output',output]
+        result=subprocess.run(command,capture_output=True,timeout=30)
+&gt;       assert result.returncode==2 and b'Traceback' not in result.stderr,(result.stdout,result.stderr)
+E       AssertionError: (b'', b'Traceback (most recent call last):
+E           File "/tmp/pytest-of-administrator/pytest-560/test_round9_all_wrappers_r..._reader import ContainedReader, ReadError, relative_path
+E         ModuleNotFoundError: No module named \'contained_reader\'
+E         ')
+E       assert (1 == 2)
+E        +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini..._reader import ContainedReader, ReadError, relative_path\nModuleNotFoundError: No module named \'contained_reader\'\n').returncode
+
+_bmad/scripts/tests/test_epic16_tooling.py:3274: AssertionError</failure></testcase></testsuite></testsuites>

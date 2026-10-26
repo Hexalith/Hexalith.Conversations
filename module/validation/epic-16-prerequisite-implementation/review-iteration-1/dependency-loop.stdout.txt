@@ -1,0 +1,294 @@
+FFFFFFFFFF                                                               [100%]
+=================================== FAILURES ===================================
+_ test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[missing-AC-16.1-05-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-227/test_every_dependency_edge_rec0/fixture')
+scenario = 'AC-16.1-05', dependency = 'AC-16.1-02', fault = 'missing'
+
+    @pytest.mark.parametrize('scenario,dependency', DEPENDENCIES)
+    @pytest.mark.parametrize('fault', ['missing', 'invalid'])
+    def test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state(repository, scenario, dependency, fault):
+        if fault == 'missing': (repository/tooling.native_path(SCOPE,dependency)).unlink()
+        else:
+            data=deepcopy(OBSERVATIONS[dependency]); MUTATIONS[dependency](data); native(repository,dependency,data)
+>       rejected(evaluate(repository,scenario), 'SCENARIO_DEPENDENCY_FAILED', 'BLOCKED' if fault=='missing' else 'FAIL')
+
+_bmad/scripts/tests/test_epic16_tooling.py:815: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'SCENARIO_DEPENDENCY_FAILED', state = 'BLOCKED'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[missing-AC-16.1-05-AC-16.1-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-227/test_every_dependency_edge_rec1/fixture')
+scenario = 'AC-16.1-05', dependency = 'AC-16.1-03', fault = 'missing'
+
+    @pytest.mark.parametrize('scenario,dependency', DEPENDENCIES)
+    @pytest.mark.parametrize('fault', ['missing', 'invalid'])
+    def test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state(repository, scenario, dependency, fault):
+        if fault == 'missing': (repository/tooling.native_path(SCOPE,dependency)).unlink()
+        else:
+            data=deepcopy(OBSERVATIONS[dependency]); MUTATIONS[dependency](data); native(repository,dependency,data)
+>       rejected(evaluate(repository,scenario), 'SCENARIO_DEPENDENCY_FAILED', 'BLOCKED' if fault=='missing' else 'FAIL')
+
+_bmad/scripts/tests/test_epic16_tooling.py:815: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'SCENARIO_DEPENDENCY_FAILED', state = 'BLOCKED'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[missing-AC-16.2-05-AC-16.2-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-227/test_every_dependency_edge_rec2/fixture')
+scenario = 'AC-16.2-05', dependency = 'AC-16.2-02', fault = 'missing'
+
+    @pytest.mark.parametrize('scenario,dependency', DEPENDENCIES)
+    @pytest.mark.parametrize('fault', ['missing', 'invalid'])
+    def test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state(repository, scenario, dependency, fault):
+        if fault == 'missing': (repository/tooling.native_path(SCOPE,dependency)).unlink()
+        else:
+            data=deepcopy(OBSERVATIONS[dependency]); MUTATIONS[dependency](data); native(repository,dependency,data)
+>       rejected(evaluate(repository,scenario), 'SCENARIO_DEPENDENCY_FAILED', 'BLOCKED' if fault=='missing' else 'FAIL')
+
+_bmad/scripts/tests/test_epic16_tooling.py:815: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'SCENARIO_DEPENDENCY_FAILED', state = 'BLOCKED'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[missing-AC-16.2-05-AC-16.2-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-227/test_every_dependency_edge_rec3/fixture')
+scenario = 'AC-16.2-05', dependency = 'AC-16.2-03', fault = 'missing'
+
+    @pytest.mark.parametrize('scenario,dependency', DEPENDENCIES)
+    @pytest.mark.parametrize('fault', ['missing', 'invalid'])
+    def test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state(repository, scenario, dependency, fault):
+        if fault == 'missing': (repository/tooling.native_path(SCOPE,dependency)).unlink()
+        else:
+            data=deepcopy(OBSERVATIONS[dependency]); MUTATIONS[dependency](data); native(repository,dependency,data)
+>       rejected(evaluate(repository,scenario), 'SCENARIO_DEPENDENCY_FAILED', 'BLOCKED' if fault=='missing' else 'FAIL')
+
+_bmad/scripts/tests/test_epic16_tooling.py:815: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'SCENARIO_DEPENDENCY_FAILED', state = 'BLOCKED'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[missing-AC-16.3-04-AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-227/test_every_dependency_edge_rec4/fixture')
+scenario = 'AC-16.3-04', dependency = 'AC-16.3-03', fault = 'missing'
+
+    @pytest.mark.parametrize('scenario,dependency', DEPENDENCIES)
+    @pytest.mark.parametrize('fault', ['missing', 'invalid'])
+    def test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state(repository, scenario, dependency, fault):
+        if fault == 'missing': (repository/tooling.native_path(SCOPE,dependency)).unlink()
+        else:
+            data=deepcopy(OBSERVATIONS[dependency]); MUTATIONS[dependency](data); native(repository,dependency,data)
+>       rejected(evaluate(repository,scenario), 'SCENARIO_DEPENDENCY_FAILED', 'BLOCKED' if fault=='missing' else 'FAIL')
+
+_bmad/scripts/tests/test_epic16_tooling.py:815: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'SCENARIO_DEPENDENCY_FAILED', state = 'BLOCKED'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[invalid-AC-16.1-05-AC-16.1-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-227/test_every_dependency_edge_rec5/fixture')
+scenario = 'AC-16.1-05', dependency = 'AC-16.1-02', fault = 'invalid'
+
+    @pytest.mark.parametrize('scenario,dependency', DEPENDENCIES)
+    @pytest.mark.parametrize('fault', ['missing', 'invalid'])
+    def test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state(repository, scenario, dependency, fault):
+        if fault == 'missing': (repository/tooling.native_path(SCOPE,dependency)).unlink()
+        else:
+            data=deepcopy(OBSERVATIONS[dependency]); MUTATIONS[dependency](data); native(repository,dependency,data)
+>       rejected(evaluate(repository,scenario), 'SCENARIO_DEPENDENCY_FAILED', 'BLOCKED' if fault=='missing' else 'FAIL')
+
+_bmad/scripts/tests/test_epic16_tooling.py:815: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'SCENARIO_DEPENDENCY_FAILED', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[invalid-AC-16.1-05-AC-16.1-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-227/test_every_dependency_edge_rec6/fixture')
+scenario = 'AC-16.1-05', dependency = 'AC-16.1-03', fault = 'invalid'
+
+    @pytest.mark.parametrize('scenario,dependency', DEPENDENCIES)
+    @pytest.mark.parametrize('fault', ['missing', 'invalid'])
+    def test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state(repository, scenario, dependency, fault):
+        if fault == 'missing': (repository/tooling.native_path(SCOPE,dependency)).unlink()
+        else:
+            data=deepcopy(OBSERVATIONS[dependency]); MUTATIONS[dependency](data); native(repository,dependency,data)
+>       rejected(evaluate(repository,scenario), 'SCENARIO_DEPENDENCY_FAILED', 'BLOCKED' if fault=='missing' else 'FAIL')
+
+_bmad/scripts/tests/test_epic16_tooling.py:815: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'SCENARIO_DEPENDENCY_FAILED', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[invalid-AC-16.2-05-AC-16.2-02] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-227/test_every_dependency_edge_rec7/fixture')
+scenario = 'AC-16.2-05', dependency = 'AC-16.2-02', fault = 'invalid'
+
+    @pytest.mark.parametrize('scenario,dependency', DEPENDENCIES)
+    @pytest.mark.parametrize('fault', ['missing', 'invalid'])
+    def test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state(repository, scenario, dependency, fault):
+        if fault == 'missing': (repository/tooling.native_path(SCOPE,dependency)).unlink()
+        else:
+            data=deepcopy(OBSERVATIONS[dependency]); MUTATIONS[dependency](data); native(repository,dependency,data)
+>       rejected(evaluate(repository,scenario), 'SCENARIO_DEPENDENCY_FAILED', 'BLOCKED' if fault=='missing' else 'FAIL')
+
+_bmad/scripts/tests/test_epic16_tooling.py:815: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'SCENARIO_DEPENDENCY_FAILED', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[invalid-AC-16.2-05-AC-16.2-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-227/test_every_dependency_edge_rec8/fixture')
+scenario = 'AC-16.2-05', dependency = 'AC-16.2-03', fault = 'invalid'
+
+    @pytest.mark.parametrize('scenario,dependency', DEPENDENCIES)
+    @pytest.mark.parametrize('fault', ['missing', 'invalid'])
+    def test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state(repository, scenario, dependency, fault):
+        if fault == 'missing': (repository/tooling.native_path(SCOPE,dependency)).unlink()
+        else:
+            data=deepcopy(OBSERVATIONS[dependency]); MUTATIONS[dependency](data); native(repository,dependency,data)
+>       rejected(evaluate(repository,scenario), 'SCENARIO_DEPENDENCY_FAILED', 'BLOCKED' if fault=='missing' else 'FAIL')
+
+_bmad/scripts/tests/test_epic16_tooling.py:815: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'SCENARIO_DEPENDENCY_FAILED', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[invalid-AC-16.3-04-AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-227/test_every_dependency_edge_rec9/fixture')
+scenario = 'AC-16.3-04', dependency = 'AC-16.3-03', fault = 'invalid'
+
+    @pytest.mark.parametrize('scenario,dependency', DEPENDENCIES)
+    @pytest.mark.parametrize('fault', ['missing', 'invalid'])
+    def test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state(repository, scenario, dependency, fault):
+        if fault == 'missing': (repository/tooling.native_path(SCOPE,dependency)).unlink()
+        else:
+            data=deepcopy(OBSERVATIONS[dependency]); MUTATIONS[dependency](data); native(repository,dependency,data)
+>       rejected(evaluate(repository,scenario), 'SCENARIO_DEPENDENCY_FAILED', 'BLOCKED' if fault=='missing' else 'FAIL')
+
+_bmad/scripts/tests/test_epic16_tooling.py:815: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'SCENARIO_DEPENDENCY_FAILED', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[missing-AC-16.1-05-AC-16.1-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[missing-AC-16.1-05-AC-16.1-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[missing-AC-16.2-05-AC-16.2-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[missing-AC-16.2-05-AC-16.2-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[missing-AC-16.3-04-AC-16.3-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[invalid-AC-16.1-05-AC-16.1-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[invalid-AC-16.1-05-AC-16.1-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[invalid-AC-16.2-05-AC-16.2-02]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[invalid-AC-16.2-05-AC-16.2-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_every_dependency_edge_rechecks_native_prerequisite_and_propagates_state[invalid-AC-16.3-04-AC-16.3-03]
+10 failed, 265 deselected in 3.66s

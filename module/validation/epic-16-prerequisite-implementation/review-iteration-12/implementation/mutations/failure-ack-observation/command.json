@@ -1,0 +1,29 @@
+{
+  "name": "failure-ack-observation",
+  "path": "_bmad/scripts/epic16_schedules.py",
+  "old": "require(acknowledgements['processingCompletionId']==completion['operationId'] and acknowledgements['deliveries']==[], 'completed failed delivery has observed empty acknowledgement inventory')",
+  "new": "None",
+  "selector": "round12_failed_deliveries and ack-reference",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-failure-ack-observation-yc3jcb4n/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_failed_deliveries and ack-reference",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/failure-ack-observation/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-failure-ack-observation-yc3jcb4n",
+  "exitCode": 1,
+  "elapsedSeconds": 14.010596542997519,
+  "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+  "mutatedSha256": "1bbc77b2422e673107e8a20874dee8b1388e41287a0060706126b49ff4674632",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  }
+}

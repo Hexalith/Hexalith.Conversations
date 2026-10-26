@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.937" timestamp="2026-10-25T21:20:15.181844+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_redaction_reused_identity_fails_even_with_refreshed_expected_state" time="2.661"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-390/test_round5_redaction_reused_i0/fixture')
+
+    def test_round5_redaction_reused_identity_fails_even_with_refreshed_expected_state(repository):
+        data=deepcopy(OBSERVATIONS['AC-16.2-05']);p=data['redactionProof'];event=p['redactionEvent'];payload=json.loads(event['payload'])
+        old=payload['metadata']['eventId'];reused=p['persistedBefore']['processedEventIds'][0]
+        payload['metadata']['eventId']=reused;payload['metadata']['deduplicationKey']=payload['metadata']['deduplicationKey'].replace(old,reused)
+        event['payload']=json.dumps(payload);p['sourceAfter'][-1]=deepcopy(event)
+        for name in ('persistedAfter','queryAfter'):
+            ids=p[name]['state']['processedEventIds'];ids.remove(old);ids.append(reused);ids.sort()
+&gt;       native(repository,'AC-16.2-05',data);rejected(evaluate(repository,'AC-16.2-05'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1918: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

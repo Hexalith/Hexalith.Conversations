@@ -1,0 +1,646 @@
+{
+  "assertionLedger": [
+    {
+      "id": "preservation",
+      "state": "PASS",
+      "subject": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json"
+    },
+    {
+      "id": "AC-16.2-01:selected-identity-time",
+      "state": "PASS",
+      "subject": "AC-16.2-01"
+    },
+    {
+      "id": "AC-16.2-01:full-duplicate-binding",
+      "state": "PASS",
+      "subject": "AC-16.2-01"
+    },
+    {
+      "id": "AC-16.2-01:pre-dedup-validation",
+      "state": "PASS",
+      "subject": "AC-16.2-01"
+    },
+    {
+      "id": "AC-16.2-01:no-runtime-clock",
+      "state": "PASS",
+      "subject": "AC-16.2-01"
+    }
+  ],
+  "authority": {
+    "executionAllowed": false,
+    "implementationHold": "ACTIVE",
+    "ownerApprovalClaimed": false,
+    "pushAuthorized": false,
+    "releaseAuthorized": false
+  },
+  "bindings": {
+    "canonicalizerSource": null,
+    "contract": {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "sha256": "352ee3d2a25718c082d71b9f085ee0622c2f2cf25ad5fe6f150233851195fe7f"
+    },
+    "entry": {
+      "authorizationRevision": "f8554c9d485e9a492a9a16d56f9eb46402ec9141",
+      "predecessorFiles": [
+        {
+          "identity": "16.1",
+          "path": "fixture-predecessor.json",
+          "sha256": "15a67c38da771544616b5e32e778a3b98591a62d1d87fd364423ca8ac2f7eb96"
+        }
+      ],
+      "qualification": {
+        "path": "fixture-entry.json",
+        "sha256": "231518d805b6e66fb2e2a776537f254118dfe5767e4c6c71e1a92f95ee3e7278"
+      },
+      "runtimeQualified": true,
+      "scope": "runtime"
+    },
+    "faultLedger": [],
+    "native": {
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-01.trx",
+      "sha256": "c3ccbc6fba041e377d18f73ad4056a8a5d2b611885c505b6fa0aab18b01110d6"
+    },
+    "observationsSha256": "7924dcd2bc47b32b0218166d2a8d0a90738f935b44c59f28988bedee5467a45e",
+    "publicSourcePreservation": null,
+    "rollback": {
+      "boundary": "Revert only timestamp derivation, the lifecycle/watermark addition, read semantics, tests/evidence, and the Story 16.2 record. Preserve event history, public contract shape, Story 16.1 state, and prior proof history."
+    },
+    "schema": {
+      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+      "sha256": "447f0af0cc842a03abb61b83bb937beccc3ea5a5e7c07c533507d8d5b09ba1d6"
+    },
+    "sources": [
+      {
+        "path": "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_2EvidenceTests.cs",
+        "sha256": "2a34350193e8194ca39fd10dd9ba992031c26539154032b5a9d82292f9843bf4"
+      }
+    ],
+    "testBinary": {
+      "capture": {
+        "path": "artifacts/epic16-runtime/16.2/AC-16.2-01.capture.json",
+        "sha256": "4dc528b9843d71e515cac9109a7ed53dac81716a3417663ba6e6a702baa24a7a"
+      },
+      "informationalVersion": "1.0.0+2d8401117ab88f1a1f27c03fe7eabc88412cffcd",
+      "method": "Scenario01",
+      "path": "artifacts/epic16-runtime/16.2/binaries/bdd2623ad396ca80340d9d53456fe9425db4cb2502010034d7451c7e14f3622a.dll",
+      "products": [
+        {
+          "api": {
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "types": {
+              "Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter": {
+                "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:32:0:1:String(String)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000"
+                ]
+              },
+              "Hexalith.Conversations.Server.TenantAccess.ConversationTenantAccessService": {
+                "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:32:0:1:String(String)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyName": "Hexalith.Conversations.Server",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter",
+            "Hexalith.Conversations.Server.TenantAccess.ConversationTenantAccessService"
+          ],
+          "informationalVersion": "1.0.0+2d8401117ab88f1a1f27c03fe7eabc88412cffcd",
+          "mvid": "c7a3215f-fd5e-420c-80b1-bcf1c50693ee",
+          "owner": ".",
+          "path": "artifacts/epic16-runtime/16.2/binaries/e84e4ed0e08e9c96877ced951ab672447dc1c16a749589fdca300a02c15bfd70.dll",
+          "publicKey": "",
+          "sha256": "e84e4ed0e08e9c96877ced951ab672447dc1c16a749589fdca300a02c15bfd70",
+          "sourceRevision": "2d8401117ab88f1a1f27c03fe7eabc88412cffcd"
+        },
+        {
+          "api": {
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "types": {
+              "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1": {
+                "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:32:0:1:String(String)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyName": "Hexalith.Conversations.Contracts",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+          ],
+          "informationalVersion": "1.0.0+2d8401117ab88f1a1f27c03fe7eabc88412cffcd",
+          "mvid": "a2969ea1-884e-4b5d-8d0e-3e5b52992e31",
+          "owner": ".",
+          "path": "artifacts/epic16-runtime/16.2/binaries/1c532aba22e1d7f926c9d2ae34f3000ffbf05c98da6198b84300e4ae877f9e03.dll",
+          "publicKey": "",
+          "sha256": "1c532aba22e1d7f926c9d2ae34f3000ffbf05c98da6198b84300e4ae877f9e03",
+          "sourceRevision": "2d8401117ab88f1a1f27c03fe7eabc88412cffcd"
+        },
+        {
+          "api": {
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "types": {
+              "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler": {
+                "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:32:0:1:String(String)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000"
+                ]
+              },
+              "Hexalith.Tenants.Client.Projections.ITenantProjectionStore": {
+                "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:32:0:1:String(String)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyName": "Hexalith.Tenants.Client",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler",
+            "Hexalith.Tenants.Client.Projections.ITenantProjectionStore"
+          ],
+          "informationalVersion": "1.0.0+56d30d06e892d216a1abee9531759d617fa5174d",
+          "mvid": "95b6a9a4-b5a8-434a-9ddc-5f5a3ddb9a69",
+          "owner": "references/Hexalith.Tenants",
+          "path": "artifacts/epic16-runtime/16.2/binaries/a22bc7e44f52c80b4f1b1cb9cb1fc73883307cc5f9689faa23c303a69b7439cd.dll",
+          "publicKey": "",
+          "sha256": "a22bc7e44f52c80b4f1b1cb9cb1fc73883307cc5f9689faa23c303a69b7439cd",
+          "sourceRevision": "56d30d06e892d216a1abee9531759d617fa5174d"
+        },
+        {
+          "api": {
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "types": {
+              "Hexalith.Tenants.Contracts.Events.TenantDisabled": {
+                "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:32:0:1:String(String)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.Tenants.Contracts.Events.TenantDisabled"
+          ],
+          "informationalVersion": "1.0.0+56d30d06e892d216a1abee9531759d617fa5174d",
+          "mvid": "ea9a9535-e0fb-4538-b46d-6b5ecd3bd118",
+          "owner": "references/Hexalith.Tenants",
+          "path": "artifacts/epic16-runtime/16.2/binaries/9294c0e9857bc44c0b5d97cc9e4a1bf8ee1cf23b818f7e6c3d223b4b7e0e057d.dll",
+          "publicKey": "",
+          "sha256": "9294c0e9857bc44c0b5d97cc9e4a1bf8ee1cf23b818f7e6c3d223b4b7e0e057d",
+          "sourceRevision": "56d30d06e892d216a1abee9531759d617fa5174d"
+        },
+        {
+          "api": {
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "types": {
+              "Hexalith.EventStore.Client.Projections.IReadModelStore": {
+                "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:32:0:1:String(String)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000"
+                ]
+              },
+              "Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader": {
+                "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:32:0:1:String(String)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyName": "Hexalith.EventStore.Client",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.EventStore.Client.Projections.IReadModelStore",
+            "Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader"
+          ],
+          "informationalVersion": "1.0.0+de95fe20119adb1ee9927e6a0523269c0b8dcd8f",
+          "mvid": "c1f714d6-e307-44b6-a032-d5793689a9e5",
+          "owner": "references/Hexalith.EventStore",
+          "path": "artifacts/epic16-runtime/16.2/binaries/ede0a03fbe59366f39747f1933b50b1193389d91dfd27dc26295654f4c63606d.dll",
+          "publicKey": "",
+          "sha256": "ede0a03fbe59366f39747f1933b50b1193389d91dfd27dc26295654f4c63606d",
+          "sourceRevision": "de95fe20119adb1ee9927e6a0523269c0b8dcd8f"
+        },
+        {
+          "api": {
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "types": {
+              "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest": {
+                "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:32:0:1:String(String)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest"
+          ],
+          "informationalVersion": "1.0.0+de95fe20119adb1ee9927e6a0523269c0b8dcd8f",
+          "mvid": "e3527811-5473-4d57-9db6-a687ee56767c",
+          "owner": "references/Hexalith.EventStore",
+          "path": "artifacts/epic16-runtime/16.2/binaries/42504b64905ef0117205820ac4c7ee40901b0d5c7236c8396e12a872f017b6b7.dll",
+          "publicKey": "",
+          "sha256": "42504b64905ef0117205820ac4c7ee40901b0d5c7236c8396e12a872f017b6b7",
+          "sourceRevision": "de95fe20119adb1ee9927e6a0523269c0b8dcd8f"
+        },
+        {
+          "api": {
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "types": {
+              "Hexalith.EventStore.DomainService.DomainProjectionDispatcher": {
+                "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:32:0:1:String(String)::1:value:None:absent::[System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute:0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
+          ],
+          "informationalVersion": "1.0.0+de95fe20119adb1ee9927e6a0523269c0b8dcd8f",
+          "mvid": "1988125e-560e-4b8f-ac77-c3010e5729dd",
+          "owner": "references/Hexalith.EventStore",
+          "path": "artifacts/epic16-runtime/16.2/binaries/439bd91576f5b1c7eb1843750cc841a7a770be6359ccfccb016c1c5ddeba4788.dll",
+          "publicKey": "",
+          "sha256": "439bd91576f5b1c7eb1843750cc841a7a770be6359ccfccb016c1c5ddeba4788",
+          "sourceRevision": "de95fe20119adb1ee9927e6a0523269c0b8dcd8f"
+        }
+      ],
+      "sha256": "bdd2623ad396ca80340d9d53456fe9425db4cb2502010034d7451c7e14f3622a",
+      "sourceRevision": "2d8401117ab88f1a1f27c03fe7eabc88412cffcd",
+      "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c",
+      "type": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_2EvidenceTests"
+    },
+    "tooling": [
+      {
+        "path": ".config/dotnet-tools.json",
+        "sha256": "5d72a022a9416cb753da75cda1b0f1945fd938c065521fd9946aaa525fe048da"
+      },
+      {
+        "path": ".gitattributes",
+        "sha256": "b97d90730db9b15370b525c6aa3ac17dce368ed46ac07cca97ca261e0c961cd3"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md",
+        "sha256": "bc7d953ab6ea741b488ae8c96f5d4a7dde6d1fe2ef0ff33a3ff79b2cb82a6157"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json",
+        "sha256": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json",
+        "sha256": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json",
+        "sha256": "074189ef4eea79bddeef5935b27df01c637dc5bf832a17eb24933c52968364c0"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json",
+        "sha256": "da8c5462c77239f9f770a9b803b436824efb8e58f7f182fb66ec1343902beae7"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json",
+        "sha256": "542f1de5e4af3c58c9df7d654e04dd2ea99b9f63cd50bcf864ef5c2ba1257963"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json",
+        "sha256": "226a0a060951139346282a8048338ff9af35014fe7154d79a8863da56507c9dc"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md",
+        "sha256": "e12ee39652b9d7e18052716c955962d716f7e48b6fea2cd1f43f6a22d783ecb0"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json",
+        "sha256": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json",
+        "sha256": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json",
+        "sha256": "4c533a78c3f0f115f28d1113e5b2e71a4d71c93b5c08b4e3ebf8cfa23e47b9bd"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json",
+        "sha256": "3088bcf463a6bd7643925195c0ecf3e34f26e72caf6706c08e2c62b3ddaae2f6"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.2.json",
+        "sha256": "d9fd9f9fe66b178f2435396ab467886d9dd04024754ff5970345fa1802f53560"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json",
+        "sha256": "b353f763387047063f3c2c8d9a0373de8e61f054ea7a3df714c29f43db21b712"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md",
+        "sha256": "b0b110461e81457a12b35bc8515ad691d26a926b206189495241f7f52a50097c"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json",
+        "sha256": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json",
+        "sha256": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json",
+        "sha256": "16eaf5b30e379ca50172a20fa5b069ac6a3cd4c675c5ca322d9178a1929f5746"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json",
+        "sha256": "3e44d0498d231633a12ee122d72535c178870a1601ab8c552c815566fe257e08"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json",
+        "sha256": "a21c8c817e5126343110a5e6730883b5cf32738610b3f552ef6cdbbfe605a965"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json",
+        "sha256": "5eeccfb8427e4ebccc1955f965d00e3c5655834a3c3005443c970be2dd99509a"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "sha256": "52db750361ddbc46b56136d247bc3b37ebeb387cf051592ba3bbb75a82bb1d71"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+        "sha256": "352ee3d2a25718c082d71b9f085ee0622c2f2cf25ad5fe6f150233851195fe7f"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+        "sha256": "bbd39dd3048ea7188121e885c7d8291c004c303e3e0ea573c817c5131bd464a9"
+      },
+      {
+        "path": "_bmad/schemas/epic-16-adoption-v1.schema.json",
+        "sha256": "884d8efb4bf58571c99dca0b63ba0f97b10e50db0cb4bd238ed5a96f017f4f98"
+      },
+      {
+        "path": "_bmad/schemas/epic-16-adoption-v2.schema.json",
+        "sha256": "12278d301a8945ba929d28ecb7a8091663e40f23d821aa4cf3d2d3ec765d3a4f"
+      },
+      {
+        "path": "_bmad/schemas/epic-16-prerequisites-v1.schema.json",
+        "sha256": "b7095d7191a96dcefb5a0c333958e5c7eccbd7fa1fae9cb8d62ea2ec8bcad497"
+      },
+      {
+        "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+        "sha256": "447f0af0cc842a03abb61b83bb937beccc3ea5a5e7c07c533507d8d5b09ba1d6"
+      },
+      {
+        "path": "_bmad/scripts/authoring_outputs.py",
+        "sha256": "17abd7aca9d82cc6bdb17cf5db5df711b06e75ed4bcac46138f98daf750d897d"
+      },
+      {
+        "path": "_bmad/scripts/config_utils.py",
+        "sha256": "48afe2bc18a29201e343cce3703be1e70df9c83ee74eeb68e57ef8ef42e8c651"
+      },
+      {
+        "path": "_bmad/scripts/contained_reader.py",
+        "sha256": "fac77aa5381c54fd7df3d2b70204b46b4be353992a6529a44dac2da46ea6001b"
+      },
+      {
+        "path": "_bmad/scripts/epic16_capture.py",
+        "sha256": "267e69044a169b73ba412bfa9e09cf0c0bbc4de9113bae8b5a19c4177f539a07"
+      },
+      {
+        "path": "_bmad/scripts/epic16_domain.py",
+        "sha256": "dc043488b746651af0f528bec3ecc2788dccc4bf0962d86e52e40aabfaa745af"
+      },
+      {
+        "path": "_bmad/scripts/epic16_execution.py",
+        "sha256": "b83a28b33e39965c65af91843e8f3b9f68e071272d950dfca25e192c68965755"
+      },
+      {
+        "path": "_bmad/scripts/epic16_faults.py",
+        "sha256": "1a58f4492e7b4b53a2d016c05b54df31274a90d6494c3cd40c3251426c1959b5"
+      },
+      {
+        "path": "_bmad/scripts/epic16_lifecycle.py",
+        "sha256": "4630872ff2f0a34a5cc8bf0a53a59f6a1c899137e6eb3f8612175826c90900c4"
+      },
+      {
+        "path": "_bmad/scripts/epic16_measurements.py",
+        "sha256": "37dfc4c15864a40f6fb3bbeb21987be11984f746a8d01b3cb42188a79cd73ed8"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native.py",
+        "sha256": "08e3c8a0a35bb9f6be3229b3e3f1a833f00412564b49081f3915e3fcc0915a49"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj",
+        "sha256": "f3057cab73b03ec077940f41c8b23a30032c563c1989dc680ac7b60764d4fcb5"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/EventStore-LICENSE",
+        "sha256": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+        "sha256": "31bdcaa799feb24f6daabbbf5c1096a70289c4aeb5fa1cddd3b3ca047b47ccbb"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/Program.cs",
+        "sha256": "636caf1ce50bb1942addacb5a4ae4c48e073d30d103753ab9e8f0b07f8fa543f"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/README.md",
+        "sha256": "1946d362743a94a2bcf62cccbcbe37a528e3b0393e5b3c4a1766cf7fca81855e"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs",
+        "sha256": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+        "sha256": "ab7be5c38af3bd49b8c3266a0ba5ba56f2e06a7d06e154dc0e03f0c86493ea42"
+      },
+      {
+        "path": "_bmad/scripts/epic16_products.py",
+        "sha256": "a6ad255bfde433f9bf6f573d03581f51b81dfa6a530b48c193dae1911c6043a8"
+      },
+      {
+        "path": "_bmad/scripts/epic16_relationships.py",
+        "sha256": "b80c2632de8198ad823518844dd17e483af977947bff841b5934ce7c0ec2ceb9"
+      },
+      {
+        "path": "_bmad/scripts/epic16_schedules.py",
+        "sha256": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a"
+      },
+      {
+        "path": "_bmad/scripts/epic16_tooling.py",
+        "sha256": "4a6d1d60f3aa5524de28b11721d43146edf060590c01d474f97e026969256e40"
+      },
+      {
+        "path": "_bmad/scripts/epic16_trust.py",
+        "sha256": "af36c76724a14c1329ca7ac711ca8d253c0b0a2c7b3f4de27e3743cec95f114f"
+      },
+      {
+        "path": "_bmad/scripts/evidence_boundary_current.py",
+        "sha256": "42ae5eb021be38647bf0172db4d4b41cd7c3c5fc299edffbeee616527b6eefdd"
+      },
+      {
+        "path": "_bmad/scripts/generate_story_record.py",
+        "sha256": "69947b8726ccb0b1b56f9ec69ed03b2ce1bff1fa9ac500bdccaf76ecb1a28a0a"
+      },
+      {
+        "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-goldens.json",
+        "sha256": "f08bbd0ce5205a282c8cb2bfbfeac76046ee73494c41a80c527a1c191552fe93"
+      },
+      {
+        "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-provenance.json",
+        "sha256": "daef7f4e47b2c160b9bba813e9e1e38a3806b8167823bfb60bcf277d58afe8ee"
+      },
+      {
+        "path": "_bmad/scripts/tests/fixtures/epic16-domain-sources.json",
+        "sha256": "a125428dc977518d8b1bb7cd485b901dd9553bc647434232014ea5f043b1f151"
+      },
+      {
+        "path": "_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json",
+        "sha256": "04b547e3cf9da207a67142473967fb6ca01ffc4e32df4bd886ae769a0063d373"
+      },
+      {
+        "path": "_bmad/scripts/verify_epic_16_adoption.py",
+        "sha256": "b22b6d25ae86186d0575a19dfa09b810220c70d3fb9c0eadefc781a53ce68505"
+      },
+      {
+        "path": "_bmad/scripts/verify_epic_16_adoption_v2.py",
+        "sha256": "f9ac03603a2b1635b7bb7e7f44262c2acb8f0272fbf55030ea1012932d93b568"
+      },
+      {
+        "path": "_bmad/scripts/verify_epic_16_prerequisites.py",
+        "sha256": "b10e910aefdd7f9f19cb80bbb19936efd2340f641be45787c140cf45738bbfa6"
+      },
+      {
+        "path": "_bmad/scripts/verify_story_16_1.py",
+        "sha256": "89fec6a15125ec20ef7a1b43a0dae451b33f58e3e3c4b0d9bbf2c8d577943329"
+      },
+      {
+        "path": "_bmad/scripts/verify_story_16_2.py",
+        "sha256": "ca53fda5d83c96090fe428071447a98f14e4f236a2c83245acc19fb812c460e1"
+      },
+      {
+        "path": "_bmad/scripts/verify_story_16_3.py",
+        "sha256": "df1b0a38bdf5e57b96153a0232cf28004abb974ae539b85948fbc12961bd1ff7"
+      },
+      {
+        "path": "_bmad/scripts/verify_story_completion_workflows.py",
+        "sha256": "1a01c22abda5aff3ae74b277c4437490c752b130c764199e47799235d6129d99"
+      },
+      {
+        "path": "docs/runbooks/current-change-validation.md",
+        "sha256": "d5284f00b8c850d43cabfcd45d2a4cf94d76a04a0bf7d6761ead7f17e5947801"
+      },
+      {
+        "path": "global.json",
+        "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+      },
+      {
+        "path": "module/hexalith.module-manifest.v2.json",
+        "sha256": "0bed1c297c9c9d78fdb8f37197ac5f71d829191c0535fdd78e4034aaa017bdf0"
+      },
+      {
+        "path": "module/hosting-inventory.json",
+        "sha256": "1bfd46248158637c950cd6764a47f926b1683568218208a0107d3b1ed3ada1e7"
+      },
+      {
+        "path": "module/sm-2-checklist.md",
+        "sha256": "71fb1992ca38602e4cfba34d1b5471459aff986a1ac87b774fb887feafaeec37"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+        "sha256": "bf8a15384b47f9faf3ec61f3e4a16cff83e90b3399ee62acfff63428c390e538"
+      }
+    ],
+    "upstreamApiPreservation": null,
+    "warningSurface": null
+  },
+  "blockers": [],
+  "candidate": {
+    "changedPaths": [
+      "_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_2EvidenceTests.cs"
+    ],
+    "commit": "2d8401117ab88f1a1f27c03fe7eabc88412cffcd",
+    "gitlinks": [
+      {
+        "commit": "de95fe20119adb1ee9927e6a0523269c0b8dcd8f",
+        "path": "references/Hexalith.EventStore"
+      },
+      {
+        "commit": "56d30d06e892d216a1abee9531759d617fa5174d",
+        "path": "references/Hexalith.Tenants"
+      }
+    ],
+    "parent": "d6c3cc84f46829459986412d11ec5127035a0705"
+  },
+  "counts": {
+    "failed": 0,
+    "passed": 1,
+    "skipped": 0,
+    "total": 1
+  },
+  "exitCode": 0,
+  "result": "PASS",
+  "runtimeQualified": true,
+  "scenarioId": "AC-16.2-01",
+  "schemaVersion": "hexalith.conversations.epic16-measured-result.v1",
+  "storyId": "16.2",
+  "validationScope": "runtime"
+}

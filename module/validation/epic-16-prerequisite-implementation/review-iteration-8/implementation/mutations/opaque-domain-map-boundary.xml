@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="1.272" timestamp="2026-10-26T00:09:42.958483+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_domain_map_keys_are_opaque_but_native_values_remain_validated[False-version-recovery-success]" time="0.377"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-491/test_round8_domain_map_keys_ar0/fixture')
+name = 'recovery-success', key = 'version', invalid = False
+
+    @pytest.mark.parametrize('name',['recovery-success','two-replicas'])
+    @pytest.mark.parametrize('key',['version','lease','allowed','history','pending','sequence','status','saveOrder'])
+    @pytest.mark.parametrize('invalid',[False,True])
+    def test_round8_domain_map_keys_are_opaque_but_native_values_remain_validated(repository,name,key,invalid):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=next(r for r in data['faults'] if r['id']==name)
+        before=json.loads(row['beforeBytes']);observed=row['observed']
+        states=[before['state']['domain'],observed['domain']] if name=='recovery-success' else [r['domain'] for r in before['state'].values()]+[r['domain'] for r in observed.values()]
+        for state in states:
+            state['configuration'][key]=42 if invalid else 'customer-setting'
+            state['members'][key]='TenantReader'
+        row['beforeBytes']=row['afterBytes']=json.dumps(before,separators=(',',':'));row['beforeSha256']=row['afterSha256']=digest(row['beforeBytes'].encode())
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=not invalid)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2858: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-491/test_round8_domain_map_keys_ar0/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round8_domain_map_keys_are_opaque_but_native_values_remain_validated[False-version-two-replicas]" time="0.332"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-491/test_round8_domain_map_keys_ar1/fixture')
+name = 'two-replicas', key = 'version', invalid = False
+
+    @pytest.mark.parametrize('name',['recovery-success','two-replicas'])
+    @pytest.mark.parametrize('key',['version','lease','allowed','history','pending','sequence','status','saveOrder'])
+    @pytest.mark.parametrize('invalid',[False,True])
+    def test_round8_domain_map_keys_are_opaque_but_native_values_remain_validated(repository,name,key,invalid):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=next(r for r in data['faults'] if r['id']==name)
+        before=json.loads(row['beforeBytes']);observed=row['observed']
+        states=[before['state']['domain'],observed['domain']] if name=='recovery-success' else [r['domain'] for r in before['state'].values()]+[r['domain'] for r in observed.values()]
+        for state in states:
+            state['configuration'][key]=42 if invalid else 'customer-setting'
+            state['members'][key]='TenantReader'
+        row['beforeBytes']=row['afterBytes']=json.dumps(before,separators=(',',':'));row['beforeSha256']=row['afterSha256']=digest(row['beforeBytes'].encode())
+&gt;       round8_submit(repository,'AC-16.1-04',data,passes=not invalid)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2858: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-491/test_round8_domain_map_keys_ar1/fixture')
+scenario = 'AC-16.1-04'
+data = {'faults': [{'id': 'reverse-save', 'observedCodes': ['CAS_RETRY'], 'beforeBytes': '{"target":{"kind":"tenant-projectio...n', 'acknowledged': False, 'durable': False, 'attempts': 3, ...}], 'queryRecoveryOperations': [], 'consumerClears': []}
+passes = True
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError</failure></testcase></testsuite></testsuites>

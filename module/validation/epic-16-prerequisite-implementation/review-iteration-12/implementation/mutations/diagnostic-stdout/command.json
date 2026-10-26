@@ -1,0 +1,29 @@
+{
+  "name": "diagnostic-stdout",
+  "path": "_bmad/scripts/epic16_native.py",
+  "old": "stdout={bounded(result.stdout)!r}",
+  "new": "stdout=omitted",
+  "selector": "round12_helper_prerequisite_failure and stdout",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-diagnostic-stdout-grcu7_l4/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_helper_prerequisite_failure and stdout",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/diagnostic-stdout/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-diagnostic-stdout-grcu7_l4",
+  "exitCode": 1,
+  "elapsedSeconds": 0.9802826859813649,
+  "originalSha256": "f4a254c51e1c3e139c2aab173dd3dc0e754370466af54e0627bc6624561368f0",
+  "mutatedSha256": "c44f9137b54f2fda8e543eb97c1c2b9ecfaeca8d919bca0bd6588a5551027950",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  }
+}

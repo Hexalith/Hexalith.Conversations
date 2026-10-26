@@ -1,0 +1,12 @@
+{
+  "records": 32,
+  "demonstratedGuards": 31,
+  "assertionFailures": 63,
+  "setupErrors": 0,
+  "skipped": 0,
+  "sourceHashesMatchCurrentFinal": true,
+  "stdoutStderrAndJUnitVerified": true,
+  "redundantSurvivors": [
+    "named-internal-metadata"
+  ]
+}

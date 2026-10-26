@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/epic16-r10-mutations-R10P1.py", line 47, in <module>
+    assert result.returncode==1 and counts['failures']>0 and counts['errors']==counts['skipped']==0,(name,result.stdout.decode(),result.stderr.decode())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('inherited-collection-types', '.........                                                                [100%]\n9 passed, 1978 deselected in 51.66s\n', '')

@@ -1,0 +1,114 @@
+{
+  "semanticAccepted": true,
+  "checks": [
+    "tenant-fault-matrix",
+    "durable-acknowledgement",
+    "bounded-retry",
+    "query-purity"
+  ],
+  "schemaRejected": true,
+  "errors": [
+    {
+      "path": [
+        "acknowledgements",
+        0,
+        "durableCommit"
+      ],
+      "message": "{'deliveryId': 'delivery-accepted', 'recordId': 'outcome-accepted', 'outcome': 'accepted', 'utcTicks': 1000, 'order': 1, 'operation': 'commit', 'executed': True, 'succeeded': True, 'transactionId': 'durable-transaction-accepted', 'persisted': {'tenant': 'tenant-a', 'checkpoint': 11, 'projection': {'tenantId': 'tenant-a', 'name': 'Delivered', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 11, 'messageId': 'tenant-event-11', 'eventType': 'TenantUpdated', 'payloadSha256': '93cd8d41c8b641080365acaba288144e1b74b3847a46b2a0b2816b9f04e6fd7d'}, 'health': 'Healthy', 'pending': [], 'horizon': 11, 'etag': 'ack-after-accepted'}} is not valid under any of the given schemas"
+    },
+    {
+      "path": [
+        "acknowledgements",
+        0,
+        "acknowledgement"
+      ],
+      "message": "{'deliveryId': 'delivery-accepted', 'recordId': 'outcome-accepted', 'utcTicks': 1001, 'order': 2, 'operation': 'acknowledge', 'executed': True, 'transactionId': 'durable-transaction-accepted', 'observedRecord': {'tenant': 'tenant-a', 'checkpoint': 11, 'projection': {'tenantId': 'tenant-a', 'name': 'Delivered', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 11, 'messageId': 'tenant-event-11', 'eventType': 'TenantUpdated', 'payloadSha256': '93cd8d41c8b641080365acaba288144e1b74b3847a46b2a0b2816b9f04e6fd7d'}, 'health': 'Healthy', 'pending': [], 'horizon': 11, 'etag': 'ack-after-accepted'}} is not valid under any of the given schemas"
+    },
+    {
+      "path": [
+        "acknowledgements",
+        0,
+        "durableEvidence"
+      ],
+      "message": "{'captureVersion': 1, 'tenant': 'tenant-a', 'sourceState': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'sourceRecord': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'persistedPayload': '{\"tenantId\":\"tenant-a\",\"name\":\"Accepted\",\"description\":null,\"updatedAt\":\"2026-01-02T03:04:05+00:00\"}', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'delivered': {'sequence': 11, 'messageId': 'tenant-event-11', 'eventType': 'TenantUpdated', 'persistedPayload': '{\"tenantId\":\"tenant-a\",\"name\":\"Delivered\",\"description\":null,\"updatedAt\":\"2026-01-02T03:04:05+00:00\"}', 'payloadSha256': '93cd8d41c8b641080365acaba288144e1b74b3847a46b2a0b2816b9f04e6fd7d'}, 'before': {'tenant': 'tenant-a', 'checkpoint': 10, 'projection': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'health': 'Healthy', 'pending': [], 'horizon': 10, 'etag': 'ack-before-accepted'}, 'after': {'tenant': 'tenant-a', 'checkpoint': 11, 'projection': {'tenantId': 'tenant-a', 'name': 'Delivered', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 11, 'messageId': 'tenant-event-11', 'eventType': 'TenantUpdated', 'payloadSha256': '93cd8d41c8b641080365acaba288144e1b74b3847a46b2a0b2816b9f04e6fd7d'}, 'health': 'Healthy', 'pending': [], 'horizon': 11, 'etag': 'ack-after-accepted'}, 'expectedEtag': 'ack-before-accepted', 'transactionId': 'durable-transaction-accepted', 'writeCount': 1} is not valid under any of the given schemas"
+    },
+    {
+      "path": [
+        "acknowledgements",
+        1,
+        "durableCommit"
+      ],
+      "message": "{'deliveryId': 'delivery-duplicate', 'recordId': 'outcome-duplicate', 'outcome': 'duplicate', 'utcTicks': 1010, 'order': 1, 'operation': 'commit', 'executed': True, 'succeeded': True, 'transactionId': 'durable-transaction-duplicate', 'persisted': {'tenant': 'tenant-a', 'checkpoint': 10, 'projection': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'health': 'Healthy', 'pending': [], 'horizon': 10, 'etag': 'ack-before-duplicate'}} is not valid under any of the given schemas"
+    },
+    {
+      "path": [
+        "acknowledgements",
+        1,
+        "acknowledgement"
+      ],
+      "message": "{'deliveryId': 'delivery-duplicate', 'recordId': 'outcome-duplicate', 'utcTicks': 1011, 'order': 2, 'operation': 'acknowledge', 'executed': True, 'transactionId': 'durable-transaction-duplicate', 'observedRecord': {'tenant': 'tenant-a', 'checkpoint': 10, 'projection': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'health': 'Healthy', 'pending': [], 'horizon': 10, 'etag': 'ack-before-duplicate'}} is not valid under any of the given schemas"
+    },
+    {
+      "path": [
+        "acknowledgements",
+        1,
+        "durableEvidence"
+      ],
+      "message": "{'captureVersion': 1, 'tenant': 'tenant-a', 'sourceState': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'sourceRecord': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'persistedPayload': '{\"tenantId\":\"tenant-a\",\"name\":\"Accepted\",\"description\":null,\"updatedAt\":\"2026-01-02T03:04:05+00:00\"}', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'delivered': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'persistedPayload': '{\"tenantId\":\"tenant-a\",\"name\":\"Accepted\",\"description\":null,\"updatedAt\":\"2026-01-02T03:04:05+00:00\"}', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'before': {'tenant': 'tenant-a', 'checkpoint': 10, 'projection': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'health': 'Healthy', 'pending': [], 'horizon': 10, 'etag': 'ack-before-duplicate'}, 'after': {'tenant': 'tenant-a', 'checkpoint': 10, 'projection': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'health': 'Healthy', 'pending': [], 'horizon': 10, 'etag': 'ack-before-duplicate'}, 'expectedEtag': 'ack-before-duplicate', 'transactionId': 'durable-transaction-duplicate', 'writeCount': 0} is not valid under any of the given schemas"
+    },
+    {
+      "path": [
+        "acknowledgements",
+        2,
+        "durableCommit"
+      ],
+      "message": "{'deliveryId': 'delivery-pending', 'recordId': 'outcome-pending', 'outcome': 'pending', 'utcTicks': 1020, 'order': 1, 'operation': 'commit', 'executed': True, 'succeeded': True, 'transactionId': 'durable-transaction-pending', 'persisted': {'tenant': 'tenant-a', 'checkpoint': 10, 'projection': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'health': 'Gapped', 'pending': [{'sequence': 12, 'messageId': 'tenant-event-11', 'eventType': 'TenantUpdated', 'payloadSha256': '93cd8d41c8b641080365acaba288144e1b74b3847a46b2a0b2816b9f04e6fd7d'}], 'horizon': 12, 'etag': 'ack-after-pending'}} is not valid under any of the given schemas"
+    },
+    {
+      "path": [
+        "acknowledgements",
+        2,
+        "acknowledgement"
+      ],
+      "message": "{'deliveryId': 'delivery-pending', 'recordId': 'outcome-pending', 'utcTicks': 1021, 'order': 2, 'operation': 'acknowledge', 'executed': True, 'transactionId': 'durable-transaction-pending', 'observedRecord': {'tenant': 'tenant-a', 'checkpoint': 10, 'projection': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'health': 'Gapped', 'pending': [{'sequence': 12, 'messageId': 'tenant-event-11', 'eventType': 'TenantUpdated', 'payloadSha256': '93cd8d41c8b641080365acaba288144e1b74b3847a46b2a0b2816b9f04e6fd7d'}], 'horizon': 12, 'etag': 'ack-after-pending'}} is not valid under any of the given schemas"
+    },
+    {
+      "path": [
+        "acknowledgements",
+        2,
+        "durableEvidence"
+      ],
+      "message": "{'captureVersion': 1, 'tenant': 'tenant-a', 'sourceState': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'sourceRecord': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'persistedPayload': '{\"tenantId\":\"tenant-a\",\"name\":\"Accepted\",\"description\":null,\"updatedAt\":\"2026-01-02T03:04:05+00:00\"}', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'delivered': {'sequence': 12, 'messageId': 'tenant-event-11', 'eventType': 'TenantUpdated', 'persistedPayload': '{\"tenantId\":\"tenant-a\",\"name\":\"Delivered\",\"description\":null,\"updatedAt\":\"2026-01-02T03:04:05+00:00\"}', 'payloadSha256': '93cd8d41c8b641080365acaba288144e1b74b3847a46b2a0b2816b9f04e6fd7d'}, 'before': {'tenant': 'tenant-a', 'checkpoint': 10, 'projection': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'health': 'Healthy', 'pending': [], 'horizon': 10, 'etag': 'ack-before-pending'}, 'after': {'tenant': 'tenant-a', 'checkpoint': 10, 'projection': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'health': 'Gapped', 'pending': [{'sequence': 12, 'messageId': 'tenant-event-11', 'eventType': 'TenantUpdated', 'payloadSha256': '93cd8d41c8b641080365acaba288144e1b74b3847a46b2a0b2816b9f04e6fd7d'}], 'horizon': 12, 'etag': 'ack-after-pending'}, 'expectedEtag': 'ack-before-pending', 'transactionId': 'durable-transaction-pending', 'writeCount': 1} is not valid under any of the given schemas"
+    },
+    {
+      "path": [
+        "acknowledgements",
+        3,
+        "durableCommit"
+      ],
+      "message": "{'deliveryId': 'delivery-corrupt', 'recordId': 'outcome-corrupt', 'outcome': 'corrupt', 'utcTicks': 1030, 'order': 1, 'operation': 'commit', 'executed': True, 'succeeded': True, 'transactionId': 'durable-transaction-corrupt', 'persisted': {'tenant': 'tenant-a', 'checkpoint': 10, 'projection': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'health': 'Corrupt', 'pending': [], 'horizon': 10, 'etag': 'ack-after-corrupt'}} is not valid under any of the given schemas"
+    },
+    {
+      "path": [
+        "acknowledgements",
+        3,
+        "acknowledgement"
+      ],
+      "message": "{'deliveryId': 'delivery-corrupt', 'recordId': 'outcome-corrupt', 'utcTicks': 1031, 'order': 2, 'operation': 'acknowledge', 'executed': True, 'transactionId': 'durable-transaction-corrupt', 'observedRecord': {'tenant': 'tenant-a', 'checkpoint': 10, 'projection': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'health': 'Corrupt', 'pending': [], 'horizon': 10, 'etag': 'ack-after-corrupt'}} is not valid under any of the given schemas"
+    },
+    {
+      "path": [
+        "acknowledgements",
+        3,
+        "durableEvidence"
+      ],
+      "message": "{'captureVersion': 1, 'tenant': 'tenant-a', 'sourceState': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'sourceRecord': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'persistedPayload': '{\"tenantId\":\"tenant-a\",\"name\":\"Accepted\",\"description\":null,\"updatedAt\":\"2026-01-02T03:04:05+00:00\"}', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'delivered': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'persistedPayload': '{\"tenantId\":\"tenant-a\",\"name\":\"Delivered\",\"description\":null,\"updatedAt\":\"2026-01-02T03:04:05+00:00\"}', 'payloadSha256': '93cd8d41c8b641080365acaba288144e1b74b3847a46b2a0b2816b9f04e6fd7d'}, 'before': {'tenant': 'tenant-a', 'checkpoint': 10, 'projection': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'health': 'Healthy', 'pending': [], 'horizon': 10, 'etag': 'ack-before-corrupt'}, 'after': {'tenant': 'tenant-a', 'checkpoint': 10, 'projection': {'tenantId': 'tenant-a', 'name': 'Accepted', 'description': None, 'status': 'Active', 'members': {'actor-a': 'TenantContributor', 'actor-extra': 'TenantReader'}, 'configuration': {'conversations.enabled': 'true', 'customer.setting': 'kept'}}, 'lastAccepted': {'sequence': 10, 'messageId': 'tenant-event-10', 'eventType': 'TenantUpdated', 'payloadSha256': 'f87b90fbbe8d93e37ccf7895d9b0053d532804b459ba1a6567b5de726a4e29c1'}, 'health': 'Corrupt', 'pending': [], 'horizon': 10, 'etag': 'ack-after-corrupt'}, 'expectedEtag': 'ack-before-corrupt', 'transactionId': 'durable-transaction-corrupt', 'writeCount': 1} is not valid under any of the given schemas"
+    }
+  ],
+  "initialProbe": "Incorrect synthetic role Reader was rejected by domain.tenant_state; corrected to actual TenantReader before drawing any conclusion.",
+  "sources": {
+    "_bmad/schemas/epic-16-tooling-v1.schema.json": "431038ca3f60d4c817715221c576a41d8e94934cbabdf60562eb6b968aecf09d",
+    "_bmad/scripts/epic16_schedules.py": "c9b0e6bbf39809a016d696d2dc5165b9f130d0292d78926bd3665e8e285fe87c",
+    "_bmad/scripts/epic16_measurements.py": "dd25f6258620691e66df6743aa50cc68332c303db5d2c3333801adf55e2968bc"
+  }
+}

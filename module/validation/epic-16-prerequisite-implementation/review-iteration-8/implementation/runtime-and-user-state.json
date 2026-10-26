@@ -1,0 +1,13 @@
+{
+  "rootHead": "8748a6b6e80b3ecbae2bb0174b43f40e30e6a148",
+  "protectedUnchanged": {
+    "global.json": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652",
+    "_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md": "b75f23a2801096413dd356ddd5f8260bfb3ec829e66fb476566d2bee1e4a750c",
+    "docs/implementation/ext-conv-ai-1-runtime-qualification.md": "92aacc8e608b67224f3d0639644c9e23d4f878c414f69766c42a94d5beb21453",
+    "tests/tooling/test_ext_conv_ai_1_installed_delivery_packet.py": "3cf9003c5034f82fe1e8420aa6ae30f8ace9eb6bbea192b984178162dfdd31e6",
+    "_bmad-output/implementation-artifacts/deferred-work.md": "6658dc35d6f64095b8cb97fdc14a20ab81035eed4f580660027554e4c203837c"
+  },
+  "runtimeSpecSha256": "4822158a8b4fd03fba0de2d8faaf7364e818b4b977bdf139e7e75ed63045a1cc",
+  "sprintSha256": "18744a7ddbf62ed1b02050fb644630f95ca1c80e6be497fa75cc00d3c73df500",
+  "acceptedPin": "4.35.2"
+}

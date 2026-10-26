@@ -1,0 +1,173 @@
+{
+  "synthetic": true,
+  "catalogBytes": "{\"domains\":[{\"domain\":\"conversation\",\"eventTypes\":[],\"rejectionEventTypes\":[],\"commandTypes\":[],\"aggregateTypes\":[],\"projectionNames\":[],\"queryTypes\":[],\"namedProjectionTypes\":[\"conversation-read-model\"],\"ordinaryProjectionTypes\":[\"conversation-read-model\"],\"fullReplayProjectionTypes\":[\"conversation-read-model\"],\"mappedOnlyStreamedProjectionTypes\":[],\"incrementalReplayProjectionTypes\":[],\"sharedEpochProjectionTypes\":[],\"singleEventProjectionTypes\":[]}],\"dispatchVersion\":2,\"dispatchCapability\":\"named-projection-dispatch-v2\",\"appId\":\"conversation\",\"serviceVersion\":\"v1\",\"catalogFingerprint\":\"2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f\"}",
+  "keys": [
+    {
+      "tenant": "tenant-a",
+      "resource": "same-resource",
+      "key": "projection:conversations:dGVuYW50LWE:c2FtZS1yZXNvdXJjZQ",
+      "index": "projection:conversations-index:dGVuYW50LWE"
+    },
+    {
+      "tenant": "a:b",
+      "resource": "c",
+      "key": "projection:conversations:YTpi:Yw",
+      "index": "projection:conversations-index:YTpi"
+    },
+    {
+      "tenant": "a",
+      "resource": "b:c",
+      "key": "projection:conversations:YQ:Yjpj",
+      "index": "projection:conversations-index:YQ"
+    },
+    {
+      "tenant": "\u00e9/\ud800\udc00",
+      "resource": "+?=&",
+      "key": "projection:conversations:w6kv8JCAgA:Kz89Jg",
+      "index": "projection:conversations-index:w6kv8JCAgA"
+    },
+    {
+      "tenant": "A",
+      "resource": "r",
+      "key": "projection:conversations:QQ:cg",
+      "index": "projection:conversations-index:QQ"
+    },
+    {
+      "tenant": "a",
+      "resource": "r",
+      "key": "projection:conversations:YQ:cg",
+      "index": "projection:conversations-index:YQ"
+    }
+  ],
+  "catalogs": [
+    {
+      "appId": "conversation",
+      "serviceVersion": "v1",
+      "routes": [
+        {
+          "domain": "conversation",
+          "projectionType": "conversation-read-model"
+        }
+      ],
+      "ordinary": [
+        {
+          "domain": "conversation",
+          "projectionType": "conversation-read-model"
+        }
+      ],
+      "fingerprint": "2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f"
+    },
+    {
+      "appId": "conversation",
+      "serviceVersion": "v1",
+      "routes": [
+        {
+          "domain": "conversation",
+          "projectionType": "conversation-read-model"
+        }
+      ],
+      "ordinary": [],
+      "fingerprint": "49e79ea2861951c9f406465c3fbc73608e82bec9a6f0905334564871a54f86e9"
+    }
+  ],
+  "emittedLogExperiment": {
+    "synthetic": true,
+    "tenant": "tenant-a",
+    "result": "AuditUnavailable",
+    "emitted": [
+      {
+        "category": "Hexalith.Conversations.Server.Diagnostics.DefaultConversationAuditAvailabilitySignal",
+        "level": "Warning",
+        "eventId": 0,
+        "message": "No audit availability signal is registered for onboarding diagnostics; reporting audit unavailable (fail-closed).",
+        "state": {
+          "{OriginalFormat}": "No audit availability signal is registered for onboarding diagnostics; reporting audit unavailable (fail-closed)."
+        }
+      }
+    ]
+  },
+  "partyIds": [
+    {
+      "input": "  ACTOR-A  ",
+      "inputJson": "\"party:  ACTOR-A  \"",
+      "constructed": "actor-a",
+      "deserialized": "actor-a",
+      "serialized": "\"party:actor-a\""
+    },
+    {
+      "input": "\tMiXeD\r\n",
+      "inputJson": "\"party:\\tMiXeD\\r\\n\"",
+      "constructed": "mixed",
+      "deserialized": "mixed",
+      "serialized": "\"party:mixed\""
+    },
+    {
+      "input": "\u00a0\u00c9\u03a3\u0130\u212a\ud801\udc00\u2003",
+      "inputJson": "\"party:\\u00A0\\u00C9\\u03A3\\u0130\\u212A\\uD801\\uDC00\\u2003\"",
+      "constructed": "\u00e9\u03c3\u0130k\ud801\udc28",
+      "deserialized": "\u00e9\u03c3\u0130k\ud801\udc28",
+      "serialized": "\"party:\\u00E9\\u03C3\\u0130k\\uD801\\uDC28\""
+    },
+    {
+      "input": "\u001cA\u001c",
+      "inputJson": "\"party:\\u001CA\\u001C\"",
+      "constructed": "\u001ca\u001c",
+      "deserialized": "\u001ca\u001c",
+      "serialized": "\"party:\\u001Ca\\u001C\""
+    },
+    {
+      "input": "\u00df\u1e9e",
+      "inputJson": "\"party:\\u00DF\\u1E9E\"",
+      "constructed": "\u00df\u00df",
+      "deserialized": "\u00df\u00df",
+      "serialized": "\"party:\\u00DF\\u00DF\""
+    },
+    {
+      "input": "\uff21\uff22\uff23",
+      "inputJson": "\"party:\\uFF21\\uFF22\\uFF23\"",
+      "constructed": "\uff41\uff42\uff43",
+      "deserialized": "\uff41\uff42\uff43",
+      "serialized": "\"party:\\uFF41\\uFF42\\uFF43\""
+    },
+    {
+      "input": "\u200b A \u200b",
+      "inputJson": "\"party:\\u200B A \\u200B\"",
+      "constructed": "\u200b a \u200b",
+      "deserialized": "\u200b a \u200b",
+      "serialized": "\"party:\\u200B a \\u200B\""
+    }
+  ],
+  "partyIdProvenance": {
+    "synthetic": true,
+    "scope": "isolated actual Contracts constructor and JSON deserialization; no runtime entry",
+    "command": [
+      "dotnet",
+      "run",
+      "--project",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/Goldens.csproj",
+      "-c",
+      "Debug",
+      "-p:NuGetAudit=false"
+    ],
+    "assemblies": [
+      {
+        "path": "src/Hexalith.Conversations.Contracts/bin/Release/net10.0/Hexalith.Conversations.Contracts.dll",
+        "sha256": "e5bc3fad4aa1f6ae86420b29e9c70e907fa8e43f91a34a6f856425b03b1e6f8a"
+      },
+      {
+        "path": "/home/administrator/.nuget/packages/hexalith.commons.serialization/2.30.3/lib/net10.0/Hexalith.Commons.Serialization.dll",
+        "sha256": "ad8051f493daddac7519fc2a38d3e3ae59ba2d4c29777d56f38c23e9c440c2af"
+      }
+    ],
+    "sources": [
+      {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/Program.cs",
+        "sha256": "9dd086e0dd8ae78bd2e6d747440291ad8062efe11491700d0bb45b11afa3f279"
+      },
+      {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/Goldens.csproj",
+        "sha256": "81fd557d02f30494cf2daf896b933771e58cac5377f46b25934164b7a98c3191"
+      }
+    ]
+  }
+}

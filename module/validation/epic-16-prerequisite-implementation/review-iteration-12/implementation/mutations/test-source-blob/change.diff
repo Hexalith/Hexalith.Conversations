@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/Program.cs
++++ _bmad/scripts/epic16_native_helper/Program.cs
+@@ -304,7 +304,7 @@
+             if (blob.ReadUInt16() != 1) throw new BadImageFormatException();
+             string? key = blob.ReadSerializedString();
+             string? value = informational ? key : blob.ReadSerializedString();
+-            if (blob.ReadUInt16() != 0 || blob.RemainingBytes != 0) throw new BadImageFormatException();
++            _ = blob.ReadUInt16();
+             if (informational) versions.Add(value ?? string.Empty);
+             else if (key == "SourceRevisionId") revisions.Add(value ?? string.Empty);
+         }

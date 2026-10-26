@@ -1,0 +1,110 @@
+{
+  "scope": "prerequisite-tooling-only",
+  "runtimeQualified": false,
+  "bindingSha256": "bf73a1d95a9266590f8d93b70d597c38a15ad54bd917d12de27d3f04004073dc",
+  "tests": [
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests/test_epic16_tooling.py",
+        "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py",
+        "--maxfail=3",
+        "--junitxml=/tmp/epic16-review1-combined.xml"
+      ],
+      "exitCode": 0,
+      "tests": 437,
+      "failures": 0,
+      "errors": 0,
+      "elapsedSeconds": 194.033,
+      "logs": [
+        {
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-1/combined.xml",
+          "sha256": "b05045b7c6c64bb3c775e4815fde1d655a346c1814bfd33b02699612c77a0794",
+          "bytes": 77251
+        },
+        {
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-1/combined.stdout.txt",
+          "sha256": "6668ba6f353d809af3f66ed65f19775340dc14ce91540ef8274a753ad4c6ce11",
+          "bytes": 592
+        },
+        {
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-1/combined.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests/test_generate_story_record.py",
+        "_bmad/scripts/tests/test_epic16_tooling.py",
+        "-k",
+        "story_111 or story_112 or standalone_generator",
+        "--junitxml=/tmp/epic16-review1-legacy.xml"
+      ],
+      "exitCode": 0,
+      "tests": 72,
+      "failures": 0,
+      "errors": 0,
+      "elapsedSeconds": 86.845,
+      "logs": [
+        {
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-1/legacy.xml",
+          "sha256": "5e3f75102f485f693571b514b7c96d352823b02d53a7f68b88351e55d28670cc",
+          "bytes": 12858
+        },
+        {
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-1/legacy.stdout.txt",
+          "sha256": "d38b39b3a5b453a922508ba18cd316c63d70e99de52e451a8f57207e5265a306",
+          "bytes": 127
+        },
+        {
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-1/legacy.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    }
+  ],
+  "sourceTests": [
+    {
+      "path": "_bmad/scripts/tests/test_epic16_tooling.py",
+      "sha256": "afac649b5ec53ff6f60760df0ea2488f1a98adf5e466ba3a930b6d0cf6f32c47"
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-observations-v1.json",
+      "sha256": "2e019ac0e72fd7476e7ede1de88693d6d5dda827a000e62d86680405dccc0827"
+    }
+  ],
+  "previousBroadGate": {
+    "rerun": false,
+    "reason": "Spec explicitly retains independent broad baseline failures and forbids rerunning the 39-minute lane",
+    "record": "module/validation/epic-16-prerequisite-implementation/verification-final.json",
+    "blockers": [
+      "REFRESH_UV_DRIFT",
+      "EVIDENCE_GUIDANCE_DRIFT / EVIDENCE_GUIDANCE_NOT_BOUND"
+    ]
+  },
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  }
+}

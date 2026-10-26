@@ -1,0 +1,92 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_round8_lifecycle_queries_execute_between_precise_committed_boundaries[false-current-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-518/test_round8_lifecycle_queries_0/fixture')
+kind = 0, fault = 'false-current'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('fault',['missing','unexecuted','incomplete','wrong-snapshot','wrong-transaction','wrong-order','stale-content','false-current','false-empty','writes','recovery','missing-reads','unauthorized-control'])
+    def test_round8_lifecycle_queries_execute_between_precise_committed_boundaries(repository,kind,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];q=row['queries'][1]
+        if fault=='missing':row['queries']=[]
+        elif fault=='unexecuted':q['executed']=False
+        elif fault=='incomplete':q['completed']=False
+        elif fault=='wrong-snapshot':q['snapshot']['index']['generation']-=1
+        elif fault=='wrong-transaction':q['observedTransactionId']='other'
+        elif fault=='wrong-order':q['order']=row['atomicity']['stages'][1]['cas']['order']
+        elif fault=='stale-content':q['returned']['content']=[deepcopy(OBSERVATIONS['AC-16.3-03']['beforeProjection'])]
+        elif fault=='false-current':q['returned'].update(status='Current',reason='current')
+        elif fault=='false-empty':row['queries'][-1]['returned'].update(status='Current',reason='current',content=[])
+        elif fault=='writes':q['writes']=['repair']
+        elif fault=='recovery':q['recoveryCalls']=['recover']
+        elif fault=='missing-reads':q['reads']=[]
+        else:q['inputs']['authorized']=False;q['reads']=[];q['returned']=dict(status='Forbidden',reason='forbidden',content=[])
+>       round8_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2970: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-518/test_round8_lifecycle_queries_0/fixture')
+scenario = 'AC-16.2-04'
+data = {'lifecycle': [{'id': 'erase', 'beforeGeneration': 2, 'afterGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3]...erGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3], ...}], 'queryWrites': [], 'unauthorizedRebuildWrites': 0}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+_ test_round8_lifecycle_queries_execute_between_precise_committed_boundaries[false-current-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-518/test_round8_lifecycle_queries_1/fixture')
+kind = 1, fault = 'false-current'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('fault',['missing','unexecuted','incomplete','wrong-snapshot','wrong-transaction','wrong-order','stale-content','false-current','false-empty','writes','recovery','missing-reads','unauthorized-control'])
+    def test_round8_lifecycle_queries_execute_between_precise_committed_boundaries(repository,kind,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];q=row['queries'][1]
+        if fault=='missing':row['queries']=[]
+        elif fault=='unexecuted':q['executed']=False
+        elif fault=='incomplete':q['completed']=False
+        elif fault=='wrong-snapshot':q['snapshot']['index']['generation']-=1
+        elif fault=='wrong-transaction':q['observedTransactionId']='other'
+        elif fault=='wrong-order':q['order']=row['atomicity']['stages'][1]['cas']['order']
+        elif fault=='stale-content':q['returned']['content']=[deepcopy(OBSERVATIONS['AC-16.3-03']['beforeProjection'])]
+        elif fault=='false-current':q['returned'].update(status='Current',reason='current')
+        elif fault=='false-empty':row['queries'][-1]['returned'].update(status='Current',reason='current',content=[])
+        elif fault=='writes':q['writes']=['repair']
+        elif fault=='recovery':q['recoveryCalls']=['recover']
+        elif fault=='missing-reads':q['reads']=[]
+        else:q['inputs']['authorized']=False;q['reads']=[];q['returned']=dict(status='Forbidden',reason='forbidden',content=[])
+>       round8_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2970: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-518/test_round8_lifecycle_queries_1/fixture')
+scenario = 'AC-16.2-04'
+data = {'lifecycle': [{'id': 'erase', 'beforeGeneration': 2, 'afterGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3]...erGeneration': 3, 'componentGenerations': [3, 3, 3, 3, 3, 3], ...}], 'queryWrites': [], 'unauthorizedRebuildWrites': 0}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+>       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2806: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_lifecycle_queries_execute_between_precise_committed_boundaries[false-current-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round8_lifecycle_queries_execute_between_precise_committed_boundaries[false-current-1]
+2 failed, 1586 deselected in 3.12s

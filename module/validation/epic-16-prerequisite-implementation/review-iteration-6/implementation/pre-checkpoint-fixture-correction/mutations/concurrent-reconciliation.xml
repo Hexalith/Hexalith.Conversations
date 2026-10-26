@@ -1,0 +1,1971 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="58" skipped="0" tests="58" time="50.067" timestamp="2026-10-25T22:10:18.292026+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[scope-0]" time="4.214"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem0/fixture')
+case = 0, fault = 'scope'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[scope-1]" time="1.117"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem1/fixture')
+case = 1, fault = 'scope'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[scope-2]" time="0.725"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem2/fixture')
+case = 2, fault = 'scope'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[scope-3]" time="0.744"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem3/fixture')
+case = 3, fault = 'scope'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[expected-0]" time="0.669"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem4/fixture')
+case = 0, fault = 'expected'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[expected-1]" time="0.752"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem5/fixture')
+case = 1, fault = 'expected'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[expected-2]" time="0.718"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem6/fixture')
+case = 2, fault = 'expected'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[expected-3]" time="0.618"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem7/fixture')
+case = 3, fault = 'expected'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[proposal-0]" time="0.668"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem8/fixture')
+case = 0, fault = 'proposal'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[proposal-1]" time="0.610"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem9/fixture')
+case = 1, fault = 'proposal'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[proposal-2]" time="0.674"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem10/fixture')
+case = 2, fault = 'proposal'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[proposal-3]" time="0.633"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem11/fixture')
+case = 3, fault = 'proposal'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[accepted-0]" time="0.611"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem12/fixture')
+case = 0, fault = 'accepted'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[accepted-1]" time="0.649"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem13/fixture')
+case = 1, fault = 'accepted'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[accepted-2]" time="0.602"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem14/fixture')
+case = 2, fault = 'accepted'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[accepted-3]" time="0.692"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem15/fixture')
+case = 3, fault = 'accepted'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[clear-0]" time="0.631"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem16/fixture')
+case = 0, fault = 'clear'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[clear-1]" time="0.655"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem17/fixture')
+case = 1, fault = 'clear'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[clear-2]" time="0.627"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem18/fixture')
+case = 2, fault = 'clear'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[clear-3]" time="0.678"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem19/fixture')
+case = 3, fault = 'clear'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[commit-0]" time="0.677"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem20/fixture')
+case = 0, fault = 'commit'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[commit-1]" time="0.654"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem21/fixture')
+case = 1, fault = 'commit'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[commit-2]" time="0.693"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem22/fixture')
+case = 2, fault = 'commit'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[commit-3]" time="0.652"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem23/fixture')
+case = 3, fault = 'commit'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[checkpoint-0]" time="0.553"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem24/fixture')
+case = 0, fault = 'checkpoint'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[checkpoint-1]" time="0.593"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem25/fixture')
+case = 1, fault = 'checkpoint'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[checkpoint-2]" time="0.581"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem26/fixture')
+case = 2, fault = 'checkpoint'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[checkpoint-3]" time="0.572"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem27/fixture')
+case = 3, fault = 'checkpoint'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[generation-0]" time="0.570"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem28/fixture')
+case = 0, fault = 'generation'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[generation-1]" time="0.569"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem29/fixture')
+case = 1, fault = 'generation'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[generation-2]" time="0.561"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem30/fixture')
+case = 2, fault = 'generation'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[generation-3]" time="0.551"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem31/fixture')
+case = 3, fault = 'generation'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[watermark-0]" time="0.565"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem32/fixture')
+case = 0, fault = 'watermark'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[watermark-1]" time="0.545"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem33/fixture')
+case = 1, fault = 'watermark'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[watermark-2]" time="0.716"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem34/fixture')
+case = 2, fault = 'watermark'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[watermark-3]" time="0.623"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem35/fixture')
+case = 3, fault = 'watermark'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[content-0]" time="0.558"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem36/fixture')
+case = 0, fault = 'content'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[content-1]" time="0.559"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem37/fixture')
+case = 1, fault = 'content'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[content-2]" time="0.560"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem38/fixture')
+case = 2, fault = 'content'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[content-3]" time="0.610"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem39/fixture')
+case = 3, fault = 'content'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[lease-time-0]" time="0.623"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem40/fixture')
+case = 0, fault = 'lease-time'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[lease-time-1]" time="0.535"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem41/fixture')
+case = 1, fault = 'lease-time'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[lease-time-2]" time="0.602"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem42/fixture')
+case = 2, fault = 'lease-time'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress[lease-time-3]" time="0.999"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_stale_worker_attem43/fixture')
+case = 3, fault = 'lease-time'
+
+    @pytest.mark.parametrize('case',range(4))
+    @pytest.mark.parametrize('fault',['scope','expected','proposal','accepted','clear','commit','checkpoint','generation','watermark','content','lease-time'])
+    def test_round6_stale_worker_attempts_preserve_complete_authoritative_newer_progress(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery'];row=proof['staleAttempts'][case]
+        if fault=='scope':row['scope']['pendingId']='other-pending'
+        elif fault=='expected':row['expected']['lease']+=1
+        elif fault=='proposal':row['proposed']['projection']['label']='unrelated content'
+        elif fault=='accepted':row['succeeded']=True
+        elif fault=='clear':row['cleared']=['pending-1']
+        elif fault=='commit':row['commitId']='unexpected-write'
+        elif fault in ('checkpoint','generation','watermark'):row['storedAfter'][fault]-=1
+        elif fault=='content':row['storedAfter']['projection']['fileReferences']=[]
+        else:row['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']-1 if row['id']=='expired-lease' else proof['newerStored']['leaseUntilUtcTicks']
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[missing-attempt]" time="1.426"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a0/fixture')
+fault = 'missing-attempt'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[missing-position]" time="1.402"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a1/fixture')
+fault = 'missing-position'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[foreign-event]" time="1.141"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a2/fixture')
+fault = 'foreign-event'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[nonmonotonic-position]" time="1.369"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a3/fixture')
+fault = 'nonmonotonic-position'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[sequence-as-watermark]" time="1.337"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a4/fixture')
+fault = 'sequence-as-watermark'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[forged-zero-watermarks]" time="1.315"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a5/fixture')
+fault = 'forged-zero-watermarks'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[old-expectation]" time="0.585"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a6/fixture')
+fault = 'old-expectation'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[current-expectation]" time="0.538"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a7/fixture')
+fault = 'current-expectation'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[current-expired]" time="0.533"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a8/fixture')
+fault = 'current-expired'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[current-split]" time="0.545"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a9/fixture')
+fault = 'current-split'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[current-content]" time="0.546"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a10/fixture')
+fault = 'current-content'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[retry-clears]" time="0.542"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a11/fixture')
+fault = 'retry-clears'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[retry-writes]" time="0.543"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a12/fixture')
+fault = 'retry-writes'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress[retry-content]" time="0.548"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-429/test_round6_current_recovery_a13/fixture')
+fault = 'retry-content'
+
+    @pytest.mark.parametrize('fault',['missing-attempt','missing-position','foreign-event','nonmonotonic-position','sequence-as-watermark','forged-zero-watermarks','old-expectation','current-expectation','current-expired','current-split','current-content','retry-clears','retry-writes','retry-content'])
+    def test_round6_current_recovery_and_duplicate_retry_bind_surviving_progress(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['concurrentRecovery']
+        if fault=='missing-attempt':proof['staleAttempts'].pop()
+        elif fault=='missing-position':proof['authoritativePositions'].pop()
+        elif fault=='foreign-event':proof['authoritativePositions'][-1]['eventSha256']='f'*64
+        elif fault=='nonmonotonic-position':proof['authoritativePositions'][-1]['position']=1
+        elif fault=='sequence-as-watermark':proof['newerStored']['watermark']=data['afterCheckpoint']
+        elif fault=='forged-zero-watermarks':data['beforeWatermark']=data['afterWatermark']=0
+        elif fault=='old-expectation':proof['oldWorker']['expected']['version']+=1
+        elif fault=='current-expectation':proof['current']['expected']['version']-=1
+        elif fault=='current-expired':proof['current']['observedAtUtcTicks']=proof['newerStored']['leaseUntilUtcTicks']
+        elif fault=='current-split':proof['current']['pendingCommitId']='split-commit'
+        elif fault=='current-content':proof['current']['after']['projection']['fileReferences']=[]
+        elif fault=='retry-clears':proof['duplicateRetry']['cleared']=['pending-1']
+        elif fault=='retry-writes':proof['duplicateRetry']['succeeded']=True
+        else:proof['duplicateRetry']['after']['projection']['label']='stale content'
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

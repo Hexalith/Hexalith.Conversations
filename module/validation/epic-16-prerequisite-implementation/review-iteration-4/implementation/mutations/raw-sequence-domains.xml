@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="12" time="3.812" timestamp="2026-10-25T20:45:23.377210+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_raw_fault_sequence_domains_are_native_representable[-10-restart]" time="0.285"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-365/test_round4_raw_fault_sequence0/fixture')
+name = 'restart', value = -10
+
+    @pytest.mark.parametrize('name',['restart','three-future-deliveries','horizon-extension'])
+    @pytest.mark.parametrize('value',[-10,2**63,True,1.0])
+    def test_round4_raw_fault_sequence_domains_are_native_representable(repository,name,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=next(r for r in data['faults'] if r['id']==name)
+        for key in ('beforeBytes','injectedBytes','afterBytes'):
+            obj=json.loads(row[key]);state=obj['state']
+            if name=='restart':state['snapshot']['sequence']=value;state['snapshot']['pending']=[value+2]
+            else:state['checkpoint']=value
+            row[key]=json.dumps(obj)
+        row['beforeSha256']=digest(row['beforeBytes'].encode());row['afterSha256']=digest(row['afterBytes'].encode())
+&gt;       native(repository,'AC-16.1-04',data);rejected(evaluate(repository,'AC-16.1-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1694: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_raw_fault_sequence_domains_are_native_representable[-10-three-future-deliveries]" time="0.279"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-365/test_round4_raw_fault_sequence1/fixture')
+name = 'three-future-deliveries', value = -10
+
+    @pytest.mark.parametrize('name',['restart','three-future-deliveries','horizon-extension'])
+    @pytest.mark.parametrize('value',[-10,2**63,True,1.0])
+    def test_round4_raw_fault_sequence_domains_are_native_representable(repository,name,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=next(r for r in data['faults'] if r['id']==name)
+        for key in ('beforeBytes','injectedBytes','afterBytes'):
+            obj=json.loads(row[key]);state=obj['state']
+            if name=='restart':state['snapshot']['sequence']=value;state['snapshot']['pending']=[value+2]
+            else:state['checkpoint']=value
+            row[key]=json.dumps(obj)
+        row['beforeSha256']=digest(row['beforeBytes'].encode());row['afterSha256']=digest(row['afterBytes'].encode())
+&gt;       native(repository,'AC-16.1-04',data);rejected(evaluate(repository,'AC-16.1-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1694: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_raw_fault_sequence_domains_are_native_representable[-10-horizon-extension]" time="0.295"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-365/test_round4_raw_fault_sequence2/fixture')
+name = 'horizon-extension', value = -10
+
+    @pytest.mark.parametrize('name',['restart','three-future-deliveries','horizon-extension'])
+    @pytest.mark.parametrize('value',[-10,2**63,True,1.0])
+    def test_round4_raw_fault_sequence_domains_are_native_representable(repository,name,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=next(r for r in data['faults'] if r['id']==name)
+        for key in ('beforeBytes','injectedBytes','afterBytes'):
+            obj=json.loads(row[key]);state=obj['state']
+            if name=='restart':state['snapshot']['sequence']=value;state['snapshot']['pending']=[value+2]
+            else:state['checkpoint']=value
+            row[key]=json.dumps(obj)
+        row['beforeSha256']=digest(row['beforeBytes'].encode());row['afterSha256']=digest(row['afterBytes'].encode())
+&gt;       native(repository,'AC-16.1-04',data);rejected(evaluate(repository,'AC-16.1-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1694: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_raw_fault_sequence_domains_are_native_representable[9223372036854775808-restart]" time="0.288"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-365/test_round4_raw_fault_sequence3/fixture')
+name = 'restart', value = 9223372036854775808
+
+    @pytest.mark.parametrize('name',['restart','three-future-deliveries','horizon-extension'])
+    @pytest.mark.parametrize('value',[-10,2**63,True,1.0])
+    def test_round4_raw_fault_sequence_domains_are_native_representable(repository,name,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=next(r for r in data['faults'] if r['id']==name)
+        for key in ('beforeBytes','injectedBytes','afterBytes'):
+            obj=json.loads(row[key]);state=obj['state']
+            if name=='restart':state['snapshot']['sequence']=value;state['snapshot']['pending']=[value+2]
+            else:state['checkpoint']=value
+            row[key]=json.dumps(obj)
+        row['beforeSha256']=digest(row['beforeBytes'].encode());row['afterSha256']=digest(row['afterBytes'].encode())
+&gt;       native(repository,'AC-16.1-04',data);rejected(evaluate(repository,'AC-16.1-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1694: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_raw_fault_sequence_domains_are_native_representable[9223372036854775808-three-future-deliveries]" time="0.280" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_raw_fault_sequence_domains_are_native_representable[9223372036854775808-horizon-extension]" time="0.295" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_raw_fault_sequence_domains_are_native_representable[True-restart]" time="0.285" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_raw_fault_sequence_domains_are_native_representable[True-three-future-deliveries]" time="0.285" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_raw_fault_sequence_domains_are_native_representable[True-horizon-extension]" time="0.277" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_raw_fault_sequence_domains_are_native_representable[1.0-restart]" time="0.287" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_raw_fault_sequence_domains_are_native_representable[1.0-three-future-deliveries]" time="0.285" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_raw_fault_sequence_domains_are_native_representable[1.0-horizon-extension]" time="0.297" /></testsuite></testsuites>

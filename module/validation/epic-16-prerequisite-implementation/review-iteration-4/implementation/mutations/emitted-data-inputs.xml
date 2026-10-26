@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="16" skipped="0" tests="16" time="14.864" timestamp="2026-10-25T20:46:19.160164+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[event-leak-AC-16.1-05]" time="0.762"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log0/fixture')
+scenario = 'AC-16.1-05', fault = 'event-leak'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[event-leak-AC-16.2-05]" time="2.760"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log1/fixture')
+scenario = 'AC-16.2-05', fault = 'event-leak'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[log-leak-AC-16.1-05]" time="0.852"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log2/fixture')
+scenario = 'AC-16.1-05', fault = 'log-leak'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[log-leak-AC-16.2-05]" time="0.776"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log3/fixture')
+scenario = 'AC-16.2-05', fault = 'log-leak'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[nested-log-AC-16.1-05]" time="0.760"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log4/fixture')
+scenario = 'AC-16.1-05', fault = 'nested-log'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[nested-log-AC-16.2-05]" time="0.737"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log5/fixture')
+scenario = 'AC-16.2-05', fault = 'nested-log'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[missing-logs-AC-16.1-05]" time="0.743"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log6/fixture')
+scenario = 'AC-16.1-05', fault = 'missing-logs'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[missing-logs-AC-16.2-05]" time="0.708"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log7/fixture')
+scenario = 'AC-16.2-05', fault = 'missing-logs'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[missing-events-AC-16.1-05]" time="0.712"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log8/fixture')
+scenario = 'AC-16.1-05', fault = 'missing-events'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[missing-events-AC-16.2-05]" time="0.713"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log9/fixture')
+scenario = 'AC-16.2-05', fault = 'missing-events'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[wrong-tenant-AC-16.1-05]" time="0.729"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log10/fixture')
+scenario = 'AC-16.1-05', fault = 'wrong-tenant'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[wrong-tenant-AC-16.2-05]" time="0.737"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log11/fixture')
+scenario = 'AC-16.2-05', fault = 'wrong-tenant'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[missing-canary-AC-16.1-05]" time="0.710"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log12/fixture')
+scenario = 'AC-16.1-05', fault = 'missing-canary'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[missing-canary-AC-16.2-05]" time="0.749"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log13/fixture')
+scenario = 'AC-16.2-05', fault = 'missing-canary'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[wrong-event-AC-16.1-05]" time="0.706"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log14/fixture')
+scenario = 'AC-16.1-05', fault = 'wrong-event'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment[wrong-event-AC-16.2-05]" time="0.707"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-372/test_round4_emitted_events_log15/fixture')
+scenario = 'AC-16.2-05', fault = 'wrong-event'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05'])
+    @pytest.mark.parametrize('fault',['event-leak','log-leak','nested-log','missing-logs','missing-events','wrong-tenant','missing-canary','wrong-event'])
+    def test_round4_emitted_events_logs_are_inspected_against_tenant_canary_experiment(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);p=data['tenantDataExperiment'];canary=p['canaries']['name']
+        if fault=='event-leak':
+            value=json.loads(p['emittedEvents'][0]);value['label']=canary;p['emittedEvents'][0]=json.dumps(value)
+        elif fault in ('log-leak','nested-log'):
+            value=json.loads(p['emittedLogs'][0]);value['message' if fault=='log-leak' else 'extra']=canary if fault=='log-leak' else {'nested':canary};p['emittedLogs'][0]=json.dumps(value)
+        elif fault=='missing-logs':p['emittedLogs']=[]
+        elif fault=='missing-events':p['emittedEvents']=[]
+        elif fault=='wrong-tenant':p['tenant']='foreign'
+        elif fault=='missing-canary':p['canaries']['name']='unrelated-canary-name'
+        else:p['emittedEvents'][1]=p['emittedEvents'][0]
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1662: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

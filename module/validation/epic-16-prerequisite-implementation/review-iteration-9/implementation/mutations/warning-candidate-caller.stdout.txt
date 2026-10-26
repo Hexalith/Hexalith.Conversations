@@ -1,0 +1,134 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_round9_warning_is_derived_from_candidate_surface_after_prerequisites[retained] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-562/test_round9_warning_is_derived0/fixture')
+fault = 'retained'
+
+    @pytest.mark.parametrize('fault',['retained','missing','unrelated','before-hash','after-hash'])
+    def test_round9_warning_is_derived_from_candidate_surface_after_prerequisites(repository,fault):
+        scenario='AC-16.1-05';data=deepcopy(OBSERVATIONS[scenario]);path=tooling.measurements.execution.WARNING_PATH
+        if fault in ('retained','missing'):
+            if fault=='retained':(repository/path).write_bytes(b'// SINGLE-REPLICA-ONLY: synthetic disposable warning surface.\n')
+            else:(repository/path).unlink()
+            git(repository,'add',path);git(repository,'commit','-qm','test: exercise candidate warning surface')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+            if fault=='retained':data['warningSurface']['afterSha256']=digest((repository/path).read_bytes())
+        elif fault=='unrelated':data['warningSurface']['path']='docs/historical.md'
+        else:data['warningSurface']['beforeSha256' if fault=='before-hash' else 'afterSha256']='f'*64
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+>       assert result['result']==('BLOCKED' if fault=='missing' else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:3340: AssertionError
+_ test_round9_warning_is_derived_from_candidate_surface_after_prerequisites[missing] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-562/test_round9_warning_is_derived1/fixture')
+fault = 'missing'
+
+    @pytest.mark.parametrize('fault',['retained','missing','unrelated','before-hash','after-hash'])
+    def test_round9_warning_is_derived_from_candidate_surface_after_prerequisites(repository,fault):
+        scenario='AC-16.1-05';data=deepcopy(OBSERVATIONS[scenario]);path=tooling.measurements.execution.WARNING_PATH
+        if fault in ('retained','missing'):
+            if fault=='retained':(repository/path).write_bytes(b'// SINGLE-REPLICA-ONLY: synthetic disposable warning surface.\n')
+            else:(repository/path).unlink()
+            git(repository,'add',path);git(repository,'commit','-qm','test: exercise candidate warning surface')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+            if fault=='retained':data['warningSurface']['afterSha256']=digest((repository/path).read_bytes())
+        elif fault=='unrelated':data['warningSurface']['path']='docs/historical.md'
+        else:data['warningSurface']['beforeSha256' if fault=='before-hash' else 'afterSha256']='f'*64
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+>       assert result['result']==('BLOCKED' if fault=='missing' else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:3340: AssertionError
+_ test_round9_warning_is_derived_from_candidate_surface_after_prerequisites[unrelated] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-562/test_round9_warning_is_derived2/fixture')
+fault = 'unrelated'
+
+    @pytest.mark.parametrize('fault',['retained','missing','unrelated','before-hash','after-hash'])
+    def test_round9_warning_is_derived_from_candidate_surface_after_prerequisites(repository,fault):
+        scenario='AC-16.1-05';data=deepcopy(OBSERVATIONS[scenario]);path=tooling.measurements.execution.WARNING_PATH
+        if fault in ('retained','missing'):
+            if fault=='retained':(repository/path).write_bytes(b'// SINGLE-REPLICA-ONLY: synthetic disposable warning surface.\n')
+            else:(repository/path).unlink()
+            git(repository,'add',path);git(repository,'commit','-qm','test: exercise candidate warning surface')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+            if fault=='retained':data['warningSurface']['afterSha256']=digest((repository/path).read_bytes())
+        elif fault=='unrelated':data['warningSurface']['path']='docs/historical.md'
+        else:data['warningSurface']['beforeSha256' if fault=='before-hash' else 'afterSha256']='f'*64
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+>       assert result['result']==('BLOCKED' if fault=='missing' else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:3340: AssertionError
+_ test_round9_warning_is_derived_from_candidate_surface_after_prerequisites[before-hash] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-562/test_round9_warning_is_derived3/fixture')
+fault = 'before-hash'
+
+    @pytest.mark.parametrize('fault',['retained','missing','unrelated','before-hash','after-hash'])
+    def test_round9_warning_is_derived_from_candidate_surface_after_prerequisites(repository,fault):
+        scenario='AC-16.1-05';data=deepcopy(OBSERVATIONS[scenario]);path=tooling.measurements.execution.WARNING_PATH
+        if fault in ('retained','missing'):
+            if fault=='retained':(repository/path).write_bytes(b'// SINGLE-REPLICA-ONLY: synthetic disposable warning surface.\n')
+            else:(repository/path).unlink()
+            git(repository,'add',path);git(repository,'commit','-qm','test: exercise candidate warning surface')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+            if fault=='retained':data['warningSurface']['afterSha256']=digest((repository/path).read_bytes())
+        elif fault=='unrelated':data['warningSurface']['path']='docs/historical.md'
+        else:data['warningSurface']['beforeSha256' if fault=='before-hash' else 'afterSha256']='f'*64
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+>       assert result['result']==('BLOCKED' if fault=='missing' else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:3340: AssertionError
+_ test_round9_warning_is_derived_from_candidate_surface_after_prerequisites[after-hash] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-562/test_round9_warning_is_derived4/fixture')
+fault = 'after-hash'
+
+    @pytest.mark.parametrize('fault',['retained','missing','unrelated','before-hash','after-hash'])
+    def test_round9_warning_is_derived_from_candidate_surface_after_prerequisites(repository,fault):
+        scenario='AC-16.1-05';data=deepcopy(OBSERVATIONS[scenario]);path=tooling.measurements.execution.WARNING_PATH
+        if fault in ('retained','missing'):
+            if fault=='retained':(repository/path).write_bytes(b'// SINGLE-REPLICA-ONLY: synthetic disposable warning surface.\n')
+            else:(repository/path).unlink()
+            git(repository,'add',path);git(repository,'commit','-qm','test: exercise candidate warning surface')
+            for ac in tooling.measurements.SCENARIOS:native(repository,ac)
+            if fault=='retained':data['warningSurface']['afterSha256']=digest((repository/path).read_bytes())
+        elif fault=='unrelated':data['warningSurface']['path']='docs/historical.md'
+        else:data['warningSurface']['beforeSha256' if fault=='before-hash' else 'afterSha256']='f'*64
+        native(repository,scenario,data);result=evaluate(repository,scenario)
+>       assert result['result']==('BLOCKED' if fault=='missing' else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:3340: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_warning_is_derived_from_candidate_surface_after_prerequisites[retained]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_warning_is_derived_from_candidate_surface_after_prerequisites[missing]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_warning_is_derived_from_candidate_surface_after_prerequisites[unrelated]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_warning_is_derived_from_candidate_surface_after_prerequisites[before-hash]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_warning_is_derived_from_candidate_surface_after_prerequisites[after-hash]
+5 failed, 1861 deselected in 16.77s

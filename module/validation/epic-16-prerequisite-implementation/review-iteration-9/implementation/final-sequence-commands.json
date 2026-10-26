@@ -1,0 +1,77 @@
+[
+  {
+    "name": "verify",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-verify.py"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 1154.135,
+    "stdoutSha256": "befb324c776c0307d538b9b38c94a886f5c445d16cc500a069a0ccca111a30ee",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "held",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-held.py"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 4.49,
+    "stdoutSha256": "b6157841f3755720026c0abadfd70cef2eb54f41dcd4eeaf37eeb2c3dbf74917",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "provenance",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-provenance.py"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 1.994,
+    "stdoutSha256": "b4948c28e2760c428100643cf59d541da6a1cc9b9a726ad5edef0fbf0f86c3ba",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "state",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-state.py"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 0.123,
+    "stdoutSha256": "8d265c89ee158c98e288d33527356e4413ffa3e0040451509101642edbf04182",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "retain-native",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-retain-native.py"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 0.083,
+    "stdoutSha256": "f581d40295e64897efa432209aca9714e0b13e99798cfaa4d9efefdd2c949db9",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

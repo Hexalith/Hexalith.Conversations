@@ -1,0 +1,22 @@
+{
+  "counterexample": "R10P1",
+  "frozenSourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-shared-provider-controls/final-source.json",
+  "frozenSourceSha256": "68850a18e6913c8fd41180cb55a0864ce228ea25a2a38479b58577e6df5696ed",
+  "frozenFilesVerified": 85,
+  "results": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-collection-proof/Evidence.dll.bytes",
+      "sha256": "1a959bc9db91553f56f7658a781517112607e53b5501de419923ca715873c0bf",
+      "rejected": true,
+      "reason": "invalid native evidence"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-inherited-collection-proof/Evidence.dll.bytes",
+      "sha256": "b8d7056ff586a6f3ca062b71a4a84cd7557584cc5c8f385572956f9f36b6fe85",
+      "rejected": true,
+      "reason": "invalid native evidence"
+    }
+  ],
+  "sourceStable": true,
+  "originalFrozenSourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/final-source.json"
+}

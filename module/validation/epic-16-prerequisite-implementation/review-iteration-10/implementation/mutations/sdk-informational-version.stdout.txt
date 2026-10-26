@@ -1,0 +1,76 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_round10_sdk_informational_version_forms_match_both_inspectors[1.0.0+existing.] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-593/test_round10_sdk_informational0')
+version = '1.0.0+existing.'
+
+    @pytest.mark.parametrize('version', ['1.0.0+', '1.0.0+existing.', '1.0.0+existing.more.'])
+    def test_round10_sdk_informational_version_forms_match_both_inspectors(tmp_path,version):
+        binary=compile_evidence(tmp_path/'build','a'*40,'namespace Hexalith.Conversations.IntegrationTests.Epic16; public class Story16_1EvidenceTests { [Xunit.Fact] public void Scenario01() {} }')
+        (tmp_path/'build/Stamp.cs').write_text('[assembly:System.Reflection.AssemblyInformationalVersion("'+version+'a'*40+'")]')
+        result=subprocess.run(['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'],cwd=tmp_path/'build',capture_output=True);assert result.returncode==0,result.stdout
+        binary=(tmp_path/'build/bin/Debug/net10.0/Evidence.dll').read_bytes()
+        assert tooling.native_helper.inspect_product(binary,'a'*40)['sourceRevision']=='a'*40
+>       assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests','Scenario01')['sourceRevision']=='a'*40
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3639: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_native.py:156: in inspect_assembly
+    return _run(dict(operation='metadata', assembly=base64.b64encode(content).decode(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = {'operation': 'metadata', 'assembly': 'TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'type': 'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests', ...}
+
+    def _run(request):
+        workspace, assembly = _helper()
+        try:
+            result = subprocess.run(['dotnet', str(assembly)], input=json.dumps(request).encode(),
+                cwd=workspace.name, capture_output=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise HelperUnavailable('fixed helper execution unavailable') from error
+        if result.returncode:
+>           raise ValueError('invalid native evidence')
+E           ValueError: invalid native evidence
+
+_bmad/scripts/epic16_native.py:139: ValueError
+_ test_round10_sdk_informational_version_forms_match_both_inspectors[1.0.0+existing.more.] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-593/test_round10_sdk_informational1')
+version = '1.0.0+existing.more.'
+
+    @pytest.mark.parametrize('version', ['1.0.0+', '1.0.0+existing.', '1.0.0+existing.more.'])
+    def test_round10_sdk_informational_version_forms_match_both_inspectors(tmp_path,version):
+        binary=compile_evidence(tmp_path/'build','a'*40,'namespace Hexalith.Conversations.IntegrationTests.Epic16; public class Story16_1EvidenceTests { [Xunit.Fact] public void Scenario01() {} }')
+        (tmp_path/'build/Stamp.cs').write_text('[assembly:System.Reflection.AssemblyInformationalVersion("'+version+'a'*40+'")]')
+        result=subprocess.run(['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'],cwd=tmp_path/'build',capture_output=True);assert result.returncode==0,result.stdout
+        binary=(tmp_path/'build/bin/Debug/net10.0/Evidence.dll').read_bytes()
+        assert tooling.native_helper.inspect_product(binary,'a'*40)['sourceRevision']=='a'*40
+>       assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests','Scenario01')['sourceRevision']=='a'*40
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:3639: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_native.py:156: in inspect_assembly
+    return _run(dict(operation='metadata', assembly=base64.b64encode(content).decode(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = {'operation': 'metadata', 'assembly': 'TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'type': 'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests', ...}
+
+    def _run(request):
+        workspace, assembly = _helper()
+        try:
+            result = subprocess.run(['dotnet', str(assembly)], input=json.dumps(request).encode(),
+                cwd=workspace.name, capture_output=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise HelperUnavailable('fixed helper execution unavailable') from error
+        if result.returncode:
+>           raise ValueError('invalid native evidence')
+E           ValueError: invalid native evidence
+
+_bmad/scripts/epic16_native.py:139: ValueError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_sdk_informational_version_forms_match_both_inspectors[1.0.0+existing.]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_sdk_informational_version_forms_match_both_inspectors[1.0.0+existing.more.]
+2 failed, 1976 deselected in 8.32s

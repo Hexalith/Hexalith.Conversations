@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/epic16-r10-retain-native.py", line 4, in <module>
+    commands=json.loads((base/'test-commands.json').read_bytes());temporary=Path(next(a.split('=',1)[1] for a in commands[0]['argv'] if a.startswith('--basetemp=')));candidates=list(temporary.glob('test_round6_genuine_native_cap*/fresh-checkout'));assert len(candidates)==1,candidates;fixture=candidates[0]
+                                                                                                                                                                                                                                                               ^^^^^^^^^^^^^^^^^^
+AssertionError: [PosixPath('/tmp/epic16-r10-final-7wffnbun/combined/test_round6_genuine_native_cap0/fresh-checkout'), PosixPath('/tmp/epic16-r10-final-7wffnbun/combined/test_round6_genuine_native_capcurrent/fresh-checkout')]

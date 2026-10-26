@@ -1,0 +1,242 @@
+[
+  {
+    "name": "named-internal-metadata-mapping",
+    "path": "_bmad/scripts/epic16_measurements.py",
+    "old": "    if internal: return internal",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round8_internal_control_record",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-named-internal-metadata-mapping-esfrjcxn/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_internal_control_record",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations-final/named-internal-metadata-mapping.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-named-internal-metadata-mapping-esfrjcxn",
+    "exitCode": 1,
+    "elapsedSeconds": 2.448,
+    "originalSha256": "04aa6e3795611cdc9e28e6a3bc9de2a81bc864a368a0dc15d7dfcd08829af9b6",
+    "mutatedSha256": "f97af793256a7f9f7a6d067c72c2b9a77dbf2a67d0bc1d7e5198284e116bcfc8",
+    "stdoutSha256": "bcc6658777ecd799c3f743eae27020a11031c442dda9ec6b113173b48271915c",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 5,
+      "failures": 5,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "cancellation-caller",
+    "path": "_bmad/scripts/epic16_measurements.py",
+    "old": "            faults.cancellation(data)",
+    "new": "            pass # removed validation in disposable mutation",
+    "selection": "round8_cancellation and summary-only",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-cancellation-caller-swhqf2ys/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_cancellation and summary-only",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations-final/cancellation-caller.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-cancellation-caller-swhqf2ys",
+    "exitCode": 1,
+    "elapsedSeconds": 0.888,
+    "originalSha256": "04aa6e3795611cdc9e28e6a3bc9de2a81bc864a368a0dc15d7dfcd08829af9b6",
+    "mutatedSha256": "83f31d16e38e5619b226ede1ede0fb042ab258df794e75af51e651bacc4313ec",
+    "stdoutSha256": "7367de605136bea52d0795304e62ad6556bbbeaf97fcf46d382f6ad8c9edefb5",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "cancellation-execution-identity",
+    "path": "_bmad/scripts/epic16_faults.py",
+    "old": "        require(row['executed'] is True and row['operationId']==operation and row['clockId']==text(proof['clockId']), 'same executed operation and monotonic measurement clock')",
+    "new": "        pass # removed validation in disposable mutation",
+    "selection": "round8_cancellation and (no-observation or unrelated-completion)",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-cancellation-execution-identity-1fk2ttha/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_cancellation and (no-observation or unrelated-completion)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations-final/cancellation-execution-identity.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-cancellation-execution-identity-1fk2ttha",
+    "exitCode": 1,
+    "elapsedSeconds": 1.326,
+    "originalSha256": "0324e925ca3e37ba0761dc908bbf5b0a6ab9f299f9c5a08e5ebebab4be16939f",
+    "mutatedSha256": "ce207823aea71031c547ef3f5fe534877d691a2ba12e704ad2f58cdaa5a44053",
+    "stdoutSha256": "66b8e5a37b30abdd62304f75575cec2477d1c86c9c549a80475f71821bc846a4",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "cancellation-operation-order",
+    "path": "_bmad/scripts/epic16_faults.py",
+    "old": "        require(row['order']>previous_order and row['monotonicMs']>=previous_time, 'cancellation operations ordered despite equal coarse clock ticks')",
+    "new": "        pass # removed validation in disposable mutation",
+    "selection": "round8_cancellation and (backwards-time or backwards-order)",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-cancellation-operation-order-oivel9c0/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_cancellation and (backwards-time or backwards-order)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations-final/cancellation-operation-order.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-cancellation-operation-order-oivel9c0",
+    "exitCode": 1,
+    "elapsedSeconds": 1.284,
+    "originalSha256": "0324e925ca3e37ba0761dc908bbf5b0a6ab9f299f9c5a08e5ebebab4be16939f",
+    "mutatedSha256": "e5ac1a4ef648d3f9cb932710ae5d2c0c35f9985348821a00cc2f456c4e599493",
+    "stdoutSha256": "4b463293a296bf633a35bb34203b9c7f0d9e819e5efd61e8236e9572713d6ba3",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "cancellation-resource-restoration",
+    "path": "_bmad/scripts/epic16_faults.py",
+    "old": "        require(same(row['resources'],before if row['phase'] in ('cleanup','completion') else active), 'every cancellation boundary retains actual owned and preexisting resource state')",
+    "new": "        pass # removed validation in disposable mutation",
+    "selection": "round8_cancellation and (leaked-port or removed-preexisting)",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-cancellation-resource-restoration-fq9m3a07/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_cancellation and (leaked-port or removed-preexisting)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations-final/cancellation-resource-restoration.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-cancellation-resource-restoration-fq9m3a07",
+    "exitCode": 1,
+    "elapsedSeconds": 1.246,
+    "originalSha256": "0324e925ca3e37ba0761dc908bbf5b0a6ab9f299f9c5a08e5ebebab4be16939f",
+    "mutatedSha256": "3dcadc5b149697edb2556f70d2b5b56fba35b6fdd879abd327e5ab1c9d664929",
+    "stdoutSha256": "49e8787a5bd955baded134db6f9423dd376bd80efd8585f513bfce7c07f84c41",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "cancellation-exact-release",
+    "path": "_bmad/scripts/epic16_faults.py",
+    "old": "        require(row['released']==([resource['id'] for resource in owned] if row['phase']=='cleanup' else []), 'cleanup releases exactly this operation resources')",
+    "new": "        pass # removed validation in disposable mutation",
+    "selection": "round8_cancellation and unrelated-release",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-cancellation-exact-release-6eow5ofy/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_cancellation and unrelated-release",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations-final/cancellation-exact-release.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-cancellation-exact-release-6eow5ofy",
+    "exitCode": 1,
+    "elapsedSeconds": 0.865,
+    "originalSha256": "0324e925ca3e37ba0761dc908bbf5b0a6ab9f299f9c5a08e5ebebab4be16939f",
+    "mutatedSha256": "0f449248fd45611ea01322ce0e225e7f39ffeeec81b81fb66e40819e08c44fb9",
+    "stdoutSha256": "59d6dc9cd6fb3605fc8fd578bd6ec378d93d5e560fd87492a7dffc08de0a28ec",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "cancellation-terminal-completion",
+    "path": "_bmad/scripts/epic16_faults.py",
+    "old": "        require(row['completed'] is (row['phase']=='completion') and row['outcome']==('Cancelled' if row['phase']=='completion' else None), 'terminal completion occurs only after observed cancellation and cleanup')",
+    "new": "        pass # removed validation in disposable mutation",
+    "selection": "round8_cancellation and unfinished",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-cancellation-terminal-completion-51ypbdqw/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_cancellation and unfinished",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations-final/cancellation-terminal-completion.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-cancellation-terminal-completion-51ypbdqw",
+    "exitCode": 1,
+    "elapsedSeconds": 0.903,
+    "originalSha256": "0324e925ca3e37ba0761dc908bbf5b0a6ab9f299f9c5a08e5ebebab4be16939f",
+    "mutatedSha256": "03f67f34cfe1ae64dee0527269692f346c9706bd969ce731ba22eb23b57f29d1",
+    "stdoutSha256": "654e8fba13abb63b86a5030f4d3ef6b75024b01e05771109fdfeb88b5f0f5a0f",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "new-capture-integer-schema",
+    "path": "_bmad/scripts/epic16_tooling.py",
+    "old": "lambda checker, value: type(value) is int",
+    "new": "lambda checker, value: isinstance(value, (int, float)) and not isinstance(value, bool) and int(value)==value",
+    "selection": "round8_new_capture_schema and 1.0",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review8-mutant-new-capture-integer-schema-3p1wx4m5/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_new_capture_schema and 1.0",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations-final/new-capture-integer-schema.xml"
+    ],
+    "workspace": "/tmp/epic16-review8-mutant-new-capture-integer-schema-3p1wx4m5",
+    "exitCode": 1,
+    "elapsedSeconds": 4.897,
+    "originalSha256": "4524a5523725e7298a03681d160a913665ecfe82d4baf5875734be9f6576891d",
+    "mutatedSha256": "ddc3d6e35dbbb41499d457c256bbbd430e5b21abf470d2358168a8ee33852ea4",
+    "stdoutSha256": "3d70ea55149ecb0d860eff2d6fa5ce7a6b14fbda16b4360ec201b577839bbe41",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 5,
+      "failures": 4,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+]

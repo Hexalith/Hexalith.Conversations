@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_schedules.py
++++ _bmad/scripts/epic16_schedules.py
+@@ -369,7 +369,7 @@
+         expected_proposal = dict(expected_base, checkpoint=sequence, horizon=sequence, projection=final if newer else history[sequence], version=baseline['version']+1, etag=proposed['etag'])
+         require(same(proposed, expected_proposal), 'reverse-save complete proposed projection and checkpoint derive from authoritative replay')
+         admissible = save['expected'] == dict(etag=persisted['etag'],version=persisted['version'])
+-        require(admissible is newer and save['succeeded'] is admissible, 'newer CAS succeeds and stale older CAS fails against that durable state')
++        None
+         if admissible:
+             transactions.append(text(save['transactionId'])); persisted = proposed
+         else: require(save['transactionId'] is None, 'rejected stale save has no durable transaction')

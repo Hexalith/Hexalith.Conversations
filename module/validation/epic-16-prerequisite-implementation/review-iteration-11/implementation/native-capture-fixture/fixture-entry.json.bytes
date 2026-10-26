@@ -1,0 +1,28 @@
+{
+  "authorizationRevision": "de95333634f419848cbce21227ef6376709b6baa",
+  "executionAllowed": true,
+  "ownerApprovalClaimed": true,
+  "predecessors": [
+    {
+      "files": [
+        {
+          "path": "fixture-predecessor.json",
+          "sha256": "15a67c38da771544616b5e32e778a3b98591a62d1d87fd364423ca8ac2f7eb96"
+        }
+      ],
+      "identity": "16.1"
+    }
+  ],
+  "qualifications": {
+    "adoption": "PASS",
+    "capacityWaiver": "PASS",
+    "operationalEnvelope": "PASS",
+    "operatorCoverage": "PASS",
+    "ownerEntry": "PASS",
+    "platformTool": "PASS",
+    "providerParity": "PASS",
+    "recoveryDrill": "PASS",
+    "sm2": "PASS"
+  },
+  "storyId": "16.2"
+}

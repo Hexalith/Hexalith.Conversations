@@ -1,0 +1,1 @@
+namespace System.Reflection; public class AssemblyInformationalVersionAttribute(string value) : System.Attribute {}

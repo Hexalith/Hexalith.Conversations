@@ -1,0 +1,100 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_round11_fact_discovery_agrees_with_actual_pinned_runner[theory-conflict] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-620/test_round11_fact_discovery_ag0')
+shape = 'theory-conflict'
+
+    @pytest.mark.parametrize('shape',['fact','task','value-task','theory-conflict','derived-conflict','indirect-conflict','ordinary-attribute'])
+    def test_round11_fact_discovery_agrees_with_actual_pinned_runner(tmp_path,shape):
+        directory=tmp_path/'native';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><GenerateAssemblyInfo>false</GenerateAssemblyInfo></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" /></ItemGroup></Project>')
+        attributes='[Xunit.Fact]';support='';body='public void Scenario01() {}'
+        if shape=='theory-conflict':attributes+='[Xunit.Theory]'
+        elif shape in ('derived-conflict','indirect-conflict'):
+            support='public class OtherFact : Xunit.FactAttribute {} public class IndirectFact : OtherFact {}'
+            attributes+='[OtherFact]' if shape=='derived-conflict' else '[IndirectFact]'
+        elif shape=='ordinary-attribute':support='public class Ordinary : System.Attribute {}';attributes+='[Ordinary]'
+        elif shape=='task':body='public System.Threading.Tasks.Task Scenario01() => System.Threading.Tasks.Task.CompletedTask;'
+        elif shape=='value-task':body='public System.Threading.Tasks.ValueTask Scenario01() => System.Threading.Tasks.ValueTask.CompletedTask;'
+        source='[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] namespace Synthetic; '+support+' public class TestClass { '+attributes+' '+body+' }'
+        (directory/'Tests.cs').write_text(source)
+        build_args=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false']+(['-p:RunAnalyzers=false'] if shape.endswith('conflict') else []);build=subprocess.run(build_args,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        binary=directory/'bin/Debug/net10.0/Evidence.dll';trx=directory/'result.trx'
+        run_args=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(trx)];run=subprocess.run(run_args,cwd=directory,capture_output=True,timeout=30)
+        positive=not shape.endswith('conflict');assert run.returncode==(0 if positive else 1),(run.stdout,run.stderr)
+        if not positive:assert b'multiple [Fact]-derived attributes' in run.stdout+run.stderr
+        round11_retain('discovery-'+shape,{'Tests.cs':source.encode(),'Evidence.csproj':(directory/'Evidence.csproj').read_bytes(),'Evidence.dll.bytes':binary.read_bytes(),'result.trx':trx.read_bytes(),'build.stdout':build.stdout,'build.stderr':build.stderr,'run.stdout':run.stdout,'run.stderr':run.stderr},dict(build=build_args,run=run_args,buildExit=build.returncode,runExit=run.returncode))
+        if positive:assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        else:
+>           with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')
+E           Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4154: Failed
+_ test_round11_fact_discovery_agrees_with_actual_pinned_runner[derived-conflict] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-620/test_round11_fact_discovery_ag1')
+shape = 'derived-conflict'
+
+    @pytest.mark.parametrize('shape',['fact','task','value-task','theory-conflict','derived-conflict','indirect-conflict','ordinary-attribute'])
+    def test_round11_fact_discovery_agrees_with_actual_pinned_runner(tmp_path,shape):
+        directory=tmp_path/'native';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><GenerateAssemblyInfo>false</GenerateAssemblyInfo></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" /></ItemGroup></Project>')
+        attributes='[Xunit.Fact]';support='';body='public void Scenario01() {}'
+        if shape=='theory-conflict':attributes+='[Xunit.Theory]'
+        elif shape in ('derived-conflict','indirect-conflict'):
+            support='public class OtherFact : Xunit.FactAttribute {} public class IndirectFact : OtherFact {}'
+            attributes+='[OtherFact]' if shape=='derived-conflict' else '[IndirectFact]'
+        elif shape=='ordinary-attribute':support='public class Ordinary : System.Attribute {}';attributes+='[Ordinary]'
+        elif shape=='task':body='public System.Threading.Tasks.Task Scenario01() => System.Threading.Tasks.Task.CompletedTask;'
+        elif shape=='value-task':body='public System.Threading.Tasks.ValueTask Scenario01() => System.Threading.Tasks.ValueTask.CompletedTask;'
+        source='[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] namespace Synthetic; '+support+' public class TestClass { '+attributes+' '+body+' }'
+        (directory/'Tests.cs').write_text(source)
+        build_args=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false']+(['-p:RunAnalyzers=false'] if shape.endswith('conflict') else []);build=subprocess.run(build_args,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        binary=directory/'bin/Debug/net10.0/Evidence.dll';trx=directory/'result.trx'
+        run_args=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(trx)];run=subprocess.run(run_args,cwd=directory,capture_output=True,timeout=30)
+        positive=not shape.endswith('conflict');assert run.returncode==(0 if positive else 1),(run.stdout,run.stderr)
+        if not positive:assert b'multiple [Fact]-derived attributes' in run.stdout+run.stderr
+        round11_retain('discovery-'+shape,{'Tests.cs':source.encode(),'Evidence.csproj':(directory/'Evidence.csproj').read_bytes(),'Evidence.dll.bytes':binary.read_bytes(),'result.trx':trx.read_bytes(),'build.stdout':build.stdout,'build.stderr':build.stderr,'run.stdout':run.stdout,'run.stderr':run.stderr},dict(build=build_args,run=run_args,buildExit=build.returncode,runExit=run.returncode))
+        if positive:assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        else:
+>           with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')
+E           Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4154: Failed
+_ test_round11_fact_discovery_agrees_with_actual_pinned_runner[indirect-conflict] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-620/test_round11_fact_discovery_ag2')
+shape = 'indirect-conflict'
+
+    @pytest.mark.parametrize('shape',['fact','task','value-task','theory-conflict','derived-conflict','indirect-conflict','ordinary-attribute'])
+    def test_round11_fact_discovery_agrees_with_actual_pinned_runner(tmp_path,shape):
+        directory=tmp_path/'native';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><GenerateAssemblyInfo>false</GenerateAssemblyInfo></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" /></ItemGroup></Project>')
+        attributes='[Xunit.Fact]';support='';body='public void Scenario01() {}'
+        if shape=='theory-conflict':attributes+='[Xunit.Theory]'
+        elif shape in ('derived-conflict','indirect-conflict'):
+            support='public class OtherFact : Xunit.FactAttribute {} public class IndirectFact : OtherFact {}'
+            attributes+='[OtherFact]' if shape=='derived-conflict' else '[IndirectFact]'
+        elif shape=='ordinary-attribute':support='public class Ordinary : System.Attribute {}';attributes+='[Ordinary]'
+        elif shape=='task':body='public System.Threading.Tasks.Task Scenario01() => System.Threading.Tasks.Task.CompletedTask;'
+        elif shape=='value-task':body='public System.Threading.Tasks.ValueTask Scenario01() => System.Threading.Tasks.ValueTask.CompletedTask;'
+        source='[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] namespace Synthetic; '+support+' public class TestClass { '+attributes+' '+body+' }'
+        (directory/'Tests.cs').write_text(source)
+        build_args=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false']+(['-p:RunAnalyzers=false'] if shape.endswith('conflict') else []);build=subprocess.run(build_args,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
+        binary=directory/'bin/Debug/net10.0/Evidence.dll';trx=directory/'result.trx'
+        run_args=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(trx)];run=subprocess.run(run_args,cwd=directory,capture_output=True,timeout=30)
+        positive=not shape.endswith('conflict');assert run.returncode==(0 if positive else 1),(run.stdout,run.stderr)
+        if not positive:assert b'multiple [Fact]-derived attributes' in run.stdout+run.stderr
+        round11_retain('discovery-'+shape,{'Tests.cs':source.encode(),'Evidence.csproj':(directory/'Evidence.csproj').read_bytes(),'Evidence.dll.bytes':binary.read_bytes(),'result.trx':trx.read_bytes(),'build.stdout':build.stdout,'build.stderr':build.stderr,'run.stdout':run.stdout,'run.stderr':run.stderr},dict(build=build_args,run=run_args,buildExit=build.returncode,runExit=run.returncode))
+        if positive:assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        else:
+>           with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')
+E           Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4154: Failed
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_fact_discovery_agrees_with_actual_pinned_runner[theory-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_fact_discovery_agrees_with_actual_pinned_runner[derived-conflict]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round11_fact_discovery_agrees_with_actual_pinned_runner[indirect-conflict]
+3 failed, 2251 deselected in 8.65s

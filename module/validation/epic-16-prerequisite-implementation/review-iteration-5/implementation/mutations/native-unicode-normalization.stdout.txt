@@ -1,0 +1,19 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_round5_party_identity_matches_genuine_native_wire_deserialization_goldens _
+
+    def test_round5_party_identity_matches_genuine_native_wire_deserialization_goldens():
+        import epic16_native
+        goldens=json.loads((ROOT/'_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json').read_bytes())
+        assert len(goldens['partyIds'])>=7
+        for row in goldens['partyIds']:
+>           assert epic16_native.normalize_party_id(row['input'])==row['constructed']==row['deserialized']
+E           AssertionError: assert 'éσi̇k𐐨' == 'éσİk𐐨'
+E             
+E             - éσİk𐐨
+E             + éσi̇k𐐨
+
+_bmad/scripts/tests/test_epic16_tooling.py:1971: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_party_identity_matches_genuine_native_wire_deserialization_goldens
+1 failed, 861 deselected in 0.29s

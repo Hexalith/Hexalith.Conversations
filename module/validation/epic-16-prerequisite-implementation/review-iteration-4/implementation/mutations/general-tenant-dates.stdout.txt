@@ -1,0 +1,62 @@
+FF.                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_round4_tenant_dates_use_general_native_datetimeoffset[0001-01-01T00:00:00Z] _
+
+value = '0001-01-01T00:00:00Z'
+
+    @pytest.mark.parametrize('value', ['0001-01-01T00:00:00Z','1999-12-31T23:59:59Z','2000-01-01T00:00:00Z'])
+    def test_round4_tenant_dates_use_general_native_datetimeoffset(value):
+        row=deepcopy(OBSERVATIONS['AC-16.1-03']['authoritativeReplay'][0]);row['sequence']=1
+        payload=json.loads(row['persistedPayload']);payload['updatedAt']=value;row['persistedPayload']=json.dumps(payload);row['payloadSha256']=digest(row['persistedPayload'].encode())
+>       tooling.measurements.domain.tenant_replay(OBSERVATIONS['AC-16.1-03']['startingState'],[row],0,1)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1536: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:234: in tenant_replay
+    state.update(name=value['name'],description=value['description']); timestamp(value['updatedAt'])
+                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_domain.py:62: in timestamp
+    if True: require(date.year >= 2000, 'Conversations plausible DateTimeOffset timestamp')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'Conversations plausible DateTimeOffset timestamp'
+
+    def require(condition, detail):
+>       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: Conversations plausible DateTimeOffset timestamp
+
+_bmad/scripts/epic16_domain.py:20: ValueError
+_ test_round4_tenant_dates_use_general_native_datetimeoffset[1999-12-31T23:59:59Z] _
+
+value = '1999-12-31T23:59:59Z'
+
+    @pytest.mark.parametrize('value', ['0001-01-01T00:00:00Z','1999-12-31T23:59:59Z','2000-01-01T00:00:00Z'])
+    def test_round4_tenant_dates_use_general_native_datetimeoffset(value):
+        row=deepcopy(OBSERVATIONS['AC-16.1-03']['authoritativeReplay'][0]);row['sequence']=1
+        payload=json.loads(row['persistedPayload']);payload['updatedAt']=value;row['persistedPayload']=json.dumps(payload);row['payloadSha256']=digest(row['persistedPayload'].encode())
+>       tooling.measurements.domain.tenant_replay(OBSERVATIONS['AC-16.1-03']['startingState'],[row],0,1)
+
+_bmad/scripts/tests/test_epic16_tooling.py:1536: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:234: in tenant_replay
+    state.update(name=value['name'],description=value['description']); timestamp(value['updatedAt'])
+                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_domain.py:62: in timestamp
+    if True: require(date.year >= 2000, 'Conversations plausible DateTimeOffset timestamp')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'Conversations plausible DateTimeOffset timestamp'
+
+    def require(condition, detail):
+>       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: Conversations plausible DateTimeOffset timestamp
+
+_bmad/scripts/epic16_domain.py:20: ValueError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_dates_use_general_native_datetimeoffset[0001-01-01T00:00:00Z]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_dates_use_general_native_datetimeoffset[1999-12-31T23:59:59Z]
+2 failed, 1 passed, 793 deselected in 0.28s

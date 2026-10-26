@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/Program.cs
++++ _bmad/scripts/epic16_native_helper/Program.cs
+@@ -270,7 +270,7 @@
+         {
+             return false;
+         }
+-        return ProductMetadata.IsFrameworkType(reader, (TypeReferenceHandle)handle);
++        return true;
+     }
+ 
+     private static void Inspect(JsonElement root)

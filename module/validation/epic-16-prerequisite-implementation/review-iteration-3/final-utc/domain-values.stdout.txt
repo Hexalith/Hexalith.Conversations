@@ -1,0 +1,132 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_same_id_changed_native_domain_values_cannot_pass_replay[path0-changed content] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-309/test_same_id_changed_native_do0/fixture')
+path = (0, 'value', 'label'), value = 'changed content'
+
+    @pytest.mark.parametrize('path,value', [((0,'value','label'),'changed content'),((1,'value','folderId'),'changed-folder'),((2,'value','text'),'different text'),((3,'value','participantRole'),'Observer')])
+    def test_same_id_changed_native_domain_values_cannot_pass_replay(repository,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-02']);state=json.loads(data['rebuilds'][0]['canonicalJson']);target=state['items']
+        for part in path[:-1]:target=target[part]
+        target[path[-1]]=value
+        raw=tooling.native_helper.canonicalize(json.dumps(state))
+        assert digest(raw.encode()) != data['rebuilds'][0]['stateHash']
+        for row in data['rebuilds']:row.update(canonicalJson=raw,roundTripJson=raw,stateHash=digest(raw.encode()))
+>       native(repository,'AC-16.2-02',data);rejected(evaluate(repository,'AC-16.2-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1287: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_same_id_changed_native_domain_values_cannot_pass_replay[path1-changed-folder] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-309/test_same_id_changed_native_do1/fixture')
+path = (1, 'value', 'folderId'), value = 'changed-folder'
+
+    @pytest.mark.parametrize('path,value', [((0,'value','label'),'changed content'),((1,'value','folderId'),'changed-folder'),((2,'value','text'),'different text'),((3,'value','participantRole'),'Observer')])
+    def test_same_id_changed_native_domain_values_cannot_pass_replay(repository,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-02']);state=json.loads(data['rebuilds'][0]['canonicalJson']);target=state['items']
+        for part in path[:-1]:target=target[part]
+        target[path[-1]]=value
+        raw=tooling.native_helper.canonicalize(json.dumps(state))
+        assert digest(raw.encode()) != data['rebuilds'][0]['stateHash']
+        for row in data['rebuilds']:row.update(canonicalJson=raw,roundTripJson=raw,stateHash=digest(raw.encode()))
+>       native(repository,'AC-16.2-02',data);rejected(evaluate(repository,'AC-16.2-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1287: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_same_id_changed_native_domain_values_cannot_pass_replay[path2-different text] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-309/test_same_id_changed_native_do2/fixture')
+path = (2, 'value', 'text'), value = 'different text'
+
+    @pytest.mark.parametrize('path,value', [((0,'value','label'),'changed content'),((1,'value','folderId'),'changed-folder'),((2,'value','text'),'different text'),((3,'value','participantRole'),'Observer')])
+    def test_same_id_changed_native_domain_values_cannot_pass_replay(repository,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-02']);state=json.loads(data['rebuilds'][0]['canonicalJson']);target=state['items']
+        for part in path[:-1]:target=target[part]
+        target[path[-1]]=value
+        raw=tooling.native_helper.canonicalize(json.dumps(state))
+        assert digest(raw.encode()) != data['rebuilds'][0]['stateHash']
+        for row in data['rebuilds']:row.update(canonicalJson=raw,roundTripJson=raw,stateHash=digest(raw.encode()))
+>       native(repository,'AC-16.2-02',data);rejected(evaluate(repository,'AC-16.2-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1287: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_same_id_changed_native_domain_values_cannot_pass_replay[path3-Observer] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-309/test_same_id_changed_native_do3/fixture')
+path = (3, 'value', 'participantRole'), value = 'Observer'
+
+    @pytest.mark.parametrize('path,value', [((0,'value','label'),'changed content'),((1,'value','folderId'),'changed-folder'),((2,'value','text'),'different text'),((3,'value','participantRole'),'Observer')])
+    def test_same_id_changed_native_domain_values_cannot_pass_replay(repository,path,value):
+        data=deepcopy(OBSERVATIONS['AC-16.2-02']);state=json.loads(data['rebuilds'][0]['canonicalJson']);target=state['items']
+        for part in path[:-1]:target=target[part]
+        target[path[-1]]=value
+        raw=tooling.native_helper.canonicalize(json.dumps(state))
+        assert digest(raw.encode()) != data['rebuilds'][0]['stateHash']
+        for row in data['rebuilds']:row.update(canonicalJson=raw,roundTripJson=raw,stateHash=digest(raw.encode()))
+>       native(repository,'AC-16.2-02',data);rejected(evaluate(repository,'AC-16.2-02'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1287: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_same_id_changed_native_domain_values_cannot_pass_replay[path0-changed content]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_same_id_changed_native_domain_values_cannot_pass_replay[path1-changed-folder]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_same_id_changed_native_domain_values_cannot_pass_replay[path2-different text]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_same_id_changed_native_domain_values_cannot_pass_replay[path3-Observer]
+4 failed, 586 deselected in 3.97s

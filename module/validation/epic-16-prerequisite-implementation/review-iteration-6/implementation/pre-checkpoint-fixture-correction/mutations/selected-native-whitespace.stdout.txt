@@ -1,0 +1,114 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1c] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-434/test_round6_opaque_id_matches_0/fixture')
+value = '\x1c'
+
+    @pytest.mark.parametrize('value',['\x1c','\x1d','\x1e','\x1f',' \x1c '])
+    def test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity(repository,value):
+        domain=tooling.measurements.domain
+        assert tooling.native_helper._run(dict(operation='opaqueId',value=value))['value']==domain.text(value)==value
+        for prefix in ('tenant','conv','message','file'):assert domain.identifier(prefix+':'+value,prefix)==value
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=data['events'][1]
+        row['selectedId']=row['messageId']=row['authoritativeEnvelope']['messageId']=value
+>       native(repository,'AC-16.2-01',data);result=evaluate(repository,'AC-16.2-01');assert result['result']=='PASS',result
+                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2259: AssertionError
+_ test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1d] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-434/test_round6_opaque_id_matches_1/fixture')
+value = '\x1d'
+
+    @pytest.mark.parametrize('value',['\x1c','\x1d','\x1e','\x1f',' \x1c '])
+    def test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity(repository,value):
+        domain=tooling.measurements.domain
+        assert tooling.native_helper._run(dict(operation='opaqueId',value=value))['value']==domain.text(value)==value
+        for prefix in ('tenant','conv','message','file'):assert domain.identifier(prefix+':'+value,prefix)==value
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=data['events'][1]
+        row['selectedId']=row['messageId']=row['authoritativeEnvelope']['messageId']=value
+>       native(repository,'AC-16.2-01',data);result=evaluate(repository,'AC-16.2-01');assert result['result']=='PASS',result
+                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2259: AssertionError
+_ test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1e] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-434/test_round6_opaque_id_matches_2/fixture')
+value = '\x1e'
+
+    @pytest.mark.parametrize('value',['\x1c','\x1d','\x1e','\x1f',' \x1c '])
+    def test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity(repository,value):
+        domain=tooling.measurements.domain
+        assert tooling.native_helper._run(dict(operation='opaqueId',value=value))['value']==domain.text(value)==value
+        for prefix in ('tenant','conv','message','file'):assert domain.identifier(prefix+':'+value,prefix)==value
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=data['events'][1]
+        row['selectedId']=row['messageId']=row['authoritativeEnvelope']['messageId']=value
+>       native(repository,'AC-16.2-01',data);result=evaluate(repository,'AC-16.2-01');assert result['result']=='PASS',result
+                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2259: AssertionError
+_ test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1f] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-434/test_round6_opaque_id_matches_3/fixture')
+value = '\x1f'
+
+    @pytest.mark.parametrize('value',['\x1c','\x1d','\x1e','\x1f',' \x1c '])
+    def test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity(repository,value):
+        domain=tooling.measurements.domain
+        assert tooling.native_helper._run(dict(operation='opaqueId',value=value))['value']==domain.text(value)==value
+        for prefix in ('tenant','conv','message','file'):assert domain.identifier(prefix+':'+value,prefix)==value
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=data['events'][1]
+        row['selectedId']=row['messageId']=row['authoritativeEnvelope']['messageId']=value
+>       native(repository,'AC-16.2-01',data);result=evaluate(repository,'AC-16.2-01');assert result['result']=='PASS',result
+                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2259: AssertionError
+_ test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[ \x1c ] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-434/test_round6_opaque_id_matches_4/fixture')
+value = ' \x1c '
+
+    @pytest.mark.parametrize('value',['\x1c','\x1d','\x1e','\x1f',' \x1c '])
+    def test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity(repository,value):
+        domain=tooling.measurements.domain
+        assert tooling.native_helper._run(dict(operation='opaqueId',value=value))['value']==domain.text(value)==value
+        for prefix in ('tenant','conv','message','file'):assert domain.identifier(prefix+':'+value,prefix)==value
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);row=data['events'][1]
+        row['selectedId']=row['messageId']=row['authoritativeEnvelope']['messageId']=value
+>       native(repository,'AC-16.2-01',data);result=evaluate(repository,'AC-16.2-01');assert result['result']=='PASS',result
+                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2259: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1c]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1d]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1e]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[\x1f]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_opaque_id_matches_native_without_python_strip_and_preserves_identity[ \x1c ]
+5 failed, 1046 deselected in 7.32s

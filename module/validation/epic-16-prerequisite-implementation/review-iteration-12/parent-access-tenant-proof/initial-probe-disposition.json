@@ -1,0 +1,1 @@
+{"result":"Native malformed-tenant rejection was observed, but the first Python capture mutation failed while indexing a renamed encoded key before schema/evaluation. Corrected the transform to preserve paired object traversal; no product source or assertion changed."}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="2.685" timestamp="2026-10-25T20:45:20.570982+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_recursive_domain_values_cannot_alias_native_integer_types[float-occurredAtUtcTicks]" time="2.089"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-364/test_round4_recursive_domain_v0/fixture')
+field = 'occurredAtUtcTicks', value_kind = 'float'
+
+    @pytest.mark.parametrize('field',['occurredAtUtcTicks','sequence'])
+    @pytest.mark.parametrize('value_kind',['float','boolean'])
+    def test_round4_recursive_domain_values_cannot_alias_native_integer_types(repository,field,value_kind):
+        scenario='AC-16.2-02' if field=='occurredAtUtcTicks' else 'AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario])
+        if field=='occurredAtUtcTicks':
+            for row in data['rebuilds']:
+                value=json.loads(row['canonicalJson']);item=next(i['value'] for i in value['items'] if 'occurredAtUtcTicks' in i['value']);item[field]=float(item[field]) if value_kind=='float' else True
+                row['canonicalJson']=tooling.measurements.canonicalize(json.dumps(value));row['roundTripJson']=row['canonicalJson'];row['stateHash']=digest(row['canonicalJson'].encode())
+        else:
+            for key in ('persistedProjection','queryProjection'):data[key][field]=float(data[key][field]) if value_kind=='float' else True
+&gt;       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_SCHEMA_INVALID' if field=='sequence' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1567: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_recursive_domain_values_cannot_alias_native_integer_types[boolean-occurredAtUtcTicks]" time="0.322" /></testsuite></testsuites>

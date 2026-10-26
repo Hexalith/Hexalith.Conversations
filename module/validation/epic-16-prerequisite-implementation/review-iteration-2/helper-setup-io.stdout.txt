@@ -1,0 +1,156 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_runtime_evaluate_turns_helper_setup_io_failures_into_structured_blocked[temporary-directory] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-252/test_runtime_evaluate_turns_he0/runtime')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7854a8836690>
+failure = 'temporary-directory'
+
+    @pytest.mark.parametrize('failure', ['temporary-directory', 'source-copy', 'build-spawn'])
+    def test_runtime_evaluate_turns_helper_setup_io_failures_into_structured_blocked(qualified_runtime, monkeypatch, failure):
+        import epic16_native
+        epic16_native._helper.cache_clear(); epic16_native.canonicalize.cache_clear()
+        def unavailable(*args, **kwargs): raise OSError('injected helper setup failure')
+        if failure == 'temporary-directory': monkeypatch.setattr(epic16_native.tempfile, 'TemporaryDirectory', unavailable)
+        elif failure == 'source-copy': monkeypatch.setattr(Path, 'write_bytes', unavailable)
+        else:
+            original = epic16_native.subprocess.run
+            def spawn(*args, **kwargs):
+                if args[0][0] == 'dotnet': return unavailable()
+                return original(*args, **kwargs)
+            monkeypatch.setattr(epic16_native.subprocess, 'run', spawn)
+>       rejected(runtime_evaluate(qualified_runtime), 'NATIVE_HELPER_UNAVAILABLE', 'BLOCKED')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1074: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:1017: in runtime_evaluate
+    return tooling.evaluate(repo, '16.2', 'AC-16.2-02', scope='runtime')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_tooling.py:386: in evaluate
+    binary = native_binary(reader, raw, facts['commit'], scenario)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_tooling.py:343: in native_binary
+    metadata = native_helper.inspect_assembly(content, candidate,
+_bmad/scripts/epic16_native.py:90: in inspect_assembly
+    return _run(dict(operation='metadata', assembly=base64.b64encode(content).decode(),
+_bmad/scripts/epic16_native.py:72: in _run
+    workspace, assembly = _helper()
+                          ^^^^^^^^^
+_bmad/scripts/epic16_native.py:51: in _helper
+    workspace = tempfile.TemporaryDirectory(prefix='epic16-native-oracle-')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (), kwargs = {'prefix': 'epic16-native-oracle-'}
+
+>   def unavailable(*args, **kwargs): raise OSError('injected helper setup failure')
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   OSError: injected helper setup failure
+
+_bmad/scripts/tests/test_epic16_tooling.py:1065: OSError
+_ test_runtime_evaluate_turns_helper_setup_io_failures_into_structured_blocked[source-copy] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-252/test_runtime_evaluate_turns_he1/runtime')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7854a8829610>
+failure = 'source-copy'
+
+    @pytest.mark.parametrize('failure', ['temporary-directory', 'source-copy', 'build-spawn'])
+    def test_runtime_evaluate_turns_helper_setup_io_failures_into_structured_blocked(qualified_runtime, monkeypatch, failure):
+        import epic16_native
+        epic16_native._helper.cache_clear(); epic16_native.canonicalize.cache_clear()
+        def unavailable(*args, **kwargs): raise OSError('injected helper setup failure')
+        if failure == 'temporary-directory': monkeypatch.setattr(epic16_native.tempfile, 'TemporaryDirectory', unavailable)
+        elif failure == 'source-copy': monkeypatch.setattr(Path, 'write_bytes', unavailable)
+        else:
+            original = epic16_native.subprocess.run
+            def spawn(*args, **kwargs):
+                if args[0][0] == 'dotnet': return unavailable()
+                return original(*args, **kwargs)
+            monkeypatch.setattr(epic16_native.subprocess, 'run', spawn)
+>       rejected(runtime_evaluate(qualified_runtime), 'NATIVE_HELPER_UNAVAILABLE', 'BLOCKED')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1074: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:1017: in runtime_evaluate
+    return tooling.evaluate(repo, '16.2', 'AC-16.2-02', scope='runtime')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_tooling.py:386: in evaluate
+    binary = native_binary(reader, raw, facts['commit'], scenario)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_tooling.py:343: in native_binary
+    metadata = native_helper.inspect_assembly(content, candidate,
+_bmad/scripts/epic16_native.py:90: in inspect_assembly
+    return _run(dict(operation='metadata', assembly=base64.b64encode(content).decode(),
+_bmad/scripts/epic16_native.py:72: in _run
+    workspace, assembly = _helper()
+                          ^^^^^^^^^
+_bmad/scripts/epic16_native.py:54: in _helper
+    (directory / name).write_bytes(data)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/tmp/epic16-native-oracle-6nfgf_rj/Epic16.NativeHelper.csproj'), b'<Project Sdk="Microsoft.NET.Sdk">\n  <P...gs>enable</ImplicitUsings>\n    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>\n  </PropertyGroup>\n</Project>\n')
+kwargs = {}
+
+>   def unavailable(*args, **kwargs): raise OSError('injected helper setup failure')
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   OSError: injected helper setup failure
+
+_bmad/scripts/tests/test_epic16_tooling.py:1065: OSError
+_ test_runtime_evaluate_turns_helper_setup_io_failures_into_structured_blocked[build-spawn] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-252/test_runtime_evaluate_turns_he2/runtime')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7854a8658790>
+failure = 'build-spawn'
+
+    @pytest.mark.parametrize('failure', ['temporary-directory', 'source-copy', 'build-spawn'])
+    def test_runtime_evaluate_turns_helper_setup_io_failures_into_structured_blocked(qualified_runtime, monkeypatch, failure):
+        import epic16_native
+        epic16_native._helper.cache_clear(); epic16_native.canonicalize.cache_clear()
+        def unavailable(*args, **kwargs): raise OSError('injected helper setup failure')
+        if failure == 'temporary-directory': monkeypatch.setattr(epic16_native.tempfile, 'TemporaryDirectory', unavailable)
+        elif failure == 'source-copy': monkeypatch.setattr(Path, 'write_bytes', unavailable)
+        else:
+            original = epic16_native.subprocess.run
+            def spawn(*args, **kwargs):
+                if args[0][0] == 'dotnet': return unavailable()
+                return original(*args, **kwargs)
+            monkeypatch.setattr(epic16_native.subprocess, 'run', spawn)
+>       rejected(runtime_evaluate(qualified_runtime), 'NATIVE_HELPER_UNAVAILABLE', 'BLOCKED')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1074: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:1017: in runtime_evaluate
+    return tooling.evaluate(repo, '16.2', 'AC-16.2-02', scope='runtime')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_tooling.py:386: in evaluate
+    binary = native_binary(reader, raw, facts['commit'], scenario)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_tooling.py:343: in native_binary
+    metadata = native_helper.inspect_assembly(content, candidate,
+_bmad/scripts/epic16_native.py:90: in inspect_assembly
+    return _run(dict(operation='metadata', assembly=base64.b64encode(content).decode(),
+_bmad/scripts/epic16_native.py:72: in _run
+    workspace, assembly = _helper()
+                          ^^^^^^^^^
+_bmad/scripts/epic16_native.py:55: in _helper
+    build = subprocess.run(['dotnet', 'build', 'Epic16.NativeHelper.csproj', '-c', 'Debug',
+_bmad/scripts/tests/test_epic16_tooling.py:1071: in spawn
+    if args[0][0] == 'dotnet': return unavailable()
+                                      ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (), kwargs = {}
+
+>   def unavailable(*args, **kwargs): raise OSError('injected helper setup failure')
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   OSError: injected helper setup failure
+
+_bmad/scripts/tests/test_epic16_tooling.py:1065: OSError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_runtime_evaluate_turns_helper_setup_io_failures_into_structured_blocked[temporary-directory]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_runtime_evaluate_turns_helper_setup_io_failures_into_structured_blocked[source-copy]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_runtime_evaluate_turns_helper_setup_io_failures_into_structured_blocked[build-spawn]
+3 failed, 383 deselected in 2.74s

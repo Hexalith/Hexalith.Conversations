@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="3.174" timestamp="2026-10-25T23:08:42.178503+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_lifecycle_self_consistent_claims_still_require_source_values_and_commit_progress[coherent-content-0]" time="2.319"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-457/test_round7_lifecycle_self_con0/fixture')
+kind = 0, fault = 'coherent-content'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('fault',['coherent-content','coherent-version','coherent-transaction'])
+    def test_round7_lifecycle_self_consistent_claims_still_require_source_values_and_commit_progress(repository,kind,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity']
+        old=proof['stages'][1]['cas']['transactionId'];new=proof['stages'][0]['cas']['transactionId']
+        def visit(value):
+            if isinstance(value,dict):
+                if fault=='coherent-content' and value.get('kind')=='detail' and isinstance(value.get('value'),dict):value['value']['label']='forged consistent content'
+                if fault=='coherent-version' and 'version' in value:value['version']*=2
+                if fault=='coherent-transaction':
+                    for key,item in value.items():
+                        if item==old:value[key]=new
+                for item in value.values():visit(item)
+            elif isinstance(value,list):
+                for item in value:visit(item)
+        visit(proof)
+        if fault=='coherent-version':row['lifecycleCasVersion']*=2;row['indexCasVersion']*=2
+&gt;       round7_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2754: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_lifecycle_self_consistent_claims_still_require_source_values_and_commit_progress[coherent-content-1]" time="0.331"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-457/test_round7_lifecycle_self_con1/fixture')
+kind = 1, fault = 'coherent-content'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('fault',['coherent-content','coherent-version','coherent-transaction'])
+    def test_round7_lifecycle_self_consistent_claims_still_require_source_values_and_commit_progress(repository,kind,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity']
+        old=proof['stages'][1]['cas']['transactionId'];new=proof['stages'][0]['cas']['transactionId']
+        def visit(value):
+            if isinstance(value,dict):
+                if fault=='coherent-content' and value.get('kind')=='detail' and isinstance(value.get('value'),dict):value['value']['label']='forged consistent content'
+                if fault=='coherent-version' and 'version' in value:value['version']*=2
+                if fault=='coherent-transaction':
+                    for key,item in value.items():
+                        if item==old:value[key]=new
+                for item in value.values():visit(item)
+            elif isinstance(value,list):
+                for item in value:visit(item)
+        visit(proof)
+        if fault=='coherent-version':row['lifecycleCasVersion']*=2;row['indexCasVersion']*=2
+&gt;       round7_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2754: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

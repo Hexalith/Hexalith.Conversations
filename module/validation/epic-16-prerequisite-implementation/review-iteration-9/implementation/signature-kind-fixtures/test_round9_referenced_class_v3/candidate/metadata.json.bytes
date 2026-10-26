@@ -1,0 +1,26 @@
+{
+  "assemblyName": "Probe.Api",
+  "assemblyVersion": "0.0.0.0",
+  "culture": "",
+  "publicKey": "",
+  "mvid": "12451f74-fc2e-4d25-84be-a978519dff7a",
+  "sourceRevision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "informationalVersion": "1.0.0+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "declaredTypes": [
+    ".<Module>",
+    "Probe.Surface"
+  ],
+  "api": {
+    "kind": "conservative-ecma335-public-declarations-v1",
+    "types": {
+      "Probe.Surface": {
+        "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+        "interfaces": [],
+        "members": [
+          "field:Item:Public:valuetype [External]External.Value:-1:absent:",
+          "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::"
+        ]
+      }
+    }
+  }
+}

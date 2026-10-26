@@ -1,0 +1,140 @@
+{
+  "results": [
+    {
+      "id": "R11B8",
+      "oldIncompleteCaptureRejectedByClosedSchema": true
+    },
+    {
+      "id": "R11B8",
+      "correctedCompleteCaptureAdmitted": true,
+      "checks": [
+        "tenant-fault-matrix",
+        "durable-acknowledgement",
+        "bounded-retry",
+        "query-purity"
+      ]
+    },
+    {
+      "id": "R11B9",
+      "oldIncompleteCaptureRejectedByClosedSchema": true
+    },
+    {
+      "id": "R11B9",
+      "correctedCompleteCaptureAdmitted": true,
+      "checks": [
+        "production-wire-route",
+        "durable-idempotent-clearance",
+        "query-visible-endstate",
+        "newer-progress-fences"
+      ]
+    },
+    {
+      "id": "R11E2",
+      "correctedTwoResourceCaptureAdmitted": true,
+      "checks": [
+        "writer-CAS-boundary",
+        "generation-fences",
+        "erase-quarantine",
+        "authoritative-rebuild-cutover"
+      ],
+      "resources": [
+        "conversation-a",
+        "conversation-b"
+      ]
+    },
+    {
+      "id": "R11B6",
+      "story": "16_1",
+      "control": "missing",
+      "exitCode": 2,
+      "stdout": "{\"result\": \"BLOCKED\", \"exitCode\": 2, \"blockers\": [\"TOOLING_DEPENDENCY_UNAVAILABLE\"], \"assertionLedger\": [{\"id\": \"TOOLING_DEPENDENCY_UNAVAILABLE\", \"subject\": \"epic16_tooling\", \"state\": \"BLOCKED\"}], \"authority\": {\"implementationHold\": \"ACTIVE\", \"executionAllowed\": false, \"ownerApprovalClaimed\": false, \"releaseAuthorized\": false, \"pushAuthorized\": false}}\n",
+      "stderr": "",
+      "cwd": "/tmp/epic16-r11-final-import-972jar9a"
+    },
+    {
+      "id": "R11B6",
+      "story": "16_1",
+      "control": "typo",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/tmp/epic16-r11-final-import-zto596c6/verify_story_16_1.py\", line 8, in <module>\n    from epic16_tooling import main\n  File \"/tmp/epic16-r11-final-import-zto596c6/epic16_tooling.py\", line 1, in <module>\n    import epic16_typo\nModuleNotFoundError: No module named 'epic16_typo'\n",
+      "cwd": "/tmp/epic16-r11-final-import-zto596c6"
+    },
+    {
+      "id": "R11B6",
+      "story": "16_1",
+      "control": "internal-declared",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/tmp/epic16-r11-final-import-af8q1ort/verify_story_16_1.py\", line 8, in <module>\n    from epic16_tooling import main\n  File \"/tmp/epic16-r11-final-import-af8q1ort/epic16_tooling.py\", line 1, in <module>\n    raise ModuleNotFoundError(\"internal defect\", name=\"epic16_tooling\")\nModuleNotFoundError: internal defect\n",
+      "cwd": "/tmp/epic16-r11-final-import-af8q1ort"
+    },
+    {
+      "id": "R11B6",
+      "story": "16_2",
+      "control": "missing",
+      "exitCode": 2,
+      "stdout": "{\"result\": \"BLOCKED\", \"exitCode\": 2, \"blockers\": [\"TOOLING_DEPENDENCY_UNAVAILABLE\"], \"assertionLedger\": [{\"id\": \"TOOLING_DEPENDENCY_UNAVAILABLE\", \"subject\": \"epic16_tooling\", \"state\": \"BLOCKED\"}], \"authority\": {\"implementationHold\": \"ACTIVE\", \"executionAllowed\": false, \"ownerApprovalClaimed\": false, \"releaseAuthorized\": false, \"pushAuthorized\": false}}\n",
+      "stderr": "",
+      "cwd": "/tmp/epic16-r11-final-import-cjkry86g"
+    },
+    {
+      "id": "R11B6",
+      "story": "16_2",
+      "control": "typo",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/tmp/epic16-r11-final-import-qn4v3vhd/verify_story_16_2.py\", line 8, in <module>\n    from epic16_tooling import main\n  File \"/tmp/epic16-r11-final-import-qn4v3vhd/epic16_tooling.py\", line 1, in <module>\n    import epic16_typo\nModuleNotFoundError: No module named 'epic16_typo'\n",
+      "cwd": "/tmp/epic16-r11-final-import-qn4v3vhd"
+    },
+    {
+      "id": "R11B6",
+      "story": "16_2",
+      "control": "internal-declared",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/tmp/epic16-r11-final-import-8o0ot_de/verify_story_16_2.py\", line 8, in <module>\n    from epic16_tooling import main\n  File \"/tmp/epic16-r11-final-import-8o0ot_de/epic16_tooling.py\", line 1, in <module>\n    raise ModuleNotFoundError(\"internal defect\", name=\"epic16_tooling\")\nModuleNotFoundError: internal defect\n",
+      "cwd": "/tmp/epic16-r11-final-import-8o0ot_de"
+    },
+    {
+      "id": "R11B6",
+      "story": "16_3",
+      "control": "missing",
+      "exitCode": 2,
+      "stdout": "{\"result\": \"BLOCKED\", \"exitCode\": 2, \"blockers\": [\"TOOLING_DEPENDENCY_UNAVAILABLE\"], \"assertionLedger\": [{\"id\": \"TOOLING_DEPENDENCY_UNAVAILABLE\", \"subject\": \"epic16_tooling\", \"state\": \"BLOCKED\"}], \"authority\": {\"implementationHold\": \"ACTIVE\", \"executionAllowed\": false, \"ownerApprovalClaimed\": false, \"releaseAuthorized\": false, \"pushAuthorized\": false}}\n",
+      "stderr": "",
+      "cwd": "/tmp/epic16-r11-final-import-p74d4db1"
+    },
+    {
+      "id": "R11B6",
+      "story": "16_3",
+      "control": "typo",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/tmp/epic16-r11-final-import-w_1w_ler/verify_story_16_3.py\", line 8, in <module>\n    from epic16_tooling import main\n  File \"/tmp/epic16-r11-final-import-w_1w_ler/epic16_tooling.py\", line 1, in <module>\n    import epic16_typo\nModuleNotFoundError: No module named 'epic16_typo'\n",
+      "cwd": "/tmp/epic16-r11-final-import-w_1w_ler"
+    },
+    {
+      "id": "R11B6",
+      "story": "16_3",
+      "control": "internal-declared",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/tmp/epic16-r11-final-import-cawg_lgd/verify_story_16_3.py\", line 8, in <module>\n    from epic16_tooling import main\n  File \"/tmp/epic16-r11-final-import-cawg_lgd/epic16_tooling.py\", line 1, in <module>\n    raise ModuleNotFoundError(\"internal defect\", name=\"epic16_tooling\")\nModuleNotFoundError: internal defect\n",
+      "cwd": "/tmp/epic16-r11-final-import-cawg_lgd"
+    }
+  ],
+  "sources": {
+    "_bmad/schemas/epic-16-tooling-v1.schema.json": "716e36cb2dd8e7ee34599fc67eb07e368d7cee5277a13cc7090f87e26a04d87f",
+    "_bmad/scripts/epic16_measurements.py": "dd25f6258620691e66df6743aa50cc68332c303db5d2c3333801adf55e2968bc",
+    "_bmad/scripts/epic16_schedules.py": "c9b0e6bbf39809a016d696d2dc5165b9f130d0292d78926bd3665e8e285fe87c",
+    "_bmad/scripts/epic16_lifecycle.py": "8a63c2087b5c949cffa92110801fac260fb61bf3beabf9bfe9f285329f7c4430",
+    "_bmad/scripts/epic16_execution.py": "b83a28b33e39965c65af91843e8f3b9f68e071272d950dfca25e192c68965755",
+    "_bmad/scripts/tests/fixtures/epic16-observations-v1.json": "fbd9ed09288d6ecc81e99dcf4e9d5de16281855246f064d42d9449bbef9a9dc7",
+    "_bmad/scripts/tests/test_epic16_tooling.py": "240f5f88eb7a93c5b5e570ae4488ab0d8420ac05098a12aa5d44e99019e14904",
+    "_bmad/scripts/verify_story_16_1.py": "d33063a4d9f0b5df8073606a909d1df023edd5278041ba3877c15f2eb696df7a",
+    "_bmad/scripts/verify_story_16_2.py": "9dd3e559eec69b762fe5e9ef6205fc55be7f23a064ccde063e129be2feb57d16",
+    "_bmad/scripts/verify_story_16_3.py": "86db4c032a177e18212bb1b8977d7e0825eba3890efa30b4b8d68cb172e2a0d3"
+  },
+  "scope": "Synthetic independent protocol controls, no runtime qualification."
+}

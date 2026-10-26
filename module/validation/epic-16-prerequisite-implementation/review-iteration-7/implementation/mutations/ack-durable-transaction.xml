@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="22" time="9.475" timestamp="2026-10-25T23:09:43.247228+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[equal-valid-AC-16.2-04]" time="2.268" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[equal-valid-AC-16.3-03]" time="0.302" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[reversed-AC-16.2-04]" time="0.334" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[reversed-AC-16.3-03]" time="0.319" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[failed-AC-16.2-04]" time="0.338" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[failed-AC-16.3-03]" time="0.307" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[unexecuted-AC-16.2-04]" time="0.318" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[unexecuted-AC-16.3-03]" time="0.308" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[transaction-AC-16.2-04]" time="0.326"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-469/test_round7_commit_ack_order_c8/fixture')
+scenario = 'AC-16.2-04', fault = 'transaction'
+
+    @pytest.mark.parametrize('scenario',['AC-16.2-04','AC-16.3-03'])
+    @pytest.mark.parametrize('fault',['equal-valid','reversed','failed','unexecuted','transaction','delivery','record','persisted','observed','time','missing'])
+    def test_round7_commit_ack_order_correlates_success_identity_state_and_transaction(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if scenario=='AC-16.2-04':
+            row=data['lifecycle'][0]['deliveries'][0];proof=row['operations'];row['acknowledgedAt']=row['durableAt'];proof['acknowledgement']['utcTicks']=row['durableAt']
+        else:
+            proof=data['pendingOperations'];data['acknowledgedAt']=data['persistedAt'];proof['acknowledgement']['utcTicks']=data['persistedAt']
+        commit,ack=proof['commit'],proof['acknowledgement']
+        if fault=='reversed':ack['order']=commit['order']
+        elif fault=='failed':commit['succeeded']=False
+        elif fault=='unexecuted':commit['executed']=False
+        elif fault in ('transaction','delivery','record'):ack[fault+'Id']='unrelated'
+        elif fault=='persisted':
+            if scenario=='AC-16.2-04':commit['persisted']['generation']=0
+            else:commit['persisted']['location']['id']='other'
+        elif fault=='observed':ack['observedRecord']=deepcopy(commit['persisted']);ack['observedRecord']['messageId' if scenario=='AC-16.2-04' else 'binding']='unrelated'
+        elif fault=='time':ack['utcTicks']+=1
+        elif fault=='missing':del proof['commit']
+&gt;       round7_submit(repository,scenario,data,passes=fault=='equal-valid',schema=fault=='missing' or fault=='observed' and scenario=='AC-16.3-03')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2699: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[transaction-AC-16.3-03]" time="0.308"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-469/test_round7_commit_ack_order_c9/fixture')
+scenario = 'AC-16.3-03', fault = 'transaction'
+
+    @pytest.mark.parametrize('scenario',['AC-16.2-04','AC-16.3-03'])
+    @pytest.mark.parametrize('fault',['equal-valid','reversed','failed','unexecuted','transaction','delivery','record','persisted','observed','time','missing'])
+    def test_round7_commit_ack_order_correlates_success_identity_state_and_transaction(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if scenario=='AC-16.2-04':
+            row=data['lifecycle'][0]['deliveries'][0];proof=row['operations'];row['acknowledgedAt']=row['durableAt'];proof['acknowledgement']['utcTicks']=row['durableAt']
+        else:
+            proof=data['pendingOperations'];data['acknowledgedAt']=data['persistedAt'];proof['acknowledgement']['utcTicks']=data['persistedAt']
+        commit,ack=proof['commit'],proof['acknowledgement']
+        if fault=='reversed':ack['order']=commit['order']
+        elif fault=='failed':commit['succeeded']=False
+        elif fault=='unexecuted':commit['executed']=False
+        elif fault in ('transaction','delivery','record'):ack[fault+'Id']='unrelated'
+        elif fault=='persisted':
+            if scenario=='AC-16.2-04':commit['persisted']['generation']=0
+            else:commit['persisted']['location']['id']='other'
+        elif fault=='observed':ack['observedRecord']=deepcopy(commit['persisted']);ack['observedRecord']['messageId' if scenario=='AC-16.2-04' else 'binding']='unrelated'
+        elif fault=='time':ack['utcTicks']+=1
+        elif fault=='missing':del proof['commit']
+&gt;       round7_submit(repository,scenario,data,passes=fault=='equal-valid',schema=fault=='missing' or fault=='observed' and scenario=='AC-16.3-03')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2699: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[delivery-AC-16.2-04]" time="0.336" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[delivery-AC-16.3-03]" time="0.307" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[record-AC-16.2-04]" time="0.322" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[record-AC-16.3-03]" time="0.306" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[persisted-AC-16.2-04]" time="0.338" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[persisted-AC-16.3-03]" time="0.309" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[observed-AC-16.2-04]" time="0.324" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[observed-AC-16.3-03]" time="0.303" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[time-AC-16.2-04]" time="0.328" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[time-AC-16.3-03]" time="0.307" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[missing-AC-16.2-04]" time="0.330" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[missing-AC-16.3-03]" time="0.344" /></testsuite></testsuites>

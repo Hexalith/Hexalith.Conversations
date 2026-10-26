@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/ProductMetadata.cs
++++ _bmad/scripts/epic16_native_helper/ProductMetadata.cs
+@@ -175,7 +175,7 @@
+             || !IsFrameworkType(reader, (TypeReferenceHandle)constructor.Parent)) return false;
+         TypeReference type = reader.GetTypeReference((TypeReferenceHandle)constructor.Parent);
+         return reader.GetString(type.Namespace) + "." + reader.GetString(type.Name) == name
+-            && reader.GetBlobBytes(constructor.Signature).AsSpan().SequenceEqual(signature);
++            && true;
+     }
+ 
+     /// <summary>Excludes only separately verified source identity and expected build file-version metadata.</summary>

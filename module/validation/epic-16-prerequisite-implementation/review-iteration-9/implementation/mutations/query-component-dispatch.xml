@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="11.970" timestamp="2026-10-26T01:14:03.302624+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_cross_key_admission_rejects_incomplete_or_foreign_components[unindexed-dispatch]" time="11.466"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-556/test_round9_cross_key_admissio0/fixture')
+fault = 'unindexed-dispatch'
+
+    @pytest.mark.parametrize('fault',['missing-dispatch','foreign-dispatch','foreign-resource','unindexed-dispatch','duplicate-dispatch','foreign-detail','wrong-detail-key'])
+    def test_round9_cross_key_admission_rejects_incomplete_or_foreign_components(repository,fault):
+        scenario='AC-16.2-05';data=deepcopy(OBSERVATIONS[scenario]);proof=data['generationQueries']
+        for snapshot in [proof['baseline'],*[q['snapshot'] for q in proof['queries']]]:
+            part=next(p for p in snapshot['components'] if p['kind']=='dispatch')
+            if fault=='missing-dispatch':snapshot['components'].remove(part)
+            elif fault=='foreign-dispatch':part['tenant']='foreign'
+            elif fault=='foreign-resource':part['resource']='foreign'
+            elif fault=='unindexed-dispatch':part['value']=['pending-hidden']
+            elif fault=='duplicate-dispatch':snapshot['components'].append(deepcopy(part))
+            elif fault=='foreign-detail':next(p for p in snapshot['components'] if p['kind']=='detail')['tenant']='foreign'
+            else:next(p for p in snapshot['components'] if p['kind']=='detail')['key']='projection:foreign'
+        for q in proof['queries']:
+            if fault=='missing-dispatch':q['reads']=[r for r in q['reads'] if r['kind']!='dispatch']
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3261: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-556/test_round9_cross_key_admissio0/fixture')
+scenario = 'AC-16.2-05'
+data = {'beforeContractSha256': '1c4959c1c1885d1c42a427c0a3ba0eac15d351ea9643f8cbdb9b941913c035e3', 'afterContractSha256': '1c4959c1c1885d1c42a427c0a3ba0eac15d351ea9643f8cbdb9b941913c035e3', 'eventPersonalData': [], 'logPersonalData': [], ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-05', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase></testsuite></testsuites>

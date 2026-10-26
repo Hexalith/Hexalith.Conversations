@@ -1,0 +1,124 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_round4_erase_ack_ticks_are_representable_even_when_ordered[durableAt-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-377/test_round4_erase_ack_ticks_ar0/fixture')
+phase = 0, field = 'durableAt'
+
+    @pytest.mark.parametrize('phase',[0,1])
+    @pytest.mark.parametrize('field',['durableAt','acknowledgedAt'])
+    def test_round4_erase_ack_ticks_are_representable_even_when_ordered(repository,phase,field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);delivery=data['lifecycle'][0]['deliveries'][phase]
+        delivery[field]=3155378976000000000
+        if field=='durableAt':delivery['acknowledgedAt']=delivery[field]+1
+>       native(repository,'AC-16.2-04',data);rejected(evaluate(repository,'AC-16.2-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1709: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_erase_ack_ticks_are_representable_even_when_ordered[durableAt-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-377/test_round4_erase_ack_ticks_ar1/fixture')
+phase = 1, field = 'durableAt'
+
+    @pytest.mark.parametrize('phase',[0,1])
+    @pytest.mark.parametrize('field',['durableAt','acknowledgedAt'])
+    def test_round4_erase_ack_ticks_are_representable_even_when_ordered(repository,phase,field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);delivery=data['lifecycle'][0]['deliveries'][phase]
+        delivery[field]=3155378976000000000
+        if field=='durableAt':delivery['acknowledgedAt']=delivery[field]+1
+>       native(repository,'AC-16.2-04',data);rejected(evaluate(repository,'AC-16.2-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1709: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_erase_ack_ticks_are_representable_even_when_ordered[acknowledgedAt-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-377/test_round4_erase_ack_ticks_ar2/fixture')
+phase = 0, field = 'acknowledgedAt'
+
+    @pytest.mark.parametrize('phase',[0,1])
+    @pytest.mark.parametrize('field',['durableAt','acknowledgedAt'])
+    def test_round4_erase_ack_ticks_are_representable_even_when_ordered(repository,phase,field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);delivery=data['lifecycle'][0]['deliveries'][phase]
+        delivery[field]=3155378976000000000
+        if field=='durableAt':delivery['acknowledgedAt']=delivery[field]+1
+>       native(repository,'AC-16.2-04',data);rejected(evaluate(repository,'AC-16.2-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1709: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_erase_ack_ticks_are_representable_even_when_ordered[acknowledgedAt-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-377/test_round4_erase_ack_ticks_ar3/fixture')
+phase = 1, field = 'acknowledgedAt'
+
+    @pytest.mark.parametrize('phase',[0,1])
+    @pytest.mark.parametrize('field',['durableAt','acknowledgedAt'])
+    def test_round4_erase_ack_ticks_are_representable_even_when_ordered(repository,phase,field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);delivery=data['lifecycle'][0]['deliveries'][phase]
+        delivery[field]=3155378976000000000
+        if field=='durableAt':delivery['acknowledgedAt']=delivery[field]+1
+>       native(repository,'AC-16.2-04',data);rejected(evaluate(repository,'AC-16.2-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1709: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_erase_ack_ticks_are_representable_even_when_ordered[durableAt-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_erase_ack_ticks_are_representable_even_when_ordered[durableAt-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_erase_ack_ticks_are_representable_even_when_ordered[acknowledgedAt-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_erase_ack_ticks_are_representable_even_when_ordered[acknowledgedAt-1]
+4 failed, 792 deselected in 1.66s

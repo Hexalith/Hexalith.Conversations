@@ -1,0 +1,31 @@
+{
+  "synthetic": true,
+  "scope": "isolated-controlled-evidence-experiment",
+  "argv": [
+    "dotnet",
+    "run",
+    "--project",
+    "/tmp/epic16-contract-goldens-r4",
+    "--configuration",
+    "Debug"
+  ],
+  "exitCode": 0,
+  "files": [
+    {
+      "path": "Program.cs",
+      "sha256": "9503ab6b9e8338a2470823384a3b5cda7c332a205e6b921f2ba5506c27fa8a50"
+    },
+    {
+      "path": "output.json",
+      "sha256": "676a3c9f14d56a27d3671f6804f6648da7fe41d9b20776c69ccec071dd5afa38"
+    },
+    {
+      "path": "Goldens.csproj",
+      "sha256": "81fd557d02f30494cf2daf896b933771e58cac5377f46b25934164b7a98c3191"
+    },
+    {
+      "path": "stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

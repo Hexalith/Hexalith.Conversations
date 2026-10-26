@@ -1,0 +1,88 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_round9_wire_rejects_uncorrelated_success_or_unsafe_diagnostics[denied] __
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-548/test_round9_wire_rejects_uncor0/fixture')
+fault = 'denied'
+
+    @pytest.mark.parametrize('fault',['unauthenticated','denied','wrong-policy','handler-bypass','wrong-coordinator','wrong-dispatch','failed-result','uncommitted-response','wrong-state-hash','content-leak','wrong-contract','wrong-pending','wrong-dispatch-id'])
+    def test_round9_wire_rejects_uncorrelated_success_or_unsafe_diagnostics(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['wireObservation'];request,auth,dispatch,commit,response=proof['operations']
+        if fault=='unauthenticated':auth['authenticated']=False
+        elif fault=='denied':auth['allowed']=False
+        elif fault=='wrong-policy':auth['policy']='unrelated'
+        elif fault=='handler-bypass':dispatch['directHandlerCalls']=1
+        elif fault=='wrong-coordinator':dispatch['coordinator']='Conversations'
+        elif fault=='wrong-dispatch':dispatch['target']='handler.Invoke'
+        elif fault=='failed-result':response['statusCode']=500
+        elif fault=='uncommitted-response':response['instrumentation']['transactionId']='unrelated'
+        elif fault=='wrong-state-hash':commit['persistedAfterSha256']='f'*64
+        elif fault=='content-leak':commit['persistedAfter']=data['concurrentRecovery']['current']['after']
+        elif fault=='wrong-contract':response['contractType']='unrelated'
+        elif fault=='wrong-pending':proof['scheduledWork']['pendingId']='unrelated'
+        else:request['dispatchId']='unrelated'
+>       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3310: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-548/test_round9_wire_rejects_uncor0/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+>       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError
+_ test_round9_wire_rejects_uncorrelated_success_or_unsafe_diagnostics[wrong-policy] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-548/test_round9_wire_rejects_uncor1/fixture')
+fault = 'wrong-policy'
+
+    @pytest.mark.parametrize('fault',['unauthenticated','denied','wrong-policy','handler-bypass','wrong-coordinator','wrong-dispatch','failed-result','uncommitted-response','wrong-state-hash','content-leak','wrong-contract','wrong-pending','wrong-dispatch-id'])
+    def test_round9_wire_rejects_uncorrelated_success_or_unsafe_diagnostics(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['wireObservation'];request,auth,dispatch,commit,response=proof['operations']
+        if fault=='unauthenticated':auth['authenticated']=False
+        elif fault=='denied':auth['allowed']=False
+        elif fault=='wrong-policy':auth['policy']='unrelated'
+        elif fault=='handler-bypass':dispatch['directHandlerCalls']=1
+        elif fault=='wrong-coordinator':dispatch['coordinator']='Conversations'
+        elif fault=='wrong-dispatch':dispatch['target']='handler.Invoke'
+        elif fault=='failed-result':response['statusCode']=500
+        elif fault=='uncommitted-response':response['instrumentation']['transactionId']='unrelated'
+        elif fault=='wrong-state-hash':commit['persistedAfterSha256']='f'*64
+        elif fault=='content-leak':commit['persistedAfter']=data['concurrentRecovery']['current']['after']
+        elif fault=='wrong-contract':response['contractType']='unrelated'
+        elif fault=='wrong-pending':proof['scheduledWork']['pendingId']='unrelated'
+        else:request['dispatchId']='unrelated'
+>       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3310: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-548/test_round9_wire_rejects_uncor1/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+>       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_wire_rejects_uncorrelated_success_or_unsafe_diagnostics[denied]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_wire_rejects_uncorrelated_success_or_unsafe_diagnostics[wrong-policy]
+2 failed, 1864 deselected in 12.39s

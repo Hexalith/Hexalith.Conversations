@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "/tmp/epic16-r10-parent-qqxy7o6h/import/generate_story_record.py",
+    "--contract",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json"
+  ],
+  "exitCode": 2
+}

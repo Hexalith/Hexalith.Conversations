@@ -1,0 +1,29 @@
+{
+  "name": "access-stored-cause",
+  "path": "_bmad/scripts/epic16_schedules.py",
+  "old": "require(snapshot['health']==state, 'stored authorization health derives from actual cause')",
+  "new": "None",
+  "selector": "round12_authorization_state and health",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-access-stored-cause-903q2nw4/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_authorization_state and health",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/access-stored-cause/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-access-stored-cause-903q2nw4",
+  "exitCode": 1,
+  "elapsedSeconds": 15.08792517799884,
+  "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+  "mutatedSha256": "2c6798369e73db5fb54e9b55cd423a3635a5b9bc61f6cfaeba127281f37ccc12",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

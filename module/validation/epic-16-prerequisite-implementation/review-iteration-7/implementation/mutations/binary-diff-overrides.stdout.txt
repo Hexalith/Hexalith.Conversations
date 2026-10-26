@@ -1,0 +1,109 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-448/test_round7_retained_pe_has_bi0/fixture')
+managed_evidence = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+path = 'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll'
+
+    @pytest.mark.parametrize('path',[
+     'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll',
+     'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes',
+     'artifacts/epic16-runtime/16.2/binaries/sample.dll',
+     'artifacts/epic16-tooling-fixture/16.2/binaries/sample.dll',
+     'artifacts/native/sample.dll',
+    ])
+    def test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff(repository,managed_evidence,path):
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(managed_evidence)
+        attrs=git(repository,'check-attr','text','diff','--',path)
+>       assert path+': text: unset' in attrs and path+': diff: unset' in attrs
+E       AssertionError: assert (('module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll' + ': text: unset') in 'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll: text: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll: diff: set' and ('module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll' + ': diff: unset') in 'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll: text: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll: diff: set')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2496: AssertionError
+_ test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-448/test_round7_retained_pe_has_bi1/fixture')
+managed_evidence = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+path = 'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes'
+
+    @pytest.mark.parametrize('path',[
+     'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll',
+     'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes',
+     'artifacts/epic16-runtime/16.2/binaries/sample.dll',
+     'artifacts/epic16-tooling-fixture/16.2/binaries/sample.dll',
+     'artifacts/native/sample.dll',
+    ])
+    def test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff(repository,managed_evidence,path):
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(managed_evidence)
+        attrs=git(repository,'check-attr','text','diff','--',path)
+>       assert path+': text: unset' in attrs and path+': diff: unset' in attrs
+E       AssertionError: assert (('module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes' + ': text: unset') in 'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes: text: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes: diff: set' and ('module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes' + ': diff: unset') in 'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes: text: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes: diff: set')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2496: AssertionError
+_ test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[artifacts/epic16-runtime/16.2/binaries/sample.dll] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-448/test_round7_retained_pe_has_bi2/fixture')
+managed_evidence = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+path = 'artifacts/epic16-runtime/16.2/binaries/sample.dll'
+
+    @pytest.mark.parametrize('path',[
+     'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll',
+     'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes',
+     'artifacts/epic16-runtime/16.2/binaries/sample.dll',
+     'artifacts/epic16-tooling-fixture/16.2/binaries/sample.dll',
+     'artifacts/native/sample.dll',
+    ])
+    def test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff(repository,managed_evidence,path):
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(managed_evidence)
+        attrs=git(repository,'check-attr','text','diff','--',path)
+>       assert path+': text: unset' in attrs and path+': diff: unset' in attrs
+E       AssertionError: assert (('artifacts/epic16-runtime/16.2/binaries/sample.dll' + ': text: unset') in 'artifacts/epic16-runtime/16.2/binaries/sample.dll: text: unset\nartifacts/epic16-runtime/16.2/binaries/sample.dll: diff: set' and ('artifacts/epic16-runtime/16.2/binaries/sample.dll' + ': diff: unset') in 'artifacts/epic16-runtime/16.2/binaries/sample.dll: text: unset\nartifacts/epic16-runtime/16.2/binaries/sample.dll: diff: set')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2496: AssertionError
+_ test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[artifacts/epic16-tooling-fixture/16.2/binaries/sample.dll] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-448/test_round7_retained_pe_has_bi3/fixture')
+managed_evidence = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+path = 'artifacts/epic16-tooling-fixture/16.2/binaries/sample.dll'
+
+    @pytest.mark.parametrize('path',[
+     'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll',
+     'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes',
+     'artifacts/epic16-runtime/16.2/binaries/sample.dll',
+     'artifacts/epic16-tooling-fixture/16.2/binaries/sample.dll',
+     'artifacts/native/sample.dll',
+    ])
+    def test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff(repository,managed_evidence,path):
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(managed_evidence)
+        attrs=git(repository,'check-attr','text','diff','--',path)
+>       assert path+': text: unset' in attrs and path+': diff: unset' in attrs
+E       AssertionError: assert (('artifacts/epic16-tooling-fixture/16.2/binaries/sample.dll' + ': text: unset') in 'artifacts/epic16-tooling-fixture/16.2/binaries/sample.dll: text: unset\nartifacts/epic16-tooling-fixture/16.2/binaries/sample.dll: diff: set' and ('artifacts/epic16-tooling-fixture/16.2/binaries/sample.dll' + ': diff: unset') in 'artifacts/epic16-tooling-fixture/16.2/binaries/sample.dll: text: unset\nartifacts/epic16-tooling-fixture/16.2/binaries/sample.dll: diff: set')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2496: AssertionError
+_ test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[artifacts/native/sample.dll] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-448/test_round7_retained_pe_has_bi4/fixture')
+managed_evidence = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+path = 'artifacts/native/sample.dll'
+
+    @pytest.mark.parametrize('path',[
+     'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll',
+     'module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes',
+     'artifacts/epic16-runtime/16.2/binaries/sample.dll',
+     'artifacts/epic16-tooling-fixture/16.2/binaries/sample.dll',
+     'artifacts/native/sample.dll',
+    ])
+    def test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff(repository,managed_evidence,path):
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(managed_evidence)
+        attrs=git(repository,'check-attr','text','diff','--',path)
+>       assert path+': text: unset' in attrs and path+': diff: unset' in attrs
+E       AssertionError: assert (('artifacts/native/sample.dll' + ': text: unset') in 'artifacts/native/sample.dll: text: unset\nartifacts/native/sample.dll: diff: set' and ('artifacts/native/sample.dll' + ': diff: unset') in 'artifacts/native/sample.dll: text: unset\nartifacts/native/sample.dll: diff: set')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2496: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[module/validation/epic-16-prerequisite-implementation/review-iteration-7/sample.dll.bytes]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[artifacts/epic16-runtime/16.2/binaries/sample.dll]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[artifacts/epic16-tooling-fixture/16.2/binaries/sample.dll]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff[artifacts/native/sample.dll]
+5 failed, 1284 deselected in 4.00s

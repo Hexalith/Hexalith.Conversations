@@ -1,0 +1,29 @@
+{
+  "name": "access-freshness",
+  "path": "_bmad/scripts/epic16_schedules.py",
+  "old": "require(freshness['generatedUtcTicks']>=freshness['lastAppliedUtcTicks'] and freshness['lagTicks']==freshness['generatedUtcTicks']-freshness['lastAppliedUtcTicks'] and proof['observedAtUtcTicks']>=freshness['generatedUtcTicks'], 'valid persisted freshness and observation clock')",
+  "new": "None",
+  "selector": "round12_authorization_state and (freshness or future-clock)",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-access-freshness-kw5cpns2/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_authorization_state and (freshness or future-clock)",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/access-freshness/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-access-freshness-kw5cpns2",
+  "exitCode": 1,
+  "elapsedSeconds": 16.097852022008738,
+  "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+  "mutatedSha256": "6b29923d38c54bc0c6923dd59ac87b5f18c7cde1b03cf685452b366b914a07cf",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 3,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  }
+}

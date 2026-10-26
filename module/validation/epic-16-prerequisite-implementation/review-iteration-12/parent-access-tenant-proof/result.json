@@ -1,0 +1,46 @@
+{
+  "id": "R12P2",
+  "schemaAccepted": true,
+  "checks": [
+    "fail-closed-states",
+    "atomic-sequence-identity",
+    "tenant-segmentation",
+    "seam-ownership"
+  ],
+  "nativeActual": {
+    "Id": "invalid-tenant",
+    "IsAllowed": false,
+    "Denial": "MalformedTenant",
+    "Reads": 0,
+    "ReadsHealth": 0
+  },
+  "capturedAllowed": true,
+  "commands": [
+    {
+      "argv": [
+        "dotnet",
+        "build",
+        "Probe.csproj",
+        "--nologo",
+        "-m:1",
+        "-p:NuGetAudit=false"
+      ],
+      "cwd": "/tmp/epic16-r12-access-tenant-82qg_s_n",
+      "exit": 0
+    },
+    {
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-r12-access-tenant-82qg_s_n/bin/Debug/net10.0/Probe.dll"
+      ],
+      "cwd": "/tmp/epic16-r12-access-tenant-82qg_s_n",
+      "exit": 0
+    }
+  ],
+  "sourceHashes": {
+    "_bmad/scripts/epic16_schedules.py": "f918b40830aef44d11e53df28fa85d23fcbf675b3e680b1e63fe3376b84ba741",
+    "_bmad/scripts/epic16_measurements.py": "ff956e3d86bcb034d02f50ce98e540e0ff67e8de3338bd975aecb41eebe425eb",
+    "_bmad/schemas/epic-16-tooling-v1.schema.json": "ebfb75d5e8df14b79226d23cb1fd776c555971d0325b5111fa71bdbf16e43148",
+    "_bmad/scripts/tests/fixtures/epic16-observations-v1.json": "0c92ee2de6565cb692688aef786c99af23ea56f013c1fba44b12d767969512b7"
+  }
+}

@@ -1,0 +1,1046 @@
+{
+  "scope": "Exact compiled synthetic class/value signature fixtures from final combined run; no runtime product or owner authority.",
+  "argv": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-retain-signatures.py"
+  ],
+  "sourceEpochSha256": "ee12104feb9ac08493e51a1f8f6ea566d384a1495df2ad5118bfc78efcde6b0b",
+  "cases": [
+    {
+      "fixture": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_referenced_class_v0",
+      "expected": "FAIL",
+      "blocker": "UPSTREAM_API_DRIFT",
+      "apiDifferent": true,
+      "declarationNamesUnprefixed": true,
+      "artifacts": [
+        {
+          "fixturePath": "baseline/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/baseline/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "baseline/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/baseline/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "baseline/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/baseline/external/Value.cs.bytes",
+          "sha256": "ee2f5faa1a3b672e1c0fbe5904bbbaae961cadded523a6846adc26d077bdf967"
+        },
+        {
+          "fixturePath": "baseline/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/baseline/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "baseline/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/baseline/api/Surface.cs.bytes",
+          "sha256": "906dbda5f9d033880d180bb166786dc4d1ab7d4322a69b77b61f33d1ad1b1467"
+        },
+        {
+          "fixturePath": "baseline/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/baseline/api/Stamp.cs.bytes",
+          "sha256": "8337f15614c2a02a100c7f223747ab3795f3d83def5c91e93ac6495dea594db3"
+        },
+        {
+          "fixturePath": "baseline/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/baseline/build-command.json.bytes",
+          "sha256": "79caa39a116e13c8b0e52cbda50d8ea21b2c8d2635b311460aae39e39b7eac14"
+        },
+        {
+          "fixturePath": "baseline/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/baseline/build.stdout.bytes",
+          "sha256": "b114d360d8ec9a5a6cc4bdf8ad61bfd6a74bc7d67886712cae9708ba951acafa"
+        },
+        {
+          "fixturePath": "baseline/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/baseline/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "baseline/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/baseline/metadata.json.bytes",
+          "sha256": "7429e934a08dcc67aa87f779d07d26c875b4b6342c8cca1c08abedd692af9724"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/baseline/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "5e239a77ad4e3e7fbeb89d99932c80c5bd7f1165ea0dae24d334805b215c49dc"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/baseline/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "bf3b5c300f6690e7ec39eafd0f8aaec90c0d77afa84f564465bca68b5e487b34"
+        },
+        {
+          "fixturePath": "candidate/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/candidate/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "candidate/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/candidate/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "candidate/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/candidate/external/Value.cs.bytes",
+          "sha256": "871d8c6c674c5a08e108d6ebabc7b6b2344e807f2ce20225155cc7c597325879"
+        },
+        {
+          "fixturePath": "candidate/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/candidate/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "candidate/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/candidate/api/Surface.cs.bytes",
+          "sha256": "906dbda5f9d033880d180bb166786dc4d1ab7d4322a69b77b61f33d1ad1b1467"
+        },
+        {
+          "fixturePath": "candidate/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/candidate/api/Stamp.cs.bytes",
+          "sha256": "07fe905ef73f2ad1f46b31d7afa13d0a590f955264ee764009e98022c7224998"
+        },
+        {
+          "fixturePath": "candidate/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/candidate/build-command.json.bytes",
+          "sha256": "b619716c105b1c244747ccc4aad7ec5b065ba3e98a6002935dbc7823f25e05ec"
+        },
+        {
+          "fixturePath": "candidate/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/candidate/build.stdout.bytes",
+          "sha256": "3af0fcdc463bb8de73f0bb637a72a192cac4b2640d81218edeb5dc8b160ce2a3"
+        },
+        {
+          "fixturePath": "candidate/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/candidate/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "candidate/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/candidate/metadata.json.bytes",
+          "sha256": "4dd2d37dd66445942b6b1ca274fb0dd52fb7e4b308ff90b36cf37ab8e63dab9d"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/candidate/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "854231c66ff8f04cb71b57d6d2de20fb0a0209900009f141afe9725c2d00177b"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v0/candidate/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "3a0c3452649d3b208acba31b7c1acfbdb72070ae895639d56f0df17190796922"
+        }
+      ]
+    },
+    {
+      "fixture": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_referenced_class_v1",
+      "expected": "FAIL",
+      "blocker": "UPSTREAM_API_DRIFT",
+      "apiDifferent": true,
+      "declarationNamesUnprefixed": true,
+      "artifacts": [
+        {
+          "fixturePath": "baseline/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/baseline/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "baseline/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/baseline/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "baseline/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/baseline/external/Value.cs.bytes",
+          "sha256": "ee2f5faa1a3b672e1c0fbe5904bbbaae961cadded523a6846adc26d077bdf967"
+        },
+        {
+          "fixturePath": "baseline/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/baseline/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "baseline/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/baseline/api/Surface.cs.bytes",
+          "sha256": "35b5469f02bdd25415a887a73b3f9e188cbd8114d87a93ad505a25023d299a01"
+        },
+        {
+          "fixturePath": "baseline/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/baseline/api/Stamp.cs.bytes",
+          "sha256": "8337f15614c2a02a100c7f223747ab3795f3d83def5c91e93ac6495dea594db3"
+        },
+        {
+          "fixturePath": "baseline/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/baseline/build-command.json.bytes",
+          "sha256": "7435fabea65fc9729c651057568008674e4ab9804e1f1552c193e131d06197ea"
+        },
+        {
+          "fixturePath": "baseline/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/baseline/build.stdout.bytes",
+          "sha256": "bc1d378592532cb452ce657951da0a38528547e48ddc289d81d1238a1bc396c6"
+        },
+        {
+          "fixturePath": "baseline/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/baseline/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "baseline/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/baseline/metadata.json.bytes",
+          "sha256": "cf4881122e6ea9b9c4b6ee1c50795d90048e6c730edecc71ef23427fe14458c0"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/baseline/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "bed9f2eb945fcb1c13fe4376621b88c4b65317ed6a6c4c21feea8c0a21a2addd"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/baseline/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "7ca9de03b4c64e7d998fa00bce46c23a8acdc5a66e534c88333acecb79e6187a"
+        },
+        {
+          "fixturePath": "candidate/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/candidate/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "candidate/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/candidate/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "candidate/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/candidate/external/Value.cs.bytes",
+          "sha256": "871d8c6c674c5a08e108d6ebabc7b6b2344e807f2ce20225155cc7c597325879"
+        },
+        {
+          "fixturePath": "candidate/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/candidate/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "candidate/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/candidate/api/Surface.cs.bytes",
+          "sha256": "35b5469f02bdd25415a887a73b3f9e188cbd8114d87a93ad505a25023d299a01"
+        },
+        {
+          "fixturePath": "candidate/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/candidate/api/Stamp.cs.bytes",
+          "sha256": "07fe905ef73f2ad1f46b31d7afa13d0a590f955264ee764009e98022c7224998"
+        },
+        {
+          "fixturePath": "candidate/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/candidate/build-command.json.bytes",
+          "sha256": "4413d90df180b5a3e9ac36b3fe4847bf5cc6717f023562118ab02407e2a6211a"
+        },
+        {
+          "fixturePath": "candidate/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/candidate/build.stdout.bytes",
+          "sha256": "05e24a31667a614311f0c18f96439d4cd0343cf8db2f2c39aab1d5a2257bffa8"
+        },
+        {
+          "fixturePath": "candidate/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/candidate/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "candidate/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/candidate/metadata.json.bytes",
+          "sha256": "04faf1439f592ac214ee88705dbd32059198cad3ae68b0dc283089393216424d"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/candidate/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "2890fe95ed949c6632e59ee7abf81030aaadf92ca4df0842976b44439c501d03"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v1/candidate/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "9d6d1b0cc8bc94f004380844a3f3b55b9c779ae2c159965c8583c4963d27b2dc"
+        }
+      ]
+    },
+    {
+      "fixture": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_referenced_class_v2",
+      "expected": "FAIL",
+      "blocker": "UPSTREAM_API_DRIFT",
+      "apiDifferent": true,
+      "declarationNamesUnprefixed": true,
+      "artifacts": [
+        {
+          "fixturePath": "baseline/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/baseline/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "baseline/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/baseline/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "baseline/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/baseline/external/Value.cs.bytes",
+          "sha256": "ee2f5faa1a3b672e1c0fbe5904bbbaae961cadded523a6846adc26d077bdf967"
+        },
+        {
+          "fixturePath": "baseline/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/baseline/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "baseline/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/baseline/api/Surface.cs.bytes",
+          "sha256": "c2d50845350994c49c792893f5e8a5789d51c946e24e7bff547804023303e9fd"
+        },
+        {
+          "fixturePath": "baseline/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/baseline/api/Stamp.cs.bytes",
+          "sha256": "8337f15614c2a02a100c7f223747ab3795f3d83def5c91e93ac6495dea594db3"
+        },
+        {
+          "fixturePath": "baseline/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/baseline/build-command.json.bytes",
+          "sha256": "502a45d4d7650cdf867ef59c3d053f789d5d84cadcbb4ed2f7df6eec347454db"
+        },
+        {
+          "fixturePath": "baseline/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/baseline/build.stdout.bytes",
+          "sha256": "27e12603a49f70c0cff058a5b1f09b1b3c5bbce3263b09bc0cc515a661db7a5c"
+        },
+        {
+          "fixturePath": "baseline/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/baseline/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "baseline/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/baseline/metadata.json.bytes",
+          "sha256": "a0fd85ecfcf4b57ed1d0cf5491c902b02aaf33424f45e2a0b187006f9136960b"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/baseline/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "2f1fe0fb5689ff65e73e36ce34edf1faddac3927c8ff42df4e6a5c646a0b59b3"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/baseline/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "bb19a6de6cfa3b3e5a88da4fbd93be14da0952bdc78264628bc230083e6bb7c6"
+        },
+        {
+          "fixturePath": "candidate/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/candidate/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "candidate/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/candidate/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "candidate/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/candidate/external/Value.cs.bytes",
+          "sha256": "871d8c6c674c5a08e108d6ebabc7b6b2344e807f2ce20225155cc7c597325879"
+        },
+        {
+          "fixturePath": "candidate/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/candidate/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "candidate/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/candidate/api/Surface.cs.bytes",
+          "sha256": "c2d50845350994c49c792893f5e8a5789d51c946e24e7bff547804023303e9fd"
+        },
+        {
+          "fixturePath": "candidate/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/candidate/api/Stamp.cs.bytes",
+          "sha256": "07fe905ef73f2ad1f46b31d7afa13d0a590f955264ee764009e98022c7224998"
+        },
+        {
+          "fixturePath": "candidate/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/candidate/build-command.json.bytes",
+          "sha256": "7d57bcc5d7e7f867e71f11fd19873b53c2fed9b09b712b868a22c60b3acee4d8"
+        },
+        {
+          "fixturePath": "candidate/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/candidate/build.stdout.bytes",
+          "sha256": "7ca5986959a75e1e463710c55d37bb9c6479eda1d22c9efd97b473d00c8316df"
+        },
+        {
+          "fixturePath": "candidate/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/candidate/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "candidate/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/candidate/metadata.json.bytes",
+          "sha256": "186f2258dfbd946b59b16f6f6987ff38ff294dfeca6d7898b8ac084c153c98d9"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/candidate/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "26645e6dc4b18fe389e8acdcb0d63a6d9b06b38135350b473bbbdcd474ce1847"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v2/candidate/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "7b3519cafd8feebef5f5c4141d1e49330b5ea0f36f5f8e292e388bc1ea9254c1"
+        }
+      ]
+    },
+    {
+      "fixture": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_referenced_class_v3",
+      "expected": "FAIL",
+      "blocker": "UPSTREAM_API_DRIFT",
+      "apiDifferent": true,
+      "declarationNamesUnprefixed": true,
+      "artifacts": [
+        {
+          "fixturePath": "baseline/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/baseline/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "baseline/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/baseline/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "baseline/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/baseline/external/Value.cs.bytes",
+          "sha256": "ee2f5faa1a3b672e1c0fbe5904bbbaae961cadded523a6846adc26d077bdf967"
+        },
+        {
+          "fixturePath": "baseline/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/baseline/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "baseline/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/baseline/api/Surface.cs.bytes",
+          "sha256": "e383b8e096c8caa02eb99569a89838a0b6115f9c10782beee9caddfdf0050578"
+        },
+        {
+          "fixturePath": "baseline/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/baseline/api/Stamp.cs.bytes",
+          "sha256": "8337f15614c2a02a100c7f223747ab3795f3d83def5c91e93ac6495dea594db3"
+        },
+        {
+          "fixturePath": "baseline/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/baseline/build-command.json.bytes",
+          "sha256": "e77656d8074edf347c8fbbed8e2efb1ff3f5d9405739efb86688235d27eef1e0"
+        },
+        {
+          "fixturePath": "baseline/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/baseline/build.stdout.bytes",
+          "sha256": "67da78387d01315ea7a4d389130c9f6d2352e929ed14717a2fc3ef3155ec0e34"
+        },
+        {
+          "fixturePath": "baseline/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/baseline/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "baseline/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/baseline/metadata.json.bytes",
+          "sha256": "a5ae51dd58f7c198f3308e45e7d82d6458a812e218ed51756a045460310897f7"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/baseline/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "e7b413176f7eadf58ff12475458af6740dc6c0ca694fa52a48aca26fce531234"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/baseline/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "ae4f50c9a57e9de8538e8796b19c78973451c391cc98fbade6ce590505916326"
+        },
+        {
+          "fixturePath": "candidate/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/candidate/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "candidate/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/candidate/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "candidate/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/candidate/external/Value.cs.bytes",
+          "sha256": "871d8c6c674c5a08e108d6ebabc7b6b2344e807f2ce20225155cc7c597325879"
+        },
+        {
+          "fixturePath": "candidate/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/candidate/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "candidate/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/candidate/api/Surface.cs.bytes",
+          "sha256": "e383b8e096c8caa02eb99569a89838a0b6115f9c10782beee9caddfdf0050578"
+        },
+        {
+          "fixturePath": "candidate/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/candidate/api/Stamp.cs.bytes",
+          "sha256": "07fe905ef73f2ad1f46b31d7afa13d0a590f955264ee764009e98022c7224998"
+        },
+        {
+          "fixturePath": "candidate/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/candidate/build-command.json.bytes",
+          "sha256": "37c926cea3c1362413ecbf03daf03bc88d253016b516a16b5377bdd073f3548e"
+        },
+        {
+          "fixturePath": "candidate/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/candidate/build.stdout.bytes",
+          "sha256": "02f987b217b0eab93fd0c2600cc3a9cfee9dfc0bce1f28909b440b48cd4a8fd7"
+        },
+        {
+          "fixturePath": "candidate/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/candidate/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "candidate/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/candidate/metadata.json.bytes",
+          "sha256": "7f0680c027875023659ec0921397eae3819de8976ef035818bf765197db73869"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/candidate/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "15750cb257678f93c639df5f802263858c31c8786f389810df7cec60784808d0"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v3/candidate/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "83c12a3136811dbe297056a893b00978a3eee092c8b1fc3c7a665bcfe9bf68ce"
+        }
+      ]
+    },
+    {
+      "fixture": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_referenced_class_v4",
+      "expected": "FAIL",
+      "blocker": "UPSTREAM_API_DRIFT",
+      "apiDifferent": true,
+      "declarationNamesUnprefixed": true,
+      "artifacts": [
+        {
+          "fixturePath": "baseline/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/baseline/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "baseline/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/baseline/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "baseline/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/baseline/external/Value.cs.bytes",
+          "sha256": "ee2f5faa1a3b672e1c0fbe5904bbbaae961cadded523a6846adc26d077bdf967"
+        },
+        {
+          "fixturePath": "baseline/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/baseline/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "baseline/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/baseline/api/Surface.cs.bytes",
+          "sha256": "c45b75ac84cc1071e6893456e5ef35a973a957fec22b12134eceb5ce362b5de3"
+        },
+        {
+          "fixturePath": "baseline/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/baseline/api/Stamp.cs.bytes",
+          "sha256": "8337f15614c2a02a100c7f223747ab3795f3d83def5c91e93ac6495dea594db3"
+        },
+        {
+          "fixturePath": "baseline/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/baseline/build-command.json.bytes",
+          "sha256": "85e8a495c0cd657b4822a75b83a9a9bafe85646f22416eb48a9bf28f27dcb06c"
+        },
+        {
+          "fixturePath": "baseline/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/baseline/build.stdout.bytes",
+          "sha256": "4e93e8feb2bc0871974c1ba6cf2b45d09cd3d8ea8845c6838e20d10002025197"
+        },
+        {
+          "fixturePath": "baseline/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/baseline/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "baseline/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/baseline/metadata.json.bytes",
+          "sha256": "a91d2839d6177e5ecd5ec2117af47427ff21993fe68e63f1cfd39b03ab68845b"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/baseline/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "5b14d9abc6f70b79baa575d816d68404fb5f514fc24c9c2c30b825a358bcc8a9"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/baseline/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "fd34f78118a575e652d80a8d3153b6769534fdf75a98729be25ee5d5159ca889"
+        },
+        {
+          "fixturePath": "candidate/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/candidate/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "candidate/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/candidate/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "candidate/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/candidate/external/Value.cs.bytes",
+          "sha256": "871d8c6c674c5a08e108d6ebabc7b6b2344e807f2ce20225155cc7c597325879"
+        },
+        {
+          "fixturePath": "candidate/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/candidate/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "candidate/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/candidate/api/Surface.cs.bytes",
+          "sha256": "c45b75ac84cc1071e6893456e5ef35a973a957fec22b12134eceb5ce362b5de3"
+        },
+        {
+          "fixturePath": "candidate/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/candidate/api/Stamp.cs.bytes",
+          "sha256": "07fe905ef73f2ad1f46b31d7afa13d0a590f955264ee764009e98022c7224998"
+        },
+        {
+          "fixturePath": "candidate/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/candidate/build-command.json.bytes",
+          "sha256": "56ad800916a1b305edebf84373dd05e399ea00e617573ca9d2f6d623e24aa856"
+        },
+        {
+          "fixturePath": "candidate/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/candidate/build.stdout.bytes",
+          "sha256": "1dc150fa366b68d9ea59f7133339f0472894266b7c7822fb0f55d75632602818"
+        },
+        {
+          "fixturePath": "candidate/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/candidate/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "candidate/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/candidate/metadata.json.bytes",
+          "sha256": "f88755e647422ece3532bf512ee69556d706cfc55ad75322883c4a01f8e9e49e"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/candidate/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "ecafb6e3ef48c77a3100e35aa8c45816d8c7d7f99e82b911b9c031b11931427d"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v4/candidate/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "329030055818a4a94a33e978f6c16cffb05d0e30eec1092ff0f16c7a07b4bc05"
+        }
+      ]
+    },
+    {
+      "fixture": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_referenced_class_v5",
+      "expected": "FAIL",
+      "blocker": "UPSTREAM_API_DRIFT",
+      "apiDifferent": true,
+      "declarationNamesUnprefixed": true,
+      "artifacts": [
+        {
+          "fixturePath": "baseline/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/baseline/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "baseline/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/baseline/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "baseline/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/baseline/external/Value.cs.bytes",
+          "sha256": "ee2f5faa1a3b672e1c0fbe5904bbbaae961cadded523a6846adc26d077bdf967"
+        },
+        {
+          "fixturePath": "baseline/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/baseline/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "baseline/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/baseline/api/Surface.cs.bytes",
+          "sha256": "7fe81db354790940451f91c75d326b9a610edb275a005de5389c26b645223a23"
+        },
+        {
+          "fixturePath": "baseline/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/baseline/api/Stamp.cs.bytes",
+          "sha256": "8337f15614c2a02a100c7f223747ab3795f3d83def5c91e93ac6495dea594db3"
+        },
+        {
+          "fixturePath": "baseline/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/baseline/build-command.json.bytes",
+          "sha256": "53774471dc8db2e89ffa68b705fa1657e9dda6d0d2873f9f749dc0785518d150"
+        },
+        {
+          "fixturePath": "baseline/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/baseline/build.stdout.bytes",
+          "sha256": "939e8d292344f7f00f1bb5c41348dd54d742401eb8ef1d50aec7a1cebf2d7f93"
+        },
+        {
+          "fixturePath": "baseline/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/baseline/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "baseline/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/baseline/metadata.json.bytes",
+          "sha256": "3c9ac930d65e28bc197cf30ecbedbc5cf9ca22a2397a3430b2519ae5adfb76f1"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/baseline/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "143f1d0796c3d01338b350fb043143eff73618e2eb1b26a2da190465f32c8ad8"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/baseline/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "876dfde0988863323bc7b9583c0971417d4e9d41c24f1a689afb4f4ecb9aeb89"
+        },
+        {
+          "fixturePath": "candidate/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/candidate/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "candidate/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/candidate/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "candidate/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/candidate/external/Value.cs.bytes",
+          "sha256": "871d8c6c674c5a08e108d6ebabc7b6b2344e807f2ce20225155cc7c597325879"
+        },
+        {
+          "fixturePath": "candidate/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/candidate/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "candidate/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/candidate/api/Surface.cs.bytes",
+          "sha256": "7fe81db354790940451f91c75d326b9a610edb275a005de5389c26b645223a23"
+        },
+        {
+          "fixturePath": "candidate/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/candidate/api/Stamp.cs.bytes",
+          "sha256": "07fe905ef73f2ad1f46b31d7afa13d0a590f955264ee764009e98022c7224998"
+        },
+        {
+          "fixturePath": "candidate/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/candidate/build-command.json.bytes",
+          "sha256": "d44df2b5a04013a6d6ace8445a1e84e6454451577ec06cb54ba610f8fc20b647"
+        },
+        {
+          "fixturePath": "candidate/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/candidate/build.stdout.bytes",
+          "sha256": "3bc999e76a29af7879607c3b3b549253925405a9bc92de8647ea8180d7fff30b"
+        },
+        {
+          "fixturePath": "candidate/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/candidate/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "candidate/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/candidate/metadata.json.bytes",
+          "sha256": "8ab99573d1b7a990dae30d2309a0c23e22caacab61a8a1880e5e079d221a32ab"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/candidate/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "916e46196ac92b47d7e6b414a6005592d0eab97283035b2be5632b07941e766e"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_class_v5/candidate/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "4631d8b888f9f2c86bab117c6a6a4c4b528b4b96613c092e8ea82625933966a9"
+        }
+      ]
+    },
+    {
+      "fixture": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_referenced_same_ki0",
+      "expected": "PASS",
+      "blocker": null,
+      "apiDifferent": true,
+      "declarationNamesUnprefixed": true,
+      "artifacts": [
+        {
+          "fixturePath": "baseline/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/baseline/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "baseline/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/baseline/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "baseline/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/baseline/external/Value.cs.bytes",
+          "sha256": "ee2f5faa1a3b672e1c0fbe5904bbbaae961cadded523a6846adc26d077bdf967"
+        },
+        {
+          "fixturePath": "baseline/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/baseline/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "baseline/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/baseline/api/Surface.cs.bytes",
+          "sha256": "3973c31008e5ee0b700cb954219dff0b9d42a4385767d2152aea8853c678bf9e"
+        },
+        {
+          "fixturePath": "baseline/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/baseline/api/Stamp.cs.bytes",
+          "sha256": "8337f15614c2a02a100c7f223747ab3795f3d83def5c91e93ac6495dea594db3"
+        },
+        {
+          "fixturePath": "baseline/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/baseline/build-command.json.bytes",
+          "sha256": "6b38151ce7cfef01915c63ce36ca79ba109c4f7ed3f4d1a87e27754e59510852"
+        },
+        {
+          "fixturePath": "baseline/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/baseline/build.stdout.bytes",
+          "sha256": "a761edb7cbeae4ad62b777a9a8391b3a911eb051eb8079dc5d3d8268578fc26f"
+        },
+        {
+          "fixturePath": "baseline/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/baseline/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "baseline/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/baseline/metadata.json.bytes",
+          "sha256": "cb9d73dcacff419d2e43c71214f026fdfd723ff0236d1a500fb7678d8cb156d7"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/baseline/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "349fc4d360e84c6bc2609e0b2208b4d081c0086b54420af9c3fb81678d0e1cc1"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/baseline/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "19194c2a85e37df1dde7fdb6c935d21d6a2a7e873e924b4ee6d4f72c8fecdede"
+        },
+        {
+          "fixturePath": "candidate/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/candidate/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "candidate/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/candidate/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "candidate/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/candidate/external/Value.cs.bytes",
+          "sha256": "ee2f5faa1a3b672e1c0fbe5904bbbaae961cadded523a6846adc26d077bdf967"
+        },
+        {
+          "fixturePath": "candidate/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/candidate/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "candidate/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/candidate/api/Surface.cs.bytes",
+          "sha256": "ca259da7d2522d1f85a03add9ddfa1a5659f92c3413bbea51b535c7110d40cc2"
+        },
+        {
+          "fixturePath": "candidate/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/candidate/api/Stamp.cs.bytes",
+          "sha256": "07fe905ef73f2ad1f46b31d7afa13d0a590f955264ee764009e98022c7224998"
+        },
+        {
+          "fixturePath": "candidate/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/candidate/build-command.json.bytes",
+          "sha256": "07495f1fef3fed1671a38f3a23d12da4001a2f759204a18fd13262b7509b0f19"
+        },
+        {
+          "fixturePath": "candidate/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/candidate/build.stdout.bytes",
+          "sha256": "bbd874cbf469598dc7bbae59f9e8bf66ee54bf8799a6747e17762eaa007b84ce"
+        },
+        {
+          "fixturePath": "candidate/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/candidate/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "candidate/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/candidate/metadata.json.bytes",
+          "sha256": "ba1ce24d9839d007a8cdbdeef74da76bded0c465e41805d6360cdf2184db49c9"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/candidate/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "78293ce84f0192bf839dab3024e683ed8c70ee6545ac7f09013a9b63d14fadcc"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki0/candidate/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "3c6bb850a5a0901a364938bdf88da64f572c8d9a80093c3becb3825eed1212ca"
+        }
+      ]
+    },
+    {
+      "fixture": "/tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_referenced_same_ki1",
+      "expected": "PASS",
+      "blocker": null,
+      "apiDifferent": true,
+      "declarationNamesUnprefixed": true,
+      "artifacts": [
+        {
+          "fixturePath": "baseline/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/baseline/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "baseline/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/baseline/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "baseline/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/baseline/external/Value.cs.bytes",
+          "sha256": "871d8c6c674c5a08e108d6ebabc7b6b2344e807f2ce20225155cc7c597325879"
+        },
+        {
+          "fixturePath": "baseline/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/baseline/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "baseline/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/baseline/api/Surface.cs.bytes",
+          "sha256": "3973c31008e5ee0b700cb954219dff0b9d42a4385767d2152aea8853c678bf9e"
+        },
+        {
+          "fixturePath": "baseline/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/baseline/api/Stamp.cs.bytes",
+          "sha256": "8337f15614c2a02a100c7f223747ab3795f3d83def5c91e93ac6495dea594db3"
+        },
+        {
+          "fixturePath": "baseline/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/baseline/build-command.json.bytes",
+          "sha256": "2c64d2605e803e6235a5c7258aa7dc408d0ef9346783993bfcd161ffeb4d7019"
+        },
+        {
+          "fixturePath": "baseline/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/baseline/build.stdout.bytes",
+          "sha256": "58e20824324a7b35170958ccf82bcdb88da5c0c9d98d25faf59f10ee04615695"
+        },
+        {
+          "fixturePath": "baseline/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/baseline/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "baseline/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/baseline/metadata.json.bytes",
+          "sha256": "fe11ba889fc273738d5d1ed1b9fc1cf50321f5271196d4f9bcec292d884dce46"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/baseline/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "915644f95bfa91eb202b78e5467573e6e45005dada2b132b310213e339d2a38e"
+        },
+        {
+          "fixturePath": "baseline/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/baseline/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "f46b535f3297f0c4b99a1d5983d8961fedafaad3d4e5871e3e781516eaf8a2e9"
+        },
+        {
+          "fixturePath": "candidate/global.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/candidate/global.json.bytes",
+          "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+        },
+        {
+          "fixturePath": "candidate/external/External.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/candidate/external/External.csproj.bytes",
+          "sha256": "69a11c71a6c353aafe64e87ed97c9a7153e277c91efc5ce39d2b901aa8b29ac4"
+        },
+        {
+          "fixturePath": "candidate/external/Value.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/candidate/external/Value.cs.bytes",
+          "sha256": "871d8c6c674c5a08e108d6ebabc7b6b2344e807f2ce20225155cc7c597325879"
+        },
+        {
+          "fixturePath": "candidate/api/Api.csproj",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/candidate/api/Api.csproj.bytes",
+          "sha256": "2b30506d650ad835b07652d56e883f6a7cbdbb8c32f739e07be308079aedfd1c"
+        },
+        {
+          "fixturePath": "candidate/api/Surface.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/candidate/api/Surface.cs.bytes",
+          "sha256": "ca259da7d2522d1f85a03add9ddfa1a5659f92c3413bbea51b535c7110d40cc2"
+        },
+        {
+          "fixturePath": "candidate/api/Stamp.cs",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/candidate/api/Stamp.cs.bytes",
+          "sha256": "07fe905ef73f2ad1f46b31d7afa13d0a590f955264ee764009e98022c7224998"
+        },
+        {
+          "fixturePath": "candidate/build-command.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/candidate/build-command.json.bytes",
+          "sha256": "32e650520c62d4682766f366d25c672ac5fe93d52b8c6af8e8c3414d58f106a9"
+        },
+        {
+          "fixturePath": "candidate/build.stdout",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/candidate/build.stdout.bytes",
+          "sha256": "8e923b1c1c4d74d54ad05d1818c9820b8e7dd4cffd97813019309710c3a135db"
+        },
+        {
+          "fixturePath": "candidate/build.stderr",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/candidate/build.stderr.bytes",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "fixturePath": "candidate/metadata.json",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/candidate/metadata.json.bytes",
+          "sha256": "1f31be80ae42088d7509e326164286bddd1f3e6d1d9bbc07594b512c269c1756"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/Probe.Api.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/candidate/api/bin/Debug/net10.0/Probe.Api.dll.bytes",
+          "sha256": "85032661a45b8daf64d47763dfa0b5bdc1b9433e5c3ca82aa22f60dade5575a7"
+        },
+        {
+          "fixturePath": "candidate/api/bin/Debug/net10.0/External.dll",
+          "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-kind-fixtures/test_round9_referenced_same_ki1/candidate/api/bin/Debug/net10.0/External.dll.bytes",
+          "sha256": "296c5b556f3645be093e6ebad5439b02966215e60e1bcbd49ab680205fda91b6"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"result":"Initial actual-source build omitted the TenantStatus JSON converter and failed before any evaluator result. Retained build diagnostics; corrected fixture includes the unchanged converter. The worker independently corrected Unknown role and caller control-character admission before the successful parent probe; final controls verify those corrections."}

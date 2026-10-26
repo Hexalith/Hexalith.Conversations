@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="6.654" timestamp="2026-10-25T23:14:02.969145+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_runtime_consumer_blocks_unavailable_or_mismatched_helper_sdk[wrong-feature-band]" time="3.981"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}&#10;assert 'PASS' == 'BLOCKED'&#10;  &#10;  - BLOCKED&#10;  + PASS">qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-481/test_round7_runtime_consumer_b0/runtime')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7caf5560f190&gt;
+failure = 'wrong-feature-band'
+
+    @pytest.mark.parametrize('failure',['unavailable','wrong-feature-band','older-patch'])
+    def test_round7_runtime_consumer_blocks_unavailable_or_mismatched_helper_sdk(qualified_runtime,monkeypatch,failure):
+        helper=tooling.native_helper;helper._helper.cache_clear();helper.canonicalize.cache_clear()
+        original=helper.subprocess.run
+        def run(args,**kwargs):
+            if args==['dotnet','--version']:
+                return subprocess.CompletedProcess(args,1 if failure=='unavailable' else 0,stdout=b'10.0.500\n' if failure=='wrong-feature-band' else b'10.0.401\n',stderr=b'injected policy result')
+            return original(args,**kwargs)
+        monkeypatch.setattr(helper.subprocess,'run',run)
+&gt;       rejected(runtime_evaluate(qualified_runtime),'NATIVE_HELPER_UNAVAILABLE','BLOCKED')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2467: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'NATIVE_HELPER_UNAVAILABLE', state = 'BLOCKED'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_runtime_consumer_blocks_unavailable_or_mismatched_helper_sdk[older-patch]" time="2.237"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}&#10;assert 'PASS' == 'BLOCKED'&#10;  &#10;  - BLOCKED&#10;  + PASS">qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-481/test_round7_runtime_consumer_b1/runtime')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7caf5529c950&gt;
+failure = 'older-patch'
+
+    @pytest.mark.parametrize('failure',['unavailable','wrong-feature-band','older-patch'])
+    def test_round7_runtime_consumer_blocks_unavailable_or_mismatched_helper_sdk(qualified_runtime,monkeypatch,failure):
+        helper=tooling.native_helper;helper._helper.cache_clear();helper.canonicalize.cache_clear()
+        original=helper.subprocess.run
+        def run(args,**kwargs):
+            if args==['dotnet','--version']:
+                return subprocess.CompletedProcess(args,1 if failure=='unavailable' else 0,stdout=b'10.0.500\n' if failure=='wrong-feature-band' else b'10.0.401\n',stderr=b'injected policy result')
+            return original(args,**kwargs)
+        monkeypatch.setattr(helper.subprocess,'run',run)
+&gt;       rejected(runtime_evaluate(qualified_runtime),'NATIVE_HELPER_UNAVAILABLE','BLOCKED')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2467: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'NATIVE_HELPER_UNAVAILABLE', state = 'BLOCKED'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase></testsuite></testsuites>

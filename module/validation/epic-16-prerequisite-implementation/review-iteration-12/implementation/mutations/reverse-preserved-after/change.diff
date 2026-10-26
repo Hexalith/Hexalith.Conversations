@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_schedules.py
++++ _bmad/scripts/epic16_schedules.py
+@@ -373,7 +373,7 @@
+         if admissible:
+             transactions.append(text(save['transactionId'])); persisted = proposed
+         else: require(save['transactionId'] is None, 'rejected stale save has no durable transaction')
+-        require(same(save['storedAfter'], persisted), 'save after-state preserves exact committed full snapshot')
++        None
+         require(same(row[save['id']], domain.tenant_decision(proposed['projection'],sequence)), 'save proposal binds prior decision summary')
+     reads = proof['consumers']; require(len(reads)==2 and {r['replicaId'] for r in reads}==set(replicas), 'both saving replicas execute final consumer reads')
+     for read in reads:

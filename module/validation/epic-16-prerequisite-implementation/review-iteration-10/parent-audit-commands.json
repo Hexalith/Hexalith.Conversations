@@ -1,0 +1,70 @@
+{
+  "commands": [
+    {
+      "originalCommand": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "/tmp/epic16-review10-parent-audit.py"
+      ],
+      "retainedScript": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-audit-scripts/epic16-review10-parent-audit.py",
+      "sha256": "fcc525824b395eda3893483cc733b78ce5d3ca4a5514f79ac9e150f2d360a65e",
+      "exitCode": 0
+    },
+    {
+      "originalCommand": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "/tmp/epic16-review10-parent-artifacts.py"
+      ],
+      "retainedScript": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-audit-scripts/epic16-review10-parent-artifacts.py",
+      "sha256": "c116f93be13532ce96b85d6758296e2f5eff893bb8015927f8f5c00badccac0c",
+      "exitCode": 0
+    },
+    {
+      "originalCommand": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "/tmp/epic16-review10-parent-mutations.py"
+      ],
+      "retainedScript": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-audit-scripts/epic16-review10-parent-mutations.py",
+      "sha256": "de5a865406db10810372a7c846d7ad1a3e4173f567171b4e9a23021a15adf842",
+      "exitCode": 0
+    },
+    {
+      "originalCommand": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "/tmp/epic16-review10-parent-native-retention.py"
+      ],
+      "retainedScript": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-audit-scripts/epic16-review10-parent-native-retention.py",
+      "sha256": "f4d9d02b648d3fae721c2acac24e5841e98ca4206e35074e9e6a4d104d763cf8",
+      "exitCode": 0
+    },
+    {
+      "originalCommand": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "/tmp/epic16-review10-parent-final.py"
+      ],
+      "retainedScript": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/parent-audit-scripts/epic16-review10-parent-final.py",
+      "sha256": "76efc2b195952fd093e15f8e97ba07562a4e14420be9257b769425e5a3caf56b",
+      "exitCode": 0
+    }
+  ],
+  "note": "Exact successful audit script bytes retained. Original commands ran from the owning repository; native Git-object and mutant workspace checks use retained disposable session directories."
+}

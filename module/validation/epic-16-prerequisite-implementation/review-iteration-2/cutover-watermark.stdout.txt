@@ -1,0 +1,30 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______________ test_rebuild_watermark_must_cover_captured_cutover ______________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-241/test_rebuild_watermark_must_co0/fixture')
+
+    def test_rebuild_watermark_must_cover_captured_cutover(repository):
+        data = deepcopy(OBSERVATIONS['AC-16.2-04'])
+        data['lifecycle'][1].update(watermarkBefore=10, watermarkAfter=10)
+        native(repository, 'AC-16.2-04', data)
+>       rejected(evaluate(repository, 'AC-16.2-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:861: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_rebuild_watermark_must_cover_captured_cutover
+1 failed, 385 deselected in 0.52s

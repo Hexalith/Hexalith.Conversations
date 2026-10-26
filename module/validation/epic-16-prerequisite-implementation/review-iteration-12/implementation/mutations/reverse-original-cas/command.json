@@ -1,0 +1,29 @@
+{
+  "name": "reverse-original-cas",
+  "path": "_bmad/scripts/epic16_schedules.py",
+  "old": "require(save['expected'] == dict(etag=baseline['etag'], version=baseline['version']), 'both reverse saves retain their original CAS expectation')",
+  "new": "None",
+  "selector": "round12_reverse_save and expectation",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-reverse-original-cas-ryolxxsz/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_reverse_save and expectation",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/reverse-original-cas/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-reverse-original-cas-ryolxxsz",
+  "exitCode": 1,
+  "elapsedSeconds": 15.12948416697327,
+  "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+  "mutatedSha256": "0e3ee21d09a75b8c01da5522746a4c532066498b2baa3c9a19b4a13e6f661ebe",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 4,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0
+  }
+}

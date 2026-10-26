@@ -1,0 +1,94 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[reversed-AC-16.2-04] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-468/test_round7_commit_ack_order_c0/fixture')
+scenario = 'AC-16.2-04', fault = 'reversed'
+
+    @pytest.mark.parametrize('scenario',['AC-16.2-04','AC-16.3-03'])
+    @pytest.mark.parametrize('fault',['equal-valid','reversed','failed','unexecuted','transaction','delivery','record','persisted','observed','time','missing'])
+    def test_round7_commit_ack_order_correlates_success_identity_state_and_transaction(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if scenario=='AC-16.2-04':
+            row=data['lifecycle'][0]['deliveries'][0];proof=row['operations'];row['acknowledgedAt']=row['durableAt'];proof['acknowledgement']['utcTicks']=row['durableAt']
+        else:
+            proof=data['pendingOperations'];data['acknowledgedAt']=data['persistedAt'];proof['acknowledgement']['utcTicks']=data['persistedAt']
+        commit,ack=proof['commit'],proof['acknowledgement']
+        if fault=='reversed':ack['order']=commit['order']
+        elif fault=='failed':commit['succeeded']=False
+        elif fault=='unexecuted':commit['executed']=False
+        elif fault in ('transaction','delivery','record'):ack[fault+'Id']='unrelated'
+        elif fault=='persisted':
+            if scenario=='AC-16.2-04':commit['persisted']['generation']=0
+            else:commit['persisted']['location']['id']='other'
+        elif fault=='observed':ack['observedRecord']=deepcopy(commit['persisted']);ack['observedRecord']['messageId' if scenario=='AC-16.2-04' else 'binding']='unrelated'
+        elif fault=='time':ack['utcTicks']+=1
+        elif fault=='missing':del proof['commit']
+>       round7_submit(repository,scenario,data,passes=fault=='equal-valid',schema=fault=='missing' or fault=='observed' and scenario=='AC-16.3-03')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2699: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[reversed-AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-468/test_round7_commit_ack_order_c1/fixture')
+scenario = 'AC-16.3-03', fault = 'reversed'
+
+    @pytest.mark.parametrize('scenario',['AC-16.2-04','AC-16.3-03'])
+    @pytest.mark.parametrize('fault',['equal-valid','reversed','failed','unexecuted','transaction','delivery','record','persisted','observed','time','missing'])
+    def test_round7_commit_ack_order_correlates_success_identity_state_and_transaction(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if scenario=='AC-16.2-04':
+            row=data['lifecycle'][0]['deliveries'][0];proof=row['operations'];row['acknowledgedAt']=row['durableAt'];proof['acknowledgement']['utcTicks']=row['durableAt']
+        else:
+            proof=data['pendingOperations'];data['acknowledgedAt']=data['persistedAt'];proof['acknowledgement']['utcTicks']=data['persistedAt']
+        commit,ack=proof['commit'],proof['acknowledgement']
+        if fault=='reversed':ack['order']=commit['order']
+        elif fault=='failed':commit['succeeded']=False
+        elif fault=='unexecuted':commit['executed']=False
+        elif fault in ('transaction','delivery','record'):ack[fault+'Id']='unrelated'
+        elif fault=='persisted':
+            if scenario=='AC-16.2-04':commit['persisted']['generation']=0
+            else:commit['persisted']['location']['id']='other'
+        elif fault=='observed':ack['observedRecord']=deepcopy(commit['persisted']);ack['observedRecord']['messageId' if scenario=='AC-16.2-04' else 'binding']='unrelated'
+        elif fault=='time':ack['utcTicks']+=1
+        elif fault=='missing':del proof['commit']
+>       round7_submit(repository,scenario,data,passes=fault=='equal-valid',schema=fault=='missing' or fault=='observed' and scenario=='AC-16.3-03')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2699: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[reversed-AC-16.2-04]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_commit_ack_order_correlates_success_identity_state_and_transaction[reversed-AC-16.3-03]
+2 failed, 1287 deselected in 3.08s

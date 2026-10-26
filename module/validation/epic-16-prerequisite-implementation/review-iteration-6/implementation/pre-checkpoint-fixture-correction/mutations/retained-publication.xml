@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="14.656" timestamp="2026-10-25T22:07:53.894238+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_runtime_insertion_caller_requires_atomic_native_receipt_and_pair_publication" time="14.309"><failure message="AssertionError: {'assertionLedger': [{'id': 'PUBLICATION_SCOPE_DRIFT', 'state': 'FAIL', 'subject': 'dcb7357edc3919bb920569bf047437806a...erApprovalClaimed': False, 'pushAuthorized': False, ...}, 'bindings': {}, 'blockers': ['PUBLICATION_SCOPE_DRIFT'], ...}&#10;assert 1 == 0&#10; +  where 1 = &lt;function main at 0x7b05ad6a99e0&gt;(['--repository', '/tmp/pytest-of-administrator/pytest-412/test_round5_runtime_insertion_0/runtime', '--contract', '_bm..., '_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md'])&#10; +    where &lt;function main at 0x7b05ad6a99e0&gt; = records.main">qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-412/test_round5_runtime_insertion_0/runtime')
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-412/test_round5_runtime_insertion_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7b05ad8bd690&gt;
+capsys = &lt;_pytest.capture.CaptureFixture object at 0x7b05ad882e10&gt;
+
+    def test_round5_runtime_insertion_caller_requires_atomic_native_receipt_and_pair_publication(qualified_runtime,tmp_path,monkeypatch,capsys):
+        """Only this disposable fixture injects entry and public-baseline contract trust.
+    
+        The real generator dispatcher and all runtime/source/native/publication checks
+        execute. No production pins/trust entries are modified or runtime records made.
+        """
+        repo=qualified_runtime;story='16.2';contract_path=tooling.contract_path(story)
+        contract=json.loads((repo/contract_path).read_bytes())
+        # This test has a tiny genuine source inventory, so its explicit test-only
+        # contract pins that pre-existing disposable baseline instead of real history.
+        contract['nativeProtocol']['publicSourceBaseline']=git(repo,'rev-parse','HEAD')
+        dump(repo,contract_path,contract)
+        monkeypatch.setattr(tooling,'CONTRACT_PINS',dict(tooling.CONTRACT_PINS,**{contract_path:digest((repo/contract_path).read_bytes())}))
+        binding=json.loads((repo/tooling.BINDING).read_bytes())
+        for row in binding['sources']:
+            if row['path']==contract_path:row['sha256']=tooling.CONTRACT_PINS[contract_path]
+        dump(repo,tooling.BINDING,binding)
+        source='tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_2EvidenceTests.cs'
+        code='namespace Hexalith.Conversations.IntegrationTests.Epic16; public sealed class Story16_2EvidenceTests { '+''.join('[Xunit.Fact] public void Scenario0'+str(n)+'() { throw new System.Exception("Never execute evidence"); }' for n in range(1,6))+' }'
+        (repo/source).write_bytes(code.replace('\n','\r\n').encode())
+        spec=tooling.spec_path('runtime',story);(repo/spec).write_bytes((repo/'fixture-spec.md').read_bytes())
+        git(repo,'add','.');git(repo,'commit','-qm','test: bind disposable runtime insertion source')
+        candidate=git(repo,'rev-parse','HEAD');binary=compile_evidence(tmp_path/'insertion-native',candidate,code)
+        retained_binary(repo).unlink()
+        (repo/'artifacts/native/evidence.dll').write_bytes(binary)
+        for n in range(1,6):
+            scenario=f'AC-{story}-0{n}';path=native(repo,scenario);tree=ET.fromstring(path.read_bytes())
+            output=tree.find('Results/UnitTestResult/Output/StdOut');payload=json.loads(output.text)
+            payload['sources']=[dict(path=source,sha256=digest((repo/source).read_bytes()))];output.text=json.dumps(payload)
+            tree.find('TestDefinitions/UnitTest/TestMethod').set('codeBase','artifacts/native/evidence.dll')
+            target=repo/tooling.native_path('runtime',scenario);target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(ET.tostring(tree))
+            retain_capture(repo, scenario, binary)
+            args=['--repository',str(repo),'--contract',contract_path,'--scenario',scenario,'--output',tooling.receipt_path('runtime',scenario)]
+            assert tooling.main(args,story=story)==0,json.loads(capsys.readouterr().out)
+            capsys.readouterr()
+        paths=tooling.final_paths('runtime',story)
+        args=['--repository',str(repo),'--contract',contract_path,'--output-json',paths[0],'--output-markdown',paths[1]]
+        assert records.main(args)==0,json.loads(capsys.readouterr().out)
+        result=json.loads(capsys.readouterr().out);assert result['runtimeQualified'] is True
+        markdown=(repo/paths[1]).read_bytes()
+        (repo/spec).write_bytes((repo/spec).read_bytes()+b'\n&lt;!-- STORY-FINAL-RECORD:BEGIN --&gt;\n'+markdown+b'&lt;!-- STORY-FINAL-RECORD:END --&gt;\n')
+        verify=['--repository',str(repo),'--contract',contract_path,'--verify-inserted-record',spec]
+        assert records.main(verify)==2
+        rejected(json.loads(capsys.readouterr().out),'PUBLICATION_MISSING','BLOCKED')
+        publication=[*paths,*[fn('runtime',f'AC-{story}-0{n}') for fn in (tooling.native_path,tooling.receipt_path) for n in range(1,6)]]
+        publication += [row['path'] for row in result['retainedNativeArtifacts']]
+        git(repo,'add','-f','--',*publication);git(repo,'commit','-qm','test: atomically publish disposable runtime evidence')
+&gt;       assert records.main(verify)==0,json.loads(capsys.readouterr().out)
+E       AssertionError: {'assertionLedger': [{'id': 'PUBLICATION_SCOPE_DRIFT', 'state': 'FAIL', 'subject': 'dcb7357edc3919bb920569bf047437806a...erApprovalClaimed': False, 'pushAuthorized': False, ...}, 'bindings': {}, 'blockers': ['PUBLICATION_SCOPE_DRIFT'], ...}
+E       assert 1 == 0
+E        +  where 1 = &lt;function main at 0x7b05ad6a99e0&gt;(['--repository', '/tmp/pytest-of-administrator/pytest-412/test_round5_runtime_insertion_0/runtime', '--contract', '_bm..., '_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md'])
+E        +    where &lt;function main at 0x7b05ad6a99e0&gt; = records.main
+
+_bmad/scripts/tests/test_epic16_tooling.py:2086: AssertionError</failure></testcase></testsuite></testsuites>

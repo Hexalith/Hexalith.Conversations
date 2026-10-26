@@ -1,0 +1,12 @@
+{
+  "test: probe contract build baseline": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: probe contract build removal": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

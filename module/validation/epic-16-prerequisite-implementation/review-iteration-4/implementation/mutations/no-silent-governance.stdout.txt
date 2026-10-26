@@ -1,0 +1,12 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________ test_round4_general_replay_never_silently_ignores_redaction __________
+
+    def test_round4_general_replay_never_silently_ignores_redaction():
+>       with pytest.raises(ValueError,match='separate bounded redaction'):
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1645: Failed
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_general_replay_never_silently_ignores_redaction
+1 failed, 795 deselected in 0.29s

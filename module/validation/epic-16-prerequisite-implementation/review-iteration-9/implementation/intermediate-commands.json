@@ -1,0 +1,75 @@
+{
+  "provenance": "Exact pytest invocation lines recovered from this worker CommandExecution records; shell scaffolding and unrelated commands omitted.",
+  "commands": [
+    {
+      "timestamp": "2026-10-25T23:55:07.963Z",
+      "shellCommand": "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k all_fifteen_measured_routes --maxfail=3 > module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/exploratory-15.stdout 2> module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/exploratory-15.stderr",
+      "exitCode": 1,
+      "status": "failed",
+      "commandId": "exec-f6a0bbb8-fa31-4f9f-b29b-46d34c45568b"
+    },
+    {
+      "timestamp": "2026-10-25T23:56:53.859Z",
+      "shellCommand": "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'all_fifteen_measured_routes or qualified_runtime_evaluate_binds or genuine_native_capture_publication' --maxfail=3 --junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/exploratory-native.xml > module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/exploratory-native.stdout 2> module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/exploratory-native.stderr",
+      "exitCode": 1,
+      "status": "failed",
+      "commandId": "exec-04758caf-c59f-4377-bb2b-4b80b4593ec0"
+    },
+    {
+      "timestamp": "2026-10-26T00:03:08.551Z",
+      "shellCommand": "EPIC16_COMMITLINT_EVIDENCE=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/exploratory-commitlint.json uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'round9 or all_fifteen_measured_routes or qualified_runtime_evaluate_binds or genuine_native_capture_publication' --maxfail=8 --junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/exploratory-r9.xml > module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/exploratory-r9.stdout 2> module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/exploratory-r9.stderr",
+      "exitCode": 1,
+      "status": "failed",
+      "commandId": "exec-9a75abc6-41d2-4c4d-a863-ceb79f87cc49"
+    },
+    {
+      "timestamp": "2026-10-26T00:08:03.505Z",
+      "shellCommand": "EPIC16_COMMITLINT_EVIDENCE=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/corrected-commitlint.json uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'round9 or all_fifteen_measured_routes or qualified_runtime_evaluate_binds or genuine_native_capture_publication' --maxfail=5 --junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/corrected-r9.xml > module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/corrected-r9.stdout 2> module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/corrected-r9.stderr",
+      "exitCode": 0,
+      "status": "completed",
+      "commandId": "exec-392ae503-b0b5-4006-9e7e-08340c55a1b2"
+    },
+    {
+      "timestamp": "2026-10-26T00:16:34.304Z",
+      "shellCommand": "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'runtime_evaluator_admits_only_bound_native_binary or runtime_evaluator_calls_direct_dependency_cleanliness_guard' --maxfail=4 --junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-failure-probe.xml > module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-failure-probe.stdout 2> module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-failure-probe.stderr",
+      "exitCode": 1,
+      "status": "failed",
+      "commandId": "exec-bd350419-1594-450e-bbf3-46f77bc30044"
+    },
+    {
+      "timestamp": "2026-10-26T00:19:02.296Z",
+      "shellCommand": "EPIC16_COMMITLINT_EVIDENCE=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-commitlint.json uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'not round9' --maxfail=12 --junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-regressions.xml > module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-regressions.stdout 2> module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-regressions.stderr",
+      "exitCode": 2,
+      "status": "failed",
+      "commandId": "exec-d99a3b2a-3981-4dd2-b565-dc76fbb41bc1"
+    },
+    {
+      "timestamp": "2026-10-26T00:19:45.674Z",
+      "shellCommand": "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'runtime_evaluator_admits_only_bound_native_binary or runtime_evaluator_calls_actual_canonicalizer_source_guard or (round6_capture_rejects_changed and duplicate-key)' --maxfail=3 --junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-corrected.xml > module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-corrected.stdout 2> module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-corrected.stderr",
+      "exitCode": 1,
+      "status": "failed",
+      "commandId": "exec-aa2bda54-4777-419e-b668-4e2930553249"
+    },
+    {
+      "timestamp": "2026-10-26T00:20:25.944Z",
+      "shellCommand": "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'runtime_evaluator_admits_only_bound_native_binary or runtime_evaluator_calls_actual_canonicalizer_source_guard or (round6_capture_rejects_changed and duplicate-key)' --maxfail=3 --junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-corrected-final.xml > module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-corrected-final.stdout 2> module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-corrected-final.stderr",
+      "exitCode": 0,
+      "status": "completed",
+      "commandId": "exec-9195bf6c-0b22-4901-a096-551059f88bc6"
+    },
+    {
+      "timestamp": "2026-10-26T00:33:34.204Z",
+      "shellCommand": "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'round7_native_nullable_creation_state' --maxfail=3 --junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/nullable-wire-probe.xml > module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/nullable-wire-probe.stdout 2> module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/nullable-wire-probe.stderr",
+      "exitCode": 1,
+      "status": "failed",
+      "commandId": "exec-766173b3-3e2d-47e8-878d-6e533764fb32"
+    },
+    {
+      "timestamp": "2026-10-26T00:38:07.895Z",
+      "shellCommand": "uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_epic16_tooling.py -k 'round7_native_nullable_creation_state or (round9_wire and wrong-state-hash)' --maxfail=3 --junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/nullable-wire-corrected.xml > module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/nullable-wire-corrected.stdout 2> module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/nullable-wire-corrected.stderr",
+      "exitCode": 0,
+      "status": "completed",
+      "commandId": "exec-1abf0290-d6f5-46a3-bb09-a19944dba1de"
+    }
+  ]
+}

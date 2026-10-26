@@ -1,0 +1,64 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_round6_readiness_failure_must_reach_attempt_or_timeout_control[AC-16.3-01] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-427/test_round6_readiness_failure_0/fixture')
+scenario = 'AC-16.3-01'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    def test_round6_readiness_failure_must_reach_attempt_or_timeout_control(repository,scenario):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if scenario.endswith('01'):data.update(attempts=1,elapsedMs=1)
+        else:next(x for x in data['faults'] if x['id']=='endpoint-race')['observed'].update(attempts=1,elapsedMs=1)
+        data['diagnostics'][0]['attempts']=1
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2223: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round6_readiness_failure_must_reach_attempt_or_timeout_control[AC-16.3-05] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-427/test_round6_readiness_failure_1/fixture')
+scenario = 'AC-16.3-05'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-01','AC-16.3-05'])
+    def test_round6_readiness_failure_must_reach_attempt_or_timeout_control(repository,scenario):
+        data=deepcopy(OBSERVATIONS[scenario])
+        if scenario.endswith('01'):data.update(attempts=1,elapsedMs=1)
+        else:next(x for x in data['faults'] if x['id']=='endpoint-race')['observed'].update(attempts=1,elapsedMs=1)
+        data['diagnostics'][0]['attempts']=1
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2223: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-05', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_readiness_failure_must_reach_attempt_or_timeout_control[AC-16.3-01]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_readiness_failure_must_reach_attempt_or_timeout_control[AC-16.3-05]
+2 failed, 1049 deselected in 2.51s

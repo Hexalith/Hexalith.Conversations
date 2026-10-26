@@ -1,0 +1,94 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_round4_tenant_configuration_values_preserve_actual_notnull_semantics[] __
+
+value = ''
+
+    @pytest.mark.parametrize('value', ['', ' ', '\t'])
+    def test_round4_tenant_configuration_values_preserve_actual_notnull_semantics(value):
+        row=deepcopy(OBSERVATIONS['AC-16.1-03']['authoritativeReplay'][-1])
+        row.update(sequence=1,eventType='TenantConfigurationSet',persistedPayload=json.dumps(dict(tenantId='tenant-a',key='configuration-control',value=value)))
+        row['payloadSha256']=digest(row['persistedPayload'].encode())
+>       state,_=tooling.measurements.domain.tenant_replay(OBSERVATIONS['AC-16.1-03']['startingState'],[row],0,1)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1528: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:244: in tenant_replay
+    state['configuration'][configuration_key(value['key'])]=text(value['value'])
+                                                            ^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_domain.py:28: in text
+    require(isinstance(value, str) and bool(value.strip()), 'nonempty domain identity')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'nonempty domain identity'
+
+    def require(condition, detail):
+>       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: nonempty domain identity
+
+_bmad/scripts/epic16_domain.py:20: ValueError
+_ test_round4_tenant_configuration_values_preserve_actual_notnull_semantics[ ] _
+
+value = ' '
+
+    @pytest.mark.parametrize('value', ['', ' ', '\t'])
+    def test_round4_tenant_configuration_values_preserve_actual_notnull_semantics(value):
+        row=deepcopy(OBSERVATIONS['AC-16.1-03']['authoritativeReplay'][-1])
+        row.update(sequence=1,eventType='TenantConfigurationSet',persistedPayload=json.dumps(dict(tenantId='tenant-a',key='configuration-control',value=value)))
+        row['payloadSha256']=digest(row['persistedPayload'].encode())
+>       state,_=tooling.measurements.domain.tenant_replay(OBSERVATIONS['AC-16.1-03']['startingState'],[row],0,1)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1528: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:244: in tenant_replay
+    state['configuration'][configuration_key(value['key'])]=text(value['value'])
+                                                            ^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_domain.py:28: in text
+    require(isinstance(value, str) and bool(value.strip()), 'nonempty domain identity')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'nonempty domain identity'
+
+    def require(condition, detail):
+>       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: nonempty domain identity
+
+_bmad/scripts/epic16_domain.py:20: ValueError
+_ test_round4_tenant_configuration_values_preserve_actual_notnull_semantics[\t] _
+
+value = '\t'
+
+    @pytest.mark.parametrize('value', ['', ' ', '\t'])
+    def test_round4_tenant_configuration_values_preserve_actual_notnull_semantics(value):
+        row=deepcopy(OBSERVATIONS['AC-16.1-03']['authoritativeReplay'][-1])
+        row.update(sequence=1,eventType='TenantConfigurationSet',persistedPayload=json.dumps(dict(tenantId='tenant-a',key='configuration-control',value=value)))
+        row['payloadSha256']=digest(row['persistedPayload'].encode())
+>       state,_=tooling.measurements.domain.tenant_replay(OBSERVATIONS['AC-16.1-03']['startingState'],[row],0,1)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1528: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:244: in tenant_replay
+    state['configuration'][configuration_key(value['key'])]=text(value['value'])
+                                                            ^^^^^^^^^^^^^^^^^^^^
+_bmad/scripts/epic16_domain.py:28: in text
+    require(isinstance(value, str) and bool(value.strip()), 'nonempty domain identity')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'nonempty domain identity'
+
+    def require(condition, detail):
+>       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: nonempty domain identity
+
+_bmad/scripts/epic16_domain.py:20: ValueError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_configuration_values_preserve_actual_notnull_semantics[]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_configuration_values_preserve_actual_notnull_semantics[ ]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_tenant_configuration_values_preserve_actual_notnull_semantics[\t]
+3 failed, 793 deselected in 0.34s

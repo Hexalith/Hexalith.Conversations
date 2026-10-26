@@ -1,0 +1,62 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_round7_recovery_requires_observed_extension_exact_merges_and_fenced_completion[old-worker-unbound] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-473/test_round7_recovery_requires_0/fixture')
+fault = 'old-worker-unbound'
+
+    @pytest.mark.parametrize('fault',['preloaded','no-growth','missing-before','wrong-delivery','pending-replaced','pending-extra','horizon-regressed','split-merge','merge-unexecuted','old-worker-current','stale-accepted','stale-mutates','stale-no-attempt','incomplete-replay','replay-content','replay-split','completion-content','completion-fence','completion-split','completion-allowed','completion-pending','old-worker-unbound'])
+    def test_round7_recovery_requires_observed_extension_exact_merges_and_fenced_completion(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.1-03']);rows=data['merges'];proof=data['recoverySchedule']
+        if fault=='preloaded':rows[0]['before']['pending']=deepcopy(rows[-1]['pending'])
+        elif fault=='no-growth':
+            for row in rows:
+                row['beforeHorizon']=row['afterHorizon']=14;row['pending']=deepcopy(rows[-1]['pending'])
+                for phase in ('before','after'):row[phase]['horizon']=14;row[phase]['pending']=deepcopy(rows[-1]['pending'])
+        elif fault=='missing-before':del rows[0]['before']
+        elif fault=='wrong-delivery':rows[0]['delivered']['messageId']='other'
+        elif fault=='pending-replaced':rows[1]['after']['pending']=rows[1]['after']['pending'][1:]
+        elif fault=='pending-extra':rows[0]['after']['pending'].append(deepcopy(rows[-1]['pending'][-1]))
+        elif fault=='horizon-regressed':rows[-1]['after']['horizon']=13
+        elif fault=='split-merge':rows[0]['cas']['pendingCommitId']='other'
+        elif fault=='merge-unexecuted':rows[0]['cas']['executed']=False
+        elif fault=='old-worker-current':proof['oldWorker']['snapshot']=deepcopy(rows[-1]['after'])
+        elif fault=='old-worker-unbound':
+            proof['oldWorker']['expected']['horizon']+=1
+            proof['staleCompletion']['cas']['expected']=deepcopy(proof['oldWorker']['expected'])
+        elif fault=='stale-accepted':proof['staleCompletion']['cas']['succeeded']=True
+        elif fault=='stale-mutates':proof['staleCompletion']['after']['pending']=[]
+        elif fault=='stale-no-attempt':proof['staleCompletion']['cas']['executed']=False
+        elif fault=='incomplete-replay':data['authoritativeReplay'].pop()
+        elif fault=='replay-content':proof['replay']['after']['projection']['status']='Active'
+        elif fault=='replay-split':proof['replay']['cas']['checkpointCommitId']='other'
+        elif fault=='completion-content':proof['currentCompletion']['after']['pending']=deepcopy(rows[-1]['pending'])
+        elif fault=='completion-fence':proof['currentCompletion']['cas']['expected']['horizon']-=1
+        elif fault=='completion-allowed':proof['currentCompletion']['after']['allowed']=True
+        elif fault=='completion-pending':
+            proof['replay']['after']['pending']=deepcopy(rows[-1]['pending'])
+            proof['currentCompletion']['before']['pending']=deepcopy(rows[-1]['pending'])
+        else:proof['currentCompletion']['cas']['healthCommitId']='other'
+>       round7_submit(repository,'AC-16.1-03',data,schema=fault=='missing-before')
+
+_bmad/scripts/tests/test_epic16_tooling.py:2734: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_recovery_requires_observed_extension_exact_merges_and_fenced_completion[old-worker-unbound]
+1 failed, 1288 deselected in 0.69s

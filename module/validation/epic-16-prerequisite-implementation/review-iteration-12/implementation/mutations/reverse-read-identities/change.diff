@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_schedules.py
++++ _bmad/scripts/epic16_schedules.py
+@@ -384,7 +384,7 @@
+         require(read['operationId'] not in identities and request not in identities, 'distinct final read identities');identities.update((read['operationId'],request))
+         store=read['storeRead']; response=read['response']
+         executed_operation(store,local_scope,read['order']);executed_operation(response,local_scope,store['completedOrder'])
+-        require(store['operationId'] not in identities and response['operationId'] not in identities and store['operationId'] != response['operationId'], 'distinct executed store read and response identities');identities.update((store['operationId'],response['operationId']))
++        None;identities.update((store['operationId'],response['operationId']))
+         require(response['completedOrder']<end and store['method']=='ITenantProjectionStore.GetAsync' and store['logicalKey']==tenant, 'completed consumer encloses actual tenant store read and response')
+         require(store['observedTransactionId']==transactions[0] and same(store['snapshot'],persisted), 'both replicas read the same actual final durable snapshot')
+         require(read['principal']=='actor-a' and same(response['decision'],domain.tenant_decision(persisted['projection'],persisted['checkpoint'])), 'consumer decision derives from exact observed native state')

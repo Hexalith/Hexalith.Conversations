@@ -1,0 +1,6 @@
+{
+  "reason": "Stopped after the retained negative sequence=4 fixture became the legitimate newer checkpoint. The regression now uses sequence=5 to preserve ahead-of-authoritative-recovery rejection. Documentation additionally clarifies that stale CAS cases are independent branches from their retained storedBefore reset/fork boundary; current clearance is a separate positive branch, with no cross-branch time ordering.",
+  "implementationGuardChanges": false,
+  "mutationGuards": 25,
+  "mutationSourceEpoch": "Before descriptive-only branch clarification and test counterexample correction; all 25 were sensitive with zero setup errors."
+}

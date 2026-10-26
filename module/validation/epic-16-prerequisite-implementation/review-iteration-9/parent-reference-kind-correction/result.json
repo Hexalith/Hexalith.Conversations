@@ -1,0 +1,66 @@
+{
+  "workspace": "/tmp/epic16-parent-reference-kind-9mntxez2",
+  "apiEqual": false,
+  "accepted": false,
+  "error": "UPSTREAM_API_DRIFT",
+  "results": [
+    {
+      "kind": "class",
+      "metadata": {
+        "assemblyName": "Probe.Api",
+        "assemblyVersion": "0.0.0.0",
+        "culture": "",
+        "publicKey": "",
+        "mvid": "d1e440b2-e2ca-445e-af6e-67d637415498",
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "declaredTypes": [
+          ".<Module>",
+          "Probe.Surface"
+        ],
+        "api": {
+          "kind": "conservative-ecma335-public-declarations-v1",
+          "types": {
+            "Probe.Surface": {
+              "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+              "interfaces": [],
+              "members": [
+                "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+                "method:Echo:Public, HideBySig:32:0:1:class [External]External.Value(class [External]External.Value)::1:value:None:absent::"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "struct",
+      "metadata": {
+        "assemblyName": "Probe.Api",
+        "assemblyVersion": "0.0.0.0",
+        "culture": "",
+        "publicKey": "",
+        "mvid": "90968872-30be-42e1-a791-b031dab64dff",
+        "sourceRevision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "informationalVersion": "1.0.0+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "declaredTypes": [
+          ".<Module>",
+          "Probe.Surface"
+        ],
+        "api": {
+          "kind": "conservative-ecma335-public-declarations-v1",
+          "types": {
+            "Probe.Surface": {
+              "header": "Public, BeforeFieldInit:[System.Runtime]System.Object::0:0:",
+              "interfaces": [],
+              "members": [
+                "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:32:0:0:Void():::",
+                "method:Echo:Public, HideBySig:32:0:1:valuetype [External]External.Value(valuetype [External]External.Value)::1:value:None:absent::"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

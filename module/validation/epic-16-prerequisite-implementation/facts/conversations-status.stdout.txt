@@ -1,0 +1,17 @@
+ M _bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md
+ M _bmad/scripts/generate_story_record.py
+ M _bmad/scripts/tests/test_verify_epic_16_adoption_v2.py
+?? _bmad-output/implementation-artifacts/spec-epic-16-prerequisite-implementation.md
+?? _bmad-output/implementation-artifacts/story-16-1-entry-investigation-2026-10-25.md
+?? _bmad-output/planning-artifacts/epic-16-tooling-v1/
+?? _bmad/schemas/epic-16-tooling-v1.schema.json
+?? _bmad/scripts/epic16_measurements.py
+?? _bmad/scripts/epic16_tooling.py
+?? _bmad/scripts/epic16_trust.py
+?? _bmad/scripts/tests/fixtures/epic16-adoption-v2-generator.py.gz
+?? _bmad/scripts/tests/fixtures/epic16-observations-v1.json
+?? _bmad/scripts/tests/test_epic16_tooling.py
+?? _bmad/scripts/verify_story_16_1.py
+?? _bmad/scripts/verify_story_16_2.py
+?? _bmad/scripts/verify_story_16_3.py
+?? module/validation/epic-16-prerequisite-implementation/

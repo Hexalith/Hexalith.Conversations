@@ -1,0 +1,92 @@
+[
+  {
+    "root": "/old/repo",
+    "originalCodeBase": "/old/repo/bin/evidence.dll",
+    "pathStyle": "posix",
+    "expectedAcceptance": true,
+    "accepted": true,
+    "matched": true,
+    "detail": "bin/evidence.dll"
+  },
+  {
+    "root": "/old/repo",
+    "originalCodeBase": "bin/evidence.dll",
+    "pathStyle": "posix",
+    "expectedAcceptance": true,
+    "accepted": true,
+    "matched": true,
+    "detail": "bin/evidence.dll"
+  },
+  {
+    "root": "C:\\old\\repo",
+    "originalCodeBase": "C:\\old\\repo\\bin\\evidence.dll",
+    "pathStyle": "windows",
+    "expectedAcceptance": true,
+    "accepted": true,
+    "matched": true,
+    "detail": "bin/evidence.dll"
+  },
+  {
+    "root": "C:/old/repo",
+    "originalCodeBase": "C:/old/repo/bin/evidence.dll",
+    "pathStyle": "windows",
+    "expectedAcceptance": true,
+    "accepted": true,
+    "matched": true,
+    "detail": "bin/evidence.dll"
+  },
+  {
+    "root": "/old/repo",
+    "originalCodeBase": "/old/repository/bin/evidence.dll",
+    "pathStyle": "posix",
+    "expectedAcceptance": false,
+    "accepted": false,
+    "matched": true,
+    "detail": "ValueError: original codeBase outside capture root"
+  },
+  {
+    "root": "/old/repo",
+    "originalCodeBase": "/old/repo/../outside.dll",
+    "pathStyle": "posix",
+    "expectedAcceptance": false,
+    "accepted": false,
+    "matched": true,
+    "detail": "ReadError: not a contained repository-relative input: ../outside.dll"
+  },
+  {
+    "root": "/old/repo",
+    "originalCodeBase": "/old/repo/.git/objects/x",
+    "pathStyle": "posix",
+    "expectedAcceptance": false,
+    "accepted": false,
+    "matched": true,
+    "detail": "ReadError: not a contained repository-relative input: .git/objects/x"
+  },
+  {
+    "root": "C:\\old\\repo",
+    "originalCodeBase": "D:\\old\\repo\\bin\\evidence.dll",
+    "pathStyle": "windows",
+    "expectedAcceptance": false,
+    "accepted": false,
+    "matched": true,
+    "detail": "ValueError: original codeBase outside capture root"
+  },
+  {
+    "root": "C:\\old\\repo",
+    "originalCodeBase": "C:\\old\\repo\\..\\outside.dll",
+    "pathStyle": "windows",
+    "expectedAcceptance": false,
+    "accepted": false,
+    "matched": true,
+    "detail": "ReadError: not a contained repository-relative input: ../outside.dll"
+  },
+  {
+    "root": "C:\\old\\repo",
+    "originalCodeBase": "C:\\old\\repo\\bin/evidence.dll",
+    "pathStyle": "windows",
+    "expectedAcceptance": false,
+    "accepted": false,
+    "matched": true,
+    "detail": "ValueError: ambiguous capture separators"
+  }
+]

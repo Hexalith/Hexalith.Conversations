@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/pytest-of-administrator/pytest-611/test_round11_framework_ownersh1/candidate/Api.csproj (in 35 ms).
+/tmp/pytest-of-administrator/pytest-611/test_round11_framework_ownersh1/candidate/Code.cs(1,186): warning CS7035: The specified version string 'two' does not conform to the recommended format - major.minor.build.revision [/tmp/pytest-of-administrator/pytest-611/test_round11_framework_ownersh1/candidate/Api.csproj]
+  Api -> /tmp/pytest-of-administrator/pytest-611/test_round11_framework_ownersh1/candidate/bin/Debug/net10.0/Api.dll
+
+Build succeeded.
+
+/tmp/pytest-of-administrator/pytest-611/test_round11_framework_ownersh1/candidate/Code.cs(1,186): warning CS7035: The specified version string 'two' does not conform to the recommended format - major.minor.build.revision [/tmp/pytest-of-administrator/pytest-611/test_round11_framework_ownersh1/candidate/Api.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.21

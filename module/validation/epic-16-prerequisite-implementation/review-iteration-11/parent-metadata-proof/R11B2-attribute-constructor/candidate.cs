@@ -1,0 +1,1 @@
+using System; namespace Probe; public class StampAttribute : Attribute { public string Selected { get; } public StampAttribute(int value) { Selected="int"; } public StampAttribute(uint value) { Selected="uint"; } } [Stamp(1u)] public class Api {}

@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round11 or all_fifteen_measured_routes or round7_native_nullable_creation_state",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/exploratory-b/result.xml"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "EPIC16_COMMITLINT_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/exploratory-b/commitlint.json",
+    "EPIC16_R11_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/exploratory-b/native",
+    "EPIC16_R10_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/exploratory-b/native-r10"
+  },
+  "exitCode": 1,
+  "durationSeconds": 218.4049506187439,
+  "sourceUnchanged": true,
+  "files": {
+    "commitlint.json": "d328cf32e12ee2f9b74d18e78199e20ea53eaec2f8788e737550ac81597d7457",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout": "a9d7c21f19ca2414a2e4794ac54e2f4a4461366a5bca764245cf985dd9f1a540",
+    "source-hashes.json": "9f36c10d3b048f89e9064435ba87f52d3772a6001af2be28bc889aa98ea1f087",
+    "result.xml": "c164e697122c3740d786978d022bf5a98cbd17594d892e3414404c7024559424"
+  }
+}

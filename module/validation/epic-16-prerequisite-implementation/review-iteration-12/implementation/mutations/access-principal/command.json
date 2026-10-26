@@ -1,0 +1,29 @@
+{
+  "name": "access-principal",
+  "path": "_bmad/scripts/epic16_schedules.py",
+  "old": "require(tenant_access_inputs(tenant, scope['principal']) == dict(tenantValid=True, principalValid=True), 'controlled native access tenant and principal are validated before the store read')",
+  "new": "None",
+  "selector": "round12_native_access_principal or round12_native_tenant",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r12-mutant-access-principal-khgolbqs/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round12_native_access_principal or round12_native_tenant",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutations/access-principal/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r12-mutant-access-principal-khgolbqs",
+  "exitCode": 1,
+  "elapsedSeconds": 24.53314618000877,
+  "originalSha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+  "mutatedSha256": "8077459c54549b2a1d0a7d1fa8182b93b7437e17e96b823fc77af00866434955",
+  "testSha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+  "tests": {
+    "tests": 22,
+    "failures": 16,
+    "errors": 0,
+    "skipped": 0
+  }
+}

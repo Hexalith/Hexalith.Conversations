@@ -1,0 +1,1 @@
+namespace Probe; public class Surface { public ref External.Value Echo(ref External.Value value) => ref value; }

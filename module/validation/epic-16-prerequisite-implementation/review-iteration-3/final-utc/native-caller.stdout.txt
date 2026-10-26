@@ -1,0 +1,106 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_qualified_runtime_evaluate_binds_binary_dependency_canonicalizer_and_ancestor _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-321/test_qualified_runtime_evaluat0/runtime')
+
+    def test_qualified_runtime_evaluate_binds_binary_dependency_canonicalizer_and_ancestor(qualified_runtime):
+        result = runtime_evaluate(qualified_runtime)
+        assert result['result'] == 'PASS', result
+        assert result['runtimeQualified'] is True
+        assert result['bindings']['entry']['authorizationRevision'] != result['candidate']['commit']
+>       assert result['bindings']['testBinary']['sha256'] == digest((qualified_runtime/'artifacts/native/evidence.dll').read_bytes())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: 'NoneType' object is not subscriptable
+
+_bmad/scripts/tests/test_epic16_tooling.py:1031: TypeError
+________ test_runtime_evaluator_admits_only_bound_native_binary[absent] ________
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-321/test_runtime_evaluator_admits_0/runtime')
+managed_evidence = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+fault = 'absent'
+
+    @pytest.mark.parametrize('fault', ['absent', 'malformed', 'wrong-revision'])
+    def test_runtime_evaluator_admits_only_bound_native_binary(qualified_runtime, managed_evidence, fault):
+        path = qualified_runtime/'artifacts/native/evidence.dll'
+        if fault == 'absent': path.unlink()
+        else: path.write_bytes(b'MZ invalid' if fault == 'malformed' else managed_evidence)
+>       rejected(runtime_evaluate(qualified_runtime), 'INPUT_UNAVAILABLE' if fault == 'absent' else 'NATIVE_BINARY_DRIFT', 'BLOCKED' if fault == 'absent' else 'FAIL')
+
+_bmad/scripts/tests/test_epic16_tooling.py:1044: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'INPUT_UNAVAILABLE', state = 'BLOCKED'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+______ test_runtime_evaluator_admits_only_bound_native_binary[malformed] _______
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-321/test_runtime_evaluator_admits_1/runtime')
+managed_evidence = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+fault = 'malformed'
+
+    @pytest.mark.parametrize('fault', ['absent', 'malformed', 'wrong-revision'])
+    def test_runtime_evaluator_admits_only_bound_native_binary(qualified_runtime, managed_evidence, fault):
+        path = qualified_runtime/'artifacts/native/evidence.dll'
+        if fault == 'absent': path.unlink()
+        else: path.write_bytes(b'MZ invalid' if fault == 'malformed' else managed_evidence)
+>       rejected(runtime_evaluate(qualified_runtime), 'INPUT_UNAVAILABLE' if fault == 'absent' else 'NATIVE_BINARY_DRIFT', 'BLOCKED' if fault == 'absent' else 'FAIL')
+
+_bmad/scripts/tests/test_epic16_tooling.py:1044: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'NATIVE_BINARY_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+____ test_runtime_evaluator_admits_only_bound_native_binary[wrong-revision] ____
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-321/test_runtime_evaluator_admits_2/runtime')
+managed_evidence = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+fault = 'wrong-revision'
+
+    @pytest.mark.parametrize('fault', ['absent', 'malformed', 'wrong-revision'])
+    def test_runtime_evaluator_admits_only_bound_native_binary(qualified_runtime, managed_evidence, fault):
+        path = qualified_runtime/'artifacts/native/evidence.dll'
+        if fault == 'absent': path.unlink()
+        else: path.write_bytes(b'MZ invalid' if fault == 'malformed' else managed_evidence)
+>       rejected(runtime_evaluate(qualified_runtime), 'INPUT_UNAVAILABLE' if fault == 'absent' else 'NATIVE_BINARY_DRIFT', 'BLOCKED' if fault == 'absent' else 'FAIL')
+
+_bmad/scripts/tests/test_epic16_tooling.py:1044: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'NATIVE_BINARY_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_qualified_runtime_evaluate_binds_binary_dependency_canonicalizer_and_ancestor
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_runtime_evaluator_admits_only_bound_native_binary[absent]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_runtime_evaluator_admits_only_bound_native_binary[malformed]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_runtime_evaluator_admits_only_bound_native_binary[wrong-revision]
+4 failed, 586 deselected in 7.08s

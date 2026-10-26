@@ -1,0 +1,30 @@
+{
+  "sourceFrozenFiles": 74,
+  "sourceStable": true,
+  "incrementalDiff": {
+    "path": "/tmp/epic16-review8-incremental.diff",
+    "sha256": "f062874298d45c133fc67c81a2ee61f51f02f6e30347b5d4176651a43d62606f"
+  },
+  "codeDiffRead": {
+    "path": "/tmp/epic16-review8-code.diff",
+    "lines": 761,
+    "allChangedImplementationSectionsAndTestsRead": true
+  },
+  "schemaChangedScenarios": [
+    "AC-16.1-02",
+    "AC-16.2-03",
+    "AC-16.2-04",
+    "AC-16.2-05",
+    "AC-16.3-05"
+  ],
+  "numericConstMarkers": 43,
+  "allNumericConstMarkersHaveIntegerType": true,
+  "newOpenMaps": "native attributes, members and configuration only; string values",
+  "nativeQuerySourcesVerifiedAgainstGit": [
+    "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs",
+    "src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs",
+    "src/Hexalith.Conversations.Contracts/Projections/ProjectionFreshnessReasonCode.cs"
+  ],
+  "parentProbes": "44/44; source hashes unchanged",
+  "runtimeHold": "ACTIVE"
+}

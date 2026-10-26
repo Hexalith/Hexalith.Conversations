@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="8" time="1.791" timestamp="2026-10-26T06:30:04.898602+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-sdk]" time="0.002"><failure message="assert (('exit=' + '41') in &quot;repository-approved SDK unavailable: exit=unknown; stdout=''; stderr='ERR-END'&quot;)&#10; +  where '41' = str(41)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x74a3a1959850&gt;
+stage = 'sdk', stream = 'stderr'
+
+    @pytest.mark.parametrize('stage',['sdk','build'])
+    @pytest.mark.parametrize('stream',['stderr','stdout','both','oversized'])
+    def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
+        native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
+        def run(argv,**kwargs):
+            if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+            stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
+            stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
+            return subprocess.CompletedProcess(argv,code,stdout,stderr)
+        monkeypatch.setattr(native.subprocess,'run',run)
+        with pytest.raises(native.HelperUnavailable) as error:native._helper()
+&gt;       message=str(error.value);assert 'exit='+str(code) in message and 'stdout=' in message and 'stderr=' in message
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (('exit=' + '41') in "repository-approved SDK unavailable: exit=unknown; stdout=''; stderr='ERR-END'")
+E        +  where '41' = str(41)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4366: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-build]" time="0.002"><failure message="assert (('exit=' + '42') in &quot;fixed helper build failed: exit=unknown; stdout=''; stderr='ERR-END'&quot;)&#10; +  where '42' = str(42)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x74a3a11f0410&gt;
+stage = 'build', stream = 'stderr'
+
+    @pytest.mark.parametrize('stage',['sdk','build'])
+    @pytest.mark.parametrize('stream',['stderr','stdout','both','oversized'])
+    def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
+        native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
+        def run(argv,**kwargs):
+            if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+            stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
+            stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
+            return subprocess.CompletedProcess(argv,code,stdout,stderr)
+        monkeypatch.setattr(native.subprocess,'run',run)
+        with pytest.raises(native.HelperUnavailable) as error:native._helper()
+&gt;       message=str(error.value);assert 'exit='+str(code) in message and 'stdout=' in message and 'stderr=' in message
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (('exit=' + '42') in "fixed helper build failed: exit=unknown; stdout=''; stderr='ERR-END'")
+E        +  where '42' = str(42)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4366: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stdout-sdk]" time="0.002"><failure message="assert (('exit=' + '41') in &quot;repository-approved SDK unavailable: exit=unknown; stdout='OUT-END'; stderr=''&quot;)&#10; +  where '41' = str(41)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x74a39fd13ad0&gt;
+stage = 'sdk', stream = 'stdout'
+
+    @pytest.mark.parametrize('stage',['sdk','build'])
+    @pytest.mark.parametrize('stream',['stderr','stdout','both','oversized'])
+    def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
+        native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
+        def run(argv,**kwargs):
+            if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+            stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
+            stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
+            return subprocess.CompletedProcess(argv,code,stdout,stderr)
+        monkeypatch.setattr(native.subprocess,'run',run)
+        with pytest.raises(native.HelperUnavailable) as error:native._helper()
+&gt;       message=str(error.value);assert 'exit='+str(code) in message and 'stdout=' in message and 'stderr=' in message
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (('exit=' + '41') in "repository-approved SDK unavailable: exit=unknown; stdout='OUT-END'; stderr=''")
+E        +  where '41' = str(41)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4366: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stdout-build]" time="0.002"><failure message="assert (('exit=' + '42') in &quot;fixed helper build failed: exit=unknown; stdout='OUT-END'; stderr=''&quot;)&#10; +  where '42' = str(42)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x74a3a01f7a90&gt;
+stage = 'build', stream = 'stdout'
+
+    @pytest.mark.parametrize('stage',['sdk','build'])
+    @pytest.mark.parametrize('stream',['stderr','stdout','both','oversized'])
+    def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
+        native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
+        def run(argv,**kwargs):
+            if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+            stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
+            stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
+            return subprocess.CompletedProcess(argv,code,stdout,stderr)
+        monkeypatch.setattr(native.subprocess,'run',run)
+        with pytest.raises(native.HelperUnavailable) as error:native._helper()
+&gt;       message=str(error.value);assert 'exit='+str(code) in message and 'stdout=' in message and 'stderr=' in message
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (('exit=' + '42') in "fixed helper build failed: exit=unknown; stdout='OUT-END'; stderr=''")
+E        +  where '42' = str(42)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4366: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[both-sdk]" time="0.003"><failure message="assert (('exit=' + '41') in &quot;repository-approved SDK unavailable: exit=unknown; stdout='OUT-END'; stderr='ERR-END'&quot;)&#10; +  where '41' = str(41)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x74a3a183ff90&gt;
+stage = 'sdk', stream = 'both'
+
+    @pytest.mark.parametrize('stage',['sdk','build'])
+    @pytest.mark.parametrize('stream',['stderr','stdout','both','oversized'])
+    def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
+        native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
+        def run(argv,**kwargs):
+            if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+            stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
+            stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
+            return subprocess.CompletedProcess(argv,code,stdout,stderr)
+        monkeypatch.setattr(native.subprocess,'run',run)
+        with pytest.raises(native.HelperUnavailable) as error:native._helper()
+&gt;       message=str(error.value);assert 'exit='+str(code) in message and 'stdout=' in message and 'stderr=' in message
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (('exit=' + '41') in "repository-approved SDK unavailable: exit=unknown; stdout='OUT-END'; stderr='ERR-END'")
+E        +  where '41' = str(41)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4366: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[both-build]" time="0.002"><failure message="assert (('exit=' + '42') in &quot;fixed helper build failed: exit=unknown; stdout='OUT-END'; stderr='ERR-END'&quot;)&#10; +  where '42' = str(42)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x74a3a00dadd0&gt;
+stage = 'build', stream = 'both'
+
+    @pytest.mark.parametrize('stage',['sdk','build'])
+    @pytest.mark.parametrize('stream',['stderr','stdout','both','oversized'])
+    def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
+        native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
+        def run(argv,**kwargs):
+            if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+            stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
+            stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
+            return subprocess.CompletedProcess(argv,code,stdout,stderr)
+        monkeypatch.setattr(native.subprocess,'run',run)
+        with pytest.raises(native.HelperUnavailable) as error:native._helper()
+&gt;       message=str(error.value);assert 'exit='+str(code) in message and 'stdout=' in message and 'stderr=' in message
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (('exit=' + '42') in "fixed helper build failed: exit=unknown; stdout='OUT-END'; stderr='ERR-END'")
+E        +  where '42' = str(42)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4366: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-sdk]" time="0.003"><failure message="assert (('exit=' + '41') in &quot;repository-approved SDK unavailable: exit=unknown; stdout='XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYERR-END'&quot;)&#10; +  where '41' = str(41)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x74a3a00b4390&gt;
+stage = 'sdk', stream = 'oversized'
+
+    @pytest.mark.parametrize('stage',['sdk','build'])
+    @pytest.mark.parametrize('stream',['stderr','stdout','both','oversized'])
+    def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
+        native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
+        def run(argv,**kwargs):
+            if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+            stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
+            stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
+            return subprocess.CompletedProcess(argv,code,stdout,stderr)
+        monkeypatch.setattr(native.subprocess,'run',run)
+        with pytest.raises(native.HelperUnavailable) as error:native._helper()
+&gt;       message=str(error.value);assert 'exit='+str(code) in message and 'stdout=' in message and 'stderr=' in message
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (('exit=' + '41') in "repository-approved SDK unavailable: exit=unknown; stdout='XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYERR-END'")
+E        +  where '41' = str(41)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4366: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-build]" time="0.002"><failure message="assert (('exit=' + '42') in &quot;fixed helper build failed: exit=unknown; stdout='XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYERR-END'&quot;)&#10; +  where '42' = str(42)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x74a3a19b5310&gt;
+stage = 'build', stream = 'oversized'
+
+    @pytest.mark.parametrize('stage',['sdk','build'])
+    @pytest.mark.parametrize('stream',['stderr','stdout','both','oversized'])
+    def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
+        native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
+        def run(argv,**kwargs):
+            if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+            stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
+            stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
+            return subprocess.CompletedProcess(argv,code,stdout,stderr)
+        monkeypatch.setattr(native.subprocess,'run',run)
+        with pytest.raises(native.HelperUnavailable) as error:native._helper()
+&gt;       message=str(error.value);assert 'exit='+str(code) in message and 'stdout=' in message and 'stderr=' in message
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (('exit=' + '42') in "fixed helper build failed: exit=unknown; stdout='XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYERR-END'")
+E        +  where '42' = str(42)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4366: AssertionError</failure></testcase></testsuite></testsuites>

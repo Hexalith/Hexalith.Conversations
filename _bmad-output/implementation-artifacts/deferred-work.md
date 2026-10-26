@@ -1090,3 +1090,11 @@ Review strengthens the same solution-context scope with native implicit Platform
 - source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md`
   summary: Epic 16 capture alias check can hash one inode and stat another.
   evidence: medium. `no_alias` calls `os.lstat` after the caller has already read the file.
+
+- source_spec: `spec-epic-16-prerequisite-implementation.md`
+  summary: Make the concurrent Story 5.4 installed-delivery packet test portable or select it only in its explicit external-evidence lane.
+  evidence: R7B1/R7V2 confirm tests/tooling/test_ext_conv_ai_1_installed_delivery_packet.py reads /home/administrator/hexalith-conversations-evidence/ext-conv-ai-1 in default-discovered setUp; a fresh checkout without that external packet fails before assertions. The file was authored concurrently and committed in 8748a6b6e80b3ecbae2bb0174b43f40e30e6a148, independently of the Epic 16 prerequisite build; it has been preserved untouched.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-epic-16-prerequisite-implementation.md`
+  summary: Reconcile the existing default Python and CI test selection with the tracked current-change validation policy.
+  evidence: R9B1: pyproject.toml defaults to tests/tooling and the npm/CI unittest list omits _bmad/scripts/tests, although docs/runbooks/current-change-validation.md says that lane runs. Those three configuration files are byte-identical to original baseline 8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3; the retained broad-lane REFRESH_UV_DRIFT baseline and this task's explicit 1,750/72 local runs remain separate.

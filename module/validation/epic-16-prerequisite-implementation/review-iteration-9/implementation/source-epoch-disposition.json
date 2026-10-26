@@ -1,0 +1,209 @@
+{
+  "finalSource": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/final-source.json",
+    "sha256": "ee12104feb9ac08493e51a1f8f6ea566d384a1495df2ad5118bfc78efcde6b0b"
+  },
+  "unchangedDuringFinalVerification": true,
+  "intermediateCommands": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/intermediate-commands.json",
+    "sha256": "54152edca4f6a2260e75390071fbaaea4127bd87efb58b7d5c40ca171d6ab9d1"
+  },
+  "exploratory": [
+    {
+      "label": "first 15 route probe",
+      "passed": 14,
+      "failed": 1,
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/exploratory-15-source.json",
+        "sha256": "92d56f86700be30d5e366c5a80e00f1106d4e370da9db39bf26b392926e9e50f"
+      },
+      "note": "Deleted empty lifecycle component resource check was overly strict; corrected without requiring physical components for initialized empty queries."
+    },
+    {
+      "label": "native fixture probe",
+      "counts": {
+        "tests": 17,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "Two old fixture expectations still required one gitlink and left old retained binaries. Corrected to require both direct owners and clear obsolete fixture captures; exact current publication inventory is derived."
+    },
+    {
+      "label": "first iteration-9 selector",
+      "counts": {
+        "tests": 230,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/exploratory-r9-source.json",
+        "sha256": "b1202c8d983ae1e32323e0a27d91dc390c0d64c9af74d909be45c46e2ae064f9"
+      },
+      "note": "225 passed/5 failed. Invalid-state mutation initially did not change state; symlink expected code needed PATH_ESCAPE; additivity fixture needed baseline artifacts refreshed for both assemblies sharing the changed Tenants revision."
+    },
+    {
+      "label": "corrected iteration-9 selector",
+      "counts": {
+        "tests": 249,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/corrected-r9-source.json",
+        "sha256": "a961b3b4357f94527864eee2a2eae57b1437eb8a3280a229f9466290f449f0aa"
+      },
+      "note": "249 passed. Later source adds narrow dependency/path admission and additional isolated product/domain tests."
+    },
+    {
+      "label": "retained exploratory run interrupted deliberately",
+      "counts": {
+        "tests": 969,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/retained-regressions-source.json",
+        "sha256": "fdfc74e7fd7f091e1cfcf3da24a379386f5241be4ea4dcfd3c5744c7ffe1867b"
+      },
+      "exitCode": 2,
+      "selected": 1588,
+      "deselected": 278,
+      "passed": 966,
+      "failed": 3,
+      "note": "SIGINT after the three old recapture fixture failures were isolated. Progress percentages used the 1,588 collected selection; the run completed 969 test results, not the entire selection. Final unfiltered combined JUnit is authoritative."
+    },
+    {
+      "label": "isolated retained failure probe",
+      "counts": {
+        "tests": 4,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "Two recapture fixture failures; two controls pass."
+    },
+    {
+      "label": "first retained fixture correction",
+      "counts": {
+        "tests": 5,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "4 pass/1 fail: canonicalizer source control reached new PRODUCT_SOURCE_DRIFT first. Recompiled actual disposable product evidence at changed candidate to isolate canonicalizer guard."
+    },
+    {
+      "label": "final retained correction",
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "All five pass."
+    },
+    {
+      "label": "first frozen combined epoch",
+      "counts": {
+        "tests": 2028,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/first-frozen-final-source.json",
+        "sha256": "a09db8ee134fdf0381c48b98c21fd865f08618a0b6ce42fbfffb076b5b90ebd8"
+      },
+      "note": "2027 passed/1 failed. A valid nullable positive updated the complete persisted state but retained the original wire-state digest. This entire frozen run is preserved, including the exact pre-correction test source, file mapping and three-line fixture-only delta. Implementation and round9 controls did not change."
+    },
+    {
+      "label": "nullable wire failure probe",
+      "counts": {
+        "tests": 3,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "Two positives pass; the nullable wire fixture fails the exact transaction/state binding."
+    },
+    {
+      "label": "nullable wire fixture corrected",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "All three nullable positives plus the wrong-state-hash negative pass before the corrected final freeze."
+    },
+    {
+      "label": "pre-signature corrected-fixture epoch",
+      "counts": {
+        "tests": 2028,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/pre-signature-epoch/final-source.json",
+        "sha256": "bf45f4eab6a11a0ce69d2fcd848050e26ca91d058de5786e172bb2acb7ca1bfb"
+      },
+      "disposition": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/pre-signature-epoch/disposition.json",
+        "sha256": "c039edc372141c675d5ec4519a1dd17d2ddd1d26177641f1561589132ebf9ffb"
+      },
+      "note": "2028 combined and 72 legacy pass. Parent compiled R9P5 counterexample exposed loss of class/value kind for referenced parameter/return types. Evidence-only marker-case audit failure was corrected separately. This passing test epoch does not resolve R9P5."
+    },
+    {
+      "label": "signature-kind correction selector",
+      "counts": {
+        "tests": 23,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/signature-source.json",
+        "sha256": "6c044651ca821e8dbb2fa2e879f8bb3323dc3537175dc6ceb430625913d2f5c2"
+      },
+      "note": "23 compiled/native comparison controls pass, including ten new signature-kind cases."
+    }
+  ],
+  "mutations": {
+    "runs": 43,
+    "demonstratedGuards": 41,
+    "targetedFailures": 192,
+    "setupErrors": 0,
+    "skips": 0,
+    "sources": [
+      {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/mutations/source-epoch.json",
+        "sha256": "120ab7adcb104ae682f0501e4acca505e40f55785687675be3cd9ff38b26ecc6"
+      },
+      {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/mutations-signatures/source-epoch.json",
+        "sha256": "967a0658f78cbe7dbafee9c3455c0775065154dc5c63c4200e6f7315b661681a"
+      }
+    ],
+    "changedSinceInitialMutationEpoch": {
+      "_bmad/scripts/epic16_native_helper/README.md": {
+        "mutation": "1946d362743a94a2bcf62cccbcbe37a528e3b0393e5b3c4a1766cf7fca81855e",
+        "final": "4fb4ca002b565e0960c9d1c4a066764ce4a11d0795989a8c428046fc3e6a74e4"
+      },
+      "_bmad/scripts/epic16_native_helper/SignatureNames.cs": {
+        "mutation": "ab7be5c38af3bd49b8c3266a0ba5ba56f2e06a7d06e154dc0e03f0c86493ea42",
+        "final": "baea3b9f2b1b86f38e0cc189688c45d7b338365834bd445057b972a249c1625f"
+      },
+      "_bmad/scripts/tests/test_epic16_tooling.py": {
+        "mutation": "e6a4c4c529eb8654b612895458d0a0807f263c59c8b7e44f68cc669678af8d19",
+        "final": "8cfe48e8f803322867c14efa0b116a49838ef61b47c8e3f67fb6f6b313b7a636"
+      }
+    },
+    "existingRound9ControlFunctionsUnchanged": 28,
+    "disposition": "Initial 39 removals produced 175 failures. Four older positive/negative fixture adaptations followed without changing existing round9 controls or their helpers. R9P5 then corrected SignatureNames and added ten tests; the affected member-contract and abstract-obligation removals were rerun with two new definition/reference-kind removals, producing 17 failures on the final source. All original round9 control/helper ASTs remain identical. Earlier epochs remain historical."
+  }
+}

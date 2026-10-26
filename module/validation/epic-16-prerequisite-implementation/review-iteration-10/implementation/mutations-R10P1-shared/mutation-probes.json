@@ -1,0 +1,32 @@
+[
+  {
+    "name": "inherited-collection-types",
+    "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "old": "if (++collectionTypes > 1)",
+    "new": "if (++collectionTypes < 0)",
+    "selection": "round10_inherited_collection and shared",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r10-mutant-inherited-collection-types-309xt350/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round10_inherited_collection and shared",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/mutations-R10P1-shared/inherited-collection-types.xml"
+    ],
+    "workspace": "/tmp/epic16-r10-mutant-inherited-collection-types-309xt350",
+    "exitCode": 1,
+    "elapsedSeconds": 31.87,
+    "originalSha256": "e1ffbcf2d009c2afd5ee1847eac79c1e171d1cf3219b98bb8c5cf4e9fa7fe076",
+    "mutatedSha256": "c974af72cc05a4c2e30b0b8571d76dcb784a23eeffb5d04d6f908c6cf4cbca9e",
+    "stdoutSha256": "c0c98ebe2d15f53924c0df0c54265492bfbed711d6a7f34f52d92d15b9013574",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 3,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+]

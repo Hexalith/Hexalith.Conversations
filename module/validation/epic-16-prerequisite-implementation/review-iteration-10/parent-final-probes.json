@@ -1,0 +1,1035 @@
+{
+  "command": "uv run --frozen --no-sync python3 /tmp/epic16-review10-parent-final.py",
+  "sourceHashes": {
+    "global.json": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652",
+    "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj": "f3057cab73b03ec077940f41c8b23a30032c563c1989dc680ac7b60764d4fcb5",
+    "_bmad/scripts/epic16_native_helper/Program.cs": "a7993e5c4eea5da52cfb36ae85ef990c7a1c6cb06e7c45f58c6d2374028363b8",
+    "_bmad/scripts/epic16_native_helper/TestConstruction.cs": "e1ffbcf2d009c2afd5ee1847eac79c1e171d1cf3219b98bb8c5cf4e9fa7fe076",
+    "_bmad/scripts/epic16_native_helper/ProductMetadata.cs": "aaf38dd6f1eb0734cd8c9be83bda4a766ed578294ab14616bdbdd9ed6b29e005",
+    "_bmad/scripts/epic16_native_helper/SignatureNames.cs": "c7598398a621cab9d559e4b384c548867ccc5529265f15665935275cb9f6c856",
+    "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9",
+    "_bmad/scripts/epic16_native_helper/README.md": "26e9b3cda016dff044f7f9b6012779a3dc31a488144f1bf6a7cc8e8a67a6b4c6",
+    "_bmad/scripts/epic16_native_helper/EventStore-LICENSE": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2",
+    "_bmad/scripts/epic16_native.py": "07602195d3845658cfa5f1af2636ead28c710031febcb0226742a638d7017551",
+    "_bmad/scripts/epic16_tooling.py": "5ffd3873388e5d028ca4fe20a9dd65f9b14f394bb296b99ad8cf033e62dc0ffb",
+    "_bmad/scripts/epic16_measurements.py": "e55cf4eb61aca538db09fd855f868a84cda8db67e2e0f1861d77fc660cf55424",
+    "_bmad/scripts/epic16_domain.py": "dc043488b746651af0f528bec3ecc2788dccc4bf0962d86e52e40aabfaa745af",
+    "_bmad/scripts/epic16_lifecycle.py": "4630872ff2f0a34a5cc8bf0a53a59f6a1c899137e6eb3f8612175826c90900c4",
+    "_bmad/scripts/epic16_schedules.py": "aa73b224138fd0c1195989b7a3a957ecd14078527a25eabbfc917802796ec42a",
+    "_bmad/scripts/epic16_capture.py": "6c0f174f984adfa5694e32d47c8009554d0cde22feab876c3134cba628b93d89",
+    "_bmad/scripts/epic16_faults.py": "1a58f4492e7b4b53a2d016c05b54df31274a90d6494c3cd40c3251426c1959b5",
+    "_bmad/scripts/epic16_relationships.py": "b80c2632de8198ad823518844dd17e483af977947bff841b5934ce7c0ec2ceb9",
+    "_bmad/scripts/epic16_execution.py": "b83a28b33e39965c65af91843e8f3b9f68e071272d950dfca25e192c68965755",
+    "_bmad/scripts/epic16_products.py": "f827f3b7efefd5b48575cea25feb48bf48e9775d4cbd2f114f0e4a068abbe33e",
+    "_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json": "04b547e3cf9da207a67142473967fb6ca01ffc4e32df4bd886ae769a0063d373",
+    "_bmad/scripts/tests/fixtures/epic16-domain-sources.json": "04c37c3e45c7db35c0e0e4f9aad4304f288a6525b0f05b4a2affcbc42d011972",
+    "_bmad/scripts/tests/fixtures/epic16-contract-wire-goldens.json": "f08bbd0ce5205a282c8cb2bfbfeac76046ee73494c41a80c527a1c191552fe93",
+    "_bmad/scripts/tests/fixtures/epic16-contract-wire-provenance.json": "daef7f4e47b2c160b9bba813e9e1e38a3806b8167823bfb60bcf277d58afe8ee",
+    "_bmad/scripts/epic16_trust.py": "bd85a43be1a5c5917e0240619fa414d64359b99f62aac512eabcc91521fd5fab",
+    "_bmad/scripts/generate_story_record.py": "9e080cd220200535513225fce558f36a61fca52d3df0b6f304a3672b76ec1bd4",
+    "_bmad/scripts/contained_reader.py": "fac77aa5381c54fd7df3d2b70204b46b4be353992a6529a44dac2da46ea6001b",
+    "_bmad/scripts/evidence_boundary_current.py": "42ae5eb021be38647bf0172db4d4b41cd7c3c5fc299edffbeee616527b6eefdd",
+    "_bmad/scripts/authoring_outputs.py": "17abd7aca9d82cc6bdb17cf5db5df711b06e75ed4bcac46138f98daf750d897d",
+    "_bmad/scripts/config_utils.py": "48afe2bc18a29201e343cce3703be1e70df9c83ee74eeb68e57ef8ef42e8c651",
+    "_bmad/scripts/verify_story_completion_workflows.py": "1a01c22abda5aff3ae74b277c4437490c752b130c764199e47799235d6129d99",
+    "_bmad/scripts/verify_story_16_1.py": "89fec6a15125ec20ef7a1b43a0dae451b33f58e3e3c4b0d9bbf2c8d577943329",
+    "_bmad/scripts/verify_story_16_2.py": "ca53fda5d83c96090fe428071447a98f14e4f236a2c83245acc19fb812c460e1",
+    "_bmad/scripts/verify_story_16_3.py": "df1b0a38bdf5e57b96153a0232cf28004abb974ae539b85948fbc12961bd1ff7",
+    "_bmad/schemas/epic-16-tooling-v1.schema.json": "f402ac6f10b492d59ea575973e9ebd49360a7402784901b5a2196662a07f5f51",
+    ".gitattributes": "060e4e42b7a277db5f3dad307660f7895b9ca8ce1b7ae40090b2c67406a43ef2",
+    ".config/dotnet-tools.json": "5d72a022a9416cb753da75cda1b0f1945fd938c065521fd9946aaa525fe048da",
+    "module/hexalith.module-manifest.v2.json": "0bed1c297c9c9d78fdb8f37197ac5f71d829191c0535fdd78e4034aaa017bdf0",
+    "module/hosting-inventory.json": "1bfd46248158637c950cd6764a47f926b1683568218208a0107d3b1ed3ada1e7",
+    "module/sm-2-checklist.md": "71fb1992ca38602e4cfba34d1b5471459aff986a1ac87b774fb887feafaeec37",
+    "docs/runbooks/current-change-validation.md": "d5284f00b8c850d43cabfcd45d2a4cf94d76a04a0bf7d6761ead7f17e5947801",
+    "_bmad/scripts/tests/fixtures/epic16-observations-v1.json": "90f39debf6646f7abf8eb592d2d4c8806d93e89df30a5d0b92ef47aa4274d3e1"
+  },
+  "sourceStable": true,
+  "scope": "Independent pure schema/semantic cases and subprocess import boundaries. Repository-dependent warning/API/native binding audited against full executed fixtures separately. compiledContracts placeholders in pure semantic cases are not API provenance evidence.",
+  "results": [
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.1-01",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "fail-closed-states",
+        "atomic-sequence-identity",
+        "tenant-segmentation",
+        "seam-ownership"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.1-02",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "durable-restart",
+        "pending-fingerprints",
+        "fail-closed-restart",
+        "fenced-resumption"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.1-03",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "monotonic-horizon",
+        "immutable-pending-evidence",
+        "two-replica-convergence",
+        "fenced-cutover"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.1-04",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "tenant-fault-matrix",
+        "durable-acknowledgement",
+        "bounded-retry",
+        "query-purity"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.2-01",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "selected-identity-time",
+        "full-duplicate-binding",
+        "pre-dedup-validation",
+        "no-runtime-clock"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.2-02",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "canonical-replay-bytes",
+        "hash-and-roundtrip",
+        "event-derived-anchor",
+        "observation-freshness"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "query-mapping-matrix",
+        "current-empty-proof",
+        "authorization-before-read",
+        "sole-control-index"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.2-04",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "writer-CAS-boundary",
+        "generation-fences",
+        "erase-quarantine",
+        "authoritative-rebuild-cutover"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.2-05",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "public-surface",
+        "tenant-isolation",
+        "generation-mismatch",
+        "replay-query-dependencies"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.3-01",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "effective-endpoint",
+        "bounded-preflight",
+        "stable-diagnostic",
+        "content-safe"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.3-02",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "effective-port",
+        "unrelated-negative",
+        "bounded-preflight",
+        "port-restoration"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.3-03",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "production-delivery",
+        "durable-pending",
+        "ack-ordering",
+        "runtime-route-binding"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "production-wire-route",
+        "durable-idempotent-clearance",
+        "query-visible-endstate",
+        "newer-progress-fences"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "retained pure observation positive",
+      "scenario": "AC-16.3-05",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "live-fault-matrix",
+        "environment-distinction",
+        "safe-cleanup",
+        "fenced-authorization"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "rejected operation actually executes 0",
+      "scenario": "AC-16.2-02",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "negative writer operation executed and completed",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "rejected operation completes 0",
+      "scenario": "AC-16.2-02",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "negative writer operation executed and completed",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "rejected operation preserves exact state 0",
+      "scenario": "AC-16.2-02",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "rejection preserves complete relevant persisted state",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "invalid input cannot be replaced with valid replay 0",
+      "scenario": "AC-16.2-02",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual native identity cannot supply stable collection key",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "rejected operation actually executes 1",
+      "scenario": "AC-16.2-02",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "negative writer operation executed and completed",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "rejected operation completes 1",
+      "scenario": "AC-16.2-02",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "negative writer operation executed and completed",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "rejected operation preserves exact state 1",
+      "scenario": "AC-16.2-02",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "rejection preserves complete relevant persisted state",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "invalid input cannot be replaced with valid replay 1",
+      "scenario": "AC-16.2-02",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual ordinal collection order is invalid",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "rejected operation actually executes 2",
+      "scenario": "AC-16.2-02",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "negative writer operation executed and completed",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "rejected operation completes 2",
+      "scenario": "AC-16.2-02",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "negative writer operation executed and completed",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "rejected operation preserves exact state 2",
+      "scenario": "AC-16.2-02",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "rejection preserves complete relevant persisted state",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "generation rejection requires earlier generation",
+      "scenario": "AC-16.2-02",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "negative generation is actually earlier than replay anchor",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "known query domain lifecycle",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "FAIL",
+      "schemaReason": "{'id': 'v1', 'status': 'Rebuilding', 'reason': 'rebuilding', 'writes': 0, 'indexReads': 1, 'indexVersion': 1, 'summaries': [], 'pendingDispatch': [], 'indexPresent': True, 'providerState': 'Available', 'lifecycle': 'UnsupportedValue', 'generation': 3, 'componentGenerations': [3, 3, 3, 3, 3], 'sourceGap': False, 'authorized': True, 'tenantExists': True, 'survivingDetails': ['detail-a'], 'rebuildPending': True, 'corrupt': False, 'controlMetadata': {'index': 3, 'lifecycle': 3, 'manifest': 3, 'watermark': 3, 'dispatch': 3}} is not valid under any of the given schemas",
+      "semantics": "FAIL",
+      "semanticReason": "known query lifecycle",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "known query domain providerState",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "FAIL",
+      "schemaReason": "{'id': 'v1', 'status': 'Rebuilding', 'reason': 'rebuilding', 'writes': 0, 'indexReads': 1, 'indexVersion': 1, 'summaries': [], 'pendingDispatch': [], 'indexPresent': True, 'providerState': 'UnsupportedValue', 'lifecycle': 'Ready', 'generation': 3, 'componentGenerations': [3, 3, 3, 3, 3], 'sourceGap': False, 'authorized': True, 'tenantExists': True, 'survivingDetails': ['detail-a'], 'rebuildPending': True, 'corrupt': False, 'controlMetadata': {'index': 3, 'lifecycle': 3, 'manifest': 3, 'watermark': 3, 'dispatch': 3}} is not valid under any of the given schemas",
+      "semantics": "FAIL",
+      "semanticReason": "known query provider state",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "cross-key dispatch missing",
+      "scenario": "AC-16.2-05",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "cross-key experiment requires one detail and one dispatch observation",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "cross-key dispatch foreign",
+      "scenario": "AC-16.2-05",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "every query component belongs to control tenant",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "cross-key dispatch pending",
+      "scenario": "AC-16.2-05",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual dispatch references match control index",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "wire operation executes 0",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "same executed request response pending runtime and route scope",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "wire operation executes 1",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "same executed request response pending runtime and route scope",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "wire operation executes 2",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "same executed request response pending runtime and route scope",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "wire operation executes 3",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "same executed request response pending runtime and route scope",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "wire operation executes 4",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "same executed request response pending runtime and route scope",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "HTTP 200 rejects non-completing outcome 2",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual response outcomes prove Completed or AlreadyCompleted for each pending projection",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "HTTP 200 rejects non-completing outcome 3",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual response outcomes prove Completed or AlreadyCompleted for each pending projection",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "HTTP 200 rejects non-completing outcome 4",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual response outcomes prove Completed or AlreadyCompleted for each pending projection",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "AlreadyCompleted response remains valid",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": true,
+      "schema": "PASS",
+      "checks": [
+        "production-wire-route",
+        "durable-idempotent-clearance",
+        "query-visible-endstate",
+        "newer-progress-fences"
+      ],
+      "semantics": "PASS",
+      "accepted": true,
+      "correct": true
+    },
+    {
+      "name": "wire cannot contain projection content",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": false,
+      "schema": "FAIL",
+      "schemaReason": "{'phase': 'durable-result', 'order': 4, 'executed': True, 'completed': True, 'requestId': 'wire-reconcile-1', 'scope': {'pendingId': 'pending-1', 'tenant': 'tenant-a', 'runtimeId': 'conversation@v1', 'catalogFingerprint': '2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f', 'projectionTypes': ['conversation-read-model']}, 'method': 'POST', 'path': '/project/v2/reconcile', 'transactionId': 'current-clearance-commit', 'persistedAfterSha256': 'bd4bbc70bf08d2c45099e5925e542c47041d4b424111c3c5c2bba24466e83765', 'persistedAfter': {'captureVersion': 1, 'scope': {'pendingId': 'pending-1', 'tenant': 'tenant-a', 'conversation': 'conversation-a', 'runtimeId': 'conversation@v1', 'catalogSha256': '66f008fa498bce6cdd3ac8191e9b785251345932a80e448d38fcc979a12cbec5', 'catalogFingerprint': '2e6c37d487095f20c24b3abfbf777d2754b8fcf4f5a68704e76ce91e14d3af9f'}, 'lease': 3, 'version': 9, 'etag': 'recovery-cleared', 'generation': 4, 'checkpoint': 4, 'watermark': 1100, 'leaseUntilUtcTicks': 4000, 'projection': {'tenantId': 'tenant-a', 'conversationId': 'conversation-a', 'lifecycle': 'Open', 'label': 'Seed conversation', 'businessReference': {'system': 'case', 'value': 'a'}, 'projectId': 'project-a', 'folderId': 'folder-a', 'attributes': {}, 'participants': [{'participantPartyId': 'participant-a', 'participantType': 'Human', 'participantRole': 'Member', 'occurredAtUtcTicks': 639029198470000000}], 'messages': [{'messageId': 'message-a', 'authorPartyId': 'actor-a', 'text': 'Controlled message', 'providerCorrelation': None, 'occurredAtUtcTicks': 639029198480000000}], 'fileReferences': [{'fileId': 'file-a', 'folderId': 'folder-a', 'messageId': 'message-a', 'occurredAtUtcTicks': 639029198490000000}], 'processedEventIds': ['event-1', 'event-2', 'event-3', 'event-4']}, 'pending': []}} is not valid under any of the given schemas",
+      "checks": [
+        "production-wire-route",
+        "durable-idempotent-clearance",
+        "query-visible-endstate",
+        "newer-progress-fences"
+      ],
+      "semantics": "PASS",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "wire response binds actual transaction",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "wire durable outcome binds exact measured transaction and complete persisted state",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "wire response binds state digest",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "wire durable outcome binds exact measured transaction and complete persisted state",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "wire authorization precedes dispatch",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "authorization precedes hosted dispatch commit and response",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "wire request binds actual aggregate",
+      "scenario": "AC-16.3-04",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "observed request body metadata binds actual aggregate scope",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "bounded safe advice automaticRetriesRemaining",
+      "scenario": "AC-16.3-01",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "safe emitted diagnostic contents and bounded retry advice",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "bounded safe advice attemptLimit",
+      "scenario": "AC-16.3-01",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "safe emitted diagnostic contents and bounded retry advice",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "bounded safe advice token",
+      "scenario": "AC-16.3-01",
+      "expectedAccepted": false,
+      "schema": "FAIL",
+      "schemaReason": "{'code': 'APPHOST_ENDPOINT_NOT_READY', 'endpointId': 'conversations-http', 'owner': 'apphost', 'port': 50000, 'attempts': 3, 'retryAdvice': {'action': 'retry-preflight-after-endpoint-ready', 'attemptLimit': 3, 'timeoutMs': 1000, 'attemptsUsed': 3, 'elapsedMs': 900, 'terminalReason': 'attempt-limit', 'automaticRetriesRemaining': 0, 'token': 'canary'}} is not valid under any of the given schemas",
+      "semantics": "FAIL",
+      "semanticReason": "safe emitted diagnostic contents and bounded retry advice",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "bounded safe advice automaticRetriesRemaining",
+      "scenario": "AC-16.3-05",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "safe emitted diagnostic contents and bounded retry advice",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "bounded safe advice attemptLimit",
+      "scenario": "AC-16.3-05",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "safe emitted diagnostic contents and bounded retry advice",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "bounded safe advice token",
+      "scenario": "AC-16.3-05",
+      "expectedAccepted": false,
+      "schema": "FAIL",
+      "schemaReason": "{'code': 'APPHOST_ENDPOINT_NOT_READY', 'endpointId': 'conversations-http', 'owner': 'apphost', 'port': 50000, 'attempts': 3, 'retryAdvice': {'action': 'retry-preflight-after-endpoint-ready', 'attemptLimit': 3, 'timeoutMs': 1000, 'attemptsUsed': 3, 'elapsedMs': 900, 'terminalReason': 'attempt-limit', 'automaticRetriesRemaining': 0, 'token': 'canary'}} is not valid under any of the given schemas",
+      "semantics": "FAIL",
+      "semanticReason": "safe emitted diagnostic contents and bounded retry advice",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization unauthorized schemaVersion",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "FAIL",
+      "schemaReason": "True is not of type 'integer'",
+      "semantics": "FAIL",
+      "semanticReason": "actual public response is non-disclosing Hidden result",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization unauthorized safeNextAction",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual public response is non-disclosing Hidden result",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization unauthorized freshnessState",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual public response is non-disclosing Hidden result",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization unauthorized reasonCode",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual public response is non-disclosing Hidden result",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization unauthorized request.query.callerPrincipalId",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "nonempty domain identity",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization unauthorized request.query.correlationId",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "nonempty domain identity",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization unauthorized request.query.schemaVersion",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "FAIL",
+      "schemaReason": "1.0 is not of type 'integer'",
+      "semantics": "FAIL",
+      "semanticReason": "supported query version",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization unauthorized request.order",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "FAIL",
+      "schemaReason": "True is not of type 'integer'",
+      "semantics": "FAIL",
+      "semanticReason": "request precedes response",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization unauthorized response.executed",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "executed public query and response",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization unauthorized response.order",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "request precedes response",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization unauthorized response.tenant",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "same tenant and query response",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization unauthorized response.correlationId",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "same tenant and query response",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization nonexistent schemaVersion",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "FAIL",
+      "schemaReason": "True is not of type 'integer'",
+      "semantics": "FAIL",
+      "semanticReason": "actual public response is non-disclosing Hidden result",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization nonexistent safeNextAction",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual public response is non-disclosing Hidden result",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization nonexistent freshnessState",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual public response is non-disclosing Hidden result",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization nonexistent reasonCode",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual public response is non-disclosing Hidden result",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization nonexistent request.query.callerPrincipalId",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "nonempty domain identity",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization nonexistent request.query.correlationId",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "nonempty domain identity",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization nonexistent request.query.schemaVersion",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "FAIL",
+      "schemaReason": "1.0 is not of type 'integer'",
+      "semantics": "FAIL",
+      "semanticReason": "supported query version",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization nonexistent request.order",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "FAIL",
+      "schemaReason": "True is not of type 'integer'",
+      "semantics": "FAIL",
+      "semanticReason": "request precedes response",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization nonexistent response.executed",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "executed public query and response",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization nonexistent response.order",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "request precedes response",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization nonexistent response.tenant",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "same tenant and query response",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization nonexistent response.correlationId",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "same tenant and query response",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "identical unauthorized replies still require native hidden safeNextAction",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual public response is non-disclosing Hidden result",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "identical unauthorized replies still require native hidden freshnessState",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual public response is non-disclosing Hidden result",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "identical unauthorized replies still require native hidden reasonCode",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "actual public response is non-disclosing Hidden result",
+      "accepted": false,
+      "correct": true
+    },
+    {
+      "name": "authorization experiment correlation uniqueness",
+      "scenario": "AC-16.2-03",
+      "expectedAccepted": false,
+      "schema": "PASS",
+      "semantics": "FAIL",
+      "semanticReason": "separate authorization experiments have identical non-disclosing results",
+      "accepted": false,
+      "correct": true
+    }
+  ],
+  "partialImports": [
+    {
+      "missing": "epic16_capture.py",
+      "story": "16_1",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "TOOLING_DEPENDENCY_UNAVAILABLE"
+      ],
+      "nonemptyLedger": true,
+      "traceback": false
+    },
+    {
+      "missing": "epic16_capture.py",
+      "story": "16_2",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "TOOLING_DEPENDENCY_UNAVAILABLE"
+      ],
+      "nonemptyLedger": true,
+      "traceback": false
+    },
+    {
+      "missing": "epic16_capture.py",
+      "story": "16_3",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "TOOLING_DEPENDENCY_UNAVAILABLE"
+      ],
+      "nonemptyLedger": true,
+      "traceback": false
+    },
+    {
+      "missing": "epic16_products.py",
+      "story": "16_1",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "TOOLING_DEPENDENCY_UNAVAILABLE"
+      ],
+      "nonemptyLedger": true,
+      "traceback": false
+    },
+    {
+      "missing": "epic16_products.py",
+      "story": "16_2",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "TOOLING_DEPENDENCY_UNAVAILABLE"
+      ],
+      "nonemptyLedger": true,
+      "traceback": false
+    },
+    {
+      "missing": "epic16_products.py",
+      "story": "16_3",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "TOOLING_DEPENDENCY_UNAVAILABLE"
+      ],
+      "nonemptyLedger": true,
+      "traceback": false
+    },
+    {
+      "missing": "epic16_execution.py",
+      "story": "16_1",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "TOOLING_DEPENDENCY_UNAVAILABLE"
+      ],
+      "nonemptyLedger": true,
+      "traceback": false
+    },
+    {
+      "missing": "epic16_execution.py",
+      "story": "16_2",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "TOOLING_DEPENDENCY_UNAVAILABLE"
+      ],
+      "nonemptyLedger": true,
+      "traceback": false
+    },
+    {
+      "missing": "epic16_execution.py",
+      "story": "16_3",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "TOOLING_DEPENDENCY_UNAVAILABLE"
+      ],
+      "nonemptyLedger": true,
+      "traceback": false
+    }
+  ],
+  "passed": 79,
+  "total": 79
+}

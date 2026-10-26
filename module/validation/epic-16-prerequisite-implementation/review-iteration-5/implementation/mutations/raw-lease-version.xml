@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="20" time="6.143" timestamp="2026-10-25T21:19:55.111194+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[-1-lease]" time="0.299" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[-1-version]" time="0.288" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[-1-expiresAt]" time="0.284" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[-1-now]" time="0.296" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[0-lease]" time="0.292" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[0-version]" time="0.293" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[0-expiresAt]" time="0.291" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[0-now]" time="0.283" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[1208925819614629174706176-lease]" time="0.285"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-386/test_round5_raw_lease_version_8/fixture')
+field = 'lease', value = 1208925819614629174706176
+
+    @pytest.mark.parametrize('field',['lease','version','expiresAt','now'])
+    @pytest.mark.parametrize('value',[-1,0,2**80,True,1.0])
+    def test_round5_raw_lease_version_and_utc_fields_have_native_domains(repository,field,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);fault=next(r for r in data['faults'] if r['id']=='lease-expiry')
+        for raw_field in ('beforeBytes','injectedBytes','afterBytes'):
+            raw=json.loads(fault[raw_field])
+            if field in raw['state']:raw['state'][field]=value
+            fault[raw_field]=json.dumps(raw)
+        for phase in ('before','after'):fault[phase+'Sha256']=digest(fault[phase+'Bytes'].encode())
+&gt;       native(repository,'AC-16.1-04',data);rejected(evaluate(repository,'AC-16.1-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1894: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[1208925819614629174706176-version]" time="0.282"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-386/test_round5_raw_lease_version_9/fixture')
+field = 'version', value = 1208925819614629174706176
+
+    @pytest.mark.parametrize('field',['lease','version','expiresAt','now'])
+    @pytest.mark.parametrize('value',[-1,0,2**80,True,1.0])
+    def test_round5_raw_lease_version_and_utc_fields_have_native_domains(repository,field,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);fault=next(r for r in data['faults'] if r['id']=='lease-expiry')
+        for raw_field in ('beforeBytes','injectedBytes','afterBytes'):
+            raw=json.loads(fault[raw_field])
+            if field in raw['state']:raw['state'][field]=value
+            fault[raw_field]=json.dumps(raw)
+        for phase in ('before','after'):fault[phase+'Sha256']=digest(fault[phase+'Bytes'].encode())
+&gt;       native(repository,'AC-16.1-04',data);rejected(evaluate(repository,'AC-16.1-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1894: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[1208925819614629174706176-expiresAt]" time="0.285" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[1208925819614629174706176-now]" time="0.286" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[True-lease]" time="0.284" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[True-version]" time="0.292" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[True-expiresAt]" time="0.290" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[True-now]" time="0.294" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[1.0-lease]" time="0.293" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[1.0-version]" time="0.297" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[1.0-expiresAt]" time="0.303" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round5_raw_lease_version_and_utc_fields_have_native_domains[1.0-now]" time="0.288" /></testsuite></testsuites>

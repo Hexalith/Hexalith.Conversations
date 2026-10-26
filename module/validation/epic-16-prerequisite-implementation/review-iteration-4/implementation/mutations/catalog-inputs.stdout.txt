@@ -1,0 +1,470 @@
+F.F.F.F.F.F.F.F.F.F.FF                                                   [100%]
+=================================== FAILURES ===================================
+_ test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[zero-hash-AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-374/test_round4_catalog_bytes_fram0/fixture')
+scenario = 'AC-16.3-03', fault = 'zero-hash'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-03','AC-16.3-04'])
+    @pytest.mark.parametrize('fault',['zero-hash','changed-bytes','foreign-runtime','foreign-route','missing-route','duplicate-route','wire-route','pending-runtime','pending-sequence','fingerprint'])
+    def test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);catalog=json.loads(data['catalogBytes'])
+        if fault=='zero-hash':data['catalogSha256']='0'*64
+        elif fault=='changed-bytes':data['catalogBytes']+=' '
+        elif fault in ('foreign-runtime','foreign-route','missing-route','duplicate-route'):
+            if fault=='foreign-runtime':catalog['appId']='foreign';data['runtimeId']='foreign@1.0.0'
+            elif fault=='foreign-route':catalog['domains'][0]['namedProjectionTypes']=['foreign'];catalog['domains'][0]['ordinaryProjectionTypes']=['foreign']
+            elif fault=='missing-route':catalog['domains'][0]['namedProjectionTypes']=[];catalog['domains'][0]['ordinaryProjectionTypes']=[]
+            else:catalog['domains'][0]['namedProjectionTypes']*=2
+            data['catalogBytes']=json.dumps(catalog);data['catalogSha256']=digest(data['catalogBytes'].encode())
+        elif fault=='wire-route':data['wireRoutes'][1]='/project/v2/foreign'
+        elif fault=='pending-runtime':data['pendingLocation']['appId']='foreign'
+        elif fault=='pending-sequence':data['pendingLocation']['sequence']+=1
+        else:data['catalogFingerprint']='0'*64
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'RECONCILIATION_IDENTITY_DRIFT' if scenario=='AC-16.3-04' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1681: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[changed-bytes-AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-374/test_round4_catalog_bytes_fram2/fixture')
+scenario = 'AC-16.3-03', fault = 'changed-bytes'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-03','AC-16.3-04'])
+    @pytest.mark.parametrize('fault',['zero-hash','changed-bytes','foreign-runtime','foreign-route','missing-route','duplicate-route','wire-route','pending-runtime','pending-sequence','fingerprint'])
+    def test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);catalog=json.loads(data['catalogBytes'])
+        if fault=='zero-hash':data['catalogSha256']='0'*64
+        elif fault=='changed-bytes':data['catalogBytes']+=' '
+        elif fault in ('foreign-runtime','foreign-route','missing-route','duplicate-route'):
+            if fault=='foreign-runtime':catalog['appId']='foreign';data['runtimeId']='foreign@1.0.0'
+            elif fault=='foreign-route':catalog['domains'][0]['namedProjectionTypes']=['foreign'];catalog['domains'][0]['ordinaryProjectionTypes']=['foreign']
+            elif fault=='missing-route':catalog['domains'][0]['namedProjectionTypes']=[];catalog['domains'][0]['ordinaryProjectionTypes']=[]
+            else:catalog['domains'][0]['namedProjectionTypes']*=2
+            data['catalogBytes']=json.dumps(catalog);data['catalogSha256']=digest(data['catalogBytes'].encode())
+        elif fault=='wire-route':data['wireRoutes'][1]='/project/v2/foreign'
+        elif fault=='pending-runtime':data['pendingLocation']['appId']='foreign'
+        elif fault=='pending-sequence':data['pendingLocation']['sequence']+=1
+        else:data['catalogFingerprint']='0'*64
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'RECONCILIATION_IDENTITY_DRIFT' if scenario=='AC-16.3-04' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1681: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[foreign-runtime-AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-374/test_round4_catalog_bytes_fram4/fixture')
+scenario = 'AC-16.3-03', fault = 'foreign-runtime'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-03','AC-16.3-04'])
+    @pytest.mark.parametrize('fault',['zero-hash','changed-bytes','foreign-runtime','foreign-route','missing-route','duplicate-route','wire-route','pending-runtime','pending-sequence','fingerprint'])
+    def test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);catalog=json.loads(data['catalogBytes'])
+        if fault=='zero-hash':data['catalogSha256']='0'*64
+        elif fault=='changed-bytes':data['catalogBytes']+=' '
+        elif fault in ('foreign-runtime','foreign-route','missing-route','duplicate-route'):
+            if fault=='foreign-runtime':catalog['appId']='foreign';data['runtimeId']='foreign@1.0.0'
+            elif fault=='foreign-route':catalog['domains'][0]['namedProjectionTypes']=['foreign'];catalog['domains'][0]['ordinaryProjectionTypes']=['foreign']
+            elif fault=='missing-route':catalog['domains'][0]['namedProjectionTypes']=[];catalog['domains'][0]['ordinaryProjectionTypes']=[]
+            else:catalog['domains'][0]['namedProjectionTypes']*=2
+            data['catalogBytes']=json.dumps(catalog);data['catalogSha256']=digest(data['catalogBytes'].encode())
+        elif fault=='wire-route':data['wireRoutes'][1]='/project/v2/foreign'
+        elif fault=='pending-runtime':data['pendingLocation']['appId']='foreign'
+        elif fault=='pending-sequence':data['pendingLocation']['sequence']+=1
+        else:data['catalogFingerprint']='0'*64
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'RECONCILIATION_IDENTITY_DRIFT' if scenario=='AC-16.3-04' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1681: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[foreign-route-AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-374/test_round4_catalog_bytes_fram6/fixture')
+scenario = 'AC-16.3-03', fault = 'foreign-route'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-03','AC-16.3-04'])
+    @pytest.mark.parametrize('fault',['zero-hash','changed-bytes','foreign-runtime','foreign-route','missing-route','duplicate-route','wire-route','pending-runtime','pending-sequence','fingerprint'])
+    def test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);catalog=json.loads(data['catalogBytes'])
+        if fault=='zero-hash':data['catalogSha256']='0'*64
+        elif fault=='changed-bytes':data['catalogBytes']+=' '
+        elif fault in ('foreign-runtime','foreign-route','missing-route','duplicate-route'):
+            if fault=='foreign-runtime':catalog['appId']='foreign';data['runtimeId']='foreign@1.0.0'
+            elif fault=='foreign-route':catalog['domains'][0]['namedProjectionTypes']=['foreign'];catalog['domains'][0]['ordinaryProjectionTypes']=['foreign']
+            elif fault=='missing-route':catalog['domains'][0]['namedProjectionTypes']=[];catalog['domains'][0]['ordinaryProjectionTypes']=[]
+            else:catalog['domains'][0]['namedProjectionTypes']*=2
+            data['catalogBytes']=json.dumps(catalog);data['catalogSha256']=digest(data['catalogBytes'].encode())
+        elif fault=='wire-route':data['wireRoutes'][1]='/project/v2/foreign'
+        elif fault=='pending-runtime':data['pendingLocation']['appId']='foreign'
+        elif fault=='pending-sequence':data['pendingLocation']['sequence']+=1
+        else:data['catalogFingerprint']='0'*64
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'RECONCILIATION_IDENTITY_DRIFT' if scenario=='AC-16.3-04' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1681: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[missing-route-AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-374/test_round4_catalog_bytes_fram8/fixture')
+scenario = 'AC-16.3-03', fault = 'missing-route'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-03','AC-16.3-04'])
+    @pytest.mark.parametrize('fault',['zero-hash','changed-bytes','foreign-runtime','foreign-route','missing-route','duplicate-route','wire-route','pending-runtime','pending-sequence','fingerprint'])
+    def test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);catalog=json.loads(data['catalogBytes'])
+        if fault=='zero-hash':data['catalogSha256']='0'*64
+        elif fault=='changed-bytes':data['catalogBytes']+=' '
+        elif fault in ('foreign-runtime','foreign-route','missing-route','duplicate-route'):
+            if fault=='foreign-runtime':catalog['appId']='foreign';data['runtimeId']='foreign@1.0.0'
+            elif fault=='foreign-route':catalog['domains'][0]['namedProjectionTypes']=['foreign'];catalog['domains'][0]['ordinaryProjectionTypes']=['foreign']
+            elif fault=='missing-route':catalog['domains'][0]['namedProjectionTypes']=[];catalog['domains'][0]['ordinaryProjectionTypes']=[]
+            else:catalog['domains'][0]['namedProjectionTypes']*=2
+            data['catalogBytes']=json.dumps(catalog);data['catalogSha256']=digest(data['catalogBytes'].encode())
+        elif fault=='wire-route':data['wireRoutes'][1]='/project/v2/foreign'
+        elif fault=='pending-runtime':data['pendingLocation']['appId']='foreign'
+        elif fault=='pending-sequence':data['pendingLocation']['sequence']+=1
+        else:data['catalogFingerprint']='0'*64
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'RECONCILIATION_IDENTITY_DRIFT' if scenario=='AC-16.3-04' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1681: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[duplicate-route-AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-374/test_round4_catalog_bytes_fram10/fixture')
+scenario = 'AC-16.3-03', fault = 'duplicate-route'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-03','AC-16.3-04'])
+    @pytest.mark.parametrize('fault',['zero-hash','changed-bytes','foreign-runtime','foreign-route','missing-route','duplicate-route','wire-route','pending-runtime','pending-sequence','fingerprint'])
+    def test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);catalog=json.loads(data['catalogBytes'])
+        if fault=='zero-hash':data['catalogSha256']='0'*64
+        elif fault=='changed-bytes':data['catalogBytes']+=' '
+        elif fault in ('foreign-runtime','foreign-route','missing-route','duplicate-route'):
+            if fault=='foreign-runtime':catalog['appId']='foreign';data['runtimeId']='foreign@1.0.0'
+            elif fault=='foreign-route':catalog['domains'][0]['namedProjectionTypes']=['foreign'];catalog['domains'][0]['ordinaryProjectionTypes']=['foreign']
+            elif fault=='missing-route':catalog['domains'][0]['namedProjectionTypes']=[];catalog['domains'][0]['ordinaryProjectionTypes']=[]
+            else:catalog['domains'][0]['namedProjectionTypes']*=2
+            data['catalogBytes']=json.dumps(catalog);data['catalogSha256']=digest(data['catalogBytes'].encode())
+        elif fault=='wire-route':data['wireRoutes'][1]='/project/v2/foreign'
+        elif fault=='pending-runtime':data['pendingLocation']['appId']='foreign'
+        elif fault=='pending-sequence':data['pendingLocation']['sequence']+=1
+        else:data['catalogFingerprint']='0'*64
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'RECONCILIATION_IDENTITY_DRIFT' if scenario=='AC-16.3-04' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1681: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[wire-route-AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-374/test_round4_catalog_bytes_fram12/fixture')
+scenario = 'AC-16.3-03', fault = 'wire-route'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-03','AC-16.3-04'])
+    @pytest.mark.parametrize('fault',['zero-hash','changed-bytes','foreign-runtime','foreign-route','missing-route','duplicate-route','wire-route','pending-runtime','pending-sequence','fingerprint'])
+    def test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);catalog=json.loads(data['catalogBytes'])
+        if fault=='zero-hash':data['catalogSha256']='0'*64
+        elif fault=='changed-bytes':data['catalogBytes']+=' '
+        elif fault in ('foreign-runtime','foreign-route','missing-route','duplicate-route'):
+            if fault=='foreign-runtime':catalog['appId']='foreign';data['runtimeId']='foreign@1.0.0'
+            elif fault=='foreign-route':catalog['domains'][0]['namedProjectionTypes']=['foreign'];catalog['domains'][0]['ordinaryProjectionTypes']=['foreign']
+            elif fault=='missing-route':catalog['domains'][0]['namedProjectionTypes']=[];catalog['domains'][0]['ordinaryProjectionTypes']=[]
+            else:catalog['domains'][0]['namedProjectionTypes']*=2
+            data['catalogBytes']=json.dumps(catalog);data['catalogSha256']=digest(data['catalogBytes'].encode())
+        elif fault=='wire-route':data['wireRoutes'][1]='/project/v2/foreign'
+        elif fault=='pending-runtime':data['pendingLocation']['appId']='foreign'
+        elif fault=='pending-sequence':data['pendingLocation']['sequence']+=1
+        else:data['catalogFingerprint']='0'*64
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'RECONCILIATION_IDENTITY_DRIFT' if scenario=='AC-16.3-04' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1681: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[pending-runtime-AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-374/test_round4_catalog_bytes_fram14/fixture')
+scenario = 'AC-16.3-03', fault = 'pending-runtime'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-03','AC-16.3-04'])
+    @pytest.mark.parametrize('fault',['zero-hash','changed-bytes','foreign-runtime','foreign-route','missing-route','duplicate-route','wire-route','pending-runtime','pending-sequence','fingerprint'])
+    def test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);catalog=json.loads(data['catalogBytes'])
+        if fault=='zero-hash':data['catalogSha256']='0'*64
+        elif fault=='changed-bytes':data['catalogBytes']+=' '
+        elif fault in ('foreign-runtime','foreign-route','missing-route','duplicate-route'):
+            if fault=='foreign-runtime':catalog['appId']='foreign';data['runtimeId']='foreign@1.0.0'
+            elif fault=='foreign-route':catalog['domains'][0]['namedProjectionTypes']=['foreign'];catalog['domains'][0]['ordinaryProjectionTypes']=['foreign']
+            elif fault=='missing-route':catalog['domains'][0]['namedProjectionTypes']=[];catalog['domains'][0]['ordinaryProjectionTypes']=[]
+            else:catalog['domains'][0]['namedProjectionTypes']*=2
+            data['catalogBytes']=json.dumps(catalog);data['catalogSha256']=digest(data['catalogBytes'].encode())
+        elif fault=='wire-route':data['wireRoutes'][1]='/project/v2/foreign'
+        elif fault=='pending-runtime':data['pendingLocation']['appId']='foreign'
+        elif fault=='pending-sequence':data['pendingLocation']['sequence']+=1
+        else:data['catalogFingerprint']='0'*64
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'RECONCILIATION_IDENTITY_DRIFT' if scenario=='AC-16.3-04' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1681: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[pending-sequence-AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-374/test_round4_catalog_bytes_fram16/fixture')
+scenario = 'AC-16.3-03', fault = 'pending-sequence'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-03','AC-16.3-04'])
+    @pytest.mark.parametrize('fault',['zero-hash','changed-bytes','foreign-runtime','foreign-route','missing-route','duplicate-route','wire-route','pending-runtime','pending-sequence','fingerprint'])
+    def test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);catalog=json.loads(data['catalogBytes'])
+        if fault=='zero-hash':data['catalogSha256']='0'*64
+        elif fault=='changed-bytes':data['catalogBytes']+=' '
+        elif fault in ('foreign-runtime','foreign-route','missing-route','duplicate-route'):
+            if fault=='foreign-runtime':catalog['appId']='foreign';data['runtimeId']='foreign@1.0.0'
+            elif fault=='foreign-route':catalog['domains'][0]['namedProjectionTypes']=['foreign'];catalog['domains'][0]['ordinaryProjectionTypes']=['foreign']
+            elif fault=='missing-route':catalog['domains'][0]['namedProjectionTypes']=[];catalog['domains'][0]['ordinaryProjectionTypes']=[]
+            else:catalog['domains'][0]['namedProjectionTypes']*=2
+            data['catalogBytes']=json.dumps(catalog);data['catalogSha256']=digest(data['catalogBytes'].encode())
+        elif fault=='wire-route':data['wireRoutes'][1]='/project/v2/foreign'
+        elif fault=='pending-runtime':data['pendingLocation']['appId']='foreign'
+        elif fault=='pending-sequence':data['pendingLocation']['sequence']+=1
+        else:data['catalogFingerprint']='0'*64
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'RECONCILIATION_IDENTITY_DRIFT' if scenario=='AC-16.3-04' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1681: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[fingerprint-AC-16.3-03] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-374/test_round4_catalog_bytes_fram18/fixture')
+scenario = 'AC-16.3-03', fault = 'fingerprint'
+
+    @pytest.mark.parametrize('scenario',['AC-16.3-03','AC-16.3-04'])
+    @pytest.mark.parametrize('fault',['zero-hash','changed-bytes','foreign-runtime','foreign-route','missing-route','duplicate-route','wire-route','pending-runtime','pending-sequence','fingerprint'])
+    def test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity(repository,scenario,fault):
+        data=deepcopy(OBSERVATIONS[scenario]);catalog=json.loads(data['catalogBytes'])
+        if fault=='zero-hash':data['catalogSha256']='0'*64
+        elif fault=='changed-bytes':data['catalogBytes']+=' '
+        elif fault in ('foreign-runtime','foreign-route','missing-route','duplicate-route'):
+            if fault=='foreign-runtime':catalog['appId']='foreign';data['runtimeId']='foreign@1.0.0'
+            elif fault=='foreign-route':catalog['domains'][0]['namedProjectionTypes']=['foreign'];catalog['domains'][0]['ordinaryProjectionTypes']=['foreign']
+            elif fault=='missing-route':catalog['domains'][0]['namedProjectionTypes']=[];catalog['domains'][0]['ordinaryProjectionTypes']=[]
+            else:catalog['domains'][0]['namedProjectionTypes']*=2
+            data['catalogBytes']=json.dumps(catalog);data['catalogSha256']=digest(data['catalogBytes'].encode())
+        elif fault=='wire-route':data['wireRoutes'][1]='/project/v2/foreign'
+        elif fault=='pending-runtime':data['pendingLocation']['appId']='foreign'
+        elif fault=='pending-sequence':data['pendingLocation']['sequence']+=1
+        else:data['catalogFingerprint']='0'*64
+>       native(repository,scenario,data);rejected(evaluate(repository,scenario),'RECONCILIATION_IDENTITY_DRIFT' if scenario=='AC-16.3-04' else 'MEASUREMENT_INVALID')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1681: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_correctly_rehashed_foreign_catalogs_still_fail_independent_controls[runtime] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-374/test_round4_correctly_rehashed0/fixture')
+fault = 'runtime'
+
+    @pytest.mark.parametrize('fault',['runtime','route'])
+    def test_round4_correctly_rehashed_foreign_catalogs_still_fail_independent_controls(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-03']);value=json.loads(data['catalogBytes'])
+        if fault=='runtime':value['appId']='foreign-runtime';data['pendingLocation']['appId']=value['appId'];data['runtimeId']='foreign-runtime@1.0.0'
+        else:value['domains'][0]['namedProjectionTypes']=value['domains'][0]['ordinaryProjectionTypes']=['foreign-route'];data['pendingLocation']['projectionType']='foreign-route'
+        routes=[dict(domain=value['domains'][0]['domain'],projectionType=p) for p in value['domains'][0]['namedProjectionTypes']]
+        fingerprint=tooling.measurements.relationships.catalog_fingerprint(value['appId'],value['serviceVersion'],routes,routes)
+        value['catalogFingerprint']=data['catalogFingerprint']=data['pendingLocation']['catalogFingerprint']=fingerprint
+        data['catalogBytes']=json.dumps(value);data['catalogSha256']=digest(data['catalogBytes'].encode())
+>       native(repository,'AC-16.3-03',data);rejected(evaluate(repository,'AC-16.3-03'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1741: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_correctly_rehashed_foreign_catalogs_still_fail_independent_controls[route] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-374/test_round4_correctly_rehashed1/fixture')
+fault = 'route'
+
+    @pytest.mark.parametrize('fault',['runtime','route'])
+    def test_round4_correctly_rehashed_foreign_catalogs_still_fail_independent_controls(repository,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.3-03']);value=json.loads(data['catalogBytes'])
+        if fault=='runtime':value['appId']='foreign-runtime';data['pendingLocation']['appId']=value['appId'];data['runtimeId']='foreign-runtime@1.0.0'
+        else:value['domains'][0]['namedProjectionTypes']=value['domains'][0]['ordinaryProjectionTypes']=['foreign-route'];data['pendingLocation']['projectionType']='foreign-route'
+        routes=[dict(domain=value['domains'][0]['domain'],projectionType=p) for p in value['domains'][0]['namedProjectionTypes']]
+        fingerprint=tooling.measurements.relationships.catalog_fingerprint(value['appId'],value['serviceVersion'],routes,routes)
+        value['catalogFingerprint']=data['catalogFingerprint']=data['pendingLocation']['catalogFingerprint']=fingerprint
+        data['catalogBytes']=json.dumps(value);data['catalogSha256']=digest(data['catalogBytes'].encode())
+>       native(repository,'AC-16.3-03',data);rejected(evaluate(repository,'AC-16.3-03'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1741: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-03', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[zero-hash-AC-16.3-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[changed-bytes-AC-16.3-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[foreign-runtime-AC-16.3-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[foreign-route-AC-16.3-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[missing-route-AC-16.3-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[duplicate-route-AC-16.3-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[wire-route-AC-16.3-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[pending-runtime-AC-16.3-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[pending-sequence-AC-16.3-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_catalog_bytes_frame_actual_runtime_route_and_pending_identity[fingerprint-AC-16.3-03]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_correctly_rehashed_foreign_catalogs_still_fail_independent_controls[runtime]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_correctly_rehashed_foreign_catalogs_still_fail_independent_controls[route]
+12 failed, 10 passed, 774 deselected in 9.41s

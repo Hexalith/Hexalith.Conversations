@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_referenced_same_ki1/candidate/api/Api.csproj (in 62 ms).
+  Restored /tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_referenced_same_ki1/candidate/external/External.csproj (in 61 ms).
+  External -> /tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_referenced_same_ki1/candidate/external/bin/Debug/net10.0/External.dll
+  Api -> /tmp/epic16-r9-final-pytest-87mbz06t/combined/test_round9_referenced_same_ki1/candidate/api/bin/Debug/net10.0/Probe.Api.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.07

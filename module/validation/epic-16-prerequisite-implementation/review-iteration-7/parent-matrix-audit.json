@@ -1,0 +1,111 @@
+{
+  "unqualified tool or owner entry": {
+    "passedExecutedTests": [
+      "test_artifact_cannot_nominate_its_own_entry_trust",
+      "test_independently_pinned_entry_still_validates_candidate_qualification_and_predecessors[<lambda>-ENTRY_REVISION_UNAVAILABLE]",
+      "test_independently_pinned_entry_still_validates_candidate_qualification_and_predecessors[<lambda>-ENTRY_INVENTORY_DRIFT]",
+      "test_independently_pinned_entry_still_validates_candidate_qualification_and_predecessors[<lambda>-ENTRY_QUALIFICATION_PENDING]",
+      "test_independently_pinned_entry_still_validates_candidate_qualification_and_predecessors[<lambda>-ENTRY_AUTHORITY_INVALID]",
+      "test_independently_pinned_entry_still_validates_candidate_qualification_and_predecessors[<lambda>-ENTRY_PREDECESSOR_DRIFT]"
+    ]
+  },
+  "bound measured native evidence": {
+    "passedExecutedTests": [
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-01]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-02]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-03]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-04]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.1-05]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-01]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-02]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-03]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-04]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.2-05]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-01]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-02]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-03]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-04]",
+      "test_all_fifteen_measured_routes_pass_only_as_disposable_fixtures[AC-16.3-05]",
+      "test_final_record_derives_sixth_after_five_and_is_deterministic[16.1]",
+      "test_final_record_derives_sixth_after_five_and_is_deterministic[16.2]",
+      "test_final_record_derives_sixth_after_five_and_is_deterministic[16.3]"
+    ]
+  },
+  "missing native measurements or entry": {
+    "passedExecutedTests": [
+      "test_each_route_blocks_missing_measurement[AC-16.1-01]",
+      "test_each_route_blocks_missing_measurement[AC-16.1-02]",
+      "test_each_route_blocks_missing_measurement[AC-16.1-03]",
+      "test_each_route_blocks_missing_measurement[AC-16.1-04]",
+      "test_each_route_blocks_missing_measurement[AC-16.1-05]",
+      "test_each_route_blocks_missing_measurement[AC-16.2-01]",
+      "test_each_route_blocks_missing_measurement[AC-16.2-02]",
+      "test_each_route_blocks_missing_measurement[AC-16.2-03]",
+      "test_each_route_blocks_missing_measurement[AC-16.2-04]",
+      "test_each_route_blocks_missing_measurement[AC-16.2-05]",
+      "test_each_route_blocks_missing_measurement[AC-16.3-01]",
+      "test_each_route_blocks_missing_measurement[AC-16.3-02]",
+      "test_each_route_blocks_missing_measurement[AC-16.3-03]",
+      "test_each_route_blocks_missing_measurement[AC-16.3-04]",
+      "test_each_route_blocks_missing_measurement[AC-16.3-05]",
+      "test_independently_pinned_entry_still_validates_candidate_qualification_and_predecessors[<lambda>-ENTRY_REVISION_UNAVAILABLE]",
+      "test_independently_pinned_entry_still_validates_candidate_qualification_and_predecessors[<lambda>-ENTRY_INVENTORY_DRIFT]",
+      "test_independently_pinned_entry_still_validates_candidate_qualification_and_predecessors[<lambda>-ENTRY_QUALIFICATION_PENDING]",
+      "test_independently_pinned_entry_still_validates_candidate_qualification_and_predecessors[<lambda>-ENTRY_AUTHORITY_INVALID]",
+      "test_independently_pinned_entry_still_validates_candidate_qualification_and_predecessors[<lambda>-ENTRY_PREDECESSOR_DRIFT]"
+    ]
+  },
+  "altered contract inventory identity receipt source": {
+    "passedExecutedTests": [
+      "test_native_bindings_cannot_be_relabelled[sources]",
+      "test_native_bindings_cannot_be_relabelled[contractSha256]",
+      "test_native_bindings_cannot_be_relabelled[candidate]",
+      "test_native_bindings_cannot_be_relabelled[scenarioId]",
+      "test_contract_schema_predecessor_and_source_pins_are_independent",
+      "test_receipt_forgery_and_output_aliases_preserve_sources"
+    ]
+  },
+  "forged counts skipped tests stale candidate": {
+    "passedExecutedTests": [
+      "test_native_counts_and_executed_test_identity_are_recomputed[<lambda>-NATIVE_COUNTS_INVALID0]",
+      "test_native_counts_and_executed_test_identity_are_recomputed[<lambda>-NATIVE_COUNTS_INVALID1]",
+      "test_native_counts_and_executed_test_identity_are_recomputed[<lambda>-NATIVE_COUNTS_INVALID2]",
+      "test_native_counts_and_executed_test_identity_are_recomputed[<lambda>-NATIVE_COUNTS_INVALID3]",
+      "test_native_counts_and_executed_test_identity_are_recomputed[<lambda>-NATIVE_COUNTS_INVALID4]",
+      "test_native_counts_and_executed_test_identity_are_recomputed[<lambda>-NATIVE_IDENTITY_DRIFT0]",
+      "test_native_counts_and_executed_test_identity_are_recomputed[<lambda>-NATIVE_IDENTITY_DRIFT1]",
+      "test_stale_dirty_and_missing_history_cannot_pass"
+    ]
+  },
+  "contained regular inputs protected outputs": {
+    "passedExecutedTests": [
+      "test_native_inputs_are_contained_regular_files[symlink]",
+      "test_native_inputs_are_contained_regular_files[fifo]",
+      "test_receipt_forgery_and_output_aliases_preserve_sources",
+      "test_native_binary_paths_reject_escape_traversal_symlink_and_nonregular[outside]",
+      "test_native_binary_paths_reject_escape_traversal_symlink_and_nonregular[dot]",
+      "test_native_binary_paths_reject_escape_traversal_symlink_and_nonregular[relative-dot]",
+      "test_native_binary_paths_reject_escape_traversal_symlink_and_nonregular[symlink]",
+      "test_native_binary_paths_reject_escape_traversal_symlink_and_nonregular[fifo]"
+    ]
+  },
+  "historical V9 V14 and completion routes": {
+    "passedExecutedTests": [
+      "test_standalone_generator_preserves_legacy_dispatch_without_successor_modules[False-_bmad-output/planning-artifacts/v9/story-contracts/7.3.json]",
+      "test_standalone_generator_preserves_legacy_dispatch_without_successor_modules[False-_bmad-output/planning-artifacts/v9/story-contracts/11.1.json]",
+      "test_standalone_generator_preserves_legacy_dispatch_without_successor_modules[False-_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json]",
+      "test_standalone_generator_preserves_legacy_dispatch_without_successor_modules[True-_bmad-output/planning-artifacts/v9/story-contracts/7.3.json]",
+      "test_standalone_generator_preserves_legacy_dispatch_without_successor_modules[True-_bmad-output/planning-artifacts/v9/story-contracts/11.1.json]",
+      "test_standalone_generator_preserves_legacy_dispatch_without_successor_modules[True-_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json]"
+    ],
+    "additionalEvidence": {
+      "legacyPassed": 72,
+      "historicalAdoptionPassed": 162,
+      "completionGuardsPassed": 2
+    }
+  },
+  "corrected published tool": {
+    "nativeQualification": "module/validation/epic-16-prerequisite-implementation/commands.json",
+    "disposition": "Actual isolated installed CLI 4.38.0: ordinary exits 0/0; adoption exits 1/1 with 7 PASS/17 FAIL; 36 malformed-key controls reject. Retained initial qualification, not a new rerun or owner acceptance."
+  }
+}

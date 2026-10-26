@@ -1,0 +1,87 @@
+[
+  {
+    "finding": "R7B4 null initial metadata",
+    "scenario": "AC-16.3-03",
+    "schema": "rejected",
+    "schemaReason": "None is not of type 'string'",
+    "checks": [
+      "production-delivery",
+      "durable-pending",
+      "ack-ordering",
+      "runtime-route-binding"
+    ],
+    "semantic": "accepted"
+  },
+  {
+    "finding": "R7B5 equal global boundary additional stream event",
+    "scenario": "AC-16.2-04",
+    "schema": "accepted",
+    "checks": [
+      "writer-CAS-boundary",
+      "generation-fences",
+      "erase-quarantine",
+      "authoritative-rebuild-cutover"
+    ],
+    "semantic": "accepted"
+  },
+  {
+    "finding": "R7B6 conflicting authoritative location",
+    "scenario": "AC-16.2-04",
+    "schema": "accepted",
+    "checks": [
+      "writer-CAS-boundary",
+      "generation-fences",
+      "erase-quarantine",
+      "authoritative-rebuild-cutover"
+    ],
+    "semantic": "accepted"
+  },
+  {
+    "finding": "R7B7 zero lifecycle CAS versions",
+    "scenario": "AC-16.2-04",
+    "schema": "accepted",
+    "checks": [
+      "writer-CAS-boundary",
+      "generation-fences",
+      "erase-quarantine",
+      "authoritative-rebuild-cutover"
+    ],
+    "semantic": "accepted"
+  },
+  {
+    "finding": "R7B9 erase equal commit/ack timestamps",
+    "scenario": "AC-16.2-04",
+    "schema": "accepted",
+    "checks": [
+      "writer-CAS-boundary",
+      "generation-fences",
+      "erase-quarantine",
+      "authoritative-rebuild-cutover"
+    ],
+    "semantic": "accepted"
+  },
+  {
+    "finding": "R7B9 pending equal commit/ack timestamps",
+    "scenario": "AC-16.3-03",
+    "schema": "accepted",
+    "checks": [
+      "production-delivery",
+      "durable-pending",
+      "ack-ordering",
+      "runtime-route-binding"
+    ],
+    "semantic": "accepted"
+  },
+  {
+    "finding": "R7B10 no measured horizon growth",
+    "scenario": "AC-16.1-03",
+    "schema": "accepted",
+    "checks": [
+      "monotonic-horizon",
+      "immutable-pending-evidence",
+      "two-replica-convergence",
+      "fenced-cutover"
+    ],
+    "semantic": "accepted"
+  }
+]

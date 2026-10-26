@@ -1,0 +1,39 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_round10_api_candidate_must_be_the_actual_loaded_product[root] ______
+
+round10_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-584/test_round10_api_candidate_mus0/fixture')
+which = 'root'
+
+    @pytest.mark.parametrize('which',['upstream','root'])
+    def test_round10_api_candidate_must_be_the_actual_loaded_product(round10_runtime,which):
+        repo=round10_runtime;scenario='AC-16.1-05';initial=tooling.evaluate(repo,'16.1',scenario);assert initial['result']=='PASS',initial
+        name='Hexalith.Tenants.Client' if which=='upstream' else 'Hexalith.Conversations.Contracts'
+        product=next(p for p in tooling.products.PRODUCTS if p['assemblyName']==name);revision=next(p for p in initial['bindings']['testBinary']['products'] if p['assemblyName']==name)['sourceRevision']
+        # A distinct implementation with the same declaration surface/revision still cannot stand in for the loaded bytes.
+        content=round9_compile_product(product,revision,round9_product_source(product).replace('=> value;', '=> value + "different implementation";'))
+        artifact=tooling.capture.binary_path('16.1',digest(content));(repo/artifact).write_bytes(content)
+        def change(payload):
+            api=next(r for r in payload['observations']['upstreamSurfaces'] if r['assemblyName']==name) if which=='upstream' else payload['observations']['compiledContracts']
+            api['candidate']=dict(path=artifact,sha256=digest(content),revision=revision)
+        round10_rewrite_runtime(repo,scenario,change)
+>       rejected(tooling.evaluate(repo,'16.1',scenario),'PRODUCT_API_CORRELATION_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:3722: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'runtime', ...}
+code = 'PRODUCT_API_CORRELATION_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-05', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_api_candidate_must_be_the_actual_loaded_product[root]
+1 failed, 1977 deselected in 24.48s

@@ -1,0 +1,72 @@
+{
+  "synthetic": true,
+  "keys": [
+    {
+      "tenant": "tenant-a",
+      "resource": "same-resource",
+      "key": "projection:conversations:dGVuYW50LWE:c2FtZS1yZXNvdXJjZQ",
+      "index": "projection:conversations-index:dGVuYW50LWE"
+    },
+    {
+      "tenant": "a:b",
+      "resource": "c",
+      "key": "projection:conversations:YTpi:Yw",
+      "index": "projection:conversations-index:YTpi"
+    },
+    {
+      "tenant": "a",
+      "resource": "b:c",
+      "key": "projection:conversations:YQ:Yjpj",
+      "index": "projection:conversations-index:YQ"
+    },
+    {
+      "tenant": "\u00E9/\uD800\uDC00",
+      "resource": "\u002B?=\u0026",
+      "key": "projection:conversations:w6kv8JCAgA:Kz89Jg",
+      "index": "projection:conversations-index:w6kv8JCAgA"
+    },
+    {
+      "tenant": "A",
+      "resource": "r",
+      "key": "projection:conversations:QQ:cg",
+      "index": "projection:conversations-index:QQ"
+    },
+    {
+      "tenant": "a",
+      "resource": "r",
+      "key": "projection:conversations:YQ:cg",
+      "index": "projection:conversations-index:YQ"
+    }
+  ],
+  "catalogs": [
+    {
+      "appId": "conversations",
+      "serviceVersion": "1.0.0",
+      "routes": [
+        {
+          "domain": "conversation",
+          "projectionType": "conversation-read-model"
+        }
+      ],
+      "ordinary": [
+        {
+          "domain": "conversation",
+          "projectionType": "conversation-read-model"
+        }
+      ],
+      "fingerprint": "f6ea4f0fab2acfe2bc70198ef61ed5b921c11cfd5232688dc742527e290d24e9"
+    },
+    {
+      "appId": "conversations",
+      "serviceVersion": "1.0.0",
+      "routes": [
+        {
+          "domain": "conversation",
+          "projectionType": "conversation-read-model"
+        }
+      ],
+      "ordinary": [],
+      "fingerprint": "11b54b1ed5fcf3cd751b7d99db4b751d0495436aef13777f5c7efa1ebdcf83ed"
+    }
+  ]
+}

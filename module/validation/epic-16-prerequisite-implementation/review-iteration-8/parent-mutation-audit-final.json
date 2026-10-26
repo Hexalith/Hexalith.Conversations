@@ -1,0 +1,16 @@
+{
+  "records": [
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations/mutation-probes.json",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/mutations-final/mutation-probes.json"
+  ],
+  "runs": 40,
+  "demonstratedGuards": 39,
+  "assertionFailures": 81,
+  "setupErrors": 0,
+  "skipped": 0,
+  "sourceHashesMatchCurrentFinal": true,
+  "stdoutStderrAndJUnitVerified": true,
+  "redundantSurvivors": [
+    "named-internal-metadata"
+  ]
+}

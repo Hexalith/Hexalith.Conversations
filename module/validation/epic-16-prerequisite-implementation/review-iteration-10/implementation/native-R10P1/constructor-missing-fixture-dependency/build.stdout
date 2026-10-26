@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/pytest-of-administrator/pytest-602/test_round10_construction_meta15/runner/Evidence.csproj (in 93 ms).
+/tmp/pytest-of-administrator/pytest-602/test_round10_construction_meta15/runner/Tests.cs(5,29): warning CS9113: Parameter 'missing' is unread. [/tmp/pytest-of-administrator/pytest-602/test_round10_construction_meta15/runner/Evidence.csproj]
+  Evidence -> /tmp/pytest-of-administrator/pytest-602/test_round10_construction_meta15/runner/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/pytest-of-administrator/pytest-602/test_round10_construction_meta15/runner/Tests.cs(5,29): warning CS9113: Parameter 'missing' is unread. [/tmp/pytest-of-administrator/pytest-602/test_round10_construction_meta15/runner/Evidence.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.44

@@ -1,0 +1,18 @@
+**Epic 16 final record** — 16.2
+
+Scope: `runtime`. Runtime qualified: `true`.
+
+Candidate: `715b505eb94716c6cab50851c14e474dbec8dd0c`. Payload SHA-256: `a8bba78bc0bd06e455253f39c6c7bd4f4885fcf7a1a3f353a67d3c7c3f466853`.
+
+| Scenario | Result | Native tests |
+| --- | --- | ---: |
+| AC-16.2-01 | PASS | 1 |
+| AC-16.2-02 | PASS | 1 |
+| AC-16.2-03 | PASS | 1 |
+| AC-16.2-04 | PASS | 1 |
+| AC-16.2-05 | PASS | 1 |
+| AC-16.2-06 | PASS | 0 |
+
+Summary: 6/6/0/0/0/0.
+
+Rollback: Revert only timestamp derivation, the lifecycle/watermark addition, read semantics, tests/evidence, and the Story 16.2 record. Preserve event history, public contract shape, Story 16.1 state, and prior proof history.

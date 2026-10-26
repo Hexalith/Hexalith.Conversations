@@ -1,0 +1,1217 @@
+{
+  "scope": "authorized prerequisite implementation only; no actual runtime or owner authority",
+  "reviewIteration": 6,
+  "rootHead": "8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3",
+  "preservation": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/preservation-restoration.json",
+    "sha256": "1c2825b3b875d19b678b5d2df99cf61f8746d75d970325b81092eb728650bf1c"
+  },
+  "sourceEpoch": {
+    "name": "final iteration-6 implementation",
+    "sourceBinding": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/verification-source.json",
+      "sha256": "21eaa3726fd9c7f26c4ff6fc29007c17756c1dc2c3102d4e3795e6bf466c70a8"
+    },
+    "unchangedDuringFinalCombinedLegacyAndHeldChecks": true,
+    "mutationEpochDisposition": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/source-epoch-disposition.json",
+      "sha256": "ad8a31c8879d2f8162026c0f4cd3173a789988a43d48497b80ffb4599e476d96"
+    }
+  },
+  "combined": {
+    "command": {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests/test_epic16_tooling.py",
+        "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py",
+        "--maxfail=3",
+        "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/combined.xml"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 540.477,
+      "stdoutSha256": "c4c2ae68d9f8eb87dbc64d3e659f85fb397e3125aa8859703e68998c5f919844",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "junitSha256": "fba5383c509cdd40d0fa51af9a67a6a12a526378941c81f6f57af1cd1725dcd8"
+    },
+    "counts": {
+      "tests": 1213,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "successorTests": 1051,
+    "historicalAdoptionV2Tests": 162,
+    "retainedSuccessorTests": 862,
+    "newSuccessorTests": 189
+  },
+  "legacy": {
+    "command": {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests/test_generate_story_record.py",
+        "_bmad/scripts/tests/test_epic16_tooling.py",
+        "-k",
+        "story_111 or story_112 or standalone_generator",
+        "--maxfail=3",
+        "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/legacy.xml"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 75.671,
+      "stdoutSha256": "69f5925c4a7933956eea23ce3d1620023cf280b481f792f09f03a0a7591a7598",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "junitSha256": "f285992b30047d31e8327389ffc2e034e49173b7bd54c52ca32d245cf16434ae"
+    },
+    "counts": {
+      "tests": 72,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "mutationProbes": {
+    "record": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/mutation-probes.json",
+      "sha256": "23fd7adb02db8e77ab3b9a2ee94b0720b8542c806834516101e084ff5cc25db9"
+    },
+    "mutants": 25,
+    "targetedFailures": 173,
+    "setupErrors": 0,
+    "retainedPriorGuards": 62,
+    "priorEvidence": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/verification.json",
+      "sha256": "ed30a79bf2f337b76b74b6c721e34f460ac4a253a137225d2608ce17dfc1e650"
+    },
+    "note": "New guard mutations retain the pre-description/checkpoint-negative source epoch. Only schema/helper descriptions, their consequent trust pin and the checkpoint-negative test input changed afterward; no functional guard changed. Earlier 47+15 observations remain historical, not rerun mutation claims. Final combined tests retain all previous regressions."
+  },
+  "held": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-commands.json",
+    "sha256": "d272df407285818cbb5931ae6a39b07c4346e51dd150b6e535f7bdb0aba1b6f2"
+  },
+  "completion": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/completion-commands.json",
+    "sha256": "a316371d7424b453deaf2a16e11012920b9f1d598442811248822c62d91b12e8"
+  },
+  "whitespace": {
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "parentCounterexamples": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/parent-after-corrections.json",
+      "sha256": "51a524dfc57b791cd63adade2b4ebfe9cd5f4a64350cf3b7e4521d32a6f46da3"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/parent-schedule-probes.json",
+      "sha256": "f7c2c51c3f9511084b10685b47a8e8a78de96ff9e8ed5c78068345c1123786f6"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/parent-capture-path-probes.json",
+      "sha256": "9e2d7b63d83ad9aa503fd4c5268fc96816d4c0c77a462817063fd9e91b4716fd"
+    }
+  ],
+  "nativeCapture": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/provenance.json",
+    "sha256": "394fa523afeae449555070a1d3f0975e29b4e97945b75a201952430bf96baa82"
+  },
+  "runtime": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/runtime-absence.json",
+    "sha256": "a76f7cebddbe00d1e47eb3b7acc6ec0b524e95953914226e854a8019c6f028d6"
+  },
+  "broadLane": {
+    "rerun": false,
+    "reason": "spec prohibits rerunning broad lane",
+    "retained": {
+      "path": "module/validation/epic-16-prerequisite-implementation/verification-final.json",
+      "sha256": "bd618a708a99feb0cbcaf9d789b9c9391bcf9702d70f49ce47556d392df0fad6"
+    },
+    "unresolved": [
+      "REFRESH_UV_DRIFT package-refresh baseline",
+      "Story 10.4 guidance-binding baseline"
+    ],
+    "gateWeakened": false
+  },
+  "intermediateObservations": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/intermediate-observations.json",
+      "sha256": "eb43a0a006d44f5deacde25731b1c265880aba5bd92577d8c1e2cdcd6e1a76d0"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/disposition.json",
+      "sha256": "a4533051bf16fc7d4461515e8e788c2328938784a7f22eff9f127f0c4213ee8c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/disposition.json",
+      "sha256": "07bd72a4c368be21578827daba353c7c9567eced981c9a34c0de9e10f6a12272"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/source-epoch-disposition.json",
+      "sha256": "ad8a31c8879d2f8162026c0f4cd3173a789988a43d48497b80ffb4599e476d96"
+    }
+  ],
+  "disposableCommitValidation": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/disposable-commitlint.json",
+    "sha256": "6df8ea5b3b15d690817f8a70a18d50a632273a3ecf230ccc0bd1efed52b6abc1"
+  },
+  "orchestration": "Retained existing parent workflow; no workflow render, secondary orchestration or subagent spawn in this iteration.",
+  "remainingOwnerWork": [
+    "Platform exact-pin/integration qualification",
+    "seventeen adoption findings",
+    "provider and operational parity",
+    "recovery drills",
+    "operator/deputy coverage",
+    "capacity or waiver decisions",
+    "human SM-2",
+    "separate trusted runtime entry"
+  ],
+  "unrelatedUserWork": [
+    "_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md",
+    "docs/implementation/ext-conv-ai-1-runtime-qualification.md",
+    "tests/tooling/test_ext_conv_ai_1_installed_delivery_packet.py"
+  ],
+  "artifacts": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/combined.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/combined.stdout.txt",
+      "sha256": "c4c2ae68d9f8eb87dbc64d3e659f85fb397e3125aa8859703e68998c5f919844"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/combined.xml",
+      "sha256": "fba5383c509cdd40d0fa51af9a67a6a12a526378941c81f6f57af1cd1725dcd8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/commitlint-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/commitlint-0.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/commitlint-1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/commitlint-1.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/commitlint-2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/commitlint-2.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/completion-1.receipt.txt",
+      "sha256": "60fdf33158afc77a67a4bdf8ea7d67300ba61a5eee39841f8ec2f0e31741d5c4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/completion-1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/completion-1.stdout.txt",
+      "sha256": "60fdf33158afc77a67a4bdf8ea7d67300ba61a5eee39841f8ec2f0e31741d5c4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/completion-2.receipt.txt",
+      "sha256": "7431262a56017e4f18535f71781ac6cb4f188050bc382bb796406dcb161ee5d1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/completion-2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/completion-2.stdout.txt",
+      "sha256": "7431262a56017e4f18535f71781ac6cb4f188050bc382bb796406dcb161ee5d1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/completion-commands.json",
+      "sha256": "a316371d7424b453deaf2a16e11012920b9f1d598442811248822c62d91b12e8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/disposable-commitlint.json",
+      "sha256": "6df8ea5b3b15d690817f8a70a18d50a632273a3ecf230ccc0bd1efed52b6abc1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/hash-control-proof/mutation-probes.json",
+      "sha256": "32451e7c89861c0428701b1716a6eb30a374bf18cdd5f7f1c14f065eff0459bd"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/hash-control-proof/retained-byte-hash.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/hash-control-proof/retained-byte-hash.stdout.txt",
+      "sha256": "74332d9e797eb43bb7ff5c700b74b7c2bf6b377d9ef37fb06a81685b34917593"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/hash-control-proof/retained-byte-hash.xml",
+      "sha256": "05059533fbe0c3d4bdd163fd1ed0716ee90538b04d50faab3fc83b97aa6f477f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-01.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-01.stdout.txt",
+      "sha256": "3d3fbd9fd81253e9dc957e309f7366f02c73babc56e98fd6560da48dbad8832e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-02.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-02.stdout.txt",
+      "sha256": "30c4e5ea7003f2bf41241a1e176fdaf9c71dd9e7d08b932c81bfa3bbf2f05e39"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-03.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-03.stdout.txt",
+      "sha256": "a591f00e40908642d8578a8ae89a6a709252a34f338c98e4167a45f5a9f808d5"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-04.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-04.stdout.txt",
+      "sha256": "26a7ff6e57ba12f54f12275713c09181838533e3056b88079a2d43fe3a0f1399"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-05.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-05.stdout.txt",
+      "sha256": "de6c23dc826836e497eb840e2677899087f49034b2aa9fdd8d78ecfe2d00d19e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-06.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-06.stdout.txt",
+      "sha256": "3d3fbd9fd81253e9dc957e309f7366f02c73babc56e98fd6560da48dbad8832e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-07.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-07.stdout.txt",
+      "sha256": "7f096c50e5d22fef41229bd65005b0d7e1fbcf2311783e96c9c352ecde9a224e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-08.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-08.stdout.txt",
+      "sha256": "7f5430cf9f51f084d352176a8674b0795866d564ba3b392a744f764ff084145e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-09.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-09.stdout.txt",
+      "sha256": "0d179acacfde915bbbe0401e79d283d8409bb39b879b62c20ecf3244124923ab"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-10.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-10.stdout.txt",
+      "sha256": "d60a681bc92ad71998380592b32259bdc5744f60ab09293de48c0e1a6d078f1b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-11.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-11.stdout.txt",
+      "sha256": "6278f67e79471d3fb6e057b4a0388a0a712044afbe02ce95cc6c2b37999795df"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-12.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-12.stdout.txt",
+      "sha256": "7f096c50e5d22fef41229bd65005b0d7e1fbcf2311783e96c9c352ecde9a224e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-13.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-13.stdout.txt",
+      "sha256": "28bd46ec3fe4af85c0f196349f76ec1c1dca57502fab4fab514de19ab0e32562"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-14.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-14.stdout.txt",
+      "sha256": "8aa4c9e48d21045ae626a53586d17b03388f92488d70fed35b193ec1e90d50c8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-15.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-15.stdout.txt",
+      "sha256": "01164456e9cd54eee06bd3e45ecbf0d84444473c32fd58f669df848770cdbdb1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-16.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-16.stdout.txt",
+      "sha256": "bd125b51a08f894cd7c0303d2aeb58432f79d1ffd47d8ff4b44ce1d4c99b70ab"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-17.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-17.stdout.txt",
+      "sha256": "a948714deefb249a430c177922cf196bdb1fd7f0f5433a552245abf919d45a00"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-18.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-18.stdout.txt",
+      "sha256": "28bd46ec3fe4af85c0f196349f76ec1c1dca57502fab4fab514de19ab0e32562"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/held-commands.json",
+      "sha256": "d272df407285818cbb5931ae6a39b07c4346e51dd150b6e535f7bdb0aba1b6f2"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/intermediate-observations.json",
+      "sha256": "eb43a0a006d44f5deacde25731b1c265880aba5bd92577d8c1e2cdcd6e1a76d0"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/combined.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/combined.stdout.txt",
+      "sha256": "80f77fe91d518386e837776329afe7e1bf379dcd90b9dfe9adaed156e8656eb2"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/combined.xml",
+      "sha256": "43ead5e9de046b68e4c379983fdd5cd70e4a85fa28e9b403e88948d590d7ee36"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/disposition.json",
+      "sha256": "a4533051bf16fc7d4461515e8e788c2328938784a7f22eff9f127f0c4213ee8c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/mutation-probes.json",
+      "sha256": "3da0838ae42749e97fc835073d2897fe8f1611617cf5f9a24371c13b79b17883"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/native-capture-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/native-capture-binding.stdout.txt",
+      "sha256": "bcf58e9cb57e37168072377bfa9bbcf14bd7d88a5ac28321f04e293e0b1d46f3"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/native-capture-binding.xml",
+      "sha256": "4d727bafe50e71d2396212a66c8fa577d03401022af04ee81226a6d1db059f3e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/original-capture-path.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/original-capture-path.stdout.txt",
+      "sha256": "608b54bb8bcfcee1a9186da640a4c6ff1e5258a3dd1f84afddc36d9bf00d3544"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/original-capture-path.xml",
+      "sha256": "4b3f46a5b2977a9559b27c4fc07527ba1c1df02eb7dcd04a41c7c2e4ea8ef498"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/retained-byte-hash.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/retained-byte-hash.stdout.txt",
+      "sha256": "f2741539e4faa77a875406e4446f6b17670f258e6b35d91b1dbbf83fab755bae"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/retained-byte-hash.xml",
+      "sha256": "49e7991d889183b895b8ff2a23ec9bd544409086b72a5e89cbb080a7ad9f3ff6"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/retained-location.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/retained-location.stdout.txt",
+      "sha256": "e51a4e53dd3e33b062a4be9193c6a5269ca40f551b5eb5f638b2e84379a9c626"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/retained-location.xml",
+      "sha256": "0168cc8cd5a99b8b1790dddfcba0f91f56874d11eb6b02fe238ffe163534efba"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/retained-publication.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/retained-publication.stdout.txt",
+      "sha256": "9bd97603597aad575455ce22cbdd8101def9b2f1f672122a2e6f1a8a25cd22f6"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/mutations/retained-publication.xml",
+      "sha256": "9842098d58b6151450a223b3f9f5cf64107c035d10255e7ae948fbf81cc6fe85"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/test-commands.json",
+      "sha256": "c2f4703908e51dbeebb78e9b1bd85debd39e2ccd6cb5d87290727b2af11081fc"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/interrupted-before-native-hash-control/verification-source.json",
+      "sha256": "92a843946dbbb48d2854f7cac793467eccb563f224a7a2e2dd8ab8d66ee78d29"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/legacy.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/legacy.stdout.txt",
+      "sha256": "69f5925c4a7933956eea23ce3d1620023cf280b481f792f09f03a0a7591a7598"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/legacy.xml",
+      "sha256": "f285992b30047d31e8327389ffc2e034e49173b7bd54c52ca32d245cf16434ae"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/README.md",
+      "sha256": "ef18ff8701ea5fb15c3ea75618513eef16b097b722d4673c98c7ff6d9aacfa70"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/_bmad-output__implementation-artifacts__spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md.bytes",
+      "sha256": "147e012c77352e8aa37be70d231c816374f89f54bc752a90affed30690ef936c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/_bmad-output__planning-artifacts__epic-16-tooling-v1__binding.json.bytes",
+      "sha256": "aa57d9ea11e48a4c65ebe928f226d275429ad013b7fcb595aab5d41b14fc36c8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/_bmad-output__planning-artifacts__epic-16-tooling-v1__story-contracts__16.2.json.bytes",
+      "sha256": "56f7c53f9b0a313c981fb8413e06ad1394e4b87efbafaa76142f403575ca87aa"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-01.capture.json.bytes",
+      "sha256": "188a698a720fbf73676b703a39ba8f5efc37d3e4694915d0272636e714856bd5"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-01.json.bytes",
+      "sha256": "0fbf871846809c4adf92d21fd5d21fe99890205cb5d7d48baf14622a9b1f6b67"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-01.trx.bytes",
+      "sha256": "5b3a21b174f79c725e860ea3b441f3fe6688eb0a4b2d536ddf10ff1b188c1899"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-02.capture.json.bytes",
+      "sha256": "009f594d8fcc0ab99c99278d8f57597599add230a4bdbb16725f2a5999f53970"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-02.json.bytes",
+      "sha256": "af2acede07f57cfecdbae96a7497f2ba717a904a79103597fdc76d9cd1ec9422"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-02.trx.bytes",
+      "sha256": "027550fbcc570f569635c62bd7f6a89f641b940f621c437a7b20838869e557ae"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-03.capture.json.bytes",
+      "sha256": "996ea40a961ec7e0874c28107ddcf1d5f705649442560a52dd46499f621d0081"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-03.json.bytes",
+      "sha256": "892842cfcc6412106b52720c0d13a4e9103e83b515eb95bc4b6575898d0aa348"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-03.trx.bytes",
+      "sha256": "a99feb55b531fc8adc38bda6d86a63d831e1527463739957ce0b1a80673b0edf"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-04.capture.json.bytes",
+      "sha256": "51395b25476c147416d872ec4e765dcd18ddabe2046b8ff630f4797dfae7a3d7"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-04.json.bytes",
+      "sha256": "75ea0675d50eb00c9469f3273ccf476e6ea6f8c84733887b75fcc1c4212b1037"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-04.trx.bytes",
+      "sha256": "d87f5a432217aad764c653ede5087a2a4735a8c14cbecc62a5b136311a6a38fa"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-05.capture.json.bytes",
+      "sha256": "6fb2ccebfd674659ff87101bf18cc2211bd7bc6e95ae2e66aa1624dd5d98c9b8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-05.json.bytes",
+      "sha256": "d886cb745651b66c39086b30a5a4c42c4fb6552f7353ad735d62addeb2e6fb17"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-05.trx.bytes",
+      "sha256": "04c9fb84aa26b05e88ea2db3193877c2efbcc571488fb51d3b2ddf020be35ed5"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__cc2ad60f336e5b79ed586cf009af3d92ce85f384ec922fb6a8d2cdfffb5056f6.dll.bytes",
+      "sha256": "cc2ad60f336e5b79ed586cf009af3d92ce85f384ec922fb6a8d2cdfffb5056f6"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/docs__release-evidence__story-16.2-final-record-v2.json.bytes",
+      "sha256": "cc640d2fb6955de4b6aa38331cf915a3b87551da2e0e23bc24614bf5cde62999"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/docs__release-evidence__story-16.2-final-record-v2.md.bytes",
+      "sha256": "f3fae8f1739333c3199d801994ad4e8b39deee0890f7f7b866d0ba54e7ded961"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/fixture-entry.json.bytes",
+      "sha256": "a4e8c2e2fdbe7e4d2b3ede4a09171adb72f3a7430942a7de6e7918e29cc02fd7"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/provenance.json",
+      "sha256": "394fa523afeae449555070a1d3f0975e29b4e97945b75a201952430bf96baa82"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/native-capture-fixture/tests__Hexalith.Conversations.IntegrationTests__Epic16__Story16_2EvidenceTests.cs.bytes",
+      "sha256": "796456561288746523aa6d8d9a40f831abda4b22f29fe0ba94eab7d770835a88"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/combined.stderr.txt",
+      "sha256": "c899780706afd6cb645837239c0c957689419909f0cfde4d2070575f7dae59fe"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/combined.stdout.txt",
+      "sha256": "1a167b3b3284908c4f5c15d81389c4412557b90e26fe6d1f8dff657069eb9f99"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/combined.xml",
+      "sha256": "4c85fefd1efbb5d76a48c5cbd9869534739246eeea521a94608882fd43943a6d"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/completion-1.receipt.txt",
+      "sha256": "60fdf33158afc77a67a4bdf8ea7d67300ba61a5eee39841f8ec2f0e31741d5c4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/completion-1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/completion-1.stdout.txt",
+      "sha256": "60fdf33158afc77a67a4bdf8ea7d67300ba61a5eee39841f8ec2f0e31741d5c4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/completion-2.receipt.txt",
+      "sha256": "7431262a56017e4f18535f71781ac6cb4f188050bc382bb796406dcb161ee5d1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/completion-2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/completion-2.stdout.txt",
+      "sha256": "7431262a56017e4f18535f71781ac6cb4f188050bc382bb796406dcb161ee5d1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/completion-commands.json",
+      "sha256": "a316371d7424b453deaf2a16e11012920b9f1d598442811248822c62d91b12e8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/disposition.json",
+      "sha256": "07bd72a4c368be21578827daba353c7c9567eced981c9a34c0de9e10f6a12272"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-01.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-01.stdout.txt",
+      "sha256": "3d3fbd9fd81253e9dc957e309f7366f02c73babc56e98fd6560da48dbad8832e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-02.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-02.stdout.txt",
+      "sha256": "30c4e5ea7003f2bf41241a1e176fdaf9c71dd9e7d08b932c81bfa3bbf2f05e39"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-03.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-03.stdout.txt",
+      "sha256": "a591f00e40908642d8578a8ae89a6a709252a34f338c98e4167a45f5a9f808d5"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-04.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-04.stdout.txt",
+      "sha256": "26a7ff6e57ba12f54f12275713c09181838533e3056b88079a2d43fe3a0f1399"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-05.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-05.stdout.txt",
+      "sha256": "de6c23dc826836e497eb840e2677899087f49034b2aa9fdd8d78ecfe2d00d19e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-06.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-06.stdout.txt",
+      "sha256": "3d3fbd9fd81253e9dc957e309f7366f02c73babc56e98fd6560da48dbad8832e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-07.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-07.stdout.txt",
+      "sha256": "7f096c50e5d22fef41229bd65005b0d7e1fbcf2311783e96c9c352ecde9a224e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-08.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-08.stdout.txt",
+      "sha256": "7f5430cf9f51f084d352176a8674b0795866d564ba3b392a744f764ff084145e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-09.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-09.stdout.txt",
+      "sha256": "0d179acacfde915bbbe0401e79d283d8409bb39b879b62c20ecf3244124923ab"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-10.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-10.stdout.txt",
+      "sha256": "d60a681bc92ad71998380592b32259bdc5744f60ab09293de48c0e1a6d078f1b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-11.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-11.stdout.txt",
+      "sha256": "6278f67e79471d3fb6e057b4a0388a0a712044afbe02ce95cc6c2b37999795df"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-12.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-12.stdout.txt",
+      "sha256": "7f096c50e5d22fef41229bd65005b0d7e1fbcf2311783e96c9c352ecde9a224e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-13.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-13.stdout.txt",
+      "sha256": "28bd46ec3fe4af85c0f196349f76ec1c1dca57502fab4fab514de19ab0e32562"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-14.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-14.stdout.txt",
+      "sha256": "8aa4c9e48d21045ae626a53586d17b03388f92488d70fed35b193ec1e90d50c8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-15.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-15.stdout.txt",
+      "sha256": "01164456e9cd54eee06bd3e45ecbf0d84444473c32fd58f669df848770cdbdb1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-16.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-16.stdout.txt",
+      "sha256": "bd125b51a08f894cd7c0303d2aeb58432f79d1ffd47d8ff4b44ce1d4c99b70ab"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-17.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-17.stdout.txt",
+      "sha256": "a948714deefb249a430c177922cf196bdb1fd7f0f5433a552245abf919d45a00"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-18.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-18.stdout.txt",
+      "sha256": "28bd46ec3fe4af85c0f196349f76ec1c1dca57502fab4fab514de19ab0e32562"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/held-commands.json",
+      "sha256": "2e2918875af3ae3dba15c5dfdea0f84c4384e55c3565a5ae18b61b7b60ee3825"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/atomic-publication-required.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/atomic-publication-required.stdout.txt",
+      "sha256": "67171493f5a47fe61be6d5a718acef60b562cd4f33ac8012bdb2d2647daa29cd"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/atomic-publication-required.xml",
+      "sha256": "8f547ac9513f9f60ebc423c111d4ba00c9dcdf03db367be30af9c1cb29812d02"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/authoritative-global-position.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/authoritative-global-position.stdout.txt",
+      "sha256": "b52386500c291bab2f323a8bb2fba6373c9185597b76330f422460e84725fd7e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/authoritative-global-position.xml",
+      "sha256": "9f25586a34ad6d708680fa47b9ff26fd67c9c95438e68a0685cd3cdaef61d42d"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/capture-alias.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/capture-alias.stdout.txt",
+      "sha256": "f7d4415ce532de206d30662d0e38767615f3da4bcac777eec6332c0a69804fd3"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/capture-alias.xml",
+      "sha256": "3fe49c3d5cf220c4ceef3b2c9eccc86ee6228f2ab168918fd2a259792b3606c4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/concurrent-reconciliation.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/concurrent-reconciliation.stdout.txt",
+      "sha256": "3f9c5dde3813df0b2cf4488802ebc6a19db0f1651e3cb19a3ffd0ae3d52438d6"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/concurrent-reconciliation.xml",
+      "sha256": "45079195efe7a9317e47688f40cc80b9a6d6005b6bd83ac2fa14576b597fc8ba"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/current-clearance-atomicity.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/current-clearance-atomicity.stdout.txt",
+      "sha256": "aec1109e392ac403339fe51dbdf6eb476780c7df588b32181fbf95cfab291310"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/current-clearance-atomicity.xml",
+      "sha256": "7bfa626eae964c7b13cd805060dfd1946bb9fb0b5ae33ceaea42e5ab9e77c445"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/exact-binary-inventory.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/exact-binary-inventory.stdout.txt",
+      "sha256": "b294d32648f5bba1bd71ded14fc02bcf67f1a9c264d4171713c492c384e27d5b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/exact-binary-inventory.xml",
+      "sha256": "9c06d021bfebc87f816a215e7ac6dcdf2759f3ed4eaa2b4bbd52749427304629"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/exact-capture-inventory.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/exact-capture-inventory.stdout.txt",
+      "sha256": "58074c522bcf9e2e48c6c2ecdb7d316edcfbe327ec3c8d6d6c82edf0e69c8475"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/exact-capture-inventory.xml",
+      "sha256": "674e10d929e47af0f699d8a0b9d65d4742640e9a58a0a14bd4501deb8a1ea9b0"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/future-conflict-durable-cas.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/future-conflict-durable-cas.stdout.txt",
+      "sha256": "6b1486b96a41400a14872425cb646c2b34525915fab400ad51af863608bd8d98"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/future-conflict-durable-cas.xml",
+      "sha256": "683d16a96adf128b8b513818d4da34773295f7a3f2a3b6622dedb875e90e66b5"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/future-measured-schedules.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/future-measured-schedules.stdout.txt",
+      "sha256": "7c1553f02c4fc88818966ba18d699f32fcc56b8c00879ddf7b204213cbffe6ae"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/future-measured-schedules.xml",
+      "sha256": "9d2ce770218c1b77ad5b7d3c836737fb3048f25f07fada7e816fe5eb958caf3c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/healthy-domain-state.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/healthy-domain-state.stdout.txt",
+      "sha256": "3b29e0bf17cb7aefce68c804fe5f10e3c68e3c2666395714fe6db4e64b663537"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/healthy-domain-state.xml",
+      "sha256": "aad961e600a749adc26efd48a006a42e018902492d41f7ecb87f41a32e5934e1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/healthy-tenant-source-consumer.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/healthy-tenant-source-consumer.stdout.txt",
+      "sha256": "94bd65d6e8ab0d7d2379dc557dcd18957cb68d56ef2518b49db2edabd71828be"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/healthy-tenant-source-consumer.xml",
+      "sha256": "95b1e030653f934bd8ecc6be5df146dfeefb1848c10a5cc3de8133cb6214dc7e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/mutation-probes.json",
+      "sha256": "23fd7adb02db8e77ab3b9a2ee94b0720b8542c806834516101e084ff5cc25db9"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/native-capture-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/native-capture-binding.stdout.txt",
+      "sha256": "4e6c949beee6b50eae3e7ac4e57cd28d940aedc0a17e6eeb82ea6bffece7a427"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/native-capture-binding.xml",
+      "sha256": "0e54ee07aba1f4bc3257f82d4ac2b72a3a2b0bcb1f7a613b0148ab7c1867c7ed"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/opaque-native-whitespace.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/opaque-native-whitespace.stdout.txt",
+      "sha256": "65e290b2c13fa4f80c37aa31c896788f653fc5faeffb1da327e8e8c856226f6b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/opaque-native-whitespace.xml",
+      "sha256": "2c34d8437b5009e0f337636fbf245023d1f1af64d5d4db88fd03dfe8f4c630e8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/original-capture-path.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/original-capture-path.stdout.txt",
+      "sha256": "eeecbb01e6fe4f6b7a05e86ecf09209aef0f7e60f679e736b5cd4d9cbf24a66b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/original-capture-path.xml",
+      "sha256": "a6be0261e3c399aa80812b50eb2ad67904e4cbb8dfc44d247498ada716364655"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/persisted-newer-progress.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/persisted-newer-progress.stdout.txt",
+      "sha256": "136be9e011e0f6a510bcf335c1a97f047541c0cd0c02be30e5b370520549b4b4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/persisted-newer-progress.xml",
+      "sha256": "fdeaa420b8fdfb9fb4a5f7457779e9915fd986d9ff96fde9d626aff0ff95a536"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/prior-recovery-horizon.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/prior-recovery-horizon.stdout.txt",
+      "sha256": "f81dff0139e9c353ae7ef2ce201d9d7cefe7c738c2e12cf0fcec48ec2be8a617"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/prior-recovery-horizon.xml",
+      "sha256": "4fe47fea1267128926ec3c7f6ea4987225b6925daed2176589d54b69bb0617ea"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/readiness-terminal.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/readiness-terminal.stdout.txt",
+      "sha256": "514fa6639053614ec5e5ad03e6e125335d4af2f1ed724d80b5370fffb89be788"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/readiness-terminal.xml",
+      "sha256": "1f61859be9bf270286cb15c304166e56160824a4ce6b703ceb2ac350ba55a02f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/retained-byte-hash.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/retained-byte-hash.stdout.txt",
+      "sha256": "f970c5f0610d1dad487178c24a26596d13416d2d3d628c7384e9498bb54e1dfc"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/retained-byte-hash.xml",
+      "sha256": "e5bf418739edeba2425c3538d3765780777750746d96c589c2d908f0266c408e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/retained-location.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/retained-location.stdout.txt",
+      "sha256": "d869794815fb70637b4f82b4f2f29b8e31f8f8e4b671b9492ae685d4b9136c9e"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/retained-location.xml",
+      "sha256": "37b907ac8a8d474cb40b2c1b77524c1137d2ab253968714d7f53e345e9e04ac8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/retained-publication.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/retained-publication.stdout.txt",
+      "sha256": "3c5d268f8a2948b2d89e3c549d943d1a0e70233d3ed99756614ec94cd8bbe301"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/retained-publication.xml",
+      "sha256": "e1107f86ac659137175e43dd1e6ae8624b9a92d0d9791cc279e7f39df04bf6ec"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/selected-native-whitespace.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/selected-native-whitespace.stdout.txt",
+      "sha256": "e4171090c93e91e283c931d620b9c12aa146d10b9d8446a99722c13a2499b141"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/selected-native-whitespace.xml",
+      "sha256": "d74a7e340416c7dbe254c7715015e4eb011fcfd58a4c0790951396cb97dbbe2c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/story163-ownership.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/story163-ownership.stdout.txt",
+      "sha256": "47967d8e09b1f6824325ff57a6fda3d4b8bbc2cb162dd99cd995916b4002a20f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/story163-ownership.xml",
+      "sha256": "1c343ddacdb577d92306dc74134f21902862e97a403049bb9294829498f05b41"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/unique-assembly-hash.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/unique-assembly-hash.stdout.txt",
+      "sha256": "e76add5a346b94ea6592e003bf01eca65d3840ecec9bc9b514573642eb9ce4d8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/unique-assembly-hash.xml",
+      "sha256": "210cec5716ef1d083305175d36e16388dfab83afc1229d2aaaf56e1f445abb6f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/unrelated-preflight-executed.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/unrelated-preflight-executed.stdout.txt",
+      "sha256": "462ac23f39a7c0cf5f476f5dfbd24c7c97af47aacf861a557c1393a532823098"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/unrelated-preflight-executed.xml",
+      "sha256": "26ba145ccc9da567c979df91e0ec940277279f51fcacda53b9f131a6f1c0e291"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/unrelated-preflight-occupancy.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/unrelated-preflight-occupancy.stdout.txt",
+      "sha256": "86229af25e60fa480f363f80d856e7da5fb797bb46f3ccc0bbabcd2fc1905ade"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/mutations/unrelated-preflight-occupancy.xml",
+      "sha256": "1be8dc46aab982d11e55bcfd7342996732e76a933e16f5e67424461e4a507ef8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/source-snapshots/_bmad/schemas/epic-16-tooling-v1.schema.json",
+      "sha256": "c94fed497f7047ab2d575d5ca448dca867a9da403351fa7709f37fbd59846af8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/source-snapshots/_bmad/scripts/epic16_schedules.py",
+      "sha256": "fc3615f9474466fafda666a8e695fc33e7b3fbe53dedfa5378b32c2ac5a64914"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/source-snapshots/_bmad/scripts/epic16_trust.py",
+      "sha256": "2691006670411edc8788b34bd980d598845459fb2945cfe41b1b13cd7541458c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/source-snapshots/_bmad/scripts/tests/test_epic16_tooling.py",
+      "sha256": "99481f58fa1677f69b346449eed4d88c506c12dbd035263eea41aeae69b95ae5"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/test-commands.json",
+      "sha256": "2c85b6aef016b24575d50e789f9c590e5da7349c2eab8c7c30b85b667179a002"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/pre-checkpoint-fixture-correction/verification-source.json",
+      "sha256": "ca3d38298798aa2612b5eadd5a1e40e28cd0797fe7e1b95e0249cc7f8a54e773"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/preservation-restoration.json",
+      "sha256": "1c2825b3b875d19b678b5d2df99cf61f8746d75d970325b81092eb728650bf1c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/preserved-scenario-matrix.json",
+      "sha256": "057874cc20f19497c576a2b11d6e5740c591a876bdd0f93a1dee0d37b474e3f2"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/runtime-absence.json",
+      "sha256": "a76f7cebddbe00d1e47eb3b7acc6ec0b524e95953914226e854a8019c6f028d6"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/source-epoch-disposition.json",
+      "sha256": "ad8a31c8879d2f8162026c0f4cd3173a789988a43d48497b80ffb4599e476d96"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/test-commands.json",
+      "sha256": "f1ff3dceab8712e095af6137be84b31d262e55849974d76cccebb48724c03247"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/verification-scripts/epic16-r6-guards.py",
+      "sha256": "03d6f37a72a7c32ccd48e317fca899fba20da22f3478c50461ba1ab0f9edcef4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/verification-scripts/epic16-r6-hash-control.py",
+      "sha256": "4f0a9aa937a6bbdcfab462dc9d090e00e4635430d35adb1abfc5cefb434d54a3"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/verification-scripts/epic16-r6-mutations.py",
+      "sha256": "aea84b1486087781e38ea87f90377871a2bc9f06fe4130319f7bb5cee105df3f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/verification-scripts/epic16-r6-record.py",
+      "sha256": "5ebd1555afc731ec65589c0842c90964f623230dfa85b9d0022d92379db24b70"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/verification-scripts/epic16-r6-verify.py",
+      "sha256": "922321e1ec5a68864ebaed2dd8128f79d81fe8a277d657aeb51ec0e1f088f075"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/verification-scripts/epic16-review6-parent-after.py",
+      "sha256": "6f97d042a549423a9dd9b0cdb9138dba654787e04c689436062a30b81c37563a"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/verification-scripts/epic16-review6-schedule-probes.py",
+      "sha256": "1b8c977049574bb8890b543daa63aba1225987bb1630fa81257167b8fec4e472"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/verification-source.json",
+      "sha256": "21eaa3726fd9c7f26c4ff6fc29007c17756c1dc2c3102d4e3795e6bf466c70a8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/whitespace.json",
+      "sha256": "3bfcb59510e116b1afab8649df0d35f3e07bc8da9b008742400f4a33ae75beaf"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/whitespace.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/whitespace.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "preservedScenarioMatrix": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/preserved-scenario-matrix.json",
+    "sha256": "057874cc20f19497c576a2b11d6e5740c591a876bdd0f93a1dee0d37b474e3f2"
+  }
+}

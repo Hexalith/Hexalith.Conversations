@@ -1,0 +1,705 @@
+--- before/_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md
++++ after/_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md
+@@ -19,8 +19,9 @@
+ `artifacts/epic16-runtime/<story>/<scenario>.trx`. It must contain exactly one
+ executed, passed, correctly identified test, matching definitions/entries, exact ScenarioNN method and owning class, and
+ counters, and no skipped, failed, unknown or nested results. Its output is strict
+-JSON containing exactly `scenarioId`, full `candidate`, `sources`,
+-`contractSha256` and `observations`. Duplicate JSON keys and non-finite numbers
++JSON containing exactly six fields: `scenarioId`, full `candidate`, `sources`,
++`contractSha256`, `observations`, and `loadedProducts`. Only synthetic tooling-fixture
++inputs may omit `loadedProducts` and use five fields. Duplicate JSON keys and non-finite numbers
+ are invalid. The scenario definitions in the pinned schema describe the closed,
+ typed observation shapes; the evaluator checks semantic relationships itself.
+ A caller-authored PASS, count or arbitrary command is never executed or trusted.
+@@ -650,3 +651,30 @@
+ The lazy generator import reports genuinely absent declared dependencies as
+ unavailable while allowing internal import defects to surface. Legacy standalone
+ routes and historical generator bytes remain unchanged.
++
++
++Iteration 11 completes executed outcome observations. The runtime native JSON has
++exactly six fields: `scenarioId`, `candidate`, `sources`, `contractSha256`,
++`observations`, and `loadedProducts`. Only the synthetic `tooling-fixture` shape
++may omit `loadedProducts` and contain five fields. Runtime capture version 2
++retains the selected test binary and all seven required owned product binaries,
++correlated with raw TRX; baseline/current compiled API artifacts also join the
++exact deduplicated publication inventory. Synthetic fixture success grants no
++runtime entry, owner qualification or product execution claim.
++
++AC-16.1-04's controlled durable DTO retains source state/event, delivered native
++fingerprint, complete before/after projection/checkpoint/health/pending state and
++CAS expectation. Its executed commit and acknowledgement identify one durable
++transaction and the same actual persisted contents. The duplicate case observes
++an existing committed outcome with zero new writes; failure/exhaustion have no
++commit, acknowledgement or durable evidence. Operation order permits equal ticks.
++These are evidence captures, not public product DTOs or new physical storage keys.
++
++Each AC-16.3-04 stale branch now contains a request, executed CAS attempt and
++completed result with one operation identity and exact scope. Canonical digests
++bind its expected/proposed and stored before/after snapshots to those operations.
++Each branch remains an independent reset/fork without a cross-branch clock order.
++Duplicate retry executes after the current wire response, correlates that request
++and clearance transaction, and returns AlreadyCompleted without mutation.
++Multi-resource erase derives index dispatch references by concatenating each
++source-derived resource component's references, retaining multiplicity.
+--- before/_bmad/scripts/epic16_lifecycle.py
++++ after/_bmad/scripts/epic16_lifecycle.py
+@@ -87,7 +87,8 @@
+         manifest=[] if initial else [target['key'] for target in row['deletionTargets']] if erase else row['manifestCompleted'] if worked else row['manifestExpected']
+         quarantine=[] if not erase or stage not in ('quarantine','completion','post-quarantine') else [delivery['reference'] for delivery in row['deliveries'][:2 if stage=='post-quarantine' else 1]]
+         summaries=resources if (erase and not worked or not erase and worked) else []
+-        dispatch=[row['retiringDispatchId']] if erase and not worked else []
++        resource_dispatch={state['conversationId']: [row['retiringDispatchId']] if erase and not worked else [] for state in states}
++        dispatch=[reference for state in states for reference in resource_dispatch[state['conversationId']]]
+         aggregates=[dict(conversation=state['conversationId'],sequence=len(events)) for state,events in zip(states,sources)] if summaries else []
+         index=dict(key=index_key(row['tenant']),schemaVersion=2,generation=generation,lifecycle=lifecycle,watermark=watermark,
+             metadataGenerations=dict(lifecycle=generation,manifest=generation,watermark=generation),tenantWatermark=0,aggregateWatermarks=aggregates,summaries=summaries,dispatchReferences=dispatch,
+@@ -98,7 +99,7 @@
+         for state in states:
+             retained=erase and not worked
+             component('detail',state['conversationId'],state if retained or not erase and worked else None,row['beforeGeneration'] if retained else generation)
+-            component('dispatch',state['conversationId'],dispatch,row['beforeGeneration'] if retained else generation)
++            component('dispatch',state['conversationId'],resource_dispatch[state['conversationId']],row['beforeGeneration'] if retained else generation)
+         component('manifest',row['tenant'],manifest)
+         component('watermark',row['tenant'],watermark)
+         component('queue',row['tenant'],row['catchUp']['drain']['after'] if not erase and worked else [])
+--- before/_bmad/scripts/epic16_measurements.py
++++ after/_bmad/scripts/epic16_measurements.py
+@@ -106,7 +106,7 @@
+         require(row['attempts'] == (3 if name == 'retry-exhaustion' else 1), 'three total attempts')
+         commit, ack = row['durableCommit'], row['acknowledgement']
+         if not durable:
+-            require(commit is None and ack is None, 'provider failure and exhausted retries cannot acknowledge')
++            require(commit is None and ack is None and row['durableEvidence'] is None, 'provider failure and exhausted retries cannot acknowledge')
+             continue
+         require(commit is not None and ack is not None, 'measured durable commit and acknowledgement')
+         for operation in (commit, ack):
+@@ -114,6 +114,8 @@
+         require(commit['deliveryId'] == ack['deliveryId'] == row['deliveryId'] and commit['recordId'] == ack['recordId'], 'commit and acknowledgement identify same delivery outcome')
+         require(commit['outcome'] == name, 'committed outcome identity')
+         require(utc_ticks(commit['utcTicks']) and utc_ticks(ack['utcTicks']) and commit['utcTicks'] <= ack['utcTicks'] and 0 < commit['order'] < ack['order'], 'durable commit before acknowledgement')
++        persisted = schedules.tenant_durable_outcome(row)
++        lifecycle.commit_before_ack(dict(captureVersion=1, scheduleId=commit['recordId'], commit=commit, acknowledgement=ack), row['deliveryId'], commit['recordId'], persisted, commit['utcTicks'], ack['utcTicks'])
+         records.append(commit['recordId'])
+     require(len(set(records)) == len(records), 'distinct durable outcome records')
+ 
+--- before/_bmad/scripts/epic16_native_helper/ProductMetadata.cs
++++ after/_bmad/scripts/epic16_native_helper/ProductMetadata.cs
+@@ -58,7 +58,7 @@
+                     return $"{p.SequenceNumber}:{reader.GetString(p.Name)}:{p.Attributes}:{Constant(reader, p.GetDefaultValue())}:{Attributes(reader, p.GetCustomAttributes())}";
+                 }));
+                 if ((method.Attributes & MethodAttributes.PinvokeImpl) != 0) throw new InvalidDataException("Native imports outside supported surface.");
+-                members.Add($"method:{reader.GetString(method.Name)}:{method.Attributes}:{SignatureNames.Format(method.DecodeSignature(Names, (object?)null))}:{Generic(reader, method.GetGenericParameters())}:{parameters}:{Attributes(reader, method.GetCustomAttributes())}");
++                members.Add($"method:{reader.GetString(method.Name)}:{method.Attributes}:{method.ImplAttributes}:{SignatureNames.Format(method.DecodeSignature(Names, (object?)null))}:{Generic(reader, method.GetGenericParameters())}:{parameters}:{Attributes(reader, method.GetCustomAttributes())}");
+             }
+             foreach (FieldDefinitionHandle fieldHandle in type.GetFields())
+             {
+@@ -83,16 +83,16 @@
+             }
+             TypeLayout layout = type.GetLayout();
+             string header = $"{type.Attributes}:{Names.Name(reader, type.BaseType)}:{Generic(reader, type.GetGenericParameters())}:{layout.PackingSize}:{layout.Size}:{Attributes(reader, type.GetCustomAttributes())}";
+-            string[] interfaces = type.GetInterfaceImplementations().Select(h => Names.Name(reader, reader.GetInterfaceImplementation(h).Interface)).Order(StringComparer.Ordinal).ToArray();
++            string[] interfaces = type.GetInterfaceImplementations().Select(h => Interface(reader, h)).Order(StringComparer.Ordinal).ToArray();
+             types.Add(typeName, new { header, interfaces, members = members.Order(StringComparer.Ordinal).ToArray() });
+         }
+         Console.Write(JsonSerializer.Serialize(new
+         {
+-            assemblyName = name, assemblyVersion = assembly.Version.ToString(), culture = reader.GetString(assembly.Culture),
++            assemblyName = name, assemblyFlags = (int)assembly.Flags, assemblyVersion = assembly.Version.ToString(), culture = reader.GetString(assembly.Culture),
+             publicKey = Convert.ToHexString(reader.GetBlobBytes(assembly.PublicKey)).ToLowerInvariant(),
+             mvid = reader.GetGuid(reader.GetModuleDefinition().Mvid).ToString(), sourceRevision = revision,
+             informationalVersion = versions[0], declaredTypes = declaredTypes.Order(StringComparer.Ordinal).ToArray(),
+-            api = new { kind = "conservative-ecma335-public-declarations-v1", types },
++            api = new { kind = "conservative-ecma335-public-declarations-v1", assemblyAttributes = ContractAttributes(reader, assembly.GetCustomAttributes()), moduleAttributes = ContractAttributes(reader, reader.GetModuleDefinition().GetCustomAttributes()), types },
+         }));
+     }
+ 
+@@ -116,6 +116,74 @@
+         GenericParameterConstraint constraint = reader.GetGenericParameterConstraint(handle);
+         return Names.Name(reader, constraint.Type) + ":" + Attributes(reader, constraint.GetCustomAttributes());
+     }
++    /// <summary>Preserves per-interface contract annotations as well as the complete type.</summary>
++    private static string Interface(MetadataReader reader, InterfaceImplementationHandle handle)
++    {
++        InterfaceImplementation implementation = reader.GetInterfaceImplementation(handle);
++        return Names.Name(reader, implementation.Interface) + ":" + Attributes(reader, implementation.GetCustomAttributes());
++    }
++
++    /// <summary>Preserves the selected constructor, including local overloads and external ownership.</summary>
++    private static string AttributeConstructor(MetadataReader reader, CustomAttribute attribute)
++    {
++        string name;
++        MethodSignature<string> signature;
++        if (attribute.Constructor.Kind == HandleKind.MemberReference)
++        {
++            MemberReference constructor = reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor);
++            name = reader.GetString(constructor.Name);
++            signature = constructor.DecodeMethodSignature(Names, (object?)null);
++        }
++        else if (attribute.Constructor.Kind == HandleKind.MethodDefinition)
++        {
++            MethodDefinition constructor = reader.GetMethodDefinition((MethodDefinitionHandle)attribute.Constructor);
++            name = reader.GetString(constructor.Name);
++            signature = constructor.DecodeSignature(Names, (object?)null);
++        }
++        else throw new InvalidDataException("Unsupported attribute constructor.");
++        if (name != ".ctor" || !signature.Header.IsInstance || signature.Header.IsGeneric || signature.ReturnType != "Void")
++            throw new InvalidDataException("Unsupported attribute construction contract.");
++        return AttributeName(reader, attribute) + ":" + name + ":" + SignatureNames.Format(signature);
++    }
++
++    /// <summary>Recognizes the approved .NET 10 framework owner, never a System namespace lookalike.</summary>
++    internal static bool IsFrameworkType(MetadataReader reader, TypeReferenceHandle handle)
++    {
++        TypeReference type = reader.GetTypeReference(handle);
++        if (type.ResolutionScope.Kind != HandleKind.AssemblyReference) return false;
++        AssemblyReference owner = reader.GetAssemblyReference((AssemblyReferenceHandle)type.ResolutionScope);
++        string name = reader.GetString(owner.Name);
++        string token = Convert.ToHexString(reader.GetBlobBytes(owner.PublicKeyOrToken));
++        return owner.Version == new Version(10, 0, 0, 0) && owner.Flags == 0
++            && reader.GetString(owner.Culture) == string.Empty
++            && (name == "System.Runtime" && token == "B03F5F7F11D50A3A"
++                || name == "System.Private.CoreLib" && token == "7CEC85D7BEA7798E");
++    }
++
++    /// <summary>Excludes only separately verified source identity and expected build file-version metadata.</summary>
++    private static string ContractAttributes(MetadataReader reader, CustomAttributeHandleCollection handles)
++    {
++        var retained = new List<string>();
++        foreach (CustomAttributeHandle handle in handles)
++        {
++            CustomAttribute attribute = reader.GetCustomAttribute(handle);
++            string name = AttributeName(reader, attribute);
++            // Only external framework attributes with these exact declarations are build stamps.
++            bool external = attribute.Constructor.Kind == HandleKind.MemberReference
++                && reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor).Parent.Kind == HandleKind.TypeReference
++                && IsFrameworkType(reader, (TypeReferenceHandle)reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor).Parent);
++            bool excluded = external && (name.EndsWith("]System.Reflection.AssemblyInformationalVersionAttribute", StringComparison.Ordinal)
++                || name.EndsWith("]System.Reflection.AssemblyFileVersionAttribute", StringComparison.Ordinal));
++            if (external && name.EndsWith("]System.Reflection.AssemblyMetadataAttribute", StringComparison.Ordinal))
++            {
++                BlobReader value = reader.GetBlobReader(attribute.Value);
++                if (value.ReadUInt16() != 1) throw new BadImageFormatException();
++                excluded = value.ReadSerializedString() == "SourceRevisionId";
++            }
++            if (!excluded) retained.Add(AttributeConstructor(reader, attribute) + ":" + Convert.ToHexString(reader.GetBlobBytes(attribute.Value)));
++        }
++        return string.Join(";", retained.Order(StringComparer.Ordinal));
++    }
+     private static string AttributeName(MetadataReader reader, CustomAttribute attribute) => attribute.Constructor.Kind switch
+     {
+         HandleKind.MemberReference => Names.Name(reader, reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor).Parent),
+@@ -125,6 +193,6 @@
+     private static string Attributes(MetadataReader reader, CustomAttributeHandleCollection handles) => string.Join(";", handles.Select(h =>
+     {
+         CustomAttribute a = reader.GetCustomAttribute(h);
+-        return AttributeName(reader, a) + ":" + Convert.ToHexString(reader.GetBlobBytes(a.Value));
++        return AttributeConstructor(reader, a) + ":" + Convert.ToHexString(reader.GetBlobBytes(a.Value));
+     }).Order(StringComparer.Ordinal));
+ }
+--- before/_bmad/scripts/epic16_native_helper/Program.cs
++++ after/_bmad/scripts/epic16_native_helper/Program.cs
+@@ -140,6 +140,31 @@
+         _ = value.ReadSerializedString();
+         int sourceLine = value.ReadInt32();
+         return sourceLine >= -1 && value.ReadUInt16() == 0 && value.RemainingBytes == 0;
++    }
++
++    /// <summary>Recognizes resolvable Fact-derived attributes without loading their declarations.</summary>
++    private static bool IsFactDerived(MetadataReader reader, CustomAttribute attribute)
++    {
++        EntityHandle type = attribute.Constructor.Kind switch
++        {
++            HandleKind.MemberReference => reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor).Parent,
++            HandleKind.MethodDefinition => reader.GetMethodDefinition((MethodDefinitionHandle)attribute.Constructor).GetDeclaringType(),
++            _ => throw new InvalidDataException("Unsupported test attribute constructor."),
++        };
++        var visited = new HashSet<EntityHandle>();
++        while (type.Kind == HandleKind.TypeDefinition)
++        {
++            if (!visited.Add(type)) throw new InvalidDataException("Cyclic attribute inheritance.");
++            type = reader.GetTypeDefinition((TypeDefinitionHandle)type).BaseType;
++        }
++        if (type.Kind != HandleKind.TypeReference) throw new InvalidDataException("Unsupported attribute inheritance.");
++        string name = TypeName(reader, type);
++        if (name is "Xunit.FactAttribute" or "Xunit.TheoryAttribute") return true;
++        // Approved framework attributes are non-Fact metadata. An unresolved external custom
++        // attribute could derive Fact, so it cannot establish unambiguous discovery.
++        if (!ProductMetadata.IsFrameworkType(reader, (TypeReferenceHandle)type))
++            throw new InvalidDataException("Unresolved external test attribute inheritance.");
++        return false;
+     }
+ 
+     private static bool IsTestSignature(MetadataReader reader, MethodDefinition method)
+@@ -251,7 +276,8 @@
+                     && (method.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
+                     && (method.Attributes & (MethodAttributes.Abstract | MethodAttributes.Static)) == 0
+                     && method.GetGenericParameters().Count == 0 && IsTestSignature(reader, method)
+-                    && method.GetCustomAttributes().Count(attributeHandle => IsFact(reader, reader.GetCustomAttribute(attributeHandle))) == 1)
++                    && method.GetCustomAttributes().Count(attributeHandle => IsFact(reader, reader.GetCustomAttribute(attributeHandle))) == 1
++                    && method.GetCustomAttributes().Count(attributeHandle => IsFactDerived(reader, reader.GetCustomAttribute(attributeHandle))) == 1)
+                 {
+                     // Verify a valid method body exists, but never load or invoke it.
+                     _ = pe.GetMethodBody(method.RelativeVirtualAddress).GetILBytes();
+--- before/_bmad/scripts/epic16_native_helper/README.md
++++ after/_bmad/scripts/epic16_native_helper/README.md
+@@ -106,3 +106,26 @@
+ Independent disposable tests run the actual pinned runner to check this supported
+ subset, including failed missing-provider controls. That execution belongs to
+ test-authored fixtures, not the evidence inspector.
++
++
++Iteration 11 retains each InterfaceImplementation's annotations, and every retained
++attribute's complete declaring type, selected constructor name/signature and value
++blob, for local and referenced constructors. Method implementation flags (including
++PreserveSig) and owning assembly flags participate in preservation. Owning assembly
++and module contract attributes are compared exactly. The only excluded external
++framework build stamps are AssemblyInformationalVersion and AssemblyFileVersion,
++and AssemblyMetadata whose exact key is SourceRevisionId. Informational/source
++revision is independently validated; other AssemblyMetadata keys remain contracts.
++Owning assembly versions keep the existing upstream policy and may change. Public
++root declarations remain unchanged; upstream additions remain conservative.
++
++Test discovery requires one plain pinned Fact and exactly one resolvable Fact-derived
++attribute. Theory and local direct/indirect Fact-derived conflicts reject. Unresolved
++external custom method-attribute inheritance is outside the supported boundary and
++fails explicitly. Attribute constructors and test code are never executed.
++
++Framework exclusions and ordinary method-attribute admission require the actual
++.NET 10 System.Runtime or System.Private.CoreLib assembly version, neutral culture,
++flags and signing token. System namespaces and attribute-name suffixes alone grant
++no framework identity; unresolved external declarations fail closed or remain
++retained contracts.
+--- before/_bmad/scripts/epic16_products.py
++++ after/_bmad/scripts/epic16_products.py
+@@ -63,8 +63,10 @@
+     changes can fail. Interface additions also fail because they may add implementor
+     obligations. This is a supported metadata subset, not a general APICompat claim.
+     """
+-    for key in ('assemblyName','culture','publicKey'):
++    for key in ('assemblyName','culture','publicKey','assemblyFlags'):
+         need(before[key]==after[key], 'UPSTREAM_API_DRIFT', subject)
++    for key in ('assemblyAttributes', 'moduleAttributes'):
++        need(before['api'][key] == after['api'][key], 'UPSTREAM_API_DRIFT', subject)
+     btypes=before['api']['types'];atypes=after['api']['types']
+     need(bool(btypes) and set(btypes)<=set(atypes), 'UPSTREAM_API_DRIFT', subject)
+     for name,b in btypes.items():
+@@ -145,5 +147,5 @@
+     if loaded_products is not None:
+         correlate(bindings[1], loaded_products, product['assemblyName'], '.', need)
+     need(bool(before['api']['types']) and before['api'] == after['api']
+-         and all(before[key] == after[key] for key in ('assemblyName','culture','publicKey')), 'ROOT_API_DRIFT', product['assemblyName'])
++         and all(before[key] == after[key] for key in ('assemblyName','culture','publicKey','assemblyFlags')), 'ROOT_API_DRIFT', product['assemblyName'])
+     return dict(kind='unchanged-supported-compiled-public-declarations', baseline=bindings[0], candidate=bindings[1])
+--- before/_bmad/scripts/epic16_schedules.py
++++ after/_bmad/scripts/epic16_schedules.py
+@@ -68,6 +68,67 @@
+ SCOPE_FIELDS = ('pendingId', 'tenant', 'conversation', 'runtimeId', 'catalogSha256', 'catalogFingerprint')
+ FENCE_FIELDS = ('lease', 'version', 'etag', 'generation', 'checkpoint', 'watermark')
+ STATE_FIELDS = ('captureVersion', 'scope', *FENCE_FIELDS, 'leaseUntilUtcTicks', 'projection', 'pending')
++
++
++def recovery_execution(row, data, *, duplicate=False):
++    """Bind each independently reset negative branch to its executed CAS and completion."""
++    proof = row['execution']; current = data['concurrentRecovery']['current']
++    require(proof['captureVersion'] == 1 and text(proof['operationId']), 'versioned recovery execution identity')
++    require(proof['branchId'] == ('current-clearance' if duplicate else row['id']) and same(proof['scope'], row['scope']), 'execution belongs to exact recovery branch and scope')
++    operations = proof['operations']
++    require([op['phase'] for op in operations] == ['request', 'attempt', 'completion'], 'complete recovery execution schedule')
++    previous = data['wireObservation']['operations'][-1]['order'] if duplicate else 0
++    for operation in operations:
++        domain.sequence(operation['order'])
++        require(operation['order'] > previous, 'recovery request attempt completion occur in order')
++        previous = operation['order']
++        require(operation['operationId'] == proof['operationId'] and operation['executed'] is True and operation['completed'] is True, 'same recovery operation actually executed and completed')
++    request, attempt, completion = operations
++    before, after = (row['before'], row['after']) if duplicate else (row['storedBefore'], row['storedAfter'])
++    expected = {key:before[key] for key in FENCE_FIELDS} if duplicate else row['expected']
++    proposed = before if duplicate else row['proposed']
++    require(request['expectedSha256'] == digest(canonical(expected)) and request['proposedSha256'] == digest(canonical(proposed)), 'execution request binds exact expected and proposed state')
++    require(attempt['storedBeforeSha256'] == digest(canonical(before)) and attempt['kind'] == ('observe-completion' if duplicate else 'compare-exchange'), 'attempt observes exact scoped stored state')
++    require(attempt['succeeded'] is row['succeeded'] and attempt['transactionId'] == row['commitId'], 'executed attempt records actual CAS or no-write outcome')
++    require(completion['storedAfterSha256'] == digest(canonical(after)) and completion['cleared'] == row['cleared'] and completion['outcome'] == ('AlreadyCompleted' if duplicate else 'FenceRejected'), 'completion binds exact preserved state and actual outcome')
++    require(proof['afterClearanceTransactionId'] == (current['commitId'] if duplicate else None)
++            and proof['wireRequestId'] == (data['wireObservation']['requestId'] if duplicate else None), 'duplicate execution follows the same current wire clearance')
++
++
++def tenant_durable_outcome(row):
++    """Derive a controlled AD-6 persisted outcome from native source and delivered events."""
++    proof = row['durableEvidence']; name = row['id']
++    require(proof['captureVersion'] == 1, 'versioned tenant durable outcome capture')
++    tenant = text(proof['tenant']); before, after = proof['before'], proof['after']
++    source = proof['sourceRecord']; accepted = tenant_record(source, tenant)
++    state, _ = domain.tenant_replay(proof['sourceState'], [source], source['sequence']-1, source['sequence'])
++    require(proof['sourceState']['tenantId'] == tenant, 'source state belongs to durable tenant')
++    expected_before = dict(tenant=tenant, checkpoint=source['sequence'], projection=state,
++        lastAccepted=accepted, health='Healthy', pending=[], horizon=source['sequence'], etag=before['etag'])
++    text(before['etag']); text(after['etag'])
++    require(same(before, expected_before), 'complete durable starting state derives from source event')
++    delivered = tenant_record(proof['delivered'], tenant)
++    expected = deepcopy(before)
++    if name == 'accepted':
++        require(delivered['sequence'] == before['checkpoint']+1, 'acknowledged accepted event is exact next')
++        projection, _ = domain.tenant_replay(state, [proof['delivered']], before['checkpoint'], delivered['sequence'])
++        expected.update(checkpoint=delivered['sequence'], projection=projection, lastAccepted=delivered, horizon=delivered['sequence'])
++    elif name == 'duplicate':
++        require(same(delivered, accepted), 'acknowledged duplicate matches actual committed fingerprint')
++    elif name == 'pending':
++        require(delivered['sequence'] > before['checkpoint']+1, 'acknowledged pending event is genuinely future')
++        expected.update(health='Gapped', pending=[delivered], horizon=delivered['sequence'])
++    else:
++        require(name == 'corrupt' and delivered['sequence'] == before['checkpoint'] and not same(delivered, accepted), 'acknowledged corruption derives from conflicting native fingerprint')
++        expected['health'] = 'Corrupt'
++    mutation = name != 'duplicate'
++    require(proof['writeCount'] == int(mutation) and proof['expectedEtag'] == before['etag'], 'outcome proves current CAS or previously committed duplicate without reapplication')
++    if mutation:
++        require(after['etag'] != before['etag'], 'durable outcome mutation advances opaque etag')
++        expected['etag'] = after['etag']
++    require(same(after, expected), 'persisted tenant outcome is the exact source-derived state')
++    require(row['durableCommit']['transactionId'] == text(proof['transactionId']), 'actual outcome transaction is the acknowledged durable transaction')
++    return after
+ 
+ 
+ def reconciliation(data):
+@@ -108,6 +169,7 @@
+     attempts = proof['staleAttempts']
+     require([row['id'] for row in attempts] == ['stale-version','expired-lease','newer-generation','newer-watermark','superseded-lease','stale-checkpoint'], 'complete stale worker schedule inventory')
+     for attempt in attempts:
++        recovery_execution(attempt, data)
+         expected = {key:newer[key] for key in FENCE_FIELDS}
+         if attempt['id'] == 'stale-version': expected.update(version=initial['version'], etag=initial['etag'])
+         elif attempt['id'] == 'newer-generation': expected['generation'] = initial['generation']
+@@ -129,6 +191,7 @@
+     require(final['etag'] != newer['etag'] and same(final,expected_final) and same(current['before'],newer), 'current clearance preserves complete newer domain progress')
+     require(current['succeeded'] is True and current['cleared'] == [scope['pendingId']] and all(current[key] == text(current['commitId']) for key in ('projectionCommitId','checkpointCommitId','pendingCommitId','watermarkCommitId')), 'one durable current-worker composite clearance')
+     retry = proof['duplicateRetry']
++    recovery_execution(retry, data, duplicate=True)
+     require(retry['scope'] == scope and same(retry['before'],final) and same(retry['after'],final) and retry['succeeded'] is None and retry['commitId'] is None and retry['cleared'] == [], 'duplicate retry observes durable clearance and preserves newer state')
+     require(data['clearCount'] == len(current['cleared']) and data['duplicateClearCount'] == len(retry['cleared']) and data['staleWorkerWrites'] == sum(row['succeeded'] for row in attempts), 'clearance and stale-write counts derive from measured schedule')
+     require(same(data['queryProjection'],dict(sequence=final['checkpoint'],state=final['projection'])), 'query observes final current-worker state')
+--- before/_bmad/scripts/epic16_trust.py
++++ after/_bmad/scripts/epic16_trust.py
+@@ -1,4 +1,4 @@
+ """Independent immutable contract/schema/predecessor pins for Epic 16 tooling."""
+ CONTRACT_PINS = {'_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json': '19c826f872cd5acce3d33a125ae3288ae8be8a5a5b663c18f63d296bb3437ba9', '_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json': '084fe556ce8b0c8c967113221ff57461c96cacff5fdd6ecd49023de2f8b2f746', '_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json': 'eccff824789d26aebc49abde8b5f2fd323e2f47883d300e3cc533a472c307e98'}
+ PREDECESSOR_PINS = {'_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md': 'bc7d953ab6ea741b488ae8c96f5d4a7dde6d1fe2ef0ff33a3ff79b2cb82a6157', '_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json': '989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747', '_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json': '791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8', '_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json': '074189ef4eea79bddeef5935b27df01c637dc5bf832a17eb24933c52968364c0', '_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json': 'da8c5462c77239f9f770a9b803b436824efb8e58f7f182fb66ec1343902beae7', '_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json': '542f1de5e4af3c58c9df7d654e04dd2ea99b9f63cd50bcf864ef5c2ba1257963', '_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json': '226a0a060951139346282a8048338ff9af35014fe7154d79a8863da56507c9dc', '_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md': 'e12ee39652b9d7e18052716c955962d716f7e48b6fea2cd1f43f6a22d783ecb0', '_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json': '989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747', '_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json': '791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8', '_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json': '4c533a78c3f0f115f28d1113e5b2e71a4d71c93b5c08b4e3ebf8cfa23e47b9bd', '_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json': '3088bcf463a6bd7643925195c0ecf3e34f26e72caf6706c08e2c62b3ddaae2f6', '_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.2.json': 'd9fd9f9fe66b178f2435396ab467886d9dd04024754ff5970345fa1802f53560', '_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json': 'b353f763387047063f3c2c8d9a0373de8e61f054ea7a3df714c29f43db21b712', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md': 'b0b110461e81457a12b35bc8515ad691d26a926b206189495241f7f52a50097c', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json': '989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json': '791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json': '16eaf5b30e379ca50172a20fa5b069ac6a3cd4c675c5ca322d9178a1929f5746', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json': '3e44d0498d231633a12ee122d72535c178870a1601ab8c552c815566fe257e08', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json': 'a21c8c817e5126343110a5e6730883b5cf32738610b3f552ef6cdbbfe605a965', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json': '5eeccfb8427e4ebccc1955f965d00e3c5655834a3c3005443c970be2dd99509a', '_bmad/schemas/epic-16-adoption-v1.schema.json': '884d8efb4bf58571c99dca0b63ba0f97b10e50db0cb4bd238ed5a96f017f4f98', '_bmad/schemas/epic-16-adoption-v2.schema.json': '12278d301a8945ba929d28ecb7a8091663e40f23d821aa4cf3d2d3ec765d3a4f', '_bmad/schemas/epic-16-prerequisites-v1.schema.json': 'b7095d7191a96dcefb5a0c333958e5c7eccbd7fa1fae9cb8d62ea2ec8bcad497', '_bmad/scripts/verify_epic_16_adoption.py': 'b22b6d25ae86186d0575a19dfa09b810220c70d3fb9c0eadefc781a53ce68505', '_bmad/scripts/verify_epic_16_adoption_v2.py': 'f9ac03603a2b1635b7bb7e7f44262c2acb8f0272fbf55030ea1012932d93b568', '_bmad/scripts/verify_epic_16_prerequisites.py': 'b10e910aefdd7f9f19cb80bbb19936efd2340f641be45787c140cf45738bbfa6'}
+-SCHEMA_PIN = 'f402ac6f10b492d59ea575973e9ebd49360a7402784901b5a2196662a07f5f51'
++SCHEMA_PIN = '716e36cb2dd8e7ee34599fc67eb07e368d7cee5277a13cc7090f87e26a04d87f'
+--- before/_bmad/scripts/tests/test_epic16_tooling.py
++++ after/_bmad/scripts/tests/test_epic16_tooling.py
+@@ -2580,6 +2580,7 @@
+         # The content-safe wire digest binds the same altered complete persisted state.
+         durable=next(row for row in data['wireObservation']['operations'] if row['phase']=='durable-result')
+         durable['persistedAfterSha256']=digest(canonical(data['concurrentRecovery']['current']['after']))
++        round11_refresh_recovery(data)
+     round7_submit(repository,scenario,data,passes=True)
+ 
+ 
+@@ -3151,6 +3152,8 @@
+     assert result.returncode==0,result.stdout.decode()
+     binary=(directory/('bin/Debug/net10.0/'+product['assemblyName']+'.dll')).read_bytes()
+     _PRODUCT_BYTES[key]=binary
++    if os.environ.get('EPIC16_R11_NATIVE_EVIDENCE'):
++        round11_retain('product-build-'+digest(json.dumps(key).encode()), {**{name:(directory/name).read_bytes() for name in ('Product.cs','Product.csproj','Stamp.cs','global.json')}, 'Product.dll.bytes':binary,'build.stdout':result.stdout,'build.stderr':result.stderr}, dict(argv=['dotnet','build','Product.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'],cwd=str(directory),exitCode=result.returncode))
+     shutil.rmtree(directory)
+     return binary
+ 
+@@ -3982,3 +3985,228 @@
+     if expected:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+     else:
+         with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')
++
++
++# Iteration 11: controlled declaration and execution proofs, never runtime authority.
++ROUND11_METADATA = {
++    'interface-nullability': ('namespace Probe { public interface IBase<T> {} public interface Api : IBase<string> {} }', 'namespace Probe { public interface IBase<T> {} public interface Api : IBase<string?> {} }'),
++    'attribute-overload': tuple('namespace Probe { public class StampAttribute : System.Attribute { public StampAttribute(int value) {} public StampAttribute(uint value) {} } [Stamp('+value+')] public class Api {} }' for value in ('1','1u')),
++    'preserve-sig': tuple('namespace Probe { [System.Runtime.InteropServices.ComImport][System.Runtime.InteropServices.Guid("F0000000-0000-0000-0000-000000000001")] public interface Api { '+attribute+' int Method(); } }' for attribute in ('','[System.Runtime.InteropServices.PreserveSig]')),
++    'assembly-cls': tuple('[assembly:System.CLSCompliant('+value+')] namespace Probe { public class Api {} }' for value in ('true','false')),
++    'module-cls': tuple('[module:System.CLSCompliant('+value+')] namespace Probe { public class Api {} }' for value in ('true','false')),
++    'assembly-metadata': tuple('[assembly:System.Reflection.AssemblyMetadata("Contract", "'+value+'")] namespace Probe { public class Api {} }' for value in ('one','two')),
++    'owning-flags': ('namespace Probe { public class Api {} }','[assembly:System.Reflection.AssemblyFlags(System.Reflection.AssemblyNameFlags.Retargetable)] namespace Probe { public class Api {} }'),
++}
++
++
++def round11_retain(name, artifacts, commands=None):
++    if os.environ.get('EPIC16_R11_NATIVE_EVIDENCE'):
++        directory=Path(os.environ['EPIC16_R11_NATIVE_EVIDENCE'])/name;directory.mkdir(parents=True,exist_ok=True)
++        for path,data in artifacts.items():(directory/path).write_bytes(data)
++        if commands is not None:(directory/'commands.json').write_text(json.dumps(commands,indent=2)+'\n')
++
++
++@pytest.mark.parametrize('change',ROUND11_METADATA)
++@pytest.mark.parametrize('scenario',['AC-16.1-05','AC-16.2-05','upstream'])
++def test_round11_native_contract_changes_reject_at_api_callers(repository,change,scenario):
++    ac='AC-16.1-05' if scenario=='upstream' else scenario
++    path=native(repository,ac);tree=ET.fromstring(path.read_bytes());output=tree.find('Results/UnitTestResult/Output/StdOut');payload=json.loads(output.text)
++    if scenario=='upstream':
++        product=tooling.products.PRODUCTS[2];row=payload['observations']['upstreamSurfaces'][0]
++    else:product=tooling.products.PRODUCTS[1];row=payload['observations']['compiledContracts']
++    for phase,source in zip(('baseline','candidate'),ROUND11_METADATA[change]):
++        source=source+'\n'+round9_product_source(product)
++        artifact=row[phase];binary=round9_compile_product(product,artifact['revision'],source)
++        retained=f'artifacts/epic16-tooling-fixture/{ac[3:7]}/binaries/{digest(binary)}.dll'
++        (repository/retained).write_bytes(binary);artifact.update(path=retained,sha256=digest(binary))
++        round11_retain(change+'-'+scenario,{phase+'.cs':source.encode(),phase+'.dll.bytes':binary})
++    output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree))
++    rejected(evaluate(repository,ac),'UPSTREAM_API_DRIFT' if scenario=='upstream' else 'ROOT_API_DRIFT')
++
++
++@pytest.mark.parametrize('mode',['unchanged','addition','version','build-stamps'])
++def test_round11_supported_declarations_preserve_revision_and_version_policy(mode):
++    product=dict(assemblyName='Probe');before='namespace Probe { public class Api {} }';after=before
++    if mode=='addition':after+='namespace Probe { public class Added {} }'
++    elif mode=='version':before='[assembly:System.Reflection.AssemblyVersion("1.0.0.0")] '+before;after='[assembly:System.Reflection.AssemblyVersion("2.0.0.0")] '+after
++    elif mode=='build-stamps':
++        before='[assembly:System.Reflection.AssemblyFileVersion("1.0.0.0")][assembly:System.Reflection.AssemblyMetadata("SourceRevisionId","'+'a'*40+'")] '+before
++        after='[assembly:System.Reflection.AssemblyFileVersion("2.0.0.0")][assembly:System.Reflection.AssemblyMetadata("SourceRevisionId","'+'b'*40+'")] '+after
++    values=[]
++    for phase,revision,source in [('baseline','a'*40,before),('candidate','b'*40,after)]:
++        binary=round9_compile_product(product,revision,source);values.append(tooling.native_helper.inspect_product(binary,revision))
++        round11_retain('positive-'+mode,{phase+'.cs':source.encode(),phase+'.dll.bytes':binary})
++    tooling.products.additive(*values,tooling.need,mode)
++    if mode!='addition':assert values[0]['api']==values[1]['api']
++
++
++@pytest.mark.parametrize('index',range(4))
++@pytest.mark.parametrize('fault',['positive','missing-evidence','missing-commit','commit-unexecuted','commit-failed','ack-unexecuted','transaction','record','delivery','persisted','observed','both-swapped','source','delivered','etag','write-count','early','equal-ticks'])
++def test_round11_acknowledgement_derives_executed_durable_contents(repository,index,fault):
++    data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];commit=row['durableCommit'];ack=row['acknowledgement'];proof=row['durableEvidence']
++    if fault=='missing-evidence':del row['durableEvidence']
++    elif fault=='missing-commit':row['durableCommit']=None
++    elif fault=='commit-unexecuted':commit['executed']=False
++    elif fault=='commit-failed':commit['succeeded']=False
++    elif fault=='ack-unexecuted':ack['executed']=False
++    elif fault=='transaction':ack['transactionId']='unrelated'
++    elif fault=='record':ack['recordId']='unrelated'
++    elif fault=='delivery':ack['deliveryId']='unrelated'
++    elif fault=='persisted':commit['persisted']['projection']['name']='Wrong persisted content'
++    elif fault=='observed':ack['observedRecord']['checkpoint']+=1
++    elif fault=='both-swapped':
++        for value in (proof['after'],commit['persisted'],ack['observedRecord']):value['projection']['name']='Equally wrong'
++    elif fault=='source':proof['sourceRecord']['payloadSha256']='f'*64
++    elif fault=='delivered':proof['delivered']=deepcopy(proof['sourceRecord'] if index!=1 else OBSERVATIONS['AC-16.1-04']['acknowledgements'][0]['durableEvidence']['delivered'])
++    elif fault=='etag':proof['expectedEtag']='foreign'
++    elif fault=='write-count':proof['writeCount']=1-proof['writeCount']
++    elif fault=='early':ack['order']=commit['order']
++    elif fault=='equal-ticks':ack['utcTicks']=commit['utcTicks']
++    round8_submit(repository,'AC-16.1-04',data,passes=fault in ('positive','equal-ticks'))
++
++
++@pytest.mark.parametrize('index',[4,5])
++@pytest.mark.parametrize('fault',['ack','commit','evidence'])
++def test_round11_terminal_failures_cannot_carry_durable_success(repository,index,fault):
++    data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];source=data['acknowledgements'][0]
++    field={'ack':'acknowledgement','commit':'durableCommit','evidence':'durableEvidence'}[fault];row[field]=deepcopy(source[field])
++    round8_submit(repository,'AC-16.1-04',data)
++
++
++@pytest.mark.parametrize('index',range(7))
++@pytest.mark.parametrize('fault',['positive','missing','unexecuted','incomplete','identity','scope','order','expected','proposed','before','after','outcome','succeeded','transaction','clearance'])
++def test_round11_recovery_operations_execute_complete_and_bind_exact_branch(repository,index,fault):
++    data=deepcopy(OBSERVATIONS['AC-16.3-04']);p=data['concurrentRecovery'];row=p['duplicateRetry'] if index==6 else p['staleAttempts'][index];ex=row['execution'];request,attempt,completion=ex['operations']
++    if fault=='missing':del row['execution']
++    elif fault=='unexecuted':attempt['executed']=False
++    elif fault=='incomplete':completion['completed']=False
++    elif fault=='identity':completion['operationId']='unrelated'
++    elif fault=='scope':ex['scope']['tenant']='foreign'
++    elif fault=='order':completion['order']=attempt['order']
++    elif fault=='expected':request['expectedSha256']='f'*64
++    elif fault=='proposed':request['proposedSha256']='f'*64
++    elif fault=='before':attempt['storedBeforeSha256']='f'*64
++    elif fault=='after':completion['storedAfterSha256']='f'*64
++    elif fault=='outcome':completion['outcome']='Completed'
++    elif fault=='succeeded':attempt['succeeded']=True
++    elif fault=='transaction':attempt['transactionId']='invented'
++    elif fault=='clearance':ex['afterClearanceTransactionId']='unrelated'
++    round8_submit(repository,'AC-16.3-04',data,passes=fault=='positive')
++
++
++@pytest.mark.parametrize('story',['16_1','16_2','16_3'])
++@pytest.mark.parametrize('defect',['absent','typo','internal','present-declared'])
++def test_round11_launchers_classify_only_genuinely_missing_declared_modules(tmp_path,story,defect):
++    wrapper='verify_story_'+story+'.py';shutil.copyfile(ROOT/'_bmad/scripts'/wrapper,tmp_path/wrapper)
++    if defect=='typo':(tmp_path/'epic16_tooling.py').write_text('import epic16_typo\n')
++    elif defect=='internal':(tmp_path/'epic16_tooling.py').write_text('raise ImportError("internal defect")\n')
++    elif defect=='present-declared':(tmp_path/'epic16_tooling.py').write_text('raise ModuleNotFoundError("internal defect", name="epic16_tooling")\n')
++    run=subprocess.run([sys.executable,str(tmp_path/wrapper)],cwd=tmp_path,capture_output=True)
++    if defect=='absent':assert run.returncode==2 and json.loads(run.stdout)['blockers']==['TOOLING_DEPENDENCY_UNAVAILABLE']
++    else:assert run.returncode==1 and b'Traceback' in run.stderr and not run.stdout
++
++
++@pytest.mark.parametrize('fault',['positive','missing','extra','foreign','query-missing','query-foreign'])
++def test_round11_multi_resource_erase_retains_dispatch_multiplicity_and_queries(repository,fault):
++    data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][0];relations=tooling.measurements.relationships
++    added=json.loads(json.dumps(row['capturedObjects'][0]).replace('conversation-a','conversation-b'))
++    added['key']=relations.conversation_key(row['tenant'],'conversation-b');added['storedMetadataSha256']=digest(added['storedMetadataBytes'].encode())
++    row['capturedObjects'].append(added);row['deletionTargets'].append(dict(row['deletionTargets'][0],key=added['key']));row['deletedTargets']=deepcopy(row['deletionTargets'])
++    round8_refresh(row)
++    for stage in row['atomicity']['stages']:
++        stage['cas']['componentTransactions']=[dict(kind=p['kind'],resource=p['resource'],transactionId=stage['cas']['transactionId']) for p in stage['after']['components']]
++    entry=row['atomicity']['stages'][0]
++    assert len(entry['after']['index']['dispatchReferences'])==2
++    if fault in ('missing','extra','foreign'):
++        for snapshot in (entry['before'],entry['after']):
++            values=snapshot['index']['dispatchReferences']
++            if fault=='missing':values.pop()
++            elif fault=='extra':values.append(values[0])
++            else:values[1]='foreign'
++        entry['plan']['indexAfter']=deepcopy(entry['after']['index'])
++    elif fault=='query-missing':row['queries'].pop(0)
++    elif fault=='query-foreign':row['queries'][0]['snapshot']['components'][2]['resource']='foreign'
++    round8_submit(repository,'AC-16.2-04',data,passes=fault=='positive')
++
++
++@pytest.mark.parametrize('shape',['fact','task','value-task','theory-conflict','derived-conflict','indirect-conflict','ordinary-attribute'])
++def test_round11_fact_discovery_agrees_with_actual_pinned_runner(tmp_path,shape):
++    directory=tmp_path/'native';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
++    (directory/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><GenerateAssemblyInfo>false</GenerateAssemblyInfo></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" /></ItemGroup></Project>')
++    attributes='[Xunit.Fact]';support='';body='public void Scenario01() {}'
++    if shape=='theory-conflict':attributes+='[Xunit.Theory]'
++    elif shape in ('derived-conflict','indirect-conflict'):
++        support='public class OtherFact : Xunit.FactAttribute {} public class IndirectFact : OtherFact {}'
++        attributes+='[OtherFact]' if shape=='derived-conflict' else '[IndirectFact]'
++    elif shape=='ordinary-attribute':support='public class Ordinary : System.Attribute {}';attributes+='[Ordinary]'
++    elif shape=='task':body='public System.Threading.Tasks.Task Scenario01() => System.Threading.Tasks.Task.CompletedTask;'
++    elif shape=='value-task':body='public System.Threading.Tasks.ValueTask Scenario01() => System.Threading.Tasks.ValueTask.CompletedTask;'
++    source='[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] namespace Synthetic; '+support+' public class TestClass { '+attributes+' '+body+' }'
++    (directory/'Tests.cs').write_text(source)
++    build_args=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false']+(['-p:RunAnalyzers=false'] if shape.endswith('conflict') else []);build=subprocess.run(build_args,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
++    binary=directory/'bin/Debug/net10.0/Evidence.dll';trx=directory/'result.trx'
++    run_args=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(trx)];run=subprocess.run(run_args,cwd=directory,capture_output=True,timeout=30)
++    positive=not shape.endswith('conflict');assert run.returncode==(0 if positive else 1),(run.stdout,run.stderr)
++    if not positive:assert b'multiple [Fact]-derived attributes' in run.stdout+run.stderr
++    round11_retain('discovery-'+shape,{'Tests.cs':source.encode(),'Evidence.csproj':(directory/'Evidence.csproj').read_bytes(),'Evidence.dll.bytes':binary.read_bytes(),'result.trx':trx.read_bytes(),'build.stdout':build.stdout,'build.stderr':build.stderr,'run.stdout':run.stdout,'run.stderr':run.stderr},dict(build=build_args,run=run_args,buildExit=build.returncode,runExit=run.returncode))
++    if positive:assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
++    else:
++        with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')
++
++
++def round11_refresh_recovery(data):
++    """Rebind operation observations after a deliberately valid source/state variation."""
++    from evidence_boundary_current import canonical
++    p=data['concurrentRecovery']
++    for row in [*p['staleAttempts'],p['duplicateRetry']]:
++        duplicate='id' not in row;before=row['before'] if duplicate else row['storedBefore'];after=row['after'] if duplicate else row['storedAfter']
++        expected={k:before[k] for k in tooling.measurements.schedules.FENCE_FIELDS} if duplicate else row['expected'];proposed=before if duplicate else row['proposed']
++        request,attempt,completion=row['execution']['operations'];request.update(expectedSha256=digest(canonical(expected)),proposedSha256=digest(canonical(proposed)));attempt['storedBeforeSha256']=digest(canonical(before));completion['storedAfterSha256']=digest(canonical(after))
++
++
++@pytest.mark.parametrize('index',range(4))
++@pytest.mark.parametrize('mode',['extra','alternate','empty','reserved','unknown-role','role-invalid','configuration-invalid'])
++def test_round11_durable_native_maps_preserve_opaque_keys_and_validate_values(repository,index,mode):
++    data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=data['acknowledgements'][index];p=row['durableEvidence']
++    members={'actor-extra':'TenantReader'};configuration={'customer.setting':'kept'}
++    if mode=='extra':members['actor-a']='TenantContributor';configuration['conversations.enabled']='true'
++    elif mode=='empty':members={};configuration={}
++    elif mode=='reserved':members={'version':'TenantReader','allowed':'TenantOwner'};configuration={'version':'customer-setting','history':'','allowed':' '}
++    elif mode=='unknown-role':members={'actor-extra':'Unknown'}
++    elif mode=='role-invalid':members={'actor-extra':'Reader'}
++    elif mode=='configuration-invalid':configuration={'customer.setting':True}
++    for state in (p['sourceState'],p['before']['projection'],p['after']['projection'],row['durableCommit']['persisted']['projection'],row['acknowledgement']['observedRecord']['projection']):state.update(members=deepcopy(members),configuration=deepcopy(configuration))
++    round8_submit(repository,'AC-16.1-04',data,passes=mode not in ('role-invalid','configuration-invalid'))
++
++
++@pytest.mark.parametrize('control',['hidden-fact','foreign-build-attribute','external-constructor'])
++def test_round11_framework_ownership_and_external_attribute_constructors_are_verified(tmp_path,control):
++    """Only these test-authored assemblies execute under the real pinned runner."""
++    directory=tmp_path/'attributes';directory.mkdir();(directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
++    source='namespace System.Custom { public class HiddenFactAttribute : Xunit.FactAttribute {} } namespace System.Reflection { public class AssemblyFileVersionAttribute : System.Attribute { public AssemblyFileVersionAttribute(string value) {} } } namespace Custom { public class StampAttribute : System.Attribute { public StampAttribute(int value) {} public StampAttribute(uint value) {} } }'
++    project='<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>Attributes</AssemblyName></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3.extensibility.core" Version="4.0.2" /></ItemGroup></Project>'
++    (directory/'Attributes.cs').write_text(source);(directory/'Attributes.csproj').write_text(project)
++    command=['dotnet','build','Attributes.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];build=subprocess.run(command,cwd=directory,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
++    external=directory/'bin/Debug/net10.0/Attributes.dll';round11_retain('external-'+control,{'Attributes.cs':source.encode(),'Attributes.csproj':project.encode(),'Attributes.dll.bytes':external.read_bytes(),'attributes.stdout':build.stdout,'attributes.stderr':build.stderr},dict(argv=command,cwd=str(directory),exitCode=build.returncode))
++    metadata=[]
++    for phase,value in [('baseline','one' if control=='foreign-build-attribute' else '1'),('candidate','two' if control=='foreign-build-attribute' else '1u')]:
++        work=tmp_path/phase;work.mkdir();(work/'global.json').write_bytes((ROOT/'global.json').read_bytes())
++        is_test=control=='hidden-fact';name='Evidence' if is_test else 'Api'
++        project='<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><GenerateAssemblyInfo>false</GenerateAssemblyInfo><OutputType>'+('Exe' if is_test else 'Library')+'</OutputType></PropertyGroup><ItemGroup><Reference Include="Attributes"><HintPath>'+str(external)+'</HintPath><Aliases>custom</Aliases></Reference>'+('<PackageReference Include="xunit.v3" Version="4.0.2" />' if is_test else '')+'</ItemGroup></Project>'
++        code='extern alias custom; [assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")] '
++        if is_test:code+='namespace Synthetic; public class TestClass { [Xunit.Fact, custom::System.Custom.HiddenFact] public void Scenario01() {} }'
++        elif control=='foreign-build-attribute':code+='[assembly:custom::System.Reflection.AssemblyFileVersion("'+value+'")] namespace Synthetic; public class Api {}'
++        else:code+='namespace Synthetic; [custom::Custom.Stamp('+value+')] public class Api {}'
++        (work/(name+'.csproj')).write_text(project);(work/'Code.cs').write_text(code)
++        command=['dotnet','build',name+'.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false']+(['-p:RunAnalyzers=false'] if is_test else []);build=subprocess.run(command,cwd=work,capture_output=True,timeout=120);assert build.returncode==0,build.stdout
++        binary=work/f'bin/Debug/net10.0/{name}.dll';artifacts={'Code.cs':code.encode(),name+'.csproj':project.encode(),name+'.dll.bytes':binary.read_bytes(),'build.stdout':build.stdout,'build.stderr':build.stderr};commands=dict(build=command,cwd=str(work),buildExit=build.returncode)
++        if is_test:
++            trx=work/'result.trx';argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(trx)];run=subprocess.run(argv,cwd=work,capture_output=True,timeout=30);assert run.returncode==1 and b'multiple [Fact]-derived attributes' in run.stdout+run.stderr
++            artifacts.update({'result.trx':trx.read_bytes(),'run.stdout':run.stdout,'run.stderr':run.stderr});commands.update(run=argv,runExit=run.returncode)
++            with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')
++        else:metadata.append(tooling.native_helper.inspect_product(binary.read_bytes(),'a'*40))
++        round11_retain('external-'+control+'-'+phase,artifacts,commands)
++        if is_test:break
++    if not is_test:
++        with pytest.raises(tooling.Stop) as error:tooling.products.additive(*metadata,tooling.need,control)
++        assert error.value.code=='UPSTREAM_API_DRIFT' and metadata[0]['api']!=metadata[1]['api']
+--- before/_bmad/scripts/verify_story_16_1.py
++++ after/_bmad/scripts/verify_story_16_1.py
+@@ -9,10 +9,18 @@
+ except ModuleNotFoundError as error:
+     # Only unavailable declared imports are prerequisites. Other import defects
+     # retain their traceback instead of being disguised as evidence unavailability.
+-    if not (error.name.startswith('epic16_') or error.name in (
++    declared = {
++        'epic16_tooling', 'epic16_trust', 'epic16_measurements', 'epic16_native',
++        'epic16_domain', 'epic16_lifecycle', 'epic16_schedules', 'epic16_capture',
++        'epic16_faults', 'epic16_relationships', 'epic16_execution', 'epic16_products',
+         'jsonschema', 'attrs', 'attr', 'referencing', 'rpds', 'jsonschema_specifications',
+         'contained_reader', 'authoring_outputs', 'evidence_boundary_current',
+-        'generate_story_record', 'config_utils', 'verify_story_completion_workflows')):
++        'generate_story_record', 'config_utils', 'verify_story_completion_workflows',
++    }
++    if error.name not in declared:
++        raise
++    import importlib.util
++    if importlib.util.find_spec(error.name) is not None:
+         raise
+     import json
+     print(json.dumps(dict(result='BLOCKED', exitCode=2,
+--- before/_bmad/scripts/verify_story_16_2.py
++++ after/_bmad/scripts/verify_story_16_2.py
+@@ -9,10 +9,18 @@
+ except ModuleNotFoundError as error:
+     # Only unavailable declared imports are prerequisites. Other import defects
+     # retain their traceback instead of being disguised as evidence unavailability.
+-    if not (error.name.startswith('epic16_') or error.name in (
++    declared = {
++        'epic16_tooling', 'epic16_trust', 'epic16_measurements', 'epic16_native',
++        'epic16_domain', 'epic16_lifecycle', 'epic16_schedules', 'epic16_capture',
++        'epic16_faults', 'epic16_relationships', 'epic16_execution', 'epic16_products',
+         'jsonschema', 'attrs', 'attr', 'referencing', 'rpds', 'jsonschema_specifications',
+         'contained_reader', 'authoring_outputs', 'evidence_boundary_current',
+-        'generate_story_record', 'config_utils', 'verify_story_completion_workflows')):
++        'generate_story_record', 'config_utils', 'verify_story_completion_workflows',
++    }
++    if error.name not in declared:
++        raise
++    import importlib.util
++    if importlib.util.find_spec(error.name) is not None:
+         raise
+     import json
+     print(json.dumps(dict(result='BLOCKED', exitCode=2,
+--- before/_bmad/scripts/verify_story_16_3.py
++++ after/_bmad/scripts/verify_story_16_3.py
+@@ -9,10 +9,18 @@
+ except ModuleNotFoundError as error:
+     # Only unavailable declared imports are prerequisites. Other import defects
+     # retain their traceback instead of being disguised as evidence unavailability.
+-    if not (error.name.startswith('epic16_') or error.name in (
++    declared = {
++        'epic16_tooling', 'epic16_trust', 'epic16_measurements', 'epic16_native',
++        'epic16_domain', 'epic16_lifecycle', 'epic16_schedules', 'epic16_capture',
++        'epic16_faults', 'epic16_relationships', 'epic16_execution', 'epic16_products',
+         'jsonschema', 'attrs', 'attr', 'referencing', 'rpds', 'jsonschema_specifications',
+         'contained_reader', 'authoring_outputs', 'evidence_boundary_current',
+-        'generate_story_record', 'config_utils', 'verify_story_completion_workflows')):
++        'generate_story_record', 'config_utils', 'verify_story_completion_workflows',
++    }
++    if error.name not in declared:
++        raise
++    import importlib.util
++    if importlib.util.find_spec(error.name) is not None:
+         raise
+     import json
+     print(json.dumps(dict(result='BLOCKED', exitCode=2,

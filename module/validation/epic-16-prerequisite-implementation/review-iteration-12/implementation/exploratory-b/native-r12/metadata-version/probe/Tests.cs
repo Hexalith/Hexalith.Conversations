@@ -1,0 +1,1 @@
+[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+existing.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")][assembly:System.Reflection.AssemblyMetadata("SourceRevisionId","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")] namespace Synthetic { public class TestClass {  [Xunit.Fact] public void Scenario01() {} } }

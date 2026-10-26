@@ -1,0 +1,122 @@
+[
+  {
+    "name": "helper-policy-propagation",
+    "path": "_bmad/scripts/epic16_native.py",
+    "old": "            (directory / name).write_bytes(data)",
+    "new": "            if name != POLICY_PATH: (directory / name).write_bytes(data)",
+    "selection": "round7_native_helper_propagates",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review7-mutant-helper-policy-propagation-laakq8m3/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round7_native_helper_propagates",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/mutations-final-sdk/helper-policy-propagation.xml"
+    ],
+    "workspace": "/tmp/epic16-review7-mutant-helper-policy-propagation-laakq8m3",
+    "exitCode": 1,
+    "elapsedSeconds": 2.378,
+    "originalSha256": "ab2aec05b61871a961a99f2e72d98558ca07114c24f59eac931fbba36966063e",
+    "mutatedSha256": "023ec0d71f3700c067be130edfb8532e3f1a99eddf28bdd344e9bc872904b2c3",
+    "stdoutSha256": "20c3322283861618010d5518db61bcc68d5b5aa8b11c26774b2e6e6e187fddf8",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "helper-selected-sdk",
+    "path": "_bmad/scripts/epic16_native.py",
+    "old": "        validate_sdk(sources[POLICY_PATH], selected)",
+    "new": "        pass # removed validation in disposable mutation",
+    "selection": "round7_runtime_consumer_blocks and (wrong-feature-band or older-patch)",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review7-mutant-helper-selected-sdk-tzb7fegx/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round7_runtime_consumer_blocks and (wrong-feature-band or older-patch)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/mutations-final-sdk/helper-selected-sdk.xml"
+    ],
+    "workspace": "/tmp/epic16-review7-mutant-helper-selected-sdk-tzb7fegx",
+    "exitCode": 1,
+    "elapsedSeconds": 6.969,
+    "originalSha256": "ab2aec05b61871a961a99f2e72d98558ca07114c24f59eac931fbba36966063e",
+    "mutatedSha256": "14a95225a10edf3ec2d4918b0882398881e3458c78ab180159cef716712565ed",
+    "stdoutSha256": "4f00a56f8d6a00333969c71627853edb8958876232377f9beb9708848f713fe7",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "helper-runtime-provenance",
+    "path": "_bmad/scripts/epic16_native.py",
+    "old": "return dict(policySha256=hashlib.sha256(policy).hexdigest(), sdk=sdk,",
+    "new": "return dict(policySha256=hashlib.sha256(policy).hexdigest(), sdk='10.0.999',",
+    "selection": "round7_native_helper_propagates",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review7-mutant-helper-runtime-provenance-ktx5cbnt/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round7_native_helper_propagates",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/mutations-final-sdk/helper-runtime-provenance.xml"
+    ],
+    "workspace": "/tmp/epic16-review7-mutant-helper-runtime-provenance-ktx5cbnt",
+    "exitCode": 1,
+    "elapsedSeconds": 2.629,
+    "originalSha256": "ab2aec05b61871a961a99f2e72d98558ca07114c24f59eac931fbba36966063e",
+    "mutatedSha256": "49b493cbeadfe83d6feb74b6205fe5e9e7130da08235a9b883e1c1caecac3561",
+    "stdoutSha256": "e19d216c340c7d522cf35656090fbc818f6b8b18443449718dbeea618983729c",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "invalid-policy-before-dotnet",
+    "path": "_bmad/scripts/epic16_native.py",
+    "old": "    validate_sdk(sources[POLICY_PATH])",
+    "new": "    pass # removed validation in disposable mutation",
+    "selection": "round7_actual_isolated_helper_setup",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-review7-mutant-invalid-policy-before-dotnet-hlfyf3vs/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round7_actual_isolated_helper_setup",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/mutations-final-sdk/invalid-policy-before-dotnet.xml"
+    ],
+    "workspace": "/tmp/epic16-review7-mutant-invalid-policy-before-dotnet-hlfyf3vs",
+    "exitCode": 1,
+    "elapsedSeconds": 1.729,
+    "originalSha256": "ab2aec05b61871a961a99f2e72d98558ca07114c24f59eac931fbba36966063e",
+    "mutatedSha256": "4c56643d4498734a67a8948a7f8a900e8f227eb3f3e75d733282964863ff3dab",
+    "stdoutSha256": "685554039e50076e905f09a069cb76879372328e231f5ee6aec93398da76a5dd",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": {
+      "tests": 4,
+      "failures": 4,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+]

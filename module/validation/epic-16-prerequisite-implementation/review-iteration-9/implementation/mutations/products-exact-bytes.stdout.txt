@@ -1,0 +1,263 @@
+FFFFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+_ test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-0] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-566/test_round9_loaded_products_ar0/runtime')
+product_index = 0, fault = 'managed-bytes'
+
+    @pytest.mark.parametrize('product_index',range(7))
+    @pytest.mark.parametrize('fault',['bytes','managed-bytes','mvid','owner','revision','omitted','relabelled','reported-owner','capture-owner','reported-source','capture-source','substituted'])
+    def test_round9_loaded_products_are_independently_owned_and_bound(qualified_runtime,product_index,fault):
+        repo=qualified_runtime;scenario='AC-16.2-02';path=repo/tooling.native_path('runtime',scenario);tree=ET.fromstring(path.read_bytes());output=tree.find('./{*}Results/{*}UnitTestResult/{*}Output/{*}StdOut');payload=json.loads(output.text)
+        capture_path=repo/tooling.capture.capture_path('16.2',scenario);capture=json.loads(capture_path.read_bytes());row=payload['loadedProducts'][product_index];artifact=capture['products'][product_index]
+        if fault=='bytes':(repo/artifact['path']).write_bytes(b'not managed product bytes')
+        elif fault=='managed-bytes':
+            binary=repo/artifact['path'];binary.write_bytes(binary.read_bytes()+b'measured-overlay-drift')
+        elif fault=='reported-owner':row['owner']='foreign'
+        elif fault=='capture-owner':artifact['owner']='foreign'
+        elif fault=='reported-source':row['sourceRevision']='f'*40
+        elif fault=='capture-source':artifact['sourceRevision']='f'*40
+        elif fault=='substituted':
+            other=capture['products'][(product_index+1)%7]
+            for field in ('path','sha256','mvid'):artifact[field]=other[field]
+            for field in ('sha256','mvid'):row[field]=other[field]
+        elif fault=='mvid':row['mvid']=artifact['mvid']='00000000-0000-0000-0000-000000000000'
+        elif fault=='owner':row['owner']=artifact['owner']='references/Foreign'
+        elif fault=='revision':row['sourceRevision']=artifact['sourceRevision']='f'*40
+        elif fault=='omitted':payload['loadedProducts'].pop(product_index)
+        else:row['assemblyName']=artifact['assemblyName']='Foreign.Assembly'
+        output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree));capture['native']['sha256']=digest(path.read_bytes());capture_path.write_bytes(tooling.json_bytes(capture))
+>       result=runtime_evaluate(repo);assert result['result']=='FAIL' and result['blockers'],result
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3366: AssertionError
+_ test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-1] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-566/test_round9_loaded_products_ar1/runtime')
+product_index = 1, fault = 'managed-bytes'
+
+    @pytest.mark.parametrize('product_index',range(7))
+    @pytest.mark.parametrize('fault',['bytes','managed-bytes','mvid','owner','revision','omitted','relabelled','reported-owner','capture-owner','reported-source','capture-source','substituted'])
+    def test_round9_loaded_products_are_independently_owned_and_bound(qualified_runtime,product_index,fault):
+        repo=qualified_runtime;scenario='AC-16.2-02';path=repo/tooling.native_path('runtime',scenario);tree=ET.fromstring(path.read_bytes());output=tree.find('./{*}Results/{*}UnitTestResult/{*}Output/{*}StdOut');payload=json.loads(output.text)
+        capture_path=repo/tooling.capture.capture_path('16.2',scenario);capture=json.loads(capture_path.read_bytes());row=payload['loadedProducts'][product_index];artifact=capture['products'][product_index]
+        if fault=='bytes':(repo/artifact['path']).write_bytes(b'not managed product bytes')
+        elif fault=='managed-bytes':
+            binary=repo/artifact['path'];binary.write_bytes(binary.read_bytes()+b'measured-overlay-drift')
+        elif fault=='reported-owner':row['owner']='foreign'
+        elif fault=='capture-owner':artifact['owner']='foreign'
+        elif fault=='reported-source':row['sourceRevision']='f'*40
+        elif fault=='capture-source':artifact['sourceRevision']='f'*40
+        elif fault=='substituted':
+            other=capture['products'][(product_index+1)%7]
+            for field in ('path','sha256','mvid'):artifact[field]=other[field]
+            for field in ('sha256','mvid'):row[field]=other[field]
+        elif fault=='mvid':row['mvid']=artifact['mvid']='00000000-0000-0000-0000-000000000000'
+        elif fault=='owner':row['owner']=artifact['owner']='references/Foreign'
+        elif fault=='revision':row['sourceRevision']=artifact['sourceRevision']='f'*40
+        elif fault=='omitted':payload['loadedProducts'].pop(product_index)
+        else:row['assemblyName']=artifact['assemblyName']='Foreign.Assembly'
+        output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree));capture['native']['sha256']=digest(path.read_bytes());capture_path.write_bytes(tooling.json_bytes(capture))
+>       result=runtime_evaluate(repo);assert result['result']=='FAIL' and result['blockers'],result
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3366: AssertionError
+_ test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-2] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-566/test_round9_loaded_products_ar2/runtime')
+product_index = 2, fault = 'managed-bytes'
+
+    @pytest.mark.parametrize('product_index',range(7))
+    @pytest.mark.parametrize('fault',['bytes','managed-bytes','mvid','owner','revision','omitted','relabelled','reported-owner','capture-owner','reported-source','capture-source','substituted'])
+    def test_round9_loaded_products_are_independently_owned_and_bound(qualified_runtime,product_index,fault):
+        repo=qualified_runtime;scenario='AC-16.2-02';path=repo/tooling.native_path('runtime',scenario);tree=ET.fromstring(path.read_bytes());output=tree.find('./{*}Results/{*}UnitTestResult/{*}Output/{*}StdOut');payload=json.loads(output.text)
+        capture_path=repo/tooling.capture.capture_path('16.2',scenario);capture=json.loads(capture_path.read_bytes());row=payload['loadedProducts'][product_index];artifact=capture['products'][product_index]
+        if fault=='bytes':(repo/artifact['path']).write_bytes(b'not managed product bytes')
+        elif fault=='managed-bytes':
+            binary=repo/artifact['path'];binary.write_bytes(binary.read_bytes()+b'measured-overlay-drift')
+        elif fault=='reported-owner':row['owner']='foreign'
+        elif fault=='capture-owner':artifact['owner']='foreign'
+        elif fault=='reported-source':row['sourceRevision']='f'*40
+        elif fault=='capture-source':artifact['sourceRevision']='f'*40
+        elif fault=='substituted':
+            other=capture['products'][(product_index+1)%7]
+            for field in ('path','sha256','mvid'):artifact[field]=other[field]
+            for field in ('sha256','mvid'):row[field]=other[field]
+        elif fault=='mvid':row['mvid']=artifact['mvid']='00000000-0000-0000-0000-000000000000'
+        elif fault=='owner':row['owner']=artifact['owner']='references/Foreign'
+        elif fault=='revision':row['sourceRevision']=artifact['sourceRevision']='f'*40
+        elif fault=='omitted':payload['loadedProducts'].pop(product_index)
+        else:row['assemblyName']=artifact['assemblyName']='Foreign.Assembly'
+        output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree));capture['native']['sha256']=digest(path.read_bytes());capture_path.write_bytes(tooling.json_bytes(capture))
+>       result=runtime_evaluate(repo);assert result['result']=='FAIL' and result['blockers'],result
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3366: AssertionError
+_ test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-3] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-566/test_round9_loaded_products_ar3/runtime')
+product_index = 3, fault = 'managed-bytes'
+
+    @pytest.mark.parametrize('product_index',range(7))
+    @pytest.mark.parametrize('fault',['bytes','managed-bytes','mvid','owner','revision','omitted','relabelled','reported-owner','capture-owner','reported-source','capture-source','substituted'])
+    def test_round9_loaded_products_are_independently_owned_and_bound(qualified_runtime,product_index,fault):
+        repo=qualified_runtime;scenario='AC-16.2-02';path=repo/tooling.native_path('runtime',scenario);tree=ET.fromstring(path.read_bytes());output=tree.find('./{*}Results/{*}UnitTestResult/{*}Output/{*}StdOut');payload=json.loads(output.text)
+        capture_path=repo/tooling.capture.capture_path('16.2',scenario);capture=json.loads(capture_path.read_bytes());row=payload['loadedProducts'][product_index];artifact=capture['products'][product_index]
+        if fault=='bytes':(repo/artifact['path']).write_bytes(b'not managed product bytes')
+        elif fault=='managed-bytes':
+            binary=repo/artifact['path'];binary.write_bytes(binary.read_bytes()+b'measured-overlay-drift')
+        elif fault=='reported-owner':row['owner']='foreign'
+        elif fault=='capture-owner':artifact['owner']='foreign'
+        elif fault=='reported-source':row['sourceRevision']='f'*40
+        elif fault=='capture-source':artifact['sourceRevision']='f'*40
+        elif fault=='substituted':
+            other=capture['products'][(product_index+1)%7]
+            for field in ('path','sha256','mvid'):artifact[field]=other[field]
+            for field in ('sha256','mvid'):row[field]=other[field]
+        elif fault=='mvid':row['mvid']=artifact['mvid']='00000000-0000-0000-0000-000000000000'
+        elif fault=='owner':row['owner']=artifact['owner']='references/Foreign'
+        elif fault=='revision':row['sourceRevision']=artifact['sourceRevision']='f'*40
+        elif fault=='omitted':payload['loadedProducts'].pop(product_index)
+        else:row['assemblyName']=artifact['assemblyName']='Foreign.Assembly'
+        output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree));capture['native']['sha256']=digest(path.read_bytes());capture_path.write_bytes(tooling.json_bytes(capture))
+>       result=runtime_evaluate(repo);assert result['result']=='FAIL' and result['blockers'],result
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3366: AssertionError
+_ test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-4] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-566/test_round9_loaded_products_ar4/runtime')
+product_index = 4, fault = 'managed-bytes'
+
+    @pytest.mark.parametrize('product_index',range(7))
+    @pytest.mark.parametrize('fault',['bytes','managed-bytes','mvid','owner','revision','omitted','relabelled','reported-owner','capture-owner','reported-source','capture-source','substituted'])
+    def test_round9_loaded_products_are_independently_owned_and_bound(qualified_runtime,product_index,fault):
+        repo=qualified_runtime;scenario='AC-16.2-02';path=repo/tooling.native_path('runtime',scenario);tree=ET.fromstring(path.read_bytes());output=tree.find('./{*}Results/{*}UnitTestResult/{*}Output/{*}StdOut');payload=json.loads(output.text)
+        capture_path=repo/tooling.capture.capture_path('16.2',scenario);capture=json.loads(capture_path.read_bytes());row=payload['loadedProducts'][product_index];artifact=capture['products'][product_index]
+        if fault=='bytes':(repo/artifact['path']).write_bytes(b'not managed product bytes')
+        elif fault=='managed-bytes':
+            binary=repo/artifact['path'];binary.write_bytes(binary.read_bytes()+b'measured-overlay-drift')
+        elif fault=='reported-owner':row['owner']='foreign'
+        elif fault=='capture-owner':artifact['owner']='foreign'
+        elif fault=='reported-source':row['sourceRevision']='f'*40
+        elif fault=='capture-source':artifact['sourceRevision']='f'*40
+        elif fault=='substituted':
+            other=capture['products'][(product_index+1)%7]
+            for field in ('path','sha256','mvid'):artifact[field]=other[field]
+            for field in ('sha256','mvid'):row[field]=other[field]
+        elif fault=='mvid':row['mvid']=artifact['mvid']='00000000-0000-0000-0000-000000000000'
+        elif fault=='owner':row['owner']=artifact['owner']='references/Foreign'
+        elif fault=='revision':row['sourceRevision']=artifact['sourceRevision']='f'*40
+        elif fault=='omitted':payload['loadedProducts'].pop(product_index)
+        else:row['assemblyName']=artifact['assemblyName']='Foreign.Assembly'
+        output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree));capture['native']['sha256']=digest(path.read_bytes());capture_path.write_bytes(tooling.json_bytes(capture))
+>       result=runtime_evaluate(repo);assert result['result']=='FAIL' and result['blockers'],result
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3366: AssertionError
+_ test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-5] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-566/test_round9_loaded_products_ar5/runtime')
+product_index = 5, fault = 'managed-bytes'
+
+    @pytest.mark.parametrize('product_index',range(7))
+    @pytest.mark.parametrize('fault',['bytes','managed-bytes','mvid','owner','revision','omitted','relabelled','reported-owner','capture-owner','reported-source','capture-source','substituted'])
+    def test_round9_loaded_products_are_independently_owned_and_bound(qualified_runtime,product_index,fault):
+        repo=qualified_runtime;scenario='AC-16.2-02';path=repo/tooling.native_path('runtime',scenario);tree=ET.fromstring(path.read_bytes());output=tree.find('./{*}Results/{*}UnitTestResult/{*}Output/{*}StdOut');payload=json.loads(output.text)
+        capture_path=repo/tooling.capture.capture_path('16.2',scenario);capture=json.loads(capture_path.read_bytes());row=payload['loadedProducts'][product_index];artifact=capture['products'][product_index]
+        if fault=='bytes':(repo/artifact['path']).write_bytes(b'not managed product bytes')
+        elif fault=='managed-bytes':
+            binary=repo/artifact['path'];binary.write_bytes(binary.read_bytes()+b'measured-overlay-drift')
+        elif fault=='reported-owner':row['owner']='foreign'
+        elif fault=='capture-owner':artifact['owner']='foreign'
+        elif fault=='reported-source':row['sourceRevision']='f'*40
+        elif fault=='capture-source':artifact['sourceRevision']='f'*40
+        elif fault=='substituted':
+            other=capture['products'][(product_index+1)%7]
+            for field in ('path','sha256','mvid'):artifact[field]=other[field]
+            for field in ('sha256','mvid'):row[field]=other[field]
+        elif fault=='mvid':row['mvid']=artifact['mvid']='00000000-0000-0000-0000-000000000000'
+        elif fault=='owner':row['owner']=artifact['owner']='references/Foreign'
+        elif fault=='revision':row['sourceRevision']=artifact['sourceRevision']='f'*40
+        elif fault=='omitted':payload['loadedProducts'].pop(product_index)
+        else:row['assemblyName']=artifact['assemblyName']='Foreign.Assembly'
+        output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree));capture['native']['sha256']=digest(path.read_bytes());capture_path.write_bytes(tooling.json_bytes(capture))
+>       result=runtime_evaluate(repo);assert result['result']=='FAIL' and result['blockers'],result
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3366: AssertionError
+_ test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-6] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-566/test_round9_loaded_products_ar6/runtime')
+product_index = 6, fault = 'managed-bytes'
+
+    @pytest.mark.parametrize('product_index',range(7))
+    @pytest.mark.parametrize('fault',['bytes','managed-bytes','mvid','owner','revision','omitted','relabelled','reported-owner','capture-owner','reported-source','capture-source','substituted'])
+    def test_round9_loaded_products_are_independently_owned_and_bound(qualified_runtime,product_index,fault):
+        repo=qualified_runtime;scenario='AC-16.2-02';path=repo/tooling.native_path('runtime',scenario);tree=ET.fromstring(path.read_bytes());output=tree.find('./{*}Results/{*}UnitTestResult/{*}Output/{*}StdOut');payload=json.loads(output.text)
+        capture_path=repo/tooling.capture.capture_path('16.2',scenario);capture=json.loads(capture_path.read_bytes());row=payload['loadedProducts'][product_index];artifact=capture['products'][product_index]
+        if fault=='bytes':(repo/artifact['path']).write_bytes(b'not managed product bytes')
+        elif fault=='managed-bytes':
+            binary=repo/artifact['path'];binary.write_bytes(binary.read_bytes()+b'measured-overlay-drift')
+        elif fault=='reported-owner':row['owner']='foreign'
+        elif fault=='capture-owner':artifact['owner']='foreign'
+        elif fault=='reported-source':row['sourceRevision']='f'*40
+        elif fault=='capture-source':artifact['sourceRevision']='f'*40
+        elif fault=='substituted':
+            other=capture['products'][(product_index+1)%7]
+            for field in ('path','sha256','mvid'):artifact[field]=other[field]
+            for field in ('sha256','mvid'):row[field]=other[field]
+        elif fault=='mvid':row['mvid']=artifact['mvid']='00000000-0000-0000-0000-000000000000'
+        elif fault=='owner':row['owner']=artifact['owner']='references/Foreign'
+        elif fault=='revision':row['sourceRevision']=artifact['sourceRevision']='f'*40
+        elif fault=='omitted':payload['loadedProducts'].pop(product_index)
+        else:row['assemblyName']=artifact['assemblyName']='Foreign.Assembly'
+        output.text=json.dumps(payload);path.write_bytes(ET.tostring(tree));capture['native']['sha256']=digest(path.read_bytes());capture_path.write_bytes(tooling.json_bytes(capture))
+>       result=runtime_evaluate(repo);assert result['result']=='FAIL' and result['blockers'],result
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3366: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-3]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-4]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-5]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-6]
+7 failed, 1859 deselected in 20.54s

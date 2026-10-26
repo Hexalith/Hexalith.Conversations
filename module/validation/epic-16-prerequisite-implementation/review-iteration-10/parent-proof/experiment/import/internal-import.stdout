@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "hexalith.conversations.story-record-generator-failure.v1",
+  "result": "BLOCKED",
+  "exitCode": 2,
+  "blockers": [
+    "SCHEMA_UNAVAILABLE"
+  ],
+  "diagnostics": [
+    {
+      "code": "SCHEMA_UNAVAILABLE",
+      "subject": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "message": "the Epic 16 successor consumer is unavailable"
+    }
+  ]
+}

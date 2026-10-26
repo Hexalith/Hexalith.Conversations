@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "tenant": "tenant-a",
+  "result": "AuditUnavailable",
+  "emitted": [
+    {
+      "category": "Hexalith.Conversations.Server.Diagnostics.DefaultConversationAuditAvailabilitySignal",
+      "level": "Warning",
+      "eventId": 0,
+      "message": "No audit availability signal is registered for onboarding diagnostics; reporting audit unavailable (fail-closed).",
+      "state": {
+        "{OriginalFormat}": "No audit availability signal is registered for onboarding diagnostics; reporting audit unavailable (fail-closed)."
+      }
+    }
+  ]
+}

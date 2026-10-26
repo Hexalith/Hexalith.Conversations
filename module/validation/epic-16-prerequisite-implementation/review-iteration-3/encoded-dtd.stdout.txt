@@ -1,0 +1,32 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+_______ test_encoded_dtd_is_rejected_before_shared_native_reader[utf-16] _______
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-263/test_encoded_dtd_is_rejected_b0/fixture')
+encoding = 'utf-16'
+
+    @pytest.mark.parametrize('encoding', ['utf-16', 'utf-16-be'])
+    def test_encoded_dtd_is_rejected_before_shared_native_reader(repository, encoding):
+        path=native(repository,'AC-16.1-01')
+        document=path.read_bytes().decode().replace('<TestRun>', '<!DOCTYPE TestRun [<!ENTITY injected "payload">]><TestRun>',1)
+        path.write_bytes(('<?xml version="1.0" encoding="'+encoding+'"?>'+document).encode(encoding))
+>       rejected(evaluate(repository),'NATIVE_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:1215: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'NATIVE_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_encoded_dtd_is_rejected_before_shared_native_reader[utf-16]
+1 failed, 1 passed, 569 deselected in 1.15s

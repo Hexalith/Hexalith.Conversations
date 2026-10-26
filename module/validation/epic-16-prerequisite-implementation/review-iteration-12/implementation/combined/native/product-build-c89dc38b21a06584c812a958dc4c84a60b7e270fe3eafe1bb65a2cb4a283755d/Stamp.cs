@@ -1,0 +1,1 @@
+[assembly: System.Reflection.AssemblyInformationalVersion("1.0.0+57d0541cdd1fdf0a99896b694e90a307ef793cc1")]

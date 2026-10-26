@@ -1,0 +1,1134 @@
+{
+  "isolationDirectory": "/tmp/epic16-cli-417kkyns",
+  "environment": {
+    "DOTNET_CLI_HOME": "/tmp/epic16-cli-417kkyns/home",
+    "NUGET_PACKAGES": "/tmp/epic16-cli-417kkyns/packages",
+    "NUGET_HTTP_CACHE_PATH": "/tmp/epic16-cli-417kkyns/http"
+  },
+  "commands": [
+    {
+      "name": "install",
+      "argv": [
+        "dotnet",
+        "tool",
+        "install",
+        "Hexalith.Builds.Module.Cli",
+        "--version",
+        "4.38.0",
+        "--tool-path",
+        "/tmp/epic16-cli-417kkyns/tool",
+        "--configfile",
+        "/tmp/epic16-cli-417kkyns/nuget.config",
+        "--no-cache"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:17:42.477785+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "install.stdout.txt",
+        "sha256": "455bb7f32c3948aaf775c539319b9e0bfef5292ce10d18bd39c157ca949d3260"
+      },
+      "stderr": {
+        "path": "install.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "version",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "--version"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:17:44.254494+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "version.stdout.txt",
+        "sha256": "1069fcc15f8609cfcb23b12f86b8f62bc2a6087dfb88c6317e7b82c447515664"
+      },
+      "stderr": {
+        "path": "version.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "ordinary-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "module/hexalith.module-manifest.v2.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:17:44.293133+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "ordinary-human.stdout.txt",
+        "sha256": "670f8f82620ce8ee37554566e6d02a245a5c0bab0f76359e0d2b35bed45cb199"
+      },
+      "stderr": {
+        "path": "ordinary-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "ordinary-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "module/hexalith.module-manifest.v2.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:17:44.533148+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "ordinary-json.stdout.txt",
+        "sha256": "724d6ace8bd53e2658aa456dc61b065be48a3fe24e71ebb7c93b76c056cd0d53"
+      },
+      "stderr": {
+        "path": "ordinary-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "adoption-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "module/hexalith.module-manifest.v2.json",
+        "--adoption"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:17:44.803185+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "adoption-human.stdout.txt",
+        "sha256": "9d2bf86cd0e5dacf63554ec7d7b106e262480e47226ccffed19d3aef247386bf"
+      },
+      "stderr": {
+        "path": "adoption-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "adoption-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "module/hexalith.module-manifest.v2.json",
+        "--adoption",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:17:47.988077+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "adoption-json.stdout.txt",
+        "sha256": "0eaef56a5e28c2c0c662ab4b9b5386f780a77373d156737de3bf9bea75965474"
+      },
+      "stderr": {
+        "path": "adoption-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "signature-01",
+      "argv": [
+        "dotnet",
+        "nuget",
+        "verify",
+        "/tmp/epic16-cli-417kkyns/tool/.store/hexalith.builds.module.cli/4.38.0/hexalith.builds.module.cli/4.38.0/hexalith.builds.module.cli.4.38.0.nupkg",
+        "--all"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:17:51.527925+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "signature-01.stdout.txt",
+        "sha256": "72d57a17a0c4d93f3afdd636f3fa9ba8122c83efb0c6c0aa5f19b366ba972760"
+      },
+      "stderr": {
+        "path": "signature-01.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "signature-02",
+      "argv": [
+        "dotnet",
+        "nuget",
+        "verify",
+        "/tmp/epic16-cli-417kkyns/tool/.store/hexalith.builds.module.cli/4.38.0/hexalith.builds.module.cli/4.38.0/Hexalith.Builds.Module.Cli.nupkg",
+        "--all"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:17:51.958226+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "signature-02.stdout.txt",
+        "sha256": "72d57a17a0c4d93f3afdd636f3fa9ba8122c83efb0c6c0aa5f19b366ba972760"
+      },
+      "stderr": {
+        "path": "signature-02.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-0-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-0.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:23.277090+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-0-human.stdout.txt",
+        "sha256": "0be46c82ba4d683e8021e62254664bf2d5afdd213876999f3bdfd9acf8d2873c"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-0-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-0-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-0.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:23.479121+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-0-json.stdout.txt",
+        "sha256": "15db0ac1fdb0a3fac3d1ce77bbef7132eda028491cd0dbca9a025e627f5e137e"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-0-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-1-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-1.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:23.713281+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-1-human.stdout.txt",
+        "sha256": "634a45d782e56510bf840876c387ed79978b33190aedf3466dc0edb43f2cc667"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-1-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-1-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-1.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:23.936397+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-1-json.stdout.txt",
+        "sha256": "c554dd99af618fac3ff20090a826c2a5b43dcf1066011bc6fefef5975256e4d6"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-1-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-2-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-2.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:24.161989+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-2-human.stdout.txt",
+        "sha256": "a095170ad48d2dafc6c9b3067a4f8cf1b3f841c3409a80550ead1892c9ba6a00"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-2-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-2-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-2.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:24.396636+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-2-json.stdout.txt",
+        "sha256": "314d297f3a84931793f04d4dd5e3d4889fd69d9ca4fe241ad388635853d01fdb"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-2-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-3-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-3.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:24.637943+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-3-human.stdout.txt",
+        "sha256": "9e618ad55830f405561df9a5eed74ef99a614a2c0b68f4e3ec65cbff917dc5ad"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-3-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-3-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-3.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:24.858389+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-3-json.stdout.txt",
+        "sha256": "e686870bec7b740dde5b3a3aab86cf217db373a8396471ebdce1448a55e7e9d6"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-3-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-4-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-4.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:25.088924+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-4-human.stdout.txt",
+        "sha256": "7c695ec13b2e994de1c530177d5b4e1d478e43b4b043f55a5b90784204dbc5ad"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-4-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-4-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-4.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:25.286863+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-4-json.stdout.txt",
+        "sha256": "a55c7e14568cf0a04fd0bed9a535631c42750b208c559ffcef4e6e26ecdaba68"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-4-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-5-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-5.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:25.532527+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-5-human.stdout.txt",
+        "sha256": "33cdc2276b6533863df9c0b4f7eaf8d802cfb49ebfa4ea03a50bcfc9271a8736"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-5-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-5-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-5.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:25.742185+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-5-json.stdout.txt",
+        "sha256": "39dc19deac94ae61a5bfaeae9429e07ee418e064ea1637d662e9dc7dbd7b7fdf"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-5-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-6-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-6.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:25.985916+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-6-human.stdout.txt",
+        "sha256": "84055c5ddbca7fe224acbfda64996bc7199e8112408138dc7df0d2499fe8330e"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-6-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-6-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-6.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:26.208735+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-6-json.stdout.txt",
+        "sha256": "1443f36905d4085e21f38cb724cf66de6d3eeeb8a8f647300b5ba4ec6d344491"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-6-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-7-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-7.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:26.434184+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-7-human.stdout.txt",
+        "sha256": "e9d3e7b1e8e7ec6bc094215f925c37fd15d61af021d06a4f39909c6b31814843"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-7-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-7-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-7.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:26.659078+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-7-json.stdout.txt",
+        "sha256": "5fe38e2d8bbb98da3bfa31953e4a89982a2dacd77fdc7954f9623bb0e717cffc"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-7-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-8-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-8.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:26.910960+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-8-human.stdout.txt",
+        "sha256": "f9faccac75d754cc542751657349880ecd0b08789ef68eac9e38a75d4b6e0138"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-8-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-0-case-8-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-0-8.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:27.138323+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-0-case-8-json.stdout.txt",
+        "sha256": "2b2dc3df6a58b7fc32ad2f8b95605b86289feadd9dd80416e5ee89ca0a5bc2b3"
+      },
+      "stderr": {
+        "path": "controls/field-0-case-8-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-0-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-0.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:27.384522+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-0-human.stdout.txt",
+        "sha256": "f0f549459bb40d3a89ae6bc6640f71c239950f187524562e09f0dfcc29347195"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-0-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-0-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-0.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:27.618803+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-0-json.stdout.txt",
+        "sha256": "bba3d7e00584219b432dd8a11fb6bd1d0edbd20daf4f081987ccc9efbc1784f1"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-0-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-1-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-1.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:27.874310+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-1-human.stdout.txt",
+        "sha256": "cea66ab08477fb5e1a8ebe7ccc2006e7f2e1af79259cc159c2aa1136327a9f63"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-1-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-1-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-1.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:28.118999+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-1-json.stdout.txt",
+        "sha256": "349d9a4c45722b5f2c2cdbfa308d6ebe00e8ff2dc731da1f763ae7f9abf88b0e"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-1-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-2-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-2.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:28.380101+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-2-human.stdout.txt",
+        "sha256": "9ecc489b8a3a0bac0da17e071e8f4a4772d3ccacb8c616d4d906a53f47b2cd28"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-2-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-2-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-2.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:28.619889+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-2-json.stdout.txt",
+        "sha256": "d892185e95a4cde1e305f62f3df9cc20896c919d483e2611cc19f9a0c48733ce"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-2-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-3-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-3.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:28.866697+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-3-human.stdout.txt",
+        "sha256": "45a6bb8874959b261b55698a83122b1b988277656b2ba1b219ca4e35f1554e80"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-3-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-3-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-3.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:29.067984+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-3-json.stdout.txt",
+        "sha256": "6fc50a189c463647166906344513348658980ff387015aab2356005f50727b73"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-3-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-4-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-4.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:29.318897+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-4-human.stdout.txt",
+        "sha256": "fc2004ff75317e0f6512e8dcb47ea70ab241729d9dfc230b0d5b96e59cec68ec"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-4-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-4-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-4.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:29.516906+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-4-json.stdout.txt",
+        "sha256": "b91b116d5fe4fe14fe4ae218c8059a22b9c1692c2e28477094d410a715450336"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-4-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-5-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-5.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:29.740178+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-5-human.stdout.txt",
+        "sha256": "42b4e4868d62e8f08bee3c005eb79ea591235e105047810664b1c2e0ed50b193"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-5-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-5-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-5.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:29.950667+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-5-json.stdout.txt",
+        "sha256": "fda3c02f8704f86231c07c713a1a4a0c6270dc9b86cc7dc35e2e57e0a22aa2f6"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-5-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-6-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-6.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:30.201889+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-6-human.stdout.txt",
+        "sha256": "3738d6d6515f7c027bc01d4c65bcabe6686c1473dd1f1f5e3cc5ab00aad45c9d"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-6-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-6-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-6.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:30.412162+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-6-json.stdout.txt",
+        "sha256": "83295c3b9db7d8348eecca66bcbeeaa888b5068014be005c1e05d627fa5c3a39"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-6-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-7-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-7.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:30.652412+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-7-human.stdout.txt",
+        "sha256": "5f49a1a5c4dbcf8ce2e71b00be395db5755d49dbcfa97036d48184b94fd42c6f"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-7-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-7-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-7.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:30.852694+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-7-json.stdout.txt",
+        "sha256": "ed2ba8953e8f42300bcbda5dbedff315e6d88a4f137451d4a17a66c8485e5baa"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-7-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-8-human",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-8.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:31.097963+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-8-human.stdout.txt",
+        "sha256": "ae5d6a27c2103285bfcc5bea856ade81725d700d3814f0ea2c41a28f768f50f1"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-8-human.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "controls/field-1-case-8-json",
+      "argv": [
+        "/tmp/epic16-cli-417kkyns/tool/hexalith-module",
+        "validate",
+        "--manifest",
+        "/tmp/epic16-cli-417kkyns/control-1-8.json",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:31.316961+00:00",
+      "exitCode": 1,
+      "stdout": {
+        "path": "controls/field-1-case-8-json.stdout.txt",
+        "sha256": "ebbdcf884c063a10ce9946ac09c657253f2de1ccecde81719e0ffe39ff0f3e52"
+      },
+      "stderr": {
+        "path": "controls/field-1-case-8-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "facts/conversations-head",
+      "argv": [
+        "git",
+        "-C",
+        "/home/administrator/projects/hexalith/conversations",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:31.558111+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "facts/conversations-head.stdout.txt",
+        "sha256": "489f9e43566eab7f191d2b8cee970f62e7fcfd0a54d74f89cb8467f859a4b303"
+      },
+      "stderr": {
+        "path": "facts/conversations-head.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "facts/conversations-status",
+      "argv": [
+        "git",
+        "-C",
+        "/home/administrator/projects/hexalith/conversations",
+        "status",
+        "--porcelain=v1",
+        "--ignore-submodules=all"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:31.560319+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "facts/conversations-status.stdout.txt",
+        "sha256": "f3b95561118bc97eeb1dad11bb71a64bf45cd523bf6e7b30336c352d7f28b69d"
+      },
+      "stderr": {
+        "path": "facts/conversations-status.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "facts/conversations-gitlinks",
+      "argv": [
+        "git",
+        "-C",
+        "/home/administrator/projects/hexalith/conversations",
+        "ls-tree",
+        "HEAD",
+        "references/Hexalith.Builds"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:31.573027+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "facts/conversations-gitlinks.stdout.txt",
+        "sha256": "59efde249be3da3b870822019b174f3eefbb2df283d67b879f36a42e1c0f3e44"
+      },
+      "stderr": {
+        "path": "facts/conversations-gitlinks.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "facts/builds-head",
+      "argv": [
+        "git",
+        "-C",
+        "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:31.575304+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "facts/builds-head.stdout.txt",
+        "sha256": "6e99db8f01601351c6ff2a893cb128d3128a7d4b99cd6095f60a97123dafa382"
+      },
+      "stderr": {
+        "path": "facts/builds-head.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "facts/builds-status",
+      "argv": [
+        "git",
+        "-C",
+        "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+        "status",
+        "--porcelain=v1",
+        "--ignore-submodules=all"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:31.577103+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "facts/builds-status.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "facts/builds-status.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "facts/builds-gitlinks",
+      "argv": [
+        "git",
+        "-C",
+        "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+        "ls-tree",
+        "HEAD",
+        "references/Hexalith.Builds"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:31.583673+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "facts/builds-gitlinks.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "facts/builds-gitlinks.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "facts/platform-head",
+      "argv": [
+        "git",
+        "-C",
+        "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:31.585839+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "facts/platform-head.stdout.txt",
+        "sha256": "c194498534bbfc6fa76af884eea8df11175aa8b29950275a49b1667341f82bbe"
+      },
+      "stderr": {
+        "path": "facts/platform-head.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "facts/platform-status",
+      "argv": [
+        "git",
+        "-C",
+        "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+        "status",
+        "--porcelain=v1",
+        "--ignore-submodules=all"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:31.587561+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "facts/platform-status.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "facts/platform-status.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "facts/platform-gitlinks",
+      "argv": [
+        "git",
+        "-C",
+        "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+        "ls-tree",
+        "HEAD",
+        "references/Hexalith.Builds"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAt": "2026-10-25T16:33:31.608531+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "facts/platform-gitlinks.stdout.txt",
+        "sha256": "6088f5715eccfddb2a67047071b87ace4901cdba7d53131ebe621d275e6c6212"
+      },
+      "stderr": {
+        "path": "facts/platform-gitlinks.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}

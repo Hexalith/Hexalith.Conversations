@@ -1,0 +1,56 @@
+{
+  "assertionLedger": [
+    {
+      "id": "preservation",
+      "state": "PASS",
+      "subject": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json"
+    },
+    {
+      "id": "MEASUREMENT_SCHEMA_INVALID",
+      "state": "FAIL",
+      "subject": "AC-16.1-05"
+    }
+  ],
+  "authority": {
+    "executionAllowed": false,
+    "implementationHold": "ACTIVE",
+    "ownerApprovalClaimed": false,
+    "pushAuthorized": false,
+    "releaseAuthorized": false
+  },
+  "bindings": {},
+  "blockers": [
+    "MEASUREMENT_SCHEMA_INVALID"
+  ],
+  "candidate": {
+    "changedPaths": [
+      "references/Hexalith.Tenants",
+      "src/Hexalith.Conversations.Server/Program.cs"
+    ],
+    "commit": "5097830ea71d58c36add489d6745929796dd48ac",
+    "gitlinks": [
+      {
+        "commit": "b7fe4d980d49af4b831a5ac203aa9717404fb7f5",
+        "path": "references/Hexalith.EventStore"
+      },
+      {
+        "commit": "d8e5ec4ccf4c52420f5f1372d2772d2b71d5b3a5",
+        "path": "references/Hexalith.Tenants"
+      }
+    ],
+    "parent": "729ff9766df937f8d474feb1b97a21b3f8f3c7bd"
+  },
+  "counts": {
+    "failed": 0,
+    "passed": 0,
+    "skipped": 0,
+    "total": 0
+  },
+  "exitCode": 1,
+  "result": "FAIL",
+  "runtimeQualified": false,
+  "scenarioId": "AC-16.1-05",
+  "schemaVersion": "hexalith.conversations.epic16-measured-result.v1",
+  "storyId": "16.1",
+  "validationScope": "tooling-fixture"
+}

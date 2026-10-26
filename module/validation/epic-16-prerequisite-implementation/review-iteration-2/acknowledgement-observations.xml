@@ -1,0 +1,917 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="30" skipped="0" tests="30" time="8.760" timestamp="2026-10-25T19:14:07.436048+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[timestamp-0]" time="0.261"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom0/fixture')
+row = 0, fault = 'timestamp'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[timestamp-1]" time="0.254"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom1/fixture')
+row = 1, fault = 'timestamp'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[timestamp-2]" time="0.251"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom2/fixture')
+row = 2, fault = 'timestamp'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[timestamp-3]" time="0.253"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom3/fixture')
+row = 3, fault = 'timestamp'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[order-0]" time="0.252"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom4/fixture')
+row = 0, fault = 'order'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[order-1]" time="0.259"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom5/fixture')
+row = 1, fault = 'order'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[order-2]" time="0.258"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom6/fixture')
+row = 2, fault = 'order'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[order-3]" time="0.267"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom7/fixture')
+row = 3, fault = 'order'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[same-order-0]" time="0.268"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom8/fixture')
+row = 0, fault = 'same-order'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[same-order-1]" time="0.281"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom9/fixture')
+row = 1, fault = 'same-order'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[same-order-2]" time="0.265"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom10/fixture')
+row = 2, fault = 'same-order'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[same-order-3]" time="0.280"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom11/fixture')
+row = 3, fault = 'same-order'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[delivery-0]" time="0.278"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom12/fixture')
+row = 0, fault = 'delivery'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[delivery-1]" time="0.257"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom13/fixture')
+row = 1, fault = 'delivery'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[delivery-2]" time="0.259"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom14/fixture')
+row = 2, fault = 'delivery'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[delivery-3]" time="0.267"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom15/fixture')
+row = 3, fault = 'delivery'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[record-0]" time="0.259"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom16/fixture')
+row = 0, fault = 'record'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[record-1]" time="0.259"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom17/fixture')
+row = 1, fault = 'record'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[record-2]" time="0.261"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom18/fixture')
+row = 2, fault = 'record'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[record-3]" time="0.262"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom19/fixture')
+row = 3, fault = 'record'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[outcome-0]" time="0.260"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom20/fixture')
+row = 0, fault = 'outcome'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[outcome-1]" time="0.259"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom21/fixture')
+row = 1, fault = 'outcome'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[outcome-2]" time="0.252"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom22/fixture')
+row = 2, fault = 'outcome'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[outcome-3]" time="0.252"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom23/fixture')
+row = 3, fault = 'outcome'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[missing-commit-0]" time="0.252"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom24/fixture')
+row = 0, fault = 'missing-commit'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[missing-commit-1]" time="0.260"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom25/fixture')
+row = 1, fault = 'missing-commit'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[missing-commit-2]" time="0.253"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom26/fixture')
+row = 2, fault = 'missing-commit'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack[missing-commit-3]" time="0.262"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_each_acknowledging_outcom27/fixture')
+row = 3, fault = 'missing-commit'
+
+    @pytest.mark.parametrize('row', range(4))
+    @pytest.mark.parametrize('fault', ['timestamp', 'order', 'same-order', 'delivery', 'record', 'outcome', 'missing-commit'])
+    def test_each_acknowledging_outcome_requires_correlated_durable_commit_before_ack(repository, row, fault):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04']); observed = data['acknowledgements'][row]
+        if fault == 'timestamp': observed['acknowledgement']['utcTicks'] = observed['durableCommit']['utcTicks'] - 1
+        elif fault == 'order': observed['acknowledgement']['order'] = 0
+        elif fault == 'same-order': observed['acknowledgement']['order'] = observed['durableCommit']['order']
+        elif fault == 'delivery': observed['acknowledgement']['deliveryId'] = 'other-delivery'
+        elif fault == 'record': observed['acknowledgement']['recordId'] = 'other-outcome'
+        elif fault == 'outcome': observed['durableCommit']['outcome'] = 'other'
+        else: observed['durableCommit'] = None
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_failed_delivery_cannot_carry_an_acknowledgement_observation[4]" time="0.262"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_failed_delivery_cannot_ca0/fixture')
+row = 4
+
+    @pytest.mark.parametrize('row', [4, 5])
+    def test_failed_delivery_cannot_carry_an_acknowledgement_observation(repository, row):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04'])
+        data['acknowledgements'][row]['acknowledgement'] = deepcopy(data['acknowledgements'][0]['acknowledgement'])
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:916: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_failed_delivery_cannot_carry_an_acknowledgement_observation[5]" time="0.255"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-248/test_failed_delivery_cannot_ca1/fixture')
+row = 5
+
+    @pytest.mark.parametrize('row', [4, 5])
+    def test_failed_delivery_cannot_carry_an_acknowledgement_observation(repository, row):
+        data = deepcopy(OBSERVATIONS['AC-16.1-04'])
+        data['acknowledgements'][row]['acknowledgement'] = deepcopy(data['acknowledgements'][0]['acknowledgement'])
+        native(repository, 'AC-16.1-04', data)
+&gt;       rejected(evaluate(repository, 'AC-16.1-04'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:916: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase></testsuite></testsuites>

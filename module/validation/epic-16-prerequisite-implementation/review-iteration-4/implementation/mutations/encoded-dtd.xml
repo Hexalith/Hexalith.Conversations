@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="1.206" timestamp="2026-10-25T20:43:36.799079+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_encoded_dtd_is_rejected_before_shared_native_reader[utf-16]" time="0.287"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-339/test_encoded_dtd_is_rejected_b0/fixture')
+encoding = 'utf-16'
+
+    @pytest.mark.parametrize('encoding', ['utf-16', 'utf-16-be'])
+    def test_encoded_dtd_is_rejected_before_shared_native_reader(repository, encoding):
+        path=native(repository,'AC-16.1-01')
+        document=path.read_bytes().decode().replace('&lt;TestRun&gt;', '&lt;!DOCTYPE TestRun [&lt;!ENTITY injected "payload"&gt;]&gt;&lt;TestRun&gt;',1)
+        path.write_bytes(('&lt;?xml version="1.0" encoding="'+encoding+'"?&gt;'+document).encode(encoding))
+&gt;       rejected(evaluate(repository),'NATIVE_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:1216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'NATIVE_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_encoded_dtd_is_rejected_before_shared_native_reader[utf-16-be]" time="0.630" /></testsuite></testsuites>

@@ -1,0 +1,166 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[not json] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-482/test_round7_actual_isolated_he0/fixture')
+policy = b'not json'
+
+    @pytest.mark.parametrize('policy',[b'not json',b'[]',b'{"sdk":[]}',b'{"sdk":{"version":42,"rollForward":"latestPatch"}}'])
+    def test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet(repository,policy):
+        (repository/'global.json').write_bytes(policy)
+        # Import the actual isolated helper installation, including its own contained
+        # root/policy lookup. Observe real fixed-command calls instead of a validator-only surrogate.
+        script='''import sys,json
+    sys.path.insert(0,sys.argv[1])
+    import epic16_native as native
+    calls=[]
+    original=native.subprocess.run
+    def run(argv,**kwargs):
+        calls.append(argv)
+        return original(argv,**kwargs)
+    native.subprocess.run=run
+    try:
+        native._helper()
+        result='PASS';error=None
+    except native.HelperUnavailable as exception:
+        result='BLOCKED';error=type(exception).__name__
+    except ValueError as exception:
+        result='FAIL';error=type(exception).__name__
+    print(json.dumps(dict(result=result,error=error,commands=calls)))
+    '''
+        result=subprocess.run([sys.executable,'-c',script,str(repository/'_bmad/scripts')],cwd=repository,capture_output=True,timeout=180)
+        assert result.returncode==0,result.stderr.decode()
+        report=json.loads(result.stdout)
+>       assert report['result']=='FAIL' and report['error'] in ('ValueError','JSONDecodeError'),report
+E       AssertionError: {'result': 'BLOCKED', 'error': 'HelperUnavailable', 'commands': [['dotnet', '--version']]}
+E       assert ('BLOCKED' == 'FAIL'
+E         
+E         - FAIL
+E         + BLOCKED)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2797: AssertionError
+_ test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[[]] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-482/test_round7_actual_isolated_he1/fixture')
+policy = b'[]'
+
+    @pytest.mark.parametrize('policy',[b'not json',b'[]',b'{"sdk":[]}',b'{"sdk":{"version":42,"rollForward":"latestPatch"}}'])
+    def test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet(repository,policy):
+        (repository/'global.json').write_bytes(policy)
+        # Import the actual isolated helper installation, including its own contained
+        # root/policy lookup. Observe real fixed-command calls instead of a validator-only surrogate.
+        script='''import sys,json
+    sys.path.insert(0,sys.argv[1])
+    import epic16_native as native
+    calls=[]
+    original=native.subprocess.run
+    def run(argv,**kwargs):
+        calls.append(argv)
+        return original(argv,**kwargs)
+    native.subprocess.run=run
+    try:
+        native._helper()
+        result='PASS';error=None
+    except native.HelperUnavailable as exception:
+        result='BLOCKED';error=type(exception).__name__
+    except ValueError as exception:
+        result='FAIL';error=type(exception).__name__
+    print(json.dumps(dict(result=result,error=error,commands=calls)))
+    '''
+        result=subprocess.run([sys.executable,'-c',script,str(repository/'_bmad/scripts')],cwd=repository,capture_output=True,timeout=180)
+        assert result.returncode==0,result.stderr.decode()
+        report=json.loads(result.stdout)
+>       assert report['result']=='FAIL' and report['error'] in ('ValueError','JSONDecodeError'),report
+E       AssertionError: {'result': 'BLOCKED', 'error': 'HelperUnavailable', 'commands': [['dotnet', '--version']]}
+E       assert ('BLOCKED' == 'FAIL'
+E         
+E         - FAIL
+E         + BLOCKED)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2797: AssertionError
+_ test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[{"sdk":[]}] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-482/test_round7_actual_isolated_he2/fixture')
+policy = b'{"sdk":[]}'
+
+    @pytest.mark.parametrize('policy',[b'not json',b'[]',b'{"sdk":[]}',b'{"sdk":{"version":42,"rollForward":"latestPatch"}}'])
+    def test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet(repository,policy):
+        (repository/'global.json').write_bytes(policy)
+        # Import the actual isolated helper installation, including its own contained
+        # root/policy lookup. Observe real fixed-command calls instead of a validator-only surrogate.
+        script='''import sys,json
+    sys.path.insert(0,sys.argv[1])
+    import epic16_native as native
+    calls=[]
+    original=native.subprocess.run
+    def run(argv,**kwargs):
+        calls.append(argv)
+        return original(argv,**kwargs)
+    native.subprocess.run=run
+    try:
+        native._helper()
+        result='PASS';error=None
+    except native.HelperUnavailable as exception:
+        result='BLOCKED';error=type(exception).__name__
+    except ValueError as exception:
+        result='FAIL';error=type(exception).__name__
+    print(json.dumps(dict(result=result,error=error,commands=calls)))
+    '''
+        result=subprocess.run([sys.executable,'-c',script,str(repository/'_bmad/scripts')],cwd=repository,capture_output=True,timeout=180)
+        assert result.returncode==0,result.stderr.decode()
+        report=json.loads(result.stdout)
+        assert report['result']=='FAIL' and report['error'] in ('ValueError','JSONDecodeError'),report
+>       assert report['commands']==[],report
+E       AssertionError: {'result': 'FAIL', 'error': 'ValueError', 'commands': [['dotnet', '--version']]}
+E       assert [['dotnet', '--version']] == []
+E         
+E         Left contains one more item: ['dotnet', '--version']
+E         Use -v to get more diff
+
+_bmad/scripts/tests/test_epic16_tooling.py:2798: AssertionError
+_ test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[{"sdk":{"version":42,"rollForward":"latestPatch"}}] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-482/test_round7_actual_isolated_he3/fixture')
+policy = b'{"sdk":{"version":42,"rollForward":"latestPatch"}}'
+
+    @pytest.mark.parametrize('policy',[b'not json',b'[]',b'{"sdk":[]}',b'{"sdk":{"version":42,"rollForward":"latestPatch"}}'])
+    def test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet(repository,policy):
+        (repository/'global.json').write_bytes(policy)
+        # Import the actual isolated helper installation, including its own contained
+        # root/policy lookup. Observe real fixed-command calls instead of a validator-only surrogate.
+        script='''import sys,json
+    sys.path.insert(0,sys.argv[1])
+    import epic16_native as native
+    calls=[]
+    original=native.subprocess.run
+    def run(argv,**kwargs):
+        calls.append(argv)
+        return original(argv,**kwargs)
+    native.subprocess.run=run
+    try:
+        native._helper()
+        result='PASS';error=None
+    except native.HelperUnavailable as exception:
+        result='BLOCKED';error=type(exception).__name__
+    except ValueError as exception:
+        result='FAIL';error=type(exception).__name__
+    print(json.dumps(dict(result=result,error=error,commands=calls)))
+    '''
+        result=subprocess.run([sys.executable,'-c',script,str(repository/'_bmad/scripts')],cwd=repository,capture_output=True,timeout=180)
+        assert result.returncode==0,result.stderr.decode()
+        report=json.loads(result.stdout)
+        assert report['result']=='FAIL' and report['error'] in ('ValueError','JSONDecodeError'),report
+>       assert report['commands']==[],report
+E       AssertionError: {'result': 'FAIL', 'error': 'ValueError', 'commands': [['dotnet', '--version']]}
+E       assert [['dotnet', '--version']] == []
+E         
+E         Left contains one more item: ['dotnet', '--version']
+E         Use -v to get more diff
+
+_bmad/scripts/tests/test_epic16_tooling.py:2798: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[not json]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[[]]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[{"sdk":[]}]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_actual_isolated_helper_setup_rejects_invalid_policy_before_dotnet[{"sdk":{"version":42,"rollForward":"latestPatch"}}]
+4 failed, 1301 deselected in 1.61s

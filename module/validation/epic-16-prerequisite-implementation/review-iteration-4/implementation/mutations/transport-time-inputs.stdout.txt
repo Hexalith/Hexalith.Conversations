@@ -1,0 +1,128 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_round4_contract_time_precedence_is_measured_from_both_deliveries[state] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-369/test_round4_contract_time_prec0/fixture')
+field = 'state'
+
+    @pytest.mark.parametrize('field',['state','applied','timestamp','payload'])
+    def test_round4_contract_time_precedence_is_measured_from_both_deliveries(repository,field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);p=data['transportTimeProof']
+        if field=='state':p['state']='Unavailable'
+        elif field=='applied':p['applied']=True
+        elif field=='timestamp':p['reused']['timestampUtcTicks']=p['original']['timestampUtcTicks']
+        else:p['reused']['payload']=p['original']['payload'].replace('Seed conversation','Different content')
+>       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1609: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_contract_time_precedence_is_measured_from_both_deliveries[applied] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-369/test_round4_contract_time_prec1/fixture')
+field = 'applied'
+
+    @pytest.mark.parametrize('field',['state','applied','timestamp','payload'])
+    def test_round4_contract_time_precedence_is_measured_from_both_deliveries(repository,field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);p=data['transportTimeProof']
+        if field=='state':p['state']='Unavailable'
+        elif field=='applied':p['applied']=True
+        elif field=='timestamp':p['reused']['timestampUtcTicks']=p['original']['timestampUtcTicks']
+        else:p['reused']['payload']=p['original']['payload'].replace('Seed conversation','Different content')
+>       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1609: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_contract_time_precedence_is_measured_from_both_deliveries[timestamp] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-369/test_round4_contract_time_prec2/fixture')
+field = 'timestamp'
+
+    @pytest.mark.parametrize('field',['state','applied','timestamp','payload'])
+    def test_round4_contract_time_precedence_is_measured_from_both_deliveries(repository,field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);p=data['transportTimeProof']
+        if field=='state':p['state']='Unavailable'
+        elif field=='applied':p['applied']=True
+        elif field=='timestamp':p['reused']['timestampUtcTicks']=p['original']['timestampUtcTicks']
+        else:p['reused']['payload']=p['original']['payload'].replace('Seed conversation','Different content')
+>       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1609: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round4_contract_time_precedence_is_measured_from_both_deliveries[payload] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-369/test_round4_contract_time_prec3/fixture')
+field = 'payload'
+
+    @pytest.mark.parametrize('field',['state','applied','timestamp','payload'])
+    def test_round4_contract_time_precedence_is_measured_from_both_deliveries(repository,field):
+        data=deepcopy(OBSERVATIONS['AC-16.2-01']);p=data['transportTimeProof']
+        if field=='state':p['state']='Unavailable'
+        elif field=='applied':p['applied']=True
+        elif field=='timestamp':p['reused']['timestampUtcTicks']=p['original']['timestampUtcTicks']
+        else:p['reused']['payload']=p['original']['payload'].replace('Seed conversation','Different content')
+>       native(repository,'AC-16.2-01',data);rejected(evaluate(repository,'AC-16.2-01'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1609: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_contract_time_precedence_is_measured_from_both_deliveries[state]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_contract_time_precedence_is_measured_from_both_deliveries[applied]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_contract_time_precedence_is_measured_from_both_deliveries[timestamp]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round4_contract_time_precedence_is_measured_from_both_deliveries[payload]
+4 failed, 792 deselected in 1.58s

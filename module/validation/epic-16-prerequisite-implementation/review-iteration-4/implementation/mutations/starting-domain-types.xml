@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="1.423" timestamp="2026-10-25T20:45:13.450051+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_raw_fault_starting_tenant_domain_values_keep_actual_primitive_types[name-True]" time="0.285"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-359/test_raw_fault_starting_tenant0/fixture')
+field = 'name', value = True
+
+    @pytest.mark.parametrize('field,value',[('name',True),('description',False),('members',{'actor-a':True}),('configuration',{'conversations.enabled':True})])
+    def test_raw_fault_starting_tenant_domain_values_keep_actual_primitive_types(repository,field,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=next(r for r in data['faults'] if r['id']=='recovery-success')
+        body=json.loads(row['beforeBytes']);body['state']['domain'][field]=value
+        row['beforeBytes']=row['afterBytes']=json.dumps(body);row['beforeSha256']=row['afterSha256']=digest(row['beforeBytes'].encode())
+&gt;       native(repository,'AC-16.1-04',data);rejected(evaluate(repository,'AC-16.1-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1504: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_raw_fault_starting_tenant_domain_values_keep_actual_primitive_types[description-False]" time="0.275"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-359/test_raw_fault_starting_tenant1/fixture')
+field = 'description', value = False
+
+    @pytest.mark.parametrize('field,value',[('name',True),('description',False),('members',{'actor-a':True}),('configuration',{'conversations.enabled':True})])
+    def test_raw_fault_starting_tenant_domain_values_keep_actual_primitive_types(repository,field,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);row=next(r for r in data['faults'] if r['id']=='recovery-success')
+        body=json.loads(row['beforeBytes']);body['state']['domain'][field]=value
+        row['beforeBytes']=row['afterBytes']=json.dumps(body);row['beforeSha256']=row['afterSha256']=digest(row['beforeBytes'].encode())
+&gt;       native(repository,'AC-16.1-04',data);rejected(evaluate(repository,'AC-16.1-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1504: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_raw_fault_starting_tenant_domain_values_keep_actual_primitive_types[members-value2]" time="0.281" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_raw_fault_starting_tenant_domain_values_keep_actual_primitive_types[configuration-value3]" time="0.283" /></testsuite></testsuites>

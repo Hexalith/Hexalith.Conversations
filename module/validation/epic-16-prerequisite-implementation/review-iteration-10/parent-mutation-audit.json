@@ -1,0 +1,374 @@
+{
+  "runs": 24,
+  "demonstratedRuns": 23,
+  "demonstratedGuards": 20,
+  "assertionFailures": 54,
+  "insensitiveIntermediateRuns": 1,
+  "setupErrors": 0,
+  "skipped": 0,
+  "latestGuardSourceHashesMatchCurrentFinal": true,
+  "stdoutStderrAndJUnitVerified": true,
+  "allMutantTestsPassInFinalControl": true,
+  "rows": [
+    {
+      "epoch": "mutations",
+      "name": "upstream-loaded-correlation",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "root-loaded-correlation",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "five-product-consistency",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "root-compiled-caller",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "root-declaration-equality",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 12,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "complete-reference-identity",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "constraint-attributes",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "constructor-admission-caller",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "required-constructor-provider",
+      "sourceHashMatchesFinal": false,
+      "archivedSourceVerified": true,
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "fixture-parent-providers",
+      "sourceHashMatchesFinal": false,
+      "archivedSourceVerified": true,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "sdk-informational-version",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "trx-definition-cardinality",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "lazy-import-defect-boundary",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "lazy-import-exact-declarations",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "lazy-import-actual-absence",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "authorization-response-caller",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 10,
+        "failures": 10,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "authorization-response-content",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "authorization-response-order",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "compiled-baseline-retention",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations-R10P1",
+      "name": "constructor-admission-caller",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations-R10P1",
+      "name": "required-constructor-provider",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations-R10P1",
+      "name": "fixture-parent-providers",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations-R10P1",
+      "name": "inherited-collection-types",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": false,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    },
+    {
+      "epoch": "mutations-R10P1-shared",
+      "name": "inherited-collection-types",
+      "sourceHashMatchesFinal": true,
+      "archivedSourceVerified": false,
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "allCasesPassInFinalControl": true,
+      "exactMutantBytesAndPatchVerified": true
+    }
+  ]
+}

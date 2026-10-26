@@ -1,0 +1,14 @@
+  Determining projects to restore...
+  Restored /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/Evidence.csproj (in 97 ms).
+/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/Tests.cs(1,29): warning CS0436: The type 'AssemblyInformationalVersionAttribute' in '/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/Tests.cs' conflicts with the imported type 'AssemblyInformationalVersionAttribute' in 'System.Runtime, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'. Using the type defined in '/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/Tests.cs'. [/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/Evidence.csproj]
+/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/Tests.cs(1,196): warning CS9113: Parameter 'value' is unread. [/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/Evidence.csproj]
+  Evidence -> /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/Tests.cs(1,29): warning CS0436: The type 'AssemblyInformationalVersionAttribute' in '/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/Tests.cs' conflicts with the imported type 'AssemblyInformationalVersionAttribute' in 'System.Runtime, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'. Using the type defined in '/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/Tests.cs'. [/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/Evidence.csproj]
+/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/Tests.cs(1,196): warning CS9113: Parameter 'value' is unread. [/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_2/native/probe/Evidence.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.45

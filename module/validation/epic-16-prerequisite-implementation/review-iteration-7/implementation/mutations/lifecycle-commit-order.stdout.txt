@@ -1,0 +1,45 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_round7_lifecycle_retains_ad7_entry_work_completion_and_quarantine[commit-order-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-465/test_round7_lifecycle_retains_1/fixture')
+kind = 1, fault = 'commit-order'
+
+    @pytest.mark.parametrize('kind',range(2))
+    @pytest.mark.parametrize('fault',['collapse','entry-skipped','completion-advances-generation','early-deletion','early-ready','dispatch-survives','quarantine-lost','mixed-generation','commit-reuse','commit-order','stale-order'])
+    def test_round7_lifecycle_retains_ad7_entry_work_completion_and_quarantine(repository,kind,fault):
+        data=deepcopy(OBSERVATIONS['AC-16.2-04']);row=data['lifecycle'][kind];proof=row['atomicity'];stages=proof['stages'];completion=next(stage for stage in stages if stage['id']=='completion')
+        if fault=='collapse':stages[0]['after']['index']['lifecycle']='Erased' if kind==0 else 'Ready'
+        elif fault=='entry-skipped':stages.pop(0)
+        elif fault=='completion-advances-generation':completion['after']['index']['generation']+=1
+        elif fault=='early-deletion':stages[0]['after']['components'][0]['value']=None if kind==0 else deepcopy(stages[1]['after']['components'][0]['value'])
+        elif fault=='early-ready':stages[1]['after']['index']['lifecycle']='Erased' if kind==0 else 'Ready'
+        elif fault=='dispatch-survives':completion['after']['components'][1]['value']=['stale-dispatch']
+        elif fault=='quarantine-lost':completion['after']['index']['quarantineReferences']=[] if kind==0 else [deepcopy(data['lifecycle'][0]['deliveries'][0]['reference'])]
+        elif fault=='mixed-generation':stages[1]['after']['components'][0]['generation']-=1
+        elif fault=='commit-reuse':stages[1]['cas']['transactionId']=stages[0]['cas']['transactionId']
+        elif fault=='commit-order':completion['cas']['order']=stages[0]['cas']['order']
+        else:proof['staleAttempt']['order']=1
+>       round7_submit(repository,'AC-16.2-04',data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2663: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round7_lifecycle_retains_ad7_entry_work_completion_and_quarantine[commit-order-1]
+1 failed, 1 passed, 1287 deselected in 3.14s

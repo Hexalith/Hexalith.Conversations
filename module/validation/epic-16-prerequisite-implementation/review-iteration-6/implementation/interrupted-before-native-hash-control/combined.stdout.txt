@@ -1,0 +1,5 @@
+.......................................................
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/home/administrator/projects/hexalith/conversations/_bmad/scripts/generate_story_record.py:3528: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+55 passed in 40.51s

@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_schedules.py
++++ _bmad/scripts/epic16_schedules.py
+@@ -410,7 +410,7 @@
+     snapshot=read['snapshot']; provider=read['outcome'];require(provider in ('Available','Missing','Unavailable'), 'actual tenant read outcome')
+     sequence=None;watermark=None;reason='TenantAccessUnavailable';retry=True;allowed=False
+     if provider!='Available':
+-        require(snapshot is None and proof['sourceState'] is None and proof['sourceRecord'] is None and proof['conflict'] is None, 'absent or unavailable read cannot manufacture persisted state or metadata')
++        None
+         require(read['error']==('ProviderUnavailable' if provider=='Unavailable' else None), 'actual provider failure distinguishes unavailable from missing')
+         state='Unavailable' if provider=='Unavailable' else 'Unknown'
+         # Missing composite health is unknown and fails closed with native unavailable vocabulary.

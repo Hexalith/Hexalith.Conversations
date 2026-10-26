@@ -1,0 +1,32 @@
+{
+  "results": [
+    {
+      "id": "R11P1-external-System-Fact",
+      "rejected": true
+    },
+    {
+      "id": "R11P1-external-build-name",
+      "rejected": true,
+      "apiDifferent": true
+    },
+    {
+      "id": "R11P2-domain-maps",
+      "schemaAndSemanticsAdmitted": true,
+      "checks": [
+        "tenant-fault-matrix",
+        "durable-acknowledgement",
+        "bounded-retry",
+        "query-purity"
+      ]
+    }
+  ],
+  "sources": {
+    "_bmad/schemas/epic-16-tooling-v1.schema.json": "716e36cb2dd8e7ee34599fc67eb07e368d7cee5277a13cc7090f87e26a04d87f",
+    "_bmad/scripts/epic16_schedules.py": "c9b0e6bbf39809a016d696d2dc5165b9f130d0292d78926bd3665e8e285fe87c",
+    "_bmad/scripts/epic16_measurements.py": "dd25f6258620691e66df6743aa50cc68332c303db5d2c3333801adf55e2968bc",
+    "_bmad/scripts/epic16_products.py": "e62f151bedd8ca160d4f80fa7e43d68513ed0fdb0a0f1ce1eeae66a9845429c8",
+    "_bmad/scripts/epic16_native_helper/ProductMetadata.cs": "b385aaddcf6b963cc8de623043c0952f1cb0e7b4ecd8a38c774e8dbf9da8b4e3",
+    "_bmad/scripts/epic16_native_helper/Program.cs": "1133d33f9f68f439f7313c91b6741d6bf94726d0e02077d7a528ed8fe5abfffd"
+  },
+  "scope": "Retained independent synthetic counterexamples; no product or runtime qualification."
+}

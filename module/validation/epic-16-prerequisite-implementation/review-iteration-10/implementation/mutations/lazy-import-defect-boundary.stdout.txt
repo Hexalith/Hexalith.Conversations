@@ -1,0 +1,27 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_round10_generator_classifies_only_missing_declared_dependencies[ImportError] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-595/test_round10_generator_classif0')
+defect = 'ImportError'
+
+    @pytest.mark.parametrize('defect', ['ImportError', 'ModuleNotFoundError', 'missing-declared', 'misspelled-local', 'available-declared'])
+    def test_round10_generator_classifies_only_missing_declared_dependencies(tmp_path, defect):
+        shutil.copyfile(ROOT/'_bmad/scripts/generate_story_record.py',tmp_path/'generate_story_record.py')
+        if defect!='missing-declared': (tmp_path/'epic16_tooling.py').write_text('raise '+defect+'("internal defect", name="unrelated_internal_dependency")\n' if defect=='ModuleNotFoundError' else 'raise ImportError("internal defect")\n')
+        if defect in ('misspelled-local','available-declared'):
+            name='epic16_misspelled' if defect=='misspelled-local' else 'epic16_capture'
+            (tmp_path/'epic16_tooling.py').write_text('raise ModuleNotFoundError("internal defect", name='+repr(name)+')\n')
+            if defect=='available-declared':(tmp_path/'epic16_capture.py').write_text('# available declared module\n')
+        result=subprocess.run([sys.executable,str(tmp_path/'generate_story_record.py'),'--contract',tooling.contract_path('16.1')],capture_output=True)
+        if defect=='missing-declared':
+            assert result.returncode==2 and json.loads(result.stdout)['blockers']==['SCHEMA_UNAVAILABLE'] and not result.stderr
+        else:
+>           assert result.returncode==1 and b'Traceback' in result.stderr and b'internal defect' in result.stderr
+E           assert (2 == 1)
+E            +  where 2 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/pytest-of-admini...-contracts/16.1.json",\n      "message": "the Epic 16 successor consumer is unavailable"\n    }\n  ]\n}\n', stderr=b'').returncode
+
+_bmad/scripts/tests/test_epic16_tooling.py:3628: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_generator_classifies_only_missing_declared_dependencies[ImportError]
+1 failed, 1977 deselected in 0.50s

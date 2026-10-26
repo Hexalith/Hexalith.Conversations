@@ -1,0 +1,67 @@
+[
+  {
+    "original": "final-source.json",
+    "retained": "first-frozen-final-source.json",
+    "sha256": "a09db8ee134fdf0381c48b98c21fd865f08618a0b6ce42fbfffb076b5b90ebd8"
+  },
+  {
+    "original": "verification-source.json",
+    "retained": "first-frozen-verification-source.json",
+    "sha256": "f6ed4c89bc63de1f78ef791898ee97796bb58aeef32dcf72f2f72a1b79d6a20d"
+  },
+  {
+    "original": "pytest-workspaces.json",
+    "retained": "first-frozen-pytest-workspaces.json",
+    "sha256": "3e8de3d7717a1f68c0012c0761b1b12f9a9a3aba06cde8bbdd186ed890a94bf3"
+  },
+  {
+    "original": "combined.xml",
+    "retained": "first-frozen-combined.xml",
+    "sha256": "c9b6a28a24bc51523359d27065bca88c3989433b4a5a2b99c89b61b074aab752"
+  },
+  {
+    "original": "combined.stdout.txt",
+    "retained": "first-frozen-combined.stdout.txt",
+    "sha256": "d8a27c6dbb74f8f110b4b5be7c88461304f46f8e24d86b0d3520e39138d14919"
+  },
+  {
+    "original": "combined.stderr.txt",
+    "retained": "first-frozen-combined.stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "original": "test-commands.json",
+    "retained": "first-frozen-test-commands.json",
+    "sha256": "68300c650f575b8af937d13c15d53fce6b000862f28fd48c584884dc6292d322"
+  },
+  {
+    "original": "combined-commitlint.json",
+    "retained": "first-frozen-combined-commitlint.json",
+    "sha256": "c5a69e222331a55a1bd057498d5d276553a882f946f91c9c75a6c5b171856eee"
+  },
+  {
+    "original": "final-verify.stdout.txt",
+    "retained": "first-frozen-final-verify.stdout.txt",
+    "sha256": "64f9b3f09fbaeb912deac7c0ea69efd84dfde0273ef76832af2cf2b2ae15e930"
+  },
+  {
+    "original": "final-verify.stderr.txt",
+    "retained": "first-frozen-final-verify.stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "original": "final-sequence-commands.json",
+    "retained": "first-frozen-final-sequence-commands.json",
+    "sha256": "dabeeb54c0021219e41d2c81f45cfdcc9a1eae06bc513e14af6d20bb175b6dfe"
+  },
+  {
+    "original": "final-sequence.stdout",
+    "retained": "first-frozen-final-sequence.stdout",
+    "sha256": "04f1591cd602520181552514e938d3d12004921967b969a4b8672efe440e36d5"
+  },
+  {
+    "original": "final-sequence.stderr",
+    "retained": "first-frozen-final-sequence.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

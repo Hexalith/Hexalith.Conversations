@@ -1,0 +1,194 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_round9_wire_requires_same_executed_authorized_request_response[method-0] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-546/test_round9_wire_requires_same0/fixture')
+case = 0, fault = 'method'
+
+    @pytest.mark.parametrize('case',range(5))
+    @pytest.mark.parametrize('fault',['missing','execution','completion','request-id','scope','route','method','order'])
+    def test_round9_wire_requires_same_executed_authorized_request_response(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['wireObservation'];row=proof['operations'][case]
+        if fault=='missing':proof['operations'].pop(case)
+        elif fault=='execution':row['executed']=False
+        elif fault=='completion':row['completed']=False
+        elif fault=='request-id':row['requestId']='unrelated'
+        elif fault=='scope':row['scope']['pendingId']='unrelated'
+        elif fault=='route':row['path']='/project/v2'
+        elif fault=='method':row['method']='GET'
+        else:row['order']=0 if case==0 else proof['operations'][case-1]['order']
+>       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3291: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-546/test_round9_wire_requires_same0/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+>       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError
+_ test_round9_wire_requires_same_executed_authorized_request_response[method-1] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-546/test_round9_wire_requires_same1/fixture')
+case = 1, fault = 'method'
+
+    @pytest.mark.parametrize('case',range(5))
+    @pytest.mark.parametrize('fault',['missing','execution','completion','request-id','scope','route','method','order'])
+    def test_round9_wire_requires_same_executed_authorized_request_response(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['wireObservation'];row=proof['operations'][case]
+        if fault=='missing':proof['operations'].pop(case)
+        elif fault=='execution':row['executed']=False
+        elif fault=='completion':row['completed']=False
+        elif fault=='request-id':row['requestId']='unrelated'
+        elif fault=='scope':row['scope']['pendingId']='unrelated'
+        elif fault=='route':row['path']='/project/v2'
+        elif fault=='method':row['method']='GET'
+        else:row['order']=0 if case==0 else proof['operations'][case-1]['order']
+>       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3291: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-546/test_round9_wire_requires_same1/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+>       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError
+_ test_round9_wire_requires_same_executed_authorized_request_response[method-2] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-546/test_round9_wire_requires_same2/fixture')
+case = 2, fault = 'method'
+
+    @pytest.mark.parametrize('case',range(5))
+    @pytest.mark.parametrize('fault',['missing','execution','completion','request-id','scope','route','method','order'])
+    def test_round9_wire_requires_same_executed_authorized_request_response(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['wireObservation'];row=proof['operations'][case]
+        if fault=='missing':proof['operations'].pop(case)
+        elif fault=='execution':row['executed']=False
+        elif fault=='completion':row['completed']=False
+        elif fault=='request-id':row['requestId']='unrelated'
+        elif fault=='scope':row['scope']['pendingId']='unrelated'
+        elif fault=='route':row['path']='/project/v2'
+        elif fault=='method':row['method']='GET'
+        else:row['order']=0 if case==0 else proof['operations'][case-1]['order']
+>       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3291: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-546/test_round9_wire_requires_same2/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+>       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError
+_ test_round9_wire_requires_same_executed_authorized_request_response[method-3] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-546/test_round9_wire_requires_same3/fixture')
+case = 3, fault = 'method'
+
+    @pytest.mark.parametrize('case',range(5))
+    @pytest.mark.parametrize('fault',['missing','execution','completion','request-id','scope','route','method','order'])
+    def test_round9_wire_requires_same_executed_authorized_request_response(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['wireObservation'];row=proof['operations'][case]
+        if fault=='missing':proof['operations'].pop(case)
+        elif fault=='execution':row['executed']=False
+        elif fault=='completion':row['completed']=False
+        elif fault=='request-id':row['requestId']='unrelated'
+        elif fault=='scope':row['scope']['pendingId']='unrelated'
+        elif fault=='route':row['path']='/project/v2'
+        elif fault=='method':row['method']='GET'
+        else:row['order']=0 if case==0 else proof['operations'][case-1]['order']
+>       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3291: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-546/test_round9_wire_requires_same3/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+>       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError
+_ test_round9_wire_requires_same_executed_authorized_request_response[method-4] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-546/test_round9_wire_requires_same4/fixture')
+case = 4, fault = 'method'
+
+    @pytest.mark.parametrize('case',range(5))
+    @pytest.mark.parametrize('fault',['missing','execution','completion','request-id','scope','route','method','order'])
+    def test_round9_wire_requires_same_executed_authorized_request_response(repository,case,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);proof=data['wireObservation'];row=proof['operations'][case]
+        if fault=='missing':proof['operations'].pop(case)
+        elif fault=='execution':row['executed']=False
+        elif fault=='completion':row['completed']=False
+        elif fault=='request-id':row['requestId']='unrelated'
+        elif fault=='scope':row['scope']['pendingId']='unrelated'
+        elif fault=='route':row['path']='/project/v2'
+        elif fault=='method':row['method']='GET'
+        else:row['order']=0 if case==0 else proof['operations'][case-1]['order']
+>       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3291: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-546/test_round9_wire_requires_same4/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+>       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_wire_requires_same_executed_authorized_request_response[method-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_wire_requires_same_executed_authorized_request_response[method-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_wire_requires_same_executed_authorized_request_response[method-2]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_wire_requires_same_executed_authorized_request_response[method-3]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round9_wire_requires_same_executed_authorized_request_response[method-4]
+5 failed, 1861 deselected in 14.64s

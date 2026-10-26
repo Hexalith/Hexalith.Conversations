@@ -1,0 +1,281 @@
+{
+  "authority": {
+    "executionAllowed": false,
+    "implementationHold": "ACTIVE",
+    "ownerApprovalClaimed": false,
+    "pushAuthorized": false,
+    "releaseAuthorized": false
+  },
+  "entry": {
+    "path": "fixture-entry.json",
+    "sha256": "4e1a935cfc25789e8402f01b552bda172d7a4857bacb72584609d7a3270d898a"
+  },
+  "purpose": "prerequisite-tooling-only",
+  "schemaVersion": "hexalith.conversations.epic16-tooling-binding.v1",
+  "sources": [
+    {
+      "path": ".config/dotnet-tools.json",
+      "sha256": "5d72a022a9416cb753da75cda1b0f1945fd938c065521fd9946aaa525fe048da"
+    },
+    {
+      "path": ".gitattributes",
+      "sha256": "3ab9a82c0c264a8b43c8ed6a8a420c0ce45f7c1189f64695b52b24fa9b7a0043"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md",
+      "sha256": "bc7d953ab6ea741b488ae8c96f5d4a7dde6d1fe2ef0ff33a3ff79b2cb82a6157"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json",
+      "sha256": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json",
+      "sha256": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json",
+      "sha256": "074189ef4eea79bddeef5935b27df01c637dc5bf832a17eb24933c52968364c0"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json",
+      "sha256": "da8c5462c77239f9f770a9b803b436824efb8e58f7f182fb66ec1343902beae7"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json",
+      "sha256": "542f1de5e4af3c58c9df7d654e04dd2ea99b9f63cd50bcf864ef5c2ba1257963"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json",
+      "sha256": "226a0a060951139346282a8048338ff9af35014fe7154d79a8863da56507c9dc"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md",
+      "sha256": "e12ee39652b9d7e18052716c955962d716f7e48b6fea2cd1f43f6a22d783ecb0"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json",
+      "sha256": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json",
+      "sha256": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json",
+      "sha256": "4c533a78c3f0f115f28d1113e5b2e71a4d71c93b5c08b4e3ebf8cfa23e47b9bd"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json",
+      "sha256": "3088bcf463a6bd7643925195c0ecf3e34f26e72caf6706c08e2c62b3ddaae2f6"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.2.json",
+      "sha256": "d9fd9f9fe66b178f2435396ab467886d9dd04024754ff5970345fa1802f53560"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json",
+      "sha256": "b353f763387047063f3c2c8d9a0373de8e61f054ea7a3df714c29f43db21b712"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md",
+      "sha256": "b0b110461e81457a12b35bc8515ad691d26a926b206189495241f7f52a50097c"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json",
+      "sha256": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json",
+      "sha256": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json",
+      "sha256": "16eaf5b30e379ca50172a20fa5b069ac6a3cd4c675c5ca322d9178a1929f5746"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json",
+      "sha256": "3e44d0498d231633a12ee122d72535c178870a1601ab8c552c815566fe257e08"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json",
+      "sha256": "a21c8c817e5126343110a5e6730883b5cf32738610b3f552ef6cdbbfe605a965"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json",
+      "sha256": "5eeccfb8427e4ebccc1955f965d00e3c5655834a3c3005443c970be2dd99509a"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "sha256": "cb9dd6845a9599aed0a9a2e8eae9d2982f922410ff6dc5b561112cb0bcb8fc2b"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "sha256": "95f4428f1f782b4137de1c4d945063d132829832ef657de6383bbd4813036b80"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+      "sha256": "8255231c985cf1e19abc1848cc798d46fff8080d1013596d071466c4dac9f49b"
+    },
+    {
+      "path": "_bmad/schemas/epic-16-adoption-v1.schema.json",
+      "sha256": "884d8efb4bf58571c99dca0b63ba0f97b10e50db0cb4bd238ed5a96f017f4f98"
+    },
+    {
+      "path": "_bmad/schemas/epic-16-adoption-v2.schema.json",
+      "sha256": "12278d301a8945ba929d28ecb7a8091663e40f23d821aa4cf3d2d3ec765d3a4f"
+    },
+    {
+      "path": "_bmad/schemas/epic-16-prerequisites-v1.schema.json",
+      "sha256": "b7095d7191a96dcefb5a0c333958e5c7eccbd7fa1fae9cb8d62ea2ec8bcad497"
+    },
+    {
+      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+      "sha256": "ff6035784fbe5b489eb2355fc8fea6a04fb11d9f50a9e539117c8b90c8d842b5"
+    },
+    {
+      "path": "_bmad/scripts/authoring_outputs.py",
+      "sha256": "17abd7aca9d82cc6bdb17cf5db5df711b06e75ed4bcac46138f98daf750d897d"
+    },
+    {
+      "path": "_bmad/scripts/config_utils.py",
+      "sha256": "48afe2bc18a29201e343cce3703be1e70df9c83ee74eeb68e57ef8ef42e8c651"
+    },
+    {
+      "path": "_bmad/scripts/contained_reader.py",
+      "sha256": "fac77aa5381c54fd7df3d2b70204b46b4be353992a6529a44dac2da46ea6001b"
+    },
+    {
+      "path": "_bmad/scripts/epic16_capture.py",
+      "sha256": "c5ffc2329228ba4ce748ac28307157531c82a74e803c6e237f987acc0629226f"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "sha256": "dc043488b746651af0f528bec3ecc2788dccc4bf0962d86e52e40aabfaa745af"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "sha256": "dfc3cb1e20e2cf453a94a0032cf63539a5c0d8dd49846f2aa84222e65490184a"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "sha256": "77416d72c319b0d0b4e4d297300ab423cea5895dc5314a851b45e4418bcb7e59"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "sha256": "7afd39f623755cffb1d779de8c03f47703c6038a68704d77ea82ad0bf0b6bef4"
+    },
+    {
+      "path": "_bmad/scripts/epic16_native.py",
+      "sha256": "ab2aec05b61871a961a99f2e72d98558ca07114c24f59eac931fbba36966063e"
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj",
+      "sha256": "f3057cab73b03ec077940f41c8b23a30032c563c1989dc680ac7b60764d4fcb5"
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/EventStore-LICENSE",
+      "sha256": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2"
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/Program.cs",
+      "sha256": "6c8f5fe7e9512227c45e19fdae535a566168b1a81db2d218230b406b565a1d25"
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/README.md",
+      "sha256": "612135963bf373f08e76b644308002ccb793126b4dcb3f01f18a90b0a58d53be"
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs",
+      "sha256": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "sha256": "b80c2632de8198ad823518844dd17e483af977947bff841b5934ce7c0ec2ceb9"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "sha256": "7198aa420ea540b81cfa3b4f117da162ef38211fb04946aff127190613e2c34c"
+    },
+    {
+      "path": "_bmad/scripts/epic16_tooling.py",
+      "sha256": "4524a5523725e7298a03681d160a913665ecfe82d4baf5875734be9f6576891d"
+    },
+    {
+      "path": "_bmad/scripts/epic16_trust.py",
+      "sha256": "512611c925c2e40ec62b2f2abcc6749ad3e3d5bcccb74366faf465ece4960d71"
+    },
+    {
+      "path": "_bmad/scripts/evidence_boundary_current.py",
+      "sha256": "42ae5eb021be38647bf0172db4d4b41cd7c3c5fc299edffbeee616527b6eefdd"
+    },
+    {
+      "path": "_bmad/scripts/generate_story_record.py",
+      "sha256": "69947b8726ccb0b1b56f9ec69ed03b2ce1bff1fa9ac500bdccaf76ecb1a28a0a"
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-goldens.json",
+      "sha256": "f08bbd0ce5205a282c8cb2bfbfeac76046ee73494c41a80c527a1c191552fe93"
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-provenance.json",
+      "sha256": "daef7f4e47b2c160b9bba813e9e1e38a3806b8167823bfb60bcf277d58afe8ee"
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-domain-sources.json",
+      "sha256": "3cd7d330527499b2d932425aa2b9b4776089ce629fd022bd9e5015fd14b1d867"
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json",
+      "sha256": "04b547e3cf9da207a67142473967fb6ca01ffc4e32df4bd886ae769a0063d373"
+    },
+    {
+      "path": "_bmad/scripts/verify_epic_16_adoption.py",
+      "sha256": "b22b6d25ae86186d0575a19dfa09b810220c70d3fb9c0eadefc781a53ce68505"
+    },
+    {
+      "path": "_bmad/scripts/verify_epic_16_adoption_v2.py",
+      "sha256": "f9ac03603a2b1635b7bb7e7f44262c2acb8f0272fbf55030ea1012932d93b568"
+    },
+    {
+      "path": "_bmad/scripts/verify_epic_16_prerequisites.py",
+      "sha256": "b10e910aefdd7f9f19cb80bbb19936efd2340f641be45787c140cf45738bbfa6"
+    },
+    {
+      "path": "_bmad/scripts/verify_story_16_1.py",
+      "sha256": "b2747d5fadd80bb93660a2aa041d5adaee379a20acfc6d6fcb9be46fb35deb56"
+    },
+    {
+      "path": "_bmad/scripts/verify_story_16_2.py",
+      "sha256": "3adb2712e2dbc77fa8093636db26f07fe14678f58e33c09c11671c28a90bd417"
+    },
+    {
+      "path": "_bmad/scripts/verify_story_16_3.py",
+      "sha256": "ce69eb853971c2b9a69b9658669c37d3ced3e5e6488c7c272386fddadcd1eef0"
+    },
+    {
+      "path": "_bmad/scripts/verify_story_completion_workflows.py",
+      "sha256": "1a01c22abda5aff3ae74b277c4437490c752b130c764199e47799235d6129d99"
+    },
+    {
+      "path": "docs/runbooks/current-change-validation.md",
+      "sha256": "d5284f00b8c850d43cabfcd45d2a4cf94d76a04a0bf7d6761ead7f17e5947801"
+    },
+    {
+      "path": "global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+    },
+    {
+      "path": "module/hexalith.module-manifest.v2.json",
+      "sha256": "0bed1c297c9c9d78fdb8f37197ac5f71d829191c0535fdd78e4034aaa017bdf0"
+    },
+    {
+      "path": "module/hosting-inventory.json",
+      "sha256": "1bfd46248158637c950cd6764a47f926b1683568218208a0107d3b1ed3ada1e7"
+    },
+    {
+      "path": "module/sm-2-checklist.md",
+      "sha256": "71fb1992ca38602e4cfba34d1b5471459aff986a1ac87b774fb887feafaeec37"
+    }
+  ]
+}

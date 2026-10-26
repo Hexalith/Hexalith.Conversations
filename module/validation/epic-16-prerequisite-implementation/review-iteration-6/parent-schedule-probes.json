@@ -1,0 +1,219 @@
+[
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.1-01",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.1-02",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.1-03",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.1-04",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.1-05",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.2-01",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.2-02",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.2-03",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.2-04",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.2-05",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.3-01",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.3-02",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.3-03",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.3-04",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "unchanged positive",
+    "scenario": "AC-16.3-05",
+    "expected": "accepted",
+    "result": "accepted",
+    "matched": true
+  },
+  {
+    "case": "duplicate removes pending",
+    "scenario": "AC-16.1-03",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "future delivery preserves pending evidence and projection/checkpoint atomically",
+    "matched": true
+  },
+  {
+    "case": "conflict leaves gap healthy",
+    "scenario": "AC-16.1-03",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "future delivery preserves pending evidence and projection/checkpoint atomically",
+    "matched": true
+  },
+  {
+    "case": "split corruption commit",
+    "scenario": "AC-16.1-03",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "future conflict durably CAS-marks composite corrupt state",
+    "matched": true
+  },
+  {
+    "case": "foreign consumer",
+    "scenario": "AC-16.1-02",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "same-tenant consumer request identity",
+    "matched": true
+  },
+  {
+    "case": "foreign store key",
+    "scenario": "AC-16.1-02",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "same-tenant projection-store lookup and returned snapshot",
+    "matched": true
+  },
+  {
+    "case": "unexecuted negative",
+    "scenario": "AC-16.3-02",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "separate executed unrelated-only preflight",
+    "matched": true
+  },
+  {
+    "case": "owned negative occupancy",
+    "scenario": "AC-16.3-02",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "unrelated-only preflight uses same inventory with every owned binding free",
+    "matched": true
+  },
+  {
+    "case": "negative emits collision",
+    "scenario": "AC-16.3-02",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "{'code': 'DAPR_CONTROL_PLANE_PORT_COLLISION', 'endpointId': 'dapr-placement', 'owner': 'dapr', 'port': 50001, 'attempts': 1} is not of type 'string'",
+    "matched": true
+  },
+  {
+    "case": "stale worker writes",
+    "scenario": "AC-16.3-04",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "stale or expired CAS cannot write or clear",
+    "matched": true
+  },
+  {
+    "case": "stale worker clears",
+    "scenario": "AC-16.3-04",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "stale or expired CAS cannot write or clear",
+    "matched": true
+  },
+  {
+    "case": "stale worker regresses checkpoint",
+    "scenario": "AC-16.3-04",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "stale attempt preserves complete newer stored state",
+    "matched": true
+  },
+  {
+    "case": "current split commit",
+    "scenario": "AC-16.3-04",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "one durable current-worker composite clearance",
+    "matched": true
+  },
+  {
+    "case": "duplicate mutates persisted version",
+    "scenario": "AC-16.3-04",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "duplicate retry observes durable clearance and preserves newer state",
+    "matched": true
+  },
+  {
+    "case": "foreign global-position event",
+    "scenario": "AC-16.3-04",
+    "expected": "rejected",
+    "result": "rejected",
+    "reason": "global position bound to exact authoritative envelope",
+    "matched": true
+  }
+]

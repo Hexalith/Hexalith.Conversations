@@ -1,0 +1,74 @@
+{
+  "sourceKind": "trusted-current-Contracts-assembly",
+  "synthetic": true,
+  "assembly": "Hexalith.Conversations.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+  "informationalVersion": "1.0.0\u002Bed53473ea4c67aa10ffc46c9b951d9864fe263d4",
+  "events": [
+    {
+      "eventType": "ConversationCreated",
+      "payload": "{\u0022metadata\u0022:{\u0022schemaVersion\u0022:1,\u0022eventId\u0022:\u0022event-1\u0022,\u0022eventType\u0022:\u0022ConversationCreated\u0022,\u0022tenantId\u0022:\u0022tenant:tenant-a\u0022,\u0022conversationId\u0022:\u0022conv:conversation-a\u0022,\u0022correlationId\u0022:\u0022correlation-a\u0022,\u0022occurredAt\u0022:\u00222026-01-02T03:04:06\u002B00:00\u0022,\u0022actorPartyId\u0022:\u0022party:actor-a\u0022,\u0022causationId\u0022:null,\u0022deduplicationKey\u0022:\u0022tenant:tenant-a|conv:conversation-a|event-1|1\u0022},\u0022businessReference\u0022:{\u0022system\u0022:\u0022case\u0022,\u0022value\u0022:\u0022a\u0022},\u0022projectId\u0022:\u0022project:project-a\u0022,\u0022folderId\u0022:\u0022folder:folder-a\u0022,\u0022label\u0022:\u0022Seed conversation\u0022,\u0022providerCorrelation\u0022:null,\u0022createdAt\u0022:\u00222026-01-02T03:04:06\u002B00:00\u0022}"
+    },
+    {
+      "eventType": "ParticipantAdded",
+      "payload": "{\u0022metadata\u0022:{\u0022schemaVersion\u0022:1,\u0022eventId\u0022:\u0022event-2\u0022,\u0022eventType\u0022:\u0022ParticipantAdded\u0022,\u0022tenantId\u0022:\u0022tenant:tenant-a\u0022,\u0022conversationId\u0022:\u0022conv:conversation-a\u0022,\u0022correlationId\u0022:\u0022correlation-a\u0022,\u0022occurredAt\u0022:\u00222026-01-02T03:04:07\u002B00:00\u0022,\u0022actorPartyId\u0022:\u0022party:actor-a\u0022,\u0022causationId\u0022:null,\u0022deduplicationKey\u0022:\u0022tenant:tenant-a|conv:conversation-a|event-2|1\u0022},\u0022participantPartyId\u0022:\u0022party:participant-a\u0022,\u0022participantType\u0022:\u0022Human\u0022,\u0022participantRole\u0022:\u0022Member\u0022}"
+    },
+    {
+      "eventType": "MessageAppended",
+      "payload": "{\u0022metadata\u0022:{\u0022schemaVersion\u0022:1,\u0022eventId\u0022:\u0022event-3\u0022,\u0022eventType\u0022:\u0022MessageAppended\u0022,\u0022tenantId\u0022:\u0022tenant:tenant-a\u0022,\u0022conversationId\u0022:\u0022conv:conversation-a\u0022,\u0022correlationId\u0022:\u0022correlation-a\u0022,\u0022occurredAt\u0022:\u00222026-01-02T03:04:08\u002B00:00\u0022,\u0022actorPartyId\u0022:\u0022party:actor-a\u0022,\u0022causationId\u0022:null,\u0022deduplicationKey\u0022:\u0022tenant:tenant-a|conv:conversation-a|event-3|1\u0022},\u0022messageId\u0022:\u0022message:message-a\u0022,\u0022authorPartyId\u0022:\u0022party:actor-a\u0022,\u0022text\u0022:\u0022Controlled message\u0022,\u0022providerCorrelation\u0022:null}"
+    },
+    {
+      "eventType": "FileReferenceAttached",
+      "payload": "{\u0022metadata\u0022:{\u0022schemaVersion\u0022:1,\u0022eventId\u0022:\u0022event-4\u0022,\u0022eventType\u0022:\u0022FileReferenceAttached\u0022,\u0022tenantId\u0022:\u0022tenant:tenant-a\u0022,\u0022conversationId\u0022:\u0022conv:conversation-a\u0022,\u0022correlationId\u0022:\u0022correlation-a\u0022,\u0022occurredAt\u0022:\u00222026-01-02T03:04:09\u002B00:00\u0022,\u0022actorPartyId\u0022:\u0022party:actor-a\u0022,\u0022causationId\u0022:null,\u0022deduplicationKey\u0022:\u0022tenant:tenant-a|conv:conversation-a|event-4|1\u0022},\u0022fileId\u0022:\u0022file:file-a\u0022,\u0022folderId\u0022:\u0022folder:folder-a\u0022,\u0022messageId\u0022:\u0022message:message-a\u0022}"
+    },
+    {
+      "eventType": "ConversationClosed",
+      "payload": "{\u0022metadata\u0022:{\u0022schemaVersion\u0022:1,\u0022eventId\u0022:\u0022event-6\u0022,\u0022eventType\u0022:\u0022ConversationClosed\u0022,\u0022tenantId\u0022:\u0022tenant:tenant-a\u0022,\u0022conversationId\u0022:\u0022conv:conversation-a\u0022,\u0022correlationId\u0022:\u0022correlation-a\u0022,\u0022occurredAt\u0022:\u00222026-01-02T03:04:11\u002B00:00\u0022,\u0022actorPartyId\u0022:\u0022party:actor-a\u0022,\u0022causationId\u0022:null,\u0022deduplicationKey\u0022:\u0022tenant:tenant-a|conv:conversation-a|event-6|1\u0022},\u0022reasonCode\u0022:null}"
+    },
+    {
+      "eventType": "ConversationClosed",
+      "payload": "{\u0022metadata\u0022:{\u0022schemaVersion\u0022:1,\u0022eventId\u0022:\u0022event-7\u0022,\u0022eventType\u0022:\u0022ConversationClosed\u0022,\u0022tenantId\u0022:\u0022tenant:tenant-a\u0022,\u0022conversationId\u0022:\u0022conv:conversation-a\u0022,\u0022correlationId\u0022:\u0022correlation-a\u0022,\u0022occurredAt\u0022:\u00222026-01-02T03:04:12\u002B00:00\u0022,\u0022actorPartyId\u0022:\u0022party:actor-a\u0022,\u0022causationId\u0022:null,\u0022deduplicationKey\u0022:\u0022tenant:tenant-a|conv:conversation-a|event-7|1\u0022},\u0022reasonCode\u0022:\u0022completed\u0022}"
+    },
+    {
+      "eventType": "ConversationArchived",
+      "payload": "{\u0022metadata\u0022:{\u0022schemaVersion\u0022:1,\u0022eventId\u0022:\u0022event-8\u0022,\u0022eventType\u0022:\u0022ConversationArchived\u0022,\u0022tenantId\u0022:\u0022tenant:tenant-a\u0022,\u0022conversationId\u0022:\u0022conv:conversation-a\u0022,\u0022correlationId\u0022:\u0022correlation-a\u0022,\u0022occurredAt\u0022:\u00222026-01-02T03:04:13\u002B00:00\u0022,\u0022actorPartyId\u0022:\u0022party:actor-a\u0022,\u0022causationId\u0022:null,\u0022deduplicationKey\u0022:\u0022tenant:tenant-a|conv:conversation-a|event-8|1\u0022},\u0022reasonCode\u0022:null}"
+    },
+    {
+      "eventType": "ConversationArchived",
+      "payload": "{\u0022metadata\u0022:{\u0022schemaVersion\u0022:1,\u0022eventId\u0022:\u0022event-9\u0022,\u0022eventType\u0022:\u0022ConversationArchived\u0022,\u0022tenantId\u0022:\u0022tenant:tenant-a\u0022,\u0022conversationId\u0022:\u0022conv:conversation-a\u0022,\u0022correlationId\u0022:\u0022correlation-a\u0022,\u0022occurredAt\u0022:\u00222026-01-02T03:04:14\u002B00:00\u0022,\u0022actorPartyId\u0022:\u0022party:actor-a\u0022,\u0022causationId\u0022:null,\u0022deduplicationKey\u0022:\u0022tenant:tenant-a|conv:conversation-a|event-9|1\u0022},\u0022reasonCode\u0022:\u0022archived\u0022}"
+    },
+    {
+      "eventType": "MessageContentRedacted",
+      "payload": "{\u0022metadata\u0022:{\u0022schemaVersion\u0022:1,\u0022eventId\u0022:\u0022event-10\u0022,\u0022eventType\u0022:\u0022MessageContentRedacted\u0022,\u0022tenantId\u0022:\u0022tenant:tenant-a\u0022,\u0022conversationId\u0022:\u0022conv:conversation-a\u0022,\u0022correlationId\u0022:\u0022correlation-a\u0022,\u0022occurredAt\u0022:\u00222026-01-02T03:04:15\u002B00:00\u0022,\u0022actorPartyId\u0022:\u0022party:actor-a\u0022,\u0022causationId\u0022:null,\u0022deduplicationKey\u0022:\u0022tenant:tenant-a|conv:conversation-a|event-10|1\u0022},\u0022target\u0022:{\u0022messageId\u0022:\u0022message:message-a\u0022,\u0022fileId\u0022:null,\u0022partyId\u0022:null,\u0022kind\u0022:\u0022Message\u0022,\u0022segmentReference\u0022:null},\u0022category\u0022:\u0022DisplayMask\u0022,\u0022policyReference\u0022:\u0022policy-a\u0022,\u0022rationale\u0022:\u0022privacy-request\u0022,\u0022auditEvidence\u0022:{\u0022handle\u0022:{\u0022value\u0022:\u0022evidence-a\u0022},\u0022policyReference\u0022:\u0022policy-a\u0022,\u0022capturedAt\u0022:\u00222026-01-02T03:04:15\u002B00:00\u0022}}"
+    },
+    {
+      "eventType": "ConversationMetadataUpdated",
+      "payload": "{\u0022metadata\u0022:{\u0022schemaVersion\u0022:1,\u0022eventId\u0022:\u0022event-5\u0022,\u0022eventType\u0022:\u0022ConversationMetadataUpdated\u0022,\u0022tenantId\u0022:\u0022tenant:tenant-a\u0022,\u0022conversationId\u0022:\u0022conv:conversation-a\u0022,\u0022correlationId\u0022:\u0022correlation-a\u0022,\u0022occurredAt\u0022:\u00222026-01-02T03:04:10\u002B00:00\u0022,\u0022actorPartyId\u0022:\u0022party:actor-a\u0022,\u0022causationId\u0022:null,\u0022deduplicationKey\u0022:\u0022tenant:tenant-a|conv:conversation-a|event-5|1\u0022},\u0022label\u0022:\u0022Corrected conversation\u0022,\u0022businessReference\u0022:{\u0022system\u0022:\u0022case\u0022,\u0022value\u0022:\u0022b\u0022},\u0022attributes\u0022:{\u0022scope\u0022:\u0022controlled\u0022}}"
+    }
+  ],
+  "dateTimes": [
+    {
+      "json": "\u00222026-01-02T03:04:05\u002B00:00\u0022",
+      "utcTicks": 639029198450000000
+    },
+    {
+      "json": "\u00222026-01-02T03:04:05.0000001\u002B00:00\u0022",
+      "utcTicks": 639029198450000001
+    },
+    {
+      "json": "\u00222026-01-02T03:04:05.1234567\u002B00:00\u0022",
+      "utcTicks": 639029198451234567
+    },
+    {
+      "json": "\u00222026-01-02T03:04:05-05:30\u0022",
+      "utcTicks": 639029396450000000
+    },
+    {
+      "json": "\u00222000-01-01T00:00:00\u002B00:00\u0022",
+      "utcTicks": 630822816000000000
+    },
+    {
+      "json": "\u00229999-12-31T23:59:59.9999999\u002B00:00\u0022",
+      "utcTicks": 3155378975999999999
+    }
+  ]
+}

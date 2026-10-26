@@ -1,0 +1,402 @@
+{
+  "scope": "Exact disposable fixture commit messages validated before first use in each process; actual repository never staged or committed.",
+  "cliVersion": "21.2.3",
+  "cliPackage": {
+    "path": "node_modules/@commitlint/cli/package.json",
+    "sha256": "9a1c6c7fa9b48291ac047167b2b4d9d7278752cd3122ec2e2d817394476b8640"
+  },
+  "config": {
+    "path": "commitlint.config.mjs",
+    "sha256": "6e903d777eba127cd8998956e9cdbd9500e5837bea8e580b1828a9e8d269f1b1"
+  },
+  "packageLock": {
+    "path": "package-lock.json",
+    "sha256": "928c2591dabfacc9ab7fc3d568e5cd79a72d726357363a48ddacc4c4e396f3b7"
+  },
+  "messages": {
+    "test: retain synthetic product source fixtures": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: retain synthetic product source fixtures\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: initialize disposable fixture": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: initialize disposable fixture\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: bind disposable fixture sources": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: bind disposable fixture sources\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: publish disposable measured fixtures": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: publish disposable measured fixtures\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: insert disposable final record": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: insert disposable final record\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: change disposable source": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: change disposable source\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: restore disposable source": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: restore disposable source\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: remove disposable native source": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: remove disposable native source\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: complete disposable fixture lifecycle": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: complete disposable fixture lifecycle\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: create direct dependency fixture": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: create direct dependency fixture\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: advance direct dependency fixture": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: advance direct dependency fixture\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: pin prior fixture authorization": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: pin prior fixture authorization\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: qualify disposable runtime consumer": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: qualify disposable runtime consumer\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: alter disposable canonicalizer": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: alter disposable canonicalizer\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: bind changed disposable dependency": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: bind changed disposable dependency\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: bind different disposable source": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: bind different disposable source\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: bind differing runtime consumer source": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: bind differing runtime consumer source\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: bind unrelated fixture entry": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: bind unrelated fixture entry\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: advance disposable candidate": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: advance disposable candidate\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: alter disposable contract surface": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: alter disposable contract surface\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: restore candidate with drifted baseline": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: restore candidate with drifted baseline\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: alter disposable enrollment identity": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: alter disposable enrollment identity\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: retain disposable native checkout bytes": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: retain disposable native checkout bytes\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: bind disposable runtime insertion source": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: bind disposable runtime insertion source\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: atomically publish disposable runtime evidence": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: atomically publish disposable runtime evidence\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: bind portable native capture fixture": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: bind portable native capture fixture\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: publish portable native capture fixture": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: publish portable native capture fixture\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: retain portable native fixture insertion": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: retain portable native fixture insertion\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: exercise candidate warning surface": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: exercise candidate warning surface\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: retain upstream API comparison baseline": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: retain upstream API comparison baseline\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: change synthetic upstream public API": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: change synthetic upstream public API\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    },
+    "test: bind synthetic upstream API candidate": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "argv": [
+        "/home/administrator/projects/hexalith/conversations/node_modules/.bin/commitlint",
+        "--config",
+        "/home/administrator/projects/hexalith/conversations/commitlint.config.mjs"
+      ],
+      "stdin": "test: bind synthetic upstream API candidate\n",
+      "cwd": "/home/administrator/projects/hexalith/conversations"
+    }
+  }
+}

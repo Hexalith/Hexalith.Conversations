@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="0.557" timestamp="2026-10-26T01:13:56.901726+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_query_domain_semantics_reject_unknown_even_without_schema[providerState-query_mapping]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">function = 'query_mapping', field = 'providerState'
+
+    @pytest.mark.parametrize('function',['query_mapping','query_case'])
+    @pytest.mark.parametrize('field',['providerState','lifecycle'])
+    def test_round9_query_domain_semantics_reject_unknown_even_without_schema(function,field):
+        row=deepcopy(OBSERVATIONS['AC-16.2-03']['queries'][1]);row[field]='UnsupportedValue'
+&gt;       with pytest.raises(ValueError):getattr(tooling.measurements,function)(row)
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:3512: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_query_domain_semantics_reject_unknown_even_without_schema[providerState-query_case]" time="0.000"><failure message="Failed: DID NOT RAISE ValueError">function = 'query_case', field = 'providerState'
+
+    @pytest.mark.parametrize('function',['query_mapping','query_case'])
+    @pytest.mark.parametrize('field',['providerState','lifecycle'])
+    def test_round9_query_domain_semantics_reject_unknown_even_without_schema(function,field):
+        row=deepcopy(OBSERVATIONS['AC-16.2-03']['queries'][1]);row[field]='UnsupportedValue'
+&gt;       with pytest.raises(ValueError):getattr(tooling.measurements,function)(row)
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:3512: Failed</failure></testcase></testsuite></testsuites>

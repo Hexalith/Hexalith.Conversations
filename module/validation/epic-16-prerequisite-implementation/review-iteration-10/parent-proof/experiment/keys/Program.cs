@@ -1,0 +1,1 @@
+using System.IO; using System.Security.Cryptography; for (int i=0;i<2;i++) { using var rsa=new RSACryptoServiceProvider(1024); File.WriteAllBytes(i+".snk",rsa.ExportCspBlob(true)); }

@@ -1,0 +1,70 @@
+........FF..........                                                     [100%]
+=================================== FAILURES ===================================
+_ test_round5_raw_lease_version_and_utc_fields_have_native_domains[1208925819614629174706176-lease] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-386/test_round5_raw_lease_version_8/fixture')
+field = 'lease', value = 1208925819614629174706176
+
+    @pytest.mark.parametrize('field',['lease','version','expiresAt','now'])
+    @pytest.mark.parametrize('value',[-1,0,2**80,True,1.0])
+    def test_round5_raw_lease_version_and_utc_fields_have_native_domains(repository,field,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);fault=next(r for r in data['faults'] if r['id']=='lease-expiry')
+        for raw_field in ('beforeBytes','injectedBytes','afterBytes'):
+            raw=json.loads(fault[raw_field])
+            if field in raw['state']:raw['state'][field]=value
+            fault[raw_field]=json.dumps(raw)
+        for phase in ('before','after'):fault[phase+'Sha256']=digest(fault[phase+'Bytes'].encode())
+>       native(repository,'AC-16.1-04',data);rejected(evaluate(repository,'AC-16.1-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1894: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+_ test_round5_raw_lease_version_and_utc_fields_have_native_domains[1208925819614629174706176-version] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-386/test_round5_raw_lease_version_9/fixture')
+field = 'version', value = 1208925819614629174706176
+
+    @pytest.mark.parametrize('field',['lease','version','expiresAt','now'])
+    @pytest.mark.parametrize('value',[-1,0,2**80,True,1.0])
+    def test_round5_raw_lease_version_and_utc_fields_have_native_domains(repository,field,value):
+        data=deepcopy(OBSERVATIONS['AC-16.1-04']);fault=next(r for r in data['faults'] if r['id']=='lease-expiry')
+        for raw_field in ('beforeBytes','injectedBytes','afterBytes'):
+            raw=json.loads(fault[raw_field])
+            if field in raw['state']:raw['state'][field]=value
+            fault[raw_field]=json.dumps(raw)
+        for phase in ('before','after'):fault[phase+'Sha256']=digest(fault[phase+'Bytes'].encode())
+>       native(repository,'AC-16.1-04',data);rejected(evaluate(repository,'AC-16.1-04'),'MEASUREMENT_INVALID')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1894: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_raw_lease_version_and_utc_fields_have_native_domains[1208925819614629174706176-lease]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round5_raw_lease_version_and_utc_fields_have_native_domains[1208925819614629174706176-version]
+2 failed, 18 passed, 842 deselected in 6.15s

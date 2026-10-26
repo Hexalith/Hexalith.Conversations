@@ -1,0 +1,153 @@
+{
+  "scope": "Intentionally defective disposable validation copies only; not product or runtime evidence",
+  "artifacts": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/method-implementation-flags/_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+      "sha256": "58e29b4f556f106b2d2e9e06253924bf9f9d9bb4165884eb0538bedecf4ac436"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/interface-annotations/_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+      "sha256": "4f23fb351aca56a8341fe4f063a0209303f5b96a399bc106f77a3b49c2e11e46"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/attribute-constructor-signatures/_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+      "sha256": "6831eec22773d4203c0b104380f4181473bbe32edcb3328a31c35cb842df0ee2"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/assembly-contract-attributes/_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+      "sha256": "2c65114c938da10dded84a564ae064df6edeafffe947473a6159bf922ea3ad4c"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/module-contract-attributes/_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+      "sha256": "6d6b6af2b07f303ac4f74f7328fc24c61ffe68119ad8ab471c992b66fdaf9f50"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/non-source-assembly-metadata/_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+      "sha256": "9f62edae4e0705eccd30e477cd612ff3c6555dc32c11cccbe6476a29f6c6b9ae"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/framework-build-attribute-owner/_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+      "sha256": "9bd4798b5fb8992d8ff1aee3a6dec2669258996389018b078728b9096e34a282"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/fact-derived-discovery/_bmad/scripts/epic16_native_helper/Program.cs",
+      "sha256": "847e732c78a3efdbbb7c7488840a8aeaf5aa248ed2692cc0b3917796a5e97bee"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/launcher-exact-dependencies-1/_bmad/scripts/verify_story_16_1.py",
+      "sha256": "1bb020ea0366d8e24d1fd1dfe967753775148dcfb32cc4c68bb44bd039be8aaa"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/launcher-actual-absence-1/_bmad/scripts/verify_story_16_1.py",
+      "sha256": "bf30420649b47cce8a8b1a77ff6ef66463be6936190d554e6cc52d329110d715"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/framework-method-attribute-owner/_bmad/scripts/epic16_native_helper/Program.cs",
+      "sha256": "cac32d9158f6a96ca3ab455fbb11e1420b8191e642cebb3a0029496abb1f9589"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/launcher-exact-dependencies-2/_bmad/scripts/verify_story_16_2.py",
+      "sha256": "51cdcecfb3c75d7456d5956b97a52263ad09832496fb75c2181b1d5ca2b0dd1a"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/launcher-actual-absence-2/_bmad/scripts/verify_story_16_2.py",
+      "sha256": "deabd4973dad5c36cf0040a6a7b29e1fd539a759ac102431e174fb1ecc730898"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/launcher-exact-dependencies-3/_bmad/scripts/verify_story_16_3.py",
+      "sha256": "02d46649688822a5d2783ff264f0a3f5f4cfc106eafcc495e700b9a94e7a8c85"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/launcher-actual-absence-3/_bmad/scripts/verify_story_16_3.py",
+      "sha256": "48f60b3e503f737167839f15ece68adbb2953caf167e076a54968fe749cef5d6"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/owning-assembly-flags/_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+      "sha256": "90334eb1f92b57156bd67a7c369604963f95e0df40de6478fb1a08dd9dda63dc"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/ack-source-derived-outcome/_bmad/scripts/epic16_schedules.py",
+      "sha256": "3e3ec34a456cbc8776e069c353e5d8e619d6cdde0da23090807c3e0e40b3d983"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/ack-commit-execution/_bmad/scripts/epic16_lifecycle.py",
+      "sha256": "c756ece9c860d30e46abccb04fbf6264fdfbdcfcda642cde4af2b93785059303"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/ack-correlated-transaction/_bmad/scripts/epic16_lifecycle.py",
+      "sha256": "349c446271ee037d41823a36e42b58c11d0df743011cfc62077b5e854eaaaeec"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/ack-persisted-observation/_bmad/scripts/epic16_lifecycle.py",
+      "sha256": "e060225f85ba9aa470d26a91d309684043ed2ba6ca853a668f27d2c2cc497d4a"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/ack-actual-operations/_bmad/scripts/epic16_lifecycle.py",
+      "sha256": "1d33776bc06f4b0c73c74601ba76f786d8ea58e98d0a213e44d32bc3c5b1780b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/recovery-execution-caller/_bmad/scripts/epic16_schedules.py",
+      "sha256": "e410a23e318b7080a4385b5df02015a063808eee8e974d1f3dc48526ae8124c1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/ack-delivered-duplicate/_bmad/scripts/epic16_schedules.py",
+      "sha256": "0cdb0096ff71ea6b56cbe34a6b719fa0de7b03e08056c82a56f55bd002b0a15f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/ack-duplicate-no-reapplication/_bmad/scripts/epic16_schedules.py",
+      "sha256": "519a13a692c05dc4e38c12358de113aac43a067b1327433ab1a0800853359016"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/duplicate-execution-caller/_bmad/scripts/epic16_schedules.py",
+      "sha256": "38b758ce21d27c7fedbda9cb45e561111a987a8acc17b6be11f61ca4514dd967"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/recovery-operation-identity/_bmad/scripts/epic16_schedules.py",
+      "sha256": "1f421004f5de00541b25ed698af27f33c565770e3741f13d8a4c0adbc37927d6"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/recovery-operation-order/_bmad/scripts/epic16_schedules.py",
+      "sha256": "1e79bf864170325ee0f37ff7a2f5070b5f27ba6e9a31ff4cf990b6e62d9ff1e9"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/recovery-exact-request/_bmad/scripts/epic16_schedules.py",
+      "sha256": "12e077b48189fbc57c29009a4acbba2162779d494569d4cbca1d1e1b5c3aeb7b"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/recovery-observed-before/_bmad/scripts/epic16_schedules.py",
+      "sha256": "fa3c7cbec5c1158b4961fefd71c1396dd3eee2a62c5d5b511d655325b21e4241"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/recovery-actual-outcome/_bmad/scripts/epic16_schedules.py",
+      "sha256": "0670c42e2874bab9d83cb07d8df9ff9d296e55f9ec85ab8f527a747893d2a9b4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/recovery-completed-state/_bmad/scripts/epic16_schedules.py",
+      "sha256": "a2e656ef577651ef65edc357a35bfd196c511deb028d645521148839745c0b92"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/recovery-wire-clearance/_bmad/scripts/epic16_schedules.py",
+      "sha256": "6675c5474b06a14944436a1076db9597752e96645c828154acbab74028df64c7"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations/resource-dispatch-multiplicity/_bmad/scripts/epic16_lifecycle.py",
+      "sha256": "9ede0dff0e1a3b290239f1b8f1be7a63243a90d59e12df17e015efdc514183a1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations-supplement/native-domain-map-openness/_bmad/schemas/epic-16-tooling-v1.schema.json",
+      "sha256": "df4e04915b6c4e39be21d8e1a528f1978834aeb1a767d77416f54fb88f82adf8"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations-supplement/native-domain-map-openness/_bmad/scripts/epic16_trust.py",
+      "sha256": "07caf4b968bfbaa413973087159f43b8bf09c4b58f1eda783c8a64bc9bd607e4"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations-supplement/recovery-execution-caller/_bmad/scripts/epic16_schedules.py",
+      "sha256": "e410a23e318b7080a4385b5df02015a063808eee8e974d1f3dc48526ae8124c1"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/mutated-sources/mutations-supplement/recovery-branch-scope/_bmad/scripts/epic16_schedules.py",
+      "sha256": "a15e5ea126e5b178cc7f8c499e57437e71d6f777042dac938e257cc6ceb2ddc8"
+    }
+  ]
+}

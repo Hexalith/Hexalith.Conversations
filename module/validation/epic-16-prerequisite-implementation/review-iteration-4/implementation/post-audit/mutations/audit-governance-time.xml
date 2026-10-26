@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="0.318" timestamp="2026-10-25T20:50:47.748506+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_audit_governance_timestamp_matches_actual_constructor[2026-01-02T03:04:15+01:00]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">value = '2026-01-02T03:04:15+01:00'
+
+    @pytest.mark.parametrize('value',['2026-01-02T03:04:15+01:00','2026-01-02T03:04:15-01:00','9999-01-02T03:04:15Z'])
+    def test_round4_audit_governance_timestamp_matches_actual_constructor(value):
+        domain=tooling.measurements.domain
+        envelope=deepcopy(OBSERVATIONS['AC-16.2-05']['redactionProof']['redactionEvent'])
+        payload=json.loads(envelope['payload']);payload['auditEvidence']['capturedAt']=value;envelope['payload']=json.dumps(payload)
+&gt;       with pytest.raises(ValueError,match='actual governance audit timestamp'):
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1816: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_audit_governance_timestamp_matches_actual_constructor[2026-01-02T03:04:15-01:00]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">value = '2026-01-02T03:04:15-01:00'
+
+    @pytest.mark.parametrize('value',['2026-01-02T03:04:15+01:00','2026-01-02T03:04:15-01:00','9999-01-02T03:04:15Z'])
+    def test_round4_audit_governance_timestamp_matches_actual_constructor(value):
+        domain=tooling.measurements.domain
+        envelope=deepcopy(OBSERVATIONS['AC-16.2-05']['redactionProof']['redactionEvent'])
+        payload=json.loads(envelope['payload']);payload['auditEvidence']['capturedAt']=value;envelope['payload']=json.dumps(payload)
+&gt;       with pytest.raises(ValueError,match='actual governance audit timestamp'):
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1816: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_audit_governance_timestamp_matches_actual_constructor[9999-01-02T03:04:15Z]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">value = '9999-01-02T03:04:15Z'
+
+    @pytest.mark.parametrize('value',['2026-01-02T03:04:15+01:00','2026-01-02T03:04:15-01:00','9999-01-02T03:04:15Z'])
+    def test_round4_audit_governance_timestamp_matches_actual_constructor(value):
+        domain=tooling.measurements.domain
+        envelope=deepcopy(OBSERVATIONS['AC-16.2-05']['redactionProof']['redactionEvent'])
+        payload=json.loads(envelope['payload']);payload['auditEvidence']['capturedAt']=value;envelope['payload']=json.dumps(payload)
+&gt;       with pytest.raises(ValueError,match='actual governance audit timestamp'):
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:1816: Failed</failure></testcase></testsuite></testsuites>

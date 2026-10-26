@@ -1,0 +1,482 @@
+{
+  "scope": "Early mutation audit; complete final control run still pending",
+  "runs": 36,
+  "demonstratedRuns": 35,
+  "distinctGuards": 35,
+  "demonstratedDistinctGuards": 35,
+  "assertionFailures": 162,
+  "unselectedInitialRuns": 1,
+  "errors": 0,
+  "skipped": 0,
+  "allMutantCasesPassInFinalControl": false,
+  "rows": [
+    {
+      "epoch": "mutations",
+      "name": "method-implementation-flags",
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "interface-annotations",
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "attribute-constructor-signatures",
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "assembly-contract-attributes",
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "module-contract-attributes",
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "non-source-assembly-metadata",
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "framework-build-attribute-owner",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "fact-derived-discovery",
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "launcher-exact-dependencies-1",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "launcher-actual-absence-1",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "framework-method-attribute-owner",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "launcher-exact-dependencies-2",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "launcher-actual-absence-2",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "launcher-exact-dependencies-3",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "launcher-actual-absence-3",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "owning-assembly-flags",
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "ack-source-derived-outcome",
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "ack-commit-execution",
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "ack-correlated-transaction",
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "ack-persisted-observation",
+      "counts": {
+        "tests": 8,
+        "failures": 8,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "ack-actual-operations",
+      "counts": {
+        "tests": 8,
+        "failures": 8,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "recovery-execution-caller",
+      "counts": {
+        "tests": 0,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": false,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "ack-delivered-duplicate",
+      "counts": {
+        "tests": 4,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "ack-duplicate-no-reapplication",
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "duplicate-execution-caller",
+      "counts": {
+        "tests": 7,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "recovery-operation-identity",
+      "counts": {
+        "tests": 14,
+        "failures": 14,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "recovery-operation-order",
+      "counts": {
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "recovery-exact-request",
+      "counts": {
+        "tests": 14,
+        "failures": 14,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "recovery-observed-before",
+      "counts": {
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "recovery-actual-outcome",
+      "counts": {
+        "tests": 14,
+        "failures": 14,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "recovery-completed-state",
+      "counts": {
+        "tests": 14,
+        "failures": 14,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "recovery-wire-clearance",
+      "counts": {
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations",
+      "name": "resource-dispatch-multiplicity",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations-supplement",
+      "name": "native-domain-map-openness",
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations-supplement",
+      "name": "recovery-execution-caller",
+      "counts": {
+        "tests": 7,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    },
+    {
+      "epoch": "mutations-supplement",
+      "name": "recovery-branch-scope",
+      "counts": {
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0
+      },
+      "demonstrated": true,
+      "exactFinalSourceAndMutantBytes": true,
+      "allSelectedCasesPassInFinalControl": false
+    }
+  ]
+}

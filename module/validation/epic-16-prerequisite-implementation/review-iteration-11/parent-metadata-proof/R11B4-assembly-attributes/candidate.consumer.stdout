@@ -1,0 +1,13 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r11-consumer-qanb5m9x/Consumer.csproj (in 35 ms).
+/tmp/epic16-r11-consumer-qanb5m9x/Consumer.cs(1,78): error CS3002: Return type of 'Surface.Echo(Api)' is not CLS-compliant [/tmp/epic16-r11-consumer-qanb5m9x/Consumer.csproj]
+/tmp/epic16-r11-consumer-qanb5m9x/Consumer.cs(1,93): error CS3001: Argument type 'Api' is not CLS-compliant [/tmp/epic16-r11-consumer-qanb5m9x/Consumer.csproj]
+
+Build FAILED.
+
+/tmp/epic16-r11-consumer-qanb5m9x/Consumer.cs(1,78): error CS3002: Return type of 'Surface.Echo(Api)' is not CLS-compliant [/tmp/epic16-r11-consumer-qanb5m9x/Consumer.csproj]
+/tmp/epic16-r11-consumer-qanb5m9x/Consumer.cs(1,93): error CS3001: Argument type 'Api' is not CLS-compliant [/tmp/epic16-r11-consumer-qanb5m9x/Consumer.csproj]
+    0 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:01.22

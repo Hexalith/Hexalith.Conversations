@@ -1,0 +1,745 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="24" skipped="0" tests="216" time="117.456" timestamp="2026-10-26T06:28:28.030200+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-0-AC-16.1-01]" time="13.982" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-0-AC-16.1-02]" time="0.427" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-1-AC-16.1-01]" time="0.394" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-1-AC-16.1-02]" time="0.408" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-2-AC-16.1-01]" time="0.423" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-2-AC-16.1-02]" time="0.419" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-3-AC-16.1-01]" time="0.446" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-3-AC-16.1-02]" time="0.425" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-4-AC-16.1-01]" time="0.420" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-4-AC-16.1-02]" time="0.425" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-5-AC-16.1-01]" time="0.444" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-5-AC-16.1-02]" time="0.403" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-0-AC-16.1-01]" time="0.409" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-0-AC-16.1-02]" time="0.405" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-1-AC-16.1-01]" time="0.394" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-1-AC-16.1-02]" time="0.425" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-2-AC-16.1-01]" time="0.417" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-2-AC-16.1-02]" time="0.429" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-3-AC-16.1-01]" time="0.404" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-3-AC-16.1-02]" time="0.402" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-4-AC-16.1-01]" time="0.448" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-4-AC-16.1-02]" time="0.416" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-5-AC-16.1-01]" time="0.423" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-5-AC-16.1-02]" time="0.402" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-0-AC-16.1-01]" time="0.446" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-0-AC-16.1-02]" time="0.411" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-1-AC-16.1-01]" time="0.400" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-1-AC-16.1-02]" time="0.422" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-2-AC-16.1-01]" time="0.426" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-2-AC-16.1-02]" time="0.437" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-3-AC-16.1-01]" time="0.413" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-3-AC-16.1-02]" time="0.451" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-4-AC-16.1-01]" time="0.419" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-4-AC-16.1-02]" time="0.430" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-5-AC-16.1-01]" time="0.444" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-5-AC-16.1-02]" time="0.419" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-0-AC-16.1-01]" time="0.429" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-0-AC-16.1-02]" time="0.420" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-1-AC-16.1-01]" time="0.461" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-1-AC-16.1-02]" time="0.424" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-2-AC-16.1-01]" time="0.416" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-2-AC-16.1-02]" time="0.418" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-3-AC-16.1-01]" time="0.428" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-3-AC-16.1-02]" time="0.477" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-4-AC-16.1-01]" time="0.418" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-4-AC-16.1-02]" time="0.415" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-5-AC-16.1-01]" time="0.425" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-5-AC-16.1-02]" time="0.434" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-0-AC-16.1-01]" time="0.426" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-0-AC-16.1-02]" time="0.420" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-1-AC-16.1-01]" time="0.443" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-1-AC-16.1-02]" time="0.469" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-2-AC-16.1-01]" time="0.514" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-2-AC-16.1-02]" time="0.462" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-3-AC-16.1-01]" time="0.472" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-3-AC-16.1-02]" time="0.476" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-4-AC-16.1-01]" time="0.475" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-4-AC-16.1-02]" time="0.450" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-5-AC-16.1-01]" time="0.457" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-5-AC-16.1-02]" time="0.445" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-0-AC-16.1-01]" time="0.432" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-0-AC-16.1-02]" time="0.462" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-1-AC-16.1-01]" time="0.424" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-1-AC-16.1-02]" time="0.427" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-2-AC-16.1-01]" time="0.420" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-2-AC-16.1-02]" time="0.494" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-3-AC-16.1-01]" time="0.447" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-3-AC-16.1-02]" time="0.429" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-4-AC-16.1-01]" time="0.419" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-4-AC-16.1-02]" time="0.429" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-5-AC-16.1-01]" time="0.458" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-5-AC-16.1-02]" time="0.429" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-0-AC-16.1-01]" time="0.426" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-0-AC-16.1-02]" time="0.451" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-1-AC-16.1-01]" time="0.435" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-1-AC-16.1-02]" time="0.455" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-2-AC-16.1-01]" time="0.428" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-2-AC-16.1-02]" time="0.434" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-3-AC-16.1-01]" time="0.417" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-3-AC-16.1-02]" time="0.460" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-4-AC-16.1-01]" time="0.419" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-4-AC-16.1-02]" time="0.427" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-5-AC-16.1-01]" time="0.415" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-5-AC-16.1-02]" time="0.448" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-0-AC-16.1-01]" time="0.464" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-0-AC-16.1-02]" time="0.435" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-1-AC-16.1-01]" time="0.420" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-1-AC-16.1-02]" time="0.417" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-2-AC-16.1-01]" time="0.439" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-2-AC-16.1-02]" time="0.411" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-3-AC-16.1-01]" time="0.405" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-3-AC-16.1-02]" time="0.433" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-4-AC-16.1-01]" time="0.409" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-4-AC-16.1-02]" time="0.439" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-5-AC-16.1-01]" time="0.414" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-5-AC-16.1-02]" time="0.417" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-0-AC-16.1-01]" time="0.423" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-0-AC-16.1-02]" time="0.441" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-1-AC-16.1-01]" time="0.416" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-1-AC-16.1-02]" time="0.420" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-2-AC-16.1-01]" time="0.419" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-2-AC-16.1-02]" time="0.438" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-3-AC-16.1-01]" time="0.484" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-3-AC-16.1-02]" time="0.431" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-4-AC-16.1-01]" time="0.432" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-4-AC-16.1-02]" time="0.421" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-5-AC-16.1-01]" time="0.439" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-5-AC-16.1-02]" time="0.456" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-0-AC-16.1-01]" time="0.421" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-0-AC-16.1-02]" time="0.432" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-1-AC-16.1-01]" time="0.421" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-1-AC-16.1-02]" time="0.454" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-2-AC-16.1-01]" time="0.417" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-2-AC-16.1-02]" time="0.423" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-3-AC-16.1-01]" time="0.451" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-3-AC-16.1-02]" time="0.450" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-4-AC-16.1-01]" time="0.470" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-4-AC-16.1-02]" time="0.424" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-5-AC-16.1-01]" time="0.430" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-5-AC-16.1-02]" time="0.438" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-0-AC-16.1-01]" time="0.478" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-0-AC-16.1-02]" time="0.435" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-1-AC-16.1-01]" time="0.426" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-1-AC-16.1-02]" time="0.423" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-2-AC-16.1-01]" time="0.426" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-2-AC-16.1-02]" time="0.484" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-3-AC-16.1-01]" time="0.424" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-3-AC-16.1-02]" time="0.428" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-4-AC-16.1-01]" time="0.427" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-4-AC-16.1-02]" time="0.456" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-5-AC-16.1-01]" time="0.448" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-5-AC-16.1-02]" time="0.443" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-0-AC-16.1-01]" time="0.429" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-0-AC-16.1-02]" time="0.442" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-1-AC-16.1-01]" time="0.478" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-1-AC-16.1-02]" time="0.423" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-2-AC-16.1-01]" time="0.418" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-2-AC-16.1-02]" time="0.443" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-3-AC-16.1-01]" time="0.438" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-3-AC-16.1-02]" time="0.481" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-4-AC-16.1-01]" time="0.431" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-4-AC-16.1-02]" time="0.467" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-5-AC-16.1-01]" time="0.436" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-5-AC-16.1-02]" time="0.442" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-0-AC-16.1-01]" time="0.442"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization144/fixture')
+scenario = 'AC-16.1-01', index = 0, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization144/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-0-AC-16.1-02]" time="0.435"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization145/fixture')
+scenario = 'AC-16.1-02', index = 0, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization145/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-1-AC-16.1-01]" time="0.463"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization146/fixture')
+scenario = 'AC-16.1-01', index = 1, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization146/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-1-AC-16.1-02]" time="0.444"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization147/fixture')
+scenario = 'AC-16.1-02', index = 1, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization147/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-2-AC-16.1-01]" time="0.434"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization148/fixture')
+scenario = 'AC-16.1-01', index = 2, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization148/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-2-AC-16.1-02]" time="0.496"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization149/fixture')
+scenario = 'AC-16.1-02', index = 2, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization149/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-3-AC-16.1-01]" time="0.449"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization150/fixture')
+scenario = 'AC-16.1-01', index = 3, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization150/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-3-AC-16.1-02]" time="0.459"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization151/fixture')
+scenario = 'AC-16.1-02', index = 3, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization151/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-4-AC-16.1-01]" time="0.480"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization152/fixture')
+scenario = 'AC-16.1-01', index = 4, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization152/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-4-AC-16.1-02]" time="0.429"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization153/fixture')
+scenario = 'AC-16.1-02', index = 4, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization153/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-5-AC-16.1-01]" time="0.415"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization154/fixture')
+scenario = 'AC-16.1-01', index = 5, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization154/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-5-AC-16.1-02]" time="0.421"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization155/fixture')
+scenario = 'AC-16.1-02', index = 5, fault = 'read-correlation'
+path = ('capture', 'response', 'observedReadId'), value = 'unrelated'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization155/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-0-AC-16.1-01]" time="0.421"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization156/fixture')
+scenario = 'AC-16.1-01', index = 0, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization156/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-0-AC-16.1-02]" time="0.433"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization157/fixture')
+scenario = 'AC-16.1-02', index = 0, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization157/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-1-AC-16.1-01]" time="0.439"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization158/fixture')
+scenario = 'AC-16.1-01', index = 1, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization158/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-1-AC-16.1-02]" time="0.425"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization159/fixture')
+scenario = 'AC-16.1-02', index = 1, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization159/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-2-AC-16.1-01]" time="0.536"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization160/fixture')
+scenario = 'AC-16.1-01', index = 2, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization160/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-2-AC-16.1-02]" time="0.479"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization161/fixture')
+scenario = 'AC-16.1-02', index = 2, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization161/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-3-AC-16.1-01]" time="0.444"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization162/fixture')
+scenario = 'AC-16.1-01', index = 3, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization162/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-3-AC-16.1-02]" time="0.449"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization163/fixture')
+scenario = 'AC-16.1-02', index = 3, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization163/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-4-AC-16.1-01]" time="0.415"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization164/fixture')
+scenario = 'AC-16.1-01', index = 4, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization164/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-4-AC-16.1-02]" time="0.425"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization165/fixture')
+scenario = 'AC-16.1-02', index = 4, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization165/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-5-AC-16.1-01]" time="0.445"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization166/fixture')
+scenario = 'AC-16.1-01', index = 5, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization166/fixture')
+scenario = 'AC-16.1-01'
+data = {'authorization': [{'state': 'Healthy', 'allowed': True, 'lastContiguousSequence': 10, 'capture': {'captureVersion': 1..., 'beforeSequence': 10, 'afterSequence': 10, ...}, ...], 'storeOwner': 'EventStore', 'transitionOwner': 'Tenants', ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-5-AC-16.1-02]" time="0.437"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization167/fixture')
+scenario = 'AC-16.1-02', index = 5, fault = 'response'
+path = ('capture', 'response', 'decision', 'tenantId'), value = 'foreign'
+
+    @pytest.mark.parametrize('scenario',['AC-16.1-01','AC-16.1-02'])
+    @pytest.mark.parametrize('index',range(6))
+    @pytest.mark.parametrize('fault,path,value',[('positive',(),None),*ROUND12_ACCESS])
+    def test_round12_six_authorization_states_bind_executed_native_read_and_response(repository,scenario,index,fault,path,value):
+        data=deepcopy(OBSERVATIONS[scenario]);row=data['authorization'][index]
+        if fault=='allowed':value=not row['allowed']
+        if path:round12_set(row,path,value)
+&gt;       round8_submit(repository,scenario,data,passes=fault=='positive')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-668/test_round12_six_authorization167/fixture')
+scenario = 'AC-16.1-02'
+data = {'beforeRestart': {'lastContiguousSequence': 10, 'expectedSequence': 11, 'recoveryThrough': 14, 'pending': [{'sequence...d': 'tenant-a', 'processId': 'tenant-access-process', ...}, 'observedAtUtcTicks': 1100, ...}}], 'redeliveries': 0, ...}
+passes = False
+
+    def round8_submit(repository, scenario, data, *, passes=False):
+        native(repository, scenario, data)
+        result=evaluate(repository,scenario)
+&gt;       assert result['result']==('PASS' if passes else 'FAIL'),result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:2860: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-0-AC-16.1-01]" time="0.423" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-0-AC-16.1-02]" time="0.450" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-1-AC-16.1-01]" time="0.412" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-1-AC-16.1-02]" time="0.451" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-2-AC-16.1-01]" time="0.432" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-2-AC-16.1-02]" time="0.447" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-3-AC-16.1-01]" time="0.456" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-3-AC-16.1-02]" time="0.441" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-4-AC-16.1-01]" time="0.471" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-4-AC-16.1-02]" time="0.458" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-5-AC-16.1-01]" time="0.454" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-5-AC-16.1-02]" time="0.457" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-0-AC-16.1-01]" time="0.476" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-0-AC-16.1-02]" time="0.609" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-1-AC-16.1-01]" time="0.454" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-1-AC-16.1-02]" time="0.453" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-2-AC-16.1-01]" time="0.475" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-2-AC-16.1-02]" time="0.480" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-3-AC-16.1-01]" time="0.443" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-3-AC-16.1-02]" time="0.506" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-4-AC-16.1-01]" time="0.472" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-4-AC-16.1-02]" time="0.437" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-5-AC-16.1-01]" time="0.456" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-5-AC-16.1-02]" time="0.530" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-0-AC-16.1-01]" time="0.502" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-0-AC-16.1-02]" time="0.460" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-1-AC-16.1-01]" time="0.500" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-1-AC-16.1-02]" time="0.759" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-2-AC-16.1-01]" time="0.569" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-2-AC-16.1-02]" time="0.467" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-3-AC-16.1-01]" time="0.448" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-3-AC-16.1-02]" time="0.472" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-4-AC-16.1-01]" time="0.473" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-4-AC-16.1-02]" time="0.488" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-5-AC-16.1-01]" time="0.445" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-5-AC-16.1-02]" time="0.435" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-0-AC-16.1-01]" time="0.558" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-0-AC-16.1-02]" time="0.657" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-1-AC-16.1-01]" time="0.491" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-1-AC-16.1-02]" time="0.451" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-2-AC-16.1-01]" time="0.451" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-2-AC-16.1-02]" time="0.421" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-3-AC-16.1-01]" time="0.759" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-3-AC-16.1-02]" time="0.832" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-4-AC-16.1-01]" time="0.765" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-4-AC-16.1-02]" time="1.010" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-5-AC-16.1-01]" time="1.169" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-5-AC-16.1-02]" time="0.710" /></testsuite></testsuites>

@@ -1,0 +1,10 @@
+{
+  "reason": "Parent demonstrated inherited concrete Collection attribute ambiguity R10P1. Sent SIGINT only to combined pytest process 49653; retained actual uv wrapper exit 1 and partial JUnit, not a completed run.",
+  "pytestProcess": 49653,
+  "signal": "SIGINT",
+  "sourceUnchangedDuringInterruptedRun": true,
+  "passedCases": 578,
+  "fullSuiteCompleted": false,
+  "sourceSnapshot": "final-source.json",
+  "commandRecord": "test-commands.json"
+}

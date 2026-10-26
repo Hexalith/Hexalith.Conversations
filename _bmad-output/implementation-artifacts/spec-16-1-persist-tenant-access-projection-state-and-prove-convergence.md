@@ -18,7 +18,7 @@ context:
 
 **Approach:** Consume an additive Tenants durable projection capability backed by EventStore mutation/recovery infrastructure. Prove restart recovery without redelivery and consistent authorization across replicas.
 
-**Decision:** Prepare prerequisites first; inherit Hexalith.Platform infrastructure and operational policy. On 2026-10-23 the user selected Platform enrollment and successor tooling preparation for review; runtime remains held. On 2026-10-25 the user approved additive prerequisite refresh with accepted CLI 4.35.2; runtime entry remains held.
+**Decision:** Prepare prerequisites first; inherit Hexalith.Platform infrastructure and operational policy. On 2026-10-23 the user selected Platform enrollment and successor tooling preparation for review; runtime remains held. On 2026-10-25 the user approved additive prerequisite refresh with accepted CLI 4.35.2; runtime entry remains held. On 2026-10-25 the user authorized corrected CLI qualification and successor-tooling implementation under the separate prerequisite scope; runtime entry remains held.
 
 ## Boundaries & Constraints
 
@@ -43,32 +43,29 @@ context:
 
 ## Code Map
 
-- `module/README.md` and planning `epic-16-adoption-v2/`: current additive preparation with accepted/root CLI 4.35.2. Source schema accepts APP_API_TOKEN; published CLI still rejects both fields. The v1 packages, checker pins and observations remain historical and unchanged.
-- EventStore Client: reuse `Projections/IReadModelStore.cs`, `ReadModelWritePolicy.cs`, `Streams/IAuthoritativeEventStreamReader.cs`; existing epoch fencing lacks AD-6 pending-horizon recovery.
-- Tenants Client: `Projections/ITenantProjectionStore.cs` has unconditional save; `Handlers/TenantProjectionEventHandler.cs` uses process-local locking.
-- Conversations `Server/TenantAccess/`: access reads state/health separately; default signal returns Healthy without proof. Registration uses the in-memory Tenants default. Keep Program.cs disclosure until proofs pass.
+The [entry investigation](story-16-1-entry-investigation-2026-10-25.md) records seams, tests and commands. Tenants lacks durable snapshots; Conversations separates state/health. Published CLI 4.38.0 fixes token validation; Platform accepts 4.35.2.
 
 ## Tasks & Acceptance
 
-**Entry work; additive refresh approved, runtime/tooling qualification still pending:**
+**Prerequisites; implementation authorized in [the prerequisite spec](spec-epic-16-prerequisite-implementation.md); runtime remains held:**
 
-- [x] `module/` — retain prepared enrollment; qualification remains pending.
-- [x] `.config/dotnet-tools.json`, `module/validation/epic-16-adoption-v2/`, planning `epic-16-adoption-v2/` — aligned accepted 4.35.2 and retained exact additive observations/bindings. Structural preparation passes; native validation still fails and runtime remains held. V1 is preserved.
-- [ ] `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/`, `_bmad/scripts/verify_story_16_{1,2,3}.py` — implement approved successor consumption and fifteen measured scenarios; preserve eighteen AC identities and completion guards.
-- [ ] Planning `production-operational-envelope-v1.md`, `module/sm-2-checklist.md` — obtain owner-qualified parity/recovery/operator evidence and a separate scoped entry decision before runtime.
+- [x] `module/`, planning `epic-16-adoption-v2/` — retain preparation.
+- [ ] Platform/root `.config/dotnet-tools.json` — qualify a corrected CLI and address review findings before alignment; retain observations.
+- [ ] `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/`, `_bmad/scripts/verify_story_16_{1,2,3}.py` — implement successor consumption and fifteen measured scenarios. Preserve eighteen ACs, completion guards and missing-measurement denial; use additive bindings.
+- [ ] Planning `production-operational-envelope-v1.md`, `module/sm-2-checklist.md` — resolve adoption findings and obtain owner-qualified parity, recovery/operator, human SM-2 evidence and separate scoped entry.
 
 **After qualified entry; upstream paths belong to their root-declared repositories:**
 
-- [ ] EventStore Client `Subscriptions/` and `Projections/` — validate raw binding before deduplication; add atomic CAS mutation, pending evidence, fenced replay and durable acknowledgement.
-- [ ] Tenants Client `Projections/`, `Handlers/TenantProjectionEventHandler.cs`, `Registration/TenantServiceCollectionExtensions.cs` — add durable coherent snapshots and pure transitions; preserve signatures.
-- [ ] Conversations `Server/TenantAccess/ConversationTenantProjectionSnapshotAdapter.cs`, access/signal/registration — evaluate one persisted snapshot; deny unproven health and bind injected configuration.
-- [ ] Owner Client tests and Conversations `Server.Tests/TenantAccess/`, `IntegrationTests/TenantAccess/` — cover the frozen matrix, reverse saves, three interleaved future deliveries, horizon extension, lease expiry/restart, provider exhaustion and production composition; assert persisted end-state/acknowledgements.
+- [ ] EventStore Client `Subscriptions/`, `Projections/` — validate raw binding before deduplication; add atomic mutation, pending evidence, fenced recovery and durable acknowledgement.
+- [ ] Tenants Client `Projections/`, `Handlers/TenantProjectionEventHandler.cs`, `Registration/TenantServiceCollectionExtensions.cs` — add durable coherent snapshots and pure transitions, preserving signatures.
+- [ ] Conversations `Server/TenantAccess/ConversationTenantProjectionSnapshotAdapter.cs`, access/signal/registration — evaluate one persisted snapshot, deny unproven health and bind injected options. Retain Program.cs disclosure until proofs pass.
+- [ ] Owner Client tests and Conversations `Server.Tests/TenantAccess/`, `IntegrationTests/TenantAccess/` — cover the frozen matrix, reverse saves, three interleaved future deliveries, horizon extension, lease expiry/restart and provider exhaustion; assert persisted end-state/acknowledgements.
 
 **Acceptance Criteria:**
 
-- Given acknowledged events, when restarting without redelivery or reading from another replica, then decisions/checkpoints agree.
+- Given acknowledged events, when restarting without redelivery or reading another replica, then decisions/checkpoints agree.
 - Given concurrent mutation/recovery, when authorizing, then one coherent snapshot controls access and unsafe states deny.
-- Given qualified entry and committed owner revisions, when six adopted scenarios run, then the generated record reports `6/6/0/0/0/0`, compatibility, safe diagnostics and raw gitlink/rollback scope.
+- Given qualified entry and committed owner revisions, when six adopted scenarios run, then the generated record reports `6/6/0/0/0/0`, compatibility, safe diagnostics and exact gitlink/rollback scope.
 
 ## Implementation Notes
 
@@ -78,29 +75,12 @@ context:
 
 ## Spec Change Log
 
+2026-10-25: refreshed investigation; frozen intent unchanged. History remains in `spec-epic-16-adoption-v2-preparation.md`.
+
 ## Review Triage Log
 
 ## Verification
 
-Historical 2026-10-23 handoff: prerequisite/adoption checks passed; 168 focused tests passed, 131 portably. Correct 4.35.1 token binding failed HXP002; native adoption retained 15 failing rows. These observations do not qualify the current tree.
+[Exact current commands/results](story-16-1-entry-investigation-2026-10-25.md#verification): v2 verifier FAIL on three upstream source changes; accepted CLI adoption exit 1, six PASS/eighteen FAIL; 162 verifier tests pass. Entry remains BLOCKED. No runtime was started.
 
-2026-10-25 investigation at `8925c9fef46026d53d15478e2a744b3604c38a98`:
-
-- `python3 _bmad/scripts/verify_epic_16_prerequisites.py --repository .` — exit 1, FAIL/SOURCE_BYTES_DRIFT; 75 assertions.
-- `python3 _bmad/scripts/verify_epic_16_adoption.py --repository .` — exit 1, FAIL/SOURCE_BYTES_DRIFT and SOURCE_BINDING_INVALID; 45 assertions. Ten pinned inputs differ. Entry BLOCKED; hold ACTIVE; four flags false.
-- `uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_verify_epic_16_prerequisites.py _bmad/scripts/tests/test_verify_epic_16_adoption.py` — exit 1; 134 passed, 34 failed. Adoption fixtures fail source binding before intended assertions.
-- Runtime verifiers remain absent; envelope/SM-2 unaccepted. After entry, run individual Debug builds, focused xUnit assemblies, affected suites and scoped verification.
-
-2026-10-25: user approved additive 4.35.2 prerequisite refresh. Implementation is tracked in `spec-epic-16-adoption-v2-preparation.md`; this runtime draft and sprint backlog remain held.
-
-2026-10-25 additive refresh: [v2 owner package](../planning-artifacts/epic-16-adoption-v2/README.md)
-binds current inspected sources, the immutable v1 predecessor and
-[fresh native observations](../../module/validation/epic-16-adoption-v2/results.json).
-Accepted `4.35.2+4248b8c70cb35ba79fdd7e4dd63049d4c73211a0` restores/version-checks
-successfully. Ordinary and both adoption modes still exit 1, including two
-HXP002 token fields; current-source schema acceptance does not establish binary
-compatibility. Adoption retains six PASS/eighteen FAIL rows. V2 structural PASS
-grants no runtime entry; all owner/qualification blockers remain. The original
-v1 CLI truthfully fails current-source drift, and its unchanged historical
-assertions reproduce with exact portable root/tool/reference fixtures. Sprint
-status is untouched; runtime tasks remain unchecked.
+After entry: individual Debug builds, focused xUnit, affected suites and scoped verification.

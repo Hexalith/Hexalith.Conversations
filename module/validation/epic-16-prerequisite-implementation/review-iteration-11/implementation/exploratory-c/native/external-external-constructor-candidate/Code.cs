@@ -1,0 +1,1 @@
+extern alias custom; [assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")] namespace Synthetic; [custom::Custom.Stamp(1u)] public class Api {}

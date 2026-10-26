@@ -1,0 +1,69 @@
+[
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py",
+      "--basetemp=/tmp/epic16-r11-final-22f35zao/combined",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/result.xml"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "EPIC16_COMMITLINT_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/commitlint.json",
+      "EPIC16_R11_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/native",
+      "EPIC16_R10_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/native-r10"
+    },
+    "exitCode": 0,
+    "durationSeconds": 1570.0890653133392,
+    "sourceUnchanged": true,
+    "files": {
+      "commitlint.json": "38b754eff56ae11bde4bb0b7bdf322ab4f2d460fd87e4510f7cf9730052979cd",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "72c818ddf51e3448cc9a76865f2e83a1b7c73deab93a75e22cbf523b93077fc3",
+      "source-hashes.json": "2259371a3407529a237b4f48e667059783640e8f34fef037187ae50e45facd5a",
+      "result.xml": "23aabef40cd79f797de929ed8f8af6b587c0cbb8fe99fac0cdf9263ce6752a5e"
+    }
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "_bmad/scripts/tests/test_generate_story_record.py",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "story_111 or story_112 or standalone_generator",
+      "--basetemp=/tmp/epic16-r11-final-22f35zao/legacy",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/legacy/result.xml"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "EPIC16_COMMITLINT_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/legacy/commitlint.json",
+      "EPIC16_R11_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/legacy/native",
+      "EPIC16_R10_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/legacy/native-r10"
+    },
+    "exitCode": 0,
+    "durationSeconds": 80.26051139831543,
+    "sourceUnchanged": true,
+    "files": {
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "b979e51cecb06ee600de82384d714a82426998042e3397e53ac460fab86e9e84",
+      "source-hashes.json": "2259371a3407529a237b4f48e667059783640e8f34fef037187ae50e45facd5a",
+      "result.xml": "b8478b6ac55e0be7b1e6a82265fa48f4acfefed20b3df745b75b7d017d7b61d2"
+    }
+  }
+]

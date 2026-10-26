@@ -1,0 +1,1 @@
+[assembly:System.CLSCompliant(false)] namespace Probe; public class Api {}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="7" time="4.350" timestamp="2026-10-25T19:13:55.664237+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_state_protocol_is_closed_v2_and_hashes_the_measured_anchor[change0]" time="2.111" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_state_protocol_is_closed_v2_and_hashes_the_measured_anchor[change1]" time="0.330" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_state_protocol_is_closed_v2_and_hashes_the_measured_anchor[change2]" time="0.436"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-244/test_replay_state_protocol_is_2/fixture')
+change = {'anchorUtcTicks': 1000}
+
+    @pytest.mark.parametrize('change', [dict(version=1), dict(version=True), dict(anchorUtcTicks=1000),
+        dict(provider={'etag':'x'}), dict(projectionGeneratedAt=3000), dict(wrapper={}), dict(extra=0)])
+    def test_replay_state_protocol_is_closed_v2_and_hashes_the_measured_anchor(repository, change):
+        import epic16_native
+        data = deepcopy(OBSERVATIONS['AC-16.2-02'])
+        value = json.loads(data['rebuilds'][0]['canonicalJson']); value.update(change)
+        raw = epic16_native.canonicalize(json.dumps(value))
+        for row in data['rebuilds']: row.update(canonicalJson=raw, roundTripJson=raw, stateHash=digest(raw.encode()))
+        native(repository, 'AC-16.2-02', data)
+&gt;       rejected(evaluate(repository, 'AC-16.2-02'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:873: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_state_protocol_is_closed_v2_and_hashes_the_measured_anchor[change3]" time="0.320" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_state_protocol_is_closed_v2_and_hashes_the_measured_anchor[change4]" time="0.314" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_state_protocol_is_closed_v2_and_hashes_the_measured_anchor[change5]" time="0.309" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_replay_state_protocol_is_closed_v2_and_hashes_the_measured_anchor[change6]" time="0.307" /></testsuite></testsuites>

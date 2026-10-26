@@ -1,0 +1,89 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_____ test_round6_story163_entry_requires_separate_apphost_ownership[None] _____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-435/test_round6_story163_entry_req0/fixture')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7eb8cdd72d50>
+ownership = None
+
+    @pytest.mark.parametrize('ownership',[None,'BLOCKED','PASS'])
+    def test_round6_story163_entry_requires_separate_apphost_ownership(repository,monkeypatch,ownership):
+        story='16.3'
+        def entry(doc):
+            doc['storyId']=story
+            ids=json.loads((repository/tooling.contract_path(story)).read_bytes())['preservedContract']['predecessors']
+            doc['predecessors']=[dict(identity=i,files=deepcopy(doc['predecessors'][0]['files'])) for i in ids]
+            if ownership is not None:doc['qualifications']['appHostOwnership']=ownership
+        candidate,binding=trusted_entry_fixture(repository,monkeypatch,entry)
+        with tooling.ContainedReader(repository) as reader:
+            if ownership=='PASS':assert tooling.entry_evidence(reader,binding,story,candidate,'runtime')['runtimeQualified'] is True
+            else:
+>               with pytest.raises(tooling.Stop) as error:tooling.entry_evidence(reader,binding,story,candidate,'runtime')
+E               Failed: DID NOT RAISE Stop
+
+_bmad/scripts/tests/test_epic16_tooling.py:2283: Failed
+___ test_round6_story163_entry_requires_separate_apphost_ownership[BLOCKED] ____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-435/test_round6_story163_entry_req1/fixture')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7eb8cdd77ed0>
+ownership = 'BLOCKED'
+
+    @pytest.mark.parametrize('ownership',[None,'BLOCKED','PASS'])
+    def test_round6_story163_entry_requires_separate_apphost_ownership(repository,monkeypatch,ownership):
+        story='16.3'
+        def entry(doc):
+            doc['storyId']=story
+            ids=json.loads((repository/tooling.contract_path(story)).read_bytes())['preservedContract']['predecessors']
+            doc['predecessors']=[dict(identity=i,files=deepcopy(doc['predecessors'][0]['files'])) for i in ids]
+            if ownership is not None:doc['qualifications']['appHostOwnership']=ownership
+        candidate,binding=trusted_entry_fixture(repository,monkeypatch,entry)
+        with tooling.ContainedReader(repository) as reader:
+            if ownership=='PASS':assert tooling.entry_evidence(reader,binding,story,candidate,'runtime')['runtimeQualified'] is True
+            else:
+                with pytest.raises(tooling.Stop) as error:tooling.entry_evidence(reader,binding,story,candidate,'runtime')
+>               assert error.value.code==('ENTRY_INVENTORY_DRIFT' if ownership is None else 'ENTRY_QUALIFICATION_PENDING')
+E               AssertionError: assert 'ENTRY_INVENTORY_DRIFT' == 'ENTRY_QUALIFICATION_PENDING'
+E                 
+E                 - ENTRY_QUALIFICATION_PENDING
+E                 + ENTRY_INVENTORY_DRIFT
+
+_bmad/scripts/tests/test_epic16_tooling.py:2284: AssertionError
+_____ test_round6_story163_entry_requires_separate_apphost_ownership[PASS] _____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-435/test_round6_story163_entry_req2/fixture')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7eb8ce14b3d0>
+ownership = 'PASS'
+
+    @pytest.mark.parametrize('ownership',[None,'BLOCKED','PASS'])
+    def test_round6_story163_entry_requires_separate_apphost_ownership(repository,monkeypatch,ownership):
+        story='16.3'
+        def entry(doc):
+            doc['storyId']=story
+            ids=json.loads((repository/tooling.contract_path(story)).read_bytes())['preservedContract']['predecessors']
+            doc['predecessors']=[dict(identity=i,files=deepcopy(doc['predecessors'][0]['files'])) for i in ids]
+            if ownership is not None:doc['qualifications']['appHostOwnership']=ownership
+        candidate,binding=trusted_entry_fixture(repository,monkeypatch,entry)
+        with tooling.ContainedReader(repository) as reader:
+>           if ownership=='PASS':assert tooling.entry_evidence(reader,binding,story,candidate,'runtime')['runtimeQualified'] is True
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:2281: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_tooling.py:270: in entry_evidence
+    need(isinstance(document['qualifications'], dict) and set(document['qualifications']) == set(requirements), 'ENTRY_INVENTORY_DRIFT', story)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, code = 'ENTRY_INVENTORY_DRIFT', subject = '16.3'
+blocked = False
+
+    def need(condition, code, subject, *, blocked=False):
+        if not condition:
+>           raise Stop(code, subject, blocked=blocked)
+E           epic16_tooling.Stop: ENTRY_INVENTORY_DRIFT
+
+_bmad/scripts/epic16_tooling.py:103: Stop
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_story163_entry_requires_separate_apphost_ownership[None]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_story163_entry_requires_separate_apphost_ownership[BLOCKED]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round6_story163_entry_requires_separate_apphost_ownership[PASS]
+3 failed, 1048 deselected in 1.38s

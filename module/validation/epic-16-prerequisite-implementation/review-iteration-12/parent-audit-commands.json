@@ -1,0 +1,38 @@
+[
+  {
+    "argv": [
+      "python3",
+      "/tmp/epic16-review12-parent-source.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "result": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-source-audit.json",
+      "sha256": "aeff59156ddc8fe870c86f07311bf3dbce381ac61daea15964a058c43938debf"
+    },
+    "retainedScript": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-scripts/epic16-review12-parent-source.py",
+      "sha256": "e9e17cb4c16fba64720e29834fb270a223911beb09696317074521294e064e57"
+    }
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "/tmp/epic16-review12-parent-final-controls.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "result": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-final-controls.json",
+      "sha256": "5f3505d2dc77f8fefb063c85ac65e9e026258a8e0d71fe75ac96e1ff2fb64ced"
+    },
+    "retainedScript": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-scripts/epic16-review12-parent-final-controls.py",
+      "sha256": "8cf01de22b05bd17afeb4fcb1ed3b8ba72d82a9f5f40e4e70ff9120f4251a05b"
+    }
+  }
+]

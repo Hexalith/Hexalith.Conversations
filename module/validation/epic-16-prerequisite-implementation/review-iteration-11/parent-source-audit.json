@@ -1,0 +1,85 @@
+{
+  "scope": "Parent structural/source acceptance; final execution evidence still pending.",
+  "frozenFilesVerified": 86,
+  "frozenSourceSha256": "514f87ae667d6c9bf1a47c4a867fe34196de84078a504d53d953e39823e65c61",
+  "archivedSourceCopiesVerified": true,
+  "archiveMapping": {
+    ".gitignore": ".gitignore.bytes"
+  },
+  "boundSourcesVerified": 71,
+  "ownedFiles": 42,
+  "changedOwnedFiles": [
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+    "_bmad/schemas/epic-16-tooling-v1.schema.json",
+    "_bmad/scripts/epic16_lifecycle.py",
+    "_bmad/scripts/epic16_measurements.py",
+    "_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+    "_bmad/scripts/epic16_native_helper/Program.cs",
+    "_bmad/scripts/epic16_native_helper/README.md",
+    "_bmad/scripts/epic16_products.py",
+    "_bmad/scripts/epic16_schedules.py",
+    "_bmad/scripts/epic16_trust.py",
+    "_bmad/scripts/tests/fixtures/epic16-observations-v1.json",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "_bmad/scripts/verify_story_16_1.py",
+    "_bmad/scripts/verify_story_16_2.py",
+    "_bmad/scripts/verify_story_16_3.py"
+  ],
+  "codeAndDocumentationDiff": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-final-source.diff",
+    "lines": 705,
+    "sha256": "e14e09a3251dabc167d1c226c8d8f9b1befc312ee3c5a9f61a214a7c2be50a08"
+  },
+  "unchangedPriorFunctions": 287,
+  "changedPriorFunctions": [
+    "test_round7_native_nullable_creation_state_passes_schema_and_consumer",
+    "round9_compile_product"
+  ],
+  "priorFunctionChanges": "Only refresh new safe recovery digests for the existing valid nullable fixture; retain exact product fixture source/build bytes. Existing assertions are preserved.",
+  "preservedContractBytes": [
+    "16.1",
+    "16.2",
+    "16.3"
+  ],
+  "protectedFilesVerified": [
+    "global.json",
+    "_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md",
+    "docs/implementation/ext-conv-ai-1-runtime-qualification.md",
+    "tests/tooling/test_ext_conv_ai_1_installed_delivery_packet.py",
+    "_bmad-output/implementation-artifacts/deferred-work.md"
+  ],
+  "R10P1TestConstructionUnchanged": true,
+  "evidencePackagingUnchanged": true,
+  "priorArtifactHashesVerified": 1623,
+  "nativeMapSchemasVerified": [
+    "acknowledgements/items/properties/durableCommit/anyOf/0/properties/persisted/properties/projection/configuration",
+    "acknowledgements/items/properties/durableCommit/anyOf/0/properties/persisted/properties/projection/members",
+    "acknowledgements/items/properties/acknowledgement/anyOf/0/properties/observedRecord/properties/projection/configuration",
+    "acknowledgements/items/properties/acknowledgement/anyOf/0/properties/observedRecord/properties/projection/members",
+    "acknowledgements/items/properties/durableEvidence/anyOf/0/properties/sourceState/configuration",
+    "acknowledgements/items/properties/durableEvidence/anyOf/0/properties/sourceState/members",
+    "acknowledgements/items/properties/durableEvidence/anyOf/0/properties/before/properties/projection/configuration",
+    "acknowledgements/items/properties/durableEvidence/anyOf/0/properties/before/properties/projection/members",
+    "acknowledgements/items/properties/durableEvidence/anyOf/0/properties/after/properties/projection/configuration",
+    "acknowledgements/items/properties/durableEvidence/anyOf/0/properties/after/properties/projection/members"
+  ],
+  "independentControls": {
+    "parent-native-recheck.json": {
+      "sha256": "754ae65be7fa1da7e78d3d7b367e1df74a605ac2b97868b9d6b32c0a19ff1000",
+      "controls": 6,
+      "allSourceHashesMatchFrozen": true
+    },
+    "parent-protocol-recheck.json": {
+      "sha256": "73f507b613f4f47da182d21e03c7b8c3013a7597da094eaf9a5ddc274286e938",
+      "controls": 14,
+      "allSourceHashesMatchFrozen": true
+    },
+    "parent-P1-P2-recheck.json": {
+      "sha256": "3ab21a72796d8f7fbb655db94967ca244c4ea64651aaab84622d55d61f145e77",
+      "controls": 3,
+      "allSourceHashesMatchFrozen": true
+    }
+  },
+  "initialAuditDisposition": "Initial inline audit assumed the archived .gitignore path; final audit honors its declared byte-preserving archive mapping."
+}

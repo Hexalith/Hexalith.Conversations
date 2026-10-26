@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="6" time="5.004" timestamp="2026-10-25T23:08:02.227832+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer[False-kinds0-Closed]" time="2.358"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-450/test_round7_terminal_native_wi0/fixture')
+kinds = ['ConversationClosed'], expected = 'Closed', stale = False
+
+    @pytest.mark.parametrize('kinds,expected',[
+     (['ConversationClosed'],'Closed'),(['ConversationArchived'],'Archived'),
+     (['ConversationArchived','ConversationClosed'],'Archived')])
+    @pytest.mark.parametrize('stale',[False,True])
+    def test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer(repository,kinds,expected,stale):
+        data=round7_terminal(kinds)
+        # Independent expected lifecycle, not the production oracle's returned value.
+        round7_set_canonical_lifecycle(data,'Open' if stale else expected)
+&gt;       round7_submit(repository,'AC-16.2-02',data,passes=not stale)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2569: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-450/test_round7_terminal_native_wi0/fixture')
+scenario = 'AC-16.2-02'
+data = {'rebuilds': [{'clockTicks': 639029198500001000, 'canonicalJson': '{"anchorUtcTicks":639029198510000000,"items":[{"key...0000000, 639029198510000000], 'unorderedCollectionPersisted': False, 'generationBeforeAnchorState': 'Unavailable', ...}
+passes = True, schema = False
+
+    def round7_submit(repository, scenario, data, *, passes=False, schema=False):
+        native(repository, scenario, data)
+        result = evaluate(repository, scenario)
+        if passes:
+&gt;           assert result['result'] == 'PASS', result
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E           assert 'FAIL' == 'PASS'
+E             
+E             - PASS
+E             + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:2435: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer[False-kinds1-Archived]" time="0.520" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer[False-kinds2-Archived]" time="0.461" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer[True-kinds0-Closed]" time="0.433"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">repository = PosixPath('/tmp/pytest-of-administrator/pytest-450/test_round7_terminal_native_wi3/fixture')
+kinds = ['ConversationClosed'], expected = 'Closed', stale = True
+
+    @pytest.mark.parametrize('kinds,expected',[
+     (['ConversationClosed'],'Closed'),(['ConversationArchived'],'Archived'),
+     (['ConversationArchived','ConversationClosed'],'Archived')])
+    @pytest.mark.parametrize('stale',[False,True])
+    def test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer(repository,kinds,expected,stale):
+        data=round7_terminal(kinds)
+        # Independent expected lifecycle, not the production oracle's returned value.
+        round7_set_canonical_lifecycle(data,'Open' if stale else expected)
+&gt;       round7_submit(repository,'AC-16.2-02',data,passes=not stale)
+
+_bmad/scripts/tests/test_epic16_tooling.py:2569: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/tests/test_epic16_tooling.py:2437: in round7_submit
+    rejected(result, 'MEASUREMENT_SCHEMA_INVALID' if schema else 'MEASUREMENT_INVALID')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:99: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer[True-kinds1-Archived]" time="0.360" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_terminal_native_wire_histories_are_enforced_by_replay_consumer[True-kinds2-Archived]" time="0.375" /></testsuite></testsuites>

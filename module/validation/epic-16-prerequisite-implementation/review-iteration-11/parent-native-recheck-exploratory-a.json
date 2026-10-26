@@ -1,0 +1,49 @@
+{
+  "scope": "Retained synthetic pre-fix counterexamples, independently re-inspected without executing evidence assemblies; no runtime authority.",
+  "results": [
+    {
+      "id": "R11B1-interface-attributes",
+      "rejected": true,
+      "code": "UPSTREAM_API_DRIFT",
+      "apiDifferent": true
+    },
+    {
+      "id": "R11B2-attribute-constructor",
+      "rejected": true,
+      "code": "UPSTREAM_API_DRIFT",
+      "apiDifferent": true
+    },
+    {
+      "id": "R11B3-preserve-sig",
+      "rejected": true,
+      "code": "UPSTREAM_API_DRIFT",
+      "apiDifferent": true
+    },
+    {
+      "id": "R11B4-assembly-attributes",
+      "rejected": true,
+      "code": "UPSTREAM_API_DRIFT",
+      "apiDifferent": true
+    },
+    {
+      "id": "R11B5-owning-flags",
+      "rejected": true,
+      "code": "UPSTREAM_API_DRIFT",
+      "apiDifferent": false
+    },
+    {
+      "id": "R11E1",
+      "rejected": true,
+      "diagnostic": "invalid native evidence"
+    }
+  ],
+  "sources": {
+    "_bmad/scripts/epic16_products.py": "e62f151bedd8ca160d4f80fa7e43d68513ed0fdb0a0f1ce1eeae66a9845429c8",
+    "_bmad/scripts/epic16_native.py": "07602195d3845658cfa5f1af2636ead28c710031febcb0226742a638d7017551",
+    "_bmad/scripts/epic16_native_helper/ProductMetadata.cs": "63c54f42bc4f07c8aa7ce6d77f85553a74ea6ff9076dc20aba7cdad528efae2f",
+    "_bmad/scripts/epic16_native_helper/Program.cs": "69581f11797f1c64e7d66d01c9cf6b6b3d2b60df78d8a04e85f66a7d1dc1766f",
+    "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9",
+    "_bmad/scripts/epic16_native_helper/SignatureNames.cs": "c7598398a621cab9d559e4b384c548867ccc5529265f15665935275cb9f6c856",
+    "_bmad/scripts/epic16_native_helper/TestConstruction.cs": "e1ffbcf2d009c2afd5ee1847eac79c1e171d1cf3219b98bb8c5cf4e9fa7fe076"
+  }
+}

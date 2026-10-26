@@ -1,0 +1,28 @@
+{
+  "build": [
+    "dotnet",
+    "build",
+    "Evidence.csproj",
+    "-c",
+    "Debug",
+    "--nologo",
+    "-m:1",
+    "-p:NuGetAudit=false"
+  ],
+  "run": [
+    "dotnet",
+    "/tmp/epic16-r10-final-7wffnbun/combined/test_round10_inherited_collect11/runner/bin/Debug/net10.0/Evidence.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-method",
+    "Synthetic.TestClass.Scenario01",
+    "-trx",
+    "/tmp/epic16-r10-final-7wffnbun/combined/test_round10_inherited_collect11/runner/result.trx"
+  ],
+  "buildExit": 0,
+  "runExit": -9,
+  "timedOut": true,
+  "timeoutSeconds": 8,
+  "expectedRunnable": false
+}

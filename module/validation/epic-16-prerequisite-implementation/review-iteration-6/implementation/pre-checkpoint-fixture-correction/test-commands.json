@@ -1,0 +1,23 @@
+[
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py",
+      "--maxfail=3",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-6/implementation/combined.xml"
+    ],
+    "exitCode": 1,
+    "elapsedSeconds": 397.78,
+    "stdoutSha256": "1a167b3b3284908c4f5c15d81389c4412557b90e26fe6d1f8dff657069eb9f99",
+    "stderrSha256": "c899780706afd6cb645837239c0c957689419909f0cfde4d2070575f7dae59fe",
+    "junitSha256": "4c85fefd1efbb5d76a48c5cbd9869534739246eeea521a94608882fd43943a6d"
+  }
+]

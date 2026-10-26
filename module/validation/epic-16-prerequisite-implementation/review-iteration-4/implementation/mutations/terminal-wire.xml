@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.255" timestamp="2026-10-25T20:45:28.642934+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round4_genuine_terminal_and_redaction_serialization_and_key_catalog_goldens" time="0.000"><failure message="ValueError: closed controlled domain value">def test_round4_genuine_terminal_and_redaction_serialization_and_key_catalog_goldens():
+        domain=tooling.measurements.domain;relations=tooling.measurements.relationships
+        goldens=json.loads((ROOT/'_bmad/scripts/tests/fixtures/epic16-contract-wire-goldens.json').read_bytes())
+        assert len(goldens['additionalEvents'])==5
+        for row in goldens['additionalEvents']:
+            envelope=dict(tenant='tenant-a',conversation='conversation-a',sequence=1,eventType=row['eventType'],messageId='transport',timestampUtcTicks=1,serializationFormat='json',payload=row['payload'])
+&gt;           binding,_,payload=domain.conversation_envelope(envelope)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:1545: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_domain.py:97: in conversation_envelope
+    shape(payload, EVENT_FIELDS[kind] + (('metadata', 'createdAt') if kind == 'ConversationCreated' else ('metadata',)) if has_metadata else EVENT_FIELDS[kind])
+_bmad/scripts/epic16_domain.py:24: in shape
+    require(isinstance(value, dict) and set(value) == set(keys), 'closed controlled domain value')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'closed controlled domain value'
+
+    def require(condition, detail):
+&gt;       if not condition: raise ValueError(detail)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: closed controlled domain value
+
+_bmad/scripts/epic16_domain.py:20: ValueError</failure></testcase></testsuite></testsuites>

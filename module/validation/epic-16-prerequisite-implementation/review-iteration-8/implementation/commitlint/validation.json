@@ -1,0 +1,396 @@
+{
+  "scope": "Existing disposable fixture commit messages only. No real repository staging or commits. Earlier successful validations retained in preceding iterations.",
+  "pinnedCliVersion": "21.2.3",
+  "messages": [
+    {
+      "message": "test: advance direct dependency fixture",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/00.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: advance disposable candidate",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/01.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: alter disposable canonicalizer",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/02.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: alter disposable contract surface",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/03.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: alter disposable enrollment identity",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/04.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: atomically publish disposable runtime evidence",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/05.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: bind changed disposable dependency",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/06.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: bind different disposable source",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/07.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: bind differing runtime consumer source",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/08.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: bind disposable fixture sources",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/09.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: bind disposable runtime insertion source",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/10.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: bind portable native capture fixture",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/11.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: bind unrelated fixture entry",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/12.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: change disposable source",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/13.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: complete disposable fixture lifecycle",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/14.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: create direct dependency fixture",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/15.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: initialize disposable fixture",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/16.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: insert disposable final record",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/17.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: pin prior fixture authorization",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/18.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: publish disposable measured fixtures",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/19.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: publish portable native capture fixture",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/20.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: qualify disposable runtime consumer",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/21.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: remove disposable native source",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/22.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: restore candidate with drifted baseline",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/23.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: restore disposable source",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/24.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: retain canonicalizer fixture",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/25.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: retain disposable native checkout bytes",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/26.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: retain portable native fixture insertion",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/27.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: sibling authorization",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/28.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "message": "test: unrelated runtime authorization",
+      "argv": [
+        "node_modules/.bin/commitlint",
+        "--config",
+        "commitlint.config.mjs",
+        "--edit",
+        "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/commitlint/29.message.txt"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

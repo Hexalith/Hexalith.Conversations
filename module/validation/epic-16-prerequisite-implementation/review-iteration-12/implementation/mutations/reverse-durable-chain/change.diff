@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_schedules.py
++++ _bmad/scripts/epic16_schedules.py
+@@ -362,7 +362,7 @@
+         last = executed_operation(save, local_scope, last)
+         require(save['operationId'] not in identities and request not in identities, 'distinct reverse-save operations and requests'); identities.update((save['operationId'],request))
+         domain.sequence(save['casOrder']); require(save['order'] < save['casOrder'] < last and save['casExecuted'] is True, 'executed compare-exchange inside save operation')
+-        require(same(save['storedBefore'], persisted), 'reverse save observes preceding durable commit')
++        None
+         require(save['expected'] == dict(etag=baseline['etag'], version=baseline['version']), 'both reverse saves retain their original CAS expectation')
+         proposed = save['proposed']; newer = save['id'] == 'newer'; sequence = horizon if newer else checkpoint+1
+         text(proposed['etag']); require(proposed['etag'] != baseline['etag'], 'proposed durable write advances opaque etag')

@@ -1,0 +1,60 @@
+.FF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_authoritative_selected_utc_ticks_are_representable[3155378976000000000] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-250/test_authoritative_selected_ut1/fixture')
+ticks = 3155378976000000000
+
+    @pytest.mark.parametrize('ticks', [0, 3155378976000000000, 10**30])
+    def test_authoritative_selected_utc_ticks_are_representable(repository, ticks):
+        data = deepcopy(OBSERVATIONS['AC-16.2-01'])
+        data['events'][0]['occurredAtTicks'] = data['events'][0]['binding']['selectedUtcTicks'] = ticks
+        native(repository, 'AC-16.2-01', data)
+>       rejected(evaluate(repository, 'AC-16.2-01'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:940: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+_ test_authoritative_selected_utc_ticks_are_representable[1000000000000000000000000000000] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-250/test_authoritative_selected_ut2/fixture')
+ticks = 1000000000000000000000000000000
+
+    @pytest.mark.parametrize('ticks', [0, 3155378976000000000, 10**30])
+    def test_authoritative_selected_utc_ticks_are_representable(repository, ticks):
+        data = deepcopy(OBSERVATIONS['AC-16.2-01'])
+        data['events'][0]['occurredAtTicks'] = data['events'][0]['binding']['selectedUtcTicks'] = ticks
+        native(repository, 'AC-16.2-01', data)
+>       rejected(evaluate(repository, 'AC-16.2-01'), 'MEASUREMENT_INVALID')
+
+_bmad/scripts/tests/test_epic16_tooling.py:940: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+code = 'MEASUREMENT_INVALID', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_authoritative_selected_utc_ticks_are_representable[3155378976000000000]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_authoritative_selected_utc_ticks_are_representable[1000000000000000000000000000000]
+2 failed, 1 passed, 383 deselected in 1.04s

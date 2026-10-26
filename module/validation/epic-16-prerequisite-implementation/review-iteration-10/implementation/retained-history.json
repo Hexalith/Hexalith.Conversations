@@ -1,0 +1,13 @@
+{
+  "priorVerification": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/verification.json",
+    "sha256": "f8fc7b3a71598e90ee82fa82c3ec87781913279b4442b108210f2ccb282f53e6"
+  },
+  "artifactCount": 879,
+  "allHashesUnchanged": true,
+  "priorSourceEpochPreserved": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/final-source.json",
+    "sha256": "ee12104feb9ac08493e51a1f8f6ea566d384a1495df2ad5118bfc78efcde6b0b"
+  },
+  "scope": "Historical evidence preserved; not asserted to describe current source"
+}

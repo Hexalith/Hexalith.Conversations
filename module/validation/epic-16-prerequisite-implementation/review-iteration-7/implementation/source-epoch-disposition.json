@@ -1,0 +1,224 @@
+{
+  "intermediateRuns": [
+    {
+      "name": "exploratory",
+      "counts": {
+        "tests": 40,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0
+      },
+      "disposition": "Terminal native goldens exceeded old fixture completion times. Five failures were schema freshness-domain rejections; corrected actual fixture completion observations without changing AD-8.",
+      "artifacts": {
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/exploratory.xml": "1c8a7b033fa454b56cc652c741ce05b83e8904f7510541a9ec8091add8d82368",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/exploratory.stdout": "1713f77e41c55c3a45d408c7abc2b0ee93f0461ba4c648714150ffa322603ee0",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/exploratory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests/test_epic16_tooling.py",
+        "-k",
+        "round7",
+        "--maxfail=5",
+        "--junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/exploratory.xml"
+      ],
+      "exitCode": 1
+    },
+    {
+      "name": "exploratory-staged",
+      "counts": {
+        "tests": 124,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0
+      },
+      "disposition": "One genuine B=C positive fixture lacked corresponding index barrier rebinding. Four later failures were EXECUTING_SOURCE_DRIFT because the worker edited lifecycle quarantine ordering while this exploratory run was active. This mixed epoch is superseded; final runs freeze all source bytes.",
+      "artifacts": {
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/exploratory-staged.xml": "5decf8bd95362b809500dd16aee2ad63c90673d476dfc73d78df137c0a595bf3",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/exploratory-staged.stdout": "b5836e4fee1f197b27054fac7a3c6f824fbd8202435c812ea184033627d9c2b6",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/exploratory-staged.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests/test_epic16_tooling.py",
+        "-k",
+        "round7 or all_fifteen or recovered_tenant_description",
+        "--maxfail=5",
+        "--junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/exploratory-staged.xml"
+      ],
+      "exitCode": 1
+    },
+    {
+      "name": "affected",
+      "counts": {
+        "tests": 246,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "disposition": "246 checks passed before the parent clarified literal AD-6 pending consumption. Exact earlier schedules/tests/observation/binding bytes are retained under pre-pending-correction.",
+      "artifacts": {
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/affected.xml": "acc3f16db4f6a612f75a2ba1ab352325c297a39d5d426a64c6c1942107b07a28",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/affected.stdout": "d8921dea1e3e1d1ba76ab43b34f615d2133d3a32eb79d58e2803efd8677c401d",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/affected.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests/test_epic16_tooling.py",
+        "-k",
+        "round7 or all_fifteen or recovered_tenant_description",
+        "--maxfail=5",
+        "--junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/affected.xml"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "pending-correction",
+      "counts": {
+        "tests": 47,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "disposition": "47 affected checks passed after replay consumed pending evidence and coherent-counterexample tests were strengthened; before explicit new capture-version integer types.",
+      "artifacts": {
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/pending-correction.xml": "18ea935bf47b1a264537472456c30efdc7a4ae3506cf987d17ecb696af96613f",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/pending-correction.stdout": "263dd238694242cfc0df95a60ce9d0043ef914197a54ca007980d6f1f6b7ecc1",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/pending-correction.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests/test_epic16_tooling.py",
+        "-k",
+        "all_fifteen or round7_erase_reference or round7_lifecycle_self_consistent or round7_recovery_requires or native_helper_propagates",
+        "--maxfail=3",
+        "--junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/pending-correction.xml"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "version-types",
+      "counts": {
+        "tests": 30,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "disposition": "30 affected tests passed after numeric const fields received integer types; before actual malformed-policy setup correction.",
+      "artifacts": {
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/version-types.xml": "3f5508dba6732586968dc61e630992ad220fffa1f324b5c447d65e4a30db04f9",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/version-types.stdout": "d30860f69e336bf08fa1fffe04bfa70a98824d6f9c64b689189c0498e7cc357f",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/version-types.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests/test_epic16_tooling.py",
+        "-k",
+        "capture_versions_require or all_fifteen or round7_native_nullable",
+        "--maxfail=3",
+        "--junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/version-types.xml"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "final-sdk",
+      "counts": {
+        "tests": 27,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "disposition": "26 passed and one test failed because it expected exact ValueError instead of its JSONDecodeError subclass. Actual helper correctly emitted invalid-input FAIL and ran no dotnet command. The assertion was corrected.",
+      "artifacts": {
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/final-sdk.xml": "11d296c679bcbfeb5f6487cc936bbffe41977a8ebf5fcc1fd8b872e9d02e5bbe",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/final-sdk.stdout": "8a6f0e6b2fda867518af20297e5d8b9e82b4b0adf68390c2dc6e9429e46fdc60",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/final-sdk.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests/test_epic16_tooling.py",
+        "-k",
+        "round7 and (helper or toolchain or latest_patch or global_policy or capture_versions)",
+        "--maxfail=3",
+        "--junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/final-sdk.xml"
+      ],
+      "exitCode": 1
+    },
+    {
+      "name": "final-sdk-corrected",
+      "counts": {
+        "tests": 27,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "disposition": "27 SDK/type checks passed on final source. Combined and legacy checks independently cover the final complete source.",
+      "artifacts": {
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/final-sdk-corrected.xml": "4d8a3967f690aee62ca01ce420795cf8c1f79aa1a80130d4d0b8c6a4858ac3e5",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/final-sdk-corrected.stdout": "88c66c8d70843a7d01b62f238f96a7793e2b9fa4365337c5b69015a0c12bbc13",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/final-sdk-corrected.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests/test_epic16_tooling.py",
+        "-k",
+        "round7 and (helper or toolchain or latest_patch or global_policy or capture_versions)",
+        "--maxfail=3",
+        "--junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-7/implementation/final-sdk-corrected.xml"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "mutationEpoch": "The 33 initial probes use frozen-mutation-source.json and their exact recorded original/mutated bytes. Later schema integer typing and SDK preflight validation are separately tested/mutated on final source. Unchanged semantic guards are not falsely reported as rerun.",
+  "finalEpoch": "final-source.json is checked before and after combined, legacy and held/workflow validation.",
+  "orchestrationDeviation": "The worker read bmad-build SKILL.md and rendered it once before reaching the no-secondary-workflow handoff instruction. No secondary workflow step, subagent or completion orchestration followed."
+}

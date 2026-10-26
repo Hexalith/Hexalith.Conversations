@@ -1,0 +1,105 @@
+{
+  "scope": "Trusted fixed helper local execution provenance, not measured product runtime qualification or owner approval.",
+  "capturedAt": "2026-10-26T01:20:19.543871+00:00",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/verification-scripts/epic16-r9-provenance.py"
+  ],
+  "commands": [
+    {
+      "argv": [
+        "dotnet",
+        "--version"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-0mlhamqa",
+      "exitCode": 0,
+      "stdoutSha256": "44ea2595bc5a7acabc030531952071226aa70862fd008ed7327d752b39c8513c",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "dotnet",
+        "build",
+        "Epic16.NativeHelper.csproj",
+        "-c",
+        "Debug",
+        "--nologo",
+        "-m:1",
+        "-p:NuGetAudit=false"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-0mlhamqa",
+      "exitCode": 0,
+      "stdoutSha256": "bccf81b63fa8da4534977334b7ed01797e9f9a9757b3f2f0478c392ab4a0556a",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "dotnet",
+        "--version"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-0mlhamqa",
+      "exitCode": 0,
+      "stdoutSha256": "44ea2595bc5a7acabc030531952071226aa70862fd008ed7327d752b39c8513c",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-native-oracle-0mlhamqa/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-0mlhamqa",
+      "exitCode": 0,
+      "stdoutSha256": "cc7a6ab061d530604e77d20cec92c85df30807e3c0dced9e34c1324295a95dfd",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "dotnet",
+        "--version"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 0,
+      "stdoutSha256": "44ea2595bc5a7acabc030531952071226aa70862fd008ed7327d752b39c8513c",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "repositorySdk": "10.0.402",
+  "helper": {
+    "policySha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652",
+    "sdk": "10.0.402",
+    "runtime": {
+      "frameworkDescription": ".NET 10.0.13",
+      "runtimeVersion": "10.0.13",
+      "targetFramework": ".NETCoreApp,Version=v10.0",
+      "coreLibraryIdentity": "System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e"
+    },
+    "runtimeConfig": {
+      "runtimeOptions": {
+        "tfm": "net10.0",
+        "framework": {
+          "name": "Microsoft.NETCore.App",
+          "version": "10.0.0"
+        },
+        "configProperties": {
+          "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false
+        }
+      }
+    },
+    "helperSha256": "b582e9604b01ccf5458fa36e070f74c09a1d2f732e40a65c4850fc9649a09bbb"
+  },
+  "sources": {
+    "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj": "f3057cab73b03ec077940f41c8b23a30032c563c1989dc680ac7b60764d4fcb5",
+    "_bmad/scripts/epic16_native_helper/Program.cs": "636caf1ce50bb1942addacb5a4ae4c48e073d30d103753ab9e8f0b07f8fa543f",
+    "_bmad/scripts/epic16_native_helper/ProductMetadata.cs": "31bdcaa799feb24f6daabbbf5c1096a70289c4aeb5fa1cddd3b3ca047b47ccbb",
+    "_bmad/scripts/epic16_native_helper/SignatureNames.cs": "baea3b9f2b1b86f38e0cc189688c45d7b338365834bd445057b972a249c1625f",
+    "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9",
+    "_bmad/scripts/epic16_native_helper/README.md": "4fb4ca002b565e0960c9d1c4a066764ce4a11d0795989a8c428046fc3e6a74e4",
+    "_bmad/scripts/epic16_native_helper/EventStore-LICENSE": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2",
+    "_bmad/scripts/epic16_native.py": "08e3c8a0a35bb9f6be3229b3e3f1a833f00412564b49081f3915e3fcc0915a49",
+    "global.json": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+  }
+}

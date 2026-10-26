@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.234" timestamp="2026-10-25T23:14:00.586693+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round7_native_helper_propagates_exact_repository_policy_and_reports_actual_runtime" time="1.855"><failure message="AssertionError: assert False&#10; +  where False = is_file()&#10; +    where is_file = (PosixPath('/tmp/epic16-native-oracle-0viqnekq') / 'global.json').is_file&#10; +      where PosixPath('/tmp/epic16-native-oracle-0viqnekq') = Path('/tmp/epic16-native-oracle-0viqnekq')&#10; +        where '/tmp/epic16-native-oracle-0viqnekq' = &lt;TemporaryDirectory '/tmp/epic16-native-oracle-0viqnekq'&gt;.name">def test_round7_native_helper_propagates_exact_repository_policy_and_reports_actual_runtime():
+        helper = tooling.native_helper
+        workspace, assembly = helper._helper()
+&gt;       assert (Path(workspace.name)/'global.json').is_file()
+E       AssertionError: assert False
+E        +  where False = is_file()
+E        +    where is_file = (PosixPath('/tmp/epic16-native-oracle-0viqnekq') / 'global.json').is_file
+E        +      where PosixPath('/tmp/epic16-native-oracle-0viqnekq') = Path('/tmp/epic16-native-oracle-0viqnekq')
+E        +        where '/tmp/epic16-native-oracle-0viqnekq' = &lt;TemporaryDirectory '/tmp/epic16-native-oracle-0viqnekq'&gt;.name
+
+_bmad/scripts/tests/test_epic16_tooling.py:2444: AssertionError</failure></testcase></testsuite></testsuites>

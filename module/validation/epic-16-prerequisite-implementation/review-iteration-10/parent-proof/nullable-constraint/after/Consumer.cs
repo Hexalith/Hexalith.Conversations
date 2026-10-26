@@ -1,0 +1,1 @@
+using Probe; public class Caller { public IFoo? Invoke(IFoo? value) => new Surface().Existing<IFoo?>(value); }

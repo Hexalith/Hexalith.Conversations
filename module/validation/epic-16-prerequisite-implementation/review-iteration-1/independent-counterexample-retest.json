@@ -1,0 +1,26 @@
+[
+  {
+    "probe": "authorized gapped restart",
+    "result": "rejected: ValueError"
+  },
+  {
+    "probe": "past pending fingerprint",
+    "result": "rejected: ValueError"
+  },
+  {
+    "probe": "unrelated completion fence",
+    "result": "rejected: ValueError"
+  },
+  {
+    "probe": "invalid unordered replay JSON",
+    "result": "rejected: ValueError"
+  },
+  {
+    "probe": "missing manifest stream",
+    "result": "rejected: ValueError"
+  },
+  {
+    "probe": "overflow stream range",
+    "result": "rejected: ValueError"
+  }
+]

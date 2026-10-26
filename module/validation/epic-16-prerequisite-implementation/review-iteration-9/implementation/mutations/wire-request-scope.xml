@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="11.733" timestamp="2026-10-26T01:13:47.957850+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round9_http_success_requires_actual_safe_completed_projection_outcomes[scope]" time="11.202"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}&#10;assert ('PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-552/test_round9_http_success_requi0/fixture')
+fault = 'scope'
+
+    @pytest.mark.parametrize('fault',['failed','retryable','indeterminate','missing','extra','foreign','unsafe-reason','state-content','scope','version','bool-status'])
+    def test_round9_http_success_requires_actual_safe_completed_projection_outcomes(repository,fault):
+        scenario='AC-16.3-04';data=deepcopy(OBSERVATIONS[scenario]);ops=data['wireObservation']['operations'];body=ops[-1]['body'];outcome=body['outcomes'][0]
+        if fault in ('failed','retryable','indeterminate'):outcome['status']={'failed':4,'retryable':2,'indeterminate':3}[fault]
+        elif fault=='missing':body['outcomes']=[]
+        elif fault=='extra':body['outcomes'].append(deepcopy(outcome))
+        elif fault=='foreign':outcome['projectionType']='foreign'
+        elif fault=='unsafe-reason':outcome['reasonCode']='secret-token'
+        elif fault=='state-content':outcome['state']={'text':'private content'}
+        elif fault=='scope':ops[0]['requestScope']['aggregateId']='foreign'
+        elif fault=='version':body['version']=1
+        else:outcome['status']=False
+&gt;       round9_reject(repository,scenario,data)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3486: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('/tmp/pytest-of-administrator/pytest-552/test_round9_http_success_requi0/fixture')
+scenario = 'AC-16.3-04'
+data = {'wireRoute': 'project/v2/reconcile', 'authenticated': True, 'coordinator': 'EventStore', 'pendingBefore': 1, ...}
+
+    def round9_reject(repo,scenario,data):
+        native(repo,scenario,data)
+        result=evaluate(repo,scenario)
+&gt;       assert result['result']=='FAIL' and result['exitCode']==1 and result['blockers'] and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.3', 'scenarioId': 'AC-16.3-04', 'validationScope': 'tooling-fixture', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:3214: AssertionError</failure></testcase></testsuite></testsuites>

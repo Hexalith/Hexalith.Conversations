@@ -1,0 +1,68 @@
+[
+  {
+    "name": "exploratory",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8 or all_fifteen_measured_routes",
+      "--maxfail=5",
+      "--junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/exploratory.xml"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "b862b5e7ba5d5cd11aea077d1817ad7c6781326ddc00e17ec47c4b1d2df80c00",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "junitSha256": "d6411bf3b7061fa5a17c339d7c4d82085d6ae83ad5778bd7f6f2c35e49f1659e"
+  },
+  {
+    "name": "affected",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8 or round7 or all_fifteen_measured_routes",
+      "--maxfail=5",
+      "--junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/affected.xml"
+    ],
+    "exitCode": 1,
+    "stdoutSha256": "2d1a21f893449b42aa85b3d3f0b1c687d2f91c66dfe2abeda4e4a63a961f63da",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "junitSha256": "110635869d96b1efb36f629c9070c810017822a743304f97afeaf2c1c0e22fd3"
+  },
+  {
+    "name": "affected-corrected",
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round8_queue_accepts or round7_rebuild_accepts or domain_source_attribution",
+      "--maxfail=3",
+      "--junitxml=module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/affected-corrected.xml"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "d2ae64aeb630f7603fbe05add42cfca32230f5c51fd7a1a20382efea016fcce8",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "junitSha256": "31fdb27b0b9d159344d04680d5d69527e40ebb6f9dfb03d8cf6317f6fdbc4f0e"
+  }
+]

@@ -1,0 +1,39 @@
+{
+  "verificationSha256": "c123daf026490528ddee20f684cb43f11e149adcf86183ea9ca2592cc9320475",
+  "sourceHashesVerified": 66,
+  "testHashesVerified": 3,
+  "frozenFilesVerified": 72,
+  "artifactHashesVerified": 348,
+  "combinedTests": 1467,
+  "legacyTests": 72,
+  "allFifteenRoutesAndThreeFinalRecordsExecuted": true,
+  "freshCheckoutNativeCaptureTestExecuted": true,
+  "heldRuntimeCommands": 18,
+  "completionGuards": 2,
+  "absentRuntimePaths": 54,
+  "mutationRuns": 38,
+  "mutationFailures": 159,
+  "mutationErrors": 0,
+  "mutationEpochDifferences": [
+    "_bmad/schemas/epic-16-tooling-v1.schema.json",
+    "_bmad/scripts/epic16_native.py",
+    "_bmad/scripts/epic16_trust.py",
+    "_bmad/scripts/tests/test_epic16_tooling.py"
+  ],
+  "disposableCommitMessagesValidated": 30,
+  "userFilesPreserved": [
+    "_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md",
+    "docs/implementation/ext-conv-ai-1-runtime-qualification.md",
+    "tests/tooling/test_ext_conv_ai_1_installed_delivery_packet.py"
+  ],
+  "fullDiffRead": {
+    "path": "/tmp/epic16-review-next-8mbc07ju/complete.diff",
+    "bytes": 18252583,
+    "sha256": "5f3a24d3cde3d0d5da1558cf4a0f2d26070df09925a19a834271cc2efc83179a",
+    "fileDiffs": 1834,
+    "utf8Decodable": true
+  },
+  "runtimeHold": "ACTIVE",
+  "explicitRuntimePublication": "not-applicable",
+  "sourceReview": "All changed implementation sections and tests inspected against preservation baseline; new lifecycle and horizon protocols inspected against AD-6/7; schema checked; retained artifacts independently hashed."
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="4.167" timestamp="2026-10-25T19:13:31.504503+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_runtime_evaluator_calls_direct_dependency_cleanliness_guard" time="3.955"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}&#10;assert 'FAIL' == 'BLOCKED'&#10;  &#10;  - BLOCKED&#10;  + FAIL">qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-237/test_runtime_evaluator_calls_d0/runtime')
+
+    def test_runtime_evaluator_calls_direct_dependency_cleanliness_guard(qualified_runtime):
+        (qualified_runtime/tooling.CANONICALIZER_SOURCE).write_bytes(b'changed canonicalizer')
+&gt;       rejected(runtime_evaluate(qualified_runtime), 'DEPENDENCY_DIRTY', 'BLOCKED')
+
+_bmad/scripts/tests/test_epic16_tooling.py:1043: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'DEPENDENCY_DIRTY', state = 'BLOCKED'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'FAIL' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + FAIL
+
+_bmad/scripts/tests/test_epic16_tooling.py:97: AssertionError</failure></testcase></testsuite></testsuites>

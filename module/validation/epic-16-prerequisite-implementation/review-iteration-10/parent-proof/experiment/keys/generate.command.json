@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "dotnet",
+    "run",
+    "--project",
+    "Keys.csproj",
+    "--no-launch-profile"
+  ],
+  "exitCode": 0
+}

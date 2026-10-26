@@ -1,0 +1,16 @@
+  Determining projects to restore...
+  Restored /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_4/native/external/External.csproj (in 64 ms).
+  Restored /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_4/native/probe/Evidence.csproj (in 105 ms).
+/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_4/native/external/Attribute.cs(1,76): warning CS9113: Parameter 'key' is unread. [/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_4/native/external/External.csproj]
+/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_4/native/external/Attribute.cs(1,87): warning CS9113: Parameter 'value' is unread. [/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_4/native/external/External.csproj]
+  External -> /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_4/native/external/bin/Debug/net10.0/External.dll
+  Evidence -> /tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_4/native/probe/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_4/native/external/Attribute.cs(1,76): warning CS9113: Parameter 'key' is unread. [/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_4/native/external/External.csproj]
+/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_4/native/external/Attribute.cs(1,87): warning CS9113: Parameter 'value' is unread. [/tmp/pytest-of-administrator/pytest-648/test_round12_native_framework_4/native/external/External.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.29

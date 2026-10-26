@@ -1,0 +1,1 @@
+namespace Probe; public class Surface { public External.Value Echo(External.Value value) => value; public External.Value Item { get; set; } public class Nested {} }
